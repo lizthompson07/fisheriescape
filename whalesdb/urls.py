@@ -7,8 +7,6 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
     path('close', views.CloserTemplateView.as_view(), name="close_me"),
 
-    path('img/<str:file_name>', views.save_image, name="save_image"),
-
     path('create/stn', views.CreateStn.as_view(), name="create_stn"),
     path('details/stn/<int:pk>', views.DetailsStn.as_view(), name="details_stn"),
     path('list/stn', views.ListStn.as_view(), name="list_stn"),

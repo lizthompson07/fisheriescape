@@ -3,9 +3,15 @@ from django.urls import reverse_lazy
 from django.utils.translation import activate
 from django.contrib.auth.models import User
 
+from django.core.files.base import ContentFile
+from django.utils.six import BytesIO
+from django.conf import settings
+
+from PIL import Image
+
 from whalesdb import views, models, forms
 
-from django.contrib.auth.models import User
+import os
 
 
 class CommonTest(TestCase):
@@ -399,6 +405,10 @@ class TestCreateStation(CreateTest):
 
 
 class TestCreateMooring(CreateTest):
+
+    img_file_name = None
+    img_file_path = None
+
     data = {
         "mor_name": "MOR_001",
         "mor_max_depth": "10",
@@ -418,6 +428,17 @@ class TestCreateMooring(CreateTest):
 
         self.expected_view = views.CreateMor
         self.expected_form = forms.MorForm
+
+        self.img_file_name = "MooringSetupTest.png"
+        self.img_file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + self.img_file_name
+
+        data = BytesIO()
+        Image.open(self.img_file_path).save(data, "PNG")
+        data.seek(0)
+
+        file = ContentFile(data.read(), self.img_file_name)
+        # add the image to the data array
+        self.data['mor_setup_image'] = self.img_file_path
 
     # Users must be logged in to create new stations
     @tag('create_mor', 'response', 'access')
@@ -445,6 +466,11 @@ class TestCreateMooring(CreateTest):
     @tag('create_mor', 'context')
     def test_create_mor_context_fields(self):
         super().create_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('create_mor', 'redirect')
+    def test_create_mor_successful_url(self):
+        super().successful_url()
 
     # test that given some valid data the view will redirect to the list
     @tag('create_mor', 'redirect')
@@ -497,6 +523,16 @@ class TestDetailsStation(CommonTest):
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(self.test_expected_template)
 
+    # Test that the context contains the proper fields
+    @tag('details_stn', 'context')
+    def test_context_fields_stn(self):
+        activate('fr')
+
+        response = self.client.get(self.test_url)
+
+        super().context_fields(response)
+        self.assertEqual(response.context['object'], self.createStn()['stn_1'])
+
 
 class TestDetailsMooring(CommonTest):
     mooring_dic = None
@@ -507,7 +543,18 @@ class TestDetailsMooring(CommonTest):
 
         self.mooring_dic = {}
 
-        mor_1 = models.MorMooringSetup(mor_name="MOR001", mor_max_depth=100, mor_link_setup_image="https://somelink.com")
+        img_file_name = "MooringSetupTest.png"
+        img_file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + img_file_name
+
+        data = BytesIO()
+        Image.open(img_file_path).save(data, "PNG")
+        data.seek(0)
+
+        file = ContentFile(data.read(), img_file_name)
+
+        mor_1 = models.MorMooringSetup(mor_name="MOR001", mor_max_depth=100,
+                                       mor_link_setup_image="https://somelink.com",
+                                       mor_setup_image=file)
         mor_1.save()
 
         self.mooring_dic['mor_1'] = mor_1
@@ -521,6 +568,12 @@ class TestDetailsMooring(CommonTest):
 
         self.test_url = reverse_lazy('whalesdb:details_mor', args=(mor_dic['mor_1'].pk,))
         self.test_expected_template = 'whalesdb/mormooringsetup_detail.html'
+
+    def tearDown(self) -> None:
+        dict = self.createMor()
+
+        for mor in dict:
+            mor.delete()
 
     # Station Details are visible to all
     @tag('details_mor', 'response', 'access')
@@ -550,3 +603,61 @@ class TestDetailsMooring(CommonTest):
         response = self.client.get(self.test_url)
 
         super().context_fields(response)
+
+        self.assertEqual(response.context["object"], self.createMor()['mor_1'])
+
+
+class TestDetailsProject(CommonTest):
+    project_dic = None
+
+    def createPrj(self):
+        if self.project_dic:
+            return self.project_dic
+
+        self.project_dic = {}
+
+        prj_1 = models.PrjProject(prj_name="Project 1", prj_description="Sample Project",
+                                  prj_url="http://someproject.com")
+        prj_1.save()
+
+        self.project_dic['prj_1'] = prj_1
+
+        return self.project_dic
+
+    def setUp(self):
+        super().setUp()
+
+        stn_dic = self.createPrj()
+
+        self.test_url = reverse_lazy('whalesdb:details_prj', args=(stn_dic['prj_1'].pk,))
+        self.test_expected_template = 'whalesdb/project_details.html'
+
+    # Project Details are visible to all
+    @tag('details_prj', 'response', 'access')
+    def test_details_prj_en(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        self.assertEquals(200, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template)
+
+    # Project Details are visible to all
+    @tag('details_prj', 'response', 'access')
+    def test_details_prj_fr(self):
+        activate('fr')
+
+        response = self.client.get(self.test_url)
+
+        self.assertEquals(200, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template)
+
+    # Test that the context contains the proper fields
+    @tag('details_prj', 'context')
+    def test_context_fields_prj(self):
+        activate('fr')
+
+        response = self.client.get(self.test_url)
+
+        super().context_fields(response)
+        self.assertEqual(response.context['object'], self.createPrj()['prj_1'])

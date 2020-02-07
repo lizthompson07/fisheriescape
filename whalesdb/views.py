@@ -12,29 +12,6 @@ from . import models
 from . import filters
 
 
-def save_image(request):
-    source_file = os.path.join(settings.STATIC_DIR, "docs", "dm_tickets", filename)
-    target_dir = os.path.join(settings.MEDIA_DIR, "tickets", "ticket_{}".format(ticket))
-    target_file = os.path.join(target_dir, filename)
-
-    # create the new folder
-    try:
-        os.mkdir(target_dir)
-    except:
-        print("folder already exists")
-
-    copyfile(source_file, target_file)
-
-    my_new_file = models.File.objects.create(
-        caption="unsigned {} request form".format(type),
-        ticket_id=ticket,
-        date_created=timezone.now(),
-        file="tickets/ticket_{}/{}".format(ticket, filename)
-    )
-
-    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
-
-
 class IndexView(TemplateView):
     template_name = 'whalesdb/index.html'
 
@@ -93,6 +70,7 @@ class CreatePrj(CreateCommon):
     model = models.PrjProject
     form_class = forms.PrjForm
     title = _("Create Project")
+
     template_name = 'whalesdb/_entry_form.html'
 
 
@@ -111,10 +89,6 @@ class CreateMor(CreateCommon):
 
     template_name = 'whalesdb/_entry_form.html'
 
-    def form_valid(self, form):
-        self.object = form.save()
-
-        return HttpResponseRedirect(self.success_url)
 
 class DetailsCommon(DetailView):
     title = None
@@ -130,10 +104,18 @@ class DetailsCommon(DetailView):
 
 class DetailsPrj(DetailsCommon):
     model = models.PrjProject
+    title = _("Project Details")
 
 
 class DetailsStn(DetailsCommon):
     model = models.StnStation
+    title = _("Station Details")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+
+        context["fields"] = ['prj_name', 'prj_description', 'prj_url']
+        return context
 
 
 class DetailsMor(DetailsCommon):

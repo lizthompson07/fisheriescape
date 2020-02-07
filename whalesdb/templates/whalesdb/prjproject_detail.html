@@ -1,0 +1,25 @@
+{% extends "whalesdb/whale_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block title %}
+    {% trans title %}
+{% endblock title %}
+
+{% block body %}
+<div class="container mt-1" >
+<a class="btn btn-primary" href="{% url 'whalesdb:list_prj' %}">{% trans 'Back to list' %}</a>
+
+    <h2>{{ object.prj_name }}</h2>
+    <div class="row" >
+        <div class="col">
+            {% for field in fields %}
+            <div class="border"><span><h5>{% get_verbose_label object field %}:</h5></span><span></span></div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
