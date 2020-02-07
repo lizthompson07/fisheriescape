@@ -1,14 +1,10 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
-#   * Remove `managed = True` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.dispatch import receiver
 
 from shared_models import models as shared_models
+
+import os
 
 
 class DepDeployment(models.Model):
@@ -203,6 +199,36 @@ class MorMooringSetup(models.Model):
 
     def __str__(self):
         return "{}".format(self.mor_name)
+
+
+@receiver(models.signals.post_delete, sender=MorMooringSetup)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.mor_setup_image:
+        if os.path.isfile(instance.mor_setup_image.path):
+            os.remove(instance.mor_setup_image.path)
+
+
+@receiver(models.signals.pre_save, sender=MorMooringSetup)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+    try:
+        old_file = MorMooringSetup.objects.get(pk=instance.pk).mor_setup_image
+    except MorMooringSetup.DoesNotExist:
+        return False
+    new_file = instance.mor_setup_image
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
 
 
 class PrjProject(models.Model):
