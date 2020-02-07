@@ -61,6 +61,3 @@ class URLTest(TestCase):
 
     def test_url_details_mor_view(self):
         self.basic_en_url_test('whalesdb:details_mor', 'whalesdb/details/mor/1', views.DetailsMor, {1})
-
-    def test_url_save_image_file(self):
-        self.basic_en_url_test('whalesdb:save_image', 'whalesdb/img/file.png', views.save_image, {'file.png'})
