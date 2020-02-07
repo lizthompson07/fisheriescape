@@ -195,7 +195,7 @@ class MorMooringSetup(models.Model):
     mor_link_setup_image = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Setup Image Link"))
 
     # Note: I added the setup image field to try out putting the mooring setup image directly in the database
-    mor_setup_image = models.ImageField(upload_to="mooring_setup/", blank=True, null=True, verbose_name=_("Setup Image"))
+    mor_setup_image = models.ImageField(upload_to=mooring_directory_path, blank=True, null=True, verbose_name=_("Setup Image"))
 
     mor_additional_equipment = models.TextField(blank=True, null=True, verbose_name=_("Equipment"))
     mor_general_moor_description = models.TextField(blank=True, null=True, verbose_name=_("Description"))
