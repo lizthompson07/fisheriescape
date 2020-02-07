@@ -5,12 +5,34 @@ from django.urls import reverse, reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
-import json
-import datetime
+import os
 
 from . import forms
 from . import models
 from . import filters
+
+
+def save_image(request):
+    source_file = os.path.join(settings.STATIC_DIR, "docs", "dm_tickets", filename)
+    target_dir = os.path.join(settings.MEDIA_DIR, "tickets", "ticket_{}".format(ticket))
+    target_file = os.path.join(target_dir, filename)
+
+    # create the new folder
+    try:
+        os.mkdir(target_dir)
+    except:
+        print("folder already exists")
+
+    copyfile(source_file, target_file)
+
+    my_new_file = models.File.objects.create(
+        caption="unsigned {} request form".format(type),
+        ticket_id=ticket,
+        date_created=timezone.now(),
+        file="tickets/ticket_{}/{}".format(ticket, filename)
+    )
+
+    return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
 
 
 class IndexView(TemplateView):
