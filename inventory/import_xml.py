@@ -63,7 +63,8 @@ def import_xml():
     #     section_id = 60
     with open(os.path.join(target_dir, "MetadataCardosoD_20200205a.xml"), 'r', encoding="utf8") as xml_file:
         section_id = 61
-
+    # with open(os.path.join(target_dir, "MetadataKraskaP_20200206a.xml"), 'r', encoding="utf8") as xml_file:
+    #     section_id = 62
         if section_id == 51:
             uuid_list = [
                 "3659734a-3b89-4f9a-8558-f5dde61a7350",  # 2
@@ -148,7 +149,6 @@ def import_xml():
         time_period_list = []
         org_list = []
         count = 0
-
         for record in recordset:
             # identifying fields; these should never change, no matter how many times we do the import
             uuid = record.find("record_uuid").text
