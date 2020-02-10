@@ -1,17 +1,28 @@
-from django.urls import path
+
 from . import views
+
+from django.contrib import admin
+from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+
+# from .views import profile_upload
 
 urlpatterns = [
     path('', views.index, name="index"),
 
-    # SPECIES #
-    ###########
+    # path('admin/', admin.site.urls),
+    # path('upload-csv/', profile_upload, name="profile_upload")
+#     # SPECIES #
+#     ###########
     path('species_list/', views.SpeciesListView.as_view(), name="species_list"),
-    # path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
-    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail")
-    # path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
-    # path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
+#     # path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
+    path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
+#     # path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
+#     # path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
+    path('item_list/', views.ItemsListView.as_view(), name="item_list")
     #
+
     # # PREDATORS #
     # #############
     # path('predators/', views.PredatorFilterView.as_view(), name="predator_filter"),
