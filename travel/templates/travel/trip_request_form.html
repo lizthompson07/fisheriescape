@@ -3,8 +3,15 @@
 {% load bootstrap4 %}
 {% load i18n %}
 {% load custom_filters %}
-{% block header %}
+
+{% block subtitle %}
+    {% if object %}
+        - {% trans "Edit request" %}
+    {% else %}
+        - {% trans "New request" %}
+    {% endif %}
 {% endblock %}
+
 {% block content %}
 
     <style>

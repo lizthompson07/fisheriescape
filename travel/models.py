@@ -16,6 +16,7 @@ from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz, currency
 from lib.functions.custom_functions import fiscal_year, listrify
+from . import utils
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -171,6 +172,10 @@ class Conference(models.Model):
     notes = models.TextField(blank=True, null=True, verbose_name=_("general notes"))
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     blank=True, null=True, related_name="trips")
+    is_verified = models.BooleanField(default=False)
+    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by")
+    cost_warning_sent = models.DateTimeField(blank=True, null=True)
+
 
     def __str__(self):
         # check to see if a french value is given
@@ -181,6 +186,28 @@ class Conference(models.Model):
             my_str = "{}".format(self.name)
         return "{}, {} ({} {} {})".format(my_str, self.location, self.start_date.strftime("%d-%b-%Y"), _("to"),
                                           self.end_date.strftime("%d-%b-%Y"))
+
+    @property
+    def html_block(self):
+        my_str = "<b>English name:</b> {}<br>" \
+                 "<b>French name:</b> {}<br>" \
+                 "<b>Location:</b> {}<br>" \
+                 "<b>Start date (yyyy-mm-dd):</b> {}<br>" \
+                 "<b>End date (yyyy-mm-dd):</b> {}<br>" \
+                 "<b>Meeting URL:</b> {}<br>" \
+                 "<b>Verified:</b> {}<br>" \
+                 "<b>Verified By:</b> {}<br>" \
+                 "<br><a href='{}' target='_blank' class='btn btn-primary btn-sm'>Go!</a>".format(
+            self.name, self.nom, self.location,
+            self.start_date.strftime("%Y-%m-%d"),
+            self.end_date.strftime("%Y-%m-%d"),
+            "<a href='(click here)' target='_blank'>{}</a>".format(self.meeting_url) if self.meeting_url else "n/a",
+            "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
+            self.verified_by if self.verified_by else "----",
+            reverse("travel:trip_detail", kwargs={"pk": self.id}),
+        )
+
+        return mark_safe(my_str)
 
     class Meta:
         ordering = ['start_date', ]
@@ -193,7 +220,7 @@ class Conference(models.Model):
         # create a list of all TMS users going
         legit_traveller_list = self.traveller_list
         travellers = []
-        for trip_request in self.trip_requests.filter(~Q(status_id=10)):
+        for trip_request in self.trip_requests.filter(~Q(status_id__in=[10, 22])):
             # lets look at the list of BTA travels and add them all
             for bta_user in trip_request.bta_attendees.all():
                 # if this user for some reason turns up to be a real traveller on this trip
@@ -210,20 +237,22 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip_request.user for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False) if
+        my_list = [trip_request.user for trip_request in
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False) if
                    trip_request.user]
         # now those without names...
         my_list.extend(
             ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-             self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False) if not trip_request.user])
+             self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False) if not trip_request.user])
 
         # group travellers
         my_list.extend(
-            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)) if
+            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))
+             if
              trip_request.user])
         my_list.extend(
             ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)) if not trip_request.user])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22])) if not trip_request.user])
 
         return set(my_list)
 
@@ -260,11 +289,11 @@ class Conference(models.Model):
 
         # start simple... non-group
         my_list = [trip_request.total_request_cost for trip_request in
-                   self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_request_cost for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10))])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))])
 
         return sum(my_list)
 
@@ -275,11 +304,11 @@ class Conference(models.Model):
 
         # start simple... non-group
         my_list = [trip_request.total_request_cost for trip_request in
-                   self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False, is_research_scientist=False)]
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False, is_research_scientist=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_request_cost for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10)).filter(is_research_scientist=False)])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22])).filter(is_research_scientist=False)])
 
         return sum(my_list)
 
@@ -304,10 +333,11 @@ class Conference(models.Model):
         # from travel.models import Event
         # must factor in group and non-group...
 
-        my_id_list = [trip_request.id for trip_request in self.trip_requests.filter(~Q(status_id=10)).filter(is_group_request=False)]
+        my_id_list = [trip_request.id for trip_request in
+                      self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
         # group requests
         my_id_list.extend(
-            [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id=10))])
+            [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))])
         return TripRequest.objects.filter(id__in=my_id_list)
 
     @property
@@ -443,6 +473,11 @@ class TripRequest(models.Model):
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trip_requests",
                                limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
     parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
+    admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
+
+    @property
+    def admin_notes_html(self):
+        return textile.textile(self.admin_notes)
 
     @property
     def request_title(self):
@@ -469,21 +504,8 @@ class TripRequest(models.Model):
     def get_absolute_url(self):
         return reverse('travel:request_detail', kwargs={'pk': self.id})
 
-    @property
-    def meals(self):
-        return nz(self.breakfasts, 0) + nz(self.lunches, 0) + nz(self.suppers, 0)
-
     def save(self, *args, **kwargs):
-        # total the meals and incidentals
-        self.breakfasts = nz(self.no_breakfasts, 0) * nz(self.breakfasts_rate, 0)
-        self.lunches = nz(self.no_lunches, 0) * nz(self.lunches_rate, 0)
-        self.suppers = nz(self.no_suppers, 0) * nz(self.suppers_rate, 0)
-        self.incidentals = nz(self.no_incidentals, 0) * nz(self.incidentals_rate, 0)
 
-        # total cost
-        self.total_cost = nz(self.air, 0) + nz(self.rail, 0) + nz(self.rental_motor_vehicle, 0) + nz(self.personal_motor_vehicle, 0) + nz(
-            self.taxi, 0) + nz(self.other_transport, 0) + nz(self.accommodations, 0) + nz(self.incidentals, 0) + nz(
-            self.other, 0) + nz(self.registration, 0) + nz(self.breakfasts, 0) + nz(self.lunches, 0) + nz(self.suppers, 0)
         if self.start_date:
             self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
 
@@ -494,6 +516,14 @@ class TripRequest(models.Model):
         if self.trip and not self.end_date:
             # print("adding end date from trip")
             self.end_date = self.trip.end_date
+
+        # If this is a group request, the parent record should not have any costs
+        if self.is_group_request:
+            self.trip_request_costs.all().delete()
+
+        # If this is a child request, it should not have any assigned reviewers
+        if self.parent_request:
+            self.reviewers.all().delete()
 
         # ensure the process order makes sense
         count = 1
@@ -516,33 +546,33 @@ class TripRequest(models.Model):
 
     @property
     def cost_breakdown(self):
-        cost_list = [
-            "air",
-            "rail",
-            "rental_motor_vehicle",
-            "personal_motor_vehicle",
-            "taxi",
-            "other_transport",
-            "accommodations",
-            "breakfasts",
-            "lunches",
-            "suppers",
-            "incidentals",
-            "registration",
-            "other",
-        ]
         my_str = ""
-        for cost in cost_list:
-            if getattr(self, cost):
-                if cost in ("breakfasts", "lunches", "suppers", "incidentals"):
-                    my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
-                        self._meta.get_field(cost).verbose_name,
-                        nz(getattr(self, cost), 0),
-                        nz(getattr(self, "no_" + cost), 0),
-                        nz(getattr(self, cost + "_rate"), 0),
-                    )
-                else:
-                    my_str += "{}: ${:,.2f}; ".format(self._meta.get_field(cost).verbose_name, getattr(self, cost))
+        for tr_cost in self.trip_request_costs.all():
+
+            if tr_cost.rate_cad:
+                my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
+                    tr_cost.cost,
+                    nz(tr_cost.rate_cad, 0),
+                    nz(tr_cost.number_of_days, 0),
+                    nz(tr_cost.amount_cad, 0),
+                )
+            else:
+                my_str += "{}: ${:,.2f}; ".format(tr_cost.cost, tr_cost.amount_cad)
+        return my_str
+
+    @property
+    def cost_breakdown_html(self):
+        my_str = ""
+        for tr_cost in self.trip_request_costs.all():
+            if tr_cost.rate_cad:
+                my_str += "<b>{}</b>: ${:,.2f} ({} x {:,.2f})<br>".format(
+                    tr_cost.cost,
+                    nz(tr_cost.rate_cad, 0),
+                    nz(tr_cost.number_of_days, 0),
+                    nz(tr_cost.amount_cad, 0),
+                )
+            else:
+                my_str += "<b>{}</b>: ${:,.2f}<br> ".format(tr_cost.cost, tr_cost.amount_cad)
         return my_str
 
     @property
@@ -594,10 +624,18 @@ class TripRequest(models.Model):
         return mark_safe(my_str)
 
     @property
+    def total_cost(self):
+        """ this is the total cost for the request. Does not include any children"""
+        object_list = self.trip_request_costs.all()
+        return nz(object_list.values("amount_cad").order_by("amount_cad").aggregate(dsum=Sum("amount_cad"))['dsum'], 0)
+
+    @property
     def total_request_cost(self):
+        """ this is the total cost for the request; including any children"""
         if self.is_group_request:
             object_list = self.children_requests.all()
-            return object_list.values("total_cost").order_by("total_cost").aggregate(dsum=Sum("total_cost"))['dsum']
+            return sum([item.total_cost for item in object_list])
+
         else:
             return self.total_cost
 
@@ -676,14 +714,15 @@ class TripRequestCost(models.Model):
     cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
     rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)
     number_of_days = models.FloatField(verbose_name=_("number of days"), blank=True, null=True)
-    amount_cad = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
+    amount_cad = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
 
     class Meta:
         unique_together = (("trip_request", "cost"),)
 
     def save(self, *args, **kwargs):
-        if not self.amount_cad or self.amount_cad == 0:
-            self.amount_cad = nz(self.rate_cad, 0) * nz(self.number_of_days, 0)
+        # if a user is providing a rate and number of days, we use this to calc the total amount.
+        if (self.rate_cad and self.rate_cad != 0) and (self.number_of_days and self.number_of_days != 0):
+            self.amount_cad = self.rate_cad * self.number_of_days
 
         super().save(*args, **kwargs)
 

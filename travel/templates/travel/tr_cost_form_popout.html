@@ -98,9 +98,9 @@
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
+            {#$("#by-amount").click();#}
+            {#$("#id_cost").select();#}
             refreshForm();
-            $("#by_amount").click();
-            $("#id_cost").select();
 
         });
 
@@ -109,6 +109,12 @@
             var hasRates = false;
             var hasDays = false;
             var hasAmount = false;
+
+            // start out simple. all fields required, nothing showing.
+            $(".by-amount").addClass("gone");
+            $(".by-rate").addClass("gone");
+            $("input").prop("required", true);
+
 
             if ($rates.val() != null && Number($rates.val()) != 0) {
                 hasRates = true;
@@ -119,21 +125,11 @@
             if ($amountCAD.val() != null && Number($amountCAD.val()) != 0) {
                 hasAmount = true;
             }
-            if (hasDays || hasRates || hasAmount) {
-                $(".by-amount").removeClass("gone");
-                $(".by-rate").removeClass("gone");
-                $("input").prop("required", false);
 
-                // now we have to drill down...
-                if (hasAmount) {
-                    $(".by-rate").addClass("gone");
-                } else {
-                    $(".by-amount").addClass("gone");
-                }
+            if (hasRates) {
+                $("#by-rate").click();
             } else {
-                $(".by-amount").addClass("gone");
-                $(".by-rate").addClass("gone");
-                $("input").prop("required", true);
+                $("#by-amount").click();
             }
         }
 
@@ -155,16 +151,26 @@
                 // it will now be ON
                 var myID = $(this).attr("id");
                 if (myID == "by-rate") {
+                    console.log(123)
                     $(".by-amount").addClass("gone");
-                    $(".by-rate").removeClass("gone");
                     $(".by-amount").prop("required", false);
+                    $(".by-amount").prop("disabled", true);
+
+                    $(".by-rate").removeClass("gone");
                     $(".by-rate").prop("required", true);
+                    $(".by-rate").prop("disabled", false);
+
                     $("#id_rate_cad").select();
+
                 } else {
                     $(".by-rate").addClass("gone");
-                    $(".by-amount").removeClass("gone");
                     $(".by-rate").prop("required", false);
+                    $(".by-rate").prop("disabled", true);
+
+                    $(".by-amount").removeClass("gone");
                     $(".by-amount").prop("required", true);
+                    $(".by-amount").prop("disabled", false);
+
                     $("#id_amount_cad").select();
                 }
             }
