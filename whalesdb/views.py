@@ -92,6 +92,7 @@ class CreateMor(CreateCommon):
 
 class DetailsCommon(DetailView):
     title = None
+    template_name = "whalesdb/whales_detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -99,28 +100,31 @@ class DetailsCommon(DetailView):
         if self.title:
             context['title'] = self.title
 
+        if self.fields:
+            context['fields'] = self.fields
+
         return context
 
 
 class DetailsPrj(DetailsCommon):
     model = models.PrjProject
     title = _("Project Details")
+    fields = ['prj_name', 'prj_description', 'prj_url']
 
 
 class DetailsStn(DetailsCommon):
     model = models.StnStation
     title = _("Station Details")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data()
-
-        context["fields"] = ['prj_name', 'prj_description', 'prj_url']
-        return context
+    fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
+              'stn_planned_depth', 'stn_notes']
 
 
 class DetailsMor(DetailsCommon):
     model = models.MorMooringSetup
     title = _("Mooring Setup Details")
+    template_name = "whalesdb/mormooringsetup_detail.html"
+    fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image', 'mor_additional_equipment',
+              'mor_general_moor_description', 'more_notes']
 
 
 class ListCommon(FilterView):
