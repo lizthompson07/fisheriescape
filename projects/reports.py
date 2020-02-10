@@ -76,10 +76,10 @@ def generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, secti
     }
 
     worksheet1 = workbook.add_worksheet(name="Submitted Projects")
-    write_sara_sheet(worksheet1, header_format, header, project_list.filter(approved=False), funding_src)
+    write_funding_sheet(worksheet1, header_format, header, project_list.filter(approved=False), funding_src)
 
     worksheet2 = workbook.add_worksheet(name="Approved Projects")
-    write_sara_sheet(worksheet2, header_format, header, project_list.filter(approved=True), funding_src)
+    write_funding_sheet(worksheet2, header_format, header, project_list.filter(approved=True), funding_src)
 
     workbook.close()
 
@@ -87,7 +87,7 @@ def generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, secti
 
 
 # used to generate a common sheet format
-def write_sara_sheet(worksheet, header_format, header, projects, funding):
+def write_funding_sheet(worksheet, header_format, header, projects, funding):
     keys = [k for k in header.keys()]
     worksheet.write_row(0, 0, keys, header_format)
 
@@ -97,9 +97,9 @@ def write_sara_sheet(worksheet, header_format, header, projects, funding):
     row = 1
     for project in projects:
 
-        om_cost = project.om_costs.all().aggregate(Sum("budget_requested"))
+        om_cost = project.om_costs.filter(funding_source=funding).aggregate(Sum("budget_requested"))
 
-        staff_list = project.staff_members.filter(funding_source=funding)
+        staff_list = project.staff_members.all()
 
         staff_names = listrify([(staff.user if staff.user else staff.name) for staff in staff_list])
         staff_cost = staff_list.filter(funding_source=funding).aggregate(Sum('cost'))
