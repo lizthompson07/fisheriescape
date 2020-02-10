@@ -115,6 +115,7 @@ class DetailsPrj(DetailsCommon):
 class DetailsStn(DetailsCommon):
     model = models.StnStation
     title = _("Station Details")
+    template_name = 'whalesdb/stnstation_detail.html'
     fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
               'stn_planned_depth', 'stn_notes']
 
