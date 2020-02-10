@@ -1,1 +1,108 @@
-<h1>Hello CSAS World!</h1>
+{% extends "csas/csas_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block header %}
+    <style>
+        body {
+            background-image: url("{% static 'img/matt-hardy-562566-unsplash_lite.jpg' %}");
+            background-size: cover;
+        }
+
+        .card-title {
+        {#font-weight: bold;#}
+        }
+
+        .card {
+            cursor: pointer;
+        }
+
+        .shrink-me {
+            transform: scale(.8);
+        }
+    </style>
+{% endblock %}
+
+{% block tab_title %} {% trans 'CSAS Home' %} {% endblock tab_title %}
+
+{% block body %}
+<br><br>
+<div class=" text-center">
+    <h1 class="text-center montserrat" style="font-size: 4.5em">
+        {% trans 'Canadian Science Advisory Secretariat' %}
+    </h1>
+</div>
+
+<!-- building ------------------------------------------------------------->
+<div class="container">
+    {% for sec in section %}
+    <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
+        <div class="text-center roboto">
+            <h2>
+                {% trans sec.title %}
+            </h2>
+        </div>
+        <div class="row">
+
+            {% for dep_obj in sec.forms %}
+
+            {% if dep_obj.type == "codelist" %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url 'whalesdb:code_list' dep_obj.url %}" >
+            {% elif dep_obj.obj_name %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url dep_obj.url dep_obj.obj_name %}" >
+            {% else %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url dep_obj.url %}" >
+            {% endif %}
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        {% trans dep_obj.title %}
+                    </h5>
+                    <img src="{% static dep_obj.icon %}" class="card-img-top" />
+                </div>
+            </div>
+            {% endfor %}
+       </div>
+        {% if sec.code %}
+        <div class="text-center roboto">
+            <h2>
+                {% trans sec.title|add:" Code List" %}
+            </h2>
+        </div>
+        <div class="row">
+
+            {% for dep_obj in sec.code %}
+
+            {% if dep_obj.type == "codelist" %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url 'whalesdb:code_list' dep_obj.url %}" >
+            {% else %}
+            <div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 href="{% url dep_obj.url %}" >
+            {% endif %}
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        {% trans dep_obj.title %}
+                    </h5>
+                    <img src="{% static dep_obj.icon %}" class="card-img-top" />
+                </div>
+            </div>
+            {% endfor %}
+       </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- end building ------------------------------------------------------->
+
+{% endblock body %}
