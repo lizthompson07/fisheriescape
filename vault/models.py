@@ -194,7 +194,7 @@ class Observation(models.Model):
     latitude = models.FloatField(null=True, blank=True, verbose_name=_(""))
     observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""), null=True, blank=True)
     metadata = models.ManyToManyField(MetadataField, through="ObservationMetadatum")
-
+    oppurtin = models.BooleanField(default=False)
 
 class ObservationMetadatum(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_metadata", verbose_name=_(""))
