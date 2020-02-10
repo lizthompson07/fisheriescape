@@ -31,7 +31,13 @@ class CommonTest(TestCase):
         response = self.client.get(self.test_url if not test_url else test_url)
 
         self.assertEquals(expected_code, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template if not expected_template else expected_template)
+        # if it's a 302 redirect
+        template = self.test_expected_template if not expected_template else expected_template
+        if not expected_code == 302 and expected_template is not None:
+            self.assertTemplateUsed(response, template)
+        elif expected_code == 302:
+            self.assertEqual(expected_code, response.status_code)
+            self.assertEqual("{}{}".format(self.login_url_base, self.test_url), response.url)
 
 
 class TestIndexView(CommonTest):
@@ -289,7 +295,7 @@ class TestCreateProject(CreateTest):
     # Logged in user should get to the _entry_form.html template
     @tag('create_prj', 'response', 'access')
     def test_prj_create_en(self):
-        super().assert_logged_in_not_access()
+        super().assert_logged_in_has_access()
 
     # Test that projects is using the project form
     @tag('create_prj', 'form')
@@ -345,7 +351,7 @@ class TestCreateStation(CreateTest):
     # Logged in user should get to the _entry_form.html template
     @tag('create_stn', 'response', 'access')
     def test_stn_create_en(self):
-        super().assert_logged_in_not_access()
+        super().assert_logged_in_has_access()
 
     # Test that using the project form
     @tag('create_stn', 'form')
@@ -414,7 +420,7 @@ class TestCreateMooring(CreateTest):
     # Logged in user should get to the _entry_form.html template
     @tag('create_mor', 'response', 'access')
     def test_mor_create_en(self):
-        super().assert_logged_in_not_access()
+        super().assert_logged_in_has_access()
 
     # Test is using the project form
     @tag('create_mor', 'form')
@@ -488,12 +494,12 @@ class TestDetailsStation(CommonDetails):
     # Station Details are visible to all
     @tag('details_stn', 'response', 'access')
     def test_details_stn_en(self):
-        super().assert_view()
+        super().assert_view(expected_template='whalesdb/stnstation_detail.html')
 
     # Station Details are visible to all
     @tag('details_stn', 'response', 'access')
     def test_details_stn_fr(self):
-        super().assert_view(lang='fr')
+        super().assert_view(lang='fr', expected_template='whalesdb/stnstation_detail.html')
 
     # Test that the context contains the proper fields
     @tag('details_stn', 'context')
@@ -587,7 +593,7 @@ class TestDetailsProject(CommonDetails):
         stn_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_prj', args=(stn_dic['prj_1'].pk,))
-        self.test_expected_template = 'whalesdb/project_details.html'
+        self.test_expected_template = 'whalesdb/whales_detail.html'
 
     # Project Details are visible to all
     @tag('details_prj', 'response', 'access')
