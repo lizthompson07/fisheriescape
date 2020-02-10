@@ -2,11 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1e582c4a-1fc1-4496-9fe8-de3d547c5b33" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/projects/templates/projects/pdf_base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/templatetags/custom_filters.py" beforeDir="false" afterPath="$PROJECT_DIR$/lib/templatetags/custom_filters.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projects/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/projects/forms.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/projects/reports.py" beforeDir="false" afterPath="$PROJECT_DIR$/projects/reports.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/projects/templates/projects/report_pdf_sara_funding.html" beforeDir="false" afterPath="$PROJECT_DIR$/projects/templates/projects/report_pdf_sara_funding.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projects/templates/projects/report_pdf_sara_funding.html" beforeDir="false" afterPath="$PROJECT_DIR$/projects/templates/projects/report_pdf_funding.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projects/templates/projects/report_search.html" beforeDir="false" afterPath="$PROJECT_DIR$/projects/templates/projects/report_search.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/projects/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/projects/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/projects/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/projects/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,7 +52,7 @@
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Test Whales - All">
+  <component name="RunManager" selected="Python.Runserver">
     <configuration name="DM Apps - Views : function exceptions" type="PythonConfigurationType" factoryName="Python">
       <module name="dm_apps" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -94,6 +95,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="Runserver" type="PythonConfigurationType" factoryName="Python">
+      <module name="dm_apps" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/manage.py" />
+      <option name="PARAMETERS" value="runserver" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Test Whales - All" type="PythonConfigurationType" factoryName="Python" folderName="Test - Whale">
       <module name="dm_apps" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -117,6 +139,7 @@
     </configuration>
     <list>
       <item itemvalue="Python.Test Whales - All" />
+      <item itemvalue="Python.Runserver" />
       <item itemvalue="Python.DM Apps - Views : function exceptions" />
       <item itemvalue="Python.DM Apps - Views : function" />
     </list>
@@ -151,10 +174,11 @@
       <screen x="0" y="27" width="1853" height="1053" />
     </state>
     <state x="904" y="115" width="800" height="677" key="#Custom_Plugin_Repositories/0.27.1853.1053@0.27.1853.1053" timestamp="1575637639194" />
-    <state x="488" y="127" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1579903301868">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state x="2346" y="132" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1581344628694">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state x="488" y="127" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.27.1853.1053@0.27.1853.1053" timestamp="1579903301868" />
+    <state x="2346" y="132" key="#com.intellij.execution.impl.EditConfigurationsDialog/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581344628694" />
     <state x="636" y="358" width="559" height="390" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1579902229431">
       <screen x="0" y="27" width="1853" height="1053" />
     </state>
@@ -188,38 +212,46 @@
       <screen x="0" y="27" width="1853" height="1053" />
     </state>
     <state width="1830" height="344" key="GridCell.Tab.-1.right/0.27.1853.1053@0.27.1853.1053" timestamp="1576870164153" />
-    <state width="1830" height="278" key="GridCell.Tab.0.bottom" timestamp="1580156827007">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state width="1659" height="352" key="GridCell.Tab.0.bottom" timestamp="1581348205373">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state width="1830" height="278" key="GridCell.Tab.0.bottom/0.27.1853.1053@0.27.1853.1053" timestamp="1580156827007" />
-    <state width="1830" height="278" key="GridCell.Tab.0.center" timestamp="1580156827007">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state width="1659" height="352" key="GridCell.Tab.0.bottom/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581348205373" />
+    <state width="1659" height="352" key="GridCell.Tab.0.center" timestamp="1581348205373">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state width="1830" height="278" key="GridCell.Tab.0.center/0.27.1853.1053@0.27.1853.1053" timestamp="1580156827007" />
-    <state width="1830" height="278" key="GridCell.Tab.0.left" timestamp="1580156827007">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state width="1659" height="352" key="GridCell.Tab.0.center/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581348205373" />
+    <state width="1659" height="352" key="GridCell.Tab.0.left" timestamp="1581348205373">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state width="1830" height="278" key="GridCell.Tab.0.left/0.27.1853.1053@0.27.1853.1053" timestamp="1580156827007" />
-    <state width="1830" height="278" key="GridCell.Tab.0.right" timestamp="1580156827007">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state width="1659" height="352" key="GridCell.Tab.0.left/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581348205373" />
+    <state width="1659" height="352" key="GridCell.Tab.0.right" timestamp="1581348205373">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state width="1830" height="278" key="GridCell.Tab.0.right/0.27.1853.1053@0.27.1853.1053" timestamp="1580156827007" />
-    <state width="1830" height="344" key="GridCell.Tab.1.bottom" timestamp="1576870155769">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state width="1659" height="352" key="GridCell.Tab.0.right/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581348205373" />
+    <state width="1659" height="352" key="GridCell.Tab.1.bottom" timestamp="1581348205252">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state width="1830" height="344" key="GridCell.Tab.1.bottom/0.27.1853.1053@0.27.1853.1053" timestamp="1576870155769" />
-    <state width="1830" height="344" key="GridCell.Tab.1.center" timestamp="1576870155768">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state width="1659" height="352" key="GridCell.Tab.1.bottom/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581348205252" />
+    <state width="1659" height="352" key="GridCell.Tab.1.center" timestamp="1581348205251">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state width="1830" height="344" key="GridCell.Tab.1.center/0.27.1853.1053@0.27.1853.1053" timestamp="1576870155768" />
-    <state width="1830" height="344" key="GridCell.Tab.1.left" timestamp="1576870155766">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state width="1659" height="352" key="GridCell.Tab.1.center/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581348205251" />
+    <state width="1659" height="352" key="GridCell.Tab.1.left" timestamp="1581348205251">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state width="1830" height="344" key="GridCell.Tab.1.left/0.27.1853.1053@0.27.1853.1053" timestamp="1576870155766" />
-    <state width="1830" height="344" key="GridCell.Tab.1.right" timestamp="1576870155768">
-      <screen x="0" y="27" width="1853" height="1053" />
+    <state width="1659" height="352" key="GridCell.Tab.1.left/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581348205251" />
+    <state width="1659" height="352" key="GridCell.Tab.1.right" timestamp="1581348205251">
+      <screen x="1920" y="32" width="1618" height="1050" />
     </state>
     <state width="1830" height="344" key="GridCell.Tab.1.right/0.27.1853.1053@0.27.1853.1053" timestamp="1576870155768" />
+    <state width="1659" height="352" key="GridCell.Tab.1.right/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581348205251" />
     <state x="2544" y="94" key="SettingsEditor" timestamp="1580821557038">
       <screen x="1920" y="32" width="1618" height="1050" />
     </state>
@@ -237,15 +269,13 @@
       <screen x="0" y="27" width="1853" height="1053" />
     </state>
     <state x="476" y="291" width="890" height="522" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/0.27.1853.1053@0.27.1853.1053" timestamp="1576870929850" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/projects/reports.py</url>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <state x="2457" y="289" width="606" height="536" key="find.popup" timestamp="1581347648804">
+      <screen x="1920" y="32" width="1618" height="1050" />
+    </state>
+    <state x="2457" y="289" width="606" height="536" key="find.popup/1920.32.1618.1050/0.0.1858.1080@1920.32.1618.1050" timestamp="1581347648804" />
+    <state x="592" y="235" width="672" height="678" key="search.everywhere.popup" timestamp="1581348644649">
+      <screen x="0" y="0" width="1858" height="1080" />
+    </state>
+    <state x="592" y="235" width="672" height="678" key="search.everywhere.popup/1920.32.1618.1050/0.0.1858.1080@0.0.1858.1080" timestamp="1581348644649" />
   </component>
 </project>
