@@ -17,7 +17,7 @@ import os
 from shared_models import models as shared_models
 
 
-def generate_sara_funding_spreadsheet(fiscal_year, funding, regions, divisions, sections):
+def generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, sections):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
     target_file = "temp_export.xlsx"
@@ -39,23 +39,24 @@ def generate_sara_funding_spreadsheet(fiscal_year, funding, regions, divisions, 
     number_format.set_num_format(8)
 
     # need to assemble a section list
-    ## first look at the sections arg; if not null, we don't need anything else
+    #  first look at the sections arg; if not null, we don't need anything else
     if sections != "None":
         section_list = shared_models.Section.objects.filter(id__in=sections.split(","))
-    ## next look at the divisions arg; if not null, we don't need anything else
+    #  next look at the divisions arg; if not null, we don't need anything else
     elif divisions != "None":
         section_list = shared_models.Section.objects.filter(division_id__in=divisions.split(","))
-    ## next look at the divisions arg; if not null, we don't need anything else
+    #  next look at the divisions arg; if not null, we don't need anything else
     elif regions != "None":
         section_list = shared_models.Section.objects.filter(division__branch__region_id__in=regions.split(","))
     else:
         section_list = shared_models.Section.objects.all()
 
     # We're only using B-Base funding
-    funding_type = models.FundingSourceType.objects.get(pk=funding)
+    # funding_type = models.FundingSourceType.objects.get(pk=funding)
+    # funding_src = models.FundingSource.objects.filter(name="SARA", funding_source_type=funding_type)
+    funding_src = models.FundingSource.objects.get(pk=funding)
 
-    funding_src = models.FundingSource.objects.filter(name="SARA", funding_source_type=funding_type)
-    project_list = models.Project.objects.filter(year=fiscal_year, section__in=section_list, default_funding_source__in=funding_src)
+    project_list = models.Project.objects.filter(year=fiscal_year, section__in=section_list, default_funding_source=funding_src)
 
     # Use the header key as the col label, then use the array[0] for the col format and array[1] for col size
     header = {
@@ -98,12 +99,12 @@ def write_sara_sheet(worksheet, header_format, header, projects, funding):
 
         om_cost = project.om_costs.all().aggregate(Sum("budget_requested"))
 
-        staff_list = project.staff_members.all()
+        staff_list = project.staff_members.filter(funding_source=funding)
 
         staff_names = listrify([(staff.user if staff.user else staff.name) for staff in staff_list])
-        staff_cost = staff_list.aggregate(Sum('cost'))
+        staff_cost = staff_list.filter(funding_source=funding).aggregate(Sum('cost'))
 
-        capital_cost = project.capital_costs.all().aggregate(Sum("budget_requested"))
+        capital_cost = project.capital_costs.filter(funding_source=funding).aggregate(Sum("budget_requested"))
 
         milestone = listrify([m.name + ": " + m.description for m in project.milestones.all()], "\n\n*")
 
@@ -992,10 +993,10 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
                 # exclude full time employees
                 if staff.employee_type.id != 1 or staff.employee_type.id != 6:
                     # if salary
-                    if staff.employee_type.cost_type is 1:
+                    if staff.employee_type.cost_type == 1:
                         salary_total += nz(staff.cost, 0)
                     # if o&M
-                    elif staff.employee_type.cost_type is 2:
+                    elif staff.employee_type.cost_type == 2:
                         om_total += nz(staff.cost, 0)
 
                 # include only FTEs
