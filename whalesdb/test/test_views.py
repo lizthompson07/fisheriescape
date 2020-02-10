@@ -22,8 +22,16 @@ class CommonTest(TestCase):
     login_url_fr = login_url_base + "/fr/"
 
     # All views should at a minimum have a title field
-    def context_fields(self, response):
+    def assert_context_fields(self, response):
         self.assertIn("title", response.context)
+
+    def assert_view(self, lang='en', test_url=None, expected_template=None, expected_code=200):
+        activate(lang)
+
+        response = self.client.get(self.test_url if not test_url else test_url)
+
+        self.assertEquals(expected_code, response.status_code)
+        self.assertTemplateUsed(self.test_expected_template if not expected_template else expected_template)
 
 
 class TestIndexView(CommonTest):
@@ -37,22 +45,12 @@ class TestIndexView(CommonTest):
     # Users should be able to view the whales index page which corresponds to the whalesdb/index.html template
     @tag('index_view', 'response', 'access')
     def test_index_view_en(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
+        super().assert_view()
 
     # Users should be able to view the whales index page corresponding to the whalesdb/index.html template, in French
     @tag('index_view', 'response', 'access')
     def test_index_view_fr(self):
-        activate('fr')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
+        super(). assert_view(lang='fr')
 
     # The index view should return a context to be used on the index.html template
     # this should consist of a "Sections" dictionary containing sub-sections
@@ -90,25 +88,7 @@ class ListTest(CommonTest):
 
         self.test_expected_template = 'whalesdb/whale_filter.html'
 
-    # Users doesn't have to be logged in to view a list
-    def list_en(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
-
-    # Users doesn't have to be logged in to view a list
-    def list_fr(self):
-        activate('fr')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
-
-    # List context should return:
+   # List context should return:
     #   - a title to display in the html template
     #   - a list of fields to display
     #   - a url to use for the create button
@@ -118,7 +98,7 @@ class ListTest(CommonTest):
 
         response = self.client.get(self.test_url)
 
-        super().context_fields(response)
+        super().assert_context_fields(response)
         self.assertIn("fields", response.context)
         self.assertIn("create_url", response.context)
         self.assertIn("details_url", response.context)
@@ -136,12 +116,12 @@ class TestListStation(ListTest):
     # User should be able to view lists without login required
     @tag('stn_list', 'response', 'access')
     def test_stn_list_en(self):
-        super().list_en()
+        super().assert_view()
 
     # User should be able to view lists without login required
     @tag('stn_list', 'response', 'access')
     def test_stn_list_fr(self):
-        super().list_fr()
+        super().assert_view(lang='fr')
 
     # make sure project list context returns expected context objects
     @tag('stn_list', 'response', 'context')
@@ -162,12 +142,12 @@ class TestListProject(ListTest):
     # User should be able to view lists without login required
     @tag('prj_list', 'response', 'access')
     def test_prj_list_en(self):
-        super().list_en()
+        super().assert_view()
 
     # User should be able to view lists without login required
     @tag('prj_list', 'response', 'access')
     def test_prj_list_fr(self):
-        super().list_fr()
+        super().assert_view(lang='fr')
 
     # make sure project list context returns expected context objects
     @tag('prj_list', 'response', 'context')
@@ -188,12 +168,12 @@ class TestListMooring(ListTest):
     # User should be able to view lists without login required
     @tag('mor_list', 'response', 'access')
     def test_mor_list_en(self):
-        super().list_en()
+        super().assert_view()
 
     # User should be able to view lists without login required
     @tag('mor_list', 'response', 'access')
     def test_mor_list_fr(self):
-        super().list_fr()
+        super().assert_view(lang='fr')
 
     # make sure project list context returns expected context objects
     @tag('mor_list', 'response', 'context')
@@ -228,40 +208,21 @@ class CreateTest(CommonTest):
 
         return user
 
-    # Users must be logged in to create new objects
-    # user not logged in, should get 302 redirect to login page.
-    def create_login_redirect_en(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(302, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
-
-    # user not logged in, should get 302 redirect to login page.
-    def create_login_redirect_fr(self):
-        activate('fr')
-
-        response = self.client.get(self.test_url)
-
-        # user not logged in, should get 302 redirect to login page.
-        self.assertEquals(302, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
-
-    # If a user is logged in and not 'whalesdb_access' they should not be redirected
-    def create_logged_in_not_access(self):
-        activate('en')
-
+    # If a user is logged in and not 'whalesdb_access' they should be redirected to the login page
+    def assert_logged_in_not_access(self):
         regular_user = self.login()
 
         self.assertEqual(int(self.client.session['_auth_user_id']), regular_user.pk)
 
-        response = self.client.get(self.test_url)
-        self.assertEquals(200, response.status_code)
+        super().assert_view(expected_code=302)
 
     # If a user is logged in and has 'whalesdb_access' they should not be redirected
-    def create_logged_in_has_access(self):
-        pass
+    def assert_logged_in_has_access(self):
+        whale_user = self.login()
+
+        self.assertEqual(int(self.client.session['_auth_user_id']), whale_user.pk)
+
+        super().assert_view()
 
     # check that the creation view is using the correct form
     def create_form(self):
@@ -279,7 +240,7 @@ class CreateTest(CommonTest):
         self.login()
         response = self.client.get(self.test_url)
 
-        super().context_fields(response)
+        super().assert_context_fields(response)
 
         return response
 
@@ -318,17 +279,17 @@ class TestCreateProject(CreateTest):
     # Users must be logged in to create new stations
     @tag('create_prj', 'response', 'access')
     def test_prj_create_en(self):
-        super().create_login_redirect_en()
+        super().assert_view(expected_code=302)
 
     # Users must be logged in to create new stations
     @tag('create_prj', 'response', 'access')
     def test_prj_create_fr(self):
-        super().create_logged_in_not_access()
+        super().assert_view(lang='fr', expected_code=302)
 
     # Logged in user should get to the _entry_form.html template
     @tag('create_prj', 'response', 'access')
     def test_prj_create_en(self):
-        super().create_logged_in_not_access()
+        super().assert_logged_in_not_access()
 
     # Test that projects is using the project form
     @tag('create_prj', 'form')
@@ -374,17 +335,17 @@ class TestCreateStation(CreateTest):
     # Users must be logged in to create new stations
     @tag('create_stn', 'response', 'access')
     def test_stn_create_login_redirect_en(self):
-        super().create_login_redirect_en()
+        super().assert_view(expected_code=302)
 
     # Users must be logged in to create new stations
     @tag('create_stn', 'response', 'access')
     def test_stn_create_login_redirect_fr(self):
-        super().create_login_redirect_fr()
+        super().assert_view(lang='fr', expected_code=302)
 
     # Logged in user should get to the _entry_form.html template
     @tag('create_stn', 'response', 'access')
     def test_stn_create_en(self):
-        super().create_logged_in_not_access()
+        super().assert_logged_in_not_access()
 
     # Test that using the project form
     @tag('create_stn', 'form')
@@ -443,17 +404,17 @@ class TestCreateMooring(CreateTest):
     # Users must be logged in to create new stations
     @tag('create_mor', 'response', 'access')
     def test_mor_create_login_redirect_en(self):
-        super().create_login_redirect_en()
+        super().assert_view(expected_code=302)
 
     # Users must be logged in to create new stations
     @tag('create_mor', 'response', 'access')
     def test_mor_create_login_redirect_fr(self):
-        super().create_login_redirect_fr()
+        super().assert_view(lang='fr', expected_code=302)
 
     # Logged in user should get to the _entry_form.html template
     @tag('create_mor', 'response', 'access')
     def test_mor_create_en(self):
-        super().create_logged_in_not_access()
+        super().assert_logged_in_not_access()
 
     # Test is using the project form
     @tag('create_mor', 'form')
@@ -478,50 +439,61 @@ class TestCreateMooring(CreateTest):
         super().successful_url()
 
 
-class TestDetailsStation(CommonTest):
-    station_dic = None
+class CommonDetails(CommonTest):
 
-    def createStn(self):
-        if self.station_dic:
-            return self.station_dic
+    fields = []
+    _details_dict = None
 
-        self.station_dic = {}
+    def createDict(self):
+        pass
+
+    # used to destroy test objects created during a test
+    def tearDown(self) -> None:
+        _details_dict = self.createDict()
+
+        for key in self._details_dict:
+            _details_dict[key].delete()
+
+    def assert_field_in_fields(self, response):
+        for field in self.fields:
+            self.assertIn(field, response.context['fields'])
+
+
+class TestDetailsStation(CommonDetails):
+
+    def createDict(self):
+        if self._details_dict:
+            return self._details_dict
+
+        self._details_dict = {}
 
         stn_1 = models.StnStation(stn_name='Station 1', stn_code='ST1', stn_revision=1, stn_planned_lat=52,
                                   stn_planned_lon=25, stn_planned_depth=1)
         stn_1.save()
 
-        self.station_dic['stn_1'] = stn_1
+        self._details_dict['stn_1'] = stn_1
 
-        return self.station_dic
+        return self._details_dict
 
     def setUp(self):
         super().setUp()
 
-        stn_dic = self.createStn()
+        stn_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_stn', args=(stn_dic['stn_1'].pk,))
         self.test_expected_template = 'whalesdb/station_details.html'
+        self.fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
+                       'stn_planned_depth', 'stn_notes']
 
     # Station Details are visible to all
     @tag('details_stn', 'response', 'access')
     def test_details_stn_en(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
+        super().assert_view()
 
     # Station Details are visible to all
     @tag('details_stn', 'response', 'access')
     def test_details_stn_fr(self):
-        activate('fr')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
+        super().assert_view(lang='fr')
 
     # Test that the context contains the proper fields
     @tag('details_stn', 'context')
@@ -530,18 +502,18 @@ class TestDetailsStation(CommonTest):
 
         response = self.client.get(self.test_url)
 
-        super().context_fields(response)
-        self.assertEqual(response.context['object'], self.createStn()['stn_1'])
+        super().assert_context_fields(response)
+        self.assertEqual(response.context['object'], self.createDict()['stn_1'])
+        super().assert_field_in_fields(response)
 
 
-class TestDetailsMooring(CommonTest):
-    mooring_dic = None
+class TestDetailsMooring(CommonDetails):
 
-    def createMor(self):
-        if self.mooring_dic:
-            return self.mooring_dic
+    def createDict(self):
+        if self._details_dict:
+            return self._details_dict
 
-        self.mooring_dic = {}
+        self._details_dict = {}
 
         img_file_name = "MooringSetupTest.png"
         img_file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + img_file_name
@@ -557,77 +529,62 @@ class TestDetailsMooring(CommonTest):
                                        mor_setup_image=file)
         mor_1.save()
 
-        self.mooring_dic['mor_1'] = mor_1
+        self._details_dict['mor_1'] = mor_1
 
-        return self.mooring_dic
+        return self._details_dict
 
     def setUp(self):
         super().setUp()
 
-        mor_dic = self.createMor()
+        mor_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_mor', args=(mor_dic['mor_1'].pk,))
         self.test_expected_template = 'whalesdb/mormooringsetup_detail.html'
-
-    def tearDown(self) -> None:
-        dict = self.createMor()
-
-        for mor in dict:
-            mor.delete()
+        self.fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image', 'mor_additional_equipment',
+                       'mor_general_moor_description', 'more_notes']
 
     # Station Details are visible to all
     @tag('details_mor', 'response', 'access')
     def test_details_mor_en(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
+        super().assert_view()
 
     # Station Details are visible to all
     @tag('details_mor', 'response', 'access')
     def test_details_mor_fr(self):
-        activate('fr')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
+        super().assert_view(lang='fr')
 
     # Test that the context contains the proper fields
     @tag('details_mor', 'context')
     def test_context_fields_mor(self):
-        activate('fr')
+        activate('en')
 
         response = self.client.get(self.test_url)
 
-        super().context_fields(response)
+        super().assert_context_fields(response)
 
-        self.assertEqual(response.context["object"], self.createMor()['mor_1'])
+        self.assertEqual(response.context["object"], self.createDict()['mor_1'])
+        super().assert_field_in_fields(response)
 
 
-class TestDetailsProject(CommonTest):
-    project_dic = None
+class TestDetailsProject(CommonDetails):
+    def createDict(self):
+        if self._details_dict:
+            return self._details_dict
 
-    def createPrj(self):
-        if self.project_dic:
-            return self.project_dic
-
-        self.project_dic = {}
+        self._details_dict = {}
 
         prj_1 = models.PrjProject(prj_name="Project 1", prj_description="Sample Project",
                                   prj_url="http://someproject.com")
         prj_1.save()
 
-        self.project_dic['prj_1'] = prj_1
+        self._details_dict['prj_1'] = prj_1
 
-        return self.project_dic
+        return self._details_dict
 
     def setUp(self):
         super().setUp()
 
-        stn_dic = self.createPrj()
+        stn_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_prj', args=(stn_dic['prj_1'].pk,))
         self.test_expected_template = 'whalesdb/project_details.html'
@@ -635,29 +592,20 @@ class TestDetailsProject(CommonTest):
     # Project Details are visible to all
     @tag('details_prj', 'response', 'access')
     def test_details_prj_en(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
+        super().assert_view()
 
     # Project Details are visible to all
     @tag('details_prj', 'response', 'access')
     def test_details_prj_fr(self):
-        activate('fr')
-
-        response = self.client.get(self.test_url)
-
-        self.assertEquals(200, response.status_code)
-        self.assertTemplateUsed(self.test_expected_template)
+        super().assert_view(lang='fr')
 
     # Test that the context contains the proper fields
     @tag('details_prj', 'context')
     def test_context_fields_prj(self):
-        activate('fr')
+        activate('en')
 
         response = self.client.get(self.test_url)
 
-        super().context_fields(response)
-        self.assertEqual(response.context['object'], self.createPrj()['prj_1'])
+        super().assert_context_fields(response)
+        self.assertEqual(response.context['object'], self.createDict()['prj_1'])
+        super().assert_field_in_fields(response)

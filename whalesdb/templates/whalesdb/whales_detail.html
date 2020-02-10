@@ -13,13 +13,13 @@
 <div class="container mt-1" >
 <a class="btn btn-primary" href="{% url 'whalesdb:list_prj' %}">{% trans 'Back to list' %}</a>
 
-    <h2>{{ object.prj_name }}</h2>
-    <div class="row" >
-        <div class="col">
-            {% for field in fields %}
-            <div class="border"><span><h5>{% get_verbose_label object field %}:</h5></span><span></span></div>
-            {% endfor %}
+    {% block field_override %}
+        <h2>{{ object.prj_name }}</h2>
+        {% for field in fields %}
+        <div class="row" >
+                <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field%}</span></div>
         </div>
-    </div>
+        {% endfor %}
+    {% endblock field_override %}
 </div>
 {% endblock %}

@@ -1,32 +1,26 @@
-{% extends "whalesdb/whale_base.html" %}
+{% extends "whalesdb/whales_detail.html" %}
 {% load bootstrap4 %}
 {% load static %}
 {% load verbose_names %}
 {% load i18n %}
 {% bootstrap_css %}
 
-{% block title %}
-    {% trans title %}
-{% endblock title %}
-
-{% block body %}
-<div class="container mt-1" >
-<a class="btn btn-primary" href="{% url 'whalesdb:list_mor' %}">{% trans 'Back to list' %}</a>
-
-    <h2>{{ object.mor_name }}</h2>
-    <div class="row" >
-        <div class="col">
-            <div class="border"><span><h5>{% trans "Max Depth" %} :</h5></span><span>{{ object.mor_max_depth }}</span></div>
-            <div class="border"><span><h5>{% trans "Link to Setup Image" %} :</h5></span><span>{{ object.mor_link_setup_image }}</span></div>
-            <div class="border"><span><h5>{% trans "Additional Equipment" %} :</h5></span><span>{{ object.mor_additional_equipment }}</span></div>
-            <div class="border"><span><h5>{% trans "General Description" %} :</h5><span>{{ object.mor_general_moor_description }}</span></div>
-            <div class="border"><span><h5>{% trans "Notes" %} :</h5></span><span>{{ object.more_notes }}</span></div>
+{% block field_override %}
+<h2>{{ object.mor_name }}</h2>
+<div class="container" >
+    <div class="row">
+        <div class="col-sm">
+        {% for field in fields %}
+            <div><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field%}</span></div>
+        {% endfor %}
         </div>
-        <div class="col border">
+    {% if object.mor_setup_image%}
+        <span class="col-4 border">
         {% if object.mor_setup_image %}
             <img src="{{ object.mor_setup_image.url }}" />
         {% endif %}
-        </div>
+        </span>
+    {% endif %}
     </div>
 </div>
 {% endblock %}
