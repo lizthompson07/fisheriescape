@@ -313,7 +313,7 @@ def get_app_dict(request):
             "status": "dev",
             "access": "login-required",
             "url": reverse('csas:index'),
-            "icon_path": 'img/whales/whales_dark.svg',
+            "icon_path": 'img/csas/csas_image.svg',
             "region": "regional",
         }
     except NoReverseMatch:
