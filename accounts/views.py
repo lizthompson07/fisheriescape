@@ -45,6 +45,13 @@ def access_denied_custodian(request):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+def access_denied_adm(request):
+    denied_message = "Sorry, only ADMO administrators can verify projects that require ADM approval."
+    messages.error(request, denied_message)
+    # send user back to the page that they came from
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 def access_denied_project_leads_only(request):
     denied_message = _("Sorry, you do not have the necessary permissions to access to this page.")
     messages.error(request, denied_message)
