@@ -118,11 +118,15 @@
 
     <h3>{% trans 'Milestones' %}</h3>
     {% with milestone|lookup:project.id as mile %}
-        {% for m in mile %}
-            <h5>{{m.name}}</h5>
-            <div>{{ m.description|html_to_text|safe}}</div>
+        {% if mile %}
+            {% for m in mile %}
+                <h5>{{m.name}}</h5>
+                <div>{{ m.description|html_to_text|safe}}</div>
 
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div>---</div>
+        {% endif %}
     {% endwith %}
     </div>
 </div>

@@ -367,9 +367,9 @@ class ReportSearchForm(forms.Form):
         (17, _("Data management summary")),
 
         (None, ""),
-        (None, "----- SARA ------"),
-        (18, _("SARA Funding (b-base) (PDF)")),
-        (19, _("SARA Funding (MS Excel)")),
+        (None, "----- Funding ------"),
+        (18, _("Funding (PDF)")),
+        (19, _("Funding (MS Excel)")),
 
         (None, ""),
         (None, "----- GULF ------"),
@@ -388,7 +388,7 @@ class ReportSearchForm(forms.Form):
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False)
     region = forms.MultipleChoiceField(required=False, label="Regions (Leave blank to select all)")
-    funding_src = forms.MultipleChoiceField(required=False, label=_("Funding Source (Leave blank to select all)"))
+    funding_src = forms.ChoiceField(required=False, label=_("Funding Source"))
     division = forms.MultipleChoiceField(required=False, label="Divisions (Leave blank to select all)")
     section = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
 

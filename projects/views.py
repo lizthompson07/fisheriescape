@@ -323,24 +323,24 @@ def pdf_financial_summary_data(project):
             # if the staff member is being paid from bbase...
             if staff.funding_source.id == 1:
                 # if salary
-                if staff.employee_type.cost_type is 1:
+                if staff.employee_type.cost_type == 1:
                     salary_abase += nz(staff.cost, 0)
                 # if o&M
-                elif staff.employee_type.cost_type is 2:
+                elif staff.employee_type.cost_type == 2:
                     om_abase += nz(staff.cost, 0)
             elif staff.funding_source.id == 2:
                 # if salary
-                if staff.employee_type.cost_type is 1:
+                if staff.employee_type.cost_type == 1:
                     salary_bbase += nz(staff.cost, 0)
                 # if o&M
-                elif staff.employee_type.cost_type is 2:
+                elif staff.employee_type.cost_type == 2:
                     om_bbase += nz(staff.cost, 0)
             elif staff.funding_source.id == 3:
                 # if salary
-                if staff.employee_type.cost_type is 1:
+                if staff.employee_type.cost_type == 1:
                     salary_cbase += nz(staff.cost, 0)
                 # if o&M
-                elif staff.employee_type.cost_type is 2:
+                elif staff.employee_type.cost_type == 2:
                     om_cbase += nz(staff.cost, 0)
 
     # O&M costs
@@ -494,7 +494,7 @@ def get_region_choices(all=False):
 
 
 def get_funding_sources(all=False):
-    return [(fs.id, str(fs)) for fs in models.FundingSourceType.objects.all()]
+    return [(fs.id, str(fs)) for fs in models.FundingSource.objects.all()]
 
 
 # Create your views here.
@@ -2355,7 +2355,7 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
 
     def form_valid(self, form):
         fiscal_year = str(form.cleaned_data["fiscal_year"])
-        funding = listrify(form.cleaned_data['funding_src'])
+        funding = int(form.cleaned_data['funding_src'])
         report = int(form.cleaned_data["report"])
         regions = listrify(form.cleaned_data["region"])
         divisions = listrify(form.cleaned_data["division"])
@@ -2451,14 +2451,15 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
                 'sections': sections,
             }))
         elif report == 18:
-            return HttpResponseRedirect(reverse("projects:pdf_sara", kwargs={
+            return HttpResponseRedirect(reverse("projects:pdf_funding", kwargs={
+                'funding': funding,
                 'fiscal_year': fiscal_year,
                 'regions': regions,
                 'divisions': divisions,
                 'sections': sections,
             }))
         elif report == 19:
-            return HttpResponseRedirect(reverse("projects:xls_sara", kwargs={
+            return HttpResponseRedirect(reverse("projects:xls_funding", kwargs={
                 'funding': funding,
                 'fiscal_year': fiscal_year,
                 'regions': regions,
@@ -2557,23 +2558,23 @@ class PDFReportTemplate(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-class PDFSaraReport(PDFReportTemplate):
-    template_name = "projects/report_pdf_sara_funding.html"
+class PDFFundingReport(PDFReportTemplate):
+    template_name = "projects/report_pdf_funding.html"
+    funding_src = None
 
     def get_pdf_filename(self):
         fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
-        pdf_filename = "{} SARA (B-Base) Funding Report.pdf".format(fy)
+        pdf_filename = "{} {} Funding Report.pdf".format(fy, self.funding_src)
         return pdf_filename
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = project_field_list
 
-        # We're only using B-Base funding
-        context["funding_src"] = models.FundingSourceType.objects.get(pk=2)
-
-        funding_src = models.FundingSource.objects.filter(name="SARA", funding_source_type=context["funding_src"])
-        context["project_list"] = self.project_list.order_by("project_title").filter(default_funding_source__in=funding_src)
+        funding = int(self.kwargs["funding"])
+        self.funding_src = models.FundingSource.objects.get(pk=funding)
+        context["project_list"] = self.project_list.order_by("project_title").filter(
+            default_funding_source=self.funding_src)
 
         context["milestone"] = {}
         context["sal_cost"] = {}
@@ -2582,22 +2583,31 @@ class PDFSaraReport(PDFReportTemplate):
         context['project_leads'] = {}
         context['total_est'] = {}
         for project in context["project_list"]:
-
             context["milestone"][project.pk] = project.milestones.all()
-            context['sal_cost'][project.pk] = project.staff_members.all().aggregate(Sum('cost'))['cost__sum']
-            context['om_cost'][project.pk] = project.om_costs.all().aggregate(Sum('budget_requested'))['budget_requested__sum']
-            context['cap_cost'][project.pk] = project.capital_costs.all().aggregate(Sum('budget_requested'))['budget_requested__sum']
+            # Filter staff, om and capital cost to make sure we're only getting the component that is related
+            # to what funding source is being reported on
+            context['sal_cost'][project.pk] = \
+            project.staff_members.filter(funding_source=self.funding_src).aggregate(Sum('cost'))['cost__sum']
+            context['om_cost'][project.pk] = \
+            project.om_costs.filter(funding_source=self.funding_src).aggregate(Sum('budget_requested'))[
+                'budget_requested__sum']
+            context['cap_cost'][project.pk] = \
+            project.capital_costs.filter(funding_source=self.funding_src).aggregate(Sum('budget_requested'))[
+                'budget_requested__sum']
 
             context['total_est'][project.pk] = 0
-            context['total_est'][project.pk] += context['sal_cost'][project.pk] if context['sal_cost'][project.pk] else 0
+            context['total_est'][project.pk] += context['sal_cost'][project.pk] if context['sal_cost'][
+                project.pk] else 0
             context['total_est'][project.pk] += context['om_cost'][project.pk] if context['om_cost'][project.pk] else 0
-            context['total_est'][project.pk] += context['cap_cost'][project.pk] if context['cap_cost'][project.pk] else 0
+            context['total_est'][project.pk] += context['cap_cost'][project.pk] if context['cap_cost'][
+                project.pk] else 0
 
-            context['project_leads'][project.pk] = listrify([(l.user if l.user else l.name) for l in project.staff_members.all().filter(lead=True)])
+            context['project_leads'][project.pk] = listrify(
+                [(l.user if l.user else l.name) for l in project.staff_members.all().filter(lead=True)])
         return context
 
 
-def sara_spreadsheet(request, fiscal_year, funding, regions=None, divisions=None, sections=None):
+def funding_spreadsheet(request, fiscal_year, funding, regions=None, divisions=None, sections=None):
     # sections arg will be coming in as None from the my_section view
     if regions is None:
         regions = "None"
@@ -2606,13 +2616,15 @@ def sara_spreadsheet(request, fiscal_year, funding, regions=None, divisions=None
     if sections is None:
         sections = "None"
 
-    file_url = reports.generate_sara_funding_spreadsheet(fiscal_year, funding, regions, divisions, sections)
+    file_url = reports.generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, sections)
+
+    funding_src = models.FundingSource.objects.get(pk=funding)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="{} SARA Funding.xlsx"'.format(
-                fiscal_year)
+            response['Content-Disposition'] = 'inline; filename="{} {} Funding.xlsx"'.format(
+                fiscal_year, funding_src)
             return response
     raise Http404
 
@@ -3104,8 +3116,10 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
             big_list = models.Theme.objects.filter(functional_groups__projects__in=project_list).distinct().order_by()
             small_list = None
         else:
-            big_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by("name")
-            small_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by("division", "name")
+            big_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by(
+                "name")
+            small_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by("division",
+                                                                                                             "name")
 
         my_dict = {}
         for big_item in big_list:
@@ -3129,8 +3143,9 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
                     # get a list of project leads
                     leads = listrify(
                         list(set([str(staff.user) for staff in
-                                  models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
-                                                              lead=True) if
+                                  models.Staff.objects.filter(
+                                      project__in=temp_project_list.filter(functional_group=group),
+                                      lead=True) if
                                   staff.user])))
                     my_dict[big_item]['all']["groups"][group]["leads"] = leads
             else:
@@ -3170,8 +3185,9 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
                                 # get a list of project leads
                                 leads = listrify(
                                     list(set([str(staff.user) for staff in
-                                              models.Staff.objects.filter(project__in=temp_project_list.filter(functional_group=group),
-                                                                          lead=True) if
+                                              models.Staff.objects.filter(
+                                                  project__in=temp_project_list.filter(functional_group=group),
+                                                  lead=True) if
                                               staff.user])))
                                 my_dict[big_item][small_item]["groups"][group]["leads"] = leads
         context['my_dict'] = my_dict
@@ -3212,7 +3228,8 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         else:
             section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
 
-        functional_group = models.FunctionalGroup.objects.get(id=self.kwargs.get("group")) if self.kwargs.get("group") else None
+        functional_group = models.FunctionalGroup.objects.get(id=self.kwargs.get("group")) if self.kwargs.get(
+            "group") else None
         context['fy'] = fy
         context['region'] = region
         context['section'] = section
@@ -3355,4 +3372,3 @@ class NoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
     def form_valid(self, form):
         my_object = form.save()
         return HttpResponseRedirect(reverse("shared_models:close_me"))
-
