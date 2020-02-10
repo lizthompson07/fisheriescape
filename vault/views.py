@@ -16,6 +16,53 @@ from . import forms
 from . import filters
 from . import reports
 
+# #testing a csv upload code snippet
+#     import csv, io
+#     from django.shortcuts import render
+#     from django.contrib import messages
+#
+#     # Create your views here.
+#
+#     # one parameter named request
+#     def profile_upload(request):
+#
+#         # declaring template
+#         template = "profile_upload.html"
+#         data = Items.objects.all()
+#
+#     # prompt is a context variable that can have different values      depending on their context
+#         prompt = {
+#             'order': 'Order of the CSV should be uniqueid, item name, description, owner, size, container space, category, type',
+#             'profiles': data
+#                   }
+#
+#         # GET request returns the value of the data with the specified key.
+#         if request.method == "GET":
+#             return render(request, template, prompt)
+#         csv_file = request.FILES['file']
+#
+#         # let's check if it is a csv file
+#         if not csv_file.name.endswith('.csv'):
+#             messages.error(request, 'THIS IS NOT A CSV FILE')
+#         data_set = csv_file.read().decode('UTF-8')
+#         # setup a stream which is when we loop through each line we are able to handle a data in a stream
+#     io_string = io.StringIO(data_set)
+#     next(io_string)
+#     for column in csv.reader(io_string, delimiter=',', quotechar="|"):
+#         _, created = Items.objects.update_or_create(
+#             unique_id=column[0],
+#             item_name=column[1],
+#             description=column[2],
+#             owner=column[3],
+#             size=column[4],
+#             container_space=column[5],
+#             category=column[6],
+#             type=column[7]
+#         )
+#     context = {}
+#     return render(request, template, context)
+#
+# # end testing csv upload
 
 class CloserTemplateView(TemplateView):
     template_name = 'vault/close_me.html'
@@ -43,11 +90,18 @@ class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
 @user_passes_test(in_vault_group, login_url='/accounts/denied/')
 def index(request):
     return render(request, 'vault/index.html')
+
+# #
+# # # SPECIES #
+# # ###########
+# #
 #
-#
-# # SPECIES #
-# ###########
-#
+class ItemsListView(VaultAccessRequired, FilterView):
+    template_name = "vault/item_list.html"
+    filterset_class = filters.ItemsFilter
+    queryset = models.Items.objects.annotate(
+        search_term=Concat('unique_id', 'item_name', 'description', 'owner', 'size', 'container_space', 'category', 'type', output_field=TextField()))
+
 class SpeciesListView(VaultAccessRequired, FilterView):
     template_name = "vault/species_list.html"
     filterset_class = filters.SpeciesFilter
@@ -68,7 +122,7 @@ class SpeciesDetailView(VaultAccessRequired, DetailView):
             'aphia_id',
         ]
         return context
-#
+
 #
 # class SpeciesUpdateView(DietsAccessRequired, UpdateView):
 #     model = models.Species
