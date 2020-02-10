@@ -10,9 +10,19 @@
         </a>
     </div>
 
-    <h3>
-        {% trans "Trip Detail" %}
-    </h3>
+    <div class="neighbours mb-3">
+        <h3>
+            {% trans "Trip Detail" %}
+        </h3>
+    </div>
+    <div class="neighbours mb-3">
+        {% with help_text_dict|lookup:"trip_header" as help_text %}
+            <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
+                 data-trigger="hover"
+                 title="{% trans "Trip Summary" %}"
+                 data-content="{{ help_text }}">
+        {% endwith %}
+    </div>
     {% if not triprequest.trip %}
         <em class="red-font blink-me">{% trans "It was indicated above that this trip request is a conference/meeting however no conference or meeting was selected." %}</em>
     {% else %}
@@ -54,7 +64,7 @@
                         <tr class="plainjane">
                             <th rowspan="2" class="plainjane">{% trans "Name" %}</th>
                             <th colspan="2"
-                                class="plainjane center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
+                                class="plainjane center-col">{% trans "Trips requiring the approval of ADM" %}</th>
                         </tr>
                         <tr class="plainjane">
                             <th class="plainjane center-col">{{ triprequest.trip.fiscal_year }}</th>

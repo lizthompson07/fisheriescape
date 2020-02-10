@@ -1,6 +1,7 @@
 import json
 import os
 from copy import deepcopy
+from Levenshtein import distance
 
 from django.conf import settings
 from django.contrib import messages
@@ -18,7 +19,6 @@ from django.views.generic import UpdateView, DeleteView, CreateView, DetailView,
 ###
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
-
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from . import models
@@ -39,6 +39,11 @@ class CloserTemplateView(TemplateView):
 def in_travel_admin_group(user):
     if user.id:
         return user.groups.filter(name='travel_admin').count() != 0
+
+
+def in_adm_admin_group(user):
+    if user.id:
+        return user.groups.filter(name='travel_adm_admin').count() != 0
 
 
 def is_approver(user, trip_request):
@@ -118,6 +123,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         ).count()  # number of requests where admin review is pending
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
+        context["unverified_trips"] = models.Conference.objects.filter(is_verified=False).count()
         return context
 
 
@@ -152,6 +158,7 @@ request_field_list = [
     'bta_attendees',
     'notes',
     # 'cost_table|{}'.format(_("DFO costs")),
+    'total_request_cost|{}'.format(_("Total cost (DFO)")),
     'non_dfo_costs',
     'non_dfo_org',
 ]
@@ -333,6 +340,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
+        context['help_text_dict'] = get_help_text_dict()
         context["fy"] = fiscal_year()
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
@@ -360,6 +368,13 @@ class TripRequestUpdateView(TravelAccessRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
+
+        if my_object.parent_request:
+            my_trip = my_object.parent_request.trip
+        else:
+            my_trip = my_object.trip
+        utils.manage_trip_warning(my_trip)
+
         if not my_object.parent_request:
             if form.cleaned_data.get("stay_on_page"):
                 return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs={"pk": my_object.id}))
@@ -406,7 +421,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
     def test_func(self):
         my_trip_request = self.get_object().trip_request
         my_user = self.request.user
-        print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
+        # print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
         if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
             return True
 
@@ -418,6 +433,8 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
+        context['help_text_dict'] = get_help_text_dict()
+
         context["triprequest"] = my_object.trip_request
         context["report_mode"] = True
         if my_object.role_id in [5, 6, ]:
@@ -431,7 +448,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         approved = form.cleaned_data.get("approved")
         stay_on_page = form.cleaned_data.get("stay_on_page")
         changes_requested = form.cleaned_data.get("changes_requested")
-        print("stay on page", stay_on_page)
+        # print("stay on page", stay_on_page)
         # first scenario: changes were requested for the request
         # in this case, the reviewer status does not change but the request status will
         if not stay_on_page:
@@ -478,7 +495,7 @@ class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
     def test_func(self):
         my_trip_request = self.get_object().trip_request
         my_user = self.request.user
-        print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
+        # print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
         if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
             return True
 
@@ -519,7 +536,7 @@ class TripRequestSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         context["reviewer_field_list"] = reviewer_field_list
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
-
+        context['help_text_dict'] = get_help_text_dict()
         context["report_mode"] = True
 
         return context
@@ -553,34 +570,97 @@ class TripRequestSubmitUpdateView(TravelAccessRequiredMixin, FormView):
         # No matter what business what done, we will call this function to sort through reviewer and request statuses
         utils.approval_seeker(my_trip_request)
         my_trip_request.save()
+
+        # clean up any unused cost categories
+        utils.clear_empty_trip_request_costs(my_trip_request)
+        for child in my_trip_request.children_requests.all():
+            utils.clear_empty_trip_request_costs(child)
+
         return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+
+
+class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.TripRequest
+    form_class = forms.TripRequestAdminNotesForm
+    template_name = 'travel/trip_request_cancel_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
+        context["object"] = my_object
+        context["triprequest"] = my_object
+        context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
+        context["child_field_list"] = request_child_field_list
+        context["reviewer_field_list"] = reviewer_field_list
+        context["conf_field_list"] = conf_field_list
+        context["cost_field_list"] = cost_field_list
+        context['help_text_dict'] = get_help_text_dict()
+        context["report_mode"] = True
+
+        return context
+
+    def form_valid(self, form):
+        my_trip_request = form.save()
+
+        # figure out the current state of the request
+        is_cancelled = True if my_trip_request.status.id == 22 else False
+
+        if is_cancelled:
+            #  UN-CANCEL THE REQUEST
+            my_trip_request.status_id = 11
+        else:
+            #  CANCEL THE REQUEST
+            my_trip_request.status_id = 22
+
+        my_trip_request.save()
+        # send an email to the trip_request owner
+        my_email = emails.StatusUpdateEmail(my_trip_request)
+        # # send the email object
+        if settings.PRODUCTION_SERVER:
+            send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
+                      recipient_list=my_email.to_list, fail_silently=False, )
+        else:
+            print(my_email)
+
+        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+
+
+class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.TripRequest
+    form_class = forms.TripRequestAdminNotesForm
+    template_name = 'travel/trip_request_admin_notes_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
 class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
     model = models.TripRequest
 
     def get_template_names(self):
-        if self.kwargs.get("pk") or not self.kwargs.get("parent_request"):
-            return 'travel/trip_request_form.html'
-        else:
+        if self.kwargs.get("parent_request"):
             return 'travel/trip_request_form_popout.html'
+        else:
+            return 'travel/trip_request_form.html'
 
     def get_form_class(self):
-        if self.kwargs.get("pk") or not self.kwargs.get("parent_request"):
-            return forms.TripRequestForm
-        else:
+        if self.kwargs.get("parent_request"):
             return forms.ChildTripRequestForm
+        else:
+            return forms.TripRequestForm
 
     def get_initial(self):
-        if self.kwargs.get("pk"):
-            my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
-            my_dict = {"user": self.request.user}
+        if self.kwargs.get("parent_request"):
+            my_object = models.TripRequest.objects.get(pk=self.kwargs.get("parent_request"))
+            my_dict = {"parent_request": my_object, "stay_on_page": True}
         else:
-            if self.kwargs.get("parent_request"):
-                my_object = models.TripRequest.objects.get(pk=self.kwargs.get("parent_request"))
-                my_dict = {"parent_request": my_object, "stay_on_page": True}
-            else:
-                my_dict = None
+            # if this is a new parent trip
+            my_dict = {"user": self.request.user}
         return my_dict
 
     def form_valid(self, form):
@@ -651,7 +731,6 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
 
 class TripRequestDeleteView(TravelAccessRequiredMixin, DeleteView):
     model = models.TripRequest
-    success_message = 'The trip request was deleted successfully!'
 
     def get_template_names(self):
         if self.kwargs.get('pop'):
@@ -668,8 +747,19 @@ class TripRequestDeleteView(TravelAccessRequiredMixin, DeleteView):
         return success_url
 
     def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        my_object = self.get_object()
+        my_object.delete()
+
+        if my_object.parent_request:
+            my_trip = my_object.parent_request.trip
+        else:
+            my_trip = my_object.trip
+        utils.manage_trip_warning(my_trip)
+
+        messages.success(self.request,
+                         'The trip request for {} {} was deleted successfully!'.format(my_object.first_name, my_object.last_name))
+        success_url = self.get_success_url()
+        return HttpResponseRedirect(success_url)
 
 
 class TripRequestCloneUpdateView(TripRequestUpdateView):
@@ -719,7 +809,6 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
                 new_rel_obj.pk = None
                 new_rel_obj.trip_request = new_obj
                 new_rel_obj.save()
-
 
         # # need to clone any children of the old object...
         # for child_request in old_obj.children_requests.all():
@@ -930,6 +1019,76 @@ class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
+    queryset = models.Conference.objects.filter(is_verified=False).order_by("is_adm_approval_required")
+    template_name = 'travel/trip_verification_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Conference.objects.first()
+        context["field_list"] = [
+            'fiscal_year',
+            'tname|{}'.format("Name"),
+            'location|{}'.format(_("location")),
+            'dates|{}'.format(_("dates")),
+            'number_of_days|{}'.format(_("length (days)")),
+            'is_adm_approval_required|{}'.format(_("ADM approval required?")),
+        ]
+        return context
+
+
+class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
+    template_name = 'travel/trip_verification_form.html'
+    model = models.Conference
+    form_class = forms.TripRequestApprovalForm
+
+    def test_func(self):
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        if my_trip.is_adm_approval_required:
+            return in_adm_admin_group(self.request.user)
+        else:
+            return in_travel_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("accounts:denied_access_adm"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        context["object"] = my_trip
+        context["conf_field_list"] = conf_field_list
+
+        base_qs = models.Conference.objects.filter(~Q(id=my_trip.id)).filter(fiscal_year=my_trip.fiscal_year)
+
+        context["same_day_trips"] = base_qs.filter(Q(start_date=my_trip.start_date) | Q(end_date=my_trip.end_date))
+
+        context["same_location_trips"] = base_qs.filter(
+            id__in=[trip.id for trip in base_qs if trip.location and my_trip.location and
+                    utils.compare_strings(trip.location, my_trip.location) < 3]
+        )
+
+        similar_fr_name_trips = [trip.id for trip in base_qs if
+                                 trip.nom and utils.compare_strings(trip.nom, trip.name) < 15] if my_trip.nom else []
+        similar_en_name_trips = [trip.id for trip in base_qs if utils.compare_strings(trip.name, my_trip.name) < 15]
+        my_list = list()
+        my_list.extend(similar_en_name_trips)
+        my_list.extend(similar_fr_name_trips)
+        context["same_name_trips"] = base_qs.filter(
+            id__in=set(my_list)
+        )
+        return context
+
+    def form_valid(self, form):
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        my_trip.is_verified = True
+        my_trip.verified_by = self.request.user
+        my_trip.save()
+        return HttpResponseRedirect(reverse("travel:admin_trip_verification_list"))
+
+
 # REPORTS #
 ###########
 
@@ -981,7 +1140,7 @@ def export_cfts_list(request, fy):
 
 
 def export_request_cfts(request, trip=None, trip_request=None):
-    print(trip)
+    # print(trip)
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -1006,23 +1165,11 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         my_object = models.TripRequest.objects.get(id=self.kwargs['pk'])
-        context["object"] = my_object
+        context["parent"] = my_object
         context["purpose_list"] = models.Purpose.objects.all()
 
-        key_list = [
-            'air',
-            'rail',
-            'rental_motor_vehicle',
-            'personal_motor_vehicle',
-            'taxi',
-            'other_transport',
-            'accommodations',
-            'meals',
-            'incidentals',
-            'other',
-            'total_cost',
-        ]
-        total_dict = {}
+        cost_categories = models.CostCategory.objects.all()
+        my_dict = dict()
 
         # first, let's create an object list; if this is
         if my_object.is_group_request:
@@ -1031,31 +1178,25 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         else:
             object_list = models.TripRequest.objects.filter(pk=my_object.id)
 
-        for key in key_list:
-            # registration is not in the travel plan form. therefore it should be added under the 'other' category
-            if key == "other":
-                total_dict[key] = nz(object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum'], 0) + \
-                                  nz(object_list.values('registration').order_by('registration').aggregate(dsum=Sum("registration"))[
-                                         'dsum'], 0)
-                # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
-                if total_dict[key] == 0:
-                    total_dict[key] = None
-            elif key == "meals":
-                total_dict[key] = nz(object_list.values('breakfasts').order_by('breakfasts').aggregate(dsum=Sum("breakfasts"))[
-                                         'dsum'], 0) + \
-                                  nz(object_list.values('lunches').order_by('lunches').aggregate(dsum=Sum("lunches"))[
-                                         'dsum'], 0) + \
-                                  nz(object_list.values('suppers').order_by('suppers').aggregate(dsum=Sum("suppers"))[
-                                         'dsum'], 0)
+        my_dict["totals"] = dict()
+        my_dict["totals"]["total"] = 0
+        for obj in object_list:
+            my_dict[obj] = dict()
 
-                # if the sum is zero, blank it out so that it will be treated on par with other null fields in template
-                if total_dict[key] == 0:
-                    total_dict[key] = None
-            else:
-                total_dict[key] = object_list.values(key).order_by(key).aggregate(dsum=Sum(key))['dsum']
+            for cat in cost_categories:
+                if not my_dict["totals"].get(cat):
+                    my_dict["totals"][cat] = 0
+
+                cat_amount = obj.trip_request_costs.filter(cost__cost_category=cat).values("amount_cad").order_by("amount_cad").aggregate(
+                    dsum=Sum("amount_cad"))['dsum']
+                my_dict[obj][cat] = cat_amount
+                my_dict["totals"][cat] += nz(cat_amount, 0)
+                my_dict["totals"]["total"] += nz(cat_amount, 0)
+
+        # print(my_dict)
         context['object_list'] = object_list
-        context['total_dict'] = total_dict
-        context['key_list'] = key_list
+        context['my_dict'] = my_dict
+        # context['key_list'] = cost_categories
         return context
 
 
@@ -1315,6 +1456,8 @@ class TRCostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_object = form.save()
+        if my_object.trip_request.trip:
+            utils.manage_trip_warning(my_object.trip_request.trip)
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
@@ -1325,6 +1468,12 @@ class TRCostUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
+        if my_object.trip_request.parent_request:
+            my_trip = my_object.trip_request.parent_request.trip
+        else:
+            my_trip = my_object.trip_request.trip
+        utils.manage_trip_warning(my_trip)
+
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
     def get_context_data(self, **kwargs):
@@ -1345,10 +1494,7 @@ def tr_cost_delete(request, pk):
 def tr_cost_clear(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
     if can_modify_request(request.user, my_trip_request.id):
-        for obj in models.Cost.objects.all():
-            for cost in models.TripRequestCost.objects.filter(trip_request=my_trip_request, cost=obj):
-                if (cost.amount_cad is None or cost.amount_cad == 0):
-                    cost.delete()
+        utils.clear_empty_trip_request_costs(my_trip_request)
         messages.success(request, _("All empty costs have been cleared."))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     else:

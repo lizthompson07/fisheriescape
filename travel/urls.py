@@ -20,6 +20,8 @@ urlpatterns = [
     path('request/<int:parent_request>/new-child-request/', views.TripRequestCreateView.as_view(), name="request_new"),
     path('request/<int:pk>/clone-child/pop/<str:pop>', views.ChildTripRequestCloneUpdateView.as_view(), name="child_duplicate_event"),
     path('request/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
+    path('request/<int:pk>/cancel/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
+    path('request/<int:pk>/admin-notes/', views.TripRequestAdminNotesUpdateView.as_view(), name="admin_notes_edit"),
     path('request/<int:pk>/re-add-reviewers/', views.reset_reviewers, name="reset_reviewers"),
 
     # REVIEWER APPROVAL
@@ -45,6 +47,9 @@ urlpatterns = [
     path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
     path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
+    # admin
+    path('admin/trip-verification-list/', views.AdminTripVerificationListView.as_view(), name="admin_trip_verification_list"),
+    path('trip/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
 
     # FILES #
     #########

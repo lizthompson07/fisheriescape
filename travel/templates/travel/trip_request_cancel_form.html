@@ -5,17 +5,25 @@
 {% load custom_filters %}
 {% load i18n %}
 
+
+
 {% block subtitle %}
     -
-    {% if object.submitted %}
-        {% trans "Un-submit Request" %}
+    {% if object.status.id == 22 %}
+        {% trans "Un-cancel request" %}
     {% else %}
-        {% trans "Submit Request" %}
+        {% trans "Cancel request" %}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-
+    {% if object.status.id == 22 %}
+        {% trans "Un-cancel request" as my_text %}
+        {% trans "un-cancel" as my_action %}
+    {% else %}
+        {% trans "Cancel request" as my_text %}
+        {% trans "cancel" as my_action %}
+    {% endif %}
     <style>
         .label {
             font-weight: bold;
@@ -36,25 +44,18 @@
             </a></li>
             <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">
-                {% if object.submitted %}
-                    {% trans "Un-submit Request" %}
-                {% else %}
-                    {% trans "Submit Request" %}
-                {% endif %}
+                {{ my_text }}
             </li>
         </ol>
     </nav>
 
     <div class="container">
-        {% if object.submitted %}
-            <h2 class="red-font">
-            {% trans "WARNING: Un-submitting this request will reset the statuses of any exisitng recommendations and approvals." %}
-            </h2>
-        {% endif %}
+
         <h1>
             <b>
-                Do you wish to {% if object.submitted %} un-submit {% else %} {% if object.status.id == 16 %} re-submit {% else %} submit
-            {% endif %} {% endif %} the following request?
+                {% blocktrans with my_action as my_action %}
+                    Do you wish to {{ my_action }} the following request?
+                {% endblocktrans %}
             </b>
         </h1>
         <br>
@@ -68,10 +69,10 @@
             <div class="">
 
 
-                <input type="submit" class="btn btn-lg btn-warning" value="Yes">
+                <input type="submit" class="btn btn-lg btn-danger" value="Yes">
 
                 <a class="btn btn-lg btn-secondary" href="{% url 'travel:request_detail' object.id %}">
-                    {% trans "Cancel" %}
+                    {% trans "Back" %}
                 </a>
             </div>
         </form>
