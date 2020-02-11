@@ -23,6 +23,8 @@
                 <th scope="col">Common name (English)</th>
                 <th scope="col">Common name (French)</th>
                 <th scope="col">Scientific name</th>
+                <th scope="col">VOR code</th>
+                <th scope="col">Quebec code</th>
 {#                <th scope="col">AphiaID</th>#}
             </thead>
             <tbody>
@@ -33,6 +35,8 @@
                     <td>{{ object.english_name }}</td>
                     <td>{{ object.french_name }}</td>
                     <td><em>{{ object.latin_name }}</em></td>
+                    <td>{{ object.vor_code }}</td>
+                    <td>{{ object.quebec_code }}</td>
 {#                    <td>{{ object.aphia_id }}</td>#}
                 </tr>
             {% endfor %}
