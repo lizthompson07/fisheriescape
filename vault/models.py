@@ -13,6 +13,7 @@ class Species(models.Model):
     vor_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("VOR code"))
     quebec_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Quebec code"))
     aphia_id = models.IntegerField(null=True, blank=True, verbose_name=_("ID in World Registry of Marine Species"))
+
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("english_name"))):
@@ -133,7 +134,7 @@ class ObservationPlatformType(models.Model):
             return "{}".format(self.name)
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ['id', ]
 
 
 class ObservationPlatform(models.Model):
@@ -145,6 +146,11 @@ class ObservationPlatform(models.Model):
     name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Call name"))
     longname = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Long name"))
 
+    def __str__(self):
+        return "{}".format(self.longname)
+
+    def get_absolute_url(self):
+        return reverse("vault:observationplatform_detail", kwargs={"pk":self.id})
 
 class Outing(models.Model):
     observation_platform = models.ForeignKey(ObservationPlatform, on_delete=models.DO_NOTHING, related_name="outings",
