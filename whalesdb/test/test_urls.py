@@ -36,28 +36,28 @@ class URLTest(TestCase):
         self.basic_en_url_test('whalesdb:close_me', 'whalesdb/close', views.CloserTemplateView)
 
     def test_url_create_stn_view(self):
-        self.basic_en_url_test('whalesdb:create_stn', 'whalesdb/create/stn', views.CreateStn)
+        self.basic_en_url_test('whalesdb:create_stn', 'whalesdb/create/stn/', views.CreateStn)
 
     def test_url_list_stn_view(self):
-        self.basic_en_url_test('whalesdb:list_stn', 'whalesdb/list/stn', views.ListStn)
+        self.basic_en_url_test('whalesdb:list_stn', 'whalesdb/list/stn/', views.ListStn)
 
     def test_url_details_stn_view(self):
-        self.basic_en_url_test('whalesdb:details_stn', 'whalesdb/details/stn/1', views.DetailsStn, {1})
+        self.basic_en_url_test('whalesdb:details_stn', 'whalesdb/details/stn/1/', views.DetailsStn, {1})
 
     def test_url_create_prj_view(self):
-        self.basic_en_url_test('whalesdb:create_prj', 'whalesdb/create/prj', views.CreatePrj)
+        self.basic_en_url_test('whalesdb:create_prj', 'whalesdb/create/prj/', views.CreatePrj)
 
     def test_url_list_prj_view(self):
-        self.basic_en_url_test('whalesdb:list_prj', 'whalesdb/list/prj', views.ListPrj)
+        self.basic_en_url_test('whalesdb:list_prj', 'whalesdb/list/prj/', views.ListPrj)
 
     def test_url_details_prj_view(self):
-        self.basic_en_url_test('whalesdb:details_prj', 'whalesdb/details/prj/1', views.DetailsPrj, {1})
+        self.basic_en_url_test('whalesdb:details_prj', 'whalesdb/details/prj/1/', views.DetailsPrj, {1})
 
     def test_url_create_mor_view(self):
-        self.basic_en_url_test('whalesdb:create_mor', 'whalesdb/create/mor', views.CreateMor)
+        self.basic_en_url_test('whalesdb:create_mor', 'whalesdb/create/mor/', views.CreateMor)
 
     def test_url_list_mor_view(self):
-        self.basic_en_url_test('whalesdb:list_mor', 'whalesdb/list/mor', views.ListMor)
+        self.basic_en_url_test('whalesdb:list_mor', 'whalesdb/list/mor/', views.ListMor)
 
     def test_url_details_mor_view(self):
-        self.basic_en_url_test('whalesdb:details_mor', 'whalesdb/details/mor/1', views.DetailsMor, {1})
+        self.basic_en_url_test('whalesdb:details_mor', 'whalesdb/details/mor/1/', views.DetailsMor, {1})

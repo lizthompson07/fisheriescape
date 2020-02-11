@@ -1,11 +1,10 @@
-from django.views.generic import TemplateView, CreateView, ListView, DetailView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
+from django.views.generic import TemplateView, CreateView, DetailView, UpdateView
+from django.contrib.auth.mixins import UserPassesTestMixin
+
 from django.urls import reverse, reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
-import os
 
 from . import forms
 from . import models
@@ -51,11 +50,14 @@ class CloserNoRefreshTemplateView(TemplateView):
     template_name = 'whalesdb/close_me_no_refresh.html'
 
 
-class CreateCommon(LoginRequiredMixin, CreateView):
+class CreateCommon(UserPassesTestMixin, CreateView):
     login_url = '/accounts/login_required/'
     title = None
     # create views are all intended to be pop out windows so upon success close the window
     success_url = reverse_lazy("whalesdb:close_me")
+
+    def test_func(self):
+        return self.request.user.groups.filter(name='whalesdb_admin').exists()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -148,6 +150,9 @@ class ListCommon(FilterView):
 
         if self.details_url:
             context['details_url'] = self.details_url
+
+        context['auth'] = self.request.user.is_authenticated and \
+                          self.request.user.groups.filter(name='whalesdb_admin').exists()
 
         return context
 
