@@ -53,7 +53,6 @@ if not GOOGLE_API_KEY:
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
 # Quick-start development settings - unsuitable for production
@@ -195,14 +194,12 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 # STATIC_ROOT = STATIC_DIR
 
-if PRODUCTION_SERVER:
-    STATIC_ROOT = STATIC_DIR
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = STATIC_DIR = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-else:
-    STATICFILES_DIRS = [
-        STATIC_DIR,
-    ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
