@@ -157,6 +157,9 @@ class SpeciesCreateView(VaultAccessRequired, CreateView):
     model = models.Species
     form_class = forms.SpeciesForm
 
+    def form_valid(self, form):
+        messages.success(self.request, _("Species record successfully created for : {}".format(self.object)))
+        return super().form_valid(form)
 
 class SpeciesDeleteView(VaultAccessRequired, DeleteView):
     model = models.Species
@@ -186,6 +189,7 @@ class ObservationPlatformListView(VaultAccessRequired, FilterView):
         context["my_object"] = models.ObservationPlatform.objects.first()
         context["field_list"] = [
             'id',
+            'observation_platform_type',
             'authority',
             'make_model',
             'owner',
@@ -224,6 +228,10 @@ class ObservationPlatformUpdateView(VaultAccessRequired, UpdateView):
 class ObservationPlatformCreateView(VaultAccessRequired, CreateView):
     model = models.ObservationPlatform
     form_class = forms.ObservationPlatformForm
+
+    def form_valid(self, form):
+        messages.success(self.request, _("ObservationPlatform record successfully created for : {}".format(self.object)))
+        return super().form_valid(form)
 
 
 class ObservationPlatformDeleteView(VaultAccessRequired, DeleteView):
