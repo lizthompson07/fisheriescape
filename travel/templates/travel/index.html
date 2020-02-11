@@ -16,60 +16,70 @@
                 <h1 class="three-em">
                     {% trans "Travel Management System" %}
                 </h1>
+                <h2>(Pre-approval to Travel)</h2>
                 <hr>
-                {% url 'travel:trip_list' as event_list_url %}
-                {% url 'travel:trip_review_list' "awaiting" as event_approval_list_url %}
-                {% url 'travel:trip_review_list' as event_assigned_list_url %}
-                {% url 'travel:trip_new' as event_new_url %}
+                {% url 'travel:request_list' as event_list_url %}
+                {% url 'travel:request_review_list' "awaiting" as event_approval_list_url %}
+                {% url 'travel:request_review_list' as event_assigned_list_url %}
+                {% url 'travel:request_new' as event_new_url %}
                 {% url 'travel:admin_approval_list' as admin_approval_list_url %}
+                {% url 'travel:admin_trip_verification_list' as trip_verification_list_url %}
                 <br>
-                <h2>
+                <h3>
                     {% blocktrans %}
-                        <a href="{{ event_new_url }}">New</a> trip.
+                        <a href="{{ event_new_url }}">New</a> request.
                     {% endblocktrans %}
                     <br><br>
-                    {% if user.user_trips.count > 0 %}
+                    {% if user.user_trip_requests.count > 0 %}
                         {% with user.id as user_id %}
                             {% blocktrans with event_list_url|add:"?user=" as your_url and user_id as user_id %}
-                                View <a href="{{ your_url }}{{ user_id }}">your</a> trips
-                            {% endblocktrans %} ({{ user.user_trips.count }}).
+                                View <a href="{{ your_url }}{{ user_id }}">your</a> requests
+                            {% endblocktrans %} ({{ user.user_trip_requests.count }}).
                             <br><br>
                         {% endwith %}
                     {% endif %}
 
 
                     {% blocktrans %}
-                        <a href="{{ event_list_url }}">List</a> all trips.
+                        <a href="{{ event_list_url }}">List</a> all requests.
                     {% endblocktrans %}
-                    <br>
                     <br>
                     <br>
                     {% if is_reviewer or is_admin %}
                         <hr>
                         {% if is_reviewer %}
-{#                            <span class="{% if number_waiting > 0 %}highlight{% endif %}">#}
+                            {#                            <span class="{% if number_waiting > 0 %}highlight{% endif %}">#}
                             {% blocktrans %}
-                                Trips awaiting your <a href="{{ event_approval_list_url }}">review</a>
+                                Trip requests awaiting your <a href="{{ event_approval_list_url }}">review</a>
                             {% endblocktrans %}
                             (<span class="{% if number_waiting > 0 %}red-font blink-me{% endif %}">{{ number_waiting }}</span>).
-{#                            </span>#}
+                            {#                            </span>#}
                             <br><br>
                             {% blocktrans %}
-                                Trips <a href="{{ event_assigned_list_url }}">assigned</a> to you
+                                Trip requests <a href="{{ event_assigned_list_url }}">assigned</a> to you
                             {% endblocktrans %}
                             (<span>{{ user.reviewers.count }}</span>).
                             <br><br>
                         {% endif %}
+                        {# ADMIN ONLY STUFF #}
                         {% if is_admin %}
+                            <hr>
                             {% blocktrans %}
-                                Trips awaiting admin <a href="{{ admin_approval_list_url }}">approval</a>
+                                Trip requests awaiting admin <a href="{{ admin_approval_list_url }}">approval</a>
                             {% endblocktrans %}
                             (<span class="{% if admin_number_waiting > 0 %}red-font blink-me{% endif %}">{{ admin_number_waiting }}</span>).
+                            <br><br>
+                            {% blocktrans %}
+                                Trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>
+                            {% endblocktrans %}
+                            (<span class="{% if unverified_trips > 0 %}red-font blink-me{% endif %}">{{ unverified_trips }}</span>).
+
+
                         {% endif %}
                     {% endif %}
 
 
-                </h2>
+                </h3>
                 <br><br>
                 <div class="">
 
