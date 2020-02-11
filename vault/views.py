@@ -1,3 +1,5 @@
+from django.utils.translation import gettext as _
+
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from django.contrib import messages
@@ -96,17 +98,32 @@ def index(request):
 # # ###########
 # #
 #
-class ItemsListView(VaultAccessRequired, FilterView):
-    template_name = "vault/item_list.html"
-    filterset_class = filters.ItemsFilter
-    queryset = models.Items.objects.annotate(
-        search_term=Concat('unique_id', 'item_name', 'description', 'owner', 'size', 'container_space', 'category', 'type', output_field=TextField()))
+
+def my_fusrt_vuew(request):
+    context = dict()
+    context["tag"] = request.user
+    return render(request, "vault/test.html", context)
 
 class SpeciesListView(VaultAccessRequired, FilterView):
     template_name = "vault/species_list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
         search_term=Concat('code', 'english_name', 'french_name', 'latin_name', 'id', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Species.objects.first()
+        context["field_list"] = [
+            'id',
+            'code',
+            'french_name',
+            'english_name',
+            'latin_name',
+            'vor_code',
+            'quebec_code',
+            'aphia_id',
+        ]
+        return context
 
 #
 class SpeciesDetailView(VaultAccessRequired, DetailView):
@@ -116,34 +133,109 @@ class SpeciesDetailView(VaultAccessRequired, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'id',
+            'code',
             'english_name',
             'french_name',
             'latin_name',
+            'vor_code',
+            'quebec_code',
             'aphia_id',
         ]
         return context
 
 #
-# class SpeciesUpdateView(DietsAccessRequired, UpdateView):
-#     model = models.Species
-#     form_class = forms.SpeciesForm
+class SpeciesUpdateView(VaultAccessRequired, UpdateView):
+    model = models.Species
+    form_class = forms.SpeciesForm
+
+    def form_valid(self, form):
+        messages.success(self.request, _("Species record successfully updated for : {}".format(self.object)))
+        return super().form_valid(form)
+
+
+class SpeciesCreateView(VaultAccessRequired, CreateView):
+    model = models.Species
+    form_class = forms.SpeciesForm
+
+
+class SpeciesDeleteView(VaultAccessRequired, DeleteView):
+    model = models.Species
+    permission_required = "__all__"
+    success_url = reverse_lazy('vault:species_list')
+    success_message = 'The species was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
 #
 #
-# class SpeciesCreateView(DietsAccessRequired, CreateView):
-#     model = models.Species
-#     form_class = forms.SpeciesForm
+# #
+# # # OBSERVATIONPLAFORM #
+# # ###########
+# #
 #
+class ObservationPlatformListView(VaultAccessRequired, FilterView):
+    template_name = "vault/observationplatform_list.html"
+    filterset_class = filters.ObservationPlatformFilter
+    queryset = models.ObservationPlatform.objects.annotate(
+        search_term=Concat('authority', 'owner', 'make_model', 'name', 'longname', 'id', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.ObservationPlatform.objects.first()
+        context["field_list"] = [
+            'id',
+            'authority',
+            'make_model',
+            'owner',
+            'name',
+            'longname',
+        ]
+        return context
+
 #
-# class SpeciesDeleteView(DietsAccessRequired, DeleteView):
-#     model = models.Species
-#     permission_required = "__all__"
-#     success_url = reverse_lazy('diets:species_list')
-#     success_message = 'The species was successfully deleted!'
+class ObservationPlatformDetailView(VaultAccessRequired, DetailView):
+    model = models.ObservationPlatform
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'observation_platform_type',
+            'authority',
+            'make_model',
+            'owner',
+            'name',
+            'longname',
+        ]
+        return context
+
 #
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
+class ObservationPlatformUpdateView(VaultAccessRequired, UpdateView):
+    model = models.ObservationPlatform
+    form_class = forms.ObservationPlatformForm
+
+    def form_valid(self, form):
+        messages.success(self.request, _("ObservationPlatform record successfully updated for : {}".format(self.object)))
+        return super().form_valid(form)
+
+
+class ObservationPlatformCreateView(VaultAccessRequired, CreateView):
+    model = models.ObservationPlatform
+    form_class = forms.ObservationPlatformForm
+
+
+class ObservationPlatformDeleteView(VaultAccessRequired, DeleteView):
+    model = models.ObservationPlatform
+    permission_required = "__all__"
+    success_url = reverse_lazy('vault:observationplatform_list')
+    success_message = 'The observation plaform was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
 #
 # # PREDATOR #
 # ############

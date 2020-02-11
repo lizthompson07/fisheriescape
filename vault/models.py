@@ -5,53 +5,25 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
-class Items(models.Model):
-    unique_id = models.CharField(max_length=250, blank=False, null=False, verbose_name=_(""))
-    item_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    owner = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    size = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    container_space = models.IntegerField(null=True, blank=True)
-    category = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    type = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-
-class Quantity(models.Model):
-    items_quantity = models.ForeignKey(Items, on_delete=models.DO_NOTHING, related_name="items",
-                      verbose_name=_("items"))
-    unique_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    quantity_oh = models.IntegerField(null=True, blank=True)
-    quantity_oo = models.IntegerField(null=True, blank=True)
-    last_audited = models.DateTimeField(blank=True, null=True)
-    last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    location_stored = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-
-class Supplier(models.Model):
-    items_supplier = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    supplier = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    contact_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    last_invoice = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    last_purchased = models.DateTimeField(blank=True, null=True)
-    last_purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-
-class Lending(models.Model):
-    quantity_unique_id = models.ForeignKey(Quantity, on_delete=models.DO_NOTHING, related_name="items",
-                      verbose_name=_("items"))
-    quantity = models.IntegerField(null=True, blank=True)
-    lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    lent_date = models.DateTimeField(blank=True, null=True)
-
 class Species(models.Model):
-    code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_(""))
-    english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("Internal code"), unique=True)
+    english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("English name"))
+    french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("French name"))
+    latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Scientific name"))
     vor_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("VOR code"))
     quebec_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Quebec code"))
-    aphia_id = models.IntegerField(null=True, blank=True)
+    aphia_id = models.IntegerField(null=True, blank=True, verbose_name=_("ID in World Registry of Marine Species"))
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("english_name"))):
 
+            return "{}".format(getattr(self, str(_("english_name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.english_name)
+
+    def get_absolute_url(self):
+        return reverse("vault:species_detail", kwargs={"pk":self.id})
 
 class Role(models.Model):
     name = models.CharField(max_length=255)
@@ -166,11 +138,12 @@ class ObservationPlatformType(models.Model):
 
 class ObservationPlatform(models.Model):
     observation_platform_type = models.ForeignKey(ObservationPlatformType, on_delete=models.DO_NOTHING, related_name="platforms",
-                                                  verbose_name=_("type of observation platform"))
-    authority = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    owner = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    make_model = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+                                                  verbose_name=_("Type of observation platform"))
+    authority = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Authority"))
+    owner = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Owner"))
+    make_model = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Make and model"))
+    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Call name"))
+    longname = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Long name"))
 
 
 class Outing(models.Model):

@@ -15,22 +15,22 @@ urlpatterns = [
     # path('upload-csv/', profile_upload, name="profile_upload")
 #     # SPECIES #
 #     ###########
-    path('species_list/', views.SpeciesListView.as_view(), name="species_list"),
-#     # path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
+    path('species-list1/', views.my_fusrt_vuew, name="species_list"),
+    path('species-list/', views.SpeciesListView.as_view(), name="species_list"),
+    path('species/new/', views.SpeciesCreateView.as_view(), name="species_new"),
     path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
-#     # path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
-#     # path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
-    path('item_list/', views.ItemsListView.as_view(), name="item_list")
+    path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
+    path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
     #
 
-    # # PREDATORS #
+    # # OBSERVAION PLATFORMS #
     # #############
-    # path('predators/', views.PredatorFilterView.as_view(), name="predator_filter"),
-    # path('predator/new/', views.PredatorCreateView.as_view(), name="predator_new"),
-    # path('predator/new/cruise/<int:cruise>/', views.PredatorCreateView.as_view(), name="predator_new"),
-    # path('predator/<int:pk>/view/', views.PredatorDetailView.as_view(), name="predator_detail"),
-    # path('predator/<int:pk>/edit/', views.PredatorUpdateView.as_view(), name="predator_edit"),
-    # path('predator/<int:pk>/delete/', views.PredatorDeleteView.as_view(), name="predator_delete"),
+    path('observationplatform-list/', views.ObservationPlatformListView.as_view(), name="observationplatform_list"),
+    path('observationplatform/new/', views.ObservationPlatformCreateView.as_view(), name="observationplatform_new"),
+    path('observationplatform/<int:pk>/view/', views.ObservationPlatformDetailView.as_view(), name="observationplatform_detail"),
+    path('observationplatform/<int:pk>/edit/', views.ObservationPlatformUpdateView.as_view(), name="observationplatform_edit"),
+    path('observationplatform/<int:pk>/delete/', views.ObservationPlatformDeleteView.as_view(), name="observationplatform_delete"),
+
     #
     # # PREY #
     # ########
