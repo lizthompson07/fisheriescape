@@ -16,8 +16,8 @@ urlpatterns = [
     path('denied/scifi/', views.access_denied_scifi, name='denied_access_scifi'),
 
 
-    path('login', views.sign_in, name='login'),
-    path('callback', views.callback, name='callback'),
+    path('login/', views.sign_in, name='login'),
+    path('callback/', views.callback, name='callback'),
 
     path('signup/', views.signup, name='signup'),
     path('activate/<str:uidb64>/<str:token>', views.activate, name='activate'),
