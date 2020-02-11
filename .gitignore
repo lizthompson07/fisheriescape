@@ -84,3 +84,8 @@ temp/
 # Shell scripts #
 #################
 *.sh
+
+
+# AZURE AD #
+############
+oauth_settings.yml
