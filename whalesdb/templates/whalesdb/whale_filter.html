@@ -34,6 +34,8 @@
         </form>
     </div>
 
+    {# if the user is authenticated and has permissions show the add button #}
+    {% if auth %}
     <div class="row">
         <div class="col-1">
             <a class="btn btn-primary" href="#"
@@ -41,6 +43,7 @@
                 title="{% trans 'Add Station' %}">+</a>
         </div>
     </div>
+    {% endif %}
 
     <div class="container mt-1 nl-n1">
         <div class="row">
