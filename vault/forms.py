@@ -29,12 +29,18 @@ from shared_models import models as shared_models
 #         fields = "__all__"
 #
 #
-# class SpeciesForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Species
-#         fields = "__all__"
+class SpeciesForm(forms.ModelForm):
+    class Meta:
+        model = models.Species
+        fields = "__all__"
 #
 #
+class ObservationPlatformForm(forms.ModelForm):
+    class Meta:
+        model = models.ObservationPlatform
+        fields = "__all__"
+
+
 # class PredatorForm(forms.ModelForm):
 #     class Meta:
 #         model = models.Predator

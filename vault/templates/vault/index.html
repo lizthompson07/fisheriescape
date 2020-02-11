@@ -69,7 +69,6 @@
         }
     </style>
 
-    {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
     <div class="container">
         <div class="jumbotron">
             <h1>Marine Megafauna Media Vault</h1>
@@ -77,43 +76,8 @@
     </div>
     </div>
 
-{#    <div align="center">#}
-{#        <img src="{% static "/img/vault/whales.png" %}" class="rounded" width="95%" alt="...">#}
-{##}
-{#    </div>#}
     <div align="center">
         <p style="font-size: small">Photo by guille pozzi on Unsplash</p>
     </div>
-
-<div class="card">
-    <div class="card-img">
-        <img class="card-img-top" src="{% static 'img/vault/inventory.png' %}" alt="Card image" style="width: 85%">
-    </div>
-<div class="card-body">
-        <h4 class="card-title">
-            {% trans "Inventory" %}
-        </h4>
-
-        <div class="btns">
-            <a href="{% url 'vault:item_list' %}" class="btn my-btn btn btn-primary">Items</a>
-        </div>
-        <br>
-    </div>
-</div>
-
-<div class="card">
-    <div class="card-img">
-        <img class="card-img-top" src="{% static 'img/vault/upload.png' %}" alt="Card image" style="width: 85%">
-    </div>
-<div class="card-body">
-        <h4 class="card-title">
-            {% trans "Upload CSV" %}
-        </h4>
-
-        <div class="btns">
-        </div>
-        <br>
-    </div>
-</div>
 
 {% endblock content %}
