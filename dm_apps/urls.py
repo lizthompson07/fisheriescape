@@ -141,6 +141,6 @@ try:
 except RuntimeError:
     print("not connecting SAR Search")
 
-if not settings.PRODUCTION_SERVER:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
-                                                                                            document_root=settings.MEDIA_ROOT)
+# if not settings.DEBUG:
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
+                                                                                       document_root=settings.MEDIA_ROOT)
