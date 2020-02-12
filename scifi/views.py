@@ -738,7 +738,7 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewEntryEmail(self.object)
         # send the email object
-        if settings.PRODUCTION_SERVER and email.to_list:
+        if settings.DEBUG and email.to_list:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
             messages.success(self.request,
