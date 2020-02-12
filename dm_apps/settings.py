@@ -67,6 +67,7 @@ except UndefinedValueError:
 
 
 ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
+AZURE_AD = local_conf.AZURE_AD
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'accounts/login/'
