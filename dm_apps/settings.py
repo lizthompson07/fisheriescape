@@ -28,14 +28,32 @@ except ModuleNotFoundError and ImportError:
 else:
     print("using custom configuration file: 'my_conf.py'.")
 
-PRODUCTION_SERVER = local_conf.PRODUCTION_SERVER
+
+
+try:
+    DEBUG = local_conf.DEBUG
+except AttributeError:
+    DEBUG = False
+
+try:
+    SHOW_TICKETING_APP = local_conf.SHOW_TICKETING_APP
+except AttributeError:
+    SHOW_TICKETING_APP = True
+
+print(SHOW_TICKETING_APP)
+try:
+    ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
+except AttributeError:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+try:
+    AZURE_AD = local_conf.AZURE_AD
+except AttributeError:
+    AZURE_AD = False
+
+
 USING_PRODUCTION_DB = local_conf.USING_PRODUCTION_DB
 USING_LOCAL_DB = local_conf.USING_LOCAL_DB
-try:
-    DEBUG_ON = local_conf.DEBUG
-except AttributeError:
-    DEBUG_ON = False
-
 DEV_DB_NAME = local_conf.DEV_DB_NAME
 DEV_DB_HOST = local_conf.DEV_DB_HOST
 
@@ -66,13 +84,7 @@ except UndefinedValueError:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# If in production mode, turn off debugging
-if PRODUCTION_SERVER and not DEBUG_ON:
-    DEBUG = False
-else:
-    DEBUG = True
 
-ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'accounts/login/'
@@ -89,7 +101,7 @@ INSTALLED_APPS = [
                      'bootstrap4',
                      'el_pagination',
                      'easy_pdf',
-                     # 'tracking',
+                     'tracking',
                      'accounts',
                      'lib',
                      'shared_models',
@@ -99,7 +111,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    # 'tracking.middleware.VisitorTrackingMiddleware',
+    'tracking.middleware.VisitorTrackingMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -194,9 +206,12 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 # STATIC_ROOT = STATIC_DIR
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
