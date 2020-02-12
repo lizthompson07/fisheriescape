@@ -39,7 +39,7 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-    if settings.SHOW_TICKETS_APP:
+    if settings.SHOW_TICKETING_APP:
         try:
             app_dict["tickets"] = {
                 "title": _("Data Management Tickets"),
