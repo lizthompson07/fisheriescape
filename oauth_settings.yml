@@ -1,7 +1,0 @@
-app_id: "7c0933f3-9e00-4070-bcd8-bb48a4bec0f1"
-app_secret: "UyX2QjyMd/WBtZi4f/_-IpXTpinGcq00"
-redirect: "http://localhost:8000/accounts/callback"
-scopes: "openid user.read"
-authority: "https://login.microsoftonline.com/1594fdae-a1d9-4405-915d-011467234338"
-authorize_endpoint: "/oauth2/v2.0/authorize"
-token_endpoint: "/oauth2/v2.0/token"
