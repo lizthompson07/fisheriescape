@@ -31,7 +31,7 @@ def in_shares_group(user):
 
 
 class SharesAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/accounts/login_required/'
+
 
     def test_func(self):
         return in_shares_group(self.request.user)
@@ -49,7 +49,7 @@ def in_shares_admin_group(user):
 
 
 class SharesAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/accounts/login_required/'
+
 
     def test_func(self):
         return in_shares_admin_group(self.request.user)

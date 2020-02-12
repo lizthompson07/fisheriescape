@@ -29,7 +29,6 @@ else:
     print("using custom configuration file: 'my_conf.py'.")
 
 
-
 try:
     DEBUG = local_conf.DEBUG
 except AttributeError:
@@ -40,7 +39,6 @@ try:
 except AttributeError:
     SHOW_TICKETING_APP = True
 
-print(SHOW_TICKETING_APP)
 try:
     ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
 except AttributeError:
@@ -87,7 +85,7 @@ except UndefinedValueError:
 
 
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = 'accounts/login/'
+LOGIN_URL = '/accounts/login/'
 
 # Application definition
 INSTALLED_APPS = [
@@ -167,14 +165,16 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Email settings
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
-# EMAIL_PORT = 587
-EMAIL_PORT = 25
-EMAIL_USE_TLS = False
+
+try:
+    EMAIL_HOST = config('EMAIL_HOST', str)
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER', str)
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', str)
+    EMAIL_PORT = config('EMAIL_PORT', int)
+    EMAIL_USE_TLS = config('EMAIL_USE_TLS', bool)
+except UndefinedValueError:
+    print("No email service credentials found in system config.")
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
