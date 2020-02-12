@@ -53,7 +53,7 @@ class CloserNoRefreshTemplateView(TemplateView):
 
 
 class CreateCommon(LoginRequiredMixin, CreateView):
-    login_url = '/accounts/login_required/'
+    login_url = reverse("accounts:login")
 
 
 class CreatePrj(CreateCommon):

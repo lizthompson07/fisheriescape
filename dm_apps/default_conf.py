@@ -33,7 +33,6 @@ DEBUG = True
 # add your hostname here.
 ALLOWED_HOSTS = ['127.0.0.1', ]
 
-
 # If the line below is uncommented, you will connect to the dev database even if production database strings are present
 FORCE_DEV_DB = True
 
