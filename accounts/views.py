@@ -65,54 +65,15 @@ class CloserTemplateView(TemplateView):
     template_name = 'accounts/close_me.html'
 
 
-def access_denied(request):
+# This is a good one. It should be able to replace all others with the message arg.
+def access_denied(request, message=None):
     my_url = reverse("accounts:request_access")
-    a_tag = mark_safe('<a pop-href="{}" href="#" class="request-access-button">this</a>'.format(my_url))
-    denied_message = "Sorry, you are not authorized to view this page. You can request access using {} form.".format(
-        a_tag)
+    a_tag = mark_safe(
+        '<a pop-href="{}" href="#" class="btn btn-sm btn-success request-access-button">{}</a>'.format(my_url, _("Request access")))
+    if not message:
+        message = _("Sorry, you are not authorized to view this page.")
+    denied_message = "{} {}".format(message, a_tag)
     messages.error(request, mark_safe(denied_message))
-    # send user back to the page that they came from
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def access_denied_custodian(request):
-    denied_message = "Sorry, only custodians and system administrators have access to this view."
-    messages.error(request, denied_message)
-    # send user back to the page that they came from
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def access_denied_adm(request):
-    denied_message = "Sorry, only ADMO administrators can verify projects that require ADM approval."
-    messages.error(request, denied_message)
-    # send user back to the page that they came from
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def access_denied_project_leads_only(request):
-    denied_message = _("Sorry, you do not have the necessary permissions to access to this page.")
-    messages.error(request, denied_message)
-    # send user back to the page that they came from
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def access_denied_section_heads_only(request):
-    denied_message = _("Sorry, you need to be a manager of this project in order to access this page.")
-    messages.error(request, denied_message)
-    # send user back to the page that they came from
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def access_denied_manager_or_admin_only(request):
-    denied_message = _("Sorry, you need to be a manager or site admin in order to access this page.")
-    messages.error(request, denied_message)
-    # send user back to the page that they came from
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def access_denied_scifi(request):
-    denied_message = "Sorry, you do not have the permissions to modify this record."
-    messages.error(request, denied_message)
     # send user back to the page that they came from
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -229,7 +190,7 @@ def resend_verification_email(request, email):
     email = EmailMessage(
         mail_subject, message, to=[to_email], from_email=from_email,
     )
-    if settings.DEBUG:
+    if settings.USE_EMAIL:
         email.send()
     else:
         print('not sending email since in dev mode')
@@ -277,7 +238,7 @@ def signup(request):
             email = EmailMessage(
                 mail_subject, message, to=[to_email], from_email=from_email,
             )
-            if settings.DEBUG:
+            if settings.USE_EMAIL:
                 email.send()
             else:
                 print('not sending email since in dev mode')
@@ -330,16 +291,7 @@ class UserPasswordResetConfirmView(PasswordResetConfirmView):
         return reverse('index')
 
 
-class UserLoginRequiredView(LoginView):
-    template_name = "registration/login.html"
-
-    def get_context_data(self, **kwargs):
-        messages.error(self.request, "You must be logged in to access this page")
-        return super(UserLoginRequiredView, self).get_context_data(**kwargs)
-
-
 class RequestAccessFormView(LoginRequiredMixin, FormView):
-    login_url = 'accounts/login_required'
     template_name = "accounts/request_access_form_popout.html"
     form_class = forms.RequestAccessForm
 
@@ -364,7 +316,7 @@ class RequestAccessFormView(LoginRequiredMixin, FormView):
         }
         email = emails.RequestAccessEmail(context)
         # send the email object
-        if settings.DEBUG:
+        if settings.USE_EMAIL:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
