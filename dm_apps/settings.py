@@ -28,13 +28,32 @@ except ModuleNotFoundError and ImportError:
 else:
     print("using custom configuration file: 'my_conf.py'.")
 
-USING_PRODUCTION_DB = local_conf.USING_PRODUCTION_DB
-USING_LOCAL_DB = local_conf.USING_LOCAL_DB
+
+
 try:
     DEBUG = local_conf.DEBUG
 except AttributeError:
     DEBUG = False
 
+try:
+    SHOW_TICKETS_APP = local_conf.SHOW_TICKETS_APP
+except AttributeError:
+    SHOW_TICKETS_APP = True
+
+
+try:
+    ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
+except AttributeError:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+try:
+    AZURE_AD = local_conf.AZURE_AD
+except AttributeError:
+    AZURE_AD = False
+
+
+USING_PRODUCTION_DB = local_conf.USING_PRODUCTION_DB
+USING_LOCAL_DB = local_conf.USING_LOCAL_DB
 DEV_DB_NAME = local_conf.DEV_DB_NAME
 DEV_DB_HOST = local_conf.DEV_DB_HOST
 
@@ -66,8 +85,6 @@ except UndefinedValueError:
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
-AZURE_AD = local_conf.AZURE_AD
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = 'accounts/login/'
