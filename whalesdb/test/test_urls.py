@@ -38,6 +38,9 @@ class URLTest(TestCase):
     def test_url_create_stn_view(self):
         self.basic_en_url_test('whalesdb:create_stn', 'whalesdb/create/stn/', views.CreateStn)
 
+    def test_url_update_stn_view(self):
+        self.basic_en_url_test('whalesdb:update_stn', 'whalesdb/update/stn/1/', views.UpdateStn, {1})
+
     def test_url_list_stn_view(self):
         self.basic_en_url_test('whalesdb:list_stn', 'whalesdb/list/stn/', views.ListStn)
 
@@ -47,6 +50,9 @@ class URLTest(TestCase):
     def test_url_create_prj_view(self):
         self.basic_en_url_test('whalesdb:create_prj', 'whalesdb/create/prj/', views.CreatePrj)
 
+    def test_url_update_prj_view(self):
+        self.basic_en_url_test('whalesdb:update_prj', 'whalesdb/update/prj/1/', views.UpdatePrj, {1})
+
     def test_url_list_prj_view(self):
         self.basic_en_url_test('whalesdb:list_prj', 'whalesdb/list/prj/', views.ListPrj)
 
@@ -55,6 +61,9 @@ class URLTest(TestCase):
 
     def test_url_create_mor_view(self):
         self.basic_en_url_test('whalesdb:create_mor', 'whalesdb/create/mor/', views.CreateMor)
+
+    def test_url_update_mor_view(self):
+        self.basic_en_url_test('whalesdb:update_mor', 'whalesdb/update/mor/1/', views.UpdateMor, {1})
 
     def test_url_list_mor_view(self):
         self.basic_en_url_test('whalesdb:list_mor', 'whalesdb/list/mor/', views.ListMor)
