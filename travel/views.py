@@ -459,7 +459,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
                 # send an email to the request owner
                 my_email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
                 # send the email object
-                if settings.DEBUG:
+                if settings.USE_EMAIL:
                     send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                               recipient_list=my_email.to_list, fail_silently=False, )
                 else:
@@ -616,7 +616,7 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
         # send an email to the trip_request owner
         my_email = emails.StatusUpdateEmail(my_trip_request)
         # # send the email object
-        if settings.DEBUG:
+        if settings.USE_EMAIL:
             send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                       recipient_list=my_email.to_list, fail_silently=False, )
         else:
@@ -998,7 +998,7 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
             # create a new email object
             email = emails.NewTripEmail(my_object)
             # send the email object
-            if settings.DEBUG:
+            if settings.USE_EMAIL:
                 send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                           recipient_list=email.to_list, fail_silently=False, )
             else:
