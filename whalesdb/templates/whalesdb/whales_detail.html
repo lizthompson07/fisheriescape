@@ -11,7 +11,8 @@
 
 {% block body %}
 <div class="container mt-1" >
-<a class="btn btn-primary" href="{% url 'whalesdb:list_prj' %}">{% trans 'Back to list' %}</a>
+    <a class="btn btn-primary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
+    <a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:update_url object.pk %}','popoutWindow')" title="{% trans 'Add' %}">{% trans 'Update' %}</a>
 
     {% block field_override %}
         <h2>{{ object.prj_name }}</h2>

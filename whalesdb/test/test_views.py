@@ -14,6 +14,10 @@ from whalesdb import views, models, forms
 import os
 
 
+###########################################################################################
+# Common Test for all views, this includes checking that a view is accessible or provides
+# a redirect if permissions are required to access a view
+###########################################################################################
 class CommonTest(TestCase):
     test_url = None
     test_expected_template = None
@@ -42,6 +46,9 @@ class CommonTest(TestCase):
             self.assertEqual("{}{}".format(self.login_url_base, self.test_url), response.url)
 
 
+###########################################################################################
+# Index View is a bit different from most views as it is basically just a landing page
+###########################################################################################
 class TestIndexView(CommonTest):
 
     def setUp(self):
@@ -89,7 +96,10 @@ class TestIndexView(CommonTest):
         self.assertEquals('Mooring Setup List', mor_list['title'])
 
 
-class ListTest(CommonTest):
+###########################################################################################
+# List Test contain tests used from common Test also adding tests specific for list/filter views
+###########################################################################################
+class CommonListTest(CommonTest):
 
     def setUp(self):
         super().setUp()
@@ -117,7 +127,7 @@ class ListTest(CommonTest):
         return response
 
 
-class TestListStation(ListTest):
+class TestListStation(CommonListTest):
 
     def setUp(self):
         super().setUp()
@@ -142,9 +152,10 @@ class TestListStation(ListTest):
 
         self.assertEqual("whalesdb:create_stn", response.context['create_url'])
         self.assertEqual("whalesdb:details_stn", response.context['details_url'])
+        self.assertEqual("whalesdb:update_stn", response.context['update_url'])
 
 
-class TestListProject(ListTest):
+class TestListProject(CommonListTest):
 
     def setUp(self):
         super().setUp()
@@ -169,9 +180,10 @@ class TestListProject(ListTest):
 
         self.assertEqual("whalesdb:create_prj", response.context['create_url'])
         self.assertEqual("whalesdb:details_prj", response.context['details_url'])
+        self.assertEqual("whalesdb:update_prj", response.context['update_url'])
 
 
-class TestListMooring(ListTest):
+class TestListMooring(CommonListTest):
 
     def setUp(self):
         super().setUp()
@@ -196,9 +208,13 @@ class TestListMooring(ListTest):
 
         self.assertEqual("whalesdb:create_mor", response.context['create_url'])
         self.assertEqual("whalesdb:details_mor", response.context['details_url'])
+        self.assertEqual("whalesdb:update_mor", response.context['update_url'])
 
 
-class CreateTest(CommonTest):
+###########################################################################################
+# Create Tests include tests from common tests also adding tests for views extending the Create View
+###########################################################################################
+class CommonCreateTest(CommonTest):
 
     expected_form = None
     expected_view = None
@@ -285,7 +301,7 @@ class CreateTest(CommonTest):
         self.assertRedirects(response=response, expected_url=self.expected_success_url)
 
 
-class TestCreateProject(CreateTest):
+class TestCreateProject(CommonCreateTest):
     data = {
         "prj_name": 'PRJ_001',
         "prj_description": "Some project description here",
@@ -341,7 +357,7 @@ class TestCreateProject(CreateTest):
         super().assert_successful_url()
 
 
-class TestCreateStation(CreateTest):
+class TestCreateStation(CommonCreateTest):
     data = {
             "stn_name": "STN_001",
             "stn_code": "STN",
@@ -401,7 +417,7 @@ class TestCreateStation(CreateTest):
         super().assert_successful_url()
 
 
-class TestCreateMooring(CreateTest):
+class TestCreateMooring(CommonCreateTest):
 
     img_file_name = None
     img_file_path = None
@@ -474,7 +490,221 @@ class TestCreateMooring(CreateTest):
         super().assert_successful_url()
 
 
-class CommonDetails(CommonTest):
+###########################################################################################
+# Common update test has access to tests from Common Creation tests also adding test specific to
+# views extending UpdateView
+###########################################################################################
+class CommonUpdateTest(CommonCreateTest):
+    pass
+
+
+class TestUpdateStn(CommonUpdateTest):
+    data = {
+            "stn_name": "STN_001",
+            "stn_code": "STN",
+            "stn_revision": "1",
+            "stn_planned_lat": "25",
+            "stn_planned_lon": "50",
+            "stn_planned_depth": "10",
+            "stn_notes": "Some Notes"
+        }
+
+    def setUp(self):
+        super().setUp()
+
+        obj = models.StnStation(
+            stn_name=self.data['stn_name'],
+            stn_code=self.data['stn_code'],
+            stn_revision=self.data['stn_revision'],
+            stn_planned_lat=self.data['stn_planned_lat'],
+            stn_planned_lon=self.data['stn_planned_lon'],
+            stn_planned_depth=self.data['stn_planned_depth'],
+            stn_notes=self.data['stn_notes']
+        )
+        obj.save()
+
+        self.test_url = reverse_lazy('whalesdb:update_stn', args=(obj.pk,))
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form.html'
+
+        self.expected_view = views.UpdateStn
+
+        self.expected_form = forms.StnForm
+
+    # Users must be logged in to create new stations
+    @tag('update_stn', 'response', 'access')
+    def test_update_stn_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to update stations
+    @tag('update_stn', 'response', 'access')
+    def test_update_stn_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('update_stn', 'response', 'access')
+    def test_update_stn_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('update_stn', 'form')
+    def test_update_stn_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('update_stn', 'context')
+    def test_update_stn_context_fields(self):
+        super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('update_stn', 'redirect')
+    def test_update_stn_successful_url(self):
+        super().assert_successful_url()
+
+
+class TestUpdatePrj(CommonUpdateTest):
+    data = {
+        "prj_name": 'PRJ_001',
+        "prj_description": "Some project description here",
+        "prj_url": "https//noneOfYourBusiness.com"
+    }
+
+    def setUp(self):
+        super().setUp()
+
+        obj = models.PrjProject(
+            prj_name=self.data['prj_name'],
+            prj_description=self.data['prj_description'],
+            prj_url=self.data['prj_url'],
+        )
+        obj.save()
+
+        self.test_url = reverse_lazy('whalesdb:update_prj', args=(obj.pk,))
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form.html'
+
+        self.expected_view = views.UpdatePrj
+
+        self.expected_form = forms.PrjForm
+
+    # Users must be logged in to create new stations
+    @tag('update_prj', 'response', 'access')
+    def test_update_prj_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to update stations
+    @tag('update_prj', 'response', 'access')
+    def test_update_prj_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('update_prj', 'response', 'access')
+    def test_update_prj_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('update_prj', 'form')
+    def test_update_prj_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('update_prj', 'context')
+    def test_update_prj_context_fields(self):
+        super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('update_prj', 'redirect')
+    def test_update_prj_successful_url(self):
+        super().assert_successful_url()
+
+
+class TestUpdateMor(CommonUpdateTest):
+    data = {
+        "mor_name": "MOR_001",
+        "mor_max_depth": "10",
+        "mor_link_setup_image": "https://somelink.com/images/img001.png",
+        "mor_additional_equipment": "None",
+        "mor_general_moor_description": "This is a mooring description",
+        "more_notes": "Notes",
+    }
+
+    def setUp(self):
+        super().setUp()
+
+        obj = models.MorMooringSetup(
+            mor_name=self.data['mor_name'],
+            mor_max_depth=self.data['mor_max_depth'],
+            mor_link_setup_image=self.data['mor_link_setup_image'],
+            mor_additional_equipment=self.data['mor_additional_equipment'],
+            mor_general_moor_description=self.data['mor_general_moor_description'],
+            more_notes=self.data['more_notes'],
+        )
+        obj.save()
+
+        self.test_url = reverse_lazy('whalesdb:update_mor', args=(obj.pk,))
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form.html'
+
+        self.expected_view = views.UpdateMor
+
+        self.expected_form = forms.MorForm
+
+    # Users must be logged in to create new stations
+    @tag('update_mor', 'response', 'access')
+    def test_update_mor_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to update stations
+    @tag('update_mor', 'response', 'access')
+    def test_update_mor_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('update_mor', 'response', 'access')
+    def test_update_mor_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('update_mor', 'form')
+    def test_update_mor_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('update_mor', 'context')
+    def test_update_mor_context_fields(self):
+        super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('update_mor', 'redirect')
+    def test_update_mor_successful_url(self):
+        super().assert_successful_url()
+
+
+###########################################################################################
+# Common Detail test includes tests from Common Test also adding tests specific for views extending DetailsView
+###########################################################################################
+class CommonDetailsTest(CommonTest):
 
     fields = []
     _details_dict = None
@@ -493,8 +723,14 @@ class CommonDetails(CommonTest):
         for field in self.fields:
             self.assertIn(field, response.context['fields'])
 
+    def assert_context_fields(self, response):
+        super().assert_context_fields(response)
 
-class TestDetailsStation(CommonDetails):
+        self.assertIn("list_url", response.context)
+        self.assertIn("update_url", response.context)
+
+
+class TestDetailsStation(CommonDetailsTest):
 
     def createDict(self):
         if self._details_dict:
@@ -538,11 +774,14 @@ class TestDetailsStation(CommonDetails):
         response = self.client.get(self.test_url)
 
         super().assert_context_fields(response)
+        self.assertEqual(response.context['list_url'], 'whalesdb:list_stn')
+        self.assertEqual(response.context['update_url'], 'whalesdb:update_stn')
+
         self.assertEqual(response.context['object'], self.createDict()['stn_1'])
         super().assert_field_in_fields(response)
 
 
-class TestDetailsMooring(CommonDetails):
+class TestDetailsMooring(CommonDetailsTest):
 
     def createDict(self):
         if self._details_dict:
@@ -596,12 +835,14 @@ class TestDetailsMooring(CommonDetails):
         response = self.client.get(self.test_url)
 
         super().assert_context_fields(response)
+        self.assertEqual(response.context['list_url'], 'whalesdb:list_mor')
+        self.assertEqual(response.context['update_url'], 'whalesdb:update_mor')
 
         self.assertEqual(response.context["object"], self.createDict()['mor_1'])
         super().assert_field_in_fields(response)
 
 
-class TestDetailsProject(CommonDetails):
+class TestDetailsProject(CommonDetailsTest):
     def createDict(self):
         if self._details_dict:
             return self._details_dict
@@ -642,5 +883,8 @@ class TestDetailsProject(CommonDetails):
         response = self.client.get(self.test_url)
 
         super().assert_context_fields(response)
+        self.assertEqual(response.context['list_url'], 'whalesdb:list_prj')
+        self.assertEqual(response.context['update_url'], 'whalesdb:update_prj')
+
         self.assertEqual(response.context['object'], self.createDict()['prj_1'])
         super().assert_field_in_fields(response)
