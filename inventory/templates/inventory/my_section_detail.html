@@ -1,0 +1,138 @@
+{% extends "inventory/inventory_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block content %}
+
+
+    <div class="container">
+        {% if not object %}
+            <br><br>
+            <h3>
+                You have not been assigned to a section. Please contact site administrator if this is not correct.
+            </h3>
+        {% else %}
+
+            <h1>
+                {{ object.full_name }}
+            </h1>
+            <br><br>
+            <div class="row">
+
+                <div class="col">
+                    <h3>
+                        Data Resource Stats:
+                    </h3>
+
+                    {# Resource count: {{object.resources.count}} #}
+                    {# <br><br> #}
+
+                    Certified within past year ({{ certified_within_year }}/{{ object.resources.count }}):
+                    <div class="progress" style="height: 2.25em;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
+                             aria-valuenow="50" aria-valuemin="0" aria-valuemax="{{ object.resources.count }}"
+                             style="width: {{ certified_within_year|divide:object.resources.count|percentage }}">
+                            {{ certified_within_year|divide:object.resources.count|percentage }}
+                        </div>
+                    </div>
+                    <br>
+
+
+                    Certified with previous 6 months ({{ certified_within_6_months }}/{{ object.resources.count }}):
+                    <div class="progress" style="height: 2em;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar"
+                             aria-valuenow="50" aria-valuemin="0" aria-valuemax="{{ object.resources.count }}"
+                             style="width: {{ certified_within_6_months|divide:object.resources.count|percentage }}">
+                            {{ certified_within_6_months|divide:object.resources.count|percentage }}
+                        </div>
+                    </div>
+
+                    <br>
+
+                    Published on FGP / Open Data ({{ published_on_fgp }}/{{ object.resources.count }}):
+                    <div class="progress" style="height: 2em;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar"
+                             aria-valuenow="50" aria-valuemin="0" aria-valuemax="{{ object.resources.count }}"
+                             style="width: {{ published_on_fgp|divide:object.resources.count|percentage }}">
+                            {{ published_on_fgp|divide:object.resources.count|percentage }}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            {% if object.resources.count > 0 %}
+                <br>
+                <h3>
+                    Data Resources for {{ object }} Section ({{ object.resources.count }})
+                </h3>
+                <div class="row">
+                    <div class="col">
+                        {% trans "(click on a header to sort table)" %}
+                    </div>
+                    <div class="col" style="text-align: center">
+                    </div>
+                    <div class="col" style="text-align: right; padding-bottom: 10px">
+                        <em>displaying all {{ filter.qs.count }} records</em>
+                    </div>
+                </div>
+                <table class="table table-hover table-sm sortable ">
+                    <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col">Custodian</th>
+                        <th scope="col">Previous time certified</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for obj in resource_list %}
+                        <tr href="{% url 'inventory:resource_detail' obj.id %}">
+                            <td>{{ obj.title_eng }}</td>
+
+                            <td>
+                                {% for resource_person in obj.resource_people.all %}
+                                    {% if resource_person.role.id == 1 %}
+                                        {{ resource_person.person.full_name }};
+                                    {% endif %}
+                                {% endfor %}
+
+
+                            </td>
+
+                            {% if obj.certification_history.count > 0 %}
+
+                                {% if now|timedelta:obj.certification_history.first.certification_date < 90 %}
+                                    <td class="good">
+                                        {% elif now|timedelta:obj.certification_history.first.certification_date < 180 %}
+                                    <td class="mild-concern">
+                                        {% elif now|timedelta:obj.certification_history.first.certification_date < 270 %}
+                                    <td class="concern">
+                                        {% else %}
+                                    <td class="bad">
+                                {% endif %}
+                            {{ obj.certification_history.first.certification_date|naturaltime }}
+                            {% else %}
+                                <td><span class="red-font"><b>Never</b></span>
+                            {% endif %}
+
+                            </td>
+
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <em>There are no data resources that have been published to FGP</em>
+            {% endif %}
+
+
+            </div>
+        {% endif %}
+
+{% endblock content %}
