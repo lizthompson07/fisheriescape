@@ -23,7 +23,7 @@ from . import forms
 from . import emails
 from . import models
 from .auth_helper import get_sign_in_url, get_token_from_code, store_token, store_user, remove_user_and_token
-from . graph_helper import get_user
+from .graph_helper import get_user
 
 
 def sign_in(request):
@@ -136,6 +136,12 @@ class ProfileUpdateView(UpdateView):
 class UserLoginView(LoginView):
     template_name = "registration/login.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        if settings.AZURE_AD:
+            return HttpResponseRedirect(reverse("accounts:azure_login"))
+        else:
+            return super().dispatch(request, *args, **kwargs)
+
 
 class UserLogoutView(LogoutView):
     next_page = reverse_lazy("index")
@@ -143,6 +149,7 @@ class UserLogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
         remove_user_and_token(request)
         return super().dispatch(request, *args, **kwargs)
+
 
 class UserUpdateView(UpdateView):
     model = get_user_model()
@@ -222,7 +229,7 @@ def resend_verification_email(request, email):
     email = EmailMessage(
         mail_subject, message, to=[to_email], from_email=from_email,
     )
-    if settings.PRODUCTION_SERVER:
+    if settings.DEBUG:
         email.send()
     else:
         print('not sending email since in dev mode')
@@ -270,7 +277,7 @@ def signup(request):
             email = EmailMessage(
                 mail_subject, message, to=[to_email], from_email=from_email,
             )
-            if settings.PRODUCTION_SERVER:
+            if settings.DEBUG:
                 email.send()
             else:
                 print('not sending email since in dev mode')
@@ -357,7 +364,7 @@ class RequestAccessFormView(LoginRequiredMixin, FormView):
         }
         email = emails.RequestAccessEmail(context)
         # send the email object
-        if settings.PRODUCTION_SERVER:
+        if settings.DEBUG:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:

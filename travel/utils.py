@@ -122,7 +122,7 @@ def set_request_status(trip_request):
             # send an email to the trip_request owner
             my_email = emails.StatusUpdateEmail(trip_request)
             # # send the email object
-            if settings.PRODUCTION_SERVER:
+            if settings.DEBUG:
                 send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                           recipient_list=my_email.to_list, fail_silently=False, )
             else:
@@ -139,7 +139,7 @@ def set_request_status(trip_request):
             # send an email to the trip_request owner
             my_email = emails.StatusUpdateEmail(trip_request)
             # # send the email object
-            if settings.PRODUCTION_SERVER:
+            if settings.DEBUG:
                 send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                           recipient_list=my_email.to_list, fail_silently=False, )
             else:
@@ -209,7 +209,7 @@ def approval_seeker(trip_request):
 
             if my_email:
                 # send the email object
-                if settings.PRODUCTION_SERVER:
+                if settings.DEBUG:
                     send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                               recipient_list=my_email.to_list, fail_silently=False, )
                 else:
@@ -303,7 +303,7 @@ def manage_trip_warning(trip):
 
                 my_email = emails.TripCostWarningEmail(trip)
                 # # send the email object
-                if settings.PRODUCTION_SERVER:
+                if settings.DEBUG:
                     send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                               recipient_list=my_email.to_list, fail_silently=False, )
                 else:

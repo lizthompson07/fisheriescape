@@ -25,7 +25,7 @@ from accounts import views as acc_views
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
-    # path('tracking/', include('tracking.urls')),
+    path('tracking/', include('tracking.urls')),
 ]
 
 urlpatterns += i18n_patterns(
@@ -141,6 +141,6 @@ try:
 except RuntimeError:
     print("not connecting SAR Search")
 
-# if not settings.PRODUCTION_SERVER:
+# if not settings.DEBUG:
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
-                                                                                            document_root=settings.MEDIA_ROOT)
+                                                                                       document_root=settings.MEDIA_ROOT)
