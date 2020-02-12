@@ -84,7 +84,7 @@ INSTALLED_APPS = [
                      'bootstrap4',
                      'el_pagination',
                      'easy_pdf',
-                     'tracking',
+                     # 'tracking',
                      'accounts',
                      'lib',
                      'shared_models',
@@ -94,7 +94,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'tracking.middleware.VisitorTrackingMiddleware',
+    # 'tracking.middleware.VisitorTrackingMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
