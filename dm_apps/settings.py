@@ -36,11 +36,11 @@ except AttributeError:
     DEBUG = False
 
 try:
-    SHOW_TICKETS_APP = local_conf.SHOW_TICKETS_APP
+    SHOW_TICKETING_APP = local_conf.SHOW_TICKETING_APP
 except AttributeError:
-    SHOW_TICKETS_APP = True
+    SHOW_TICKETING_APP = True
 
-
+print(SHOW_TICKETING_APP)
 try:
     ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
 except AttributeError:
