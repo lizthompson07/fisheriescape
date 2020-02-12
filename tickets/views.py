@@ -186,7 +186,7 @@ def send_resolved_email(request, ticket):
     # create a new email object
     email = emails.TicketResolvedEmail(my_ticket)
     # send the email object
-    if settings.PRODUCTION_SERVER:
+    if settings.DEBUG:
         send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,
                   fail_silently=False, )
     else:
@@ -278,7 +278,7 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewTicketEmail(self.object)
         # send the email object
-        if settings.PRODUCTION_SERVER:
+        if settings.DEBUG:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
@@ -328,7 +328,7 @@ class TicketCreateViewPopout(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewTicketEmail(self.object)
         # send the email object
-        if settings.PRODUCTION_SERVER:
+        if settings.DEBUG:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
@@ -403,7 +403,7 @@ class FileCreateView(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewFileAddedEmail(self.object)
         # send the email object
-        if settings.PRODUCTION_SERVER:
+        if settings.DEBUG:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
@@ -502,7 +502,7 @@ class FollowUpCreateView(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewFollowUpEmail(self.object)
         # send the email object
-        if settings.PRODUCTION_SERVER:
+        if settings.DEBUG:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
@@ -539,7 +539,7 @@ class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
         # create a new email object
         email = emails.NewFollowUpEmail(self.object)
         # send the email object
-        if settings.PRODUCTION_SERVER:
+        if settings.DEBUG:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
