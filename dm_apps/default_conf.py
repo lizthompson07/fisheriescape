@@ -46,7 +46,8 @@ else:
     USING_PRODUCTION_DB = False
     USING_LOCAL_DB = True
 
-
+# Should Microsoft Azure AD be used for authentication?
+AZURE_AD = False
 
 # Should DEBUG mode be turned on?
 DEBUG = True
