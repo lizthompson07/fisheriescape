@@ -182,7 +182,7 @@ def resend_verification_email(request, email):
     email = EmailMessage(
         mail_subject, message, to=[to_email], from_email=from_email,
     )
-    if settings.PRODUCTION_SERVER:
+    if settings.DEBUG:
         email.send()
     else:
         print('not sending email since in dev mode')
@@ -230,7 +230,7 @@ def signup(request):
             email = EmailMessage(
                 mail_subject, message, to=[to_email], from_email=from_email,
             )
-            if settings.PRODUCTION_SERVER:
+            if settings.DEBUG:
                 email.send()
             else:
                 print('not sending email since in dev mode')
@@ -317,7 +317,7 @@ class RequestAccessFormView(LoginRequiredMixin, FormView):
         }
         email = emails.RequestAccessEmail(context)
         # send the email object
-        if settings.PRODUCTION_SERVER:
+        if settings.DEBUG:
             send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                       recipient_list=email.to_list, fail_silently=False, )
         else:
