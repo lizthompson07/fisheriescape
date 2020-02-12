@@ -22,7 +22,7 @@ from .tokens import account_activation_token
 from . import forms
 from . import emails
 from . import models
-from .auth_helper import get_sign_in_url, get_token_from_code, store_token, store_user, remove_user_and_token
+# from .auth_helper import get_sign_in_url, get_token_from_code, store_token, store_user, remove_user_and_token
 
 
 # def sign_in(request):
