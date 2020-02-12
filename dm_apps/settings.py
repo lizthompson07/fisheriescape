@@ -173,6 +173,11 @@ try:
     EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', str)
     EMAIL_PORT = config('EMAIL_PORT', int)
     EMAIL_USE_TLS = config('EMAIL_USE_TLS', bool)
+
+    if not EMAIL_HOST or EMAIL_HOST == "":
+        USE_EMAIL = False
+    else:
+        USE_EMAIL = True
 except UndefinedValueError:
     print("No email service credentials found in system config.")
 
