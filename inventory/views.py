@@ -276,7 +276,7 @@ class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
         if object.flagged_4_deletion:
             email = emails.FlagForDeletionEmail(self.object, self.request.user)
             # send the email object
-            if settings.DEBUG:
+            if settings.USE_EMAIL:
                 send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                           recipient_list=email.to_list, fail_silently=False, )
             else:
@@ -312,7 +312,7 @@ class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
         if object.flagged_4_publication:
             email = emails.FlagForPublicationEmail(self.object, self.request.user)
             # send the email object
-            if settings.DEBUG:
+            if settings.USE_EMAIL:
                 send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                           recipient_list=email.to_list, fail_silently=False, )
             else:
@@ -376,7 +376,7 @@ class ResourcePersonCreateView(CustodianRequiredMixin, CreateView):
         if object.role.id == 1:
             email = emails.AddedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
-            if settings.DEBUG:
+            if settings.USE_EMAIL:
                 send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                           recipient_list=email.to_list, fail_silently=False, )
             else:
@@ -407,7 +407,7 @@ class ResourcePersonUpdateView(CustodianRequiredMixin, UpdateView):
         if object.role.id == 1:
             email = emails.AddedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
-            if settings.DEBUG:
+            if settings.USE_EMAIL:
                 send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                           recipient_list=email.to_list, fail_silently=False, )
             else:
@@ -440,7 +440,7 @@ class ResourcePersonDeleteView(CustodianRequiredMixin, DeleteView):
 
             email = emails.RemovedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
-            if settings.DEBUG:
+            if settings.USE_EMAIL:
                 send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                           recipient_list=email.to_list, fail_silently=False, )
             else:
@@ -1078,7 +1078,7 @@ def send_certification_request(request, person):
     me = models.Person.objects.get(user=User.objects.get(pk=self.request.user.id))
     email = emails.CertificationRequestEmail(me, my_person)
     # send the email object
-    if settings.DEBUG:
+    if settings.USE_EMAIL:
         send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                   recipient_list=email.to_list, fail_silently=False, )
     else:
@@ -1208,7 +1208,7 @@ def send_section_report(request, section):
     me = models.Person.objects.get(user=request.user)
     email = emails.SectionReportEmail(me, head, my_section)
     # send the email object
-    if settings.DEBUG:
+    if settings.USE_EMAIL:
         send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                   recipient_list=email.to_list, fail_silently=False, )
     else:
