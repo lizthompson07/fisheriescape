@@ -28,6 +28,9 @@ steps:
       print('##vso[task.setvariable variable=projectRoot]{}'.format(project_location))
 - script: |
     python -m pip install --upgrade pip setuptools wheel django
+    apt-get install python-dev default-libmysqlclient-dev
+    apt-get install python3-dev
+    pip install mysqlclient
     pip install -r requirements.txt
   displayName: 'Install prerequisites'
 
