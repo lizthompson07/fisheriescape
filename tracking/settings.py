@@ -7,7 +7,9 @@ TRACK_SUPERUSERS = getattr(settings, 'TRACK_SUPERUSERS', True)
 TRACK_PAGEVIEWS = getattr(settings, 'TRACK_PAGEVIEWS', False)
 
 TRACK_IGNORE_URLS = getattr(settings, 'TRACK_IGNORE_URLS', (
-    r'^(favicon\.ico|robots\.txt)$',
+    r'^(favicon\.ico|robots\.txt|master\.css)$',
+    r'(static)',
+    r'(accounts)',
 ))
 
 TRACK_IGNORE_USER_AGENTS = getattr(settings, 'TRACK_IGNORE_USER_AGENTS', tuple())
