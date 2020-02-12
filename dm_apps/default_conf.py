@@ -21,6 +21,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ########################################################################
 
 
+# Should Microsoft Azure AD be used for authentication?
+AZURE_AD = False
+
+# Should the ticketing app be displayed on the main index page?
+SHOW_TICKETING_APP = True
+
+# Should DEBUG mode be turned on?
+DEBUG = True
+
+# add your hostname here.
+ALLOWED_HOSTS = ['127.0.0.1', ]
 
 # If the line below is uncommented, you will connect to the dev database even if production database strings are present
 FORCE_DEV_DB = True
@@ -45,18 +56,6 @@ elif IS_DEV_DB_AVAILABLE:
 else:
     USING_PRODUCTION_DB = False
     USING_LOCAL_DB = True
-
-
-# Specific which mode you are running in. If this file is on the production server, this setting should be True
-# if this setting = False, static and mediafiles will be served by the development server.
-PRODUCTION_SERVER = False
-
-# this property is only looked at if PRODUCTION_SERVER = True. By setting DEBUG = True, you will override the default programming to set
-# DEBUG = False when using a prod server
-DEBUG = False
-
-# add your hostname here.
-ALLOWED_HOSTS = ['127.0.0.1', ]
 
 # add new applications to this dictionary; grey out any app you do not want
 # the dict key should be the actual name of the app
@@ -85,7 +84,6 @@ APP_DICT = {
 }
 
 MY_INSTALLED_APPS = [app for app in APP_DICT]
-SHOW_TICKETS_APP = True
 
 # Specify your database connection details
 if USING_LOCAL_DB:
