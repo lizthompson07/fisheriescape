@@ -28,13 +28,12 @@ except ModuleNotFoundError and ImportError:
 else:
     print("using custom configuration file: 'my_conf.py'.")
 
-PRODUCTION_SERVER = local_conf.PRODUCTION_SERVER
 USING_PRODUCTION_DB = local_conf.USING_PRODUCTION_DB
 USING_LOCAL_DB = local_conf.USING_LOCAL_DB
 try:
-    DEBUG_ON = local_conf.DEBUG
+    DEBUG = local_conf.DEBUG
 except AttributeError:
-    DEBUG_ON = False
+    DEBUG = False
 
 DEV_DB_NAME = local_conf.DEV_DB_NAME
 DEV_DB_HOST = local_conf.DEV_DB_HOST
@@ -66,11 +65,6 @@ except UndefinedValueError:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-# If in production mode, turn off debugging
-if PRODUCTION_SERVER and not DEBUG_ON:
-    DEBUG = False
-else:
-    DEBUG = True
 
 ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
 
@@ -197,9 +191,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'static'),
-# ]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000

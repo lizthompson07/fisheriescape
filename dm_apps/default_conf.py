@@ -47,13 +47,9 @@ else:
     USING_LOCAL_DB = True
 
 
-# Specific which mode you are running in. If this file is on the production server, this setting should be True
-# if this setting = False, static and mediafiles will be served by the development server.
-PRODUCTION_SERVER = False
 
-# this property is only looked at if PRODUCTION_SERVER = True. By setting DEBUG = True, you will override the default programming to set
-# DEBUG = False when using a prod server
-DEBUG = False
+# Should DEBUG mode be turned on?
+DEBUG = True
 
 # add your hostname here.
 ALLOWED_HOSTS = ['127.0.0.1', ]
