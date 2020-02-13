@@ -17,6 +17,12 @@ from decouple import config, UndefinedValueError
 # Custom variables
 WEB_APP_NAME = "DMApps"
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+
+
 # check to see if there is a user-defined local configuration file
 # if there is, we we use this as our local configuration, otherwise we use the default
 try:
@@ -39,14 +45,27 @@ try:
 except AttributeError:
     SHOW_TICKETING_APP = True
 
-try:
-    ALLOWED_HOSTS = local_conf.ALLOWED_HOSTS
-except AttributeError:
-    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'dmapps', 'dmapps.ent.dfo-mpo.ca', 'dmapps-dev.azurewebsites.net']
 try:
-    AZURE_AD = local_conf.AZURE_AD
+    extend_list = local_conf.ALLOWED_HOSTS_TO_ADD
+    if len(extend_list):
+        ALLOWED_HOSTS.extend(local_conf.ALLOWED_HOSTS_TO_ADD)
+        print("The following hostnames are being added to the ALLOWED_HOSTS variable", local_conf.ALLOWED_HOSTS_TO_ADD)
 except AttributeError:
+    pass
+
+
+if os.path.exists(os.path.join(BASE_DIR, 'oauth_settings.yml')):
+    # check to see if a manual override is provided in local configuration file
+    try:
+        AZURE_AD = local_conf.AZURE_AD
+        if not AZURE_AD:
+            print("oauth_setting.yml file present but local settings file manually overriding use of Azure Active Directory authentication")
+    except AttributeError:
+        print("oauth_setting.yml file present. Using Azure Active Directory authentication.")
+        AZURE_AD = True
+else:
     AZURE_AD = False
 
 
@@ -66,11 +85,6 @@ if not GOOGLE_API_KEY:
     GOOGLE_API_KEY = ""
     print("no google api key file found.")
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
-MEDIA_DIR = os.path.join(BASE_DIR, 'media')
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -79,9 +93,6 @@ try:
     SECRET_KEY = config('SECRET_KEY')
 except UndefinedValueError:
     SECRET_KEY = "fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-
 
 
 LOGIN_REDIRECT_URL = '/'
