@@ -10,6 +10,7 @@ steps:
     versionSpec: 3.7
     architecture: 'x64'
 - script: |
+    cat manage.py
     git push -f "https://$DEPLOYMENT_USERNAME:$DEPLOYMENT_PASSWORD@$DEPLOYMENT_URL" HEAD:master
   env:
     DEPLOYMENT_URL: $(DEPLOYMENT_URL)
