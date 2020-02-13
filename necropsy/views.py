@@ -48,13 +48,13 @@ def index(request):
 # # ###########
 # #
 #
-class ItemsListView(VaultAccessRequired, FilterView):
+class ItemListView(VaultAccessRequired, FilterView):
     template_name = "necropsy/item_list.html"
     filterset_class = filters.ItemsFilter
     queryset = models.Items.objects.annotate(
         search_term=Concat('id', 'unique_id', 'item_name', 'description', 'owner', 'size', 'container_space', 'category', 'type', output_field=TextField()))
 
-class ItemsDetailView(VaultAccessRequired, DetailView):
+class ItemDetailView(VaultAccessRequired, DetailView):
     model = models.Items
 
     def get_context_data(self, **kwargs):
@@ -71,3 +71,29 @@ class ItemsDetailView(VaultAccessRequired, DetailView):
             'type',
         ]
         return context
+
+class InstrumentUpdateView(VaultAccessRequired, UpdateView):
+    model = models.Instrument
+    form_class = forms.InstrumentForm
+
+    def form_valid(self, form):
+        messages.success(self.request, _("Item record successfully updated for : {}".format(self.object)))
+        return super().form_valid(form)
+
+class ItemCreateView(VaultAccessRequired, CreateView):
+    model = models.Items
+    form_class = forms.ItemsForm
+
+    def form_valid(self, form):
+        messages.success(self.request, _("Item record successfully created for : {}".format(self.object)))
+        return super().form_valid(form)
+
+class ItemDeleteView(VaultAccessRequired, DeleteView):
+    model = models.Items
+    permission_required = "__all__"
+    success_url = reverse_lazy('necropsy:item_list')
+    success_message = 'The item was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
