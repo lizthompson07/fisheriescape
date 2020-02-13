@@ -24,7 +24,7 @@ class Species(models.Model):
             return "{}".format(self.english_name)
 
     def get_absolute_url(self):
-        return reverse("vault:species_detail", kwargs={"pk":self.id})
+        return reverse("vault:species_detail", kwargs={"pk": self.id})
 
 class Role(models.Model):
     name = models.CharField(max_length=255)
@@ -94,10 +94,9 @@ class MetadataFieldCategory(models.Model):
         unique_together = ['metadata_field', 'code']
 
 
-class Instrument(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-    metadata = models.ManyToManyField("MetadataField", through="InstrumentMetadatum")
+class InstrumentType(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("English name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -108,9 +107,25 @@ class Instrument(models.Model):
         else:
             return "{}".format(self.name)
 
-    class Meta:
-        ordering = ['name', ]
 
+class Instrument(models.Model):
+    instrument_type = models.ForeignKey(InstrumentType, on_delete=models.DO_NOTHING, related_name="instruments",
+                                                  verbose_name=_("Type of instrument"))
+    name = models.CharField(max_length=255, verbose_name=_("English name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
+    #metadata = models.ManyToManyField("MetadataField", through="InstrumentMetadatum",  verbose_name=_("Metadata"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    def get_absolute_url(self):
+        return reverse("vault:instrument_detail", kwargs={"pk": self.id})
 
 class InstrumentMetadatum(models.Model):
     instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="instrument_metadata",
