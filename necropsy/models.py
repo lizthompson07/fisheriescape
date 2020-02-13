@@ -25,7 +25,7 @@ class Item(models.Model):
             return "{}".format(self.name)
 
 class Quantity(models.Model):
-    items_quantity = models.ForeignKey(Items, on_delete=models.DO_NOTHING, related_name="items",
+    items_quantity = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="items",
                       verbose_name=_("items"))
     unique_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
