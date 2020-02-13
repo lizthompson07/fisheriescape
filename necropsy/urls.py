@@ -12,11 +12,11 @@ urlpatterns = [
 
 #     # Inventory #
 #     ###########
-    path('item_list/', views.ItemsListView.as_view(), name="item_list"),
-    path('item_detail/<int:pk>/view/', views.ItemsDetailView.as_view(), name="item_detail")
-#     # path('species/new/', views.SpeciesCreateView.as_view(), name="item_new"),
-#     # path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="item_edit"),
-#     # path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="item_delete"),
+    path('item_list/', views.ItemListView.as_view(), name="item_list"),
+    path('item_detail/<int:pk>/view/', views.ItemDetailView.as_view(), name="item_detail")
+    path('item/new/', views.ItemCreateView.as_view(), name="item_new"),
+    path('item/<int:pk>/edit/', views.ItemUpdateView.as_view(), name="item_edit"),
+    path('item/<int:pk>/delete/', views.ItemDeleteView.as_view(), name="item_delete"),
 
 
 ]

@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class Items(models.Model):
+class Item(models.Model):
     unique_id = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("Unique ID"))
     item_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Name of Item"))
     description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Description"))
