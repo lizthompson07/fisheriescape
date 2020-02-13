@@ -34,7 +34,7 @@ steps:
 
 - script: |
     pushd '$(projectRoot)'
-    python manage.py test -v 2 whalesdb.test
+    # python manage.py test whalesdb.test
   condition: succeededOrFailed()
   displayName: 'Run tests'
 
