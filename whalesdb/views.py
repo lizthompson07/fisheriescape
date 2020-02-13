@@ -21,9 +21,14 @@ class IndexView(TemplateView):
                 'title': 'Entry Forms',
                 'forms': [
                     {
-                        'title': _("Station List"),
-                        'url': "whalesdb:list_stn",
-                        'icon': "img/whales/station.svg",
+                        'title': _("Deployment List"),
+                        'url': "whalesdb:list_dep",
+                        'icon': "img/whales/deployment.svg",
+                    },
+                    {
+                        'title': _("Mooring Setup List"),
+                        'url': "whalesdb:list_mor",
+                        'icon': "img/whales/mooring.svg",
                     },
                     {
                         'title': _("Project List"),
@@ -31,9 +36,9 @@ class IndexView(TemplateView):
                         'icon': "img/whales/project.svg",
                     },
                     {
-                        'title': _("Mooring Setup List"),
-                        'url': "whalesdb:list_mor",
-                        'icon': "img/whales/mooring.svg",
+                        'title': _("Station List"),
+                        'url': "whalesdb:list_stn",
+                        'icon': "img/whales/station.svg",
                     },
                 ]
            },
@@ -69,6 +74,18 @@ class CreateCommon(UserPassesTestMixin, CreateView):
         return context
 
 
+class CreateDep(CreateCommon):
+    model = models.DepDeployment
+    form_class = forms.DepForm
+    title = _("Create Deployment")
+
+
+class CreateMor(CreateCommon):
+    model = models.MorMooringSetup
+    form_class = forms.MorForm
+    title = _("Create Mooring Setup")
+
+
 class CreatePrj(CreateCommon):
     model = models.PrjProject
     form_class = forms.PrjForm
@@ -79,12 +96,6 @@ class CreateStn(CreateCommon):
     model = models.StnStation
     form_class = forms.StnForm
     title = _("Create Station")
-
-
-class CreateMor(CreateCommon):
-    model = models.MorMooringSetup
-    form_class = forms.MorForm
-    title = _("Create Mooring Setup")
 
 
 class UpdateCommon(UserPassesTestMixin, UpdateView):
@@ -106,18 +117,11 @@ class UpdateCommon(UserPassesTestMixin, UpdateView):
         return context
 
 
-class UpdateStn(UpdateCommon):
-    model = models.StnStation
-    form_class = forms.StnForm
+class UpdateDep(UpdateCommon):
+    model = models.DepDeployment
+    form_class = forms.DepForm
 
-    title = _("Update Station")
-
-
-class UpdatePrj(UpdateCommon):
-    model = models.PrjProject
-    form_class = forms.PrjForm
-
-    title = _("Update Project")
+    title = _("Update Deployment")
 
 
 class UpdateMor(UpdateCommon):
@@ -127,9 +131,24 @@ class UpdateMor(UpdateCommon):
     title = _("Update Mooring Setup")
 
 
+class UpdatePrj(UpdateCommon):
+    model = models.PrjProject
+    form_class = forms.PrjForm
+
+    title = _("Update Project")
+
+
+class UpdateStn(UpdateCommon):
+    model = models.StnStation
+    form_class = forms.StnForm
+
+    title = _("Update Station")
+
+
 class DetailsCommon(DetailView):
+    key = None
     title = None
-    template_name = "whalesdb/whales_detail.html"
+    template_name = "whalesdb/whales_details.html"
     list_url = None
     update_url = None
 
@@ -142,45 +161,47 @@ class DetailsCommon(DetailView):
         if self.fields:
             context['fields'] = self.fields
 
-        if self.list_url:
-            context['list_url'] = self.list_url
-
-        if self.update_url:
-            context['update_url'] = self.update_url
+        context['list_url'] = self.list_url if self.list_url else "whalesdb:list_{}".format(self.key)
+        context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
 
         return context
 
 
+class DetailsDep(DetailsCommon):
+    key = "dep"
+    model = models.DepDeployment
+    title = _("Deployment Details")
+    fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
+
+
+class DetailsMor(DetailsCommon):
+    key = "mor"
+    model = models.MorMooringSetup
+    template_name = 'whalesdb/mormooringsetup_details.html'
+    title = _("Mooring Setup Details")
+    fields = ["mor_name", "mor_max_depth", "mor_link_setup_image", "mor_additional_equipment",
+              "mor_general_moor_description", "mor_notes"]
+
+
 class DetailsPrj(DetailsCommon):
+    key = 'prj'
     model = models.PrjProject
-    list_url = "whalesdb:list_prj"
-    update_url = "whalesdb:update_prj"
     title = _("Project Details")
     fields = ['prj_name', 'prj_description', 'prj_url']
 
 
 class DetailsStn(DetailsCommon):
+    key = 'stn'
     model = models.StnStation
-    list_url = "whalesdb:list_stn"
-    update_url = "whalesdb:update_stn"
     title = _("Station Details")
-    template_name = 'whalesdb/stnstation_detail.html'
+    template_name = 'whalesdb/stnstation_details.html'
     fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
               'stn_planned_depth', 'stn_notes']
 
 
-class DetailsMor(DetailsCommon):
-    model = models.MorMooringSetup
-    list_url = "whalesdb:list_mor"
-    update_url = "whalesdb:update_mor"
-    title = _("Mooring Setup Details")
-    template_name = "whalesdb/mormooringsetup_detail.html"
-    fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image', 'mor_additional_equipment',
-              'mor_general_moor_description', 'more_notes']
-
-
 class ListCommon(FilterView):
     template_name = 'whalesdb/whale_filter.html'
+    key = None
     fields = []
     create_url = None
     details_url = None
@@ -195,14 +216,9 @@ class ListCommon(FilterView):
         if self.title:
             context['title'] = self.title
 
-        if self.create_url:
-            context['create_url'] = self.create_url
-
-        if self.details_url:
-            context['details_url'] = self.details_url
-
-        if self.update_url:
-            context['update_url'] = self.update_url
+        context['create_url'] = self.create_url if self.create_url else "whalesdb:create_{}".format(self.key)
+        context['details_url'] = self.details_url if self.details_url else "whalesdb:details_{}".format(self.key)
+        context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
 
         context['auth'] = self.request.user.is_authenticated and \
                           self.request.user.groups.filter(name='whalesdb_admin').exists()
@@ -210,31 +226,35 @@ class ListCommon(FilterView):
         return context
 
 
+class ListDep(ListCommon):
+    key = 'dep'
+    model = models.DepDeployment
+    filterset_class = filters.DepFilter
+    fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
+    title = _("Deployment List")
+
+
+class ListMor(ListCommon):
+    key = 'mor'
+    model = models.MorMooringSetup
+    filterset_class = filters.MorFilter
+    fields = ['mor_name', 'mor_max_depth', 'mor_notes']
+    title = _("Mooring Setup List")
+
+
 class ListPrj(ListCommon):
+    key = 'prj'
     model = models.PrjProject
     filterset_class = filters.PrjFilter
-    create_url = "whalesdb:create_prj"
-    details_url = "whalesdb:details_prj"
-    update_url = "whalesdb:update_prj"
     title = _("Project List")
     fields = ['prj_name', 'prj_description']
 
 
 class ListStn(ListCommon):
+    key ='stn'
     model = models.StnStation
     filterset_class = filters.StnFilter
-    create_url = "whalesdb:create_stn"
-    details_url = "whalesdb:details_stn"
-    update_url = "whalesdb:update_stn"
     fields = ['stn_name', 'stn_code', 'stn_revision']
     title = _("Station List")
 
 
-class ListMor(ListCommon):
-    model = models.MorMooringSetup
-    filterset_class = filters.MorFilter
-    create_url = "whalesdb:create_mor"
-    details_url = "whalesdb:details_mor"
-    update_url = "whalesdb:update_mor"
-    fields = ['mor_name', 'mor_max_depth', 'more_notes']
-    title = _("Mooring Setup List")
