@@ -314,7 +314,7 @@ def get_app_dict(request):
             "status": "production",
             "access": "permission-required",
             "url": reverse('necropsy:index'),
-            "icon_path": 'img/icons/whale.svg',
+            "icon_path": 'img/icons/necropsy.svg',
             "region": "regional",
         }
     except NoReverseMatch:

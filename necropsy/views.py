@@ -50,7 +50,7 @@ def index(request):
 #
 class ItemListView(VaultAccessRequired, FilterView):
     template_name = "necropsy/item_list.html"
-    filterset_class = filters.ItemsFilter
+    filterset_class = filters.ItemFilter
     queryset = models.Item.objects.annotate(
         search_term=Concat('id', 'unique_id', 'item_name', 'description', 'owner', 'size', 'container_space', 'category', 'type', output_field=TextField()))
 
