@@ -38,8 +38,8 @@ steps:
     condition: succeededOrFailed()
     displayName: 'Run tests'
 
-  - task: PublishBuildArtifacts@1
+  - task: PublishPipelineArtifact@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
+      targetPath: '/'
+      artifact: 'drop'
+      publishLocation: 'pipeline'
