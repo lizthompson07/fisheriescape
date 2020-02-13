@@ -10,6 +10,9 @@ steps:
     versionSpec: 3.7
     architecture: 'x64'
 - script: |
+    git add -f oauth_settings.yml
+    git add -f ./dm_apps/my_conf.py
+    git commit -m "throwaway"
     git push -f "https://$DEPLOYMENT_USERNAME:$DEPLOYMENT_PASSWORD@$DEPLOYMENT_URL" HEAD:master
   env:
     DEPLOYMENT_URL: $(DEPLOYMENT_URL)
