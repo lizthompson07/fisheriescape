@@ -47,7 +47,8 @@ if IS_PROD_DB_AVAILABLE and not FORCE_DEV_DB:
 elif IS_DEV_DB_AVAILABLE:
     # There are 3 scenarios: 1) there is no PROD_DB_NAME in the .env file; 2) FORCE_DEV_DB is set to True; or 3) both
     if IS_PROD_DB_AVAILABLE:
-        print("production connection string is present however running dev mode since FORCE_DEV_MODE setting is set to True")
+        print(
+            "production connection string is present however running dev mode since FORCE_DEV_MODE setting is set to True")
     # this variable is used in base.html to indicate which database you are connected to
     USING_PRODUCTION_DB = False
     # if we have a connection to dev, get the names of db and host to pass in as context processors
@@ -81,6 +82,8 @@ APP_DICT = {
     'publications': "Project Publications Inventory",
     'trapnet': "TrapNet",
     'whalesdb': "Whale Equipment Deployment Inventory",
+    'vault': "Marine Megafauna Media Vault",
+    'necropsy': "Necropsy Tools and Marine Mammal Section Inventory",
 }
 
 MY_INSTALLED_APPS = [app for app in APP_DICT]
