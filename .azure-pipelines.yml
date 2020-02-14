@@ -56,8 +56,22 @@ steps:
   #      ArtifactName: 'drop'
   #      publishLocation: 'Container'
 
-  - task: PublishPipelineArtifact@1
+  # - task: PublishPipelineArtifact@1
+  #   inputs:
+  #     targetPath: '$(Pipeline.Workspace)'
+  #     artifact: 'drop'
+  #     publishLocation: 'pipeline'
+  - task: ArchiveFiles@2
     inputs:
-      targetPath: '$(Pipeline.Workspace)'
-      artifact: 'drop'
-      publishLocation: 'pipeline'
+      rootFolderOrFile: '$(System.DefaultWorkingDirectory)/dm_apps'
+      includeRootFolder: true
+      archiveType: 'zip'
+      archiveFile: '$(System.DefaultWorkingDirectory)/dm_apps$(Build.BuildId).zip'
+      replaceExistingArchive: true
+      verbose: true
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
