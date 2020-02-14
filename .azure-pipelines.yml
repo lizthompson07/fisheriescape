@@ -63,10 +63,10 @@ steps:
   #     publishLocation: 'pipeline'
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: '$(System.DefaultWorkingDirectory)/dm_apps'
+      rootFolderOrFile: '$(System.DefaultWorkingDirectory)/s'
       includeRootFolder: true
       archiveType: 'zip'
-      archiveFile: '$(System.DefaultWorkingDirectory)/dm_apps$(Build.BuildId).zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
       replaceExistingArchive: true
       verbose: true
 
