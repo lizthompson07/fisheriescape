@@ -40,23 +40,24 @@ steps:
       # python manage.py test whalesdb.test
     condition: succeededOrFailed()
     displayName: 'Run tests'
-  - task: ArchiveFiles@2
-    inputs:
-      rootFolderOrFile: '$(Pipeline.Workspace)'
-      includeRootFolder: true
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-      replaceExistingArchive: true
-      verbose: true
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
+  #  - task: ArchiveFiles@2
+  #    inputs:
+  #      rootFolderOrFile: '$(Pipeline.Workspace)'
+  #      includeRootFolder: true
+  #      archiveType: 'zip'
+  #      archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+  #      replaceExistingArchive: true
+  #      verbose: true
+  #
+  #  - task: PublishBuildArtifacts@1
+  #    inputs:
+  #      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+  #      ArtifactName: 'drop'
+  #      publishLocation: 'Container'
 
-  # - task: PublishPipelineArtifact@1
-  #   inputs:
-  #     targetPath: '$(Pipeline.Workspace)'
-  #     artifact: 'drop'
-  #     publishLocation: 'pipeline'
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Pipeline.Workspace)'
+      artifact: 'drop'
+      publishLocation: 'pipeline'
