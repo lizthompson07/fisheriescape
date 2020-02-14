@@ -63,7 +63,7 @@ steps:
   #     publishLocation: 'pipeline'
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: '$(System.DefaultWorkingDirectory)/'
+      rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
       includeRootFolder: true
       archiveType: 'zip'
       archiveFile: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
@@ -72,6 +72,6 @@ steps:
 
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
       ArtifactName: 'drop'
       publishLocation: 'Container'
