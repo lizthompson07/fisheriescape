@@ -23,6 +23,7 @@ parser.add_argument('--email-port', help='')
 parser.add_argument('--email-use-tls', help='')
 args = parser.parse_args()
 
+print(args.dev_db_host)
 new_file = os.path.join(".env")
 with open(new_file, 'w') as write_file:
     write_file.write("SECRET_KEY = {}\n".format(nz(args.secret_key, "")))
