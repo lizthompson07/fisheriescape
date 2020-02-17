@@ -180,8 +180,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 try:
     EMAIL_HOST = config('EMAIL_HOST', str)
-    EMAIL_USER = config('EMAIL_HOST_USER', str)
-    EMAIL_PASSWORD = config('EMAIL_HOST_PASSWORD', str)
+    EMAIL_HOST_USER = config('EMAIL_HOST_USER', str)
+    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', str)
     EMAIL_PORT = config('EMAIL_PORT', int)
     EMAIL_USE_TLS = config('EMAIL_USE_TLS', bool)
 
@@ -189,6 +189,7 @@ try:
         USE_EMAIL = False
     else:
         USE_EMAIL = True
+        # print(EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_PORT, EMAIL_USE_TLS)
 except UndefinedValueError:
     print("No email service credentials found in system config.")
 
