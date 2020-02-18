@@ -36,6 +36,7 @@ steps:
     displayName: 'Install prerequisites'
 
   - script: |
+      #
       python create_env_file.py --secret-key "$(SECRET_KEY)" --dev-db-host "$(DEV_DB_HOST)" --dev-db-port "$(DEV_DB_PORT)" --dev-db-name "$(DEV_DB_NAME)" --dev-db-user "$(DEV_DB_USER)" --dev-db-password "$(DEV_DB_PASSWORD)" --email-host "$EMAIL_HOST" --email-user "$(EMAIL_USER)" --email-password "$(EMAIL_PASSWORD)" --email-port "$(EMAIL_PORT)" --email-use-tls "$(EMAIL_USE_TLS)"
       python create_oauth_file.py --app-id "$(app_id)" --app-secret "$(app_secret)"
     displayName: 'Create necessary configuration files'
