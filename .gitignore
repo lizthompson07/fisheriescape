@@ -56,11 +56,6 @@ my_dev.cnf
 ####################
 /access_files/*
 
-# if you want to untrack a file... Do these commands #
-######################################################
-#git rm -r --cached .
-#git add .
-#git commit -m "fixed untracked files"
 
 # PyCharm settings and maps #
 #############################
@@ -86,9 +81,10 @@ temp/
 
 # Shell scripts #
 #################
-*.sh
+
 
 
 # AZURE AD #
 ############
+azure_oauth_settings.yml
 oauth_settings.yml
