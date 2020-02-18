@@ -9,7 +9,7 @@ parser.add_argument('--app-secret', help='application secret issued by AAD')
 args = parser.parse_args()
 
 
-new_file = os.path.join("oauth_settings.yml")
+new_file = os.path.join("azure_oauth_settings.yml")
 with open(new_file, 'w') as write_file:
     write_file.write('app_id: "{}"\n'.format(nz(args.app_id, "")))
     write_file.write('app_secret: "{}"\n'.format(nz(args.app_secret, "")))

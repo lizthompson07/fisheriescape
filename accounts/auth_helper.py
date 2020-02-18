@@ -12,10 +12,10 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 os.environ['OAUTHLIB_IGNORE_SCOPE_CHANGE'] = '1'
 
-# Load the oauth_settings.yml file
+# Load the azure_oauth_settings.yml file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 try:
-    stream = open(os.path.join(BASE_DIR, 'oauth_settings.yml'), 'r')
+    stream = open(os.path.join(BASE_DIR, 'azure_oauth_settings.yml'), 'r')
     settings = yaml.load(stream, yaml.SafeLoader)
 except FileNotFoundError:
     settings = None
