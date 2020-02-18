@@ -20,7 +20,7 @@ USING_LOCAL_DB = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ########################################################################
 
-# Should Microsoft Azure AD be used for authentication? By default, if a file called `oauth_settings.yml' is in the root dir, azure aad will be turned on
+# Should Microsoft Azure AD be used for authentication? By default, if a file called `azure_oauth_settings.yml' is in the root dir, azure aad will be turned on
 # this is a manual override. Uncomment to turn off AAD regardless of the presence of the above mentioned file.
 # AZURE_AD = False
 

@@ -56,7 +56,7 @@ except AttributeError:
     pass
 
 
-if os.path.exists(os.path.join(BASE_DIR, 'oauth_settings.yml')):
+if os.path.exists(os.path.join(BASE_DIR, 'azure_oauth_settings.yml')):
     # check to see if a manual override is provided in local configuration file
     try:
         AZURE_AD = local_conf.AZURE_AD

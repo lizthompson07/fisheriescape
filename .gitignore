@@ -86,4 +86,5 @@ temp/
 
 # AZURE AD #
 ############
+azure_oauth_settings.yml
 oauth_settings.yml
