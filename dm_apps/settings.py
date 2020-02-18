@@ -22,7 +22,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
-
 # check to see if there is a user-defined local configuration file
 # if there is, we we use this as our local configuration, otherwise we use the default
 try:
@@ -34,7 +33,6 @@ except ModuleNotFoundError and ImportError:
 else:
     print("using custom configuration file: 'my_conf.py'.")
 
-
 try:
     DEBUG = local_conf.DEBUG
 except AttributeError:
@@ -44,7 +42,6 @@ try:
     SHOW_TICKETING_APP = local_conf.SHOW_TICKETING_APP
 except AttributeError:
     SHOW_TICKETING_APP = True
-
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'dmapps', 'dmapps.ent.dfo-mpo.ca', 'dmapps-dev.azurewebsites.net']
 try:
@@ -69,11 +66,15 @@ try:
         if not AZURE_AD:
             print("Azure Active Directory oauth credentials provided but local settings file manually overriding usage")
     except AttributeError:
-        print("Azure Active Directory oauth credentials provided. User authentication will be handled by AAD.")
-        AZURE_AD = True
+        if not config("app_id") or config("app_id") == "":
+            AZURE_AD = False
+        else:
+            print("Azure Active Directory oauth credentials provided. User authentication will be handled by AAD.")
+            AZURE_AD = True
+
+
 except UndefinedValueError:
     AZURE_AD = False
-
 
 USING_PRODUCTION_DB = local_conf.USING_PRODUCTION_DB
 USING_LOCAL_DB = local_conf.USING_LOCAL_DB
@@ -99,7 +100,6 @@ try:
     SECRET_KEY = config('SECRET_KEY')
 except UndefinedValueError:
     SECRET_KEY = "fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD"
-
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
