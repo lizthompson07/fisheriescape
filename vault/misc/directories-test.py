@@ -17,7 +17,7 @@
 import os
 
 path = 'A:\\C&P Imagery\\'
-
+os.path.join("a:","mydir1","mydir2","myfile.txt")
 folders = []
 
 # r=root, d=directories, f = files

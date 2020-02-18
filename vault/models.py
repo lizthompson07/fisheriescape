@@ -42,11 +42,27 @@ class Role(models.Model):
     class Meta:
         ordering = ['name', ]
 
+class Organisation(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("English name"))
+    abbrev_name = models.CharField(max_length=255, verbose_name=_("English abbreviated name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
+    abbrev_nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French abbreviated name"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+
 
 class Person(models.Model):
     first_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     last_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    organisation = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_(""), null=True, blank=True)
     email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     # m2m
     roles = models.ManyToManyField(Role, verbose_name=_(""))
@@ -155,11 +171,15 @@ class ObservationPlatformType(models.Model):
 class ObservationPlatform(models.Model):
     observation_platform_type = models.ForeignKey(ObservationPlatformType, on_delete=models.DO_NOTHING, related_name="platforms",
                                                   verbose_name=_("Type of observation platform"))
-    authority = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Authority"))
-    owner = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Owner"))
+    authority = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_authorities", verbose_name=_(""), null=True, blank=True)
+    owner = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_owners", verbose_name=_(""), null=True, blank=True)
     make_model = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Make and model"))
     name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Call name"))
     longname = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Long name"))
+    @property
+    def foldername(self):
+        return  "{}_{}_{}".format(self.authority, self.owner, self.name)
+
 
     def __str__(self):
         return "{}".format(self.longname)

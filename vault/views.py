@@ -142,6 +142,7 @@ class ObservationPlatformListView(VaultAccessRequired, FilterView):
             'owner',
             'name',
             'longname',
+            'foldername|folder name'
         ]
         return context
 
