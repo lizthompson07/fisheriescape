@@ -1,6 +1,12 @@
 import argparse
 import os
-from lib.templatetags.custom_filters import nz
+
+def nz(value, arg):
+    """if a value is equal to None, this function will return arg instead"""
+    if value is None or value == "":
+        return arg
+    else:
+        return value
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--app-id', help='application id issued by AAD')
@@ -23,7 +29,6 @@ parser.add_argument('--email-port', help='')
 parser.add_argument('--email-use-tls', help='')
 args = parser.parse_args()
 
-print(args.dev_db_host)
 new_file = os.path.join(".env")
 with open(new_file, 'w') as write_file:
     write_file.write("SECRET_KEY = {}\n".format(nz(args.secret_key, "")))
