@@ -55,17 +55,23 @@ try:
 except AttributeError:
     pass
 
-
-if os.path.exists(os.path.join(BASE_DIR, 'azure_oauth_settings.yml')):
+try:
+    config("app_id")
+    config("app_secret")
+    config("redirect")
+    config("scopes")
+    config("authority")
+    config("authorize_endpoint")
+    config("token_endpoint")
     # check to see if a manual override is provided in local configuration file
     try:
         AZURE_AD = local_conf.AZURE_AD
         if not AZURE_AD:
-            print("oauth_setting.yml file present but local settings file manually overriding use of Azure Active Directory authentication")
+            print("Azure Active Directory oauth credentials provided but local settings file manually overriding usage")
     except AttributeError:
-        print("oauth_setting.yml file present. Using Azure Active Directory authentication.")
+        print("Azure Active Directory oauth credentials provided. User authentication will be handled by AAD.")
         AZURE_AD = True
-else:
+except UndefinedValueError:
     AZURE_AD = False
 
 
