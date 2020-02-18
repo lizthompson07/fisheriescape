@@ -171,14 +171,14 @@ class ObservationPlatformType(models.Model):
 class ObservationPlatform(models.Model):
     observation_platform_type = models.ForeignKey(ObservationPlatformType, on_delete=models.DO_NOTHING, related_name="platforms",
                                                   verbose_name=_("Type of observation platform"))
-    authority = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_authorities", verbose_name=_(""), null=True, blank=True)
-    owner = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_owners", verbose_name=_(""), null=True, blank=True)
+    authority = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_authorities", verbose_name=_("authority"), null=True, blank=True)
+    owner = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_owners", verbose_name=_("owner"), null=True, blank=True)
     make_model = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Make and model"))
     name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Call name"))
     longname = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Long name"))
     @property
     def foldername(self):
-        return  "{}_{}_{}".format(self.authority, self.owner, self.name)
+        return  "{}_{}_{}".format(self.authority.abbrev_name, self.owner.abbrev_name, self.name)
 
 
     def __str__(self):
