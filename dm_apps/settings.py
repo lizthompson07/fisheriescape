@@ -189,6 +189,7 @@ try:
         USE_EMAIL = False
     else:
         USE_EMAIL = True
+        # print(EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_PORT, EMAIL_USE_TLS)
 except UndefinedValueError:
     print("No email service credentials found in system config.")
 
