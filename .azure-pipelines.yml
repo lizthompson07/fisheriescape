@@ -5,40 +5,78 @@
 pool:
   vmImage: 'Ubuntu 16.04'
 
+trigger:
+  - master
+
 steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: 3.7
-    architecture: 'x64'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: 3.7
+      architecture: 'x64'
 
-- task: PythonScript@0
-  displayName: 'Export project path'
-  inputs:
-    scriptSource: 'inline'
-    script: |
-      """Search all subdirectories for `manage.py`."""
-      from glob import iglob
-      from os import path
-      # Python >= 3.5
-      manage_py = next(iglob(path.join('**', 'manage.py'), recursive=True), None)
-      if not manage_py:
-          raise SystemExit('Could not find a Django project')
-      project_location = path.dirname(path.abspath(manage_py))
-      print('Found Django project in', project_location)
-      print('##vso[task.setvariable variable=projectRoot]{}'.format(project_location))
-- script: |
-    python -m pip install --upgrade pip setuptools wheel django
-    sudo apt-get install libmysqlclient-dev
-    pip install -r requirements.txt
-  displayName: 'Install prerequisites'
+  - task: PythonScript@0
+    displayName: 'Export project path'
+    inputs:
+      scriptSource: 'inline'
+      script: |
+        """Search all subdirectories for `manage.py`."""
+        from glob import iglob
+        from os import path
+        # Python >= 3.5
+        manage_py = next(iglob(path.join('**', 'manage.py'), recursive=True), None)
+        if not manage_py:
+            raise SystemExit('Could not find a Django project')
+        project_location = path.dirname(path.abspath(manage_py))
+        print('Found Django project in', project_location)
+        print('##vso[task.setvariable variable=projectRoot]{}'.format(project_location))
+  - script: |
+       python -m pip install --upgrade pip setuptools wheel
+       sudo apt-get install libmysqlclient-dev
+       pip install -r requirements.txt
+    displayName: 'Install prerequisites'
 
-- script: |
-    pushd '$(projectRoot)'
-    # python manage.py test whalesdb.test
-  condition: succeededOrFailed()
-  displayName: 'Run tests'
+  - script: |
+       python create_env_file.py --secret-key "$(SECRET_KEY)" --dev-db-host "$(DEV_DB_HOST)" --dev-db-port "$(DEV_DB_PORT)" --dev-db-name "$(DEV_DB_NAME)" --dev-db-user "$(DEV_DB_USER)" --dev-db-password "$(DEV_DB_PASSWORD)" --email-host "$EMAIL_HOST" --email-user "$(EMAIL_USER)" --email-password "$(EMAIL_PASSWORD)" --email-port "$(EMAIL_PORT)" --email-use-tls "$(EMAIL_USE_TLS)"
+       python create_oauth_file.py --app-id "$(app_id)" --app-secret "$(app_secret)"
+    displayName: 'Create necessary configuration files'
 
-#- task: PublishTestResults@2
-#  inputs:
-#    testResultsFiles: "**/TEST-*.xml"
-#    testRunTitle: 'Python $(PYTHON_VERSION)'
+  - script: |
+      pushd '$(projectRoot)'
+      # python manage.py test whalesdb.test
+    condition: succeededOrFailed()
+    displayName: 'Run tests'
+
+  #  - task: ArchiveFiles@2
+  #    inputs:
+  #      rootFolderOrFile: '$(Pipeline.Workspace)'
+  #      includeRootFolder: true
+  #      archiveType: 'zip'
+  #      archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+  #      replaceExistingArchive: true
+  #      verbose: true
+  #
+  #  - task: PublishBuildArtifacts@1
+  #    inputs:
+  #      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+  #      ArtifactName: 'drop'
+  #      publishLocation: 'Container'
+
+  # - task: PublishPipelineArtifact@1
+  #   inputs:
+  #     targetPath: '$(Pipeline.Workspace)'
+  #     artifact: 'drop'
+  #     publishLocation: 'pipeline'
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
+      replaceExistingArchive: true
+      verbose: true
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
+      ArtifactName: 'drop'
+      publishLocation: 'Container'
