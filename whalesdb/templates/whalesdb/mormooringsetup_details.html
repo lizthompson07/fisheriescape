@@ -6,21 +6,10 @@
 {% bootstrap_css %}
 
 {% block field_override %}
-<h2>{{ object.mor_name }}</h2>
-<div class="container" >
-    <div class="row">
-        <div class="col-sm">
-        {% for field in fields %}
-            <div><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field%}</span></div>
-        {% endfor %}
+    <div class="card my-1">
+        <h5 class="card-header">{% trans title %}</h5>
+        <div class="card-body">
+            <div class="card-text">{% include "whalesdb/_mooring_setup.html" with mor=object %}</div>
         </div>
-    {% if object.mor_setup_image%}
-        <span class="col-4 border">
-        {% if object.mor_setup_image %}
-            <img src="{{ object.mor_setup_image.url }}" />
-        {% endif %}
-        </span>
-    {% endif %}
     </div>
-</div>
 {% endblock %}

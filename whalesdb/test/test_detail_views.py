@@ -25,6 +25,7 @@ class TestDetailsDeployment(CommonDetailsTest):
         dep_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_dep', args=(dep_dic['dep_1'].pk,))
+        self.test_expected_template = 'whalesdb/depdeployment_details.html'
         self.fields = ['dep_year', 'dep_month', 'dep_name', 'stn', 'prj', 'mor']
 
     # Station Details are visible to all
