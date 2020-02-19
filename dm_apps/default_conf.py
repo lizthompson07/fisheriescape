@@ -83,7 +83,6 @@ APP_DICT = {
     'trapnet': "TrapNet",
     'whalesdb': "Whale Equipment Deployment Inventory",
     'vault': "Marine Megafauna Media Vault",
-    'necropsy': "Necropsy Tools and Marine Mammal Section Inventory",
 }
 
 MY_INSTALLED_APPS = [app for app in APP_DICT]
