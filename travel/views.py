@@ -195,7 +195,8 @@ request_child_field_list = [
     'departure_location',
     'role',
     'role_of_participant',
-    'total_cost',
+    'total_cost|{}'.format("Total cost"),
+
 ]
 
 reviewer_field_list = [
@@ -1176,10 +1177,9 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         cost_categories = models.CostCategory.objects.all()
         my_dict = dict()
 
-        # first, let's create an object list; if this is
+        # first, let's create an object list;
         if my_object.is_group_request:
-            object_list = my_object.children_requests.filter(
-                Q(region=my_object.section.division.branch.region) | Q(region__isnull=True) | Q(is_public_servant=False))
+            object_list = my_object.children_requests.filter(exclude_from_travel_plan=False)
         else:
             object_list = models.TripRequest.objects.filter(pk=my_object.id)
 
