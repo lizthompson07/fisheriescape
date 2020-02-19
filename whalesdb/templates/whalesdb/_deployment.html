@@ -1,0 +1,23 @@
+{% load verbose_names %}
+
+<div class="row">
+    <div class="col-sm">
+        <div><span class="font-weight-bold">{% get_verbose_label dep 'dep_name' %} : </span><span>{% get_field_value dep 'dep_name'%}</span></div>
+        <div><span class="font-weight-bold">{% get_verbose_label dep 'dep_month' %} : </span><span>{% get_field_value dep 'dep_month'%}</span></div>
+        <div><span class="font-weight-bold">{% get_verbose_label dep 'prj' %} : </span><span>{% get_field_value dep 'prj'%}</span></div>
+
+        <div class="card my-1">
+            <h5 class="card-header">{% get_verbose_label dep 'stn' %}</h5>
+            <div class="card-body">
+                <div class="card-text">{% include "whalesdb/_station.html" with stn=object.stn %}</div>
+            </div>
+        </div>
+
+         <div class="card">
+            <h5 class="card-header">{% get_verbose_label dep 'mor' %}</h5>
+            <div class="card-body">
+                <div class="card-text">{% include "whalesdb/_mooring_setup.html" with mor=object.mor %}</div>
+            </div>
+        </div>
+    </div>
+</div>
