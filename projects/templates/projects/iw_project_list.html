@@ -33,6 +33,9 @@
 
     {% if view.kwargs.type == "theme" %}
         {% trans "Theme" as big_unit %}
+    {% elif view.kwargs.type == "funding_source" %}
+        {% trans "Funding type" as big_unit %}
+        {% trans "Source" as small_unit %}
     {% else %}
         {% trans "Division" as big_unit %}
         {% trans "Section" as small_unit %}
@@ -52,7 +55,7 @@
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
-                Projects from {{ section }} Section
+                Projects from {{ small_item }} Section
                 {% if functional_group %}
                     under {{ functional_group }}
                 {% endif %}
@@ -67,15 +70,20 @@
                 {% if type == 'theme' %}
                     Projects from {{ functional_group.theme }}
                     under {{ functional_group }}
+                {% elif type == 'funding_source' %}
+                    Projects from {{ small_item }} Funding Source
+                    {% if functional_group %}
+                        under {{ functional_group }}
+                    {% endif %}
                 {% else %}
-                    Projects from {{ section }} section
+                    Projects from {{ small_item }} section
                     {% if functional_group %}
                         under {{ functional_group }}
                     {% endif %}
                 {% endif %}
             </h2>
             <h3>
-                (Submitted {% if region.id == 1 %} and approved {% endif %}{% if not type == 'theme' %} by {{ section.head }}{% endif %})
+                (Submitted {% if region.id == 1 %} and approved {% endif %}{% if type == 'division' %} by {{ small_item.head }}{% endif %})
             </h3>
         </div>
 
@@ -162,7 +170,7 @@
                             <th style="width: 25%">
                                 {% get_verbose_label project_list.first field %}
                             </th>
-                            {% elif "total_" in field  %}
+                        {% elif "total_" in field %}
                             <th style="width: 75px">
                                 {% get_verbose_label project_list.first field %}
                             </th>
@@ -185,7 +193,7 @@
                 {% for p in project_list %}
                     <tr pop href="{% url 'projects:project_overview' p.id 1 %}">
                         {% for field in field_list %}
-                            {% if "total_fte" in field  %}
+                            {% if "total_fte" in field %}
                                 <td>
                                     {% get_field_value p field as my_val %}
                                     {{ my_val|zero2val:"---"|floatformat:0 }}
