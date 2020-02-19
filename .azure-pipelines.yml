@@ -41,6 +41,7 @@ steps:
 
   - script: |
       python manage.py collectstatic --no-input
+      python manage.py migrate
     displayName: 'Collecting staticfiles'
 
   - script: |
