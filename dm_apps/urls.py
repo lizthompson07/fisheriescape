@@ -146,10 +146,6 @@ try:
 except RuntimeError:
     print("not connecting vault app")
 
-try:
-    urlpatterns += i18n_patterns(path('necropsy/', include('necropsy.urls')), prefix_default_language=True)
-except RuntimeError:
-    print("not connecting necropsy app")
 
 # if not settings.DEBUG:
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
