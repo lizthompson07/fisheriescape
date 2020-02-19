@@ -289,7 +289,7 @@ class Project(models.Model):
     activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
     functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                                          verbose_name=_("Functional group"))
-    default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True,
+    default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True, related_name="projects",
                                                verbose_name=_("primary funding source"))
     programs = models.ManyToManyField(Program, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords (used for searching)"), related_name="projects")
@@ -811,12 +811,13 @@ class MilestoneUpdate(models.Model):
 class Note(models.Model):
     # fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    funding_source = models.ForeignKey(FundingSource, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     functional_group = models.ForeignKey(FunctionalGroup, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     summary = models.TextField(blank=True, null=True, verbose_name=_("executive summary"))
     pressures = models.TextField(blank=True, null=True, verbose_name=_("pressures"))
 
     class Meta:
-        unique_together = ["section", "functional_group"]
+        unique_together = (("section", "functional_group"), ("funding_source", "functional_group"))
 
     @property
     def pressures_html(self):
