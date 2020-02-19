@@ -40,8 +40,11 @@ steps:
     displayName: 'Creating configuration file'
 
   - script: |
-      python manage.py collectstatic --no-input
       python manage.py migrate
+    displayName: 'Making database migrations'
+
+  - script: |
+      python manage.py collectstatic --no-input
     displayName: 'Collecting staticfiles'
 
   - script: |
