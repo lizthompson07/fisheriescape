@@ -40,6 +40,11 @@ steps:
     displayName: 'Creating configuration file'
 
   - script: |
+      python manage.py collectstatic --no-input
+      python manage.py migrate
+    displayName: 'Collecting staticfiles'
+
+  - script: |
       pushd '$(projectRoot)'
       # python manage.py test whalesdb.test
     condition: succeededOrFailed()
