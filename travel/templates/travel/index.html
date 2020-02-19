@@ -70,10 +70,15 @@
                             (<span class="{% if admin_number_waiting > 0 %}red-font blink-me{% endif %}">{{ admin_number_waiting }}</span>).
                             <br><br>
                             {% blocktrans %}
-                                Trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>
+                                Non-ADM trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>
                             {% endblocktrans %}
-                            (<span class="{% if unverified_trips > 0 %}red-font blink-me{% endif %}">{{ unverified_trips }}</span>).
+                            (<span class="{% if unverified_trips_non_adm > 0 %}red-font blink-me{% endif %}">{{ unverified_trips_non_adm }}</span>).
 
+                            <br><br>
+                            {% blocktrans %}
+                                ADM trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>
+                            {% endblocktrans %}
+                            (<span class="{% if unverified_trips_adm > 0 %}red-font blink-me{% endif %}">{{ unverified_trips_adm }}</span>).
 
                         {% endif %}
                     {% endif %}
@@ -89,7 +94,12 @@
         </div>
     </div>
 
-    <h2>testing</h2>
+
+
+
+    <br>
+    <br>
+    <br>
     <br>
     <br>
     <br>
