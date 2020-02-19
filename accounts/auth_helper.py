@@ -2,6 +2,7 @@ import yaml
 from requests_oauthlib import OAuth2Session
 import os
 import time
+from decouple import config, UndefinedValueError
 
 # This is necessary for testing with non-HTTPS localhost
 # Remove this if deploying to production
@@ -14,12 +15,28 @@ os.environ['OAUTHLIB_IGNORE_SCOPE_CHANGE'] = '1'
 
 # Load the azure_oauth_settings.yml file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+settings = dict()
+settings['app_id'] = None
+settings['app_secret'] = None
+settings['redirect'] = None
+settings['scopes'] = None
+settings['authority'] = None
+settings['authorize_endpoint'] = None
+settings['token_endpoint'] = None
+
 try:
-    stream = open(os.path.join(BASE_DIR, 'azure_oauth_settings.yml'), 'r')
-    settings = yaml.load(stream, yaml.SafeLoader)
-except FileNotFoundError:
-    settings = None
-else:
+    settings['app_id'] = config("app_id")
+    settings['app_secret'] = config("app_secret")
+    settings['redirect'] = config("redirect")
+    settings['scopes'] = config("scopes")
+    settings['authority'] = config("authority")
+    settings['authorize_endpoint'] = config("authorize_endpoint")
+    settings['token_endpoint'] = config("token_endpoint")
+except UndefinedValueError:
+    pass
+
+if settings.get("app_id"):
     authorize_url = '{0}{1}'.format(settings['authority'], settings['authorize_endpoint'])
     token_url = '{0}{1}'.format(settings['authority'], settings['token_endpoint'])
 

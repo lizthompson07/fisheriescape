@@ -50,6 +50,7 @@ urlpatterns = [
     # admin
     path('admin/trip-verification-list/', views.AdminTripVerificationListView.as_view(), name="admin_trip_verification_list"),
     path('trip/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
+    path('trip/<int:pk>/delete/back-to-verify/<int:back_to_verify>/', views.TripDeleteView.as_view(), name="trip_delete"),
 
     # FILES #
     #########
