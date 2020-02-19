@@ -162,6 +162,10 @@
                             <th style="width: 15%">
                                 {% get_verbose_label project_list.first field %}
                             </th>
+                            {% elif field == "total_om" or field == "total_salary" %}
+                            <th style="width: 15%">
+                                {% get_verbose_label project_list.first field format="currency" %}
+                            </th>
                         {% else %}
                             <th>
                                 {% get_verbose_label project_list.first field %}

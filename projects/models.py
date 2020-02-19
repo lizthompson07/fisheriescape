@@ -467,91 +467,16 @@ class Project(models.Model):
         )
 
     @property
-    def a_salary(self):
-        funding_source_id = 1
-        staff_salary = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        return nz(staff_salary, 0)
-
-    @property
-    def a_om(self):
-        funding_source_id = 1
-        staff_om = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        other_om = self.om_costs.filter(funding_source_id=funding_source_id
-                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(staff_om, 0) + nz(other_om, 0)
-
-    @property
-    def a_capital(self):
-        funding_source_id = 1
-        capital = self.capital_costs.filter(funding_source=funding_source_id
-                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(capital, 0)
-
-    @property
-    def b_salary(self):
-        funding_source_id = 2
-        staff_salary = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        return nz(staff_salary, 0)
-
-    @property
-    def b_om(self):
-        funding_source_id = 2
-        staff_om = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        other_om = self.om_costs.filter(funding_source_id=funding_source_id
-                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(staff_om, 0) + nz(other_om, 0)
-
-    @property
-    def b_capital(self):
-        funding_source_id = 2
-        capital = self.capital_costs.filter(funding_source=funding_source_id
-                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(capital, 0)
-
-    @property
-    def c_salary(self):
-        funding_source_id = 3
-        staff_salary = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        return nz(staff_salary, 0)
-
-    @property
-    def c_om(self):
-        funding_source_id = 3
-        staff_om = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        other_om = self.om_costs.filter(funding_source_id=funding_source_id
-                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(staff_om, 0) + nz(other_om, 0)
-
-    @property
-    def c_capital(self):
-        funding_source_id = 3
-        capital = self.capital_costs.filter(funding_source=funding_source_id
-                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(capital, 0)
-
-    @property
     def total_salary(self):
-        return self.a_salary + self.b_salary + self.c_salary
+        return self.staff_members.filter(employee_type__cost_type=1).aggregate(dsum=Sum("cost"))['dsum']
 
     @property
     def total_om(self):
-        return self.a_om + self.b_om + self.c_om
+        return None
 
     @property
     def total_capital(self):
-        return self.a_capital + self.b_capital + self.c_capital
+        return None
 
 
 class EmployeeType(models.Model):
