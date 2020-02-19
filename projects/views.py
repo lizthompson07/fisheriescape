@@ -3249,7 +3249,7 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
             "status",
             "activity_type",
             "default_funding_source",
-            "tags",
+            # "tags",
             "project_leads|{}".format(_("Project leads")),
             "total_fte|{}".format(_("Total FTE")),
             "total_om|{}".format(_("Total O&M")),
