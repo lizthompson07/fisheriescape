@@ -3249,7 +3249,7 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         if self.kwargs.get("type") == "theme":
             project_list = project_list.filter(section__division__branch__region=region)
         elif self.kwargs.get("type") == "funding_source":
-            project_list = project_list.filter(default_funding_source=small_item)
+            project_list = project_list.filter(default_funding_source=small_item, section__division__branch__region=region)
         else:
             project_list = project_list.filter(section=small_item)
 
