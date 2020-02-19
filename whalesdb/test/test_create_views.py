@@ -27,6 +27,15 @@ class TestCreateDep(CommonCreateTest):
     def setUp(self):
         super().setUp()
 
+        stn = get_stn()
+        self.data['stn'] = stn.pk
+
+        mor = get_mor()
+        self.data['mor'] = mor.pk
+
+        prj = get_prj()
+        self.data['prj'] = prj.pk
+
         self.test_url = reverse_lazy('whalesdb:create_dep')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore

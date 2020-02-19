@@ -92,13 +92,15 @@ class CommonTest(TestCase):
         response = self.client.get(self.test_url if not test_url else test_url)
 
         self.assertEquals(expected_code, response.status_code)
-        # if it's a 302 redirect
+        # if it's a 302 redirect and a redirect url is provided
         template = self.test_expected_template if not expected_template else expected_template
-        if not expected_code == 302 and expected_template is not None:
-            self.assertTemplateUsed(response, template)
+        if expected_code == 403:
+            self.assertEqual(expected_code, response.status_code)
         elif expected_code == 302:
             self.assertEqual(expected_code, response.status_code)
             self.assertEqual("{}{}".format(self.login_url_base, self.test_url), response.url)
+        else:
+            self.assertIn(template, response.template_name)
 
 
 ###########################################################################################

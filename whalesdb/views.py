@@ -73,6 +73,16 @@ class CreateCommon(UserPassesTestMixin, CreateView):
 
         return context
 
+    def form_invalid(self, form):
+        invalid = super().form_valid(form)
+
+        return invalid
+
+    def form_valid(self, form):
+        valid = super().form_valid(form)
+
+        return valid
+
 
 class CreateDep(CreateCommon):
     model = models.DepDeployment
@@ -84,6 +94,11 @@ class CreateMor(CreateCommon):
     model = models.MorMooringSetup
     form_class = forms.MorForm
     title = _("Create Mooring Setup")
+
+    def form_valid(self, form):
+        valid = super().form_valid(form)
+
+        return valid
 
 
 class CreatePrj(CreateCommon):
@@ -170,6 +185,7 @@ class DetailsCommon(DetailView):
 class DetailsDep(DetailsCommon):
     key = "dep"
     model = models.DepDeployment
+    template_name = 'whalesdb/depdeployment_details.html'
     title = _("Deployment Details")
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 

@@ -1,0 +1,31 @@
+{% extends "whalesdb/whales_details.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block field_override %}
+<style>
+    /* Set the size of the div element that contains the map */
+    #map, #lineMap {
+        height: 300px; /* The height is 400 pixels */
+        width: 100%; /* The width is the width of the web page */
+    }
+    .label {
+        font-weight: bold;
+    }
+</style>
+
+<div class="card my-1">
+    <h5 class="card-header">{% trans title %}</h5>
+    <div class="card-body">
+        <div class="card-text">{% include "whalesdb/_deployment.html" with dep=object %}</div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block body_js %}
+{% include "whalesdb/_station_js.html" with stn=object.stn %}
+{% endblock %}
