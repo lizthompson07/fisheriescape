@@ -468,11 +468,12 @@ class Project(models.Model):
 
     @property
     def total_salary(self):
-        return self.staff_members.filter(employee_type__cost_type=1).aggregate(dsum=Sum("cost"))['dsum']
+        return nz(self.staff_members.filter(employee_type__cost_type=1).aggregate(dsum=Sum("cost"))['dsum'], 0)
 
     @property
     def total_om(self):
-        return None
+        return nz(self.staff_members.filter(employee_type__cost_type=2).aggregate(dsum=Sum("cost"))['dsum'], 0) + \
+               nz(self.om_costs.aggregate(dsum=Sum("budget_requested"))['dsum'], 0)
 
     @property
     def total_capital(self):

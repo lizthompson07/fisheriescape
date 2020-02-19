@@ -158,14 +158,19 @@
                 <thead>
                 <tr>
                     {% for field in field_list %}
-                        {% if field == "meeting_notes" %}
+                        {% if field == "project_title" %}
+                            <th style="width: 25%">
+                                {% get_verbose_label project_list.first field %}
+                            </th>
+                            {% elif "total_" in field  %}
+                            <th style="width: 75px">
+                                {% get_verbose_label project_list.first field %}
+                            </th>
+                        {% elif field == "meeting_notes" %}
                             <th style="width: 15%">
                                 {% get_verbose_label project_list.first field %}
                             </th>
-                            {% elif field == "total_om" or field == "total_salary" %}
-                            <th style="width: 15%">
-                                {% get_verbose_label project_list.first field format="currency" %}
-                            </th>
+
                         {% else %}
                             <th>
                                 {% get_verbose_label project_list.first field %}
@@ -180,9 +185,22 @@
                 {% for p in project_list %}
                     <tr pop href="{% url 'projects:project_overview' p.id 1 %}">
                         {% for field in field_list %}
-                            <td rowspan="">
-                                {% get_field_value p field %}
-                            </td>
+                            {% if "total_fte" in field  %}
+                                <td>
+                                    {% get_field_value p field as my_val %}
+                                    {{ my_val|zero2val:"---"|floatformat:0 }}
+                                </td>
+
+                            {% elif "total_om" in field  or "total_salary" in field %}
+                                <td>
+                                    {% get_field_value p field as my_val %}
+                                    {{ my_val|zero2val:"---"|kmark:"2,True" }}
+                                </td>
+                            {% else %}
+                                <td>
+                                    {% get_field_value p field %}
+                                </td>
+                            {% endif %}
                         {% endfor %}
                         <td style="width: 10%;">
                             <a href="#" pop-href="{% url 'projects:project_notes' p.id %}"
