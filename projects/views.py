@@ -2501,8 +2501,6 @@ def dougs_spreadsheet(request, fiscal_year, regions=None, divisions=None, sectio
 
 
 class PDFReportTemplate(LoginRequiredMixin, PDFTemplateView):
-
-
     section_list = []
     division_list = []
     region_list = []
@@ -2791,7 +2789,6 @@ def export_program_list(request):
 
 
 class PDFCollaboratorReport(PDFReportTemplate):
-
     template_name = "projects/report_pdf_collaborators.html"
 
     # def get_pdf_filename(self):
@@ -3104,7 +3101,15 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
         if self.kwargs.get("type") == "theme":
             big_list = models.Theme.objects.filter(functional_groups__projects__in=project_list).distinct().order_by()
             small_list = None
+
+        elif self.kwargs.get("type") == "funding_source":
+            # get a list of all possible funding sources
+            small_list = models.FundingSource.objects.filter(projects__in=project_list).distinct()
+            big_list = models.FundingSourceType.objects.filter(id__in=[fs.funding_source_type_id for fs in small_list])
+
+        # The default sorting is by section
         else:
+
             big_list = shared_models.Division.objects.filter(sections__projects__in=project_list).distinct().order_by(
                 "name")
             small_list = shared_models.Section.objects.filter(projects__in=project_list).distinct().order_by("division",
@@ -3141,15 +3146,19 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
                 for small_item in small_list:
                     # only create an entry for the small item if there are projects within...
                     add_this_small_item = True
-                    if self.kwargs.get("type") == "theme":
-                        if project_list.filter(functional_group__program=small_item).count() == 0:
+
+                    if self.kwargs.get("type") == "funding_source":
+                        if project_list.filter(default_funding_source=small_item).count() == 0:
                             add_this_small_item = False
                     else:
                         if project_list.filter(section=small_item).count() == 0:
                             add_this_small_item = False
 
                     if add_this_small_item:
-                        big_item_name = "theme" if self.kwargs.get("type") == "theme" else "division"
+                        if self.kwargs.get("type") == "funding_source":
+                            big_item_name = "funding_source_type"
+                        else:
+                            big_item_name = "division"
 
                         if getattr(small_item, big_item_name) == big_item:
                             my_dict[big_item][small_item] = {}
@@ -3157,6 +3166,8 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
                             # for each section, get a list of projects..  then programs
                             if self.kwargs.get("type") == "theme":
                                 temp_project_list = project_list.filter(functional_group__program=small_item)
+                            elif self.kwargs.get("type") == "funding_source":
+                                temp_project_list = project_list.filter(default_funding_source=small_item)
                             else:
                                 temp_project_list = project_list.filter(section=small_item)
 
@@ -3211,17 +3222,20 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
 
         region = shared_models.Region.objects.get(id=self.kwargs.get("region"))
+
         # This view is being retrofitted to be able to show projects by Program (instead of only by section)
         if self.kwargs.get("type") == "theme":
-            section = None
+            small_item = None
+        elif self.kwargs.get("type") == "funding_source":
+            small_item = models.FundingSource.objects.get(id=self.kwargs.get("small_item"))
         else:
-            section = shared_models.Section.objects.get(id=self.kwargs.get("section"))
+            small_item = shared_models.Section.objects.get(id=self.kwargs.get("small_item"))
 
         functional_group = models.FunctionalGroup.objects.get(id=self.kwargs.get("group")) if self.kwargs.get(
             "group") else None
         context['fy'] = fy
         context['region'] = region
-        context['section'] = section
+        context['small_item'] = small_item
         context['functional_group'] = functional_group
 
         # assemble project_list
@@ -3234,8 +3248,10 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         if self.kwargs.get("type") == "theme":
             project_list = project_list.filter(section__division__branch__region=region)
+        elif self.kwargs.get("type") == "funding_source":
+            project_list = project_list.filter(default_funding_source=small_item)
         else:
-            project_list = project_list.filter(section=section)
+            project_list = project_list.filter(section=small_item)
 
         # If a function group is provided keep only those projects
         if functional_group:
@@ -3264,9 +3280,13 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
             context["note"] = models.Note.objects.get_or_create(section=None, functional_group=functional_group)[0]
             # anyone looking can edit
             context["can_edit"] = True
+        elif self.kwargs.get("type") == "funding_source":
+            context["note"] = models.Note.objects.get_or_create(funding_source=small_item, functional_group=functional_group)[0]
+            # anyone looking can edit
+            context["can_edit"] = True
         else:
-            context["note"] = models.Note.objects.get_or_create(section=section, functional_group=functional_group)[0]
-            if self.request.user in [section.head, section.division.head] or in_projects_admin_group(self.request.user):
+            context["note"] = models.Note.objects.get_or_create(section=small_item, functional_group=functional_group)[0]
+            if self.request.user in [small_item.head, small_item.division.head] or in_projects_admin_group(self.request.user):
                 context["can_edit"] = True
 
         return context

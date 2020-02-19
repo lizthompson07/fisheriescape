@@ -48,6 +48,9 @@
 
     {% if view.kwargs.type == "theme" %}
         {% trans "Theme" as big_unit %}
+    {% elif view.kwargs.type == "funding_source" %}
+        {% trans "Funding Type" as big_unit %}
+        {% trans "Source" as small_unit %}
     {% else %}
         {% trans "Division" as big_unit %}
         {% trans "Section" as small_unit %}
@@ -85,37 +88,7 @@
                     {% endif %}
                 </h3>
             </div>
-            {#            <div class="col">#}
-            {#                <h4>{% trans "Meeting Resources" %}:</h4>#}
-            {#                {% with "None" as n %}#}
-            {##}
-            {#                    <ul>#}
-            {#                        <li>#}
-            {#                            <a href="{% url 'projects:pdf_fte_summary' fy.id 1 n n %}" target="_blank">Weeks worked by employees</a>#}
-            {#                        </li>#}
-            {#                        <li>#}
-            {#                            <a href="{% url 'projects:pdf_ot' fy.id 1 n n %}" target="_blank">Total OT hours requested</a>#}
-            {#                        </li>#}
-            {#                        <li>#}
-            {#                            <a href="{% url 'projects:pdf_costs' fy.id 1 n n %}" target="_blank">Financial summary</a>#}
-            {#                        </li>#}
-            {#                        <li>#}
-            {#                            <a href="{% url 'projects:pdf_collab' fy.id 1 n n %}" target="_blank">Collaborators</a>#}
-            {#                        </li>#}
-            {#                        <li>#}
-            {#                            <a href="{% url 'projects:pdf_agreements' fy.id 1 n n %}" target="_blank">Collaborative agreements</a>#}
-            {#                        </li>#}
-            {#                        <li>#}
-            {#                            <a href="{% url 'projects:doug_report' fy.id 1 n n %}">#}
-            {#                                Summary spreadsheet#}
-            {#                            </a>#}
-            {#                            &nbsp; <img src="{% static 'img/icons/excel.svg' %}" width="20px">#}
-            {#                        </li>#}
-            {##}
-            {#                    </ul>#}
-            {#                {% endwith %}#}
-            {##}
-            {#            </div>#}
+
         </div>
 
         <br>
@@ -143,7 +116,9 @@
                             <tr href="{{ url_a }}" style="border: 20px" class="section">
                                 <td colspan="6" class="section">
                                     {% with my_dict|lookup:d|lookup:s|lookup:"projects" as projects %}
-                                        {{ small_unit|upper }}: {{ s }} ({{ projects.count }} project{{ projects.count|pluralize }})
+                                        {{ small_unit|upper }}:
+                                        {% if view.kwargs.type == "funding_source" %}{{ s.tname }}{% else %}{{ s }}{% endif %}
+                                        ({{ projects.count }} project{{ projects.count|pluralize }})
                                     {% endwith %}
                                 </td>
                             </tr>
