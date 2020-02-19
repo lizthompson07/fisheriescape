@@ -3252,7 +3252,8 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
             "tags",
             "project_leads|{}".format(_("Project leads")),
             "total_fte|{}".format(_("Total FTE")),
-            "total_ot|{}".format(_("Total OT")),
+            "total_om|{}".format(_("Total O&M")),
+            "total_salary|{}".format(_("Total salary")),
             "meeting_notes",
         ]
 
