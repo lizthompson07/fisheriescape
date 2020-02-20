@@ -4,7 +4,7 @@ from django.template import loader
 from . import models
 
 app_name = settings.WEB_APP_NAME  # should be a single word with one space
-from_email = 'DoNotReply@{}.com'.format(app_name)
+from_email = settings.SITE_FROM_EMAIL
 admin_email = 'david.fishman@dfo-mpo.gc.ca'
 
 

@@ -16,6 +16,7 @@ from decouple import config, UndefinedValueError
 
 # Custom variables
 WEB_APP_NAME = "DMApps"
+SITE_FROM_EMAIL = "dmapps-do-not-reply@em5927.azure.cloud.dfo-mpo.gc.ca"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -182,20 +183,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
 try:
-    EMAIL_HOST = config('EMAIL_HOST', str)
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER', str)
-    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', str)
-    EMAIL_PORT = config('EMAIL_PORT', int)
-    EMAIL_USE_TLS = config('EMAIL_USE_TLS', bool)
-
-    if not EMAIL_HOST or EMAIL_HOST == "":
+    SENDGRID_API_KEY = config('EMAIL_HOST_PASSWORD', str)
+    if not SENDGRID_API_KEY or SENDGRID_API_KEY == "":
         USE_EMAIL = False
     else:
         USE_EMAIL = True
-        # print(EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_PORT, EMAIL_USE_TLS)
 except UndefinedValueError:
     print("No email service credentials found in system config.")
 

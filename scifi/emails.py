@@ -1,6 +1,7 @@
+from django.conf import settings
 from django.template import loader
 
-from_email = 'DoNotReply@DMApps.com'
+from_email = settings.SITE_FROM_EMAIL
 admin_email = 'david.fishman@dfo-mpo.gc.ca'
 kim_email = 'Kimberly.Bertolin@dfo-mpo.gc.ca'
 yves_email = 'Yves.Despres@dfo-mpo.gc.ca'

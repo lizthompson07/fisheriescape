@@ -186,7 +186,7 @@ def resend_verification_email(request, email):
         'token': account_activation_token.make_token(user),
     })
     to_email = user.email
-    from_email = 'DoNotReply@{}.com'.format(settings.WEB_APP_NAME)
+    from_email = settings.SITE_FROM_EMAIL
     email = EmailMessage(
         mail_subject, message, to=[to_email], from_email=from_email,
     )
@@ -234,7 +234,7 @@ def signup(request):
                 'token': account_activation_token.make_token(user),
             })
             to_email = form.cleaned_data.get('email')
-            from_email = 'DoNotReply@{}.com'.format(settings.WEB_APP_NAME)
+            from_email = settings.SITE_FROM_EMAIL
             email = EmailMessage(
                 mail_subject, message, to=[to_email], from_email=from_email,
             )
