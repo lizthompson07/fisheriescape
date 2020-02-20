@@ -24,7 +24,7 @@
          <div class="card my-1">
             <h5 class="card-header"><a href="#fs-deployment-list-set" data-toggle="collapse">{% trans "Station Events" %}</a></h5>
             <div class="card-body collapse" id="fs-deployment-list-set">
-                <a class="button button-primary" href="{% url 'whalesdb:create_ste' %}">+</a>
+            <a class="btn btn-primary" href="#" onclick="return popitup('{% url 'whalesdb:create_ste' dep.pk %}','popoutWindow', height=800)" title="{% trans 'Add' %}">+</a>
                 Events: '{{ dep.stestationevents }}'
                 {% for evt in dep.stestationevents %}
                 <pre>event</pre>

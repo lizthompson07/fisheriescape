@@ -1,22 +1,11 @@
 from collections import OrderedDict
 
+from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse, NoReverseMatch
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
-
-# check to see if there is a user-defined local configuration file
-# if there is, we we use this as our local configuration, otherwise we use the default
-try:
-    from . import my_conf as local_conf
-except ModuleNotFoundError and ImportError:
-    from . import default_conf as local_conf
-
-try:
-    SHOW_TICKETS_APP = local_conf.SHOW_TICKETS_APP
-except AttributeError:
-    SHOW_TICKETS_APP = True
 
 
 # Create your views here.
@@ -50,7 +39,7 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-    if SHOW_TICKETS_APP:
+    if settings.SHOW_TICKETING_APP:
         try:
             app_dict["tickets"] = {
                 "title": _("Data Management Tickets"),
@@ -299,6 +288,33 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('whalesdb:index'),
             "icon_path": 'img/whales/whales_dark.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+
+    try:
+        app_dict["vault"] = {
+            "title": _("Megafauna media vault"),
+            "description": _("Media vault for marine megafauna."),
+            "status": "production",
+            "access": "permission-required",
+            "url": reverse('vault:index'),
+            "icon_path": 'img/icons/vault.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["necropsy"] = {
+            "title": _("Necropsy Tools and Marine Mammal Inventory"),
+            "description": _("Tools for necropsies and inventory of marine mammal equipment"),
+            "status": "production",
+            "access": "permission-required",
+            "url": reverse('necropsy:index'),
+            "icon_path": 'img/icons/necropsy.svg',
             "region": "regional",
         }
     except NoReverseMatch:

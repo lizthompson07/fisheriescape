@@ -44,6 +44,7 @@ Thumbs.db
 # project media dir #
 #####################
 /media/*
+/staticfiles/*
 
 # local configuration #
 #######################
@@ -56,11 +57,6 @@ my_dev.cnf
 ####################
 /access_files/*
 
-# if you want to untrack a file... Do these commands #
-######################################################
-#git rm -r --cached .
-#git add .
-#git commit -m "fixed untracked files"
 
 # PyCharm settings and maps #
 #############################
@@ -71,8 +67,6 @@ my_dev.cnf
 ###################################################################################################################
 prod.cnf
 
-# Ignore anything starting with "my_" as it's likely for local development
-my_*
 
 # Ignore all files dealing with enviornment variables except the sample file
 .env*
@@ -88,4 +82,10 @@ temp/
 
 # Shell scripts #
 #################
-*.sh
+
+
+
+# AZURE AD #
+############
+azure_oauth_settings.yml
+oauth_settings.yml

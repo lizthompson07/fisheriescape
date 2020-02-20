@@ -109,7 +109,9 @@ class CreatePrj(CreateCommon):
 
 
 class CreateSte(CreateCommon):
-    pass
+    model = models.SteStationEvent
+    form_class = forms.SteForm
+    title = _("Create Station Event")
 
 
 class CreateStn(CreateCommon):

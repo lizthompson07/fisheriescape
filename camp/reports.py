@@ -977,10 +977,10 @@ def generate_annual_watershed_spreadsheet(site, year):
         data_row.append(len(species_set))
 
         # total count
-        total = models.SpeciesObservation.objects.filter(sample=s).filter(species__sav=False).values(
+        total = models.SpeciesObservation.objects.filter(sample=s, species__sav=False).values(
             'sample_id'
-        ).distinct().annotate(dsum=Sum('total_non_sav'))
-        data_row.append(total[0]['dsum'])
+        ).aggregate(dsum=Sum('total_non_sav'))
+        data_row.append(total['dsum'])
 
         # store data_row in a dataframe
         my_df = my_df.append(pandas.DataFrame([data_row, ], columns=[i for i in range(0, len(data_row))]),
@@ -1012,7 +1012,7 @@ def generate_annual_watershed_spreadsheet(site, year):
     count = 0
     for j in my_df[my_df.shape[1] - 1]:
         if count > 1:
-            total_sum = total_sum + j
+            total_sum = total_sum + nz(j, 0)
         count += 1
     worksheet1.write(my_df.shape[0], my_df.shape[1] - 2, "TOTAL", bold_format)
     worksheet1.write(my_df.shape[0], my_df.shape[1] - 1, total_sum, bold_format)
@@ -1295,8 +1295,6 @@ def generate_open_data_wms_report(lang=1):
                                  qs.filter(sample__station=station, species__sav=False).order_by("species").values("species").distinct()])
             vas_list = listrify([models.Species.objects.get(pk=obj["species"]).common_name_fre for obj in
                                  qs.filter(sample__station=station, species__sav=True).order_by("species").values("species").distinct()])
-
-
 
         total_freq = qs.filter(sample__station=station, ).values("total_non_sav").order_by("total_non_sav").aggregate(
             dsum=Sum("total_non_sav"))["dsum"]

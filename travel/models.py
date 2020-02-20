@@ -474,6 +474,7 @@ class TripRequest(models.Model):
                                limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
     parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
+    exclude_from_travel_plan = models.BooleanField(default=False)
 
     @property
     def admin_notes_html(self):
