@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.template import loader
-from_email = 'DoNotReply@DMApps.com'
+
+from_email = settings.SITE_FROM_EMAIL
 
 class ProjectSubmissionEmail:
     def __init__(self, object):

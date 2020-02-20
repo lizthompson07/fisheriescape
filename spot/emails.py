@@ -1,6 +1,7 @@
+from django.conf import settings
 from django.template import loader
 
-from_email = 'test@dfo-mpo.gc.ca'
+from_email = settings.SITE_FROM_EMAIL
 admin_email = 'test@dfo-mpo.gc.ca'
 stacy_email = 'test@dfo-mpo.gc.ca'
 
