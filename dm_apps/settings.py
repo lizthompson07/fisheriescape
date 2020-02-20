@@ -113,6 +113,7 @@ INSTALLED_APPS = [
                      'django.contrib.sessions',
                      'django.contrib.messages',
                      'django.contrib.staticfiles',
+                     'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
                      'el_pagination',
@@ -227,18 +228,31 @@ LANGUAGES = [
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
-MEDIA_ROOT = MEDIA_DIR
-MEDIA_URL = '/media/'
-
-STATIC_URL = '/static/'
-# STATIC_ROOT = STATIC_DIR
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+AZURE_ACCOUNT_NAME = config("AZURE_ACCOUNT_NAME", cast=str, default="")
+if AZURE_ACCOUNT_NAME == "":
+    MEDIA_ROOT = MEDIA_DIR
+    MEDIA_URL = '/media/'
+    STATIC_URL = '/static/'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+else:
+    DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
+    STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
+
+    STATIC_CONTAINER_NAME= "static"
+    MEDIA_CONTAINER_NAME = "media"
+    AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
+    STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_CONTAINER_NAME}/'
+    MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_CONTAINER_NAME}/'
+
+
+
+
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
