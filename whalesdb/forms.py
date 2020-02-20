@@ -1,10 +1,22 @@
-from _ast import mod
-
-from bokeh.core.property.dataspec import field
 from django import forms
 from whalesdb import models
-from django.utils.translation import gettext_lazy as _
-from django.forms.models import inlineformset_factory
+
+
+class DepForm(forms.ModelForm):
+    class Meta:
+        model = models.DepDeployment
+        fields = ["stn", "dep_year", "dep_month", "dep_name", "prj", "mor"]
+
+
+class MorForm(forms.ModelForm):
+    class Meta:
+        model = models.MorMooringSetup
+        exclude = []
+        widgets = {
+            'mor_additional_equipment': forms.Textarea(attrs={"rows": 2}),
+            'mor_general_moor_description': forms.Textarea(attrs={"rows": 2}),
+            'mor_notes': forms.Textarea(attrs={"rows": 2}),
+        }
 
 
 class PrjForm(forms.ModelForm):
@@ -18,7 +30,6 @@ class PrjForm(forms.ModelForm):
 
 
 class StnForm(forms.ModelForm):
-
     class Meta:
         model = models.StnStation
         exclude = []
@@ -27,10 +38,10 @@ class StnForm(forms.ModelForm):
         }
 
 
-class MorForm(forms.ModelForm):
+class SteForm(forms.ModelForm):
+
     class Meta:
-        model = models.MorMooringSetup
+        model = models.SteStationEvent
         exclude = []
         widgets = {
-            'mor_notes': forms.Textarea(attrs={"rows": 2}),
         }
