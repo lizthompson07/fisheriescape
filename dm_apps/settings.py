@@ -16,7 +16,7 @@ from decouple import config, UndefinedValueError
 
 # Custom variables
 WEB_APP_NAME = "DMApps"
-SITE_FROM_EMAIL = "dmapps-do-not-reply@em5927.azure.cloud.dfo-mpo.gc.ca"
+SITE_FROM_EMAIL = "DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -183,14 +183,25 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Email settings
-try:
-    SENDGRID_API_KEY = config('EMAIL_HOST_PASSWORD', str)
-    if not SENDGRID_API_KEY or SENDGRID_API_KEY == "":
-        USE_EMAIL = False
+SENDGRID_API_KEY = config('SENDGRID_API_KEY', cast=str, default="")
+EMAIL_HOST = config('EMAIL_HOST', cast=str, default="")
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default="")
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str, default="")
+EMAIL_PORT = config('EMAIL_PORT', cast=str, default="")
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=str, default="")
+
+# first check to see if a sendgrid api key is available
+if SENDGRID_API_KEY == "":
+    USE_SENDGRID = False
+    # if there is nothing there, let's check for SMTP EMAIL configuration
+    if EMAIL_HOST == "":
+        print("No email service credentials found in system config.")
+        USE_SMTP_EMAIL = False
     else:
-        USE_EMAIL = True
-except UndefinedValueError:
-    print("No email service credentials found in system config.")
+        USE_SMTP_EMAIL = True
+else:
+    USE_SENDGRID = True
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
