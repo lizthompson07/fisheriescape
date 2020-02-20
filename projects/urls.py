@@ -190,6 +190,10 @@ urlpatterns = [
          views.PDFFeedbackReport.as_view(), name="pdf_feedback"),
     path('reports/data-management/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFDataReport.as_view(), name="pdf_data"),
+    path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>',
+         views.PDFFundingReport.as_view(), name="pdf_funding"),
+    path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.funding_spreadsheet, name="xls_funding"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
     # INTERACTIVE WORKPLANS #
@@ -198,10 +202,10 @@ urlpatterns = [
          name="iw_group_list"),
 
     # by section / program by fgroup
-    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/section/<int:section>/group/<int:group>/projects/type/<str:type>/',
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/small-item/<int:small_item>/group/<int:group>/projects/type/<str:type>/',
          views.IWProjectList.as_view(), name="iw_project_list"),
     # by section / program
-    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/section/<int:section>/projects/type/<str:type>/',
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/small-item/<int:small_item>/projects/type/<str:type>/',
          views.IWProjectList.as_view(), name="iw_project_list"),
 
     path('note/<int:pk>/edit/', views.NoteUpdateView.as_view(), name="note_edit"),

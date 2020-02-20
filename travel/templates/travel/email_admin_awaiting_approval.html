@@ -9,7 +9,7 @@
 </style>
 
 <h1>
-    A trip is awaiting the approval of {{ trip.current_reviewer.user }} as {{ trip.current_reviewer.role }}.
+    A request is awaiting the approval of {{ triprequest.current_reviewer.user }} as {{ triprequest.current_reviewer.role }}.
 </h1>
 
 <p>
@@ -19,7 +19,7 @@
 
 <table>
     {% for field in field_list %}
-        {% verbose_td_display trip field %}
+        {% verbose_td_display triprequest field %}
     {% endfor %}
 </table>
 
