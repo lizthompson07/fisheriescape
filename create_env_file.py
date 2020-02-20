@@ -38,6 +38,8 @@ parser.add_argument('--oauth-authority', help='')
 parser.add_argument('--oauth-authorize-endpoint', help='')
 parser.add_argument('--oauth-token-endpoint', help='')
 
+parser.add_argument('--azure-storage-account-name', help='')
+
 
 
 
@@ -75,5 +77,7 @@ with open(new_file, 'w') as write_file:
     write_file.write("authority = {}\n".format(nz(args.oauth_authority, "")))
     write_file.write("authorize_endpoint = {}\n".format(nz(args.oauth_authorize_endpoint, "")))
     write_file.write("token_endpoint = {}\n".format(nz(args.oauth_token_endpoint, "")))
+    write_file.write("\n# Oauth Credentials for AAD\n")
+    write_file.write("AZURE_STORAGE_ACCOUNT_NAME = {}\n".format(nz(args.azure_storage_account_name, "")))
 
 
