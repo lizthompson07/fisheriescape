@@ -248,8 +248,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-
-
     try:
         app_dict["sar_search"] = {
             "title": _("SAR Search"),
@@ -262,7 +260,6 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
-
 
     try:
         app_dict["shares"] = {
@@ -277,7 +274,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-
     try:
         app_dict["masterlist"] = {
             "title": _("MasterList"),
@@ -291,7 +287,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-		
     try:
         app_dict["whalesdb"] = {
             "title": _("Whale Equipment Deployment Inventory"),
@@ -304,8 +299,7 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
-		
-		
+
     try:
         app_dict["csas"] = {
             "title": _("Canadian Science Advisory Secretariat"),
