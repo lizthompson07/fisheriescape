@@ -30,7 +30,7 @@ class StnForm(forms.ModelForm):
 class MorForm(forms.ModelForm):
     class Meta:
         model = models.MorMooringSetup
-        exclude = ['mor_setup_image']
+        exclude = []
         widgets = {
             'mor_notes': forms.Textarea(attrs={"rows": 2}),
         }
