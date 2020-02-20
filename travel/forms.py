@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User as AuthUser
 from shared_models import models as shared_models
@@ -56,15 +57,15 @@ class ReviewerSkipForm(forms.ModelForm):
         }
 
 
-class TripApprovalForm(forms.Form):
+class TripRequestApprovalForm(forms.Form):
     approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
 
-class TripForm(forms.ModelForm):
+class TripRequestForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
-        model = models.Trip
+        model = models.TripRequest
         exclude = [
             "total_cost",
             "fiscal_year",
@@ -75,6 +76,8 @@ class TripForm(forms.ModelForm):
             "suppers",
             "incidentals",
             "meals",
+            "exclude_from_travel_plan",
+            "admin_notes",
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
@@ -82,10 +85,10 @@ class TripForm(forms.ModelForm):
         }
         widgets = {
             'bta_attendees': forms.SelectMultiple(attrs=chosen_js),
-            'conference': forms.Select(attrs=chosen_js),
+            'trip': forms.Select(attrs=chosen_js),
             'user': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
-            'is_group_trip': forms.Select(choices=YES_NO_CHOICES),
+            'is_group_request': forms.Select(choices=YES_NO_CHOICES),
             'objective_of_event': forms.Textarea(attrs=attr_row3),
             'benefit_to_dfo': forms.Textarea(attrs=attr_row3),
             'multiple_attendee_rationale': forms.Textarea(attrs=attr_row3),
@@ -94,9 +97,9 @@ class TripForm(forms.ModelForm):
             'notes': forms.Textarea(attrs=attr_row3),
 
             # hidden fields
-            'parent_trip': forms.HiddenInput(),
+            'parent_request': forms.HiddenInput(),
 
-            # non-group trip fields
+            # non-group trip request fields
             'start_date': forms.DateInput(attrs=attr_fp_date_hide_me),
             'end_date': forms.DateInput(attrs=attr_fp_date_hide_me),
             'first_name': forms.TextInput(attrs=attr_hide_me_user_info),
@@ -164,40 +167,29 @@ class TripForm(forms.ModelForm):
                                                                                                            "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
+        trip_choices = [(t.id, str(t)) for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
+        trip_choices.insert(0, tuple((None, "---")))
+
         super().__init__(*args, **kwargs)
+        self.fields['trip'].choices = trip_choices
         self.fields['user'].choices = user_choices
         self.fields['bta_attendees'].choices = user_choices
-        # self.fields['recommender_1'].choices = recommender_chocies
-        # self.fields['recommender_2'].choices = recommender_chocies
-        # self.fields['recommender_3'].choices = recommender_chocies
-        # self.fields['adm'].choices = recommender_chocies
-        # self.fields['rdg'].choices = recommender_chocies
         self.fields['section'].choices = section_choices
 
 
-class AdminTripForm(forms.ModelForm):
+class TripRequestAdminNotesForm(forms.ModelForm):
     class Meta:
-        model = models.Trip
+        model = models.TripRequest
         fields = [
-            # "adm_approval_status",
-            # "rdg_approval_status",
+            "admin_notes",
         ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        my_object = kwargs.get("instance")
-        status_choices = [(s.id, s) for s in models.Status.objects.all() if s.id in [1, 2, 3]]
-        status_choices.insert(0, tuple((None, "---")))
-        self.fields.get("rdg_approval_status").choices = status_choices
-        if not my_object.adm:
-            del self.fields["adm_approval_status"]
-        else:
-            self.fields.get("adm_approval_status").choices = status_choices
 
+class ChildTripRequestForm(forms.ModelForm):
+    stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
-class ChildTripForm(forms.ModelForm):
     class Meta:
-        model = models.Trip
+        model = models.TripRequest
         fields = [
             'user',
             'first_name',
@@ -214,65 +206,29 @@ class ChildTripForm(forms.ModelForm):
             'departure_location',
             'role',
             'role_of_participant',
-
-            # costs
-            'air',
-            'rail',
-            'rental_motor_vehicle',
-            'personal_motor_vehicle',
-            'taxi',
-            'other_transport',
-            'accommodations',
-
-            'no_breakfasts',
-            'breakfasts_rate',
-            'no_lunches',
-            'lunches_rate',
-            'no_suppers',
-            'suppers_rate',
-            'no_incidentals',
-            'incidentals_rate',
-
-            'registration',
-            'other',
-            'parent_trip',
+            'exclude_from_travel_plan',
+            'parent_request',
         ]
         widgets = {
             'user': forms.Select(attrs=chosen_js),
-            'parent_trip': forms.HiddenInput(),
+            'parent_request': forms.HiddenInput(),
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'role_of_participant': forms.Textarea(attrs=attr_row4),
-            # costs
-            'air': forms.NumberInput(attrs=attr_cost),
-            'rail': forms.NumberInput(attrs=attr_cost),
-            'rental_motor_vehicle': forms.NumberInput(attrs=attr_cost),
-            'personal_motor_vehicle': forms.NumberInput(attrs=attr_cost),
-            'taxi': forms.NumberInput(attrs=attr_cost),
-            'other_transport': forms.NumberInput(attrs=attr_cost),
-            'accommodations': forms.NumberInput(attrs=attr_cost),
 
-            'no_breakfasts': forms.NumberInput(attrs=attr_cost),
-            'breakfasts_rate': forms.NumberInput(attrs=attr_cost),
-            'no_lunches': forms.NumberInput(attrs=attr_cost),
-            'lunches_rate': forms.NumberInput(attrs=attr_cost),
-            'no_suppers': forms.NumberInput(attrs=attr_cost),
-            'suppers_rate': forms.NumberInput(attrs=attr_cost),
-            'no_incidentals': forms.NumberInput(attrs=attr_cost),
-            'incidentals_rate': forms.NumberInput(attrs=attr_cost),
-
-            'registration': forms.NumberInput(attrs=attr_cost),
-            'other': forms.NumberInput(attrs=attr_cost),
             'first_name': forms.TextInput(attrs=attr_user_info),
             'last_name': forms.TextInput(attrs=attr_user_info),
             'email': forms.EmailInput(attrs=attr_user_info),
         }
 
     def __init__(self, *args, **kwargs):
-        parent_trip = kwargs.get("initial").get("parent_trip") if kwargs.get("initial") else None
-        print(parent_trip)
-        if not parent_trip:
-            parent_trip = kwargs.get("instance").parent_trip
+        try:
+            parent_request = kwargs.get("initial").get("parent_request")
+        except AttributeError:
+            parent_request = None
+
+        if not parent_request:
+            parent_request = kwargs.get("instance").parent_request
 
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         AuthUser.objects.all().order_by("last_name", "first_name")]
@@ -280,15 +236,15 @@ class ChildTripForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
 
-        # if parent_trip.reason_id != 2:
+        # if parent_request.reason_id != 2:
         #     del self.fields['role']
         #     del self.fields['role_of_participant']
 
 
-class ConferenceForm(forms.ModelForm):
+class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
-        fields = "__all__"
+        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent"]
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -310,11 +266,11 @@ class ReportSearchForm(forms.Form):
     user = forms.ChoiceField(required=False, label=_('DFO traveller (leave blank for all)'))
 
     def __init__(self, *args, **kwargs):
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id") if fy.trips.count() > 0]
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id") if fy.trip_requests.count() > 0]
         # TRAVELLER_CHOICES = [(e['email'], "{}, {}".format(e['last_name'], e['first_name'])) for e in
         #                      models.Trip.objects.values("email", "first_name", "last_name").order_by("last_name", "first_name").distinct()]
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                        AuthUser.objects.all().order_by("last_name", "first_name") if u.user_trips.count() > 0]
+                        AuthUser.objects.all().order_by("last_name", "first_name") if u.user_trip_requests.count() > 0]
         user_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -339,58 +295,15 @@ class ReviewerForm(forms.ModelForm):
     class Meta:
         model = models.Reviewer
         fields = [
-            'trip',
+            'trip_request',
             'order',
             'user',
             'role',
         ]
         widgets = {
-            'trip': forms.HiddenInput(),
+            'trip_request': forms.HiddenInput(),
             'user': forms.Select(attrs=chosen_js),
         }
-
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     my_trip = cleaned_data.get("trip")
-    #     my_order = cleaned_data.get("order")
-    #     my_role = cleaned_data.get("role")
-    #
-    #     # make sure the role is properly positioned
-    #     # last_reviewer = None
-    #     # for reviewer in my_trip.reviewers.all():
-    #     #     # basically, each subsequent reviewer should have a role that is further down in order than the previous
-    #     #     if last_reviewer:
-    #     #         if reviewer.role.order > last_reviewer.role.order:
-    #     #             raise forms.ValidationError("The roles of the reviewers are out of order!")
-    #     #     last_reviewer = reviewer
-    #
-    #
-    #     # we have to do something smart with the order...
-    #     # if there is nothing competing, our job is done. Otherwise...
-    #     # if my_trip.reviewers.filter(order=my_order).count() > 0:
-    #     #     print("found")
-    #     #     found_equal = False
-    #     #     for reviewer in my_trip.reviewers.all():
-    #     #         if reviewer.order == my_order:
-    #     #             found_equal = True
-    #     #
-    #     #         if found_equal:
-    #     #             reviewer.order += 1
-    #     #             reviewer.save()
-    #     return cleaned_data
-
-    # else:
-    #     reviewer.order = count
-    # count += 1
-
-    # north = cleaned_data.get("north")
-    # south = cleaned_data.get("south")
-    # east = cleaned_data.get("east")
-    # west = cleaned_data.get("west")
-    #
-    # if not north or not south or not east or not west:
-    #
-    # raise forms.ValidationError("You must enter valid values for all directions.")
 
 
 ReviewerFormSet = modelformset_factory(
@@ -405,7 +318,7 @@ class FileForm(forms.ModelForm):
         model = models.File
         exclude = ["date_created", ]
         widgets = {
-            'trip': forms.HiddenInput(),
+            'trip_request': forms.HiddenInput(),
         }
 
 
@@ -424,3 +337,55 @@ HelpTextFormSet = modelformset_factory(
     form=HelpTextForm,
     extra=1,
 )
+
+
+class CostForm(forms.ModelForm):
+    class Meta:
+        model = models.Cost
+        fields = "__all__"
+
+
+CostFormSet = modelformset_factory(
+    model=models.Cost,
+    form=CostForm,
+    extra=1,
+)
+
+
+class CostCategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.CostCategory
+        fields = "__all__"
+
+
+CostCategoryFormSet = modelformset_factory(
+    model=models.CostCategory,
+    form=CostCategoryForm,
+    extra=1,
+)
+
+
+class NJCRatesForm(forms.ModelForm):
+    class Meta:
+        model = models.NJCRates
+        exclude = ['last_modified', ]
+
+
+NJCRatesFormSet = modelformset_factory(
+    model=models.NJCRates,
+    form=NJCRatesForm,
+    extra=0,
+)
+
+
+class TripRequestCostForm(forms.ModelForm):
+    class Meta:
+        model = models.TripRequestCost
+        fields = "__all__"
+        widgets = {
+            'trip_request': forms.HiddenInput(),
+            'rate_cad': forms.NumberInput(attrs={"class": "by-rate"}),
+            'number_of_days': forms.NumberInput(attrs={"class": "by-rate"}),
+            'amount_cad': forms.NumberInput(attrs={"class": "by-amount"}),
+            # 'cost': forms.Select(attrs=chosen_js),
+        }
