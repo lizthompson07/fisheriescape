@@ -1,8 +1,8 @@
 from django.template import loader
 from django.conf import settings
 
-app_name = settings.WEB_APP_NAME # should be a single word with one space
-from_email='DoNotReply@{}.com'.format(app_name)
+
+from_email=settings.SITE_FROM_EMAIL
 david_email = 'david.fishman@dfo-mpo.gc.ca'
 patrick_email = 'Patrick.Upson@dfo-mpo.gc.ca'
 
