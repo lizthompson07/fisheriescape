@@ -1,0 +1,13 @@
+- app access limitations
+
+- vault admin can edit tables that users can't
+
+- create an empty directory structure for image storage based on the database contents
+
+- populate tables as much as possible using scripts that fetch and summarise images' EZIF information, GPX tracks, etc.
+
+- how will new information be included once the initial data holdings are absorbed in the database?
+
+
+
+https://gccode.ssc-spc.gc.ca/dfo-gulf-science/ageing.git
