@@ -105,5 +105,6 @@ class URLTest(TestCase):
 
     @tag('ste', 'url', 'create')
     def test_url_create_ste_view(self):
-        self.basic_en_url_test('whalesdb:create_ste', 'whalesdb/create/ste/', views.CreateSte)
+        # The Station Event object requires a Deployment
+        self.basic_en_url_test('whalesdb:create_ste', 'whalesdb/create/ste/1/', views.CreateSte, {1})
 

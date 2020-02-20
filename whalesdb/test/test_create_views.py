@@ -8,33 +8,18 @@ from PIL import Image
 
 from whalesdb.test.common_views import CommonCreateTest, get_stn, get_prj, get_dep, get_mor
 
-from whalesdb import views, forms
+from whalesdb import views, forms, models
 
 import os
+from whalesdb.test import test_forms
 
 
 class TestCreateDep(CommonCreateTest):
 
-    img_file_name = None
-    img_file_path = None
-
-    data = {
-        'dep_year': 2020,
-        'dep_month': 2,
-        'dep_name': "DEP_001",
-    }
-
     def setUp(self):
         super().setUp()
 
-        stn = get_stn()
-        self.data['stn'] = stn.pk
-
-        mor = get_mor()
-        self.data['mor'] = mor.pk
-
-        prj = get_prj()
-        self.data['prj'] = prj.pk
+        self.data = test_forms.TestDepForm.get_valid_data()
 
         self.test_url = reverse_lazy('whalesdb:create_dep')
 
@@ -89,18 +74,9 @@ class TestCreateMor(CommonCreateTest):
     img_file_name = None
     img_file_path = None
 
-    data = {
-        "mor_name": "MOR_001",
-        "mor_max_depth": "10",
-        "mor_link_setup_image": "https://somelink.com/images/img001.png",
-        "mor_additional_equipment": "None",
-        "mor_general_moor_description": "This is a mooring description",
-        "more_notes": "Notes",
-    }
-
     def setUp(self):
         super().setUp()
-
+        self.data = test_forms.TestMorForm.get_valid_data()
         self.test_url = reverse_lazy('whalesdb:create_mor')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
@@ -158,14 +134,10 @@ class TestCreateMor(CommonCreateTest):
 
 
 class TestCreatePrj(CommonCreateTest):
-    data = {
-        "prj_name": 'PRJ_001',
-        "prj_description": "Some project description here",
-        "prj_url": "https//noneOfYourBusiness.com"
-    }
 
     def setUp(self):
         super().setUp()
+        self.data = test_forms.TestPrjForm.get_valid_data()
 
         self.test_url = reverse_lazy('whalesdb:create_prj')
 
@@ -213,14 +185,14 @@ class TestCreatePrj(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateStn(CommonCreateTest):
-    data = {
-    }
+class TestCreateSte(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
 
-        self.test_url = reverse_lazy('whalesdb:create_ste')
+        self.data = test_forms.TestSteForm.get_valid_data()
+
+        self.test_url = reverse_lazy('whalesdb:create_ste', args={self.data['dep']})
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'whalesdb/_entry_form.html'
@@ -266,16 +238,8 @@ class TestCreateStn(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateSte(CommonCreateTest):
-    data = {
-            "stn_name": "STN_001",
-            "stn_code": "STN",
-            "stn_revision": "1",
-            "stn_planned_lat": "25",
-            "stn_planned_lon": "50",
-            "stn_planned_depth": "10",
-            "stn_notes": "Some Notes"
-        }
+class TestCreateStn(CommonCreateTest):
+    data = test_forms.TestStnForm.get_valid_data()
 
     def setUp(self):
         super().setUp()

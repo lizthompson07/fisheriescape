@@ -12,10 +12,10 @@ import os
 from whalesdb import models
 
 
-def get_mor():
+def get_mor(with_image=True):
     if models.MorMooringSetup.objects.filter(mor_name="MOR001"):
         mor_1 = models.MorMooringSetup.objects.get(mor_name="MOR001")
-    else:
+    elif with_image:
         img_file_name = "MooringSetupTest.png"
         img_file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + img_file_name
 
@@ -28,6 +28,10 @@ def get_mor():
         mor_1 = models.MorMooringSetup(mor_name="MOR001", mor_max_depth=100,
                                        mor_link_setup_image="https://somelink.com",
                                        mor_setup_image=file)
+        mor_1.save()
+    else:
+        mor_1 = models.MorMooringSetup(mor_name="MOR001", mor_max_depth=100,
+                                       mor_link_setup_image="https://somelink.com")
         mor_1.save()
 
     return mor_1
@@ -67,6 +71,18 @@ def get_dep():
         dep_1.save()
 
     return dep_1
+
+
+class CommonFormTest(TestCase):
+    valid_data = None
+
+    @staticmethod
+    def get_valid_data():
+        pass
+
+    def setUp(self) -> None:
+        if not self.valid_data:
+            self.get_valid_data()
 
 
 ###########################################################################################

@@ -1,19 +1,19 @@
-from django.test import TestCase, tag
+from django.test import tag
 
-from whalesdb.test.common_views import get_stn, get_prj, get_mor
-from whalesdb import forms
+from whalesdb.test.common_views import CommonFormTest, get_stn, get_prj, get_mor, get_dep
+from whalesdb import forms, models
 
 
-class TestDepForm(TestCase):
+class TestDepForm(CommonFormTest):
 
-    valid_data = None
+    @staticmethod
+    def get_valid_data():
 
-    def setUp(self) -> None:
         stn = get_stn()
         mor = get_mor()
         prj = get_prj()
 
-        self.valid_data = {
+        valid_data = {
             'dep_year': 2020,
             'dep_month': 2,
             'dep_name': "DEP_001",
@@ -22,6 +22,8 @@ class TestDepForm(TestCase):
             'prj': prj.pk
         }
 
+        return valid_data
+
     @tag('dep', 'form', 'valid')
     def test_dep_valid_data(self):
         form = forms.DepForm(data=self.valid_data)
@@ -29,15 +31,21 @@ class TestDepForm(TestCase):
         self.assertFalse(form.errors)
 
 
-class TestMorForm(TestCase):
-    valid_data = {
-        "mor_name": "MOR_001",
-        "mor_max_depth": "10",
-        "mor_link_setup_image": "https://somelink.com/images/img001.png",
-        "mor_additional_equipment": "None",
-        "mor_general_moor_description": "This is a mooring description",
-        "more_notes": "Notes",
-    }
+class TestMorForm(CommonFormTest):
+
+    @staticmethod
+    def get_valid_data():
+
+        valid_data = {
+            "mor_name": "MOR_001",
+            "mor_max_depth": "10",
+            "mor_link_setup_image": "https://somelink.com/images/img001.png",
+            "mor_additional_equipment": "None",
+            "mor_general_moor_description": "This is a mooring description",
+            "more_notes": "Notes",
+        }
+
+        return valid_data
 
     @tag('mor', 'form', 'valid')
     def test_mor_valid_data(self):
@@ -46,9 +54,20 @@ class TestMorForm(TestCase):
         self.assertFalse(form.errors)
 
 
-class TestSteForm(TestCase):
-    valid_data = {
+class TestSteForm(CommonFormTest):
+
+    @staticmethod
+    def get_valid_data():
+        dep = get_dep()
+
+        valid_data = {
+            'dep': dep.pk,
+            'set_type': 1,
+            'ste_date': '2020-02-01',
+            'crs': 1
         }
+
+        return valid_data
 
     @tag('ste', 'form', 'valid_data')
     def test_ste_valid_data(self):
@@ -57,8 +76,11 @@ class TestSteForm(TestCase):
         self.assertFalse(form.errors)
 
 
-class TestStnForm(TestCase):
-    valid_data = {
+class TestStnForm(CommonFormTest):
+
+    @staticmethod
+    def get_valid_data():
+        valid_data = {
             "stn_name": "STN_001",
             "stn_code": "STN",
             "stn_revision": "1",
@@ -68,6 +90,8 @@ class TestStnForm(TestCase):
             "stn_notes": "Some Notes"
         }
 
+        return valid_data
+
     @tag('stn', 'form', 'valid_data')
     def test_stn_valid_data(self):
         form = forms.StnForm(data=self.valid_data)
@@ -75,12 +99,17 @@ class TestStnForm(TestCase):
         self.assertFalse(form.errors)
 
 
-class TestPrjForm(TestCase):
-    valid_data = {
-        "prj_name": 'PRJ_001',
-        "prj_description": "Some project description here",
-        "prj_url": "https//noneOfYourBusiness.com"
-    }
+class TestPrjForm(CommonFormTest):
+
+    @staticmethod
+    def get_valid_data():
+        valid_data = {
+            "prj_name": 'PRJ_001',
+            "prj_description": "Some project description here",
+            "prj_url": "https//noneOfYourBusiness.com"
+        }
+
+        return valid_data
 
     @tag('prj', 'form', 'valid_data')
     def test_prj_valid_data(self):
