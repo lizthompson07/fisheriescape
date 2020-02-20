@@ -1,10 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "whalesdb/whales_detail.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
 
-</body>
-</html>
+{% block field_override %}
+<style>
+    /* Set the size of the div element that contains the map */
+    #map, #lineMap {
+        height: 300px; /* The height is 400 pixels */
+        width: 100%; /* The width is the width of the web page */
+    }
+    .label {
+        font-weight: bold;
+    }
+</style>
+
+<div class="container" >
+    <div class="row">
+        <div class="col-sm">
+        {% for field in fields %}
+            <div><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field%}</span></div>
+        {% endfor %}
+        </div>
+        <div class="col-sm">
+            <div id="map"></div>
+            <div id="lineMap"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OverlappingMarkerSpiderfier/1.0.3/oms.min.js"></script>
+    <script type="application/javascript">
+
+
+        function initialize() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 4,
+                center: {lat: {{object.stn_planned_lat}}, lng: {{object.stn_planned_lon}} },
+                mapTypeId: 'terrain'
+            });
+
+            var loc = {lat: {{object.stn_planned_lat}}, lng: {{object.stn_planned_lon}} };
+            var marker = new google.maps.Marker({
+                position: loc,
+                map: map,
+                title: "{{object.stn_name}}"
+            });
+
+
+        }
+
+        function loadScript() {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+            document.body.appendChild(script);
+        }
+
+        window.onload = loadScript();
+
+    </script>
+
+{% endblock %}

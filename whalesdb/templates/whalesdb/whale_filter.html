@@ -34,13 +34,14 @@
         </form>
     </div>
 
+    {# if the user is authenticated and has permissions show the add button #}
+    {% if auth %}
     <div class="row">
         <div class="col-1">
-            <a class="btn btn-primary" href="#"
-               onclick="return popitup('{% url 'whalesdb:create_stn' %}','popoutWindow')"
-                title="{% trans 'Add Station' %}">+</a>
+            <a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:create_url %}','popoutWindow')" title="{% trans 'Add' %}">+</a>
         </div>
     </div>
+    {% endif %}
 
     <div class="container mt-1 nl-n1">
         <div class="row">
@@ -54,12 +55,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                    {% for station in filter.qs %}
+                    {% for obj in filter.qs %}
                         <tr>
                         {% for field in fields %}
-                        <td>{% get_field_value station field %}</td>
+                        <td>{% get_field_value obj field %}</td>
                         {% endfor %}
-                            <td><a class="btn btn-primary btn-sm" href="{% url 'whalesdb:details_stn' station.pk %}">{% trans 'Details' %}</a></td>
+                            <td><a class="btn btn-primary btn-sm" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a></td>
+                            <td><a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:update_url obj.pk %}','popoutWindow')" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
                         </tr>
                     {% endfor %}
                 </tbody>
