@@ -29,13 +29,103 @@
 
 {% block body %}
 <br><br>
-<div class=" text-center">
+<div class="text-center p-3 my-3 border">
     <h1 class="text-center montserrat" style="font-size: 4.5em">
         {% trans 'Canadian Science Advisory Secretariat' %}
     </h1>
 </div>
 
+<!-- experiments ---------------------------------------------------------->
+
+<!-- it seems HTML only accepts one <head> .. </head>,
+     if I put another <head> .. </head> here, it simply ignors it,
+	 therefore, all the elements of HTML head such as <meta> <script> etc.
+	 are ignored too.
+  -->
+  
+<!-- <div class="jumbotron text-center">
+    <h1>My First Bootstrap Page</h1>
+    <p>Resize this responsive page to see the effect!</p>
+</div>
+
+<div class="text-center">
+    <h1>My First Bootstrap Page</h1>
+    <p>Resize this responsive page to see the effect!</p>
+</div>
+
+<div class="container-fluid p-3 my-3 border">
+    <h1>My First Bootstrap Page</h1>
+    <p>Resize this responsive page to see the effect!</p>
+</div>
+
+<div class="container-fluid text-right p-3 my-3 bg-secondary text-white">
+    <h1>My First Bootstrap Page</h1>
+    <p>Resize this responsive page to see the effect!</p>
+</div>
+-->
+
+<div class="container">
+    <div class="card-columns">
+        <div class="card mb-3 jumbotron"
+             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
+            <div class="card-body text-center">
+                <!-- <p class="card-text">{{title.pk}}</p> -->
+                <p class="card-text"><a href="{% url 'csas:contacts' %}"> Contacts </a> </p>
+            </div>
+        </div>
+		
+        <div class="card mb-3 jumbotron"
+             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
+            <div class="card-body text-center">
+                <p class="card-text">Meetings</p>
+            </div>
+        </div>
+		
+        <div class="card mb-3 jumbotron"
+             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
+            <div class="card-body text-center">
+                <p class="card-text">Requrests</p>
+            </div>
+        </div>
+		
+        <div class="card mb-3 jumbotron"
+             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
+            <div class="card-body text-center">
+                <p class="card-text">Publications</p>
+            </div>
+        </div>
+		
+        <div class="card mb-3 jumbotron"
+             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
+            <div class="card-body text-center">
+                <p class="card-text">Others</p>
+            </div>
+        </div>
+		
+        <div class="card mb-3 jumbotron"
+             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
+            <div class="card-body text-center">
+                <p class="card-text">More ...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <div class="card-columns">
+  <div class="card bg-primary">
+    <div class="card-body text-center">
+      <p class="card-text">Some text inside the first card</p>
+    </div>
+  </div>
+</div>
+
+<div class="card mb-3 jumbotron"
+                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
+                 >
+  -->
+				 
 <!-- building ------------------------------------------------------------->
+
 <div class="container">
     {% for sec in section %}
     <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
@@ -51,7 +141,7 @@
             {% if dep_obj.type == "codelist" %}
             <div class="card mb-3 jumbotron"
                  style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
-                 href="{% url 'whalesdb:code_list' dep_obj.url %}" >
+                 href="{% url 'csas:index' dep_obj.url %}" >
             {% elif dep_obj.obj_name %}
             <div class="card mb-3 jumbotron"
                  style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
