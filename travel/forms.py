@@ -76,6 +76,8 @@ class TripRequestForm(forms.ModelForm):
             "suppers",
             "incidentals",
             "meals",
+            "exclude_from_travel_plan",
+            "admin_notes",
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
@@ -175,26 +177,6 @@ class TripRequestForm(forms.ModelForm):
         self.fields['section'].choices = section_choices
 
 
-class AdminTripRequestForm(forms.ModelForm):
-    class Meta:
-        model = models.TripRequest
-        fields = [
-            # "adm_approval_status",
-            # "rdg_approval_status",
-        ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        my_object = kwargs.get("instance")
-        status_choices = [(s.id, s) for s in models.Status.objects.all() if s.id in [1, 2, 3]]
-        status_choices.insert(0, tuple((None, "---")))
-        self.fields.get("rdg_approval_status").choices = status_choices
-        if not my_object.adm:
-            del self.fields["adm_approval_status"]
-        else:
-            self.fields.get("adm_approval_status").choices = status_choices
-
-
 class TripRequestAdminNotesForm(forms.ModelForm):
     class Meta:
         model = models.TripRequest
@@ -224,7 +206,7 @@ class ChildTripRequestForm(forms.ModelForm):
             'departure_location',
             'role',
             'role_of_participant',
-
+            'exclude_from_travel_plan',
             'parent_request',
         ]
         widgets = {
@@ -262,7 +244,7 @@ class ChildTripRequestForm(forms.ModelForm):
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
-        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent" ]
+        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent"]
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -322,49 +304,6 @@ class ReviewerForm(forms.ModelForm):
             'trip_request': forms.HiddenInput(),
             'user': forms.Select(attrs=chosen_js),
         }
-
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     my_trip = cleaned_data.get("trip")
-    #     my_order = cleaned_data.get("order")
-    #     my_role = cleaned_data.get("role")
-    #
-    #     # make sure the role is properly positioned
-    #     # last_reviewer = None
-    #     # for reviewer in my_trip.reviewers.all():
-    #     #     # basically, each subsequent reviewer should have a role that is further down in order than the previous
-    #     #     if last_reviewer:
-    #     #         if reviewer.role.order > last_reviewer.role.order:
-    #     #             raise forms.ValidationError("The roles of the reviewers are out of order!")
-    #     #     last_reviewer = reviewer
-    #
-    #
-    #     # we have to do something smart with the order...
-    #     # if there is nothing competing, our job is done. Otherwise...
-    #     # if my_trip.reviewers.filter(order=my_order).count() > 0:
-    #     #     print("found")
-    #     #     found_equal = False
-    #     #     for reviewer in my_trip.reviewers.all():
-    #     #         if reviewer.order == my_order:
-    #     #             found_equal = True
-    #     #
-    #     #         if found_equal:
-    #     #             reviewer.order += 1
-    #     #             reviewer.save()
-    #     return cleaned_data
-
-    # else:
-    #     reviewer.order = count
-    # count += 1
-
-    # north = cleaned_data.get("north")
-    # south = cleaned_data.get("south")
-    # east = cleaned_data.get("east")
-    # west = cleaned_data.get("west")
-    #
-    # if not north or not south or not east or not west:
-    #
-    # raise forms.ValidationError("You must enter valid values for all directions.")
 
 
 ReviewerFormSet = modelformset_factory(

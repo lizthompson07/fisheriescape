@@ -101,6 +101,21 @@
                         {% bootstrap_field field placeholder="" size="small" %}
                     {% endif %}
                 </div>
+
+            {% elif field.name == "exclude_from_travel_plan" %}
+                {% if field.name in help_text_dict %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                             data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        &nbsp;&nbsp;{{field}}
+                    {% endwith %}
+                {% else %}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                {% endif %}
+
             {% else %}
                 {% if field.name in help_text_dict %}
                     {% bootstrap_label field.label %}

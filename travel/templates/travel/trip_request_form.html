@@ -107,23 +107,26 @@
                     <br><br>
                 {% endif %}
             {% elif field.name == "is_group_request" %}
-                {% if field.name in help_text_dict %}
-                    {% bootstrap_label field.label %}
-                    {% with help_text_dict|lookup:field.name as help_text %}
-                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
-                             title="{{ field.label }}"
-                             data-content="{{ help_text }}">
-                        {% bootstrap_field field placeholder="" show_label=False %}
-                    {% endwith %}
-                {% else %}
-                    {% bootstrap_field field placeholder="" %}
-                {% endif %}
-                <div class="show-me blue-font">
-                    <p>
-                        <em>
-                            {% trans "(One this form is submitted, you will be able to add group travellers to the request. You will be automatically added as a traveller.)" %}
-                        </em>
-                    </p>
+                <div class="is_group_request_container">
+                    {% if field.name in help_text_dict %}
+                        {% bootstrap_label field.label %}
+                        {% with help_text_dict|lookup:field.name as help_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 data-trigger="hover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ help_text }}">
+                            {% bootstrap_field field placeholder="" show_label=False %}
+                        {% endwith %}
+                    {% else %}
+                        {% bootstrap_field field placeholder="" %}
+                    {% endif %}
+                    <div class="show-me blue-font">
+                        <p>
+                            <em>
+                                {% trans "(One this form is submitted, you will be able to add group travellers to the request. You will be automatically added as a traveller.)" %}
+                            </em>
+                        </p>
+                    </div>
                 </div>
             {% elif field.name == "address" %}
                 {% if field.name in help_text_dict %}
@@ -259,6 +262,9 @@
             $("#id_address").val($myBtn.text());
         });
 
+        {% if object %}
+            $(".is_group_request_container").addClass("gone");
+        {% endif %}
 
     </script>
 {% endblock %}

@@ -95,21 +95,27 @@
                                         <ul>
                                             <li>
                                                 2020-2021 Gulf Region Interactive Workplan <br>
-                                                <a href="{% url 'projects:iw_group_list' 1 2021 'division' %}">
-                                                    ({% trans "by Section" %})
-                                                </a>
-                                                <a href="{% url 'projects:iw_group_list' 1 2021 'theme' %}">
-                                                    ({% trans "by Theme" %})
-                                                </a>
+                                                (<a href="{% url 'projects:iw_group_list' 1 2021 'division' %}">
+                                                    {% trans "by Section" %}
+                                                </a>)
+                                                (<a href="{% url 'projects:iw_group_list' 1 2021 'theme' %}">
+                                                    {% trans "by Theme" %}
+                                                </a>)
+                                                (<a href="{% url 'projects:iw_group_list' 1 2021 'funding_source' %}">
+                                                    {% trans "by Funding source" %}
+                                                </a>)
                                             </li>
                                             <li>
                                                 2020-2021 Maritimes Region Interactive Workplan <br>
-                                                <a href="{% url 'projects:iw_group_list' 2 2021 'division' %}">
-                                                    ({% trans "by Section" %})
-                                                </a>
-                                                <a href="{% url 'projects:iw_group_list' 2 2021 'theme' %}">
-                                                    ({% trans "by Theme" %})
-                                                </a>
+                                                (<a href="{% url 'projects:iw_group_list' 2 2021 'division' %}">
+                                                    {% trans "by Section" %}
+                                                </a>)
+                                                (<a href="{% url 'projects:iw_group_list' 2 2021 'theme' %}">
+                                                    {% trans "by Theme" %}
+                                                </a>)
+                                                (<a href="{% url 'projects:iw_group_list' 2 2021 'funding_source' %}">
+                                                    {% trans "by Funding source" %}
+                                                </a>)
                                             </li>
                                         </ul>
                                     </div>
@@ -198,7 +204,7 @@
                                     {% trans "Review of core projects." %}
                                 </td>
                                 <td class="center-col">{% trans "Dec 5-6" %}</td>
-                                <td class="center-col">{% trans "TBD" %}</td>
+                                <td class="center-col">{% trans "Feb 20" %}</td>
                             </tr>
                             <tr>
                                 <td class="red-font">

@@ -77,7 +77,6 @@ def can_modify_request(user, trip_request_id):
 
 class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
-
     def test_func(self):
         return in_travel_admin_group(self.request.user)
 
@@ -89,7 +88,6 @@ class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class AdminOrApproverRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
 
     def test_func(self):
         my_trip_request = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
@@ -123,7 +121,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         ).count()  # number of requests where admin review is pending
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
-        context["unverified_trips"] = models.Conference.objects.filter(is_verified=False).count()
+        context["unverified_trips_non_adm"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=False).count()
+        context["unverified_trips_adm"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=True).count()
         return context
 
 
@@ -196,7 +195,8 @@ request_child_field_list = [
     'departure_location',
     'role',
     'role_of_participant',
-    'total_cost',
+    'total_cost|{}'.format("Total cost"),
+
 ]
 
 reviewer_field_list = [
@@ -1011,8 +1011,14 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
 class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
     template_name = 'travel/trip_confirm_delete.html'
     model = models.Conference
-    success_url = reverse_lazy('travel:trip_list')
-    success_message = 'The event was deleted successfully!'
+    success_message = 'The trip was deleted successfully!'
+
+    def get_success_url(self):
+        if self.kwargs.get("back_to_verify"):
+            success_url = reverse_lazy('travel:admin_trip_verification_list')
+        else:
+            success_url = reverse_lazy('travel:trip_list')
+        return success_url
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -1154,7 +1160,6 @@ def export_request_cfts(request, trip=None, trip_request=None):
 
 class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 
-
     def get_template_names(self):
         my_object = models.TripRequest.objects.get(id=self.kwargs['pk'])
         if my_object.is_group_request:
@@ -1172,10 +1177,9 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         cost_categories = models.CostCategory.objects.all()
         my_dict = dict()
 
-        # first, let's create an object list; if this is
+        # first, let's create an object list;
         if my_object.is_group_request:
-            object_list = my_object.children_requests.filter(
-                Q(region=my_object.section.division.branch.region) | Q(region__isnull=True) | Q(is_public_servant=False))
+            object_list = my_object.children_requests.filter(exclude_from_travel_plan=False)
         else:
             object_list = models.TripRequest.objects.filter(pk=my_object.id)
 

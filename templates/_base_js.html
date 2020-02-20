@@ -62,6 +62,7 @@
     var fpConfig = {
         '.fp-date': {},
         '.fp-date-time': {enableTime: true, time_24hr: true},
+        '.fp-date-time-with-seconds': {enableTime: true, time_24hr: true, enableSeconds: true},
     };
     for (var selector in fpConfig) {
         $(selector).flatpickr(fpConfig[selector]);
