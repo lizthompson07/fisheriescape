@@ -5,10 +5,10 @@ from django.urls import reverse, reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
-
 from . import forms
 from . import models
 from . import filters
+import json
 
 
 class IndexView(TemplateView):
@@ -41,7 +41,7 @@ class IndexView(TemplateView):
                         'icon': "img/whales/station.svg",
                     },
                 ]
-           },
+            },
         ]
 
         return context
@@ -56,11 +56,17 @@ class CloserNoRefreshTemplateView(TemplateView):
 
 
 class CreateCommon(UserPassesTestMixin, CreateView):
+    # this is where the user should be redirected if they're not logged in
     login_url = '/accounts/login_required/'
+
+    # default template to use to create an update
+    template_name = 'whalesdb/_entry_form.html'
+
+    # title to display on the CreateView page
     title = None
+
     # create views are all intended to be pop out windows so upon success close the window
     success_url = reverse_lazy("whalesdb:close_me")
-    template_name = 'whalesdb/_entry_form.html'
 
     def test_func(self):
         return self.request.user.groups.filter(name='whalesdb_admin').exists()
@@ -73,21 +79,21 @@ class CreateCommon(UserPassesTestMixin, CreateView):
 
         return context
 
-    def form_invalid(self, form):
-        invalid = super().form_valid(form)
-
-        return invalid
-
-    def form_valid(self, form):
-        valid = super().form_valid(form)
-
-        return valid
-
 
 class CreateDep(CreateCommon):
     model = models.DepDeployment
     form_class = forms.DepForm
     title = _("Create Deployment")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in
+                        models.StnStation.objects.all().order_by('stn_id').values_list()]
+
+        context['station_json'] = json.dumps(station_dict)
+
+        return context
 
 
 class CreateMor(CreateCommon):
@@ -95,16 +101,15 @@ class CreateMor(CreateCommon):
     form_class = forms.MorForm
     title = _("Create Mooring Setup")
 
-    def form_valid(self, form):
-        valid = super().form_valid(form)
-
-        return valid
-
 
 class CreatePrj(CreateCommon):
     model = models.PrjProject
     form_class = forms.PrjForm
     title = _("Create Project")
+
+
+class CreateSte(CreateCommon):
+    pass
 
 
 class CreateStn(CreateCommon):
@@ -114,12 +119,20 @@ class CreateStn(CreateCommon):
 
 
 class UpdateCommon(UserPassesTestMixin, UpdateView):
+    # this is where the user should be redirected if they're not logged in
     login_url = '/accounts/login_required/'
-    title = None
-    # create views are all intended to be pop out windows so upon success close the window
-    success_url = reverse_lazy("whalesdb:close_me")
+
+    # default template to use to create an update
     template_name = 'whalesdb/_entry_form.html'
 
+    # title to display on the CreateView page
+    title = None
+
+    # update views are all intended to be pop out windows so upon success close the window
+    success_url = reverse_lazy("whalesdb:close_me")
+
+    # this function overrides UserPassesTestMixin.test_func() to determine if
+    # the user should have access to this content, if the user is logged in
     def test_func(self):
         return self.request.user.groups.filter(name='whalesdb_admin').exists()
 
@@ -135,35 +148,48 @@ class UpdateCommon(UserPassesTestMixin, UpdateView):
 class UpdateDep(UpdateCommon):
     model = models.DepDeployment
     form_class = forms.DepForm
-
     title = _("Update Deployment")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in
+                        models.StnStation.objects.all().order_by('stn_id').values_list()]
+
+        context['station_json'] = json.dumps(station_dict)
+
+        return context
 
 
 class UpdateMor(UpdateCommon):
     model = models.MorMooringSetup
     form_class = forms.MorForm
-
     title = _("Update Mooring Setup")
 
 
 class UpdatePrj(UpdateCommon):
     model = models.PrjProject
     form_class = forms.PrjForm
-
     title = _("Update Project")
 
 
 class UpdateStn(UpdateCommon):
     model = models.StnStation
     form_class = forms.StnForm
-
     title = _("Update Station")
 
 
 class DetailsCommon(DetailView):
-    key = None
-    title = None
+    # default template to use to create a details view
     template_name = "whalesdb/whales_details.html"
+
+    # title to display on the list page
+    title = None
+
+    # key used for creating default list and update URLs in the get_context_data method
+    key = None
+
+    # URL linking the details page back to the proper list
     list_url = None
     update_url = None
 
@@ -197,6 +223,7 @@ class DetailsMor(DetailsCommon):
     title = _("Mooring Setup Details")
     fields = ["mor_name", "mor_max_depth", "mor_link_setup_image", "mor_additional_equipment",
               "mor_general_moor_description", "mor_notes"]
+    creation_form_height = 600
 
 
 class DetailsPrj(DetailsCommon):
@@ -204,6 +231,7 @@ class DetailsPrj(DetailsCommon):
     model = models.PrjProject
     title = _("Project Details")
     fields = ['prj_name', 'prj_description', 'prj_url']
+    creation_form_height = 725
 
 
 class DetailsStn(DetailsCommon):
@@ -213,16 +241,34 @@ class DetailsStn(DetailsCommon):
     template_name = 'whalesdb/stnstation_details.html'
     fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
               'stn_planned_depth', 'stn_notes']
+    creation_form_height = 400
 
 
 class ListCommon(FilterView):
+    # default template to use to create a filter view
     template_name = 'whalesdb/whale_filter.html'
-    key = None
-    fields = []
-    create_url = None
-    details_url = None
-    update_url = None
+
+    # title to display on the list page
     title = None
+
+    # key used for creating default create, update and details URLs in the get_context_data method
+    key = None
+
+    # fields to be used as columns to display an object in the filter view table
+    fields = []
+
+    # URL to use to create a new object to be added to the filter view
+    create_url = None
+
+    # URL to use for the details button element in the filter view's list
+    details_url = None
+
+    # URL to use for the update button element in the filter view's list
+    update_url = None
+
+    # The height of the popup dialog used to display the creation/update form
+    # if not set by the extending class the default popup height will be used
+    creation_form_height = None
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
@@ -239,6 +285,9 @@ class ListCommon(FilterView):
         context['auth'] = self.request.user.is_authenticated and \
                           self.request.user.groups.filter(name='whalesdb_admin').exists()
 
+        if self.creation_form_height:
+            context['height'] = self.creation_form_height
+
         return context
 
 
@@ -248,6 +297,7 @@ class ListDep(ListCommon):
     filterset_class = filters.DepFilter
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
     title = _("Deployment List")
+    creation_form_height = 600
 
 
 class ListMor(ListCommon):
@@ -256,6 +306,7 @@ class ListMor(ListCommon):
     filterset_class = filters.MorFilter
     fields = ['mor_name', 'mor_max_depth', 'mor_notes']
     title = _("Mooring Setup List")
+    creation_form_height = 725
 
 
 class ListPrj(ListCommon):
@@ -264,13 +315,12 @@ class ListPrj(ListCommon):
     filterset_class = filters.PrjFilter
     title = _("Project List")
     fields = ['prj_name', 'prj_description']
+    creation_form_height = 400
 
 
 class ListStn(ListCommon):
-    key ='stn'
+    key = 'stn'
     model = models.StnStation
     filterset_class = filters.StnFilter
     fields = ['stn_name', 'stn_code', 'stn_revision']
     title = _("Station List")
-
-

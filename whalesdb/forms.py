@@ -5,7 +5,7 @@ from whalesdb import models
 class DepForm(forms.ModelForm):
     class Meta:
         model = models.DepDeployment
-        exclude = []
+        fields = ["stn", "dep_year", "dep_month", "dep_name", "prj", "mor"]
 
 
 class MorForm(forms.ModelForm):
@@ -13,6 +13,8 @@ class MorForm(forms.ModelForm):
         model = models.MorMooringSetup
         exclude = []
         widgets = {
+            'mor_additional_equipment': forms.Textarea(attrs={"rows": 2}),
+            'mor_general_moor_description': forms.Textarea(attrs={"rows": 2}),
             'mor_notes': forms.Textarea(attrs={"rows": 2}),
         }
 
@@ -28,10 +30,18 @@ class PrjForm(forms.ModelForm):
 
 
 class StnForm(forms.ModelForm):
-
     class Meta:
         model = models.StnStation
         exclude = []
         widgets = {
             'stn_notes': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
+class SteForm(forms.ModelForm):
+
+    class Meta:
+        model = models.SteStationEvent
+        exclude = []
+        widgets = {
         }
