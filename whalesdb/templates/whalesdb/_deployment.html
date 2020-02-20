@@ -1,0 +1,35 @@
+{% load verbose_names %}
+{% load i18n %}
+
+<div class="row">
+    <div class="col-sm">
+        <div><span class="font-weight-bold">{% get_verbose_label dep 'dep_name' %} : </span><span>{% get_field_value dep 'dep_name'%}</span></div>
+        <div><span class="font-weight-bold">{% get_verbose_label dep 'dep_month' %} : </span><span>{% get_field_value dep 'dep_month'%}</span></div>
+        <div><span class="font-weight-bold">{% get_verbose_label dep 'prj' %} : </span><span>{% get_field_value dep 'prj'%}</span></div>
+
+        <div class="card my-1">
+            <h5 class="card-header"><a href="#fs-deployment-list-stn" data-toggle="collapse">{% get_verbose_label dep 'stn' %}</a></h5>
+            <div class="card-body collapse" id="fs-deployment-list-stn">
+                <div class="card-text">{% include "whalesdb/_station.html" with stn=object.stn %}</div>
+            </div>
+        </div>
+
+         <div class="card my-1">
+            <h5 class="card-header"><a href="#fs-deployment-list-mor" data-toggle="collapse">{% get_verbose_label dep 'mor' %}</a></h5>
+            <div class="card-body collapse" id="fs-deployment-list-mor">
+                <div class="card-text">{% include "whalesdb/_mooring_setup.html" with mor=object.mor %}</div>
+            </div>
+        </div>
+
+         <div class="card my-1">
+            <h5 class="card-header"><a href="#fs-deployment-list-set" data-toggle="collapse">{% trans "Station Events" %}</a></h5>
+            <div class="card-body collapse" id="fs-deployment-list-set">
+            <a class="btn btn-primary" href="#" onclick="return popitup('{% url 'whalesdb:create_ste' dep.pk %}','popoutWindow', height=800)" title="{% trans 'Add' %}">+</a>
+                Events: '{{ dep.stestationevents }}'
+                {% for evt in dep.stestationevents %}
+                <pre>event</pre>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
