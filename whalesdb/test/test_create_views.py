@@ -45,17 +45,17 @@ class TestCreateDep(CommonCreateTest):
         self.expected_form = forms.DepForm
 
     # Users must be logged in to create new objects
-    @tag('dep', 'create_dep', 'response', 'access')
+    @tag('dep', 'create', 'response', 'access')
     def test_create_dep_en(self):
         super().assert_view(expected_code=302)
 
     # Users must be logged in to create new objects
-    @tag('dep', 'create_dep', 'response', 'access')
+    @tag('dep', 'create', 'response', 'access')
     def test_create_dep_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
     # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
-    @tag('dep', 'create_dep', 'response', 'access')
+    @tag('dep', 'create', 'response', 'access')
     def test_create_dep_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
         super().assert_logged_in_not_access()
@@ -64,19 +64,22 @@ class TestCreateDep(CommonCreateTest):
         super().assert_logged_in_has_access()
 
     # Test that projects is using the project form
-    @tag('dep', 'create_dep', 'form')
+    @tag('dep', 'create', 'form')
     def test_create_dep_form(self):
         super().assert_create_form()
 
     # test that the context is returning the required context fields
     # at a minimum this should include a title field
     # Each view might require specific context fields
-    @tag('dep', 'create_dep', 'context')
+    @tag('dep', 'create', 'context')
     def test_create_dep_context_fields(self):
-        super().assert_create_view_context_fields()
+        response = super().assert_create_view_context_fields()
+
+        # Deploymnets also need to return a JSON formatted list of Station Codes
+        self.assertIn("station_json", response.context)
 
     # test that given some valid data the view will redirect to the list
-    @tag('dep', 'create_dep', 'redirect')
+    @tag('dep', 'create', 'redirect')
     def test_create_dep_successful_url(self):
         super().assert_successful_url()
 
@@ -118,17 +121,17 @@ class TestCreateMor(CommonCreateTest):
         self.data['mor_setup_image'] = self.img_file_path
 
     # Users must be logged in to create new objects
-    @tag('mor', 'create_mor', 'response', 'access')
+    @tag('mor', 'create', 'response', 'access')
     def test_create_mor_en(self):
         super().assert_view(expected_code=302)
 
     # Users must be logged in to create new objects
-    @tag('mor', 'create_mor', 'response', 'access')
+    @tag('mor', 'create', 'response', 'access')
     def test_create_mor_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
     # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
-    @tag('mor', 'create_mor', 'response', 'access')
+    @tag('mor', 'create', 'response', 'access')
     def test_create_mor_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
         super().assert_logged_in_not_access()
@@ -137,19 +140,19 @@ class TestCreateMor(CommonCreateTest):
         super().assert_logged_in_has_access()
 
     # Test that projects is using the project form
-    @tag('mor', 'create_mor', 'form')
+    @tag('mor', 'create', 'form')
     def test_create_mor_form(self):
         super().assert_create_form()
 
     # test that the context is returning the required context fields
     # at a minimum this should include a title field
     # Each view might require specific context fields
-    @tag('mor', 'create_mor', 'context')
+    @tag('mor', 'create', 'context')
     def test_create_mor_context_fields(self):
         super().assert_create_view_context_fields()
 
     # test that given some valid data the view will redirect to the list
-    @tag('mor', 'create_mor', 'redirect')
+    @tag('mor', 'create', 'redirect')
     def test_create_mor_successful_url(self):
         super().assert_successful_url()
 
@@ -174,17 +177,17 @@ class TestCreatePrj(CommonCreateTest):
         self.expected_form = forms.PrjForm
 
     # Users must be logged in to create new objects
-    @tag('prj', 'create_prj', 'response', 'access')
+    @tag('prj', 'create', 'response', 'access')
     def test_create_prj_en(self):
         super().assert_view(expected_code=302)
 
     # Users must be logged in to create new objects
-    @tag('prj', 'create_prj', 'response', 'access')
+    @tag('prj', 'create', 'response', 'access')
     def test_create_prj_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
     # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
-    @tag('prj', 'create_prj', 'response', 'access')
+    @tag('prj', 'create', 'response', 'access')
     def test_create_prj_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
         super().assert_logged_in_not_access()
@@ -193,24 +196,77 @@ class TestCreatePrj(CommonCreateTest):
         super().assert_logged_in_has_access()
 
     # Test that projects is using the project form
-    @tag('prj', 'create_prj', 'form')
+    @tag('prj', 'create', 'form')
     def test_create_prj_form(self):
         super().assert_create_form()
 
     # test that the context is returning the required context fields
     # at a minimum this should include a title field
     # Each view might require specific context fields
-    @tag('prj', 'create_prj', 'context')
+    @tag('prj', 'create', 'context')
     def test_create_prj_context_fields(self):
         super().assert_create_view_context_fields()
 
     # test that given some valid data the view will redirect to the list
-    @tag('prj', 'create_prj', 'redirect')
+    @tag('prj', 'create', 'redirect')
     def test_create_prj_successful_url(self):
         super().assert_successful_url()
 
 
 class TestCreateStn(CommonCreateTest):
+    data = {
+    }
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:create_ste')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form.html'
+
+        self.expected_view = views.CreateSte
+
+        self.expected_form = forms.SteForm
+
+    # Users must be logged in to create new stations
+    @tag('ste', 'create', 'response', 'access')
+    def test_create_ste_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('ste', 'create', 'response', 'access')
+    def test_create_ste_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('ste', 'create', 'response', 'access')
+    def test_create_ste_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('ste', 'create', 'form')
+    def test_create_ste_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('ste', 'create', 'context')
+    def test_create_ste_context_fields(self):
+        super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('ste', 'create', 'redirect')
+    def test_create_ste_successful_url(self):
+        super().assert_successful_url()
+
+
+class TestCreateSte(CommonCreateTest):
     data = {
             "stn_name": "STN_001",
             "stn_code": "STN",
@@ -234,17 +290,17 @@ class TestCreateStn(CommonCreateTest):
         self.expected_form = forms.StnForm
 
     # Users must be logged in to create new stations
-    @tag('stn', 'create_stn', 'response', 'access')
+    @tag('stn', 'create', 'response', 'access')
     def test_create_stn_en(self):
         super().assert_view(expected_code=302)
 
     # Users must be logged in to create new stations
-    @tag('stn', 'create_stn', 'response', 'access')
+    @tag('stn', 'create', 'response', 'access')
     def test_create_stn_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
     # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
-    @tag('stn', 'create_stn', 'response', 'access')
+    @tag('stn', 'create', 'response', 'access')
     def test_create_stn_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
         super().assert_logged_in_not_access()
@@ -253,18 +309,18 @@ class TestCreateStn(CommonCreateTest):
         super().assert_logged_in_has_access()
 
     # Test that projects is using the project form
-    @tag('stn', 'create_stn', 'form')
+    @tag('stn', 'create', 'form')
     def test_create_stn_form(self):
         super().assert_create_form()
 
     # test that the context is returning the required context fields
     # at a minimum this should include a title field
     # Each view might require specific context fields
-    @tag('stn', 'create_stn', 'context')
+    @tag('stn', 'create', 'context')
     def test_create_stn_context_fields(self):
         super().assert_create_view_context_fields()
 
     # test that given some valid data the view will redirect to the list
-    @tag('stn', 'create_stn', 'redirect')
+    @tag('stn', 'create', 'redirect')
     def test_create_stn_successful_url(self):
         super().assert_successful_url()

@@ -1,8 +1,85 @@
 from django.test import tag
 from django.urls import reverse_lazy
 
-from whalesdb.test.common_views import CommonUpdateTest
+from whalesdb.test.common_views import CommonUpdateTest, get_mor, get_stn, get_prj
 from whalesdb import views, models, forms
+
+
+class TestUpdateDep(CommonUpdateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        mor = get_mor()
+        prj = get_prj()
+        stn = get_stn()
+
+        self.data = {
+            "dep_year": 2020,
+            "dep_month": 2,
+            "dep_name": "DEP_001",
+            "stn": stn.pk,
+            "prj": prj.pk,
+            "mor": mor.pk
+        }
+
+        obj = models.DepDeployment(
+            dep_year=self.data['dep_year'],
+            dep_month=self.data['dep_month'],
+            dep_name=self.data['dep_name'],
+            stn=stn,
+            prj=prj,
+            mor=mor,
+        )
+        obj.save()
+
+        self.test_url = reverse_lazy('whalesdb:update_dep', args=(obj.pk,))
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form.html'
+
+        self.expected_view = views.UpdateDep
+
+        self.expected_form = forms.DepForm
+
+    # Users must be logged in to update stations
+    @tag('dep', 'update_dep', 'response', 'access')
+    def test_update_dep_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to update stations
+    @tag('dep', 'update_dep', 'response', 'access')
+    def test_update_dep_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('dep', 'update_dep', 'response', 'access')
+    def test_update_dep_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('dep', 'update_dep', 'form')
+    def test_update_dep_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('dep', 'update_dep', 'context')
+    def test_update_dep_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+        # Deploymnets also need to return a JSON formatted list of Station Codes
+        self.assertIn("station_json", response.context)
+
+    # test that given some valid data the view will redirect to the list
+    @tag('dep', 'update_dep', 'redirect')
+    def test_update_dep_successful_url(self):
+        super().assert_successful_url()
 
 
 class TestUpdateMor(CommonUpdateTest):
