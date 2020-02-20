@@ -16,6 +16,8 @@ from github import Github
 
 import os
 
+from sendgrid import Mail
+
 from . import models
 from . import forms
 from . import filters
@@ -187,8 +189,7 @@ def send_resolved_email(request, ticket):
     email = emails.TicketResolvedEmail(my_ticket)
     # send the email object
     if settings.USE_EMAIL:
-        send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email, recipient_list=email.to_list,
-                  fail_silently=False, )
+        Mail(subject=email.subject, html_content=email.message, from_email=email.from_email, to_emails=email.to_list)
     else:
         print('not sending email since in dev mode')
         print(email)
