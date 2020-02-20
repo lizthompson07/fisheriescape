@@ -76,7 +76,6 @@ def can_modify_request(user, trip_request_id):
 
 
 class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/accounts/login_required/'
 
     def test_func(self):
         return in_travel_admin_group(self.request.user)
@@ -89,7 +88,6 @@ class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class AdminOrApproverRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/accounts/login_required/'
 
     def test_func(self):
         my_trip_request = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
@@ -106,7 +104,7 @@ class AdminOrApproverRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 # This allows any logged in user to access the view
 class TravelAccessRequiredMixin(LoginRequiredMixin):
-    login_url = '/accounts/login_required/'
+    login_url = '/accounts/login/'
 
 
 class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
@@ -123,7 +121,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         ).count()  # number of requests where admin review is pending
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
-        context["unverified_trips"] = models.Conference.objects.filter(is_verified=False).count()
+        context["unverified_trips_non_adm"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=False).count()
+        context["unverified_trips_adm"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=True).count()
         return context
 
 
@@ -196,7 +195,8 @@ request_child_field_list = [
     'departure_location',
     'role',
     'role_of_participant',
-    'total_cost',
+    'total_cost|{}'.format("Total cost"),
+
 ]
 
 reviewer_field_list = [
@@ -459,7 +459,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
                 # send an email to the request owner
                 my_email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
                 # send the email object
-                if settings.PRODUCTION_SERVER:
+                if settings.USE_EMAIL:
                     send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                               recipient_list=my_email.to_list, fail_silently=False, )
                 else:
@@ -616,7 +616,7 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
         # send an email to the trip_request owner
         my_email = emails.StatusUpdateEmail(my_trip_request)
         # # send the email object
-        if settings.PRODUCTION_SERVER:
+        if settings.USE_EMAIL:
             send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                       recipient_list=my_email.to_list, fail_silently=False, )
         else:
@@ -854,7 +854,7 @@ class ChildTripRequestCloneUpdateView(TripRequestUpdateView):
         return context
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def reset_reviewers(request, pk):
     my_obj = models.TripRequest.objects.get(pk=pk)
@@ -867,7 +867,7 @@ def reset_reviewers(request, pk):
 
 # REVIEWER #
 ############
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_reviewer(request, pk):
     my_obj = models.Reviewer.objects.get(pk=pk)
@@ -880,7 +880,7 @@ def delete_reviewer(request, pk):
         return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_obj.trip_request.id}))
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 # @user_passes_test(is_superuser, login_url='/accounts/denied/')
 def manage_reviewers(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
@@ -998,7 +998,7 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
             # create a new email object
             email = emails.NewTripEmail(my_object)
             # send the email object
-            if settings.PRODUCTION_SERVER:
+            if settings.USE_EMAIL:
                 send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
                           recipient_list=email.to_list, fail_silently=False, )
             else:
@@ -1011,8 +1011,14 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
 class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
     template_name = 'travel/trip_confirm_delete.html'
     model = models.Conference
-    success_url = reverse_lazy('travel:trip_list')
-    success_message = 'The event was deleted successfully!'
+    success_message = 'The trip was deleted successfully!'
+
+    def get_success_url(self):
+        if self.kwargs.get("back_to_verify"):
+            success_url = reverse_lazy('travel:admin_trip_verification_list')
+        else:
+            success_url = reverse_lazy('travel:trip_list')
+        return success_url
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -1052,7 +1058,8 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse("accounts:denied_access_adm"))
+            return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
+                "message": _("Sorry, only ADMO administrators can verify projects that require ADM approval.")}))
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1152,7 +1159,6 @@ def export_request_cfts(request, trip=None, trip_request=None):
 
 
 class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
-    login_url = '/accounts/login_required/'
 
     def get_template_names(self):
         my_object = models.TripRequest.objects.get(id=self.kwargs['pk'])
@@ -1171,10 +1177,9 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         cost_categories = models.CostCategory.objects.all()
         my_dict = dict()
 
-        # first, let's create an object list; if this is
+        # first, let's create an object list;
         if my_object.is_group_request:
-            object_list = my_object.children_requests.filter(
-                Q(region=my_object.section.division.branch.region) | Q(region__isnull=True) | Q(is_public_servant=False))
+            object_list = my_object.children_requests.filter(exclude_from_travel_plan=False)
         else:
             object_list = models.TripRequest.objects.filter(pk=my_object.id)
 
@@ -1203,7 +1208,7 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 # SETTINGS #
 ############
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_status(request, pk):
     my_obj = models.Status.objects.get(pk=pk)
@@ -1211,7 +1216,7 @@ def delete_status(request, pk):
     return HttpResponseRedirect(reverse("travel:manage_statuses"))
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def manage_statuses(request):
     qs = models.Status.objects.all()
@@ -1239,7 +1244,7 @@ def manage_statuses(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_help_text(request, pk):
     my_obj = models.HelpText.objects.get(pk=pk)
@@ -1247,7 +1252,7 @@ def delete_help_text(request, pk):
     return HttpResponseRedirect(reverse("travel:manage_help_text"))
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def manage_help_text(request):
     qs = models.HelpText.objects.all()
@@ -1273,7 +1278,7 @@ def manage_help_text(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_cost_category(request, pk):
     my_obj = models.CostCategory.objects.get(pk=pk)
@@ -1281,7 +1286,7 @@ def delete_cost_category(request, pk):
     return HttpResponseRedirect(reverse("travel:manage_cost_categories"))
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def manage_cost_categories(request):
     qs = models.CostCategory.objects.all()
@@ -1307,7 +1312,7 @@ def manage_cost_categories(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_cost(request, pk):
     my_obj = models.Cost.objects.get(pk=pk)
@@ -1315,7 +1320,7 @@ def delete_cost(request, pk):
     return HttpResponseRedirect(reverse("travel:manage_costs"))
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def manage_costs(request):
     qs = models.Cost.objects.all()
@@ -1341,7 +1346,7 @@ def manage_costs(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_njc_rate(request, pk):
     my_obj = models.NJCRates.objects.get(pk=pk)
@@ -1349,7 +1354,7 @@ def delete_njc_rate(request, pk):
     return HttpResponseRedirect(reverse("travel:manage_njc_rates"))
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def manage_njc_rates(request):
     qs = models.NJCRates.objects.all()

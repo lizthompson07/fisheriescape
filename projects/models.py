@@ -289,7 +289,7 @@ class Project(models.Model):
     activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
     functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                                          verbose_name=_("Functional group"))
-    default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True,
+    default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True, related_name="projects",
                                                verbose_name=_("primary funding source"))
     programs = models.ManyToManyField(Program, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords (used for searching)"), related_name="projects")
@@ -467,91 +467,17 @@ class Project(models.Model):
         )
 
     @property
-    def a_salary(self):
-        funding_source_id = 1
-        staff_salary = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        return nz(staff_salary, 0)
-
-    @property
-    def a_om(self):
-        funding_source_id = 1
-        staff_om = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        other_om = self.om_costs.filter(funding_source_id=funding_source_id
-                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(staff_om, 0) + nz(other_om, 0)
-
-    @property
-    def a_capital(self):
-        funding_source_id = 1
-        capital = self.capital_costs.filter(funding_source=funding_source_id
-                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(capital, 0)
-
-    @property
-    def b_salary(self):
-        funding_source_id = 2
-        staff_salary = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        return nz(staff_salary, 0)
-
-    @property
-    def b_om(self):
-        funding_source_id = 2
-        staff_om = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        other_om = self.om_costs.filter(funding_source_id=funding_source_id
-                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(staff_om, 0) + nz(other_om, 0)
-
-    @property
-    def b_capital(self):
-        funding_source_id = 2
-        capital = self.capital_costs.filter(funding_source=funding_source_id
-                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(capital, 0)
-
-    @property
-    def c_salary(self):
-        funding_source_id = 3
-        staff_salary = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=1, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        return nz(staff_salary, 0)
-
-    @property
-    def c_om(self):
-        funding_source_id = 3
-        staff_om = self.staff_members.filter(
-            employee_type__exclude_from_rollup=False, employee_type__cost_type=2, funding_source_id=funding_source_id
-        ).order_by("cost").aggregate(dsum=Sum("cost"))['dsum']
-        other_om = self.om_costs.filter(funding_source_id=funding_source_id
-                                        ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(staff_om, 0) + nz(other_om, 0)
-
-    @property
-    def c_capital(self):
-        funding_source_id = 3
-        capital = self.capital_costs.filter(funding_source=funding_source_id
-                                            ).order_by("budget_requested").aggregate(dsum=Sum("budget_requested"))['dsum']
-        return nz(capital, 0)
-
-    @property
     def total_salary(self):
-        return self.a_salary + self.b_salary + self.c_salary
+        return nz(self.staff_members.filter(employee_type__cost_type=1).aggregate(dsum=Sum("cost"))['dsum'], 0)
 
     @property
     def total_om(self):
-        return self.a_om + self.b_om + self.c_om
+        return nz(self.staff_members.filter(employee_type__cost_type=2).aggregate(dsum=Sum("cost"))['dsum'], 0) + \
+               nz(self.om_costs.aggregate(dsum=Sum("budget_requested"))['dsum'], 0)
 
     @property
     def total_capital(self):
-        return self.a_capital + self.b_capital + self.c_capital
+        return None
 
 
 class EmployeeType(models.Model):
@@ -885,12 +811,13 @@ class MilestoneUpdate(models.Model):
 class Note(models.Model):
     # fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    funding_source = models.ForeignKey(FundingSource, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     functional_group = models.ForeignKey(FunctionalGroup, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     summary = models.TextField(blank=True, null=True, verbose_name=_("executive summary"))
     pressures = models.TextField(blank=True, null=True, verbose_name=_("pressures"))
 
     class Meta:
-        unique_together = ["section", "functional_group"]
+        unique_together = (("section", "functional_group"), ("funding_source", "functional_group"))
 
     @property
     def pressures_html(self):

@@ -16,21 +16,24 @@ def get_reviewers(trip_request):
         # if in gulf region, add Amelie as a reviewer
         if trip_request.section.division.branch.region_id == 1:
             try:
-                models.Reviewer.objects.create(trip_request=trip_request, user_id=385, role_id=1, )
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=385, role_id=1, )
             except IntegrityError:
                 print("not adding amelie")
 
         # try adding section head, division manager and rds
         try:
-            models.Reviewer.objects.create(trip_request=trip_request, user=trip_request.section.head, role_id=2, )
+            # if the section head is the one creating the request, they should be skipped as a recommender
+            if trip_request.user != trip_request.section.head:
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.head, role_id=2, )
         except (IntegrityError, AttributeError):
             print("not adding section head")
         try:
-            models.Reviewer.objects.create(trip_request=trip_request, user=trip_request.section.division.head, role_id=2, )
+            models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.head, role_id=2, )
         except (IntegrityError, AttributeError):
             print("not adding division manager")
         try:
-            models.Reviewer.objects.create(trip_request=trip_request, user=trip_request.section.division.branch.head, role_id=2, )
+            if trip_request.user != trip_request.section.division.branch.head:
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.head, role_id=2, )
         except (IntegrityError, AttributeError):
             print("not adding RDS")
 
@@ -39,29 +42,29 @@ def get_reviewers(trip_request):
         if trip_request.trip.is_adm_approval_required:
             # add the ADMs office staff
             # try:
-            #     models.Reviewer.objects.create(trip_request=trip_request, user_id=749, role_id=3, )  # Kim Cotton
+            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=749, role_id=3, )  # Kim Cotton
             # except IntegrityError:
             #     print("not adding NCR reviewer")
             # try:
-            #     models.Reviewer.objects.create(trip_request=trip_request, user_id=736, role_id=4, )  # Andy White
+            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=736, role_id=4, )  # Andy White
             # except IntegrityError:
             #     print("not adding NCR recommender")
             # try:
-            #     models.Reviewer.objects.create(trip_request=trip_request, user_id=758, role_id=4, )  # Stephen Virc
+            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=758, role_id=4, )  # Stephen Virc
             # except IntegrityError:
             #     print("not adding NCR recommender")
             # try:
-            #     models.Reviewer.objects.create(trip_request=trip_request, user_id=740, role_id=4, )  # Wayne Moore
+            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=740, role_id=4, )  # Wayne Moore
             # except IntegrityError:
             #     print("not adding NCR recommender")
             try:
-                models.Reviewer.objects.create(trip_request=trip_request, user_id=626, role_id=5, )  # Arran McPherson
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=626, role_id=5, )  # Arran McPherson
             except IntegrityError:
                 print("not adding NCR ADM")
 
     # finally, we always need to add the RDG
     try:
-        models.Reviewer.objects.create(trip_request=trip_request, user=trip_request.section.division.branch.region.head, role_id=6, )
+        models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.region.head, role_id=6, )
     except (IntegrityError, AttributeError):
         print("not adding RDG")
 
@@ -122,7 +125,7 @@ def set_request_status(trip_request):
             # send an email to the trip_request owner
             my_email = emails.StatusUpdateEmail(trip_request)
             # # send the email object
-            if settings.PRODUCTION_SERVER:
+            if settings.USE_EMAIL:
                 send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                           recipient_list=my_email.to_list, fail_silently=False, )
             else:
@@ -139,7 +142,7 @@ def set_request_status(trip_request):
             # send an email to the trip_request owner
             my_email = emails.StatusUpdateEmail(trip_request)
             # # send the email object
-            if settings.PRODUCTION_SERVER:
+            if settings.USE_EMAIL:
                 send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                           recipient_list=my_email.to_list, fail_silently=False, )
             else:
@@ -209,7 +212,7 @@ def approval_seeker(trip_request):
 
             if my_email:
                 # send the email object
-                if settings.PRODUCTION_SERVER:
+                if settings.USE_EMAIL:
                     send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                               recipient_list=my_email.to_list, fail_silently=False, )
                 else:
@@ -303,7 +306,7 @@ def manage_trip_warning(trip):
 
                 my_email = emails.TripCostWarningEmail(trip)
                 # # send the email object
-                if settings.PRODUCTION_SERVER:
+                if settings.USE_EMAIL:
                     send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
                               recipient_list=my_email.to_list, fail_silently=False, )
                 else:
