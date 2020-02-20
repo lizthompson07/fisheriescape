@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -16,8 +15,8 @@ from github import Github
 
 import os
 
-from sendgrid import Mail
 
+from dm_apps.utils import custom_send_mail
 from . import models
 from . import forms
 from . import filters
@@ -188,11 +187,12 @@ def send_resolved_email(request, ticket):
     # create a new email object
     email = emails.TicketResolvedEmail(my_ticket)
     # send the email object
-    if settings.USE_EMAIL:
-        Mail(subject=email.subject, html_content=email.message, from_email=email.from_email, to_emails=email.to_list)
-    else:
-        print('not sending email since in dev mode')
-        print(email)
+    custom_send_mail(
+        subject=email.subject,
+        html_message=email.message,
+        from_email=email.from_email,
+        recipient_list=email.to_list
+    )
 
     my_ticket.resolved_email_date = timezone.now()
     my_ticket.save()
@@ -222,7 +222,6 @@ def mark_ticket_active(request, ticket):
         reopen_github_issue(my_ticket, request.user)
 
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
-
 
 
 class TicketUpdateView(LoginRequiredMixin, UpdateView):
@@ -255,7 +254,6 @@ class TicketDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('tickets:list')
 
 
-
 class TicketCreateView(LoginRequiredMixin, CreateView):
     model = models.Ticket
 
@@ -279,13 +277,12 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewTicketEmail(self.object)
         # send the email object
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-        else:
-            print('not sending email since in dev mode')
-            print(email)
-
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
         messages.success(self.request, "The new ticket has been logged and a confirmation email has been sent!")
 
         # check to see if a generic file should be appended
@@ -329,14 +326,13 @@ class TicketCreateViewPopout(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewTicketEmail(self.object)
         # send the email object
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-        else:
-            print('not sending email since in dev mode')
-            print(email)
-        # messages.success(self.request,
-        #                  _("The feedback form has been successfully submitted. You should receive an email confirmation momentarily!"))
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
+
         return HttpResponseRedirect(reverse_lazy('tickets:detail_pop', kwargs={"pk": self.object.id}))
 
 
@@ -404,11 +400,12 @@ class FileCreateView(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewFileAddedEmail(self.object)
         # send the email object
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-        else:
-            print('not sending email since in dev mode')
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
 
         return HttpResponseRedirect(reverse('tickets:close_me'))
 
@@ -503,12 +500,12 @@ class FollowUpCreateView(LoginRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewFollowUpEmail(self.object)
         # send the email object
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-        else:
-            print('not sending email since in dev mode')
-            print(email)
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
 
         # github
         if self.object.ticket.github_issue_number:
@@ -540,12 +537,13 @@ class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
         # create a new email object
         email = emails.NewFollowUpEmail(self.object)
         # send the email object
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-        else:
-            print('not sending email since in dev mode')
-            print(email)
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
+
 
         # github
         if self.object.ticket.github_issue_number:
@@ -580,7 +578,6 @@ class FollowUpDeleteView(LoginRequiredMixin, DeleteView):
                 my_followup.github_id,
             )
         return super().delete(request, *args, **kwargs)
-
 
 
 # REPORTS #
@@ -682,6 +679,7 @@ def reopen_github_issue(ticket_object, user_object):
     # ticket_object.github_resolved = False
     # ticket_object.save()
     return None
+
 
 def create_or_edit_comment(user, message, issue_number, comment_id=None):
     """ This should only be called from within a view. This function does not return an HTTP response. Returns instance of github comment """
