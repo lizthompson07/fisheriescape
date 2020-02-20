@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
+from dm_apps.utils import custom_send_mail
 from django.db.models import Sum, Q, Count, Value, TextField
 from django.db.models.functions import Concat
 from django.shortcuts import render
@@ -905,12 +905,12 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
                 # create a new email object
                 email = emails.ProjectSubmissionEmail(self.object)
                 # send the email object
-                if settings.USE_EMAIL:
-                    send_mail(message='', subject=email.subject, html_message=email.message,
-                              from_email=email.from_email,
-                              recipient_list=email.to_list, fail_silently=False, )
-                else:
-                    print(email)
+                custom_send_mail(
+                    subject=email.subject,
+                    html_message=email.message,
+                    from_email=email.from_email,
+                    recipient_list=email.to_list
+                )
             messages.success(self.request,
                              _("The project was submitted and an email has been sent to notify the section head!"))
             return HttpResponseRedirect(reverse('projects:project_detail', kwargs={"pk": my_object.id}))
@@ -1664,11 +1664,12 @@ class UserCreateView(LoginRequiredMixin, FormView):
         email = emails.UserCreationEmail(my_user)
 
         # send the email object
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-        else:
-            print(email)
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
         messages.success(self.request, _("The user was created and an email was sent"))
 
         return super().form_valid(form)

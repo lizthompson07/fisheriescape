@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
+from dm_apps.utils import custom_send_mail
 from django.db.models import Sum, Q
 from django.shortcuts import render
 from django.utils import timezone
@@ -457,13 +457,14 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
                 my_reviewer.trip_request.submitted = None
                 my_reviewer.trip_request.save()
                 # send an email to the request owner
-                my_email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
+                email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
                 # send the email object
-                if settings.USE_EMAIL:
-                    send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                              recipient_list=my_email.to_list, fail_silently=False, )
-                else:
-                    print(my_email)
+                custom_send_mail(
+                    subject=email.subject,
+                    html_message=email.message,
+                    from_email=email.from_email,
+                    recipient_list=email.to_list
+                )
                 messages.success(self.request, _("Success! An email has been sent to the trip request owner."))
 
             # if it was approved, then we change the reviewer status to 'approved'
@@ -614,13 +615,14 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
 
         my_trip_request.save()
         # send an email to the trip_request owner
-        my_email = emails.StatusUpdateEmail(my_trip_request)
+        email = emails.StatusUpdateEmail(my_trip_request)
         # # send the email object
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                      recipient_list=my_email.to_list, fail_silently=False, )
-        else:
-            print(my_email)
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
 
         return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
 
@@ -998,11 +1000,12 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
             # create a new email object
             email = emails.NewTripEmail(my_object)
             # send the email object
-            if settings.USE_EMAIL:
-                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                          recipient_list=email.to_list, fail_silently=False, )
-            else:
-                print(email)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
             messages.success(self.request,
                              _("The trip has been added to the database!"))
         return super().form_valid(form)

@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
+from dm_apps.utils import custom_send_mail
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
 from django.shortcuts import render
@@ -276,13 +276,12 @@ class ResourceDeleteFlagUpdateView(LoginRequiredMixin, UpdateView):
         if object.flagged_4_deletion:
             email = emails.FlagForDeletionEmail(self.object, self.request.user)
             # send the email object
-            if settings.USE_EMAIL:
-                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                          recipient_list=email.to_list, fail_silently=False, )
-            else:
-                print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
-                                                                      email.message))
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
 
             messages.success(self.request,
                              'The data resource has been flagged for deletion and the regional data manager has been notified!')
@@ -312,12 +311,12 @@ class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
         if object.flagged_4_publication:
             email = emails.FlagForPublicationEmail(self.object, self.request.user)
             # send the email object
-            if settings.USE_EMAIL:
-                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                          recipient_list=email.to_list, fail_silently=False, )
-            else:
-                print('not sending email since in dev mode')
-                print(email)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
             messages.success(self.request,
                              'The data resource has been flagged for publication and the regional data manager has been notified!')
         else:
@@ -376,13 +375,12 @@ class ResourcePersonCreateView(CustodianRequiredMixin, CreateView):
         if object.role.id == 1:
             email = emails.AddedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
-            if settings.USE_EMAIL:
-                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                          recipient_list=email.to_list, fail_silently=False, )
-            else:
-                print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
-                                                                      email.message))
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
             messages.success(self.request,
                              '{} has been added as {} and a notification email has been sent to them!'.format(
                                  object.person.full_name, object.role))
@@ -407,13 +405,12 @@ class ResourcePersonUpdateView(CustodianRequiredMixin, UpdateView):
         if object.role.id == 1:
             email = emails.AddedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
-            if settings.USE_EMAIL:
-                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                          recipient_list=email.to_list, fail_silently=False, )
-            else:
-                print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
-                                                                      email.message))
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
             messages.success(self.request,
                              '{} has been added as {} and a notification email has been sent to them!'.format(
                                  object.person.full_name, object.role))
@@ -440,13 +437,12 @@ class ResourcePersonDeleteView(CustodianRequiredMixin, DeleteView):
 
             email = emails.RemovedAsCustodianEmail(object.resource, object.person.user)
             # send the email object
-            if settings.USE_EMAIL:
-                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                          recipient_list=email.to_list, fail_silently=False, )
-            else:
-                print('not sending email since in dev mode')
-                print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
-                                                                      email.message))
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
             messages.success(self.request,
                              '{} has been removed as {} and a notification email has been sent to them!'.format(
                                  object.person.full_name, object.role))
@@ -1078,14 +1074,12 @@ def send_certification_request(request, person):
     me = models.Person.objects.get(user=User.objects.get(pk=self.request.user.id))
     email = emails.CertificationRequestEmail(me, my_person)
     # send the email object
-    if settings.USE_EMAIL:
-        send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                  recipient_list=email.to_list, fail_silently=False, )
-    else:
-        print('not sending email since in dev mode')
-        print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
-                                                              email.message))
-
+    custom_send_mail(
+        subject=email.subject,
+        html_message=email.message,
+        from_email=email.from_email,
+        recipient_list=email.to_list
+    )
     my_person.user.correspondences.create(subject="Request for certification")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
     return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
@@ -1208,14 +1202,12 @@ def send_section_report(request, section):
     me = models.Person.objects.get(user=request.user)
     email = emails.SectionReportEmail(me, head, my_section)
     # send the email object
-    if settings.USE_EMAIL:
-        send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                  recipient_list=email.to_list, fail_silently=False, )
-    else:
-        print('not sending email since in dev mode')
-        print("FROM={}; TO={}; SUBJECT={}; MESSAGE={}".format(email.from_email, email.to_list, email.subject,
-                                                              email.message))
-
+    custom_send_mail(
+        subject=email.subject,
+        html_message=email.message,
+        from_email=email.from_email,
+        recipient_list=email.to_list
+    )
     models.Correspondence.objects.create(custodian=head.user, subject="Section head report")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
     return HttpResponseRedirect(reverse('inventory:dm_section_detail', kwargs={'pk': section}))
