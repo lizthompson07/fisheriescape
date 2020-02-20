@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+
+import requests
 from django.utils.translation import gettext_lazy as _
 from decouple import config, UndefinedValueError
+from msrestazure.azure_active_directory import MSIAuthentication
 
 # Custom variables
+
 WEB_APP_NAME = "DMApps"
 SITE_FROM_EMAIL = "DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca"
 
@@ -233,24 +237,36 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
-AZURE_ACCOUNT_NAME = config("AZURE_ACCOUNT_NAME", cast=str, default="")
-if AZURE_ACCOUNT_NAME == "":
+AZURE_STORAGE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", cast=str, default="")
+# if no account name was provided, serve static and media files with whitenoise
+if AZURE_STORAGE_ACCOUNT_NAME == "":
     MEDIA_ROOT = MEDIA_DIR
     MEDIA_URL = '/media/'
     STATIC_URL = '/static/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 else:
-    DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
-    STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
+    # we can try to connect to the azure storage account, but this will only work if the machine we are accessing from has permissions
+    try:
+        token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
+    except requests.exceptions.ConnectionError:
+        print('Cannot connect to azure storage account. Serving static and media files from local staticfiles directory using whitenoise.')
+        # serve locally using whitenoise
+        MEDIA_ROOT = MEDIA_DIR
+        MEDIA_URL = '/media/'
+        STATIC_URL = '/static/'
+        STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+        STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    else:
+        # serve from azure
+        DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
+        STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
 
-    STATIC_CONTAINER_NAME= "static"
-    MEDIA_CONTAINER_NAME = "media"
-    AZURE_CUSTOM_DOMAIN = f'{AZURE_ACCOUNT_NAME}.blob.core.windows.net'
-    STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_CONTAINER_NAME}/'
-    MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_CONTAINER_NAME}/'
-
-
+        STATIC_CONTAINER_NAME= "static"
+        MEDIA_CONTAINER_NAME = "media"
+        AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
+        STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_CONTAINER_NAME}/'
+        MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_CONTAINER_NAME}/'
 
 
 
