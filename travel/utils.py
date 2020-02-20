@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.core.mail import send_mail
+from dm_apps.utils import custom_send_mail
 from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -123,13 +123,14 @@ def set_request_status(trip_request):
             trip_request.status_id = 10
             trip_request.save()
             # send an email to the trip_request owner
-            my_email = emails.StatusUpdateEmail(trip_request)
+            email = emails.StatusUpdateEmail(trip_request)
             # # send the email object
-            if settings.USE_EMAIL:
-                send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                          recipient_list=my_email.to_list, fail_silently=False, )
-            else:
-                print(my_email)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
 
             # don't stick around any longer. save the trip_request and leave exit the function
             return False
@@ -140,13 +141,14 @@ def set_request_status(trip_request):
             trip_request.status_id = 11
             trip_request.save()
             # send an email to the trip_request owner
-            my_email = emails.StatusUpdateEmail(trip_request)
+            email = emails.StatusUpdateEmail(trip_request)
             # # send the email object
-            if settings.USE_EMAIL:
-                send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                          recipient_list=my_email.to_list, fail_silently=False, )
-            else:
-                print(my_email)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
             # don't stick around any longer. save the trip_request and leave exit the function
             return False
         else:
@@ -186,7 +188,7 @@ def approval_seeker(trip_request):
     # start by setting the trip_request status... if the trip_request is "denied" OR "draft" or "approved", do not continue
     if set_request_status(trip_request):
         next_reviewer = None
-        my_email = None
+        email = None
         for reviewer in trip_request.reviewers.all():
             # if the reviewer's status is set to 'queued', they will be our next selection
             # we should then exit the loop and set the next_reviewer var
@@ -205,18 +207,19 @@ def approval_seeker(trip_request):
             # now, depending on the role of this reviewer, perhaps we want to send an email.
             # if they are a recommender, rev...
             if next_reviewer.role_id in [1, 2, 3, 4, ]:  # essentially, just not the RDG or ADM
-                my_email = emails.ReviewAwaitingEmail(trip_request, next_reviewer)
+                email = emails.ReviewAwaitingEmail(trip_request, next_reviewer)
 
             elif next_reviewer.role_id in [5, 6]:  # if we are going for RDG signature...
-                my_email = emails.AdminApprovalAwaitingEmail(trip_request)
+                email = emails.AdminApprovalAwaitingEmail(trip_request)
 
-            if my_email:
+            if email:
                 # send the email object
-                if settings.USE_EMAIL:
-                    send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                              recipient_list=my_email.to_list, fail_silently=False, )
-                else:
-                    print(my_email)
+                custom_send_mail(
+                    subject=email.subject,
+                    html_message=email.message,
+                    from_email=email.from_email,
+                    recipient_list=email.to_list
+                )
 
             # Then, lets set the trip_request status again to account for the fact that something happened
             set_request_status(trip_request)
@@ -304,12 +307,13 @@ def manage_trip_warning(trip):
         else:
             if not trip.cost_warning_sent:
 
-                my_email = emails.TripCostWarningEmail(trip)
+                email = emails.TripCostWarningEmail(trip)
                 # # send the email object
-                if settings.USE_EMAIL:
-                    send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                              recipient_list=my_email.to_list, fail_silently=False, )
-                else:
-                    print(my_email)
+                custom_send_mail(
+                    subject=email.subject,
+                    html_message=email.message,
+                    from_email=email.from_email,
+                    recipient_list=email.to_list
+                )
                 trip.cost_warning_sent = timezone.now()
                 trip.save()
