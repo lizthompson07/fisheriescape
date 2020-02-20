@@ -195,7 +195,7 @@ class MorMooringSetup(models.Model):
 
     mor_additional_equipment = models.TextField(blank=True, null=True, verbose_name=_("Equipment"))
     mor_general_moor_description = models.TextField(blank=True, null=True, verbose_name=_("Description"))
-    more_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
+    mor_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     def __str__(self):
         return "{}".format(self.mor_name)

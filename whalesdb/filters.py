@@ -4,6 +4,23 @@ import django_filters
 from . import models
 
 
+class DepFilter(django_filters.FilterSet):
+    mor_name = django_filters.CharFilter(field_name='dep_name', lookup_expr='icontains')
+
+    class Meta:
+        model = models.DepDeployment
+        fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
+
+
+class MorFilter(django_filters.FilterSet):
+    mor_name = django_filters.CharFilter(field_name='mor_name', lookup_expr='icontains')
+    mor_max_depth = django_filters.NumberFilter(field_name='mor_max_depth', lookup_expr='icontains')
+
+    class Meta:
+        model = models.MorMooringSetup
+        fields = []
+
+
 class PrjFilter(django_filters.FilterSet):
     prj_name = django_filters.CharFilter(field_name='prj_name', lookup_expr='icontains')
     prj_description = django_filters.CharFilter(field_name='prj_description', lookup_expr='icontains')
@@ -30,12 +47,3 @@ class StnFilter(django_filters.FilterSet):
 
         self.filters['stn_code'] = django_filters.ChoiceFilter(field_name='stn_code', lookup_expr='exact',
                                                                choices=code_list)
-
-
-class MorFilter(django_filters.FilterSet):
-    mor_name = django_filters.CharFilter(field_name='mor_name', lookup_expr='icontains')
-    mor_max_depth = django_filters.NumberFilter(field_name='mor_max_depth', lookup_expr='icontains')
-
-    class Meta:
-        model = models.MorMooringSetup
-        fields = []

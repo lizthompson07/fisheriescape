@@ -38,7 +38,7 @@
     {% if auth %}
     <div class="row">
         <div class="col-1">
-            <a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:create_url %}','popoutWindow')" title="{% trans 'Add' %}">+</a>
+            <a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:create_url %}','popoutWindow', {% if height %} height={{height}} {% endif %})" title="{% trans 'Add' %}">+</a>
         </div>
     </div>
     {% endif %}
@@ -51,7 +51,8 @@
                     {% for field in fields %}
                     <th>{% get_verbose_label filter.qs.first field %}</th>
                     {% endfor %}
-                    <th>Details</th>
+                    <th></th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -61,7 +62,7 @@
                         <td>{% get_field_value obj field %}</td>
                         {% endfor %}
                             <td><a class="btn btn-primary btn-sm" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a></td>
-                            <td><a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:update_url obj.pk %}','popoutWindow')" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
+                            <td><a class="btn btn-primary btn-sm" href="#" onclick="return popitup('{% url ''|add:update_url obj.pk %}','popoutWindow', {% if height %} height={{height}} {% endif %})" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
                         </tr>
                     {% endfor %}
                 </tbody>
