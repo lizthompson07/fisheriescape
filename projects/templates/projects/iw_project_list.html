@@ -49,7 +49,7 @@
                 </a>
             </li>
             <li class="breadcrumb-item">
-                <a href="{% url 'projects:iw_group_list' region.id fy.id view.kwargs.type %}">
+                <a href="{% url 'projects:iw_group_list' region.id 0 0 fy.id view.kwargs.type %}">
                     {% trans "Functional Group Summary" %}
                     ({{ big_unit }}{% if small_unit %}/{{ small_unit }}{% endif %})
                 </a>

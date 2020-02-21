@@ -65,7 +65,7 @@
                 {% if can_edit %}
                     <td>
                         <a class="staff-delete-me" href="#" val="{{ obj.id }}" user_id="{{ obj.user.id }}">
-                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete" width="20px">
                         </a>
                         <a id="staff-secrect-delete-btn-{{ obj.id }}" href="{% url 'projects:staff_delete' obj.id %}" class="hidden"></a>
                     </td>

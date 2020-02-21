@@ -112,7 +112,7 @@
                             <tr>
                                 <td colspan="4"></td>
                             </tr>
-                            {% url 'projects:iw_project_list' fy.id region.id s.id view.kwargs.type as url_a %}
+                            {% url 'projects:iw_project_list' fy.id region.id 0 0 s.id view.kwargs.type as url_a %}
                             <tr href="{{ url_a }}" style="border: 20px" class="section">
                                 <td colspan="6" class="section">
                                     {% with my_dict|lookup:d|lookup:s|lookup:"projects" as projects %}
@@ -127,12 +127,12 @@
 
                             {% if group %}
                                 {% if s == "all" %}
-                                    {% url 'projects:iw_project_list' fy.id region.id 0 group.id view.kwargs.type as url_b %}
+                                    {% url 'projects:iw_project_list' fy.id region.id 0 0 group.id view.kwargs.type as url_b %}
                                 {% else %}
-                                    {% url 'projects:iw_project_list' fy.id region.id s.id group.id view.kwargs.type as url_b %}
+                                    {% url 'projects:iw_project_list' fy.id region.id 0 0 s.id group.id view.kwargs.type as url_b %}
                                 {% endif %}
                             {% else %}
-                                {% url 'projects:iw_project_list' fy.id region.id s.id view.kwargs.type as url_b %}
+                                {% url 'projects:iw_project_list' fy.id region.id 0 0 s.id view.kwargs.type as url_b %}
                             {% endif %}
 
 
