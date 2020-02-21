@@ -76,6 +76,21 @@ class SampleListView(GraisAccessRequiredMixin, FilterView):
     filterset_class = filters.SampleFilter
     template_name = "grais/sample_list.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["random_object"] = models.Sample.objects.first()
+        field_list = [
+            'id|Sample #',
+            'station',
+            'date_deployed',
+            'date_retrieved',
+            'sample_type',
+            'weeks_deployed|Weeks deployed',
+
+        ]
+        context["field_list"] = field_list
+        return context
+
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
