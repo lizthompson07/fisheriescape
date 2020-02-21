@@ -121,7 +121,7 @@
 
                 {% for line in object.lines.all %}
                     {% if line.latitude_n and line.longitude_w %}
-                        ['<a href="{% url 'grais:line_detail' line.id %}">Line {{line.id}}</a>', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/red_MarkerL.png" %}'],
+                        ['<a href="{% url 'grais:line_detail' line.id %}">Line {{line.id}}</a>', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "red_MarkerL.png" %}'],
                     {% endif %}
                 {% endfor %}
             ];
