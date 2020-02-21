@@ -60,7 +60,8 @@ def generate_species_sample_spreadsheet(species_list=None):
         "observed at station?",
         "observed on line?",
         "observed on collector surface?",
-        "% surface coverage (sample average)?",
+        "% surface coverage - plates (mean)",
+        "% surface coverage - petris (mean)",
     ]
 
     # worksheets #
@@ -121,14 +122,24 @@ def generate_species_sample_spreadsheet(species_list=None):
             if on_surface:
                 # for each surface, determine the percent coverage and store in list
                 ## only look at plates
-                coverage_list = []
-                for surface in models.Surface.objects.filter(line__sample=sample).filter(surface_type="pl"):
-                    try:
-                        my_coverage = models.SurfaceSpecies.objects.get(surface=surface, species=species).percent_coverage
-                    except:
-                        my_coverage = 0
-                    coverage_list.append(my_coverage)
-                mean_pl_coverage = statistics.mean(coverage_list)
+                coverage_list_pl = []
+                coverage_list_pe = []
+                for surface in models.Surface.objects.filter(line__sample=sample).all():
+                    if surface.surface_type == "pl":
+                        try:
+                            my_coverage = models.SurfaceSpecies.objects.get(surface=surface, species=species).percent_coverage
+                        except:
+                            my_coverage = 0
+                        coverage_list_pl.append(my_coverage)
+
+                    elif surface.surface_type == "pe":
+                        try:
+                            my_coverage = models.SurfaceSpecies.objects.get(surface=surface, species=species).percent_coverage
+                        except:
+                            my_coverage = 0
+                        coverage_list_pe.append(my_coverage)
+                mean_pl_coverage = statistics.mean(coverage_list_pl)
+                mean_pe_coverage = statistics.mean(coverage_list_pe)
 
             else:
                 mean_coverage = "n/a"
@@ -153,7 +164,8 @@ def generate_species_sample_spreadsheet(species_list=None):
                 at_station,
                 on_line,
                 on_surface,
-                mean_coverage,
+                mean_pl_coverage,
+                mean_pe_coverage,
             ]
 
             # adjust the width of the columns based on the max string length in each col
