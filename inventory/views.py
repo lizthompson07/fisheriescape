@@ -225,12 +225,12 @@ class ResourceCreateView(LoginRequiredMixin, CreateView):
         }
 
     def form_valid(self, form):
-        object = form.save()
+        my_object = form.save()
         if form.cleaned_data['add_custodian'] == True:
-            models.ResourcePerson.objects.create(resource_id=object.id, person_id=self.request.user.id, role_id=1)
+            models.ResourcePerson.objects.create(resource_id=my_object.id, person_id=self.request.user.id, role_id=1)
 
-        if form.cleaned_data['add_point_of_contact'] == True:
-            models.ResourcePerson.objects.create(resource_id=object.id, person_id=50, role_id=4)
+        # if form.cleaned_data['add_point_of_contact'] == True:
+        #     models.ResourcePerson.objects.create(resource_id=object.id, person_id=50, role_id=4)
 
         return super().form_valid(form)
 
