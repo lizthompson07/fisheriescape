@@ -121,7 +121,6 @@ def generate_species_sample_spreadsheet(species_list=None):
             # calculate the % coverage
             if on_surface:
                 # for each surface, determine the percent coverage and store in list
-                ## only look at plates
                 coverage_list_pl = []
                 coverage_list_pe = []
                 for surface in models.Surface.objects.filter(line__sample=sample).all():
@@ -141,14 +140,11 @@ def generate_species_sample_spreadsheet(species_list=None):
                 try:
                     mean_pl_coverage = statistics.mean(coverage_list_pl)
                 except statistics.StatisticsError:
-                    mean_pl_coverage = 'n/a'
+                    mean_pl_coverage = 0
                 try:
                     mean_pe_coverage = statistics.mean(coverage_list_pe)
                 except statistics.StatisticsError:
-                    mean_pe_coverage  = 'n/a'
-
-            else:
-                mean_coverage = "n/a"
+                    mean_pe_coverage = 0
 
             data_row = [
                 species.id,
