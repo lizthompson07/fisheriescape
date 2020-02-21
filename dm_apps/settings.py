@@ -97,6 +97,11 @@ if not GOOGLE_API_KEY:
     GOOGLE_API_KEY = ""
     print("no google api key file found.")
 
+
+GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
+
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 

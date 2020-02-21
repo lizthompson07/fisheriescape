@@ -198,14 +198,14 @@ urlpatterns = [
 
     # INTERACTIVE WORKPLANS #
     #########################
-    path('interactive-workplan/region/<int:region>/year/<int:fiscal_year>/type/<str:type>/', views.IWGroupList.as_view(),
+    path('interactive-workplan/region/<int:region>/division/<int:division>/section/<int:section>/year/<int:fiscal_year>/type/<str:type>/', views.IWGroupList.as_view(),
          name="iw_group_list"),
 
     # by section / program by fgroup
-    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/small-item/<int:small_item>/group/<int:group>/projects/type/<str:type>/',
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/division/<int:division>/section/<int:section>/small-item/<int:small_item>/group/<int:group>/projects/type/<str:type>/',
          views.IWProjectList.as_view(), name="iw_project_list"),
     # by section / program
-    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/small-item/<int:small_item>/projects/type/<str:type>/',
+    path('interactive-workplan/<int:fiscal_year>/region/<int:region>/division/<int:division>/section/<int:section>/small-item/<int:small_item>/projects/type/<str:type>/',
          views.IWProjectList.as_view(), name="iw_project_list"),
 
     path('note/<int:pk>/edit/', views.NoteUpdateView.as_view(), name="note_edit"),

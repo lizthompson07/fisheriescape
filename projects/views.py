@@ -436,59 +436,63 @@ gulf_field_list.remove("regional_dm_needs")
 gulf_field_list.remove("sectional_dm_needs")
 
 
-def get_section_choices(all=False, full_name=True):
+def get_section_choices(all=False, full_name=True, region_filter=None, division_filter=None):
     if full_name:
         my_attr = "full_name"
     else:
         my_attr = _("name")
 
-    return [(s.id, getattr(s, my_attr)) for s in
-            shared_models.Section.objects.all().order_by(
-                "division__branch__region",
-                "division__branch",
-                "division",
-                "name"
-            ) if s.projects.count() > 0] if not all else [(s.id, getattr(s, my_attr)) for s in
-                                                          shared_models.Section.objects.filter(
-                                                              division__branch__name__icontains="science").order_by(
-                                                              "division__branch__region",
-                                                              "division__branch",
-                                                              "division",
-                                                              "name"
-                                                          )]
-
-
-def get_division_choices(all=False):
-    if all:
-        division_list = set(
-            [shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices(all=True)])
+    if region_filter:
+        reg_kwargs = {
+            "division__branch__region_id": region_filter
+        }
     else:
-        division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices()])
-    q_objects = Q()  # Create an empty Q object to start with
-    for d in division_list:
-        q_objects |= Q(id=d.id)  # 'or' the Q objects together
+        reg_kwargs = {
+            "division__branch__region_id__isnull": False
+        }
 
+    if division_filter:
+        div_kwargs = {
+            "division_id": division_filter
+        }
+    else:
+        div_kwargs = {
+            "division_id__isnull": False
+        }
+
+    if not all:
+        my_choice_list = [(s.id, getattr(s, my_attr)) for s in
+                          shared_models.Section.objects.all().order_by(
+                              "division__branch__region",
+                              "division__branch",
+                              "division",
+                              "name"
+                          ).filter(**div_kwargs).filter(**reg_kwargs) if s.projects.count() > 0]
+    else:
+        my_choice_list = [(s.id, getattr(s, my_attr)) for s in
+                          shared_models.Section.objects.filter(
+                              division__branch__name__icontains="science").order_by(
+                              "division__branch__region",
+                              "division__branch",
+                              "division",
+                              "name"
+                          ).filter(**div_kwargs).filter(**reg_kwargs)]
+
+    return my_choice_list
+
+
+def get_division_choices(all=False, region_filter=None):
+    division_list = set(
+        [shared_models.Section.objects.get(pk=s[0]).division_id for s in get_section_choices(all=all, region_filter=region_filter)])
     return [(d.id, str(d)) for d in
-            shared_models.Division.objects.filter(q_objects).order_by(
-                "branch__region",
-                "name"
-            )]
+            shared_models.Division.objects.filter(id__in=division_list).order_by("branch__region", "name")]
 
 
 def get_region_choices(all=False):
-    if all:
-        region_list = set(
-            [shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices(all=True)])
-    else:
-        region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices()])
-    q_objects = Q()  # Create an empty Q object to start with
-    for r in region_list:
-        q_objects |= Q(id=r.id)  # 'or' the Q objects together
-
+    region_list = set(
+        [shared_models.Division.objects.get(pk=d[0]).branch.region_id for d in get_division_choices(all=all)])
     return [(r.id, str(r)) for r in
-            shared_models.Region.objects.filter(q_objects).order_by(
-                "name",
-            )]
+            shared_models.Region.objects.filter(id__in=region_list).order_by("name", )]
 
 
 def get_funding_sources(all=False):
@@ -3078,24 +3082,54 @@ class PDFCostSummaryReport(PDFReportTemplate):
 
 # EXTRAS #
 ##########
-class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
+class IWGroupList(ManagerOrAdminRequiredMixin, FormView):
     template_name = 'projects/iw_group_list.html'
+    form_class = forms.IWForm
+
+    def get_initial(self):
+        my_init_dict = dict()
+        my_init_dict["fiscal_year"] = self.kwargs.get("fiscal_year")
+        my_init_dict["region"] = self.kwargs.get("region")
+        my_init_dict["division"] = self.kwargs.get("division")
+        my_init_dict["section"] = self.kwargs.get("section")
+        return my_init_dict
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
         context['fy'] = fy
-        my_region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
-        context['region'] = my_region
+
+        if self.kwargs.get("region") != 0:
+            my_region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+            context['region'] = my_region
+        else:
+            my_region = None
+        if self.kwargs.get("division") != 0:
+            my_division = shared_models.Division.objects.get(pk=self.kwargs.get("division"))
+            context['division'] = my_division
+        else:
+            my_division = None
+        if self.kwargs.get("section") != 0:
+            my_section = shared_models.Section.objects.get(pk=self.kwargs.get("section"))
+            context['section'] = my_section
+        else:
+            my_section = None
 
         project_list = models.Project.objects.filter(
-            section__division__branch__region=my_region,
             year=fy,
             submitted=True,
         )
+        if my_section:
+            project_list = project_list.filter(section=my_section)
+        elif my_division:
+            project_list = project_list.filter(section__division=my_division)
+        elif my_region:
+            project_list = project_list.filter(section__division__branch__region=my_region)
+
+
         # If GULF region, we will further refine the list of projects
-        if my_region.id == 1:
+        if my_region and my_region.id == 1:
             project_list = project_list.filter(approved=True)
 
         # This view is being retrofitted to be able to show projects by Theme/Program (instead of only by division/section)
@@ -3213,6 +3247,30 @@ class IWGroupList(ManagerOrAdminRequiredMixin, TemplateView):
         context["random_project"] = models.Project.objects.first()
         return context
 
+    def form_valid(self, form):
+        fy = form.cleaned_data['fiscal_year']
+
+        section = nz(form.cleaned_data['section'], 0)
+        # if the section is known, we should populate the division and region
+        if section != 0:
+            region = shared_models.Section.objects.get(pk=section).division.branch.region.id
+            division = shared_models.Section.objects.get(pk=section).division.id
+        else:
+            division = nz(form.cleaned_data['division'], 0)
+            # if the division is known, we should populate the region
+            if division != 0:
+                region = shared_models.Division.objects.get(pk=division).branch.region.id
+            else:
+                region = nz(form.cleaned_data['region'],0)
+
+        return HttpResponseRedirect(reverse("projects:iw_group_list", kwargs={
+            "region": region,
+            "division": division,
+            "section": section,
+            "fiscal_year": fy,
+            "type": self.kwargs.get("type"),
+        }))
+
 
 class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
     template_name = 'projects/iw_project_list.html'
@@ -3222,7 +3280,6 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
 
-        region = shared_models.Region.objects.get(id=self.kwargs.get("region"))
 
         # This view is being retrofitted to be able to show projects by Program (instead of only by section)
         if self.kwargs.get("type") == "theme":
@@ -3235,22 +3292,48 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         functional_group = models.FunctionalGroup.objects.get(id=self.kwargs.get("group")) if self.kwargs.get(
             "group") else None
         context['fy'] = fy
-        context['region'] = region
         context['small_item'] = small_item
         context['functional_group'] = functional_group
 
         # assemble project_list
         project_list = models.Project.objects.filter(year=fy, submitted=True, ).order_by("id")
+
+
+        # apply filters from previous view
+        if self.kwargs.get("region") != 0:
+            my_region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+            context['region'] = my_region
+        else:
+            my_region = None
+        if self.kwargs.get("division") != 0:
+            my_division = shared_models.Division.objects.get(pk=self.kwargs.get("division"))
+            context['division'] = my_division
+        else:
+            my_division = None
+        if self.kwargs.get("section") != 0:
+            my_section = shared_models.Section.objects.get(pk=self.kwargs.get("section"))
+            context['section'] = my_section
+        else:
+            my_section = None
+
+        if my_section:
+            project_list = project_list.filter(section=my_section)
+        elif my_division:
+            project_list = project_list.filter(section__division=my_division)
+        elif my_region:
+            project_list = project_list.filter(section__division__branch__region=my_region)
+
+
         # If from gulf region, filter out any un approved projects
-        if region.id == 1:
+        if my_region.id == 1:
             project_list = project_list.filter(
                 approved=True,
             )
 
         if self.kwargs.get("type") == "theme":
-            project_list = project_list.filter(section__division__branch__region=region)
+            project_list = project_list.filter(section__division__branch__region=my_region)
         elif self.kwargs.get("type") == "funding_source":
-            project_list = project_list.filter(default_funding_source=small_item, section__division__branch__region=region)
+            project_list = project_list.filter(default_funding_source=small_item, section__division__branch__region=my_region)
         else:
             project_list = project_list.filter(section=small_item)
 
