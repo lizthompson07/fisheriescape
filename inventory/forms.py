@@ -13,7 +13,7 @@ attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Ti
 
 class ResourceCreateForm(forms.ModelForm):
     add_custodian = forms.BooleanField(required=False, label="Add yourself as custodian")
-    add_point_of_contact = forms.BooleanField(required=False, label="Add Regional Data Manager as a Point of Contact")
+    # add_point_of_contact = forms.BooleanField(required=False, label="Add Regional Data Manager as a Point of Contact")
 
     class Meta:
         model = models.Resource
