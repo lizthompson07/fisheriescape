@@ -100,8 +100,6 @@ class Species(models.Model):
         else:
             return mark_safe("<em>" + self.scientific_name + "</em>")
 
-
-
     class Meta:
         ordering = ['common_name']
 
@@ -110,15 +108,22 @@ class Species(models.Model):
 
 
 class Sample(models.Model):
+    # Choices for sample_type
+    FIRST = 'first'
+    SECOND = 'second'
+    FULL = 'full'
+    sample_type_choices = (
+        (FIRST, "first"),
+        (SECOND, "second"),
+        (FULL, 'full'),
+    )
+
     station = models.ForeignKey(Station, related_name='samples', on_delete=models.DO_NOTHING)
+    sample_type = models.CharField(max_length=10, default=FULL, choices=sample_type_choices, verbose_name="sample type")
     date_deployed = models.DateTimeField()
     date_retrieved = models.DateTimeField(blank=True, null=True)
     days_deployed = models.IntegerField(blank=True, null=True)
-    # sampler = models.ForeignKey(Sampler, on_delete=models.DO_NOTHING, related_name='samples')
     samplers = models.ManyToManyField(Sampler)
-    # notes = models.TextField(blank=True, null=True)
-    # notes_html = models.TextField(blank=True, null=True)
-    # date_created = models.DateTimeField(blank=True, null=True, default=timezone.now)
     old_substn_id = models.IntegerField(blank=True, null=True)
     species = models.ManyToManyField(Species, through='SampleSpecies')
     season = models.IntegerField(null=True, blank=True)
@@ -202,10 +207,9 @@ class Line(models.Model):
 
     def __str__(self):
         if self.collector:
-            my_str = "{} (collector #{})".format(self.id, self.collector)
+            my_str = f'Collector tag #{self.collector}'
         else:
-            my_str = "Line {}".format(self.id)
-
+            my_str = f"Line ID #{self.id} (no collector tag)"
         return my_str
 
     def get_absolute_url(self):
@@ -292,18 +296,6 @@ class Probe(models.Model):
 
 
 class ProbeMeasurement(models.Model):
-    # Choices for tide_descriptor
-    EBB = 'eb'
-    FLOOD = 'fl'
-    HIGH = 'hi'
-    LOW = 'lo'
-    TIDE_DESCRIPTOR_CHOICES = (
-        (EBB, 'Ebb'),
-        (FLOOD, 'Flood'),
-        (HIGH, 'High'),
-        (LOW, 'Low'),
-    )
-
     # Choices for timezone
     AST = 'AST'
     ADT = 'ADT'
@@ -318,8 +310,9 @@ class ProbeMeasurement(models.Model):
     probe = models.ForeignKey(Probe, on_delete=models.DO_NOTHING, verbose_name="Probe name")
     time_date = models.DateTimeField(blank=True, null=True, verbose_name="Date / Time (yyyy-mm-dd hh:mm)")
     timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
-    tide_descriptor = models.CharField(max_length=2, choices=TIDE_DESCRIPTOR_CHOICES, blank=True, null=True)
     probe_depth = models.FloatField(blank=True, null=True, verbose_name="Probe depth (m)")
+    cloud_cover = models.IntegerField(blank=True, null=True, verbose_name="% cloud cover",
+                                      validators=[MinValueValidator(0), MaxValueValidator(100)])
     temp_c = models.FloatField(blank=True, null=True, verbose_name="Temp (°C)")
     sal_ppt = models.FloatField(blank=True, null=True, verbose_name="Salinity (ppt)")
     o2_percent = models.FloatField(blank=True, null=True, verbose_name="Dissolved oxygen (%)")
