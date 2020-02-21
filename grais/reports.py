@@ -138,8 +138,14 @@ def generate_species_sample_spreadsheet(species_list=None):
                         except:
                             my_coverage = 0
                         coverage_list_pe.append(my_coverage)
-                mean_pl_coverage = statistics.mean(coverage_list_pl)
-                mean_pe_coverage = statistics.mean(coverage_list_pe)
+                try:
+                    mean_pl_coverage = statistics.mean(coverage_list_pl)
+                except statistics.StatisticsError:
+                    mean_pl_coverage = 'n/a'
+                try:
+                    mean_pe_coverage = statistics.mean(coverage_list_pe)
+                except statistics.StatisticsError:
+                    mean_pe_coverage  = 'n/a'
 
             else:
                 mean_coverage = "n/a"
