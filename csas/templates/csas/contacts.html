@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "csas/csas_base.html" %}
 {% load bootstrap4 %}
 
 {% block body %}
@@ -7,19 +7,35 @@
 <form method="post">
     {% csrf_token %}
     {% for field in form %}
+        <div class="col-md">
         {% if field.name == 'honorific' %}
-            {% bootstrap_label field.label %} <a class="btn btn-primary" href="#"
-                            onclick="return popitup('{% url 'csas:create_coh' %}','popoutWindow')"
-                            title="Add">+</a>
-            {% bootstrap_field field show_label=False%}
+            {% bootstrap_label field.label %}
+            <div class="row">
+                <div class="col-6">
+                {% bootstrap_field field show_label=False%}
+                </div>
+                <div class="col-1">
+                    <a class="btn btn-primary" href="#"
+                       onclick="return popitup('{% url 'csas:create_coh' %}','popoutWindow')"
+                       title="Add">+</a>
+                </div>
+            </div>
         {% elif field.name == 'language' %}
-            {% bootstrap_label field.label %} <a class="btn btn-primary" href="#"
-                            onclick="return popitup('{% url 'csas:create_lan' %}','popoutWindow')"
-                            title="Add">+</a>
-            {% bootstrap_field field show_label=False%}
+            {% bootstrap_label field.label %}
+            <div class="row">
+                <div class="col-6">
+                    {% bootstrap_field field show_label=False%}
+                </div>
+                <div class="col-1">
+                    <a class="btn btn-primary" href="#"
+                       onclick="return popitup('{% url 'csas:create_lan' %}','popoutWindow')"
+                       title="Add">+</a>
+                </div>
+            </div>
         {% else %}
             {% bootstrap_field field placeholder="" size="small" %}
         {% endif %}
+        </div>
     {% endfor %}
 
     <input type="submit" value="Add Contact" />
