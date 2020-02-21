@@ -609,10 +609,8 @@ def finance_spreadsheet(request):
 ################
 
 def get_github_repo():
-    # this is the generic ODIS user (currently user = davjfish)
-    g = Github("b12913003e4af7e94a003b79ae31b69c5fd8ebd1")
+    g = Github(settings.GITHUB_API_KEY)
     repo = g.get_repo("dfo-mar-odis/dm_apps")
-
     return repo
 
 
