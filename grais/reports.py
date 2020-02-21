@@ -128,7 +128,7 @@ def generate_species_sample_spreadsheet(species_list=None):
                     except:
                         my_coverage = 0
                     coverage_list.append(my_coverage)
-                mean_coverage = statistics.mean(coverage_list)
+                mean_pl_coverage = statistics.mean(coverage_list)
 
             else:
                 mean_coverage = "n/a"
