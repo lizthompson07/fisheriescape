@@ -5,7 +5,8 @@ from . import models
 
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
 multi_select_js = {"class": "multi-select"}
-
+attr_metadata = {"class": "metadata"}
+attr_fp_date_time_metadata = {"class": "metadata fp-date-time", "placeholder": "Select Date and Time.."}
 
 class StationForm(forms.ModelForm):
     class Meta:
@@ -116,9 +117,14 @@ class ProbeMeasurementForm(forms.ModelForm):
         model = models.ProbeMeasurement
 
         widgets = {
-            'time_date':forms.DateTimeInput(attrs=attr_fp_date_time),
             'last_modified_by': forms.HiddenInput(),
             'sample': forms.HiddenInput(),
+            # metadata fields
+            'time_date':forms.DateTimeInput(attrs=attr_fp_date_time_metadata),
+            'probe':forms.Select(attrs=attr_metadata),
+            'timezone':forms.Select(attrs=attr_metadata),
+            'cloud_cover':forms.NumberInput(attrs=attr_metadata),
+            'weather_notes':forms.TextInput(attrs=attr_metadata),
 
         }
 

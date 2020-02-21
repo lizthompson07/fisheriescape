@@ -97,14 +97,14 @@
         function initialize() {
             var locations = [
                 {% if object.latitude_n and object.longitude_w %}
-                    ['<a href="{% url 'grais:line_detail' line.id %}">Line {{line.id}}</a>', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/yellow_MarkerL.png" %}'],
+                    ['<a href="{% url 'grais:line_detail' line.id %}">Line {{line.id}}</a>', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "/grais/yellow_MarkerL.png" %}'],
                     {% for line in object.sample.lines.all %}
                         {% if line.id != object.id %}
-                            ['<a href="{% url 'grais:line_detail' line.id %}">Line {{line.id}}</a>', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/red_MarkerL.png" %}'],
+                            ['<a href="{% url 'grais:line_detail' line.id %}">Line {{line.id}}</a>', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "/grais/red_MarkerL.png" %}'],
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                    ['<a href="{% url 'grais:station_detail' object.sample.station.id %}">Station {{object.sample.station.id}}</a>', {{object.station.latitude_n}}, {{object.station.longitude_w}}, '{% static "/img/grais/blue_MarkerS.png" %}'],
+                    ['<a href="{% url 'grais:station_detail' object.sample.station.id %}">Station {{object.sample.station.id}}</a>', {{object.station.latitude_n}}, {{object.station.longitude_w}}, '{% static "/grais/blue_MarkerS.png" %}'],
                 {% endif %}
 
             ];
