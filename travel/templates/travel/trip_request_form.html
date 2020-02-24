@@ -61,8 +61,18 @@
             {% bootstrap_form_errors form %}
 
 
+            {% regroup form by field.group as field_group %}
 
-            {% for field in form %}
+            {% for group in field_group %}
+            {% if group.grouper %}
+            <div class="card mb-2">
+                <h2 class="card-header text-white bg-primary">
+                    {{ group.grouper }}
+                </h2>
+                <div class="card-body">
+                    <div class="card-text">
+
+            {% for field in group.list %}
                 {% if "hide-me" in field.field.widget.attrs.class %}
                     {% if "user-info" in field.field.widget.attrs.class %}
                         <div class="hide-me user-info">
@@ -86,9 +96,6 @@
                     {% else %}
                         {% bootstrap_field field placeholder="" %}
                     {% endif %}
-                    {#                    <em class="blue-font">#}
-                    {#                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})#}
-                    {#                    </em><br><br>#}
                 </div>
             {% elif field.name == "trip" %}
                 {% if field.name in help_text_dict %}
@@ -147,9 +154,6 @@
                 <br>
                 <br>
 
-            {% elif "cost" in field.field.widget.attrs|lookup:"class" %}
-
-
             {% else %}
                 {% if field.name in help_text_dict %}
                     {% bootstrap_label field.label %}
@@ -163,11 +167,17 @@
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
             {% endif %}
+
             {% if "hide-me" in field.field.widget.attrs.class %}
                 </div>
             {% endif %}
+
             {% endfor %}
-            <br>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
             </div>
 
             <div class="container center-col">
@@ -195,6 +205,7 @@
 
         function refreshUserInfo() {
             myId = $("#id_user").val();
+
             if (myId == "") {
                 $("#id_first_name").val("");
                 $("#id_last_name").val("");
@@ -205,7 +216,6 @@
                 $("#id_first_name").val(userObj[myId]["first_name"]);
                 $("#id_last_name").val(userObj[myId]["last_name"]);
                 $("#id_email").val(userObj[myId]["email"]);
-
             }
         }
 
@@ -218,6 +228,7 @@
                 $(".hide-me").addClass("gone");
                 $(".show-me").removeClass("gone");
             }
+
             refreshUserInfo();
         }
 
