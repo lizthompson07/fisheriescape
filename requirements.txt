@@ -46,5 +46,5 @@ whitenoise==4.1
 requests_oauthlib==1.3.0
 
 # THESE TWO LIBRARIES CAN BE PROBLEMATIC
-mysqlclient==1.4.6
-shapely==1.6.4.post2
+# mysqlclient==1.4.6
+# shapely==1.6.4.post2

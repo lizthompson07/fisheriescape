@@ -1,6 +1,7 @@
 - app access limitations
 
 - vault admin can edit tables that users can't
+   ---admin tables for instrument types and organizations (need CRUD structure)
 
 - create an empty directory structure for image storage based on the database contents
 
