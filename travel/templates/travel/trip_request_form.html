@@ -61,47 +61,17 @@
             {% bootstrap_form_errors form %}
 
 
-            {% for field in form %}
+            {% regroup form by field.group as field_group %}
 
-            {# ############################################################ #}
-            {# This section creates a card layout to break information up   #}
-            {# into logical sections. It depends on the order of certain    #}
-            {# fields in the models.py file                                 #}
-            {# ############################################################ #}
-
-                {% if field.name == 'user' %}
-                    <div class="card mb-2">
-                        <h2 class="card-header text-white bg-primary">{% trans 'User Details' %}</h2>
-                        <div class="card-body">
-                            <div class="card-text">
-                {% elif field.name == 'is_group_request' %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card mb-2">
-                        <h2 class="card-header text-white bg-primary">{% trans 'Request Details' %}</h2>
-                        <div class="card-body">
-                            <div class="card-text">
-                {% elif field.name == 'role_of_participant' %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card mb-2">
-                        <h2 class="card-header text-white bg-primary">{% trans 'Purpose' %}</h2>
-                        <div class="card-body">
-                            <div class="card-text">
-                {% elif field.name == 'air' %}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card mb-2">
-                        <h2 class="card-header text-white bg-primary">{% trans 'Costs' %}</h2>
-                        <div class="card-body">
-                            <div class="card-text">
-                {% endif %}
-
-            {# ############################################################ #}
-
+            {% for group in field_group %}
+            {% if group.grouper %}
+            <div class="card mb-2">
+                <h2 class="card-header text-white bg-primary">
+                    {{ group.grouper }}
+                </h2>
+                <div class="card-body">
+                    <div class="card-text">
+            {% for field in group.list %}
                 {% if "hide-me" in field.field.widget.attrs.class %}
                     {% if "user-info" in field.field.widget.attrs.class %}
                         <div class="hide-me user-info">
@@ -201,21 +171,12 @@
             {% endif %}
             {% if "hide-me" in field.field.widget.attrs.class %}
                 </div>
+            {% endif %}{% endfor %}
+                    </div>
+                </div>
+            </div>
             {% endif %}
             {% endfor %}
-
-
-            {# ######################## #}
-            {# Close the last open card #}
-            {# ######################## #}
-                            </div>
-                        </div>
-                    </div>
-            {# ######################## #}
-
-            </div>
-
-            </div>
 
             <div class="container center-col">
                 {% buttons %}
@@ -242,6 +203,7 @@
 
         function refreshUserInfo() {
             myId = $("#id_user").val();
+
             if (myId == "") {
                 $("#id_first_name").val("");
                 $("#id_last_name").val("");
@@ -252,7 +214,6 @@
                 $("#id_first_name").val(userObj[myId]["first_name"]);
                 $("#id_last_name").val(userObj[myId]["last_name"]);
                 $("#id_email").val(userObj[myId]["email"]);
-
             }
         }
 
@@ -265,6 +226,7 @@
                 $(".hide-me").addClass("gone");
                 $(".show-me").removeClass("gone");
             }
+
             refreshUserInfo();
         }
 
