@@ -61,8 +61,47 @@
             {% bootstrap_form_errors form %}
 
 
-
             {% for field in form %}
+
+            {# ############################################################ #}
+            {# This section creates a card layout to break information up   #}
+            {# into logical sections. It depends on the order of certain    #}
+            {# fields in the models.py file                                 #}
+            {# ############################################################ #}
+
+                {% if field.name == 'user' %}
+                    <div class="card mb-2">
+                        <h2 class="card-header text-white bg-primary">{% trans 'User Details' %}</h2>
+                        <div class="card-body">
+                            <div class="card-text">
+                {% elif field.name == 'is_group_request' %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-2">
+                        <h2 class="card-header text-white bg-primary">{% trans 'Request Details' %}</h2>
+                        <div class="card-body">
+                            <div class="card-text">
+                {% elif field.name == 'role_of_participant' %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-2">
+                        <h2 class="card-header text-white bg-primary">{% trans 'Purpose' %}</h2>
+                        <div class="card-body">
+                            <div class="card-text">
+                {% elif field.name == 'air' %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mb-2">
+                        <h2 class="card-header text-white bg-primary">{% trans 'Costs' %}</h2>
+                        <div class="card-body">
+                            <div class="card-text">
+                {% endif %}
+
+            {# ############################################################ #}
+
                 {% if "hide-me" in field.field.widget.attrs.class %}
                     {% if "user-info" in field.field.widget.attrs.class %}
                         <div class="hide-me user-info">
@@ -86,9 +125,6 @@
                     {% else %}
                         {% bootstrap_field field placeholder="" %}
                     {% endif %}
-                    {#                    <em class="blue-font">#}
-                    {#                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})#}
-                    {#                    </em><br><br>#}
                 </div>
             {% elif field.name == "trip" %}
                 {% if field.name in help_text_dict %}
@@ -167,7 +203,18 @@
                 </div>
             {% endif %}
             {% endfor %}
-            <br>
+
+
+            {# ######################## #}
+            {# Close the last open card #}
+            {# ######################## #}
+                            </div>
+                        </div>
+                    </div>
+            {# ######################## #}
+
+            </div>
+
             </div>
 
             <div class="container center-col">
