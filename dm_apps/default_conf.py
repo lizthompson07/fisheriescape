@@ -33,6 +33,9 @@ SHOW_TICKETING_APP = True
 # To add any custom hosts to this application's list of allowed hosts, provide them here
 ALLOWED_HOSTS_TO_ADD = []
 
+# Specify the full url of the site. This is used in email templates to link the recipient back to the site; NO TRAILING SLASH!!
+SITE_FULL_URL = "https://dmapps-dev.azurewebsites.net"
+
 # If the line below is uncommented, you will connect to the dev database even if production database strings are present
 # FORCE_DEV_DB = True
 

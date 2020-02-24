@@ -209,8 +209,8 @@ def approval_seeker(trip_request):
             if next_reviewer.role_id in [1, 2, 3, 4, ]:  # essentially, just not the RDG or ADM
                 email = emails.ReviewAwaitingEmail(trip_request, next_reviewer)
 
-            elif next_reviewer.role_id in [5, 6]:  # if we are going for RDG signature...
-                email = emails.AdminApprovalAwaitingEmail(trip_request)
+            elif next_reviewer.role_id in [5, 6]:  # if we are going for ADM or RDG signature...
+                email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role_id)
 
             if email:
                 # send the email object

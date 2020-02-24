@@ -57,6 +57,12 @@ try:
 except AttributeError:
     pass
 
+# this is used in email templates to link the recipient back to the site
+try:
+    SITE_FULL_URL = local_conf.SITE_FULL_URL
+except AttributeError:
+    SITE_FULL_URL = ""
+
 try:
     config("app_id")
     config("app_secret")

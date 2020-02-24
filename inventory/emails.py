@@ -31,6 +31,7 @@ class CertificationRequestEmail:
             'object': self.person_object,
             'queryset': self.person_object.resource_people.filter(role=1)
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -62,6 +63,7 @@ class SectionReportEmail:
             'queryset': self.queryset,
             'section': self.section,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -83,6 +85,7 @@ class FlagForDeletionEmail:
             'object': object,
             'user': user,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -104,6 +107,7 @@ class FlagForPublicationEmail:
             'object': object,
             'user': user,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -125,6 +129,7 @@ class AddedAsCustodianEmail:
             'object': object,
             'user': user,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -146,6 +151,7 @@ class RemovedAsCustodianEmail:
             'object': object,
             'user': user,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 

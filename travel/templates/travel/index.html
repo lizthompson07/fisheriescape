@@ -22,7 +22,8 @@
                 {% url 'travel:request_review_list' "awaiting" as event_approval_list_url %}
                 {% url 'travel:request_review_list' as event_assigned_list_url %}
                 {% url 'travel:request_new' as event_new_url %}
-                {% url 'travel:admin_approval_list' as admin_approval_list_url %}
+                {% url 'travel:admin_approval_list' 'adm' as adm_approval_list_url %}
+                {% url 'travel:admin_approval_list' 'rdg' as rdg_approval_list_url %}
                 {% url 'travel:admin_trip_verification_list' as trip_verification_list_url %}
                 <br>
                 <h3>
@@ -64,10 +65,18 @@
                         {# ADMIN ONLY STUFF #}
                         {% if is_admin %}
                             <hr>
-                            {% blocktrans %}
-                                Trip requests awaiting admin <a href="{{ admin_approval_list_url }}">approval</a>
-                            {% endblocktrans %}
-                            (<span class="{% if admin_number_waiting > 0 %}red-font blink-me{% endif %}">{{ admin_number_waiting }}</span>).
+                                {% trans "Trip requests awaiting admin approval for:" %}
+                                <a href="{{ adm_approval_list_url }}">
+                                {% trans "ADM" %}
+                                </a>
+                                (<span class="{% if adm_number_waiting > 0 %}red-font blink-me{% endif %}">{{ adm_number_waiting }}</span>)
+                                &nbsp;&nbsp;
+                                <a href="{{ rdg_approval_list_url }}">
+                                {% trans "RDG" %}
+                                </a>
+                                (<span class="{% if rdg_number_waiting > 0 %}red-font blink-me{% endif %}">{{ rdg_number_waiting }}</span>)
+
+
                             <br><br>
                             {% blocktrans %}
                                 Non-ADM trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>

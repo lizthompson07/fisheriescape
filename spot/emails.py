@@ -39,6 +39,7 @@ class MasterEmail:
         context = {
             'object': self.object,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
