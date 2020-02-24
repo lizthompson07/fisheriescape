@@ -71,6 +71,7 @@
                 </h2>
                 <div class="card-body">
                     <div class="card-text">
+
             {% for field in group.list %}
                 {% if "hide-me" in field.field.widget.attrs.class %}
                     {% if "user-info" in field.field.widget.attrs.class %}
@@ -153,9 +154,6 @@
                 <br>
                 <br>
 
-            {% elif "cost" in field.field.widget.attrs|lookup:"class" %}
-
-
             {% else %}
                 {% if field.name in help_text_dict %}
                     {% bootstrap_label field.label %}
@@ -169,14 +167,18 @@
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
             {% endif %}
+
             {% if "hide-me" in field.field.widget.attrs.class %}
                 </div>
-            {% endif %}{% endfor %}
+            {% endif %}
+
+            {% endfor %}
                     </div>
                 </div>
             </div>
             {% endif %}
             {% endfor %}
+            </div>
 
             <div class="container center-col">
                 {% buttons %}

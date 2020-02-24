@@ -103,10 +103,10 @@ class TripRequestForm(forms.ModelForm):
 
             # user fields
             'user': forms.Select(attrs=chosen_js),
-            'first_name': forms.TextInput(attrs=attr_hide_me),
-            'last_name': forms.TextInput(attrs=attr_hide_me),
+            'first_name': forms.TextInput(attrs=attr_hide_me_user_info),
+            'last_name': forms.TextInput(attrs=attr_hide_me_user_info),
             'section': forms.Select(attrs=chosen_js),
-            'email': forms.EmailInput(attrs=attr_hide_me),
+            'email': forms.EmailInput(attrs=attr_hide_me_user_info),
             'address': forms.TextInput(attrs=attr_hide_me),
             'phone': forms.TextInput(attrs=attr_hide_me_phone),
             'is_public_servant': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
