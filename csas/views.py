@@ -22,6 +22,30 @@ class ContactsTemplateView(CreateView):
 #    form_class = forms.ContactForm
 
 
+class MeetingsTemplateView(CreateView):
+    template_name = 'csas/meetings.html'
+    model = models.MetMeeting
+    form_class = forms.MeetingForm
+
+
+class PublicationsTemplateView(CreateView):
+    template_name = 'csas/publications.html'
+    model = models.PubPublication
+    form_class = forms.PublicationForm
+
+
+class RequestsTemplateView(CreateView):
+    template_name = 'csas/requests.html'
+    model = models.MetMeeting
+    form_class = forms.MeetingForm
+
+
+class OthersTemplateView(CreateView):
+    template_name = 'csas/others.html'
+    model = models.MetMeeting
+    form_class = forms.MeetingForm
+
+
 class CommonLookup(CreateView):
     template_name = 'csas/_lookup_entry_form.html'
     fields = ['name']
