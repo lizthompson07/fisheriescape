@@ -29,8 +29,8 @@ class ProjectSubmissionEmail:
             'section',
             'project_leads|project_leads',
         ]
-
         context = {'object': object, 'field_list':project_field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -55,5 +55,6 @@ class UserCreationEmail:
     def load_html_template(self, object):
         t = loader.get_template('projects/email_user_creation.html')
         context = {'object': object,}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered

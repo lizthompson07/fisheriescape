@@ -113,12 +113,20 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of requests where review is pending
-        context["admin_number_waiting"] = models.Reviewer.objects.filter(
+        context["adm_number_waiting"] = models.Reviewer.objects.filter(
             status_id=1,
-            role_id__in=[5, 6],
+            role_id__in=[5,],
         ).filter(
             ~Q(trip_request__status_id=16)
         ).count()  # number of requests where admin review is pending
+
+        context["rdg_number_waiting"] = models.Reviewer.objects.filter(
+            status_id=1,
+            role_id__in=[6, ],
+        ).filter(
+            ~Q(trip_request__status_id=16)
+        ).count()  # number of requests where admin review is pending
+
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
         context["unverified_trips_non_adm"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=False).count()
@@ -305,15 +313,21 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
 
     def get_queryset(self):
         # return a list only of those awaiting ADM or RDG approval
-        qs = models.TripRequest.objects.filter(
-            parent_request__isnull=True,
-        ).filter(status_id__in=[14, 15]).order_by("-submitted")
+        qs = models.TripRequest.objects.filter(parent_request__isnull=True).order_by("-submitted")
+        if self.kwargs.get("type") == "adm":
+            qs = qs.filter(status_id=14)
+        elif self.kwargs.get("type") == "rdg":
+            qs = qs.filter(status_id=15)
+
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.TripRequest.objects.first()
         context["admin"] = True
+        context["type_bilingual"] = _(self.kwargs.get("type")).upper()
+
+
         context["field_list"] = [
             'is_group_request',
             'first_name',
@@ -439,7 +453,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         context["report_mode"] = True
         if my_object.role_id in [5, 6, ]:
             context["admin"] = True
-
+            context["type_bilingual"] = _(self.kwargs.get("type")).upper()
         return context
 
     def form_valid(self, form):

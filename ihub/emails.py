@@ -25,5 +25,6 @@ class NewEntryEmail:
             'created_by',
         ]
         context = {'object': my_object, 'field_list': field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
