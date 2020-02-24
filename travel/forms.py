@@ -13,8 +13,8 @@ attr_fp_date_hide_me = {"class": "fp-date hide-me", "placeholder": "Click to sel
 attr_hide_me = {"class": "hide-me"}
 attr_hide_me_user_info = {"class": "hide-me user-info"}
 attr_hide_me_phone = {"class": "hide-me input-phone"}
-attr_user_info = {"class": "input-phone"}
-attr_phone = {"class": "user-info"}
+attr_user_info = {"class": "user-info"}
+attr_phone = {"class": "input-phone"}
 attr_cost_hide_me = {"class": "hide-me cost"}
 attr_cost = {"class": "cost"}
 attr_row3_hide_me = {"class": "hide-me", "rows": 3}
@@ -88,8 +88,6 @@ class TripRequestForm(forms.ModelForm):
         widgets = {
             'bta_attendees': forms.SelectMultiple(attrs=chosen_js),
             'trip': forms.Select(attrs=chosen_js),
-            'user': forms.Select(attrs=chosen_js),
-            'section': forms.Select(attrs=chosen_js),
             'is_group_request': forms.Select(choices=YES_NO_CHOICES),
             'objective_of_event': forms.Textarea(attrs=attr_row3),
             'benefit_to_dfo': forms.Textarea(attrs=attr_row3),
@@ -102,14 +100,19 @@ class TripRequestForm(forms.ModelForm):
             'parent_request': forms.HiddenInput(),
 
             # non-group trip request fields
-            'start_date': forms.DateInput(attrs=attr_fp_date_hide_me),
-            'end_date': forms.DateInput(attrs=attr_fp_date_hide_me),
-            'first_name': forms.TextInput(attrs=attr_hide_me_user_info),
-            'last_name': forms.TextInput(attrs=attr_hide_me_user_info),
-            'email': forms.EmailInput(attrs=attr_hide_me_user_info),
+
+            # user fields
+            'user': forms.Select(attrs=chosen_js),
+            'first_name': forms.TextInput(attrs=attr_hide_me),
+            'last_name': forms.TextInput(attrs=attr_hide_me),
+            'section': forms.Select(attrs=chosen_js),
+            'email': forms.EmailInput(attrs=attr_hide_me),
             'address': forms.TextInput(attrs=attr_hide_me),
             'phone': forms.TextInput(attrs=attr_hide_me_phone),
             'is_public_servant': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
+
+            'start_date': forms.DateInput(attrs=attr_fp_date_hide_me),
+            'end_date': forms.DateInput(attrs=attr_fp_date_hide_me),
             'is_research_scientist': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
             'company_name': forms.TextInput(attrs=attr_hide_me),
             'departure_location': forms.TextInput(attrs=attr_hide_me),
@@ -139,6 +142,9 @@ class TripRequestForm(forms.ModelForm):
             'registration': forms.NumberInput(attrs=attr_cost_hide_me),
             'other': forms.NumberInput(attrs=attr_cost_hide_me),
         }
+
+    def user_info(self):
+        return filter(lambda x: x.user_info == 1, self.fields.values())
 
     def __init__(self, *args, **kwargs):
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
@@ -177,6 +183,44 @@ class TripRequestForm(forms.ModelForm):
         self.fields['user'].choices = user_choices
         self.fields['bta_attendees'].choices = user_choices
         self.fields['section'].choices = section_choices
+
+        # traveller info
+        user_detail_label = _('User Details')
+        self.fields['user'].group = user_detail_label
+        self.fields['section'].group = user_detail_label
+        self.fields['first_name'].group = user_detail_label
+        self.fields['last_name'].group = user_detail_label
+        self.fields['address'].group = user_detail_label
+        self.fields['phone'].group = user_detail_label
+        self.fields['email'].group = user_detail_label
+        self.fields['is_public_servant'].group = user_detail_label
+        self.fields['is_research_scientist'].group = user_detail_label
+        self.fields['company_name'].group = user_detail_label
+        self.fields['region'].group = user_detail_label
+
+        # Trip Details
+        request_detail_label = _('Request Details')
+        self.fields['is_group_request'].group = request_detail_label
+        self.fields['purpose'].group = request_detail_label
+        self.fields['reason'].group = request_detail_label
+        self.fields['trip'].group = request_detail_label
+        self.fields['departure_location'].group = request_detail_label
+        self.fields['destination'].group = request_detail_label
+        self.fields['start_date'].group = request_detail_label
+        self.fields['end_date'].group = request_detail_label
+        self.fields['role'].group = request_detail_label
+
+        # purpose
+        purpose_label = _('Purpose')
+        self.fields['role_of_participant'].group = purpose_label
+        self.fields['objective_of_event'].group = purpose_label
+        self.fields['benefit_to_dfo'].group = purpose_label
+        self.fields['multiple_conferences_rationale'].group = purpose_label
+        self.fields['bta_attendees'].group = purpose_label
+        self.fields['multiple_attendee_rationale'].group = purpose_label
+        self.fields['late_justification'].group = purpose_label
+        self.fields['funding_source'].group = purpose_label
+        self.fields['notes'].group = purpose_label
 
 
 class TripRequestAdminNotesForm(forms.ModelForm):
