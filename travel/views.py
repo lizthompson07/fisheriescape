@@ -115,7 +115,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of requests where review is pending
         context["adm_number_waiting"] = models.Reviewer.objects.filter(
             status_id=1,
-            role_id__in=[5,],
+            role_id__in=[5, ],
         ).filter(
             ~Q(trip_request__status_id=16)
         ).count()  # number of requests where admin review is pending
@@ -327,7 +327,6 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
         context["admin"] = True
         context["type_bilingual"] = _(self.kwargs.get("type")).upper()
 
-
         context["field_list"] = [
             'is_group_request',
             'first_name',
@@ -497,7 +496,11 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         utils.approval_seeker(my_reviewer.trip_request)
 
         if stay_on_page:
-            return HttpResponseRedirect(reverse("travel:review_approve", kwargs={"pk": my_reviewer.id}))
+            my_kwargs = {"pk": my_reviewer.id}
+            # if this is an adm or rdg review, we have to pass the type into the url.
+            if my_reviewer.role_id in [5, 6, ]:
+                my_kwargs.update({"type": self.kwargs.get("type")})
+            return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
         else:
             return HttpResponseRedirect(reverse("travel:index"))
 
