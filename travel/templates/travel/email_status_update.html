@@ -23,7 +23,7 @@
         </u>
     {% endif %}
     <br><br>
-    You can click <a href="http://dmapps{% url 'travel:request_detail' triprequest.id %}">HERE</a> to access the request. Here are the
+    You can click <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">HERE</a> to access the request. Here are the
     details:
     <br><br>
 </p>
@@ -51,7 +51,7 @@
         </u>
     {% endif %}
     <br><br>
-    Vous pouvez cliquer <a href="http://dmapps{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour accéder la voyage.
+    Vous pouvez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour accéder la voyage.
     Voici les détails du voyage:
 </p>
 

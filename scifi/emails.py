@@ -25,5 +25,6 @@ class NewEntryEmail:
     def load_html_template(self, object):
         t = loader.get_template('scifi/email_new_entry.html')
         context = {'object': object}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered

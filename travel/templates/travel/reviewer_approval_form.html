@@ -23,7 +23,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
             {% if admin %}
-                <li class="breadcrumb-item"><a href="{% url 'travel:admin_approval_list' %}">Admin Request Approval List</a>
+                <li class="breadcrumb-item"><a href="{% url 'travel:admin_approval_list' view.kwargs.type %}">Admin Request Approval List</a>
                 </li>
 
             {% else %}

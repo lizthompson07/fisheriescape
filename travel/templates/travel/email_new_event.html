@@ -16,7 +16,7 @@
     {% endfor %}
 </table>
 <p>
-    To change or modify the meeting information, please click <a href="http://dmapps{% url 'travel:trip_detail' event.id %}">HERE</a>.
+    To change or modify the meeting information, please click <a href="{{SITE_FULL_URL}}{% url 'travel:trip_detail' event.id %}">HERE</a>.
 </p>
 
 <style media="screen">

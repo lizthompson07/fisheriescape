@@ -16,5 +16,6 @@ class RequestAccessEmail:
 
     def load_html_template(self, context):
         t = loader.get_template('accounts/email_new_access_request.html')
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered

@@ -27,11 +27,15 @@ urlpatterns = [
     # REVIEWER APPROVAL
     path('requests/review/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
     path('requests/review/<str:which_ones>/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
-    path('review/<int:pk>/approve/', views.ReviewerApproveUpdateView.as_view(), name="review_approve"),
     path('review/<int:pk>/skip/', views.SkipReviewerUpdateView.as_view(), name="reviewer_skip"),
 
+    # this would be for a reviewer, recommender, approver
+    path('review/<int:pk>/approve/', views.ReviewerApproveUpdateView.as_view(), name="review_approve"),
+    # This would be for an admin
+    path('review/<int:pk>/approve/for/<str:type>/', views.ReviewerApproveUpdateView.as_view(), name="review_approve"),
+
     # ADMIN APPROVAL
-    path('admin/approval/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
+    path('admin/approval/for/<str:type>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
     # path('admin/<int:pk>/approve/', views.TripRequestAdminApproveUpdateView.as_view(), name="admin_approve"),
 
     # REVIEWERS #
