@@ -3,7 +3,6 @@ import os
 import textile
 from django.conf import settings
 from django.contrib.auth.models import User as AuthUser
-from django.core.mail import send_mail
 from django.db import models
 from django.db.models import Q, Sum
 from django.dispatch import receiver
@@ -396,7 +395,7 @@ class TripRequest(models.Model):
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trip_requests",
                              verbose_name=_("DM Apps user"))
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"))
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"), related_name="trip_requests")
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     address = models.CharField(max_length=1000, verbose_name=_("address"),

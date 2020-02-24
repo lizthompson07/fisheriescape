@@ -116,12 +116,12 @@
         function initialize() {
             var locations = [
                 {% if object.station.latitude_n and object.station.longitude_w %}
-                    ['<a href="{% url 'grais:station_detail' object.station.id %}">Station {{object.station.id}}</a>', {{object.station.latitude_n}}, {{object.station.longitude_w}}, '{% static "/img/grais/blue_MarkerS.png" %}'],
+                    ['<a href="{% url 'grais:station_detail' object.station.id %}">Station {{object.station.id}}</a>', {{object.station.latitude_n}}, {{object.station.longitude_w}}, '{% static "/grais/blue_MarkerS.png" %}'],
                 {% endif %}
 
                 {% for line in object.lines.all %}
                     {% if line.latitude_n and line.longitude_w %}
-                        ['<a href="{% url 'grais:line_detail' line.id %}">Line {{line.id}}</a>', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "/img/grais/red_MarkerL.png" %}'],
+                        ['<a href="{% url 'grais:line_detail' line.id %}">{{line}}</a>', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "grais/red_MarkerL.png" %}'],
                     {% endif %}
                 {% endfor %}
             ];
@@ -143,7 +143,7 @@
 
                 bounds.extend(marker.position);
 
-                google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                google.maps.event.addListener(marker, 'mouseover', (function (marker, i) {
                     return function () {
                         infowindow.setContent(locations[i][0]);
                         infowindow.open(map, marker);

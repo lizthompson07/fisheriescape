@@ -11,11 +11,16 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+
+import requests
 from django.utils.translation import gettext_lazy as _
 from decouple import config, UndefinedValueError
+from msrestazure.azure_active_directory import MSIAuthentication
 
 # Custom variables
+
 WEB_APP_NAME = "DMApps"
+SITE_FROM_EMAIL = "DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -51,6 +56,12 @@ try:
         print("The following hostnames are being added to the ALLOWED_HOSTS variable", local_conf.ALLOWED_HOSTS_TO_ADD)
 except AttributeError:
     pass
+
+# this is used in email templates to link the recipient back to the site
+try:
+    SITE_FULL_URL = local_conf.SITE_FULL_URL
+except AttributeError:
+    SITE_FULL_URL = ""
 
 try:
     config("app_id")
@@ -92,6 +103,11 @@ if not GOOGLE_API_KEY:
     GOOGLE_API_KEY = ""
     print("no google api key file found.")
 
+
+GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
+
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -112,6 +128,7 @@ INSTALLED_APPS = [
                      'django.contrib.sessions',
                      'django.contrib.messages',
                      'django.contrib.staticfiles',
+                     'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
                      'el_pagination',
@@ -182,22 +199,25 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+SENDGRID_API_KEY = config('SENDGRID_API_KEY', cast=str, default="")
+EMAIL_HOST = config('EMAIL_HOST', cast=str, default="")
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default="")
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str, default="")
+EMAIL_PORT = config('EMAIL_PORT', cast=str, default="")
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=str, default="")
 
-try:
-    EMAIL_HOST = config('EMAIL_HOST', str)
-    EMAIL_HOST_USER = config('EMAIL_HOST_USER', str)
-    EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', str)
-    EMAIL_PORT = config('EMAIL_PORT', int)
-    EMAIL_USE_TLS = config('EMAIL_USE_TLS', bool)
-
-    if not EMAIL_HOST or EMAIL_HOST == "":
-        USE_EMAIL = False
+# first check to see if a sendgrid api key is available
+if SENDGRID_API_KEY == "":
+    USE_SENDGRID = False
+    # if there is nothing there, let's check for SMTP EMAIL configuration
+    if EMAIL_HOST == "":
+        print("No email service credentials found in system config.")
+        USE_SMTP_EMAIL = False
     else:
-        USE_EMAIL = True
-        # print(EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD, EMAIL_PORT, EMAIL_USE_TLS)
-except UndefinedValueError:
-    print("No email service credentials found in system config.")
+        USE_SMTP_EMAIL = True
+else:
+    USE_SENDGRID = True
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
@@ -223,18 +243,43 @@ LANGUAGES = [
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
-MEDIA_ROOT = MEDIA_DIR
-MEDIA_URL = '/media/'
-
-STATIC_URL = '/static/'
-# STATIC_ROOT = STATIC_DIR
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+AZURE_STORAGE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", cast=str, default="")
+# if no account name was provided, serve static and media files with whitenoise
+if AZURE_STORAGE_ACCOUNT_NAME == "":
+    MEDIA_ROOT = MEDIA_DIR
+    MEDIA_URL = '/media/'
+    STATIC_URL = '/static/'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+else:
+    # we can try to connect to the azure storage account, but this will only work if the machine we are accessing from has permissions
+    try:
+        token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
+    except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
+        print('Cannot connect to azure storage account. Serving static and media files from local staticfiles directory using whitenoise.')
+        # serve locally using whitenoise
+        MEDIA_ROOT = MEDIA_DIR
+        MEDIA_URL = '/media/'
+        STATIC_URL = '/static/'
+        STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+        STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    else:
+        # serve from azure
+        DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
+        STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
+
+        STATIC_CONTAINER_NAME= "static"
+        MEDIA_CONTAINER_NAME = "media"
+        AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
+        STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_CONTAINER_NAME}/'
+        MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_CONTAINER_NAME}/'
+
+
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000

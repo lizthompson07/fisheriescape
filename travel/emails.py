@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.template import loader
 
-from_email = 'DoNotReply@DMApps.com'
+from_email = settings.SITE_FROM_EMAIL
 
 request_field_list = [
     'fiscal_year',
@@ -39,26 +40,28 @@ class NewTripEmail:
         t = loader.get_template('travel/email_new_event.html')
         field_list = trip_field_list
         context = {'event': self.event, 'field_list': field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
 
 class AdminApprovalAwaitingEmail:
-    def __init__(self, trip_request):
+    def __init__(self, trip_request, reviewer_role_id):
         self.subject = 'A trip request is awaiting {} approval'.format(trip_request.current_reviewer.role)
-        self.message = self.load_html_template(trip_request)
+        self.message = self.load_html_template(trip_request, reviewer_role_id)
         self.from_email = from_email
         self.to_list = [user.email for user in User.objects.filter(groups__name="travel_admin")]
 
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
-    def load_html_template(self, trip_request):
+    def load_html_template(self, trip_request, reviewer_role_id):
         t = loader.get_template('travel/email_admin_awaiting_approval.html')
 
         field_list = request_field_list
 
-        context = {'triprequest': trip_request, 'field_list': field_list}
+        context = {'triprequest': trip_request, 'reviewer_role_id': reviewer_role_id, 'field_list': field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -79,6 +82,7 @@ class ReviewAwaitingEmail:
         field_list = request_field_list
 
         context = {'reviewer': reviewer_object, 'triprequest': trip_request_object, 'field_list': field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -99,6 +103,7 @@ class ChangesRequestedEmail:
         field_list = request_field_list
 
         context = {'triprequest': trip_request_object, 'field_list': field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -120,6 +125,7 @@ class StatusUpdateEmail:
         field_list = request_field_list
 
         context = {'triprequest': trip_request_object, 'field_list': field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -127,7 +133,6 @@ class StatusUpdateEmail:
 class TripCostWarningEmail:
 
     def __init__(self, trip):
-
         self.subject = '*** Trip cost warning / Avertissement de coût de voyage ***'
         self.message = self.load_html_template(trip)
         self.from_email = from_email
@@ -145,5 +150,6 @@ class TripCostWarningEmail:
         field_list = trip_field_list
 
         context = {'trip': trip_request_object, 'field_list': field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered

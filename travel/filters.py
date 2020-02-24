@@ -23,7 +23,7 @@ def get_section_choices(all=False, full_name=True):
                 "division__branch",
                 "division",
                 "name"
-            ) if s.projects.count() > 0] if not all else [(s.id, getattr(s, my_attr)) for s in
+            ) if s.trip_requests.count() > 0] if not all else [(s.id, getattr(s, my_attr)) for s in
                                                           shared_models.Section.objects.filter(
                                                               division__branch__name__icontains="science").order_by(
                                                               "division__branch__region",
@@ -84,7 +84,7 @@ class TripRequestFilter(django_filters.FilterSet):
         region_choices = get_region_choices()
         division_choices = get_division_choices()
         section_choices = get_section_choices()
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.trip_requests.count() > 0]
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
                                                                   label=_("Fiscal year"))

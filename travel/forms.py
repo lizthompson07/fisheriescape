@@ -12,7 +12,9 @@ attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 attr_fp_date_hide_me = {"class": "fp-date hide-me", "placeholder": "Click to select a date.."}
 attr_hide_me = {"class": "hide-me"}
 attr_hide_me_user_info = {"class": "hide-me user-info"}
-attr_user_info = {"class": "user-info"}
+attr_hide_me_phone = {"class": "hide-me input-phone"}
+attr_user_info = {"class": "input-phone"}
+attr_phone = {"class": "user-info"}
 attr_cost_hide_me = {"class": "hide-me cost"}
 attr_cost = {"class": "cost"}
 attr_row3_hide_me = {"class": "hide-me", "rows": 3}
@@ -106,7 +108,7 @@ class TripRequestForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs=attr_hide_me_user_info),
             'email': forms.EmailInput(attrs=attr_hide_me_user_info),
             'address': forms.TextInput(attrs=attr_hide_me),
-            'phone': forms.TextInput(attrs=attr_hide_me),
+            'phone': forms.TextInput(attrs=attr_hide_me_phone),
             'is_public_servant': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
             'is_research_scientist': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
             'company_name': forms.TextInput(attrs=attr_hide_me),
@@ -215,7 +217,7 @@ class ChildTripRequestForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'role_of_participant': forms.Textarea(attrs=attr_row4),
-
+            'phone': forms.TextInput(attrs=attr_phone),
             'first_name': forms.TextInput(attrs=attr_user_info),
             'last_name': forms.TextInput(attrs=attr_user_info),
             'email': forms.EmailInput(attrs=attr_user_info),

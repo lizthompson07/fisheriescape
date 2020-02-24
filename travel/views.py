@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
+from dm_apps.utils import custom_send_mail
 from django.db.models import Sum, Q
 from django.shortcuts import render
 from django.utils import timezone
@@ -113,12 +113,20 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of requests where review is pending
-        context["admin_number_waiting"] = models.Reviewer.objects.filter(
+        context["adm_number_waiting"] = models.Reviewer.objects.filter(
             status_id=1,
-            role_id__in=[5, 6],
+            role_id__in=[5, ],
         ).filter(
             ~Q(trip_request__status_id=16)
         ).count()  # number of requests where admin review is pending
+
+        context["rdg_number_waiting"] = models.Reviewer.objects.filter(
+            status_id=1,
+            role_id__in=[6, ],
+        ).filter(
+            ~Q(trip_request__status_id=16)
+        ).count()  # number of requests where admin review is pending
+
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
         context["unverified_trips_non_adm"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=False).count()
@@ -305,15 +313,20 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
 
     def get_queryset(self):
         # return a list only of those awaiting ADM or RDG approval
-        qs = models.TripRequest.objects.filter(
-            parent_request__isnull=True,
-        ).filter(status_id__in=[14, 15]).order_by("-submitted")
+        qs = models.TripRequest.objects.filter(parent_request__isnull=True).order_by("-submitted")
+        if self.kwargs.get("type") == "adm":
+            qs = qs.filter(status_id=14)
+        elif self.kwargs.get("type") == "rdg":
+            qs = qs.filter(status_id=15)
+
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.TripRequest.objects.first()
         context["admin"] = True
+        context["type_bilingual"] = _(self.kwargs.get("type")).upper()
+
         context["field_list"] = [
             'is_group_request',
             'first_name',
@@ -439,7 +452,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         context["report_mode"] = True
         if my_object.role_id in [5, 6, ]:
             context["admin"] = True
-
+            context["type_bilingual"] = _(self.kwargs.get("type")).upper()
         return context
 
     def form_valid(self, form):
@@ -457,13 +470,14 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
                 my_reviewer.trip_request.submitted = None
                 my_reviewer.trip_request.save()
                 # send an email to the request owner
-                my_email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
+                email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
                 # send the email object
-                if settings.USE_EMAIL:
-                    send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                              recipient_list=my_email.to_list, fail_silently=False, )
-                else:
-                    print(my_email)
+                custom_send_mail(
+                    subject=email.subject,
+                    html_message=email.message,
+                    from_email=email.from_email,
+                    recipient_list=email.to_list
+                )
                 messages.success(self.request, _("Success! An email has been sent to the trip request owner."))
 
             # if it was approved, then we change the reviewer status to 'approved'
@@ -482,7 +496,11 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         utils.approval_seeker(my_reviewer.trip_request)
 
         if stay_on_page:
-            return HttpResponseRedirect(reverse("travel:review_approve", kwargs={"pk": my_reviewer.id}))
+            my_kwargs = {"pk": my_reviewer.id}
+            # if this is an adm or rdg review, we have to pass the type into the url.
+            if my_reviewer.role_id in [5, 6, ]:
+                my_kwargs.update({"type": self.kwargs.get("type")})
+            return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
         else:
             return HttpResponseRedirect(reverse("travel:index"))
 
@@ -614,13 +632,14 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
 
         my_trip_request.save()
         # send an email to the trip_request owner
-        my_email = emails.StatusUpdateEmail(my_trip_request)
+        email = emails.StatusUpdateEmail(my_trip_request)
         # # send the email object
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=my_email.subject, html_message=my_email.message, from_email=my_email.from_email,
-                      recipient_list=my_email.to_list, fail_silently=False, )
-        else:
-            print(my_email)
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
 
         return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
 
@@ -998,11 +1017,12 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
             # create a new email object
             email = emails.NewTripEmail(my_object)
             # send the email object
-            if settings.USE_EMAIL:
-                send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                          recipient_list=email.to_list, fail_silently=False, )
-            else:
-                print(email)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
             messages.success(self.request,
                              _("The trip has been added to the database!"))
         return super().form_valid(form)
