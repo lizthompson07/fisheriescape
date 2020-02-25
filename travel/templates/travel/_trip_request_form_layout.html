@@ -1,0 +1,62 @@
+{% load i18n %}
+{% load static %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load bootstrap4 %}
+
+{# If the field has a special class, make sure the wrapping div element inherit this class name too #}
+
+{% if "not-a-group-field" in field.field.widget.attrs.class %}
+    {% echo "not-a-group-field" as group_class %}
+{% endif %}
+
+{% if "disappear-if-user" in field.field.widget.attrs.class %}
+    {% echo "disappear-if-user" as user_class %}
+{% endif %}
+
+<div class="{{ group_class }} {{ user_class }}">
+
+    {% bootstrap_label field.label %}
+
+    {% if field.name in help_text_dict %}
+        &nbsp;
+        {% with help_text_dict|lookup:field.name as help_text %}
+            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                 data-trigger="hover"
+                 title="{{ field.label }}"
+                 data-content="{{ help_text }}">
+        {% endwith %}
+    {% endif %}
+
+    {% bootstrap_field field placeholder="" show_label=False %}
+
+    {% if field.name == "trip" %}
+        <div class="mb-3">
+            (<a href="#" pop-href="{% url 'travel:trip_new' 1 %}" id="new_event">add a new trip</a>)
+        </div>
+    {% endif %}
+
+    {% if field.name == "is_group_request" %}
+        <div class="show-me-when-group-request blue-font mb-3">
+            <p>
+                <em>
+                    {% trans "(Once this form is submitted, you will be able to add group travellers to the request. You will be automatically added as a traveller.)" %}
+                </em>
+            </p>
+        </div>
+    {% endif %}
+
+    {% if field.name == "address" %}
+        <div class="mb-3">
+            <span style="font-size: small">Predefined addresses:</span><br>
+            <a href="#" class="btn btn-sm btn-outline-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
+            <a href="#" class="btn btn-sm btn-outline-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
+            <a href="#" class="btn btn-sm btn-outline-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B
+                0E4</a>
+
+        </div>
+    {% endif %}
+
+
+</div>

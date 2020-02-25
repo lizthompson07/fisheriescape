@@ -9,15 +9,7 @@ from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
-attr_fp_date_hide_me = {"class": "fp-date hide-me", "placeholder": "Click to select a date.."}
-attr_hide_me = {"class": "hide-me"}
-attr_hide_me_user_info = {"class": "hide-me user-info"}
-attr_hide_me_phone = {"class": "hide-me input-phone"}
-attr_user_info = {"class": "user-info"}
 attr_phone = {"class": "input-phone"}
-attr_cost_hide_me = {"class": "hide-me cost"}
-attr_cost = {"class": "cost"}
-attr_row3_hide_me = {"class": "hide-me", "rows": 3}
 attr_row3 = {"rows": 3}
 attr_row4 = {"rows": 4}
 
@@ -73,18 +65,14 @@ class TripRequestForm(forms.ModelForm):
             "fiscal_year",
             "submitted",
             "status",
-            "breakfasts",
-            "lunches",
-            "suppers",
-            "incidentals",
-            "meals",
             "exclude_from_travel_plan",
             "admin_notes",
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
-            'adm': _("ADM (only if necessary, e.g., events, int'l travel, etc. )"),
+            'section': _("DFO section under which this request is being made"),
         }
+
         widgets = {
             'bta_attendees': forms.SelectMultiple(attrs=chosen_js),
             'trip': forms.Select(attrs=chosen_js),
@@ -103,48 +91,24 @@ class TripRequestForm(forms.ModelForm):
 
             # user fields
             'user': forms.Select(attrs=chosen_js),
-            'first_name': forms.TextInput(attrs=attr_hide_me_user_info),
-            'last_name': forms.TextInput(attrs=attr_hide_me_user_info),
+            'first_name': forms.TextInput(attrs={"class": "not-a-group-field disappear-if-user"}),
+            'last_name': forms.TextInput(attrs={"class": "not-a-group-field disappear-if-user"}),
             'section': forms.Select(attrs=chosen_js),
-            'email': forms.EmailInput(attrs=attr_hide_me_user_info),
-            'address': forms.TextInput(attrs=attr_hide_me),
-            'phone': forms.TextInput(attrs=attr_hide_me_phone),
-            'is_public_servant': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
+            'email': forms.EmailInput(attrs={"class": "not-a-group-field disappear-if-user"}),
+            'address': forms.TextInput(attrs={"class": "not-a-group-field"}),
+            'phone': forms.TextInput(attrs={"class": "not-a-group-field input-phone"}),
+            'is_public_servant': forms.Select(attrs={"class": "not-a-group-field disappear-if-user"}, choices=YES_NO_CHOICES),
 
-            'start_date': forms.DateInput(attrs=attr_fp_date_hide_me),
-            'end_date': forms.DateInput(attrs=attr_fp_date_hide_me),
-            'is_research_scientist': forms.Select(attrs=attr_hide_me, choices=YES_NO_CHOICES),
-            'company_name': forms.TextInput(attrs=attr_hide_me),
-            'departure_location': forms.TextInput(attrs=attr_hide_me),
-            'role': forms.Select(attrs=attr_hide_me),
-            'region': forms.Select(attrs=attr_hide_me),
-            'role_of_participant': forms.Textarea(attrs=attr_row3_hide_me),
-            'multiple_conferences_rationale': forms.Textarea(attrs=attr_row3_hide_me),
-            'air': forms.NumberInput(attrs=attr_cost_hide_me),
-            'rail': forms.NumberInput(attrs=attr_cost_hide_me),
-            'rental_motor_vehicle': forms.NumberInput(attrs=attr_cost_hide_me),
-            'personal_motor_vehicle': forms.NumberInput(attrs=attr_cost_hide_me),
-            'taxi': forms.NumberInput(attrs=attr_cost_hide_me),
-            'other_transport': forms.NumberInput(attrs=attr_cost_hide_me),
-            'accommodations': forms.NumberInput(attrs=attr_cost_hide_me),
-            'breakfasts': forms.NumberInput(attrs=attr_cost_hide_me),
-            'breakfasts_rate': forms.NumberInput(attrs=attr_cost_hide_me),
-            'no_breakfasts': forms.NumberInput(attrs=attr_cost_hide_me),
-            'lunches': forms.NumberInput(attrs=attr_cost_hide_me),
-            'lunches_rate': forms.NumberInput(attrs=attr_cost_hide_me),
-            'no_lunches': forms.NumberInput(attrs=attr_cost_hide_me),
-            'suppers': forms.NumberInput(attrs=attr_cost_hide_me),
-            'suppers_rate': forms.NumberInput(attrs=attr_cost_hide_me),
-            'no_suppers': forms.NumberInput(attrs=attr_cost_hide_me),
-            'incidentals': forms.NumberInput(attrs=attr_cost_hide_me),
-            'incidentals_rate': forms.NumberInput(attrs=attr_cost_hide_me),
-            'no_incidentals': forms.NumberInput(attrs=attr_cost_hide_me),
-            'registration': forms.NumberInput(attrs=attr_cost_hide_me),
-            'other': forms.NumberInput(attrs=attr_cost_hide_me),
+            'start_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'end_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'is_research_scientist': forms.Select(attrs={"class": "not-a-group-field"}, choices=YES_NO_CHOICES),
+            'company_name': forms.TextInput(attrs={"class": "not-a-group-field"}),
+            'departure_location': forms.TextInput(attrs={"class": "not-a-group-field"}),
+            'role': forms.Select(attrs={"class": "not-a-group-field"}),
+            'region': forms.Select(attrs={"class": "not-a-group-field"}),
+            'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field"}),
+            'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field"}),
         }
-
-    def user_info(self):
-        return filter(lambda x: x.user_info == 1, self.fields.values())
 
     def __init__(self, *args, **kwargs):
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
@@ -156,7 +120,7 @@ class TripRequestForm(forms.ModelForm):
         branch_heads = [branch.head for branch in shared_models.Branch.objects.filter(head__isnull=False)]
         region_heads = [region.head for region in shared_models.Region.objects.filter(head__isnull=False)]
 
-        heads = []
+        heads = list()
         heads.extend(section_heads)
         heads.extend(division_heads)
         heads.extend(branch_heads)
@@ -184,43 +148,64 @@ class TripRequestForm(forms.ModelForm):
         self.fields['bta_attendees'].choices = user_choices
         self.fields['section'].choices = section_choices
 
+        # general trip infomation
+        field_list = [
+            'is_group_request',
+            'purpose',
+            'reason',
+            'trip',
+            'departure_location',
+            'destination',
+            'start_date',
+            'end_date',
+            'bta_attendees',
+            'non_dfo_costs',
+            'non_dfo_org',
+        ]
+        for field in field_list:
+            self.fields[field].group = 1
+
         # traveller info
-        user_detail_label = _('User Details')
-        self.fields['user'].group = user_detail_label
-        self.fields['section'].group = user_detail_label
-        self.fields['first_name'].group = user_detail_label
-        self.fields['last_name'].group = user_detail_label
-        self.fields['address'].group = user_detail_label
-        self.fields['phone'].group = user_detail_label
-        self.fields['email'].group = user_detail_label
-        self.fields['is_public_servant'].group = user_detail_label
-        self.fields['is_research_scientist'].group = user_detail_label
-        self.fields['company_name'].group = user_detail_label
-        self.fields['region'].group = user_detail_label
+        field_list = [
+            'user',
+            'section',
+            'first_name',
+            'last_name',
+            'address',
+            'phone',
+            'email',
+            'is_public_servant',
+            'is_research_scientist',
+            'company_name',
+            'region',
+        ]
+        for field in field_list:
+            self.fields[field].group = 2
 
-        # Trip Details
-        request_detail_label = _('Request Details')
-        self.fields['is_group_request'].group = request_detail_label
-        self.fields['purpose'].group = request_detail_label
-        self.fields['reason'].group = request_detail_label
-        self.fields['trip'].group = request_detail_label
-        self.fields['departure_location'].group = request_detail_label
-        self.fields['destination'].group = request_detail_label
-        self.fields['start_date'].group = request_detail_label
-        self.fields['end_date'].group = request_detail_label
-        self.fields['role'].group = request_detail_label
+        # justification
+        field_list = [
+            'role',
+            'role_of_participant',
+            'objective_of_event',
+            'benefit_to_dfo',
+            'multiple_conferences_rationale',
+            'multiple_attendee_rationale',
+            'late_justification',
+            'funding_source',
+            'notes',
+        ]
+        for field in field_list:
+            self.fields[field].group = 3
 
-        # purpose
-        purpose_label = _('Purpose')
-        self.fields['role_of_participant'].group = purpose_label
-        self.fields['objective_of_event'].group = purpose_label
-        self.fields['benefit_to_dfo'].group = purpose_label
-        self.fields['multiple_conferences_rationale'].group = purpose_label
-        self.fields['bta_attendees'].group = purpose_label
-        self.fields['multiple_attendee_rationale'].group = purpose_label
-        self.fields['late_justification'].group = purpose_label
-        self.fields['funding_source'].group = purpose_label
-        self.fields['notes'].group = purpose_label
+        # are there any forgotten fields?
+        for field in self.fields:
+            try:
+                self.fields[field].group
+            except AttributeError:
+                print(f'Adding label: "Unspecified" to field "{field}".')
+                self.fields[field].group = 0
+
+
 
 
 class TripRequestAdminNotesForm(forms.ModelForm):
@@ -261,10 +246,10 @@ class ChildTripRequestForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'role_of_participant': forms.Textarea(attrs=attr_row4),
-            'phone': forms.TextInput(attrs=attr_phone),
-            'first_name': forms.TextInput(attrs=attr_user_info),
-            'last_name': forms.TextInput(attrs=attr_user_info),
-            'email': forms.EmailInput(attrs=attr_user_info),
+            'phone': forms.TextInput(attrs={"class": "disappear-if-user input-phone"}),
+            'first_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
+            'last_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
+            'email': forms.EmailInput(attrs={"class": "disappear-if-user"}),
         }
 
     def __init__(self, *args, **kwargs):
