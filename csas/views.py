@@ -1,8 +1,161 @@
 from django.shortcuts import render
 
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
+from django_filters.views import FilterView
+
 from django.urls import reverse_lazy
-from . import models, forms
+from . import models, forms, filters
+from django.utils.translation import gettext_lazy as _
+
+
+# Extend this class to add a new list view
+class ListCommon(FilterView):
+    # default template to use to create a filter view
+    template_name = 'csas/csas_filter.html'
+
+    # title to display on the list page
+    title = None
+
+    # key used for creating default create, update and details URLs in the get_context_data method
+    # The csas/csas_list.html template expects url 'labels' to follow the format of create_[key],
+    # update_[key] and details_[key]
+    key = None
+
+    # fields to be used as columns to display an object in the filter view table
+    fields = []
+
+    # URL to use to create a new object to be added to the filter view
+    create_url = None
+
+    # URL to use for the details button element in the filter view's list
+    details_url = None
+
+    # URL to use for the update button element in the filter view's list
+    update_url = None
+
+    # The height of the popup dialog used to display the creation/update form
+    # if not set by the extending class the default popup height will be used
+    creation_form_height = None
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+
+        context['fields'] = self.fields
+
+        if self.title:
+            context['title'] = self.title
+
+        context['create_url'] = self.create_url if self.create_url else "csas:create_{}".format(self.key)
+        context['details_url'] = self.details_url if self.details_url else "csas:details_{}".format(self.key)
+        context['update_url'] = self.update_url if self.update_url else "csas:update_{}".format(self.key)
+
+        # When you eventually get to requiring authentication, this will be needed
+        # context['auth'] = self.request.user.is_authenticated and \
+        #                   self.request.user.groups.filter(name='whalesdb_admin').exists()
+        context['auth'] = True
+
+        if self.creation_form_height:
+            context['height'] = self.creation_form_height
+
+        return context
+
+
+# The Create Common class is a quick way to create an entry form. define a new class that extends it
+# provide a title, model and form_class and away you go.
+#
+# Create Common uses the _entry_form.html template to display common forms in a popup dialog intended
+# to be attached to some "add new" button.
+#
+# class CreateCommon(UserPassesTestMixin, CreateView):
+class CreateCommon(CreateView):
+    # this is where the user should be redirected if they're not logged in
+    login_url = '/accounts/login_required/'
+
+    # default template to use to create an update
+    template_name = 'csas/_entry_form.html'
+
+    # title to display on the CreateView page
+    title = None
+
+    # create views are all intended to be pop out windows so upon success close the window
+    success_url = reverse_lazy("csas:close_me")
+
+    # This will be needed when you eventually get to requiring authentication
+    # def test_func(self):
+    #     return self.request.user.groups.filter(name='whalesdb_admin').exists()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.title:
+            context["title"] = self.title
+
+        return context
+
+
+# The Update Common class is a quick way to create an entry form to edit existing objects.
+# Define a new class that extends it provide a title, model and form_class and away you go.
+#
+# Virtually the same as the Create Common class, the Update Common class uses the _entry_form.html
+# template to display common forms in a popup dialog intended to be attached to some "update" button.
+#
+# class UpdateCommon(UserPassesTestMixin, UpdateView):
+class UpdateCommon(UpdateView):
+    # this is where the user should be redirected if they're not logged in
+    login_url = '/accounts/login_required/'
+
+    # default template to use to create an update
+    template_name = 'csas/_entry_form.html'
+
+    # title to display on the CreateView page
+    title = None
+
+    # update views are all intended to be pop out windows so upon success close the window
+    success_url = reverse_lazy("csas:close_me")
+
+    # this function overrides UserPassesTestMixin.test_func() to determine if
+    # the user should have access to this content, if the user is logged in
+    # def test_func(self):
+    #     return self.request.user.groups.filter(name='whalesdb_admin').exists()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.title:
+            context["title"] = self.title
+
+        return context
+
+
+class DetailsCommon(DetailView):
+    # default template to use to create a details view
+    template_name = "csas/csas_details.html"
+
+    # title to display on the list page
+    title = None
+
+    # key used for creating default list and update URLs in the get_context_data method
+    key = None
+
+    # URL linking the details page back to the proper list
+    list_url = None
+    update_url = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.title:
+            context['title'] = self.title
+
+        if self.fields:
+            context['fields'] = self.fields
+
+        # if you don't provide specific list and update urls by setting list_url and/or update_url
+        # in the extending class, then Common Details will use the provided key to create the url for you
+        context['list_url'] = self.list_url if self.list_url else "csas:list_{}".format(self.key)
+        context['update_url'] = self.update_url if self.update_url else "csas:update_{}".format(self.key)
+
+        return context
 
 
 class CloserTemplateView(TemplateView):
@@ -14,12 +167,58 @@ class IndexTemplateView(TemplateView):
     template_name = 'csas/index.html'
 
 
-class ContactsTemplateView(CreateView):
-    template_name = 'csas/contacts.html'
+# ################################################################################# #
+# Use these contact forms as examples for creating other Entry forms                #
+#                                                                                   #
+# All you have to do to create new entry forms is extend                            #
+# the appropriate xxxCommon class, provide the few necessary fields                 #
+# ################################################################################# #
+class ContactsEntry(CreateCommon):
+    # The title to use on the Creation form
+    title = _("Contact Entry")
+    # The model Django uses to retrieve the object(s) used on the page
     model = models.ConContact
+    # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.ContactForm
 
-#    form_class = forms.ContactForm
+
+class ContactsUpdate(UpdateCommon):
+    # The title to use on the Update form
+    title = _("Update Contact")
+    # The model Django uses to retrieve the object(s) used on the page
+    model = models.ConContact
+    # This is what controls what fields and what widgets for what fields should be used on the entry form
+    form_class = forms.ContactForm
+
+
+class ContactsList(ListCommon):
+    # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
+    key = 'con'
+    # The model Django uses to retrieve the object(s) used on the page
+    model = models.ConContact
+    # filter class used to filter the table. This is where you make changes to specify what fields to filter
+    # on and how those fields should be laid out or work, like inclusive vs. partial text searching
+    filterset_class = filters.ContactFilter
+    # fields used in the table on the filter page.
+    fields = ['last_name', 'first_name', 'affiliation', 'job_title', 'language', 'contact_type']
+    # title to display on the Filter page
+    title = _("Contact List")
+
+
+class ContactDetails(DetailsCommon):
+    # key used to create default urls. Without it you'll need to specify a list_url and update_url
+    key = "con"
+    # model Django uses to get the object being displayed on the details page
+    model = models.ConContact
+    # title to be displayed on the details page
+    title = _("Contact Details")
+    # fields to be displayed on the details page
+    fields = ['honorific', 'first_name', 'last_name', 'affiliation', 'job_title', 'language', 'contact_type',
+              'notification_preference', 'phone', 'email', 'region', 'section', 'role', 'expertise', 'cc_grad', 'notes']
+
+# #################################################### #
+#               End of Contact Examples                #
+# #################################################### #
 
 
 class MeetingsTemplateView(CreateView):
