@@ -153,8 +153,8 @@ class Status(models.Model):
 
 
 class Conference(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
     is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "does attendance to this require ADM approval?"))
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location (city, province, country)"))
