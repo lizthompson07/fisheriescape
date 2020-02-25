@@ -103,6 +103,17 @@ class SampleDetailView(GraisAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = settings.GOOGLE_API_KEY
+        context["field_list"] = [
+            'station',
+            'date_deployed',
+            'date_retrieved',
+            'weeks_deployed|Weeks deployed',
+            'samplers',
+            'sample_type',
+            'last_modified',
+            'last_modified_by',
+        ]
+
         sampler_field_list = [
             'first_name',
             'last_name',
@@ -1171,7 +1182,7 @@ class TrapDetailView(GraisAccessRequiredMixin, DetailView, FormView):
         context = super().get_context_data(**kwargs)
         context['google_api_key'] = settings.GOOGLE_API_KEY
         context["field_list"] = [
-            'sample',
+            # 'sample',
             'trap_number',
             'trap_type',
             'bait_type',
