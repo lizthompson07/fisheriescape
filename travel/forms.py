@@ -70,7 +70,6 @@ class TripRequestForm(forms.ModelForm):
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
-            'section': _("DFO section under which this request is being made"),
         }
 
         widgets = {
@@ -90,22 +89,22 @@ class TripRequestForm(forms.ModelForm):
             # non-group trip request fields
 
             # user fields
-            'user': forms.Select(attrs=chosen_js),
+            'is_public_servant': forms.Select(attrs={"class": "not-a-group-field disappear-if-user"}, choices=YES_NO_CHOICES),
+            'user': forms.Select(attrs={"class": "chosen-select-contains"}),
             'first_name': forms.TextInput(attrs={"class": "not-a-group-field disappear-if-user"}),
             'last_name': forms.TextInput(attrs={"class": "not-a-group-field disappear-if-user"}),
             'section': forms.Select(attrs=chosen_js),
             'email': forms.EmailInput(attrs={"class": "not-a-group-field disappear-if-user"}),
             'address': forms.TextInput(attrs={"class": "not-a-group-field"}),
             'phone': forms.TextInput(attrs={"class": "not-a-group-field input-phone"}),
-            'is_public_servant': forms.Select(attrs={"class": "not-a-group-field disappear-if-user"}, choices=YES_NO_CHOICES),
+            'company_name': forms.TextInput(attrs={"class": "not-a-group-field disappear-if-user hide-if-public-servant"}),
+            'is_research_scientist': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}, choices=YES_NO_CHOICES),
 
             'start_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
             'end_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
-            'is_research_scientist': forms.Select(attrs={"class": "not-a-group-field"}, choices=YES_NO_CHOICES),
-            'company_name': forms.TextInput(attrs={"class": "not-a-group-field"}),
             'departure_location': forms.TextInput(attrs={"class": "not-a-group-field"}),
             'role': forms.Select(attrs={"class": "not-a-group-field"}),
-            'region': forms.Select(attrs={"class": "not-a-group-field"}),
+            'region': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}),
             'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field"}),
             'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field"}),
         }
