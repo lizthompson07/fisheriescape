@@ -61,8 +61,6 @@
             {% bootstrap_form_errors form %}
 
 
-
-
             {# Fields without a label; Will serve as a catch all but also to bring in hidden fields #}
             {% for field in form %}
                 {% if field.field.group == 0 %}
@@ -119,8 +117,6 @@
             </div>
 
 
-
-
             <div class="container center-col">
                 {% buttons %}
                     {% if object %}
@@ -146,39 +142,73 @@
 
         function refreshUserInfo() {
             myId = $("#id_user").val();
-
+            // no ID provided
             if (myId == "") {
                 $("#id_first_name").val("");
                 $("#id_last_name").val("");
                 $("#id_email").val("");
+
+                $("#id_first_name").prop("required", true);
+                $("#id_last_name").prop("required", true);
+                $("#id_email").prop("required", true);
+
+
                 $(".disappear-if-user").removeClass("gone");
             } else {
                 $(".disappear-if-user").addClass("gone");
+                $("#id_is_public_servant").val("True");
+                $("#id_company_name").val("");
                 $("#id_first_name").val(userObj[myId]["first_name"]);
                 $("#id_last_name").val(userObj[myId]["last_name"]);
                 $("#id_email").val(userObj[myId]["email"]);
+
+                $("#id_first_name").prop("required", false);
+                $("#id_last_name").prop("required", false);
+                $("#id_email").prop("required", false);
+            }
+
+            if ($("#id_is_public_servant").val() == "True") {
+                $("#id_dfo_region").removeClass("gone");
+            } else {
+                $("#id_dfo_region").addClass("gone");
+            }
+
+        }
+
+        function refreshPublicServantFields() {
+            if ($("#id_is_public_servant").val() == "False") {
+                $(".hide-if-public-servant").removeClass("gone");
+                $(".hide-if-not-public-servant").addClass("gone");
+            } else {
+                $(".hide-if-public-servant").addClass("gone");
+                $(".hide-if-not-public-servant").removeClass("gone");
             }
         }
 
 
+        $("#id_is_public_servant").change(function () {
+            refreshPublicServantFields();
+        });
+
         function refreshClassHideMe() {
-
-
-
+            // not a group request
             if ($("#id_is_group_request").val() == "False") {
+                $("#id_user").prop("required", false)
                 $("#group2-text-h2").html("{% trans "Traveller Information" %}");
                 $("#request-type").html("{% trans "Individual" %}");
                 $(".not-a-group-field").removeClass("gone");
                 $(".show-me-when-group-request").addClass("gone");
             } else {
+                $("#id_user").prop("required", true)
                 $("#group2-text-h2").text("{% trans "Requester Information" %}");
                 $("#request-type").html("{% trans "Group" %}");
                 $(".not-a-group-field").addClass("gone");
                 $(".show-me-when-group-request").removeClass("gone");
             }
-
             refreshUserInfo();
         }
+
+
 
         $("#id_user").change(function () {
             refreshUserInfo();
@@ -201,8 +231,11 @@
             refreshClassHideMe();
         });
 
+
+
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
+            refreshPublicServantFields();
             refreshUserInfo();
             refreshClassHideMe();
             // do not make these fields required, otherwise we will not see the form errors if omitted
@@ -216,12 +249,12 @@
         });
 
         $("#predefined-addresses").change(function () {
-            $myInput= $(this);
+            $myInput = $(this);
             $("#id_address").val($myInput.val());
         });
 
         {% if object %}
-            $(".is_group_request_container").addClass("gone");
+            $("#group_request_container").addClass("gone");
         {% endif %}
 
     </script>

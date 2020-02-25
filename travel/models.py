@@ -175,7 +175,6 @@ class Conference(models.Model):
     verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by")
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
 
-
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
@@ -389,21 +388,21 @@ class TripRequest(models.Model):
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trip_requests",
                              verbose_name=_("DM Apps user"))
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"), related_name="trip_requests")
+    is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Traveller belongs to which DFO region"),
+                               related_name="trip_requests",
+                               null=True, blank=True)
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
+                                verbose_name=_("under which DFO section is this request being made"), related_name="trip_requests")
+    is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
+                                                verbose_name=_("Is the traveller a research scientist (RES)?"))
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     address = models.CharField(max_length=1000, verbose_name=_("address"),
                                blank=True, null=True)
     phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
     email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
-    is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
-    is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
-                                                verbose_name=_("Is the traveller a research scientist (RES)?"))
     company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"),
-                               related_name="trip_requests",
-                               null=True, blank=True)
-    # trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
 
     # Trip Details
     is_group_request = models.BooleanField(default=False,
