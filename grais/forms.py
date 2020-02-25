@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core import validators
+from django.forms import modelformset_factory
 from django.utils.safestring import mark_safe
 from lib.templatetags.custom_filters import nz
 
@@ -337,6 +338,7 @@ class CatchForm(forms.ModelForm):
         widgets = {
             'species': forms.HiddenInput(),
             'trap': forms.HiddenInput(),
+            # 'sex': forms.Select(attrs=chosen_js),
             # 'percent_coverage': forms.TextInput(attrs={'placeholder': "Value bewteen 0 and 1"}),
             'notes': forms.Textarea(attrs={"rows": "3", "placeholder": ""}),
             'last_modified_by': forms.HiddenInput(),
@@ -355,10 +357,16 @@ class CatchForm(forms.ModelForm):
                 del self.fields["count"]
 
 
+CatchFormSet = modelformset_factory(
+    model=models.Catch,
+    form=CatchForm,
+    extra=0,
+)
+
 
 class NewCatchForm(forms.Form):
     count = forms.IntegerField()
-    notes = forms.CharField(widget=forms.Textarea())
+    notes = forms.CharField(widget=forms.Textarea(), required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -368,4 +376,3 @@ class NewCatchForm(forms.Form):
         # if the species in not a bycatch spp, then remove the notes fields
         if my_species.green_crab_monitoring:
             del self.fields["notes"]
-
