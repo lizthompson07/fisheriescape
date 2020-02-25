@@ -215,10 +215,9 @@
             $("form").submit();
         });
 
-        $(".address-btn").click(function (e) {
-            e.preventDefault();
-            $myBtn = $(this);
-            $("#id_address").val($myBtn.text());
+        $("#predefined-addresses").change(function () {
+            $myInput= $(this);
+            $("#id_address").val($myInput.val());
         });
 
         {% if object %}

@@ -239,6 +239,7 @@ class ChildTripRequestForm(forms.ModelForm):
             'role_of_participant',
             'exclude_from_travel_plan',
             'parent_request',
+            'multiple_conferences_rationale',
         ]
         widgets = {
             'user': forms.Select(attrs=chosen_js),
@@ -250,6 +251,7 @@ class ChildTripRequestForm(forms.ModelForm):
             'first_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
             'last_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
             'email': forms.EmailInput(attrs={"class": "disappear-if-user"}),
+            'exclude_from_travel_plan': forms.Select(choices=YES_NO_CHOICES),
         }
 
     def __init__(self, *args, **kwargs):
@@ -267,9 +269,53 @@ class ChildTripRequestForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
 
-        # if parent_request.reason_id != 2:
-        #     del self.fields['role']
-        #     del self.fields['role_of_participant']
+
+
+        # general trip infomation
+        field_list = [
+            'start_date',
+            'end_date',
+            'departure_location',
+        'exclude_from_travel_plan',
+
+        ]
+        for field in field_list:
+            self.fields[field].group = 1
+
+        # traveller info
+        field_list = [
+            'user',
+            'first_name',
+            'last_name',
+            'address',
+            'phone',
+            'email',
+            'is_public_servant',
+            'is_research_scientist',
+            'company_name',
+            'region',
+        ]
+        for field in field_list:
+            self.fields[field].group = 2
+
+        # justification
+        field_list = [
+            'role',
+            'role_of_participant',
+            'multiple_conferences_rationale',
+        ]
+        for field in field_list:
+            self.fields[field].group = 3
+
+        # are there any forgotten fields?
+        for field in self.fields:
+            try:
+                self.fields[field].group
+            except AttributeError:
+                print(f'Adding label: "Unspecified" to field "{field}".')
+                self.fields[field].group = 0
+
+
 
 
 class TripForm(forms.ModelForm):
