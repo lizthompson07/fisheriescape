@@ -945,18 +945,18 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
     filterset_class = filters.TripFilter
     template_name = 'travel/trip_list.html'
 
-    def get_filterset_kwargs(self, filterset_class):
-        kwargs = super().get_filterset_kwargs(filterset_class)
-        if kwargs["data"] is None:
-            kwargs["data"] = {"fiscal_year": fiscal_year(next=False, sap_style=True)}
-        return kwargs
+    # def get_filterset_kwargs(self, filterset_class):
+    #     kwargs = super().get_filterset_kwargs(filterset_class)
+    #     if kwargs["data"] is None:
+    #         kwargs["data"] = {"fiscal_year": fiscal_year(next=False, sap_style=True)}
+    #     return kwargs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Conference.objects.first()
         context["field_list"] = [
             'fiscal_year',
-            'tname|{}'.format("Name"),
+            'tname|{}'.format("Trip title"),
             'location|{}'.format(_("location")),
             'dates|{}'.format(_("dates")),
             'number_of_days|{}'.format(_("length (days)")),
