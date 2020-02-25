@@ -34,7 +34,6 @@ def in_grais_admin_group(user):
 
 class GraisAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
-
     def test_func(self):
         return in_grais_group(self.request.user)
 
@@ -46,7 +45,6 @@ class GraisAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class GraisAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
 
     def test_func(self):
         return in_grais_admin_group(self.request.user)
@@ -388,8 +386,6 @@ class SpeciesListView(GraisAccessRequiredMixin, FilterView):
             'Has occurred in db?',
         ]
         return context
-
-
 
 
 class SpeciesDetailView(GraisAccessRequiredMixin, DetailView):
@@ -1022,8 +1018,8 @@ class GCSampleListView(GraisAccessRequiredMixin, FilterView):
         context["field_list"] = [
             'season',
             'site',
-            'traps_set',
-            'traps_fished',
+            'traps_set|Traps set',
+            'traps_fished|Traps fished',
         ]
         return context
 
@@ -1166,8 +1162,9 @@ class TrapCreateView(GraisAdminRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse_lazy("grais:trap_detail", kwargs={"pk": object.id}))
 
 
-class TrapDetailView(GraisAccessRequiredMixin, DetailView):
+class TrapDetailView(GraisAccessRequiredMixin, DetailView, FormView):
     model = models.Trap
+    form_class = forms.TrapSpeciesForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1185,23 +1182,22 @@ class TrapDetailView(GraisAccessRequiredMixin, DetailView):
             'total_green_crab_wt_kg',
         ]
 
+        context["crab_field_list"] = [
+            'species',
+            'width',
+            'sex',
+            'carapace_color',
+            'abdomen_color',
+            'egg_color',
+            'notes',
+        ]
+        context["bycatch_field_list"] = [
+            'species',
+            'count',
+            'notes',
+        ]
+        context["random_catch_object"] = models.Catch.objects.first
         # get a list of species
-        species_list = []
-        for obj in models.Species.objects.all():
-            if obj.green_crab_monitoring:
-                url = reverse("grais:crab_new_pop", kwargs={"trap": self.object.id, "species": obj.id})
-            else:
-                url = reverse("grais:bycatch_new_pop", kwargs={"trap": self.object.id, "species": obj.id})
-
-            html_insert = '<a class="add-btn btn btn-outline-dark" href="#" target-url="{}"> <img src="{}" alt=""></a><span style="margin-left: 10px;">{} / <em>{}</em> / {}</span>'.format(
-                url,
-                static("admin/img/icon-addlink.svg"),
-                obj.common_name,
-                obj.scientific_name,
-                obj.abbrev
-            )
-            species_list.append(html_insert)
-        context['species_list'] = species_list
 
         return context
 
@@ -1230,38 +1226,60 @@ class TrapDeleteView(GraisAdminRequiredMixin, DeleteView):
         return reverse_lazy('grais:gcsample_detail', kwargs={'pk': self.object.sample.id})
 
 
-# CRAB #
+# CATCH #
 #########
 
-class CrabCreateViewPopout(GraisAdminRequiredMixin, CreateView):
-    template_name = 'grais/crab_form_popout.html'
-    form_class = forms.CrabForm
-    model = models.Crab
+class CatchCreateViewPopout(GraisAdminRequiredMixin, FormView):
+    template_name = 'grais/catch_form_popout.html'
+    form_class = forms.NewCatchForm
+    model = models.Catch
 
     def get_initial(self):
         my_dict = {}
-        my_dict["trap"] = models.Trap.objects.get(pk=self.kwargs['trap'])
+        # my_dict["trap"] = models.Trap.objects.get(pk=self.kwargs['trap'])
         my_dict["species"] = models.Species.objects.get(pk=self.kwargs['species'])
-        my_dict["last_modified_by"] = self.request.user.id
+        # my_dict["last_modified_by"] = self.request.user.id
         return my_dict
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        trap = models.Trap.objects.get(id=self.kwargs['trap'])
-        species = models.Species.objects.get(id=self.kwargs['species'])
-        context['species'] = species
-        context['trap'] = trap
+        my_species = models.Species.objects.get(id=self.kwargs['species'])
+        my_trap = models.Trap.objects.get(id=self.kwargs['trap'])
+        context['species'] = my_species
+        context['trap'] = my_trap
         return context
 
     def form_valid(self, form):
-        self.object = form.save()
+        my_species = models.Species.objects.get(id=self.kwargs['species'])
+        my_trap = models.Trap.objects.get(id=self.kwargs['trap'])
+
+        # if the species is a bycatch species, save all the data as a catch instance
+        if not my_species.green_crab_monitoring:
+            if form.cleaned_data.get("count"):
+                models.Catch.objects.create(
+                    species=my_species,
+                    trap=my_trap,
+                    count=form.cleaned_data.get("count"),
+                    notes=form.cleaned_data.get("notes"),
+                    last_modified_by=self.request.user,
+                )
+        # if targeted species, lets create x number of blank entries
+        else:
+            for i in range(0, form.cleaned_data.get("count")):
+                print("creating catch")
+                models.Catch.objects.create(
+                    species=my_species,
+                    trap=my_trap,
+                    last_modified_by=self.request.user,
+                )
+
         return HttpResponseRedirect(reverse('grais:close_me'))
 
 
-class CrabUpdateViewPopout(GraisAdminRequiredMixin, UpdateView):
-    template_name = 'grais/crab_form_popout.html'
-    form_class = forms.CrabForm
-    model = models.Crab
+class CatchUpdateViewPopout(GraisAdminRequiredMixin, UpdateView):
+    template_name = 'grais/catch_form_popout.html'
+    form_class = forms.CatchForm
+    model = models.Catch
 
     def get_initial(self):
         return {'last_modified_by': self.request.user.id}
@@ -1277,65 +1295,66 @@ class CrabUpdateViewPopout(GraisAdminRequiredMixin, UpdateView):
 
 @login_required(login_url='/accounts/login/')
 @user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
-def crab_delete(request, pk):
-    crab = models.Crab.objects.get(pk=pk)
-    crab.delete()
-    messages.success(request, "The crab has been successfully removed from this trap.")
-    return HttpResponseRedirect(reverse_lazy("grais:trap_detail", kwargs={"pk": crab.trap.id}))
+def catch_delete(request, pk):
+    my_catch = models.Catch.objects.get(pk=pk)
+    my_catch.delete()
+    messages.success(request, "The catch item has been successfully removed from this trap.")
+    return HttpResponseRedirect(reverse_lazy("grais:trap_detail", kwargs={"pk": my_catch.trap.id}))
 
 
-# Bycatch #
-#########
-
-class BycatchCreateViewPopout(GraisAdminRequiredMixin, CreateView):
-    template_name = 'grais/crab_form_popout.html'
-    form_class = forms.BycatchForm
-    model = models.Bycatch
-
-    def get_initial(self):
-        my_dict = {}
-        my_dict["trap"] = models.Trap.objects.get(pk=self.kwargs['trap'])
-        my_dict["species"] = models.Species.objects.get(pk=self.kwargs['species'])
-        my_dict["last_modified_by"] = self.request.user.id
-        return my_dict
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        trap = models.Trap.objects.get(id=self.kwargs['trap'])
-        species = models.Species.objects.get(id=self.kwargs['species'])
-        context['species'] = species
-        context['trap'] = trap
-        return context
-
-    def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect(reverse('grais:close_me'))
-
-
-class BycatchUpdateViewPopout(GraisAdminRequiredMixin, CreateView):
-    template_name = 'grais/crab_form_popout.html'
-    form_class = forms.BycatchForm
-    model = models.Bycatch
-
-    def get_initial(self):
-        return {'last_modified_by': self.request.user.id}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def form_valid(self, form):
-        self.object = form.save()
-        return HttpResponseRedirect(reverse('grais:close_me'))
-
-
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
-def bycatch_delete(request, pk):
-    bycatch = models.Bycatch.objects.get(pk=pk)
-    bycatch.delete()
-    messages.success(request, "The bycatch has been successfully removed from this trap.")
-    return HttpResponseRedirect(reverse_lazy("grais:trap_detail", kwargs={"pk": bycatch.trap.id}))
+#
+# # Bycatch #
+# #########
+#
+# class BycatchCreateViewPopout(GraisAdminRequiredMixin, CreateView):
+#     template_name = 'grais/crab_form_popout.html'
+#     form_class = forms.BycatchForm
+#     model = models.Catch
+#
+#     def get_initial(self):
+#         my_dict = {}
+#         my_dict["trap"] = models.Trap.objects.get(pk=self.kwargs['trap'])
+#         my_dict["species"] = models.Species.objects.get(pk=self.kwargs['species'])
+#         my_dict["last_modified_by"] = self.request.user.id
+#         return my_dict
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         trap = models.Trap.objects.get(id=self.kwargs['trap'])
+#         species = models.Species.objects.get(id=self.kwargs['species'])
+#         context['species'] = species
+#         context['trap'] = trap
+#         return context
+#
+#     def form_valid(self, form):
+#         self.object = form.save()
+#         return HttpResponseRedirect(reverse('grais:close_me'))
+#
+#
+# class BycatchUpdateViewPopout(GraisAdminRequiredMixin, CreateView):
+#     template_name = 'grais/crab_form_popout.html'
+#     form_class = forms.BycatchForm
+#     model = models.Catch
+#
+#     def get_initial(self):
+#         return {'last_modified_by': self.request.user.id}
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         return context
+#
+#     def form_valid(self, form):
+#         self.object = form.save()
+#         return HttpResponseRedirect(reverse('grais:close_me'))
+#
+#
+# @login_required(login_url='/accounts/login/')
+# @user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
+# def bycatch_delete(request, pk):
+#     bycatch = models.Catch.objects.get(pk=pk)
+#     bycatch.delete()
+#     messages.success(request, "The bycatch has been successfully removed from this trap.")
+#     return HttpResponseRedirect(reverse_lazy("grais:trap_detail", kwargs={"pk": bycatch.trap.id}))
 
 
 # REPORTS #
