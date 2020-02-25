@@ -129,10 +129,10 @@ class MctContactType(models.Model):
 
 class LocLocation(models.Model):
     mct_id = models.AutoField(primary_key=True)
-    # name = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
 
     def __str__(self):
-        return "{}".format(self.mct_id)
+        return "{}".format(self.name)
 
 # following several classes should be shared_models like Region, but we don't have them, so we define them here now,
 # they will be removed late
