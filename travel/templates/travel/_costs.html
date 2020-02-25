@@ -5,7 +5,7 @@
 
 {% if not triprequest.is_group_request %}
     <div class="card mb-2">
-        <h2 class="card-header text-white bg-dark">
+        <h3 class="card-header bg-outline-dark">
             {% trans "DFO Costs" %}
             <div class="neighbours mb-3">
                 {% with help_text_dict|lookup:"costs_header" as help_text %}
@@ -15,7 +15,7 @@
                          data-content="{{ help_text }}">
                 {% endwith %}
             </div>
-        </h2>
+        </h3>
         <div class="card-body">
             <div class="card-text">
                 <p>
@@ -83,11 +83,12 @@
                         </tbody>
                     </table>
                 {% endif %}
-                <br>
-                <br>
+
             </div>
         </div>
     </div>
+    <br>
+    <br>
 {% endif %}
 
 
