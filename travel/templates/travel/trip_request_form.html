@@ -144,27 +144,17 @@
             myId = $("#id_user").val();
             // no ID provided
             if (myId == "") {
-                $("#id_first_name").val("");
-                $("#id_last_name").val("");
-                $("#id_email").val("");
-
-                $("#id_first_name").prop("required", true);
-                $("#id_last_name").prop("required", true);
-                $("#id_email").prop("required", true);
-
-
+                $("#id_first_name").val("").prop("required", true);
+                $("#id_last_name").val("").prop("required", true);
+                $("#id_email").val("").prop("required", true);
                 $(".disappear-if-user").removeClass("gone");
             } else {
                 $(".disappear-if-user").addClass("gone");
                 $("#id_is_public_servant").val("True");
                 $("#id_company_name").val("");
-                $("#id_first_name").val(userObj[myId]["first_name"]);
-                $("#id_last_name").val(userObj[myId]["last_name"]);
-                $("#id_email").val(userObj[myId]["email"]);
-
-                $("#id_first_name").prop("required", false);
-                $("#id_last_name").prop("required", false);
-                $("#id_email").prop("required", false);
+                $("#id_first_name").val(userObj[myId]["first_name"]).prop("required", false);
+                $("#id_last_name").val(userObj[myId]["last_name"]).prop("required", false);
+                $("#id_email").val(userObj[myId]["email"]).prop("required", false);
             }
 
             if ($("#id_is_public_servant").val() == "True") {
@@ -193,13 +183,13 @@
         function refreshClassHideMe() {
             // not a group request
             if ($("#id_is_group_request").val() == "False") {
-                $("#id_user").prop("required", false)
+                $("#id_user").prop("required", false);
                 $("#group2-text-h2").html("{% trans "Traveller Information" %}");
                 $("#request-type").html("{% trans "Individual" %}");
                 $(".not-a-group-field").removeClass("gone");
                 $(".show-me-when-group-request").addClass("gone");
             } else {
-                $("#id_user").prop("required", true)
+                $("#id_user").prop("required", true);
                 $("#group2-text-h2").text("{% trans "Requester Information" %}");
                 $("#request-type").html("{% trans "Group" %}");
                 $(".not-a-group-field").addClass("gone");
