@@ -1,0 +1,73 @@
+{% extends "csas/csas_base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% bootstrap_css %}
+
+{% block title %}
+    {% trans title %}
+{% endblock title %}
+
+{% block body %}
+
+<div class="container mt-1" >
+    <h2>{% trans title %}</h2>
+    <div>
+        <form class="form" action="." method="get" id="filter-form" style="width: 90%; font-size: small">
+            <div class="row">
+
+                {% for field in filter.form %}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <div class="btn-group">
+                        <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                        <a href="." class="btn btn-success btn-sm">Clear</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {# if the user is authenticated and has permissions show the add button #}
+    {% if auth %}
+    <div class="row">
+        <div class="col-1">
+            <a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:create_url %}','popoutWindow', {% if height %} height={{height}} {% endif %})" title="{% trans 'Add' %}">+</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="container mt-1 nl-n1">
+        <div class="row">
+            <table class="table">
+                <thead>
+                <tr>
+                    {% for field in fields %}
+                    <th>{% get_verbose_label filter.qs.first field %}</th>
+                    {% endfor %}
+                    <th></th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for obj in filter.qs %}
+                        <tr>
+                        {% for field in fields %}
+                        <td>{% get_field_value obj field %}</td>
+                        {% endfor %}
+                            <td><a class="btn btn-primary btn-sm" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a></td>
+                            <td><a class="btn btn-primary btn-sm" href="#" onclick="return popitup('{% url ''|add:update_url obj.pk %}','popoutWindow', {% if height %} height={{height}} {% endif %})" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock body %}
