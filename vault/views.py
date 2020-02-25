@@ -96,7 +96,8 @@ class SpeciesUpdateView(VaultAccessRequired, UpdateView):
     form_class = forms.SpeciesForm
 
     def form_valid(self, form):
-        messages.success(self.request, _("Species record successfully updated for : {}".format(self.object)))
+        my_object = form.save()
+        messages.success(self.request, _(f"Species record successfully updated for : {my_object}"))
         return super().form_valid(form)
 
 
@@ -105,7 +106,8 @@ class SpeciesCreateView(VaultAccessRequired, CreateView):
     form_class = forms.SpeciesForm
 
     def form_valid(self, form):
-        messages.success(self.request, _("Species record successfully created for : {}".format(self.object)))
+        my_object=form.save()
+        messages.success(self.request, _(f"Species record successfully created for : {my_object}"))
         return super().form_valid(form)
 
 class SpeciesDeleteView(VaultAccessRequired, DeleteView):
@@ -169,7 +171,8 @@ class ObservationPlatformUpdateView(VaultAccessRequired, UpdateView):
     form_class = forms.ObservationPlatformForm
 
     def form_valid(self, form):
-        messages.success(self.request, _("ObservationPlatform record successfully updated for : {}".format(self.object)))
+        my_object = form.save()
+        messages.success(self.request, _(f"ObservationPlatform record successfully updated for : {my_object}"))
         return super().form_valid(form)
 
 
@@ -178,7 +181,8 @@ class ObservationPlatformCreateView(VaultAccessRequired, CreateView):
     form_class = forms.ObservationPlatformForm
 
     def form_valid(self, form):
-        messages.success(self.request, _("ObservationPlatform record successfully created for : {}".format(self.object)))
+        my_object = form.save()
+        messages.success(self.request, _(f"ObservationPlatform record successfully created for : {my_object}"))
         return super().form_valid(form)
 
 
@@ -238,7 +242,8 @@ class InstrumentUpdateView(VaultAccessRequired, UpdateView):
     form_class = forms.InstrumentForm
 
     def form_valid(self, form):
-        messages.success(self.request, _("Instrument record successfully updated for : {}".format(self.object)))
+        my_object = form.save()
+        messages.success(self.request, _(f"Instrument record successfully updated for : {my_object}"))
         return super().form_valid(form)
 
 
@@ -247,7 +252,8 @@ class InstrumentCreateView(VaultAccessRequired, CreateView):
     form_class = forms.InstrumentForm
 
     def form_valid(self, form):
-        messages.success(self.request, _("Instrument record successfully created for : {}".format(self.object)))
+        my_object = form.save()
+        messages.success(self.request, _(f"Instrument record successfully created for : {my_object}"))
         return super().form_valid(form)
 
 class InstrumentDeleteView(VaultAccessRequired, DeleteView):
