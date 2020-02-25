@@ -221,6 +221,49 @@ class ContactDetails(DetailsCommon):
 # #################################################### #
 
 
+class MeetingEntry(CreateCommon):
+    # The title to use on the Creation form
+    title = _("Meeting Entry")
+    # The model Django uses to retrieve the object(s) used on the page
+    model = models.MetMeeting
+    # This is what controls what fields and what widgets for what fields should be used on the entry form
+    form_class = forms.MeetingForm
+
+
+class MeetingUpdate(UpdateCommon):
+    # The title to use on the Update form
+    title = _("Update Meeting")
+    # The model Django uses to retrieve the object(s) used on the page
+    model = models.MetMeeting
+    # This is what controls what fields and what widgets for what fields should be used on the entry form
+    form_class = forms.MeetingForm
+
+
+class MeetingList(ListCommon):
+    # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
+    key = 'met'
+    # The model Django uses to retrieve the object(s) used on the page
+    model = models.MetMeeting
+    # filter class used to filter the table. This is where you make changes to specify what fields to filter
+    # on and how those fields should be laid out or work, like inclusive vs. partial text searching
+    filterset_class = filters.MeetingFilter
+    # fields used in the table on the filter page.
+    fields = ['quarter', 'title_en', 'title_fr']
+    # title to display on the Filter page
+    title = _("Meeting List")
+
+
+class MeetingDetails(DetailsCommon):
+    # key used to create default urls. Without it you'll need to specify a list_url and update_url
+    key = "met"
+    # model Django uses to get the object being displayed on the details page
+    model = models.MetMeeting
+    # title to be displayed on the details page
+    title = _("Meeting Details")
+    # fields to be displayed on the details page
+    fields = []
+
+
 class MeetingsTemplateView(CreateView):
     template_name = 'csas/meetings.html'
     model = models.MetMeeting

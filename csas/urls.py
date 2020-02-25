@@ -11,6 +11,11 @@ urlpatterns = [
     path('contacts/update/<int:pk>', views.ContactsUpdate.as_view(), name="update_con"),
     path('contacts/details/<int:pk>', views.ContactDetails.as_view(), name="details_con"),
 
+    path('meeting/',     views.MeetingList.as_view(),  name="list_met"),
+    path('meeting/new/', views.MeetingEntry.as_view(), name="create_met"),
+    path('meeting/update/<int:pk>', views.MeetingUpdate.as_view(), name="update_met"),
+    path('meeting/details/<int:pk>', views.MeetingDetails.as_view(), name="details_met"),
+
     path('meetings/',     views.MeetingsTemplateView.as_view(),     name="meetings"),
     path('publications/', views.PublicationsTemplateView.as_view(), name="publications"),
     path('requests/',     views.RequestsTemplateView.as_view(),     name="requests"),

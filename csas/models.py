@@ -4,54 +4,42 @@ from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
 # ---------------------------------------------------------------------------------------
-# Create models for contacts
-class CohHonorific(models.Model):
+class Lookup(models.Model):
+    name_en = models.CharField(max_length=255, unique=True)
+    name_fr = models.CharField(max_length=255, unique=True)
+
+    description_en = models.TextField(null=True, blank=True)
+    description_fr = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return "{}/{}".format(self.name_en, self.name_fr)
+
+    class Meta:
+        abstract = True
+
+
+class CohHonorific(Lookup):
     coh_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=45, verbose_name="Honorific")
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
-class CotType(models.Model):
+class CotType(Lookup):
     cot_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=45)
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
-class LanLanguage(models.Model):
+class LanLanguage(Lookup):
     lan_id = models.AutoField(primary_key=True)    # should this be AutoField or fixed?
-    name = models.CharField(max_length=45)
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
-class NotNotificationPreference(models.Model):
+class NotNotificationPreference(Lookup):
     not_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=45)
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
-class RolRole(models.Model):
+class RolRole(Lookup):
     role_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=45)
-    description = models.CharField(max_length=45)
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
-class SecSector(models.Model):
+class SecSector(Lookup):
     sec_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=45)
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
 class ConContact(models.Model):
@@ -95,44 +83,25 @@ class MftMeetingFileType(models.Model):
         return "{}".format(self.name)
 
 
-class SttStatus(models.Model):
+class SttStatus(Lookup):
     stt_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=45, unique=True)
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
-class ScpScope(models.Model):
+class ScpScope(Lookup):
     scp_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=45, unique=True)
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
-class AptAdvisoryProcessType(models.Model):
+class AptAdvisoryProcessType(Lookup):
     apt_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
-class MctContactType(models.Model):
+class MctContactType(Lookup):
     mct_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return "{}".format(self.name)
 
 
-class LocLocation(models.Model):
+class LocLocation(Lookup):
     mct_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
 
-    def __str__(self):
-        return "{}".format(self.name)
 
 # following several classes should be shared_models like Region, but we don't have them, so we define them here now,
 # they will be removed late
@@ -171,14 +140,6 @@ class PsePublicationSeries(models.Model):
         return "{}".format(self.pse_id)
 
 
-class AdvisoryProcessType(models.Model):
-    apt_id = models.AutoField(primary_key=True)
-    # name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return "{}".format(self.apt_id)
-
-
 class PubPublicationDetails(models.Model):
     pub_id = models.AutoField(primary_key=True)
     series = models.ForeignKey(PsePublicationSeries, on_delete=models.DO_NOTHING)
@@ -195,22 +156,27 @@ class PubPublicationDetails(models.Model):
         return "{}".format(self.lead_author)
 
 
+class MeqQuarter(Lookup):
+    meq_id = models.AutoField(primary_key=True)
+
+
 class MetMeeting(models.Model):
     met_id = models.AutoField(primary_key=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    quarter = models.ForeignKey(MeqQuarter, on_delete=models.DO_NOTHING)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
     title_en = models.CharField(max_length=255)
     title_fr = models.CharField(max_length=255)
     scope = models.ForeignKey(ScpScope, on_delete=models.DO_NOTHING)
     status = models.ForeignKey(SttStatus, on_delete=models.DO_NOTHING)
-    chair_comments = models.TextField()
-    status_notes = models.TextField()
+    chair_comments = models.TextField(null=True, blank=True)
+    status_notes = models.TextField(null=True, blank=True)
     location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING)
-    lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
-    process_type = models.ForeignKey(AdvisoryProcessType, on_delete=models.DO_NOTHING)
+    lead_region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
+    process_type = models.ForeignKey(AptAdvisoryProcessType, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return "{}".format(self.title_en)
+        return "{}/{}".format(self.title_en, self.title_fr)
 
 
 # Is it wrong that file_en, file_fr point to the same foreign key?
