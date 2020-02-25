@@ -200,7 +200,7 @@ class ContactsList(ListCommon):
     # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.ContactFilter
     # fields used in the table on the filter page.
-    fields = ['last_name', 'first_name', 'affiliation', 'job_title', 'language', 'contact_type']
+    fields = ['last_name', 'first_name', 'affiliation', 'language', 'contact_type']
     # title to display on the Filter page
     title = _("Contact List")
 
