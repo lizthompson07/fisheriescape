@@ -9,6 +9,7 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import render
 from django.utils import timezone
 
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
@@ -1236,9 +1237,25 @@ class CatchCreateViewPopout(GraisAdminRequiredMixin, FormView):
 
     def get_initial(self):
         my_dict = {}
-        # my_dict["trap"] = models.Trap.objects.get(pk=self.kwargs['trap'])
-        my_dict["species"] = models.Species.objects.get(pk=self.kwargs['species'])
+        my_trap = models.Trap.objects.get(pk=self.kwargs['trap'])
+        my_species = models.Species.objects.get(pk=self.kwargs['species'])
+        my_dict["species"] = my_species
+        my_dict["trap"] = my_trap
         # my_dict["last_modified_by"] = self.request.user.id
+
+        # if this is a bycatch sp, let's look up the previous entry
+        if not my_species.green_crab_monitoring:
+            try:
+                my_catch = models.Catch.objects.get(
+                    species=my_species,
+                    trap=my_trap,
+                )
+            except models.Catch.DoesNotExist:
+                pass
+            else:
+                my_dict["notes"] = my_catch.notes
+                my_dict["count"] = my_catch.count
+
         return my_dict
 
     def get_context_data(self, **kwargs):
@@ -1256,13 +1273,15 @@ class CatchCreateViewPopout(GraisAdminRequiredMixin, FormView):
         # if the species is a bycatch species, save all the data as a catch instance
         if not my_species.green_crab_monitoring:
             if form.cleaned_data.get("count"):
-                models.Catch.objects.create(
+                my_catch, created = models.Catch.objects.get_or_create(
                     species=my_species,
                     trap=my_trap,
-                    count=form.cleaned_data.get("count"),
-                    notes=form.cleaned_data.get("notes"),
-                    last_modified_by=self.request.user,
                 )
+                my_catch.count = form.cleaned_data.get("count")
+                my_catch.notes = form.cleaned_data.get("notes")
+                my_catch.last_modified_by = self.request.user
+                my_catch.save()
+
         # if targeted species, lets create x number of blank entries
         else:
             for i in range(0, form.cleaned_data.get("count")):
@@ -1300,6 +1319,54 @@ def catch_delete(request, pk):
     my_catch.delete()
     messages.success(request, "The catch item has been successfully removed from this trap.")
     return HttpResponseRedirect(reverse_lazy("grais:trap_detail", kwargs={"pk": my_catch.trap.id}))
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_grais_admin_group, login_url='/accounts/denied/')
+def manage_catch(request, trap, type):
+    qs = models.Catch.objects.filter(trap_id=trap)
+    context = dict()
+    context["my_object"] = qs.first()
+    context["trap"] = qs.first().trap
+
+    if type == "invasive":
+        qs = qs.filter(species__invasive=True, species__green_crab_monitoring=True)
+        crab = True
+    elif type == "noninvasive":
+        qs = qs.filter(species__invasive=False, species__green_crab_monitoring=True)
+        crab = True
+    elif type == "bycatch":
+        qs = qs.filter(species__green_crab_monitoring=False)
+        crab = False
+
+    if crab:
+        context["field_list"] = [
+            'width',
+            'sex',
+            'carapace_color',
+            'abdomen_color',
+            'egg_color',
+            'notes',
+        ]
+    else:
+        context["field_list"] = [
+            'count',
+            'notes',
+        ]
+
+    if request.method == 'POST':
+        formset = forms.CatchFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse("grais:manage_catch", kwargs={"trap": trap, "type": type}))
+    else:
+        formset = forms.CatchFormSet(queryset=qs)
+
+    context['title'] = "Manage Catch"
+    context['formset'] = formset
+    return render(request, 'grais/manage_catch.html', context)
 
 
 #

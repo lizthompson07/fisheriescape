@@ -3,6 +3,7 @@
 {% load custom_filters %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load custom_tags %}
 
 <div class="my-form mb-4">
     <form method="post">
@@ -23,8 +24,11 @@
 </div>
 
 <div class="mb-4">
+    {% if not object.get_invasive_crabs.count %}
+        {% echo "disabled" as my_disabled_var_1 %}
+    {% endif %}
     <div class="float-right">
-        <a href="#" class="btn btn-sm btn-primary">Tabular Edit</a>
+        <a href="{% url 'grais:manage_catch' object.id "invasive" %}" class="btn btn-sm btn-primary {{ my_disabled_var_1 }}">Tabular Edit</a>
     </div>
 
     <h4>
@@ -61,7 +65,12 @@
 
 </div>
 <div class="mb-4">
-
+    {% if not object.get_noninvasive_crabs.count %}
+        {% echo "disabled" as my_disabled_var_2 %}
+    {% endif %}
+    <div class="float-right">
+        <a href="{% url 'grais:manage_catch' object.id "noninvasive" %}" class="btn btn-sm btn-primary {{ my_disabled_var_2 }}">Tabular Edit</a>
+    </div>
     <h4>
         <b style="padding-right: 1.1em">Non-invasive Crabs ({{ object.get_noninvasive_crabs.count }})</b>
     </h4>
@@ -95,6 +104,12 @@
     {% endif %}
 </div>
 <div class="mb-4">
+    {% if not object.get_bycatch.count %}
+        {% echo "disabled" as my_disabled_var_3 %}
+    {% endif %}
+    <div class="float-right">
+        <a href="{% url 'grais:manage_catch' object.id "bycatch" %}" class="btn btn-sm btn-primary {{ my_disabled_var_3 }}">Tabular Edit</a>
+    </div>
     <h4>
         <b style="padding-right: 1.1em">Bycatch ({{ object.get_bycatch.count }})</b>
     </h4>
@@ -129,3 +144,18 @@
 
 <br><br>
 
+<script type="application/javascript">
+        $(".catch-delete-me").click(function (e) {
+            e.stopImmediatePropagation()
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            while (userInput !== "n" && userInput !== "y") {
+                userInput = prompt("Are you sure you want to delete this species? \n\n Please respond with 'y' for yes and 'n' for no.").toLocaleLowerCase();
+
+            }
+            if (userInput === "y") {
+                document.location.href = $("#secrect-catch-delete-btn-" + objectId)[0].getAttribute('href');
+            }
+        });
+</script>

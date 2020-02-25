@@ -153,7 +153,7 @@ urlpatterns = [
     path('catch/<int:trap>/species/<int:species>/new/', views.CatchCreateViewPopout.as_view(), name="catch_new"),
     path('catch/<int:pk>/edit/', views.CatchUpdateViewPopout.as_view(), name="catch_edit"),
     path('catch/<int:pk>/delete/', views.catch_delete, name="catch_delete"),
-
+    path('trap/<int:trap>/manage-catch/type/<str:type>/', views.manage_catch, name="manage_catch"),
 
     # Reports #
     ###########
