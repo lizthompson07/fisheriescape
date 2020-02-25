@@ -17,7 +17,12 @@
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
-            $("#id_percent_coverage")[0].focus()
+            {% if object.is_bycatch or not object %}
+                $("#id_count").select();
+            {% else %}
+                $("#id_width").select();
+            {% endif %}
+
         });
     </script>
 
@@ -43,9 +48,7 @@
             {% csrf_token %}
             {% for field in form %}
                 {% bootstrap_field field placeholder="" %}
-
             {% endfor %}
-
 
             {% buttons %}
                 {% if object.id %}
