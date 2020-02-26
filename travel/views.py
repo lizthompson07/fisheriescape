@@ -264,15 +264,14 @@ class TripRequestListView(TravelAccessRequiredMixin, FilterView):
             'fiscal_year',
             'is_group_request',
             'status',
-            'section',
-            'first_name',
-            'last_name',
+            f'section|{_("DFO section")}',
+            f'requester_name|{_("Requester name")}',
             'trip.tname',
-            'destination',
-            'start_date',
-            'end_date',
-            'total_request_cost|{}'.format(_("Total request cost (DFO)")),
-
+            f'destination|{_("Destination")}',
+            f'start_date|{_("Departure date")}',
+            # f'end_date|{_("End")}',
+            # 'total_request_cost|{}'.format(_("Total request cost (DFO)")),
+            'processing_time|{}'.format(_("Processing time")),
         ]
         return context
 
