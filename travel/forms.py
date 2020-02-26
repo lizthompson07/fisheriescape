@@ -133,7 +133,7 @@ class TripRequestForm(forms.ModelForm):
         recommender_chocies.insert(0, tuple((None, "---")))
 
         section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(division__branch_id__in=[1, 3, ]).order_by("division__branch__region",
+                           shared_models.Section.objects.filter(division__branch_id__in=[1, 3, 9, ]).order_by("division__branch__region",
                                                                                                            "division__branch",
                                                                                                            "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
