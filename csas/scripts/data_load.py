@@ -27,8 +27,8 @@ load_lookup(CohHonorific, honorifics)
 # --> Ask Tana if languages can be represented with one letter. I know there is some indigenous languages to add as well
 # --> Till then language population is commented out
 # Load the language model
-languages = [['E', 'E (fr)'], ['F', 'F (fr)'],]
-# load_lookup(LanLanguage, languages)
+languages = [['English', 'anglaise'], ['French', 'françis'],]
+load_lookup(LanLanguage, languages)
 
 # Load the contact type model
 types = [['Government', 'Government (fr)'], ['Industry', 'Industry (fr)'], ['NGO', 'NGO (fr)'], ['Indigenous', 'Indigenous (fr)'], ['Consultant', 'Consultant (fr)'], ['Contractor', 'Contractor (fr)'],]
