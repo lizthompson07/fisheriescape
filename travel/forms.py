@@ -205,8 +205,6 @@ class TripRequestForm(forms.ModelForm):
                 self.fields[field].group = 0
 
 
-
-
 class TripRequestAdminNotesForm(forms.ModelForm):
     class Meta:
         model = models.TripRequest
@@ -268,14 +266,12 @@ class ChildTripRequestForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
 
-
-
         # general trip infomation
         field_list = [
             'start_date',
             'end_date',
             'departure_location',
-        'exclude_from_travel_plan',
+            'exclude_from_travel_plan',
 
         ]
         for field in field_list:
@@ -315,8 +311,6 @@ class ChildTripRequestForm(forms.ModelForm):
                 self.fields[field].group = 0
 
 
-
-
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
@@ -327,6 +321,25 @@ class TripForm(forms.ModelForm):
             'registration_deadline': forms.DateInput(attrs=attr_fp_date),
             'abstract_deadline': forms.DateInput(attrs=attr_fp_date),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+        abstract_deadline = cleaned_data.get("abstract_deadline")
+        registration_deadline = cleaned_data.get("registration_deadline")
+
+        if end_date < start_date:
+            raise forms.ValidationError(_('The start date of the trip must occur after the end date.'))
+
+        if abstract_deadline >= start_date:
+            raise forms.ValidationError(_('The abstract deadline of the trip (if present) must occur before the start date.'))
+
+        if registration_deadline >= start_date:
+            raise forms.ValidationError(_('The registration deadline of the trip (if present) must occur before the start date.'))
+
+        if abs((start_date - end_date).days) > 100:
+            raise forms.ValidationError(_('The length of this trip is unrealistic.'))
 
 
 class ReportSearchForm(forms.Form):

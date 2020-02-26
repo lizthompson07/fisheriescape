@@ -158,8 +158,8 @@ class Conference(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
     is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "does attendance to this require ADM approval?"))
-    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location (city, province, country)"))
-    lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is taking the lead?"),
+    location = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("location (city, province, country)"))
+    lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is the lead on this trip?"),
                              related_name="meeting_leads", blank=True, null=True)
     has_event_template = models.NullBooleanField(default=False, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
