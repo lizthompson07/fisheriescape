@@ -440,31 +440,7 @@ class TripRequest(models.Model):
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
     funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes"))
-
-    # costs
-    # air = models.FloatField(blank=True, null=True, verbose_name=_("air fare"))
-    # rail = models.FloatField(blank=True, null=True, verbose_name=_("rail"))
-    # rental_motor_vehicle = models.FloatField(blank=True, null=True, verbose_name=_("rental motor vehicles"))
-    # personal_motor_vehicle = models.FloatField(blank=True, null=True, verbose_name=_("personal motor vehicles"))
-    # taxi = models.FloatField(blank=True, null=True, verbose_name=_("taxi"))
-    # other_transport = models.FloatField(blank=True, null=True, verbose_name=_("other transport"))
-    # accommodations = models.FloatField(blank=True, null=True, verbose_name=_("accommodation"))
-    # # meals = models.FloatField(blank=True, null=True, verbose_name=_("meals"))
-    # no_breakfasts = models.IntegerField(blank=True, null=True, verbose_name=_("number of breakfasts"))
-    # breakfasts_rate = models.FloatField(blank=True, null=True, verbose_name=_("breakfast rate (CAD/day)"), default=20.35)
-    # breakfasts = models.FloatField(blank=True, null=True, verbose_name=_("breakfasts"))
-    # no_lunches = models.IntegerField(blank=True, null=True, verbose_name=_("number of lunches"))
-    # lunches_rate = models.FloatField(blank=True, null=True, verbose_name=_("lunch rate (CAD/day)"), default=20.60)
-    # lunches = models.FloatField(blank=True, null=True, verbose_name=_("lunches"))
-    # no_suppers = models.IntegerField(blank=True, null=True, verbose_name=_("number of suppers"))
-    # suppers_rate = models.FloatField(blank=True, null=True, verbose_name=_("supper rate (CAD/day)"), default=50.55)
-    # suppers = models.FloatField(blank=True, null=True, verbose_name=_("suppers"))
-    # no_incidentals = models.IntegerField(blank=True, null=True, verbose_name=_("number of incidentals"))
-    # incidentals_rate = models.FloatField(blank=True, null=True, verbose_name=_("incidental rate (CAD/day)"), default=17.30)
-    # incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidentals"))
-    # registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
-    # other = models.FloatField(blank=True, null=True, verbose_name=_("other"))
-    total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
+    # total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
     non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("estimated non-DFO costs (CAD)"))
     non_dfo_org = models.CharField(max_length=1000, verbose_name=_("full name(s) of organization paying non-DFO costs"), blank=True,
                                    null=True)
@@ -707,6 +683,25 @@ class TripRequest(models.Model):
     @property
     def recommenders(self):
         return self.reviewers.filter(role_id=2)
+
+    
+    @property
+    def processing_time(self):
+        # if draft
+        if self.status.id == 8 or not self.submitted:
+            return "---"
+        # if approved, denied
+        elif self.status.id in [10,11]:
+            return self.reviewers.filter(status_date__isnull=False).last().status_date - self.submitted
+        else:
+            return timezone.now() - self.submitted
+
+    @property
+    def requester_name(self):
+        if self.user:
+            return str(self.user)
+        else:
+            return f'{self.first_name} {self.last_name}'
 
 
 class TripRequestCost(models.Model):
