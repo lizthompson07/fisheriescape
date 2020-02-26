@@ -6,6 +6,7 @@ from django.contrib.auth.models import User as AuthUser
 from django.db import models
 from django.db.models import Q, Sum
 from django.dispatch import receiver
+from django.template.defaultfilters import pluralize
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -693,10 +694,10 @@ class TripRequest(models.Model):
         # if approved, denied
         elif self.status.id in [10,11]:
             my_var = self.reviewers.filter(status_date__isnull=False).last().status_date - self.submitted
-            my_var = f"{my_var.days} {_('days')}"
+            my_var = f"{my_var.days} {_('day')}{pluralize(my_var.days)}"
         else:
             my_var = timezone.now() - self.submitted
-            my_var = f"{my_var.days} {_('days')}"
+            my_var = f"{my_var.days} {_('day')}{pluralize(my_var.days)}"
         return my_var
 
     @property
