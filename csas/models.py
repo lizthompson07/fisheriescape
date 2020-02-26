@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
+from projects import models as project_models
+
 
 # ---------------------------------------------------------------------------------------
 class Lookup(models.Model):
@@ -27,7 +29,7 @@ class CotType(Lookup):
 
 
 class LanLanguage(Lookup):
-    lan_id = models.AutoField(primary_key=True)    # should this be AutoField or fixed?
+    lan_id = models.AutoField(primary_key=True)    # should this be AutoField or fixed? <- Good question, I don't know - Patrick
 
 
 class NotNotificationPreference(Lookup):
@@ -50,16 +52,16 @@ class ConContact(models.Model):
     affiliation = models.CharField(max_length=100)
     job_title = models.CharField(max_length=100)
     language = models.ForeignKey(LanLanguage, on_delete=models.DO_NOTHING)
-    contact_type = models.ForeignKey(CotType, on_delete=models.DO_NOTHING)    # should use IntegerField or ForeignKey
-    notification_preference = models.ForeignKey(NotNotificationPreference, models.DO_NOTHING)    # should use IntegerField or ForeignKey
+    contact_type = models.ForeignKey(CotType, on_delete=models.DO_NOTHING)
+    notification_preference = models.ForeignKey(NotNotificationPreference, models.DO_NOTHING)
     phone = models.CharField(max_length=12)
     email = models.CharField(max_length=255)
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
-    section = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING)    # should use IntegerField or ForeignKey
-    role = models.ForeignKey(RolRole, on_delete=models.DO_NOTHING)    # should use IntegerField or ForeignKey
+    section = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING)
+    role = models.ForeignKey(RolRole, on_delete=models.DO_NOTHING)
     expertise = models.CharField(max_length=100)
-    cc_grad = models.BooleanField()    # what is TINYINT
-    notes = models.TextField()   # what is MEDIUMTEXT
+    cc_grad = models.BooleanField()
+    notes = models.TextField()
 
     def __str__(self):
         return "{}".format(self.last_name)
@@ -103,29 +105,38 @@ class LocLocation(Lookup):
     mct_id = models.AutoField(primary_key=True)
 
 
-# following several classes should be shared_models like Region, but we don't have them, so we define them here now,
-# they will be removed late
-class FundingSource(models.Model):
-    fs_id = models.AutoField(primary_key=True)
-    # name = models.CharField(max_length=50)
+class MeqQuarter(Lookup):
+    meq_id = models.AutoField(primary_key=True)
+
+
+class MetMeeting(models.Model):
+    met_id = models.AutoField(primary_key=True)
+    quarter = models.ForeignKey(MeqQuarter, on_delete=models.DO_NOTHING)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    title_en = models.CharField(max_length=255)
+    title_fr = models.CharField(max_length=255)
+    scope = models.ForeignKey(ScpScope, on_delete=models.DO_NOTHING)
+    status = models.ForeignKey(SttStatus, on_delete=models.DO_NOTHING)
+    chair_comments = models.TextField(null=True, blank=True)
+    status_notes = models.TextField(null=True, blank=True)
+    location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING)
+    lead_region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
+    process_type = models.ForeignKey(AptAdvisoryProcessType, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return "{}".format(self.fs_id)
+        return "{}/{}".format(self.title_en, self.title_fr)
 
 
-class OmCategory(models.Model):
-    omc_id = models.AutoField(primary_key=True)
-    # name = models.CharField(max_length=50)
-
-    def __str__(self):
-        return "{}".format(self.omc_id)
-
-
+# Yongcun: Delete this comment when you've read it.
+# 1) I removed the FundingSource and OmCategory classes.
+# 2) I imported the projects application model as project_models
+# 3) I updated OmCost so that it's linking to the project_modes.FundingSource and OmCategory
 class OmCost(models.Model):
     om_id = models.AutoField(primary_key=True)
     amount = models.DecimalField(decimal_places=10, max_digits=20)
-    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING)
-    category = models.ForeignKey(OmCategory, on_delete=models.DO_NOTHING)
+    funding_source = models.ForeignKey(project_models.FundingSource, on_delete=models.DO_NOTHING)
+    category = models.ForeignKey(project_models.OmCategory, on_delete=models.DO_NOTHING)
     description = models.TextField()
 
     def __str__(self):
@@ -154,29 +165,6 @@ class PubPublicationDetails(models.Model):
 
     def __str__(self):
         return "{}".format(self.lead_author)
-
-
-class MeqQuarter(Lookup):
-    meq_id = models.AutoField(primary_key=True)
-
-
-class MetMeeting(models.Model):
-    met_id = models.AutoField(primary_key=True)
-    quarter = models.ForeignKey(MeqQuarter, on_delete=models.DO_NOTHING)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
-    title_en = models.CharField(max_length=255)
-    title_fr = models.CharField(max_length=255)
-    scope = models.ForeignKey(ScpScope, on_delete=models.DO_NOTHING)
-    status = models.ForeignKey(SttStatus, on_delete=models.DO_NOTHING)
-    chair_comments = models.TextField(null=True, blank=True)
-    status_notes = models.TextField(null=True, blank=True)
-    location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING)
-    lead_region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
-    process_type = models.ForeignKey(AptAdvisoryProcessType, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return "{}/{}".format(self.title_en, self.title_fr)
 
 
 # Is it wrong that file_en, file_fr point to the same foreign key?
