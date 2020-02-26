@@ -48,7 +48,6 @@ def get_reviewers(trip_request):
         try:
             # if the division head is the one creating the request, they should be skipped as a recommender
             if trip_request.user != trip_request.section.division.head:
-                print(123)
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.head, role_id=2, )
         except (IntegrityError, AttributeError):
             print("not adding division manager")
