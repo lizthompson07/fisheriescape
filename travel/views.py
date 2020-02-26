@@ -165,9 +165,11 @@ request_field_list = [
     'bta_attendees',
     'notes',
     # 'cost_table|{}'.format(_("DFO costs")),
-    'total_request_cost|{}'.format(_("Total cost (DFO)")),
+    f'total_request_cost|{_("Total cost (DFO)")}',
     'non_dfo_costs',
     'non_dfo_org',
+    'submitted',
+    f'processing_time|{_("Processing time")}',
 ]
 
 request_group_field_list = [
@@ -190,6 +192,8 @@ request_group_field_list = [
     'total_request_cost|{}'.format(_("Total cost (DFO)")),
     'non_dfo_costs',
     'non_dfo_org',
+    'submitted',
+    f'processing_time|{_("Processing time")}',
 ]
 
 request_child_field_list = [

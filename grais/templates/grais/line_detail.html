@@ -24,7 +24,7 @@
     </nav>
 
 
-    <div class="container">
+    <div class="container-fluid">
         <h1>{{ object }}</h1>
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'grais:line_edit' object.id %}">Edit</a>
@@ -33,7 +33,7 @@
 
 
         <div class="row">
-            <div class="col">
+            <div class="col-4">
                 <br><br>
                 {# Detail about the line #}
                 <p>
@@ -78,15 +78,13 @@
         {#  Surfaces #}
         <br><br>
 
-        <div class="row">
 
-            <div class="col">
-                {% include "grais/_line_surface_list.html" %}
-            </div>
-            <div class="col">
-                {% include "grais/_species_obs_list.html" %}
-            </div>
-
+        <div class="col-7">
+            {% include "grais/_line_surface_list.html" %}
+        </div>
+        <br>
+        <div class="col">
+            {% include "grais/_species_obs_list.html" %}
         </div>
 
 
@@ -103,7 +101,7 @@
                 {% for line in object.sample.lines.all %}
                     {% if line.latitude_n and line.longitude_w %}
                         {% if line == object %}
-                            ['{{line}} (CURRENT)', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "grais/yellow_MarkerL.png" %}'],
+                            ['{{line}} (CURRENT)', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "grais/green_MarkerL.png" %}'],
                         {% else %}
                             ['<a href="{% url 'grais:line_detail' line.id %}">{{line}}</a>', {{line.latitude_n}}, {{line.longitude_w}}, '{% static "grais/red_MarkerL.png" %}'],
                         {% endif %}

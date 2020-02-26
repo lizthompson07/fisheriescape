@@ -56,7 +56,12 @@
 
                     {% for field in field_list %}
                         <td>
-                            {% get_field_value sample field %}
+                            {% if "invasive" in field %}
+                                {% get_field_value sample field as my_val %}
+                                {{ my_val|yesno }}
+                            {% else %}
+                                {% get_field_value sample field %}
+                            {% endif %}
                         </td>
                     {% endfor %}
 

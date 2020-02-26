@@ -85,6 +85,7 @@ class SampleListView(GraisAccessRequiredMixin, FilterView):
             'date_retrieved',
             'sample_type',
             'weeks_deployed|Weeks deployed',
+            'has_invasive_spp|Has invasive species?',
 
         ]
         context["field_list"] = field_list
@@ -110,6 +111,7 @@ class SampleDetailView(GraisAccessRequiredMixin, DetailView):
             'weeks_deployed|Weeks deployed',
             'samplers',
             'sample_type',
+            'has_invasive_spp|Has invasive species?',
             'last_modified',
             'last_modified_by',
         ]
