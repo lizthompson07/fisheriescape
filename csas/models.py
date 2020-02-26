@@ -102,7 +102,7 @@ class MctContactType(Lookup):
 
 
 class LocLocation(Lookup):
-    mct_id = models.AutoField(primary_key=True)
+    loc_id = models.AutoField(primary_key=True)
 
 
 class MeqQuarter(Lookup):
@@ -136,7 +136,7 @@ class OmCost(models.Model):
     om_id = models.AutoField(primary_key=True)
     amount = models.DecimalField(decimal_places=10, max_digits=20)
     funding_source = models.ForeignKey(project_models.FundingSource, on_delete=models.DO_NOTHING)
-    category = models.ForeignKey(project_models.OmCategory, on_delete=models.DO_NOTHING)
+    # category = models.ForeignKey(project_models.OmCategory, on_delete=models.DO_NOTHING)
     description = models.TextField()
 
     def __str__(self):
