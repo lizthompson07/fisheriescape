@@ -75,7 +75,7 @@
                     {% elif "status" in field %}
                         <th style="width: 8%;" scope="col">{% get_verbose_label my_object field %}</th>
                     {% elif "trip" in field %}
-                        <th style="width: 20%;" scope="col">{% get_verbose_label my_object field %}</th>
+                        <th style="width: 20%;" scope="col">{% trans "Trip title" %}</th>
                     {% else %}
                         <th scope="col">{% get_verbose_label my_object field %}</th>
                     {% endif %}
