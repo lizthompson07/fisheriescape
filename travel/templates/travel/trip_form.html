@@ -43,7 +43,9 @@
 
         <form method="post" class="form">
             {% csrf_token %}
+            {% bootstrap_form_errors form %}
             {% for field in form %}
+
 
                 {% if field.name in help_text_dict and "_date" not in field.name %}
                     {% bootstrap_label field.label %}
