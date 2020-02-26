@@ -111,6 +111,8 @@ class MetadataFieldCategory(models.Model):
 
 
 class InstrumentType(models.Model):
+    mode = models.CharField(max_length=255, verbose_name=_("Mode"))
+    type = models.CharField(max_length=255, verbose_name=_("Mode type"))
     name = models.CharField(max_length=255, verbose_name=_("English name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
 
