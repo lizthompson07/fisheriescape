@@ -54,11 +54,8 @@ class ResourceFilter(django_filters.FilterSet):
 
 
 class PersonFilter(django_filters.FilterSet):
-    class Meta:
-        model = models.Person
-        fields = {
-            'full_name': ['icontains'],
-        }
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Name or email or person"), lookup_expr='icontains',
+                                            widget=forms.TextInput())
 
 
 class KeywordFilter(django_filters.FilterSet):
