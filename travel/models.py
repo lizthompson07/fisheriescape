@@ -689,12 +689,15 @@ class TripRequest(models.Model):
     def processing_time(self):
         # if draft
         if self.status.id == 8 or not self.submitted:
-            return "---"
+            my_var = "---"
         # if approved, denied
         elif self.status.id in [10,11]:
-            return self.reviewers.filter(status_date__isnull=False).last().status_date - self.submitted
+            my_var = self.reviewers.filter(status_date__isnull=False).last().status_date - self.submitted
+            my_var = f"{my_var.days} {_('days')}"
         else:
-            return timezone.now() - self.submitted
+            my_var = timezone.now() - self.submitted
+            my_var = f"{my_var.days} {_('days')}"
+        return my_var
 
     @property
     def requester_name(self):
