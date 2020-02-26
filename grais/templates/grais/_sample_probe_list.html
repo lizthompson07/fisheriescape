@@ -4,14 +4,16 @@
     <b style="padding-right: 1.1em">Probe Measurements</b>
     <a class="btn btn-sm btn-outline-primary" href="{% url 'grais:probe_measurement_new' object.id %}"> Add </a>
 </h4>
-<table class="table table-hover table-sm">
+<table class="table table-hover table-sm" style="width: 50%;">
     <thead class="full-table">
+    <th>#</th>
     <th>Date collected</th>
     <th>Probe type</th>
     </thead>
     <tbody>
     {% for obj in object.probe_data.all %}
         <tr href="{% url 'grais:probe_measurement_detail' obj.id %}">
+            <td>{{ forloop.counter}}</td>
             <td>{{ obj.time_date }}</td>
             <td>{{ obj.probe }}</td>
         </tr>
@@ -21,7 +23,3 @@
     {% endfor %}
     </tbody>
 </table>
-<p>
-    <b>TOTAL: {{ object.probe_data.count }}</b>
-</p>
-<br>
