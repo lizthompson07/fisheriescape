@@ -221,7 +221,7 @@ def signup(request):
             custom_send_mail(
                 html_message=message,
                 subject=mail_subject,
-                recipient_list=to_email,
+                recipient_list=[to_email,],
                 from_email=from_email,
             )
             return HttpResponse('Please confirm your email address to complete the registration')
