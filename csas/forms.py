@@ -2,6 +2,8 @@ from django import forms
 
 from . import models
 
+from . import custom_widgets
+
 
 class ContactForm(forms.ModelForm):
     class Meta:
@@ -19,10 +21,10 @@ class ContactForm(forms.ModelForm):
         # 4. iterate through the 'queryset' with for a in __returned queryset__
         # 5. Convert the iteration into a tuple with (a[0], a[0])
         # 6. save all the created tuples as an array with affilitations = [tuple]
-        affiliations = [(a[0], a[0],) for a in models.ConContact.objects.all().values_list('affiliation').distinct()]
+        affiliations = [a[0] for a in models.ConContact.objects.all().values_list('affiliation').distinct()]
 
         # pass the list of values to the select widget
-        self.fields['affiliation'].widget = forms.Select(choices=affiliations)
+        self.fields['affiliation'].widget = custom_widgets.SelectAdd(data_list=affiliations, name="affiliation-list")
 
 
 class MeetingForm(forms.ModelForm):
@@ -30,6 +32,7 @@ class MeetingForm(forms.ModelForm):
         model = models.MetMeeting
         exclude = []
         widgets = {
+            "program_contact": forms.Select(choices=models.ConContact.objects.all())
         }
 
 

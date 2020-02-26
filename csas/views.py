@@ -261,7 +261,9 @@ class MeetingDetails(DetailsCommon):
     # title to be displayed on the details page
     title = _("Meeting Details")
     # fields to be displayed on the details page
-    fields = []
+    fields = ['quarter', 'start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
+              'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
+              'csas_contact', ]
 
 
 class MeetingsTemplateView(CreateView):
