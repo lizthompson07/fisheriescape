@@ -405,11 +405,16 @@ class TripRequestUpdateView(CanModifyMixin, UpdateView):
     def form_valid(self, form):
         my_object = form.save()
 
+
         if my_object.parent_request:
             my_trip = my_object.parent_request.trip
         else:
             my_trip = my_object.trip
         utils.manage_trip_warning(my_trip)
+
+        # decide whether the reviewers should be reset
+        if form.cleaned_data.get("reset_reviewers"):
+            reset_reviewers(self.request, my_object.pk)
 
         if not my_object.parent_request:
             if form.cleaned_data.get("stay_on_page"):
@@ -418,6 +423,8 @@ class TripRequestUpdateView(CanModifyMixin, UpdateView):
                 return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id}))
         else:
             return HttpResponseRedirect(reverse("shared_models:close_me"))
+
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -902,7 +909,7 @@ def reset_reviewers(request, pk):
     my_obj = models.TripRequest.objects.get(pk=pk)
     if can_modify_request(request.user, pk):
         # This function should only ever be run if the TR is a draft
-        if my_obj.status == 4:
+        if my_obj.status.id == 8:
             # first remove any existing reviewers
             my_obj.reviewers.all().delete()
             # next, re-add the defaults...
@@ -922,7 +929,7 @@ def delete_reviewer(request, pk):
     my_obj = models.Reviewer.objects.get(pk=pk)
     if can_modify_request(request.user, my_obj.trip_request.id):
         # This function should only ever be run if the TR is unsubmitted
-        if my_obj.trip_request.status_id != 4:
+        if my_obj.trip_request.status_id != 8:
             messages.error(request, "This function can only be used when the trip request is still a draft")
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
         else:
@@ -939,7 +946,7 @@ def delete_reviewer(request, pk):
 def manage_reviewers(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
     if can_modify_request(request.user, my_trip_request.id):
-        if my_trip_request.status_id != 4:
+        if my_trip_request.status_id != 8:
             messages.error(request, "This function can only be used when the trip request is still a draft")
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
         else:

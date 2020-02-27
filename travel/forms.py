@@ -195,7 +195,9 @@ class TripRequestForm(forms.ModelForm):
                 print(f'Adding label: "Unspecified" to field "{field}".')
                 self.fields[field].group = 0
 
-
+        # if there is no instance of TR, remove the field for reset_reviewers.
+        if not kwargs.get("instance"):
+            del self.fields["reset_reviewers"]
 
 
 class TripRequestAdminNotesForm(forms.ModelForm):
@@ -254,7 +256,7 @@ class ChildTripRequestForm(forms.ModelForm):
             parent_request = kwargs.get("instance").parent_request
 
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                        AuthUser.objects.all().order_by("last_name", "first_name")]
+                        AuthUser.objects.all().order_by("last_name", "first_name") if u.first_name and u.last_name and u.email]
         user_choices.insert(0, tuple((None, "---")))
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
