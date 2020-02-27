@@ -85,9 +85,11 @@ class SampleListView(GraisAccessRequiredMixin, FilterView):
             'date_retrieved',
             'sample_type',
             'weeks_deployed|Weeks deployed',
+            'has_invasive_spp|Has invasive species?',
 
         ]
         context["field_list"] = field_list
+
         return context
 
     # def get_filterset_kwargs(self, filterset_class):
@@ -110,6 +112,7 @@ class SampleDetailView(GraisAccessRequiredMixin, DetailView):
             'weeks_deployed|Weeks deployed',
             'samplers',
             'sample_type',
+            'has_invasive_spp|Has invasive species?',
             'last_modified',
             'last_modified_by',
         ]
@@ -123,6 +126,20 @@ class SampleDetailView(GraisAccessRequiredMixin, DetailView):
 
         ]
         context["sampler_field_list"] = sampler_field_list
+
+        context["random_probe_object"] = models.ProbeMeasurement.objects.first()
+        probe_field_list = [
+            'time_date',
+            'probe',
+            'temp_c',
+            'sal_ppt',
+            'o2_percent',
+            'o2_mgl',
+            'sp_cond_ms',
+            'spc_ms',
+        ]
+        context["probe_field_list"] = probe_field_list
+
         return context
 
 

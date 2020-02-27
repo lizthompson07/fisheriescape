@@ -216,7 +216,7 @@ class SurfaceSpeciesForm(forms.ModelForm):
             'species': forms.HiddenInput(),
             'surface': forms.HiddenInput(),
             'percent_coverage': forms.TextInput(attrs={'placeholder': "Value bewteen 0 and 1"}),
-            'notes': forms.Textarea(attrs={"rows": "3", "placeholder": ""}),
+            'notes': forms.Textarea(attrs={"rows": "5", "placeholder": ""}),
             'last_modified_by': forms.HiddenInput(),
         }
 
