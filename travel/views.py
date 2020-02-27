@@ -72,7 +72,8 @@ def can_modify_request(user, trip_request_id):
         # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are either the owner OR a traveller
         # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
-        if not my_trip_request.submitted and (my_trip_request.user == user or user in my_trip_request.travellers):
+        if not my_trip_request.submitted and \
+                (not my_trip_request.user or my_trip_request.user == user or user in my_trip_request.travellers):
             return True
 
 
@@ -88,7 +89,6 @@ class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-
 class CanModifyMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
@@ -99,7 +99,6 @@ class CanModifyMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
-
 
 
 class AdminOrApproverRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -386,11 +385,16 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
         if my_object.submitted and not is_current_reviewer:
             context["report_mode"] = True
 
+        # This might be a better thing to use for button disabling
+        context["can_modify"] = can_modify_request(self.request.user, my_object.id)
         return context
 
 
 class TripRequestUpdateView(CanModifyMixin, UpdateView):
     model = models.TripRequest
+
+    def get_initial(self):
+        return {"reset_reviewers": False}
 
     def get_template_names(self):
         return 'travel/trip_request_form_popout.html' if self.kwargs.get("pop") else 'travel/trip_request_form.html'
@@ -896,10 +900,17 @@ class ChildTripRequestCloneUpdateView(TripRequestUpdateView):
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def reset_reviewers(request, pk):
     my_obj = models.TripRequest.objects.get(pk=pk)
-    # first remove any existing reviewers
-    my_obj.reviewers.all().delete()
-    # next, re-add the defaults...
-    utils.get_reviewers(my_obj)
+    if can_modify_request(request.user, pk):
+        # This function should only ever be run if the TR is a draft
+        if my_obj.status == 4:
+            # first remove any existing reviewers
+            my_obj.reviewers.all().delete()
+            # next, re-add the defaults...
+            utils.get_reviewers(my_obj)
+        else:
+            messages.error(request, _("This function can only be used when the trip request is still a draft"))
+    else:
+        messages.error(request, _("You do not have the permissions to reset the reviewer list"))
     return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.id}))
 
 
@@ -909,51 +920,60 @@ def reset_reviewers(request, pk):
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
 def delete_reviewer(request, pk):
     my_obj = models.Reviewer.objects.get(pk=pk)
-    if my_obj.trip_request.submitted:
-        messages.error(request, "Cannot modify reviewers while project is submitted")
-        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
+    if can_modify_request(request.user, my_obj.trip_request.id):
+        # This function should only ever be run if the TR is unsubmitted
+        if my_obj.trip_request.status_id != 4:
+            messages.error(request, "This function can only be used when the trip request is still a draft")
+            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
+        else:
+            my_obj.delete()
+            my_obj.trip_request.save()
+            return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_obj.trip_request.id}))
     else:
-        my_obj.delete()
-        my_obj.trip_request.save()
-        return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_obj.trip_request.id}))
+        messages.error(request, _("You do not have the permissions to delete a reviewer"))
+        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
 
 
 @login_required(login_url='/accounts/login/')
 # @user_passes_test(is_superuser, login_url='/accounts/denied/')
 def manage_reviewers(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
-    if my_trip_request.submitted:
-        messages.error(request, "Cannot modify reviewers while project is submitted")
-        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
-    else:
-        qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
-        if request.method == 'POST':
-            formset = forms.ReviewerFormSet(request.POST)
-
-            if formset.is_valid():
-                formset.save()
-
-                my_trip_request.save()
-                # do something with the formset.cleaned_data
-                messages.success(request, _("The reviewer list has been successfully updated"))
-                return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_trip_request.id}))
+    if can_modify_request(request.user, my_trip_request.id):
+        if my_trip_request.status_id != 4:
+            messages.error(request, "This function can only be used when the trip request is still a draft")
+            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
         else:
-            formset = forms.ReviewerFormSet(
-                queryset=qs,
-                initial=[{"trip_request": my_trip_request}],
-            )
+            qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
+            if request.method == 'POST':
+                formset = forms.ReviewerFormSet(request.POST)
 
-        context = {}
-        context['triprequest'] = my_trip_request
-        context['formset'] = formset
-        context["my_object"] = models.Reviewer.objects.first()
-        context["field_list"] = [
-            'trip_request',
-            'order',
-            'user',
-            'role',
-        ]
-        return render(request, 'travel/reviewer_formset.html', context)
+                if formset.is_valid():
+                    formset.save()
+
+                    my_trip_request.save()
+                    # do something with the formset.cleaned_data
+                    messages.success(request, _("The reviewer list has been successfully updated"))
+                    return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_trip_request.id}))
+            else:
+                formset = forms.ReviewerFormSet(
+                    queryset=qs,
+                    initial=[{"trip_request": my_trip_request}],
+                )
+
+            context = {}
+            context['triprequest'] = my_trip_request
+            context['formset'] = formset
+            context["my_object"] = models.Reviewer.objects.first()
+            context["field_list"] = [
+                'trip_request',
+                'order',
+                'user',
+                'role',
+            ]
+            return render(request, 'travel/reviewer_formset.html', context)
+    else:
+        messages.error(request, _("You do not have the permissions to modify the reviewer list"))
+        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
 
 
 # TRIP #

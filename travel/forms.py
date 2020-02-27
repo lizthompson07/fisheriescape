@@ -58,7 +58,7 @@ class TripRequestApprovalForm(forms.Form):
 class TripRequestForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     reset_reviewers = forms.BooleanField(widget=forms.Select(choices=YES_NO_CHOICES),
-                                         label=_("Do you want to reset the reviewer list?"))
+                                         label=_("Do you want to reset the reviewer list?"), required=False)
 
     class Meta:
         model = models.TripRequest
@@ -113,7 +113,7 @@ class TripRequestForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                        AuthUser.objects.all().order_by("last_name", "first_name")]
+                        AuthUser.objects.all().order_by("last_name", "first_name") if u.first_name and u.last_name and u.email]
         user_choices.insert(0, tuple((None, "---")))
 
         section_choices = [(s.id, s.full_name) for s in
@@ -180,6 +180,13 @@ class TripRequestForm(forms.ModelForm):
         for field in field_list:
             self.fields[field].group = 3
 
+        # Reviewers
+        field_list = [
+            'reset_reviewers',
+        ]
+        for field in field_list:
+            self.fields[field].group = 4
+
         # are there any forgotten fields?
         for field in self.fields:
             try:
@@ -187,6 +194,8 @@ class TripRequestForm(forms.ModelForm):
             except AttributeError:
                 print(f'Adding label: "Unspecified" to field "{field}".')
                 self.fields[field].group = 0
+
+
 
 
 class TripRequestAdminNotesForm(forms.ModelForm):
