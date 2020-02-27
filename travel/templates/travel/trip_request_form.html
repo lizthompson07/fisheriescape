@@ -116,6 +116,21 @@
                 </div>
             </div>
 
+            {# Reviewers #}
+            <div class="card mb-2">
+                <h2 class="card-header text-white bg-primary">
+                    {% trans "Trip Request Reviewers" %}
+                </h2>
+                <div class="card-body">
+                    <div class="card-text">
+                        {% for field in form %}
+                            {% if field.field.group == 4 %}
+                                {% include "travel/_trip_request_form_layout.html" %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
 
             <div class="container center-col">
                 {% buttons %}
@@ -247,6 +262,14 @@
             $("#group_request_container").addClass("gone");
         {% endif %}
 
+
+        // if a user changes a section or trip, change the "reset reviewers" input to True
+        $("#id_trip").change(function () {
+          $("#id_reset_reviewers").val("True")
+        })
+        $("#id_section").change(function () {
+          $("#id_reset_reviewers").val("True")
+        })
     </script>
 {% endblock %}
 

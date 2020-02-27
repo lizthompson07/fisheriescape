@@ -8,7 +8,7 @@
 <div class="card mb-2">
     <h3 class="card-header bg-outline-dark">
         {% trans "Request Detail" %}
-        <div class="neighbours mb-3">
+        <div class="neighbours">
             {% with help_text_dict|lookup:"trip_request_header" as help_text %}
                 <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
                      data-trigger="hover"
