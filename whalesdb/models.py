@@ -19,6 +19,10 @@ class DepDeployment(models.Model):
     def __str__(self):
         return "{}".format(self.dep_name)
 
+    @property
+    def station_events(self):
+        return self.stestationevents.all()
+
 
 class EcaCalibrationEvent(models.Model):
     eca_id = models.AutoField(primary_key=True)
@@ -252,7 +256,8 @@ class SetStationEventCode(models.Model):
 
 class SteStationEvent(models.Model):
     ste_id = models.AutoField(primary_key=True)
-    dep = models.ForeignKey(DepDeployment, on_delete=models.DO_NOTHING, verbose_name=_("Deployment"))
+    dep = models.ForeignKey(DepDeployment, on_delete=models.DO_NOTHING, related_name='station_events',
+                            verbose_name=_("Deployment"))
     set_type = models.ForeignKey('SetStationEventCode', on_delete=models.DO_NOTHING, db_column='set_type',
                                  verbose_name=_("Event Type"))
     ste_date = models.DateField(verbose_name=_("Date"))

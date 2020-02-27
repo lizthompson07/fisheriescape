@@ -1,6 +1,6 @@
 from django import forms
 from whalesdb import models
-
+import datetime
 
 class DepForm(forms.ModelForm):
     class Meta:
@@ -44,4 +44,5 @@ class SteForm(forms.ModelForm):
         model = models.SteStationEvent
         exclude = []
         widgets = {
+            'ste_date': forms.SelectDateWidget()
         }
