@@ -1,192 +1,32 @@
 {% extends "csas/csas_base.html" %}
-{% load bootstrap4 %}
-{% load static %}
 {% load i18n %}
-{% bootstrap_css %}
-
-{% block header %}
+{% load static %}
+{% block content %}
     <style>
         body {
-            background-image: url("{% static 'img/matt-hardy-562566-unsplash_lite.jpg' %}");
+            background-image: url("{% static 'img/ross-parmly-25230-unsplash.jpg' %}");
             background-size: cover;
         }
 
-        .card-title {
-        {#font-weight: bold;#}
-        }
-
-        .card {
-            cursor: pointer;
-        }
-
-        .shrink-me {
-            transform: scale(.8);
-        }
     </style>
-{% endblock %}
-
-{% block tab_title %} {% trans 'CSAS Home' %} {% endblock tab_title %}
-
-{% block body %}
-<br><br>
-<div class="text-center p-3 my-3 border">
-    <h1 class="text-center montserrat" style="font-size: 4.5em">
-        {% trans 'Canadian Science Advisory Secretariat' %}
-    </h1>
-</div>
-
-<!-- experiments ---------------------------------------------------------->
-
-<!-- it seems HTML only accepts one <head> .. </head>,
-     if I put another <head> .. </head> here, it simply ignors it,
-	 therefore, all the elements of HTML head such as <meta> <script> etc.
-	 are ignored too.
-  -->
-  
-<!-- <div class="jumbotron text-center">
-    <h1>My First Bootstrap Page</h1>
-    <p>Resize this responsive page to see the effect!</p>
-</div>
-
-<div class="text-center">
-    <h1>My First Bootstrap Page</h1>
-    <p>Resize this responsive page to see the effect!</p>
-</div>
-
-<div class="container-fluid p-3 my-3 border">
-    <h1>My First Bootstrap Page</h1>
-    <p>Resize this responsive page to see the effect!</p>
-</div>
-
-<div class="container-fluid text-right p-3 my-3 bg-secondary text-white">
-    <h1>My First Bootstrap Page</h1>
-    <p>Resize this responsive page to see the effect!</p>
-</div>
--->
-
-<div class="container">
-    <div class="card-columns">
-        <div class="card mb-3 jumbotron"
-             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
-            <div class="card-body text-center">
-                <!-- <p class="card-text">{{title.pk}}</p> -->
-                <p class="card-text"><a href="{% url 'csas:list_con' %}"> Contacts </a></p>
+    <div class="container">
+        <div class="jumbotron">
+            <h1>
+                {% trans "CSAS Tracking Tool" %}
+            </h1>
+            <hr />
+            <div class="row mb-2">
+                <div class="col-4">{% trans "Request for Science Advice" %}</div><div class="col-1"><a class="btn btn-primary" href="">{% trans "All" %}</a></div><div class="col-2"><a class="btn btn-primary" href="">{% trans "Maritimes" %}</a></div><div class="col"><a class="btn btn-primary" href="{% url 'csas:create_req' %}">{% trans "New request" %}</a></div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4">{% trans "Schedule of Meetings" %}</div><div class="col-1"><a class="btn btn-primary" href="{% url 'csas:list_met' %}">{% trans "All" %}</a></div><div class="col-2"><a class="btn btn-primary" href="">{% trans "Maritimes" %}</a></div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4">{% trans "Request for Science Advice" %}</div><div class="col-1"><a class="btn btn-primary" href="">{% trans "All" %}</a></div><div class="col-2"><a class="btn btn-primary" href="">{% trans "Maritimes" %}</a></div><div class="col"><a class="btn btn-primary" href="{% url 'csas:create_req' %}">{% trans "New request" %}</a></div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-4">{% trans "Request for Science Advice" %}</div><div class="col-1"><a class="btn btn-primary" href="">{% trans "All" %}</a></div><div class="col-2"><a class="btn btn-primary" href="">{% trans "Maritimes" %}</a></div><div class="col"><a class="btn btn-primary" href="{% url 'csas:create_req' %}">{% trans "New request" %}</a></div>
             </div>
         </div>
-		
-        <div class="card mb-3 jumbotron"
-             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
-            <div class="card-body text-center">
-                <p class="card-text"><a href="{% url 'csas:list_met' %}"> Meetings </a></p>
-            </div>
-        </div>
-		
-        <div class="card mb-3 jumbotron"
-             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
-            <div class="card-body text-center">
-                <p class="card-text"><a href="{% url 'csas:publications' %}"> Publications </a></p>
-            </div>
-        </div>
-		
-        <div class="card mb-3 jumbotron"
-             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
-            <div class="card-body text-center">
-                <p class="card-text"><a href="{% url 'csas:requests' %}"> Requests </a></p>
-            </div>
-        </div>
-		
-        <div class="card mb-3 jumbotron"
-             style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px">
-            <div class="card-body text-center">
-                <p class="card-text"><a href="{% url 'csas:others' %}"> Others ... </a></p>
-            </div>
-        </div>
-
     </div>
-</div>
-
-<!-- <div class="card-columns">
-  <div class="card bg-primary">
-    <div class="card-body text-center">
-      <p class="card-text">Some text inside the first card</p>
-    </div>
-  </div>
-</div>
-
-<div class="card mb-3 jumbotron"
-                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
-                 >
-  -->
-				 
-<!-- building ------------------------------------------------------------->
-
-<div class="container">
-    {% for sec in section %}
-    <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
-        <div class="text-center roboto">
-            <h2>
-                {% trans sec.title %}
-            </h2>
-        </div>
-        <div class="row">
-
-            {% for dep_obj in sec.forms %}
-
-            {% if dep_obj.type == "codelist" %}
-            <div class="card mb-3 jumbotron"
-                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
-                 href="{% url 'csas:index' dep_obj.url %}" >
-            {% elif dep_obj.obj_name %}
-            <div class="card mb-3 jumbotron"
-                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
-                 href="{% url dep_obj.url dep_obj.obj_name %}" >
-            {% else %}
-            <div class="card mb-3 jumbotron"
-                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
-                 href="{% url dep_obj.url %}" >
-            {% endif %}
-                <div class="card-body text-center">
-                    <h5 class="card-title">
-                        {% trans dep_obj.title %}
-                    </h5>
-                    <img src="{% static dep_obj.icon %}" class="card-img-top" />
-                </div>
-            </div>
-            {% endfor %}
-       </div>
-        {% if sec.code %}
-        <div class="text-center roboto">
-            <h2>
-                {% trans sec.title|add:" Code List" %}
-            </h2>
-        </div>
-        <div class="row">
-
-            {% for dep_obj in sec.code %}
-
-            {% if dep_obj.type == "codelist" %}
-            <div class="card mb-3 jumbotron"
-                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
-                 href="{% url 'whalesdb:code_list' dep_obj.url %}" >
-            {% else %}
-            <div class="card mb-3 jumbotron"
-                 style="width: 19rem; height: 20rem; margin: auto; padding-top: 1px; border: black solid 1px"
-                 href="{% url dep_obj.url %}" >
-            {% endif %}
-                <div class="card-body text-center">
-                    <h5 class="card-title">
-                        {% trans dep_obj.title %}
-                    </h5>
-                    <img src="{% static dep_obj.icon %}" class="card-img-top" />
-                </div>
-            </div>
-            {% endfor %}
-       </div>
-        {% endif %}
-    </div>
-    {% endfor %}
-</div>
-
-<!-- end building ------------------------------------------------------->
-
-{% endblock body %}
+{% endblock content %}
