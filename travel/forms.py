@@ -57,6 +57,8 @@ class TripRequestApprovalForm(forms.Form):
 
 class TripRequestForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    reset_reviewers = forms.BooleanField(widget=forms.Select(choices=YES_NO_CHOICES),
+                                         label=_("Do you want to reset the reviewer list?"))
 
     class Meta:
         model = models.TripRequest
@@ -113,24 +115,6 @@ class TripRequestForm(forms.ModelForm):
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         AuthUser.objects.all().order_by("last_name", "first_name")]
         user_choices.insert(0, tuple((None, "---")))
-
-        section_heads = [section.head for section in shared_models.Section.objects.filter(head__isnull=False)]
-        division_heads = [division.head for division in shared_models.Division.objects.filter(head__isnull=False)]
-        branch_heads = [branch.head for branch in shared_models.Branch.objects.filter(head__isnull=False)]
-        region_heads = [region.head for region in shared_models.Region.objects.filter(head__isnull=False)]
-
-        heads = list()
-        heads.extend(section_heads)
-        heads.extend(division_heads)
-        heads.extend(branch_heads)
-        heads.extend(region_heads)
-        # manually add Arran McPherson
-        heads.append(AuthUser.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca"))
-        heads = set(heads)
-
-        recommender_chocies = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                               AuthUser.objects.all().order_by("last_name", "first_name") if u in heads]
-        recommender_chocies.insert(0, tuple((None, "---")))
 
         section_choices = [(s.id, s.full_name) for s in
                            shared_models.Section.objects.filter(division__branch_id__in=[1, 3, 9, ]).order_by("division__branch__region",

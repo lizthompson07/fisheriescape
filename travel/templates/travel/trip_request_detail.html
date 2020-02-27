@@ -39,7 +39,6 @@
     </nav>
 
     <div class="container">
-
         <h1>{{ object }}</h1>
         {% if is_current_reviewer and object.submitted %}
             <h3 class="red-font">{% trans "You are able to edit this record because you are " %}
@@ -80,16 +79,16 @@
 
                     {% if is_eligible %}
                         {% if object.status.id == 22 %}
-                            {% echo "warning" as btn_color %}
-                            {% trans "Un-cancel Request" as btn_text %}
+                            {% echo "warning" as cancel_btn_color %}
+                            {% trans "Un-cancel Request" as cancel_btn_text %}
                         {% else %}
-                            {% echo "danger" as btn_color %}
-                            {% trans "Cancel Request" as btn_text %}
+                            {% echo "danger" as cancel_btn_color %}
+                            {% trans "Cancel Request" as cancel_btn_text %}
                         {% endif %}
 
                         <span data-toggle="tooltip" title="{% trans "This is only an option to you as a system admin" %}">
-                        <a class="btn btn-{{ btn_color }}" href="{% url 'travel:request_cancel' object.id %}">
-                        {{ btn_text }}
+                        <a class="btn btn-{{ cancel_btn_color }}" href="{% url 'travel:request_cancel' object.id %}">
+                        {{ cancel_btn_text }}
                         </a>
                         </span>
                     {% endif %}
@@ -101,57 +100,53 @@
 
                 {# SUBMIT BUTTON #}
                 {% if object.status.id == 11 or object.status.id == 22 %}
-                    {% echo "disabled" as disabled_var %}
+                    {% echo "disabled" as submit_disabled_var %}
+                    {% trans "Approved or cancelled requests cannot by unsubmitted." as submit_tip_text %}
                 {% elif object.submitted and not is_admin and not is_owner %}
-                    {% echo "disabled" as disabled_var %}
+                    {% echo "disabled" as submit_disabled_var %}
+                    {% trans "Only application administrators and trip request owners can un-submit a request" as submit_tip_text %}
                 {% endif %}
 
                 {% if object.submitted %}
-                    {% echo "secondary" as btn_color %}
+                    {% echo "secondary" as submit_btn_color %}
                 {% else %}
-                    {% echo "success" as btn_color %}
-                {% endif %}
-
-                {% if object.status.id == 11 or object.status.id == 22%}
-                    {% trans "Approved or cancelled requests cannot by unsubmitted." as tip_text %}
-                {% elif object.submitted and not is_admin and not is_owner %}
-                    {% trans "Only application administrators and owners can un-submit a request" as tip_text %}
+                    {% echo "success" as submit_btn_color %}
                 {% endif %}
 
                 {% if object.submitted %}
-                    {% trans "Un-submit" as btn_text %}
+                    {% trans "Un-submit" as submit_btn_text %}
                 {% else %}
                     {% if object.status.id == 16 %}
-                        {% trans "Re-submit" as btn_text %}
+                        {% trans "Re-submit" as submit_btn_text %}
                     {% else %}
-                        {% trans "Submit" as btn_text %}
+                        {% trans "Submit" as submit_btn_text %}
                     {% endif %}
                 {% endif %}
 
-                <span data-toggle="tooltip" title="{{ tip_text }}">
-                <a class="btn btn-{{ btn_color }} {{ disabled_var }}" href="{% url 'travel:request_submit' object.id %}">{{ btn_text }}</a>
+                <span data-toggle="tooltip" title="{{ submit_tip_text }}">
+                <a class="btn btn-{{ submit_btn_color }} {{ submit_disabled_var }}" href="{% url 'travel:request_submit' object.id %}">{{ submit_btn_text }}</a>
                 </span>
 
                 {# EDIT BUTTON #}
-                {% if object.submitted and not is_admin and not is_current_reviewer and object.status.id == 22 %}
-                    {% echo "disabled" as disabled_var %}
-                    {% trans "Only application administrators and reviewers can modify a submitted request" as tip_text %}
+                {% if object.submitted and not is_admin and not is_current_reviewer and not object.status.id == 22 %}
+                    {% echo "disabled" as edit_disabled_var %}
+                    {% trans "Only application administrators and reviewers can modify a submitted request" as edit_tip_text %}
                 {% endif %}
 
-                <span data-toggle="tooltip" title="{{ tip_text }}">
-                <a class="btn btn-warning {{ disabled_var }}" href="{% url 'travel:request_edit' object.id %}">
+                <span data-toggle="tooltip" title="{{ edit_tip_text }}">
+                <a class="btn btn-warning {{ edit_disabled_var  }}" href="{% url 'travel:request_edit' object.id %}">
                     {% trans "Edit" %}
                 </a>
                 </span>
 
                 {# DELETE BUTTON #}
                 {% if object.submitted %}
-                    {% echo "disabled" as disabled_var %}
-                    {% trans "Submitted trip requests cannot be deleted." as tip_text %}
+                    {% echo "disabled" as delete_disabled_var %}
+                    {% trans "Submitted trip requests cannot be deleted." as delete_tip_text %}
                 {% endif %}
 
-                <span data-toggle="tooltip" title="{{ tip_text }}">
-                <a class="btn btn-danger {{ disabled_var }}" href="{% url 'travel:request_delete' object.id %}">
+                <span data-toggle="tooltip" title="{{ delete_tip_text }}">
+                <a class="btn btn-danger {{ delete_disabled_var }}" href="{% url 'travel:request_delete' object.id %}">
                 {% trans "Delete" %}
                 </a>
                 </span>
