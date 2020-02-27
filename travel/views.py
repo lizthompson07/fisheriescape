@@ -66,11 +66,12 @@ def can_modify_request(user, trip_request_id):
             return True
 
         # check to see if they are the active reviewer
-        if my_trip_request.current_reviewer.user == user:
+        if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
             return True
 
         # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are either the owner OR a traveller
+        # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
         if not my_trip_request.submitted and (my_trip_request.user == user or user in my_trip_request.travellers):
             return True
 
@@ -85,6 +86,20 @@ class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
+
+
+
+class CanModifyMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return can_modify_request(self.request.user, self.kwargs.get("pk"))
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
 
 
 class AdminOrApproverRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -361,6 +376,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
 
+        # Admins should be given the same permissions as a current reviewer; the two are synonymous
         if context["is_admin"]:
             is_current_reviewer = True
         else:
@@ -373,7 +389,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
         return context
 
 
-class TripRequestUpdateView(TravelAccessRequiredMixin, UpdateView):
+class TripRequestUpdateView(CanModifyMixin, UpdateView):
     model = models.TripRequest
 
     def get_template_names(self):
@@ -542,7 +558,7 @@ class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
-class TripRequestSubmitUpdateView(TravelAccessRequiredMixin, FormView):
+class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
     model = models.TripRequest
     form_class = forms.TripRequestApprovalForm
     template_name = 'travel/trip_request_submission_form.html'
@@ -751,7 +767,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
         return context
 
 
-class TripRequestDeleteView(TravelAccessRequiredMixin, DeleteView):
+class TripRequestDeleteView(CanModifyMixin, DeleteView):
     model = models.TripRequest
 
     def get_template_names(self):

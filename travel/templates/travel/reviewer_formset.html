@@ -24,10 +24,16 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">Trip Requests</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
+                {% trans "Trip Requests" %}
+            </a></li>
             <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' triprequest.id %}">{{ triprequest }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Manage Reviewers</li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "Manage Reviewers" %}
+            </li>
         </ol>
     </nav>
 
@@ -51,8 +57,15 @@
             {{ formset.management_form }}
             {% bootstrap_formset_errors formset %}
             <div class="btn-group">
-                <button class="btn btn-primary submit">Save</button>
-                <a class="btn btn-secondary" href="{% url 'travel:request_detail' triprequest.id %}">Back</a>
+                <button class="btn btn-primary submit">
+                    {% trans "Save" %}
+                </button>
+                <a class="btn btn-warning" href="{% url 'travel:reset_reviewers' triprequest.id %}">
+                    {% trans "Reset" %}
+                </a>
+                <a class="btn btn-secondary" href="{% url 'travel:request_detail' triprequest.id %}">
+                    {% trans "Back" %}
+                </a>
             </div>
             <br><br>
             <table class="table" style="width: auto">
@@ -95,8 +108,15 @@
             </table>
 
             <div class="btn-group">
-                <button class="btn btn-primary submit">Save</button>
-                <a class="btn btn-secondary" href="{% url 'travel:request_detail' triprequest.id %}">Back</a>
+                <button class="btn btn-primary submit">
+                    {% trans "Save" %}
+                </button>
+                <a class="btn btn-warning" href="{% url 'travel:reset_reviewers' triprequest.id %}">
+                    {% trans "Reset" %}
+                </a>
+                <a class="btn btn-secondary" href="{% url 'travel:request_detail' triprequest.id %}">
+                    {% trans "Back" %}
+                </a>
             </div>
 
         </form>
