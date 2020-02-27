@@ -19,6 +19,10 @@ class DepDeployment(models.Model):
     def __str__(self):
         return "{}".format(self.dep_name)
 
+    @property
+    def station_events(self):
+        return self.stestationevents.all()
+
 
 class EcaCalibrationEvent(models.Model):
     eca_id = models.AutoField(primary_key=True)
@@ -207,9 +211,9 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     Deletes file from filesystem
     when corresponding `MediaFile` object is deleted.
     """
-    if instance.mor_setup_image:
-        if os.path.isfile(instance.mor_setup_image.path):
-            os.remove(instance.mor_setup_image.path)
+    # if instance.mor_setup_image:
+    #     if os.path.isfile(instance.mor_setup_image.path):
+    #         os.remove(instance.mor_setup_image.path)
 
 
 @receiver(models.signals.pre_save, sender=MorMooringSetup)
@@ -219,16 +223,16 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     when corresponding `MediaFile` object is updated
     with new file.
     """
-    if not instance.pk:
-        return False
-    try:
-        old_file = MorMooringSetup.objects.get(pk=instance.pk).mor_setup_image
-    except MorMooringSetup.DoesNotExist:
-        return False
-    new_file = instance.mor_setup_image
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+    # if not instance.pk:
+    #     return False
+    # try:
+    #     old_file = MorMooringSetup.objects.get(pk=instance.pk).mor_setup_image
+    # except MorMooringSetup.DoesNotExist:
+    #     return False
+    # new_file = instance.mor_setup_image
+    # if not old_file == new_file:
+    #     if os.path.isfile(old_file.path):
+    #         os.remove(old_file.path)
 
 
 class PrjProject(models.Model):
@@ -252,7 +256,8 @@ class SetStationEventCode(models.Model):
 
 class SteStationEvent(models.Model):
     ste_id = models.AutoField(primary_key=True)
-    dep = models.ForeignKey(DepDeployment, on_delete=models.DO_NOTHING, verbose_name=_("Deployment"))
+    dep = models.ForeignKey(DepDeployment, on_delete=models.DO_NOTHING, related_name='station_events',
+                            verbose_name=_("Deployment"))
     set_type = models.ForeignKey('SetStationEventCode', on_delete=models.DO_NOTHING, db_column='set_type',
                                  verbose_name=_("Event Type"))
     ste_date = models.DateField(verbose_name=_("Date"))
