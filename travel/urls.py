@@ -54,7 +54,7 @@ urlpatterns = [
     path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
     # admin
     path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.AdminTripVerificationListView.as_view(), name="admin_trip_verification_list"),
-    path('trip/<int:pk>/verify/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
+    path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
     path('trip/<int:pk>/delete/back-to-verify/<int:back_to_verify>/', views.TripDeleteView.as_view(), name="trip_delete"),
 
     # FILES #
