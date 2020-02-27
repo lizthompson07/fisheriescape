@@ -134,17 +134,26 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
             ~Q(trip_request__status_id=16)
         ).count()  # number of requests where admin review is pending
 
-        context["rdg_number_waiting"] = models.Reviewer.objects.filter(
-            status_id=1,
-            role_id__in=[6, ],
-        ).filter(
-            ~Q(trip_request__status_id=16)
-        ).count()  # number of requests where admin review is pending
+        region_list = [
+            ["gulf", 1],
+            ["mar", 2],
+        ]
+
+        for item in region_list:
+            context[f"{item[0]}_rdg_number_waiting"] = models.Reviewer.objects.filter(
+                status_id=1,
+                role_id__in=[6, ],
+                trip_request__section__division__branch__region_id=item[1],
+            ).filter(
+                ~Q(trip_request__status_id=16)
+            ).count()  # number of requests where admin review is pending
+            context[f"{item[0]}_unverified_trips"] = models.Conference.objects.filter(
+                is_verified=False, is_adm_approval_required=False, lead_id=item[1]).count()
 
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
-        context["unverified_trips_non_adm"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=False).count()
-        context["unverified_trips_adm"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=True).count()
+        context["adm_unverified_trips"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=True).count()
+
         return context
 
 
@@ -335,6 +344,8 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
             qs = qs.filter(status_id=14)
         elif self.kwargs.get("type") == "rdg":
             qs = qs.filter(status_id=15)
+            if self.kwargs.get("region"):
+                qs = qs.filter(section__division__branch__region_id=self.kwargs.get("region"))
 
         return qs
 
@@ -405,7 +416,6 @@ class TripRequestUpdateView(CanModifyMixin, UpdateView):
     def form_valid(self, form):
         my_object = form.save()
 
-
         if my_object.parent_request:
             my_trip = my_object.parent_request.trip
         else:
@@ -423,8 +433,6 @@ class TripRequestUpdateView(CanModifyMixin, UpdateView):
                 return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id}))
         else:
             return HttpResponseRedirect(reverse("shared_models:close_me"))
-
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -530,7 +538,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
             # if this is an adm or rdg review, we have to pass the type into the url.
             if my_reviewer.role_id in [5, 6, ]:
                 my_kwargs.update({"type": self.kwargs.get("type")})
-            return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
+                return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
         else:
             return HttpResponseRedirect(reverse("travel:index"))
 
@@ -1092,8 +1100,16 @@ class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
 
 
 class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
-    queryset = models.Conference.objects.filter(is_verified=False).order_by("is_adm_approval_required")
     template_name = 'travel/trip_verification_list.html'
+
+    def get_queryset(self):
+        if self.kwargs.get("adm") == 1:
+            queryset = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=True)
+        else:
+            queryset = models.Conference.objects.filter(
+                is_verified=False, lead_id=self.kwargs.get("region"), is_adm_approval_required=False
+            )
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
