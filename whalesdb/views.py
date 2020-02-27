@@ -23,22 +23,22 @@ class IndexView(TemplateView):
                     {
                         'title': _("Deployment List"),
                         'url': "whalesdb:list_dep",
-                        'icon': "img/whales/deployment.svg",
+                        'icon': "img/whalesdb/deployment.svg",
                     },
                     {
                         'title': _("Mooring Setup List"),
                         'url': "whalesdb:list_mor",
-                        'icon': "img/whales/mooring.svg",
+                        'icon': "img/whalesdb/mooring.svg",
                     },
                     {
                         'title': _("Project List"),
                         'url': "whalesdb:list_prj",
-                        'icon': "img/whales/project.svg",
+                        'icon': "img/whalesdb/project.svg",
                     },
                     {
                         'title': _("Station List"),
                         'url': "whalesdb:list_stn",
-                        'icon': "img/whales/station.svg",
+                        'icon': "img/whalesdb/station.svg",
                     },
                 ]
             },

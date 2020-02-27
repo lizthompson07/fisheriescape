@@ -17,12 +17,12 @@ class TestIndexView(CommonTest):
         self.test_url = reverse_lazy('whalesdb:index')
         self.test_expected_template = 'whalesdb/index.html'
 
-    # Users should be able to view the whales index page which corresponds to the whalesdb/index.html template
+    # Users should be able to view the whalesdb index page which corresponds to the whalesdb/index.html template
     @tag('index_view', 'response', 'access')
     def test_index_view_en(self):
         super().assert_view()
 
-    # Users should be able to view the whales index page corresponding to the whalesdb/index.html template, in French
+    # Users should be able to view the whalesdb index page corresponding to the whalesdb/index.html template, in French
     @tag('index_view', 'response', 'access')
     def test_index_view_fr(self):
         super().assert_view(lang='fr')
