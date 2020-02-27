@@ -113,6 +113,15 @@ class CreateSte(CreateCommon):
     form_class = forms.SteForm
     title = _("Create Station Event")
 
+    def get_initial(self):
+        init = super().get_initial()
+        if 'dep_id' in self.kwargs and models.DepDeployment.objects.filter(pk=self.kwargs['dep_id']):
+            init['dep'] = models.DepDeployment.objects.get(pk=self.kwargs['dep_id'])
+
+        if 'set_id' in self.kwargs and models.SetStationEventCode.objects.filter(pk=self.kwargs['set_id']):
+            init['set_type'] = models.SetStationEventCode.objects.get(pk=self.kwargs['set_id'])
+        return init
+
 
 class CreateStn(CreateCommon):
     model = models.StnStation
@@ -216,6 +225,11 @@ class DetailsDep(DetailsCommon):
     template_name = 'whalesdb/depdeployment_details.html'
     title = _("Deployment Details")
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        return context
 
 
 class DetailsMor(DetailsCommon):
