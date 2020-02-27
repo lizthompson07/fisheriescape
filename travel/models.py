@@ -160,7 +160,7 @@ class Conference(models.Model):
         "does attendance to this require ADM approval?"))
     location = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("location (city, province, country)"))
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is the lead on this trip?"),
-                             related_name="meeting_leads", blank=True, null=True)
+                             related_name="meeting_leads", blank=False, null=True)
     has_event_template = models.NullBooleanField(default=False, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
