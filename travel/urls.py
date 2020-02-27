@@ -22,7 +22,6 @@ urlpatterns = [
     path('request/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
     path('request/<int:pk>/cancel/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
     path('request/<int:pk>/admin-notes/', views.TripRequestAdminNotesUpdateView.as_view(), name="admin_notes_edit"),
-    path('request/<int:pk>/re-add-reviewers/', views.reset_reviewers, name="reset_reviewers"),
 
     # REVIEWER APPROVAL
     path('requests/review/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
@@ -40,6 +39,7 @@ urlpatterns = [
 
     # REVIEWERS #
     #############
+    path('request/<int:pk>/reset-reviewers/', views.reset_reviewers, name="reset_reviewers"),
     path('request/<int:trip_request>/manage-reviewers/', views.manage_reviewers, name="manage_reviewers"),
     path('reviewer/<int:pk>/delete/', views.delete_reviewer, name="delete_reviewer"),
 

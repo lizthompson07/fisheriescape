@@ -9,18 +9,9 @@
 
     <div class="card mb-2">
         <h3 class="card-header bg-outline-dark">
-            <div class="float-right mb-3">
-                <a class="btn btn-sm btn-outline-dark" href="{% url 'travel:export_cfts_trip' triprequest.trip.id %}">
-                    {% trans "CFTS Report for Trip" %} &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
-                </a>
-            </div>
 
-            <div class="neighbours mb-3">
-                <h3>
-                    {% trans "Trip Detail" %}
-                </h3>
-            </div>
-            <div class="neighbours mb-3">
+            {% trans "Trip Detail" %}
+            <div class="neighbours">
                 {% with help_text_dict|lookup:"trip_header" as help_text %}
                     <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
                          data-trigger="hover"
@@ -28,6 +19,13 @@
                          data-content="{{ help_text }}">
                 {% endwith %}
             </div>
+            <div class="float-right">
+                <a class="btn btn-sm btn-outline-dark" href="{% url 'travel:export_cfts_trip' triprequest.trip.id %}">
+                    {% trans "CFTS Report for Trip" %} &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+                </a>
+            </div>
+
+
         </h3>
         <div class="card-body">
             <div class="card-text">

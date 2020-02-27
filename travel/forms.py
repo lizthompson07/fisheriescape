@@ -57,6 +57,8 @@ class TripRequestApprovalForm(forms.Form):
 
 class TripRequestForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    reset_reviewers = forms.BooleanField(widget=forms.Select(choices=YES_NO_CHOICES),
+                                         label=_("Do you want to reset the reviewer list?"), required=False)
 
     class Meta:
         model = models.TripRequest
@@ -111,29 +113,11 @@ class TripRequestForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                        AuthUser.objects.all().order_by("last_name", "first_name")]
+                        AuthUser.objects.all().order_by("last_name", "first_name") if u.first_name and u.last_name and u.email]
         user_choices.insert(0, tuple((None, "---")))
 
-        section_heads = [section.head for section in shared_models.Section.objects.filter(head__isnull=False)]
-        division_heads = [division.head for division in shared_models.Division.objects.filter(head__isnull=False)]
-        branch_heads = [branch.head for branch in shared_models.Branch.objects.filter(head__isnull=False)]
-        region_heads = [region.head for region in shared_models.Region.objects.filter(head__isnull=False)]
-
-        heads = list()
-        heads.extend(section_heads)
-        heads.extend(division_heads)
-        heads.extend(branch_heads)
-        heads.extend(region_heads)
-        # manually add Arran McPherson
-        heads.append(AuthUser.objects.get(email__iexact="Arran.McPherson@dfo-mpo.gc.ca"))
-        heads = set(heads)
-
-        recommender_chocies = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                               AuthUser.objects.all().order_by("last_name", "first_name") if u in heads]
-        recommender_chocies.insert(0, tuple((None, "---")))
-
         section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(division__branch_id__in=[1, 3, ]).order_by("division__branch__region",
+                           shared_models.Section.objects.filter(division__branch_id__in=[1, 3, 9, ]).order_by("division__branch__region",
                                                                                                            "division__branch",
                                                                                                            "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
@@ -196,6 +180,13 @@ class TripRequestForm(forms.ModelForm):
         for field in field_list:
             self.fields[field].group = 3
 
+        # Reviewers
+        field_list = [
+            'reset_reviewers',
+        ]
+        for field in field_list:
+            self.fields[field].group = 4
+
         # are there any forgotten fields?
         for field in self.fields:
             try:
@@ -204,7 +195,9 @@ class TripRequestForm(forms.ModelForm):
                 print(f'Adding label: "Unspecified" to field "{field}".')
                 self.fields[field].group = 0
 
-
+        # if there is no instance of TR, remove the field for reset_reviewers.
+        if not kwargs.get("instance"):
+            del self.fields["reset_reviewers"]
 
 
 class TripRequestAdminNotesForm(forms.ModelForm):
@@ -263,19 +256,17 @@ class ChildTripRequestForm(forms.ModelForm):
             parent_request = kwargs.get("instance").parent_request
 
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
-                        AuthUser.objects.all().order_by("last_name", "first_name")]
+                        AuthUser.objects.all().order_by("last_name", "first_name") if u.first_name and u.last_name and u.email]
         user_choices.insert(0, tuple((None, "---")))
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
-
-
 
         # general trip infomation
         field_list = [
             'start_date',
             'end_date',
             'departure_location',
-        'exclude_from_travel_plan',
+            'exclude_from_travel_plan',
 
         ]
         for field in field_list:
@@ -315,8 +306,6 @@ class ChildTripRequestForm(forms.ModelForm):
                 self.fields[field].group = 0
 
 
-
-
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
@@ -327,6 +316,25 @@ class TripForm(forms.ModelForm):
             'registration_deadline': forms.DateInput(attrs=attr_fp_date),
             'abstract_deadline': forms.DateInput(attrs=attr_fp_date),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+        abstract_deadline = cleaned_data.get("abstract_deadline")
+        registration_deadline = cleaned_data.get("registration_deadline")
+
+        if end_date < start_date:
+            raise forms.ValidationError(_('The start date of the trip must occur after the end date.'))
+
+        if abstract_deadline >= start_date:
+            raise forms.ValidationError(_('The abstract deadline of the trip (if present) must occur before the start date.'))
+
+        if registration_deadline >= start_date:
+            raise forms.ValidationError(_('The registration deadline of the trip (if present) must occur before the start date.'))
+
+        if abs((start_date - end_date).days) > 100:
+            raise forms.ValidationError(_('The length of this trip is unrealistic.'))
 
 
 class ReportSearchForm(forms.Form):

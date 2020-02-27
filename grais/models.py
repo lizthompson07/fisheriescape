@@ -154,6 +154,12 @@ class Sample(models.Model):
     class Meta:
         ordering = ['-season', 'date_deployed', 'station']
 
+    @property
+    def has_invasive_spp(self):
+        for line in self.lines.all():
+            if line.has_invasive_spp:
+                return True
+        return False
 
 class SampleSpecies(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="sample_spp")
@@ -219,6 +225,13 @@ class Line(models.Model):
     def surface_species_count(self):
         return sum([s.species.count() for s in self.surfaces.all()])
 
+    @property
+    def has_invasive_spp(self):
+        for surface in self.surfaces.all():
+            if surface.has_invasive_spp:
+                return True
+        return False
+
 
 def img_file_name(instance, filename):
     img_name = 'grais/sample_{}/{}'.format(instance.line.sample.id, filename)
@@ -269,6 +282,13 @@ class Surface(models.Model):
 
     class Meta:
         ordering = ['line', 'surface_type', 'label']
+
+    @property
+    def has_invasive_spp(self):
+        for sp in self.species.all():
+            if sp.invasive:
+                return True
+        return False
 
 
 class SurfaceSpecies(models.Model):
@@ -623,7 +643,6 @@ class Trap(models.Model):
 
     class Meta:
         ordering = ['sample', 'trap_number']
-
 
     @property
     def get_bycatch(self):

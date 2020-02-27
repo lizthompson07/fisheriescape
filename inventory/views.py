@@ -39,7 +39,7 @@ def in_inventory_dm_group(user):
 
 def is_custodian_or_admin(user, resource_id):
     """returns True if user is a "custodian" in the specified resource"""
-    print(user.id, resource_id)
+    # print(user.id, resource_id)
     if user.id:
         # first, check to see if user is a dm admin
         if in_inventory_dm_group(user):
@@ -330,6 +330,16 @@ class ResourcePublicationFlagUpdateView(LoginRequiredMixin, UpdateView):
 class ResourcePersonFilterView(CustodianRequiredMixin, FilterView):
     filterset_class = filters.PersonFilter
     template_name = "inventory/resource_person_filter.html"
+
+    def get_queryset(self):
+        return models.Person.objects.annotate(search_term=Concat(
+            'user__first_name',
+            Value(" "),
+            'user__last_name',
+            Value(" "),
+            'user__email',
+            output_field=TextField()
+        ))
 
     def test_func(self):
         return is_custodian_or_admin(self.request.user, self.kwargs["resource"])

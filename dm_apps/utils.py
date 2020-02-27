@@ -1,5 +1,7 @@
+import requests
 from decouple import config, UndefinedValueError
 from django.conf import settings
+from python_http_client import BadRequestsError
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, Personalization
 from django.core.mail import send_mail as django_send_mail
@@ -43,7 +45,10 @@ def custom_send_mail(subject, html_message, from_email, recipient_list):
             html_content=html_message
         )
         mail.add_personalization(to_list)
-        sg.send(mail)
+        try:
+            sg.send(mail)
+        except BadRequestsError:
+            print("bad request. email not sent")
 
     elif settings.USE_SMTP_EMAIL:
         django_send_mail(
