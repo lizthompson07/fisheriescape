@@ -64,7 +64,7 @@ class ConContact(models.Model):
     notes = models.TextField()
 
     def __str__(self):
-        return "{}".format(self.last_name)
+        return "{}, {}".format(self.last_name, self.first_name)
 
 
 # ---------------------------------------------------------------------------------------

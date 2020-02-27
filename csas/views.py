@@ -248,7 +248,7 @@ class MeetingList(ListCommon):
     # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.MeetingFilter
     # fields used in the table on the filter page.
-    fields = ['quarter', 'title_en', 'title_fr']
+    fields = ['start_date', 'title_en', 'title_fr', 'location', 'process_type']
     # title to display on the Filter page
     title = _("Meeting List")
 
@@ -264,6 +264,18 @@ class MeetingDetails(DetailsCommon):
     fields = ['quarter', 'start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
               'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
               'csas_contact', ]
+
+
+class RequestEntry(CreateCommon):
+    template_name = 'csas/_entry_form_with_nav.html'
+
+    # The title to use on the Creation form
+    title = _("Request Entry")
+    # The model Django uses to retrieve the object(s) used on the page
+    model = models.MetMeeting
+    # This is what controls what fields and what widgets for what fields should be used on the entry form
+    form_class = forms.MeetingForm
+
 
 
 class MeetingsTemplateView(CreateView):

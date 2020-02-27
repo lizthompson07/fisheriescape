@@ -16,6 +16,8 @@ urlpatterns = [
     path('meeting/update/<int:pk>', views.MeetingUpdate.as_view(), name="update_met"),
     path('meeting/details/<int:pk>', views.MeetingDetails.as_view(), name="details_met"),
 
+    path('create/req/', views.RequestEntry.as_view(), name="create_req"),
+
     path('meetings/',     views.MeetingsTemplateView.as_view(),     name="meetings"),
     path('publications/', views.PublicationsTemplateView.as_view(), name="publications"),
     path('requests/',     views.RequestsTemplateView.as_view(),     name="requests"),
