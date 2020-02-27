@@ -327,10 +327,10 @@ class TripForm(forms.ModelForm):
         if end_date < start_date:
             raise forms.ValidationError(_('The start date of the trip must occur after the end date.'))
 
-        if abstract_deadline >= start_date:
+        if abstract_deadline and abstract_deadline >= start_date:
             raise forms.ValidationError(_('The abstract deadline of the trip (if present) must occur before the start date.'))
 
-        if registration_deadline >= start_date:
+        if registration_deadline and registration_deadline >= start_date:
             raise forms.ValidationError(_('The registration deadline of the trip (if present) must occur before the start date.'))
 
         if abs((start_date - end_date).days) > 100:
