@@ -7,7 +7,7 @@
     <div class="card mb-2">
         <h3 class="card-header bg-outline-dark">
             {% trans "DFO Costs" %}
-            <div class="neighbours mb-3">
+            <div class="neighbours">
                 {% with help_text_dict|lookup:"costs_header" as help_text %}
                     <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
                          data-trigger="hover"
@@ -15,6 +15,21 @@
                          data-content="{{ help_text }}">
                 {% endwith %}
             </div>
+
+            {% if not report_mode %}
+                <div class="btn-group float-right">
+                    <a class="btn btn-sm btn-outline-primary" href="#" pop-href="{% url 'travel:tr_cost_new' triprequest.id %}">
+                        {% trans "Add new cost" %}
+                    </a>
+                    <a class="btn btn-sm btn-outline-success" href="{% url 'travel:tr_cost_populate' triprequest.id %}">
+                        {% trans "Add all costs" %}
+                    </a>
+
+                    <a class="btn btn-sm btn-outline-dark" href="{% url 'travel:tr_cost_clear' triprequest.id %}">
+                        {% trans "Clear empty lines" %}
+                    </a>
+                </div>
+            {% endif %}
         </h3>
         <div class="card-body">
             <div class="card-text">
@@ -29,20 +44,7 @@
                         <span class="red-font">Please note that all expenses for this request should be entered in Canadian dollars.</span>
                     {% endblocktrans %}
                 </p>
-                {% if not report_mode %}
-                    <div class="btn-group mb-4">
-                        <a class="btn btn-sm btn-outline-primary" href="#" pop-href="{% url 'travel:tr_cost_new' triprequest.id %}">
-                            {% trans "Add new cost" %}
-                        </a>
-                        <a class="btn btn-sm btn-outline-success" href="{% url 'travel:tr_cost_populate' triprequest.id %}">
-                            {% trans "Add all costs" %}
-                        </a>
 
-                        <a class="btn btn-sm btn-outline-dark" href="{% url 'travel:tr_cost_clear' triprequest.id %}">
-                            {% trans "Clear empty lines" %}
-                        </a>
-                    </div>
-                {% endif %}
 
                 {% if triprequest.trip_request_costs.count == 0 %}
                     <em>
@@ -50,38 +52,48 @@
                     </em>
                     <br>
                 {% else %}
+                    <div class="row justify-content-center">
+                    <div class="col-5 justify-content-center">
 
-                    <table class="table table-hover table-sm" style="width: auto">
-                        <tr>
-                            {% for field in cost_field_list %}
-                                <th class="{% if not field == "cost" %}center-col{% endif %}">
-                                    {% get_verbose_label triprequest.trip_request_costs.first field %}
-                                </th>
-                            {% endfor %}
-                        </tr>
-                        <tbody>
-                        {% for obj in triprequest.trip_request_costs.all %}
-                            <tr data-toggle="tooltip" title="Edit" href="{% url 'travel:tr_cost_edit' obj.id %}" pop>
-                            {% for field in cost_field_list %}
-                                <td class="{% if not field == "cost" %}center-col{% endif %}{% if field == "amount_cad" and obj.amount_cad == 0 %}major-error{% endif %}">
-                                    {% get_field_value obj field as my_val %}
-                                    {% if field == number_of_days %}
-                                        {{ my_val|zero2val:"---" }}
-                                    {% else %}
-                                        {{ my_val|zero2val:"---"|currency }}
-                                    {% endif %}
-                                </td>
+                        <table class="table {% if not report_mode %} table-hover {% endif %} table-sm">
+                            <tr>
+                                {% for field in cost_field_list %}
+                                    <th class="{% if not field == "cost" %}center-col{% endif %}">
+                                        {% get_verbose_label triprequest.trip_request_costs.first field %}
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                            <tbody>
+                            {% for obj in triprequest.trip_request_costs.all %}
 
+                                {% if not report_mode %}
+                                    {% url 'travel:tr_cost_edit' obj.id as edit_url%}
+                                {% endif %}
+
+                                <tr data-toggle="tooltip" title="Edit" {% if not report_mode %} href="{{edit_url}}" pop {% endif %}>
+                                {% for field in cost_field_list %}
+                                    <td class="{% if not field == "cost" %}center-col{% endif %}{% if field == "amount_cad" and obj.amount_cad == 0 %}major-error{% endif %}">
+                                        {% get_field_value obj field as my_val %}
+                                        {% if field == number_of_days %}
+                                            {{ my_val|zero2val:"---" }}
+                                        {% else %}
+                                            {{ my_val|zero2val:"---"|currency }}
+                                        {% endif %}
+                                    </td>
+
+                                {% endfor %}
                             {% endfor %}
-                        {% endfor %}
-                        <tr>
-                            <td class=""><strong>TOTAL</strong></td>
-                            <td class="center-col">---</td>
-                            <td class="center-col">---</td>
-                            <td class="center-col"><strong>{{ triprequest.total_cost|zero2val:"---"|currency }}</strong></td>
-                        </tr>
-                        </tbody>
-                    </table>
+                            <tr>
+                                <td class=""><strong>TOTAL</strong></td>
+                                <td class="center-col">---</td>
+                                <td class="center-col">---</td>
+                                <td class="center-col"><strong>{{ triprequest.total_cost|zero2val:"---"|currency }}</strong></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+
                 {% endif %}
 
             </div>

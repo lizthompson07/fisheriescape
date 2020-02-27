@@ -99,12 +99,13 @@
 
 
                 {# SUBMIT BUTTON #}
-                {% if object.status.id == 11 or object.status.id == 22 %}
+                {% if object.status.id == 11 or object.status.id == 22 %} {# disabled for everyone #}
                     {% echo "disabled" as submit_disabled_var %}
                     {% trans "Approved or cancelled requests cannot by unsubmitted." as submit_tip_text %}
-                {% elif object.submitted and not is_admin and not is_owner %}
+{#                {% elif object.submitted and not is_admin and not is_owner %}#}
+                {% elif not can_modify %}
                     {% echo "disabled" as submit_disabled_var %}
-                    {% trans "Only application administrators and trip request owners can un-submit a request" as submit_tip_text %}
+                    {% trans "You do not have permissions to submit / un-submit this request" as submit_tip_text %}
                 {% endif %}
 
                 {% if object.submitted %}
@@ -128,7 +129,7 @@
                 </span>
 
                 {# EDIT BUTTON #}
-                {% if object.submitted and not is_admin and not is_current_reviewer and not object.status.id == 22 %}
+                {% if not can_modify %}
                     {% echo "disabled" as edit_disabled_var %}
                     {% trans "Only application administrators and reviewers can modify a submitted request" as edit_tip_text %}
                 {% endif %}
@@ -140,7 +141,7 @@
                 </span>
 
                 {# DELETE BUTTON #}
-                {% if object.submitted %}
+                {% if object.submitted or object.status.id == 16 %}
                     {% echo "disabled" as delete_disabled_var %}
                     {% trans "Submitted trip requests cannot be deleted." as delete_tip_text %}
                 {% endif %}

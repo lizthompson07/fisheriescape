@@ -622,7 +622,7 @@ class TripRequest(models.Model):
         if self.is_group_request:
             return [tr.user for tr in self.children_requests.all()]
         else:
-            return self.user
+            return [self.user]
 
     @property
     def purpose_long(self):
