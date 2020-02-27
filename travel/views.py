@@ -1175,7 +1175,9 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
         my_trip.is_verified = True
         my_trip.verified_by = self.request.user
         my_trip.save()
-        return HttpResponseRedirect(reverse("travel:admin_trip_verification_list"))
+        return HttpResponseRedirect(reverse("travel:admin_trip_verification_list",
+                                            kwargs={"region": self.kwargs.get("region"),
+                                                    "adm": self.kwargs.get("adm")}))
 
 
 # REPORTS #
