@@ -10,24 +10,27 @@
         <div class="card my-1">
             <h5 class="card-header"><a href="#fs-deployment-list-stn" data-toggle="collapse">{% get_verbose_label dep 'stn' %}</a></h5>
             <div class="card-body collapse" id="fs-deployment-list-stn">
-                <div class="card-text">{% include "whalesdb/_station.html" with stn=object.stn %}</div>
+                <div class="card-text">{% include "whalesdb/_station.html" with stn=dep.stn %}</div>
             </div>
         </div>
 
          <div class="card my-1">
             <h5 class="card-header"><a href="#fs-deployment-list-mor" data-toggle="collapse">{% get_verbose_label dep 'mor' %}</a></h5>
             <div class="card-body collapse" id="fs-deployment-list-mor">
-                <div class="card-text">{% include "whalesdb/_mooring_setup.html" with mor=object.mor %}</div>
+                <div class="card-text">{% include "whalesdb/_mooring_setup.html" with mor=dep.mor %}</div>
             </div>
         </div>
 
          <div class="card my-1">
-            <h5 class="card-header"><a href="#fs-deployment-list-set" data-toggle="collapse">{% trans "Station Events" %}</a></h5>
-            <div class="card-body collapse" id="fs-deployment-list-set">
-            <a class="btn btn-primary" href="#" onclick="return popitup('{% url 'whalesdb:create_ste' dep.pk %}','popoutWindow', height=800)" title="{% trans 'Add' %}">+</a>
-                Events: '{{ dep.stestationevents }}'
-                {% for evt in dep.stestationevents %}
-                <pre>event</pre>
+            <div class="card-header h5">
+                <a href="#fs-deployment-list-set" data-toggle="collapse">{% trans "Station Events" %}</a>
+                {# for deployments 1 = Deployment event in the SET table, 2 = Recovery in the SET table #}
+                <a class="btn btn-primary" href="#" onclick="return popitup('{% url 'whalesdb:create_ste' dep.pk 1 %}','popoutWindow', height=800)" title="{% trans 'Add' %}">{% trans 'Deployment Event' %}</a>
+                <a class="btn btn-primary" href="#" onclick="return popitup('{% url 'whalesdb:create_ste' dep.pk 2 %}','popoutWindow', height=800)" title="{% trans 'Add' %}">{% trans 'Recovery Event' %}</a>
+            </div>
+            <div class="card-body" id="fs-deployment-list-set">
+                {% for evt in dep.station_events.all %}
+                    {{evt.set_type.set_name}} - {{ evt.ste_date }}<br />
                 {% endfor %}
             </div>
         </div>
