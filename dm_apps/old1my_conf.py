@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SHOW_TICKETING_APP = True
 
 # Should DEBUG mode be turned on? Uncomment the line below to turn on debugging
-# DEBUG = True
+DEBUG = True
 
 # To add any custom hosts to this application's list of allowed hosts, provide them here
 ALLOWED_HOSTS_TO_ADD = []
@@ -43,26 +43,26 @@ FORCE_DEV_DB = False
 # if there is a verbose name, it should be the key value, otherwise None
 APP_DICT = {
     'inventory': 'Metadata Inventory',
-    'grais': 'grAIS',
-    'oceanography': 'Oceanography',
-    'herring': 'HerMorrhage',
-    'camp': 'CAMP db',
-    'meq': 'Marine environmental quality (MEQ)',
-    'diets': 'Marine diets',
-    'projects': 'Science project planning',
-    'ihub': 'iHub',  # dependency on masterlist
-    'scifi': 'SciFi',
-    'masterlist': 'Masterlist',
-    'shares': 'Gulf Shares',
+    # 'grais': 'grAIS',
+    # 'oceanography': 'Oceanography',
+    # 'herring': 'HerMorrhage',
+    # 'camp': 'CAMP db',
+    # 'meq': 'Marine environmental quality (MEQ)',
+    # 'diets': 'Marine diets',
+    # 'projects': 'Science project planning',
+    # 'ihub': 'iHub',  # dependency on masterlist
+    # 'scifi': 'SciFi',
+    # 'masterlist': 'Masterlist',
+    # 'shares': 'Gulf Shares',
     'travel': 'Travel Management System',
-    'sar_search': "SAR Search",
-    'spot': 'Grants & Contributions (Spot)',  # dependency on masterlist, sar_search
-    'ios2': 'Instruments',
-    'staff': "Staff Planning Tool",
-    'publications': "Project Publications Inventory",
-    'trapnet': "TrapNet",
-    'whalesdb': "Whale Equipment Deployment Inventory",
-    'vault': "Marine Megafauna Media Vault",
+    # 'sar_search': "SAR Search",
+    # 'spot': 'Grants & Contributions (Spot)',  # dependency on masterlist, sar_search
+    # 'ios2': 'Instruments',
+    # 'staff': "Staff Planning Tool",
+    # 'publications': "Project Publications Inventory",
+    # 'trapnet': "TrapNet",
+    # 'whalesdb': "Whale Equipment Deployment Inventory",
+    # 'vault': "Marine Megafauna Media Vault",
 }
 
 MY_INSTALLED_APPS = [app for app in APP_DICT]
@@ -85,15 +85,15 @@ elif is_db_connection_available():
     DB_MODE = db_dict["DB_MODE"].upper()
 
     # if we have a connection, get the names of db and host to pass in as context processors
-    DB_NAME = db_dict["DB_NAME"].upper()
-    DB_HOST = db_dict["DB_HOST"].upper()
+    DB_NAME = db_dict["DB_NAME"]
+    DB_HOST = db_dict["DB_HOST"]
 
 #  otherwise we are using a local sqlite version
 else:
     USING_LOCAL_DB = True
     DB_MODE = "DEV"
-    DB_NAME = "db.sqlite3"
-    DB_HOST = "local"
+    DB_NAME = 'n/a'
+    DB_HOST = 'n/a'
 
 
 # Specify your database connection details
@@ -119,3 +119,72 @@ else:
 DATABASES = {
     'default': my_default_db,
 }
+
+
+
+
+################################################################################################################################################
+## FOR PYCHARM:
+
+# check to see if there is a user-defined local configuration file
+# if there is, we we use this as our local configuration, otherwise we use the default
+try:
+    from . import my_conf as local_conf
+except ModuleNotFoundError and ImportError:
+    from . import default_conf as local_conf
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+
+# Application definition
+INSTALLED_APPS = [
+                     'django.contrib.admin',
+                     'django.contrib.auth',
+                     'django.contrib.contenttypes',
+                     'django.contrib.sessions',
+                     'django.contrib.messages',
+                     'django.contrib.staticfiles',
+                     'storages',
+                     'django.contrib.humanize',
+                     'bootstrap4',
+                     'el_pagination',
+                     'easy_pdf',
+                     'tracking',
+                     'accounts',
+                     'lib',
+                     'shared_models',
+                     'tickets',
+                 ] + local_conf.MY_INSTALLED_APPS
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'tracking.middleware.VisitorTrackingMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+ROOT_URLCONF = 'dm_apps.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [TEMPLATE_DIR],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'dm_apps.context_processor.my_envr'
+            ],
+        },
+    },
+]
