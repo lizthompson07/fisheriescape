@@ -172,8 +172,8 @@ class Conference(models.Model):
     notes = models.TextField(blank=True, null=True, verbose_name=_("general notes"))
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     blank=True, null=True, related_name="trips")
-    is_verified = models.BooleanField(default=False)
-    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by")
+    is_verified = models.BooleanField(default=False, verbose_name=_("verified?"))
+    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by", verbose_name=_("verified by"))
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
