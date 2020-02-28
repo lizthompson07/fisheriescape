@@ -1054,6 +1054,8 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
     filterset_class = filters.TripFilter
     template_name = 'travel/trip_list.html'
 
+
+
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
@@ -1070,6 +1072,10 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             'dates|{}'.format(_("dates")),
             'number_of_days|{}'.format(_("length (days)")),
             'is_adm_approval_required|{}'.format(_("ADM approval required?")),
+            f'total_travellers|{_("Total travellers")}',
+            f'connected_requests|{_("Connected requests")}',
+            'is_verified',
+            'verified_by',
         ]
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
