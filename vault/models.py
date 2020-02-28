@@ -12,6 +12,7 @@ class Species(models.Model):
     latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Scientific name"))
     vor_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("VOR code"))
     quebec_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Quebec code"))
+    maritimes_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Maritimes code"))
     aphia_id = models.IntegerField(null=True, blank=True, verbose_name=_("ID in World Registry of Marine Species"))
 
     def __str__(self):
@@ -64,6 +65,7 @@ class Person(models.Model):
     last_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_(""), null=True, blank=True)
     email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    phone = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     # m2m
     roles = models.ManyToManyField(Role, verbose_name=_(""))
 
@@ -195,7 +197,9 @@ class Outing(models.Model):
     region = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     purpose = models.CharField(max_length=250, blank=True, null=True)
     start_date = models.DateTimeField(blank=True, null=True)
-    end_date = models.DateTimeField(null=True, blank=True)
+    start_time = models.DateTimeField(null=True, blank=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+    duration = models.IntegerField(null=True, blank=True, verbose_name=_(""))
     identifier_string = models.CharField(max_length=250, blank=True, null=True)
 
     def __str__(self):
@@ -210,7 +214,7 @@ class Observation(models.Model):
     latitude = models.FloatField(null=True, blank=True, verbose_name=_(""))
     observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""), null=True, blank=True)
     metadata = models.ManyToManyField(MetadataField, through="ObservationMetadatum")
-    oppurtin = models.BooleanField(default=False)
+    opportunistic = models.BooleanField(default=False)
 
 class ObservationMetadatum(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_metadata", verbose_name=_(""))
@@ -274,6 +278,21 @@ class HealthStatus(models.Model):
     class Meta:
         ordering = ['name', ]
 
+class IndividualIdentification(models.Model):
+    id_number = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
 
 class ObservationSighting(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_sightings", verbose_name=_(""))
@@ -284,7 +303,7 @@ class ObservationSighting(models.Model):
     health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="observation_sightings",
                                       null=True, blank=True)
     verified = models.BooleanField(default=False, verbose_name=_(""))
-    # known_individual = models.ForeignKey(Individual)
+    known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_(""))
 
 
 class OriginalMediafile(models.Model):
@@ -316,7 +335,7 @@ class MediafileSighting(models.Model):
     health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="mediafile_sightings",
                                       null=True, blank=True)
     verified = models.BooleanField(default=False, verbose_name=_(""))
-    # known_individual = models.ForeignKey(Individual)
+   # known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_(""))
 
 
 class ProcessedMediafile(models.Model):

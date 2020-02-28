@@ -68,6 +68,7 @@ class SpeciesListView(VaultAccessRequired, FilterView):
             'latin_name',
             'vor_code',
             'quebec_code',
+            'maritimes_code',
             'aphia_id',
         ]
         return context
