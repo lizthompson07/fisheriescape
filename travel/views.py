@@ -243,7 +243,7 @@ request_field_list = [
     f'total_request_cost|{_("Total cost (DFO)")}',
     'non_dfo_costs',
     'non_dfo_org',
-    'submitted',
+    'original_submission_date',
     f'processing_time|{_("Processing time")}',
 ]
 
@@ -267,7 +267,7 @@ request_group_field_list = [
     'total_request_cost|{}'.format(_("Total cost (DFO)")),
     'non_dfo_costs',
     'non_dfo_org',
-    'submitted',
+    'original_submission_date',
     f'processing_time|{_("Processing time")}',
 ]
 
@@ -666,6 +666,9 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
         else:
             #  SUBMIT REQUEST
             my_trip_request.submitted = timezone.now()
+            # if there is not an original submission date, add one
+            if not my_trip_request.original_submission_date:
+                my_trip_request.original_submission_date = timezone.now()
             # if the request is being resubmitted, this is a special case...
             if my_trip_request.status_id == 16:
                 my_trip_request.status_id = 8
