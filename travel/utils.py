@@ -54,6 +54,8 @@ def get_reviewers(trip_request):
 
         try:
             if trip_request.user != trip_request.section.division.branch.head:
+                if trip_request.section.division.branch.region_id == 2:
+                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=1102, role_id=1, ) # MAR RDSO ADMIN user
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.head,
                                                       role_id=2, )
         except (IntegrityError, AttributeError):
