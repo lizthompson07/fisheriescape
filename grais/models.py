@@ -86,7 +86,7 @@ class Species(models.Model):
     invasive = models.BooleanField(verbose_name="is invasive?")
     # biofouling = models.BooleanField()
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
-    green_crab_monitoring = models.BooleanField(default=False)
+    green_crab_monitoring = models.BooleanField(default=False, verbose_name="targeted species in Green Crab Monitoring Program?")
 
     def __str__(self):
         if self.common_name or self.common_name_fra:
@@ -154,6 +154,12 @@ class Sample(models.Model):
     class Meta:
         ordering = ['-season', 'date_deployed', 'station']
 
+    @property
+    def has_invasive_spp(self):
+        for line in self.lines.all():
+            if line.has_invasive_spp:
+                return True
+        return False
 
 class SampleSpecies(models.Model):
     species = models.ForeignKey(Species, on_delete=models.CASCADE, related_name="sample_spp")
@@ -219,6 +225,13 @@ class Line(models.Model):
     def surface_species_count(self):
         return sum([s.species.count() for s in self.surfaces.all()])
 
+    @property
+    def has_invasive_spp(self):
+        for surface in self.surfaces.all():
+            if surface.has_invasive_spp:
+                return True
+        return False
+
 
 def img_file_name(instance, filename):
     img_name = 'grais/sample_{}/{}'.format(instance.line.sample.id, filename)
@@ -269,6 +282,13 @@ class Surface(models.Model):
 
     class Meta:
         ordering = ['line', 'surface_type', 'label']
+
+    @property
+    def has_invasive_spp(self):
+        for sp in self.species.all():
+            if sp.invasive:
+                return True
+        return False
 
 
 class SurfaceSpecies(models.Model):
@@ -624,8 +644,68 @@ class Trap(models.Model):
     class Meta:
         ordering = ['sample', 'trap_number']
 
+    @property
+    def get_bycatch(self):
+        return self.catch_spp.filter(species__green_crab_monitoring=False)
 
-class Crab(models.Model):
+    @property
+    def get_invasive_crabs(self):
+        return self.catch_spp.filter(species__invasive=True)
+
+    @property
+    def get_noninvasive_crabs(self):
+        return self.catch_spp.filter(species__green_crab_monitoring=True, species__invasive=False)
+
+
+# class Crab(models.Model):
+#     # Choices for sex
+#     MALE = 1
+#     FEMALE = 2
+#     UNK = 9
+#     SEX_CHOICES = (
+#         (MALE, 'Male'),
+#         (FEMALE, 'Female'),
+#         (UNK, 'Unknown'),
+#     )
+#     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
+#     trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="crabs")
+#     width = models.FloatField(blank=True, null=True)
+#     sex = models.IntegerField(blank=True, null=True, choices=SEX_CHOICES)
+#     carapace_color = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(4)])
+#     abdomen_color = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(4)])
+#     egg_color = models.CharField(max_length=25, blank=True, null=True)
+#     notes = models.TextField(blank=True, null=True)
+#     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+#
+#     # class Meta:
+#     #     unique_together = (('species', 'trap'),)
+#
+#     def __str__(self):
+#         return "{}".format(self.species)
+#
+#     class Meta:
+#         ordering = ['trap', 'species', 'id']
+
+
+# class Bycatch(models.Model):
+#     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
+#     trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="bycatch")
+#     count = models.IntegerField(blank=True, null=True)
+#     notes = models.TextField(blank=True, null=True)
+#     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+#
+#     class Meta:
+#         unique_together = (('species', 'trap'),)
+#
+#     def __str__(self):
+#         return "{}".format(self.species)
+#
+#     class Meta:
+#         ordering = ['trap', 'species', 'id']
+#         unique_together = ['trap', 'species']
+
+
+class Catch(models.Model):
     # Choices for sex
     MALE = 1
     FEMALE = 2
@@ -636,12 +716,13 @@ class Crab(models.Model):
         (UNK, 'Unknown'),
     )
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
-    trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="crabs")
+    trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="catch_spp")
     width = models.FloatField(blank=True, null=True)
     sex = models.IntegerField(blank=True, null=True, choices=SEX_CHOICES)
     carapace_color = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(4)])
     abdomen_color = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1), MaxValueValidator(4)])
     egg_color = models.CharField(max_length=25, blank=True, null=True)
+    count = models.IntegerField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
 
@@ -654,20 +735,14 @@ class Crab(models.Model):
     class Meta:
         ordering = ['trap', 'species', 'id']
 
+    @property
+    def is_bycatch(self):
+        return self.species.green_crab_monitoring == False
 
-class Bycatch(models.Model):
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING)
-    trap = models.ForeignKey(Trap, on_delete=models.DO_NOTHING, related_name="bycatch")
-    count = models.IntegerField(blank=True, null=True)
-    notes = models.TextField(blank=True, null=True)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    @property
+    def is_invasive_crab(self):
+        return self.species.green_crab_monitoring == True and self.species.invasive == True
 
-    class Meta:
-        unique_together = (('species', 'trap'),)
-
-    def __str__(self):
-        return "{}".format(self.species)
-
-    class Meta:
-        ordering = ['trap', 'species', 'id']
-        unique_together = ['trap', 'species']
+    @property
+    def is_noninvasive_crab(self):
+        return self.species.green_crab_monitoring == True and self.species.invasive == False

@@ -87,13 +87,14 @@
         $(selector).multiSelect(msConfig[selector]);
     }
 
-
-    var cleaveConfig = {
+    if ($(".input-phone").length) {
+        var cleaveConfig = {
             numeral: false,
             delimiter: '-',
             blocks: [3, 3, 25],
         };
-    var cleave = new Cleave('.input-phone', cleaveConfig);
+        var cleave = new Cleave('.input-phone', cleaveConfig);
+    }
 
     // for . editable things i.e. medium-editor / medium-editor-table
     //var editor = new MediumEditor('.editable', {

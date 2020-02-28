@@ -209,7 +209,7 @@ def signup(request):
             user.is_active = False
             user.save()
             current_site = get_current_site(request)
-            mail_subject = 'Activate your Gulf Region Data Management account.'
+            mail_subject = 'Activate your DM Apps account / Activez votre compte Applications GD'
             message = render_to_string('registration/acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
@@ -218,14 +218,12 @@ def signup(request):
             })
             to_email = form.cleaned_data.get('email')
             from_email = settings.SITE_FROM_EMAIL
-            email = EmailMessage(
-                mail_subject, message, to=[to_email], from_email=from_email,
+            custom_send_mail(
+                html_message=message,
+                subject=mail_subject,
+                recipient_list=[to_email,],
+                from_email=from_email,
             )
-            if settings.USE_EMAIL:
-                email.send()
-            else:
-                print('not sending email since in dev mode')
-                print(message)
             return HttpResponse('Please confirm your email address to complete the registration')
     else:
         form = forms.SignupForm()
@@ -252,6 +250,10 @@ def activate(request, uidb64, token):
 class UserPassWordResetView(PasswordResetView):
     template_name = "registration/user_password_reset_form.html"
     success_message = "An email has been sent!"
+    form_class = forms.DMAppsPasswordResetForm
+    from_email = settings.SITE_FROM_EMAIL
+    subject_template_name = 'registration/dm_apps_password_reset_subject.txt'
+    email_template_name = 'registration/dm_apps_password_reset_email.html'
 
     def get_success_url(self, **kwargs):
         messages.success(self.request, self.success_message)

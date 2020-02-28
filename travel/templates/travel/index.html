@@ -23,8 +23,11 @@
                 {% url 'travel:request_review_list' as event_assigned_list_url %}
                 {% url 'travel:request_new' as event_new_url %}
                 {% url 'travel:admin_approval_list' 'adm' as adm_approval_list_url %}
-                {% url 'travel:admin_approval_list' 'rdg' as rdg_approval_list_url %}
-                {% url 'travel:admin_trip_verification_list' as trip_verification_list_url %}
+                {% url 'travel:admin_approval_list' 'rdg' 1 as gulf_rdg_approval_list_url %}
+                {% url 'travel:admin_approval_list' 'rdg' 2 as mar_rdg_approval_list_url %}
+                {% url 'travel:admin_trip_verification_list' 0 1 as adm_trip_verification_list_url %}
+                {% url 'travel:admin_trip_verification_list' 1 0 as gulf_trip_verification_list_url %}
+                {% url 'travel:admin_trip_verification_list' 2 0 as mar_trip_verification_list_url %}
                 <br>
                 <h3>
                     {% blocktrans %}
@@ -65,29 +68,38 @@
                         {# ADMIN ONLY STUFF #}
                         {% if is_admin %}
                             <hr>
-                                {% trans "Trip requests awaiting admin approval for:" %}
-                                <a href="{{ adm_approval_list_url }}">
-                                {% trans "ADM" %}
-                                </a>
-                                (<span class="{% if adm_number_waiting > 0 %}red-font blink-me{% endif %}">{{ adm_number_waiting }}</span>)
-                                &nbsp;&nbsp;
-                                <a href="{{ rdg_approval_list_url }}">
-                                {% trans "RDG" %}
-                                </a>
-                                (<span class="{% if rdg_number_waiting > 0 %}red-font blink-me{% endif %}">{{ rdg_number_waiting }}</span>)
+                            {% trans "Trip requests awaiting approval from" %}
+                            <a href="{{ adm_approval_list_url }}">{% trans "ADM" %}</a>
+                            (<span class="{% if adm_number_waiting > 0 %}red-font blink-me{% endif %}">{{ adm_number_waiting }}</span>)
+
+                            <br><br>
+
+                            {% trans "Trip requests awaiting approval from RDG:" %}                            &nbsp;
+                            <a href="{{ gulf_rdg_approval_list_url }}" class="btn btn btn-outline-dark">
+                                {% trans "Gulf" %} (<span
+                                    class="{% if gulf_rdg_number_waiting > 0 %}red-font blink-me{% endif %}">{{ gulf_rdg_number_waiting }}</span>)
+                            </a>
+                            <a href="{{ mar_rdg_approval_list_url }}" class="btn btn btn-outline-dark">
+                                {% trans "Maritimes" %} (<span
+                                    class="{% if mar_rdg_number_waiting > 0 %}red-font blink-me{% endif %}">{{ mar_rdg_number_waiting }}</span>)
+                            </a>
 
 
                             <br><br>
-                            {% blocktrans %}
-                                Non-ADM trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>
-                            {% endblocktrans %}
-                            (<span class="{% if unverified_trips_non_adm > 0 %}red-font blink-me{% endif %}">{{ unverified_trips_non_adm }}</span>).
 
-                            <br><br>
-                            {% blocktrans %}
-                                ADM trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>
-                            {% endblocktrans %}
-                            (<span class="{% if unverified_trips_adm > 0 %}red-font blink-me{% endif %}">{{ unverified_trips_adm }}</span>).
+                            {% trans "Trips awaiting verification:" %}                            &nbsp;
+                            <a href="{{ adm_trip_verification_list_url }}" class="btn btn-outline-dark">
+                                {% trans "National" %} (<span
+                                    class="{% if adm_unverified_trips > 0 %}red-font blink-me{% endif %}">{{ adm_unverified_trips }}</span>)
+                            </a>
+                            <a href="{{ gulf_trip_verification_list_url }}" class="btn btn-outline-dark">
+                                {% trans "Gulf" %} (<span
+                                    class="{% if gulf_unverified_trips > 0 %}red-font blink-me{% endif %}">{{ gulf_unverified_trips }}</span>)
+                            </a>
+                            <a href="{{ mar_trip_verification_list_url }}" class="btn btn-outline-dark">
+                                {% trans "Maritimes" %} (<span
+                                    class="{% if mar_unverified_trips > 0 %}red-font blink-me{% endif %}">{{ mar_unverified_trips }}</span>)
+                            </a>
 
                         {% endif %}
                     {% endif %}
