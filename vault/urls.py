@@ -36,6 +36,13 @@ urlpatterns = [
     path('instrument/<int:pk>/view/', views.InstrumentDetailView.as_view(), name="instrument_detail"),
     path('instrument/<int:pk>/edit/', views.InstrumentUpdateView.as_view(), name="instrument_edit"),
     path('instrument/<int:pk>/delete/', views.InstrumentDeleteView.as_view(), name="instrument_delete"),
+
+    # # OUTING #
+    path('outing-list/', views.OutingListView.as_view(), name="outing_list"),
+    path('outing/new/', views.OutingCreateView.as_view(), name="outing_new"),
+    path('outing/<int:pk>/view/', views.OutingDetailView.as_view(), name="outing_detail"),
+    path('outing/<int:pk>/edit/', views.OutingUpdateView.as_view(), name="outing_edit"),
+    path('outing/<int:pk>/delete/', views.OutingDeleteView.as_view(), name="outing_delete"),
 ]
 
 

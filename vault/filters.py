@@ -14,3 +14,7 @@ class ObservationPlatformFilter(django_filters.FilterSet):
 class InstrumentFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
+
+class OutingFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
+                                            lookup_expr='icontains', widget=forms.TextInput())
