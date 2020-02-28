@@ -446,7 +446,8 @@ class TripRequest(models.Model):
     non_dfo_org = models.CharField(max_length=1000, verbose_name=_("full name(s) of organization paying non-DFO costs"), blank=True,
                                    null=True)
 
-    submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
+    submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
+    original_submission_date = models.DateTimeField(verbose_name=_("original submission date"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trip_requests",
                                limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
     parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
@@ -689,14 +690,14 @@ class TripRequest(models.Model):
     @property
     def processing_time(self):
         # if draft
-        if self.status.id == 8 or not self.submitted:
+        if self.status.id == 8 or not self.original_submission_date:
             my_var = "---"
         # if approved, denied
         elif self.status.id in [10,11]:
-            my_var = self.reviewers.filter(status_date__isnull=False).last().status_date - self.submitted
+            my_var = self.reviewers.filter(status_date__isnull=False).last().status_date - self.original_submission_date
             my_var = f"{my_var.days} {_('day')}{pluralize(my_var.days)}"
         else:
-            my_var = timezone.now() - self.submitted
+            my_var = timezone.now() - self.original_submission_date
             my_var = f"{my_var.days} {_('day')}{pluralize(my_var.days)}"
         return my_var
 
