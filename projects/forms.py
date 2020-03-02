@@ -661,3 +661,47 @@ class FileForm(forms.ModelForm):
             'status_report': forms.HiddenInput(),
             # 'end_date':forms.DateInput(attrs={'type': 'date'}),
         }
+
+
+
+
+class IWForm(forms.Form):
+    fiscal_year = forms.ChoiceField(label=_("Fiscal year"), widget=forms.Select(attrs=chosen_js), required=True)
+    region = forms.ChoiceField(label=_("Region"), widget=forms.Select(attrs=chosen_js), required=False)
+    division = forms.ChoiceField(label=_("Division"), widget=forms.Select(attrs=chosen_js), required=False)
+    section = forms.ChoiceField(label=_("Section"), widget=forms.Select(attrs=chosen_js), required=False)
+
+    def __init__(self, *args, **kwargs):
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+
+
+        super().__init__(*args, **kwargs)
+
+
+        region_choices = views.get_region_choices()
+        region_choices.insert(0, tuple((None, "---")))
+
+        division_choices = views.get_division_choices()
+        section_choices = views.get_section_choices(full_name=False)
+
+
+
+        # if there is a region, we should limit the divisions and sections
+        if kwargs.get("initial"):
+            if kwargs.get("initial").get("region"):
+                # overwrite the current choice list if a region is present
+                division_choices = views.get_division_choices(region_filter=kwargs.get("initial").get("region"))
+                section_choices = views.get_section_choices(region_filter=kwargs.get("initial").get("region"), full_name=False)
+        division_choices.insert(0, tuple((None, "---")))
+
+        # if there is a division, we should limit the sections
+        if kwargs.get("initial"):
+            if kwargs.get("initial").get("division"):
+                # overwrite the current choice list if a division is present
+                section_choices = views.get_section_choices(division_filter=kwargs.get("initial").get("division"), full_name=False)
+        section_choices.insert(0, tuple((None, "---")))
+
+        self.fields['fiscal_year'].choices = fy_choices
+        self.fields['region'].choices = region_choices
+        self.fields['division'].choices = division_choices
+        self.fields['section'].choices = section_choices

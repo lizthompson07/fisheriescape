@@ -41,7 +41,7 @@
         </ol>
     </nav>
 
-    <div class="container">
+    <div class="container mb-3">
 
         <h1>
             {% if object %}
@@ -50,7 +50,7 @@
                 {% endif %}
                 {{ object }}
             {% else %}
-                New Request
+                New <span id="request-type"></span> Request
             {% endif %}
         </h1>
 
@@ -61,114 +61,79 @@
             {% bootstrap_form_errors form %}
 
 
-
+            {# Fields without a label; Will serve as a catch all but also to bring in hidden fields #}
             {% for field in form %}
-                {% if "hide-me" in field.field.widget.attrs.class %}
-                    {% if "user-info" in field.field.widget.attrs.class %}
-                        <div class="hide-me user-info">
-                    {% else %}
-                        <div class="hide-me">
-                    {% endif %}
-                {% endif %}
-
-            {% if field.name == "role_of_participant" or field.name == "role" %}
-                <div class="conference_container">
-
-                    {% if field.name in help_text_dict %}
-                        {% bootstrap_label field.label %}
-                        {% with help_text_dict|lookup:field.name as help_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                                 data-trigger="hover"
-                                 title="{{ field.label }}"
-                                 data-content="{{ help_text }}">
-                            {% bootstrap_field field placeholder="" show_label=False %}
-                        {% endwith %}
-                    {% else %}
-                        {% bootstrap_field field placeholder="" %}
-                    {% endif %}
-                    {#                    <em class="blue-font">#}
-                    {#                        ({% trans "The above field was added since 'conference' was selected as the reason for travel." %})#}
-                    {#                    </em><br><br>#}
-                </div>
-            {% elif field.name == "trip" %}
-                {% if field.name in help_text_dict %}
-                    {% bootstrap_label field.label %}
-                    {% with help_text_dict|lookup:field.name as help_text %}
-                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
-                             title="{{ field.label }}"
-                             data-content="{{ help_text }}">
-                        {% bootstrap_field field placeholder="" show_label=False %}
-                    {% endwith %}
-                {% else %}
+                {% if field.field.group == 0 %}
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
-                {% if field.name == "trip" %}
-                    (<a href="#" pop-href="{% url 'travel:trip_new' 1 %}" id="new_event">add a new trip</a>)
-                    <br><br>
-                {% endif %}
-            {% elif field.name == "is_group_request" %}
-                <div class="is_group_request_container">
-                    {% if field.name in help_text_dict %}
-                        {% bootstrap_label field.label %}
-                        {% with help_text_dict|lookup:field.name as help_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                                 data-trigger="hover"
-                                 title="{{ field.label }}"
-                                 data-content="{{ help_text }}">
-                            {% bootstrap_field field placeholder="" show_label=False %}
-                        {% endwith %}
-                    {% else %}
-                        {% bootstrap_field field placeholder="" %}
-                    {% endif %}
-                    <div class="show-me blue-font">
-                        <p>
-                            <em>
-                                {% trans "(One this form is submitted, you will be able to add group travellers to the request. You will be automatically added as a traveller.)" %}
-                            </em>
-                        </p>
+            {% endfor %}
+
+            {# GENERAL DETAILS #}
+            <div class="card mb-2">
+                <h2 class="card-header text-white bg-primary">
+                    {% trans "General Trip Information" %}
+                </h2>
+                <div class="card-body">
+                    <div class="card-text">
+                        {% for field in form %}
+                            {% if field.field.group == 1 %}
+                                {% include "travel/_trip_request_form_layout.html" %}
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
-            {% elif field.name == "address" %}
-                {% if field.name in help_text_dict %}
-                    {% bootstrap_label field.label %}
-                    {% with help_text_dict|lookup:field.name as help_text %}
-                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
-                             title="{{ field.label }}"
-                             data-content="{{ help_text }}">
-                        {% bootstrap_field field placeholder="" show_label=False %}
-                    {% endwith %}
-                {% else %}
-                    {% bootstrap_field field placeholder="" %}
-                {% endif %}
-                <span style="font-size: small">Predefined addresses:</span><br>
-                <a href="#" class="btn btn-sm btn-outline-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
-                <a href="#" class="btn btn-sm btn-outline-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
-                <a href="#" class="btn btn-sm btn-outline-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B 0E4</a>
-                <br>
-                <br>
+            </div>
 
-            {% elif "cost" in field.field.widget.attrs|lookup:"class" %}
+            {# TRAVELLER #}
+            <div class="card mb-2">
+                <h2 class="card-header text-white bg-primary" id="group2-text-h2">
 
+                </h2>
+                <div class="card-body">
+                    <div class="card-text">
+                        {% for field in form %}
+                            {% if field.field.group == 2 %}
+                                {% include "travel/_trip_request_form_layout.html" %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
 
-            {% else %}
-                {% if field.name in help_text_dict %}
-                    {% bootstrap_label field.label %}
-                    {% with help_text_dict|lookup:field.name as help_text %}
-                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
-                             title="{{ field.label }}"
-                             data-content="{{ help_text }}">
-                        {% bootstrap_field field placeholder="" show_label=False %}
-                    {% endwith %}
-                {% else %}
-                    {% bootstrap_field field placeholder="" %}
-                {% endif %}
-            {% endif %}
-            {% if "hide-me" in field.field.widget.attrs.class %}
+            {# JUSTIFICATION #}
+            <div class="card mb-2">
+                <h2 class="card-header text-white bg-primary">
+                    {% trans "Trip Justification" %}
+                </h2>
+                <div class="card-body">
+                    <div class="card-text">
+                        {% for field in form %}
+                            {% if field.field.group == 3 %}
+                                {% include "travel/_trip_request_form_layout.html" %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# Reviewers - ONLY ADD IF OBJECT PRESENT#}
+            {% if object %}
+
+                <div class="card mb-2">
+                    <h2 class="card-header text-white bg-primary">
+                        {% trans "Trip Request Reviewers" %}
+                    </h2>
+                    <div class="card-body">
+                        <div class="card-text">
+                            {% for field in form %}
+                                {% if field.field.group == 4 %}
+                                    {% include "travel/_trip_request_form_layout.html" %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
             {% endif %}
-            {% endfor %}
-            <br>
-            </div>
 
             <div class="container center-col">
                 {% buttons %}
@@ -195,31 +160,62 @@
 
         function refreshUserInfo() {
             myId = $("#id_user").val();
+            // no ID provided
             if (myId == "") {
-                $("#id_first_name").val("");
-                $("#id_last_name").val("");
-                $("#id_email").val("");
-                $(".user-info").removeClass("gone");
+                $("#id_first_name").val("").prop("required", true);
+                $("#id_last_name").val("").prop("required", true);
+                $("#id_email").val("").prop("required", true);
+                $(".disappear-if-user").removeClass("gone");
             } else {
-                $(".user-info").addClass("gone");
-                $("#id_first_name").val(userObj[myId]["first_name"]);
-                $("#id_last_name").val(userObj[myId]["last_name"]);
-                $("#id_email").val(userObj[myId]["email"]);
+                $(".disappear-if-user").addClass("gone");
+                $("#id_is_public_servant").val("True");
+                $("#id_company_name").val("");
+                $("#id_first_name").val(userObj[myId]["first_name"]).prop("required", false);
+                $("#id_last_name").val(userObj[myId]["last_name"]).prop("required", false);
+                $("#id_email").val(userObj[myId]["email"]).prop("required", false);
+            }
 
+            if ($("#id_is_public_servant").val() == "True") {
+                $("#id_dfo_region").removeClass("gone");
+            } else {
+                $("#id_dfo_region").addClass("gone");
+            }
+
+        }
+
+        function refreshPublicServantFields() {
+            if ($("#id_is_public_servant").val() == "False") {
+                $(".hide-if-public-servant").removeClass("gone");
+                $(".hide-if-not-public-servant").addClass("gone");
+            } else {
+                $(".hide-if-public-servant").addClass("gone");
+                $(".hide-if-not-public-servant").removeClass("gone");
             }
         }
 
 
+        $("#id_is_public_servant").change(function () {
+            refreshPublicServantFields();
+        });
+
         function refreshClassHideMe() {
+            // not a group request
             if ($("#id_is_group_request").val() == "False") {
-                $(".hide-me").removeClass("gone");
-                $(".show-me").addClass("gone");
+                $("#id_user").prop("required", false);
+                $("#group2-text-h2").html("{% trans "Traveller Information" %}");
+                $("#request-type").html("{% trans "Individual" %}");
+                $(".not-a-group-field").removeClass("gone");
+                $(".show-me-when-group-request").addClass("gone");
             } else {
-                $(".hide-me").addClass("gone");
-                $(".show-me").removeClass("gone");
+                $("#id_user").prop("required", true);
+                $("#group2-text-h2").text("{% trans "Requester Information" %}");
+                $("#request-type").html("{% trans "Group" %}");
+                $(".not-a-group-field").addClass("gone");
+                $(".show-me-when-group-request").removeClass("gone");
             }
             refreshUserInfo();
         }
+
 
         $("#id_user").change(function () {
             refreshUserInfo();
@@ -242,8 +238,10 @@
             refreshClassHideMe();
         });
 
+
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
+            refreshPublicServantFields();
             refreshUserInfo();
             refreshClassHideMe();
             // do not make these fields required, otherwise we will not see the form errors if omitted
@@ -256,16 +254,23 @@
             $("form").submit();
         });
 
-        $(".address-btn").click(function (e) {
-            e.preventDefault();
-            $myBtn = $(this);
-            $("#id_address").val($myBtn.text());
+        $("#predefined-addresses").change(function () {
+            $myInput = $(this);
+            $("#id_address").val($myInput.val());
         });
 
         {% if object %}
-            $(".is_group_request_container").addClass("gone");
+            $("#group_request_container").addClass("gone");
         {% endif %}
 
+
+        // if a user changes a section or trip, change the "reset reviewers" input to True
+        $("#id_trip").change(function () {
+            $("#id_reset_reviewers").val("True")
+        })
+        $("#id_section").change(function () {
+            $("#id_reset_reviewers").val("True")
+        })
     </script>
 {% endblock %}
 

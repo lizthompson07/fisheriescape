@@ -58,86 +58,65 @@
             <br>
 
             {% bootstrap_form_errors form %}
+
+            {# Fields without a label; Will serve as a catch all but also to bring in hidden fields #}
             {% for field in form %}
-                {% if "user-info" in field.field.widget.attrs.class %}
-                    <div class="user-info">
+                {% if field.field.group == 0 %}
+                    {% bootstrap_field field placeholder="" %}
                 {% endif %}
-
-            {% if "cost" in field.field.widget.attrs|lookup:"class" %}
-                {# DO NOTHING   #}
-            {% elif field.name == "address" %}
-
-                {% if field.name in help_text_dict %}
-                    {% bootstrap_label field.label %}
-                    {% with help_text_dict|lookup:field.name as help_text %}
-                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                             data-trigger="hover"
-                             title="{{ field.label }}"
-                             data-content="{{ help_text }}">
-                        {% bootstrap_field field placeholder="" show_label=False size="small" %}
-                    {% endwith %}
-                {% else %}
-                    {% bootstrap_field field placeholder="" size="small" %}
-                {% endif %}
-
-                <span style="font-size: small">Predefined addresses:</span><br>
-                <a href="#" class="btn btn-sm btn-outline-info address-btn">343 Université Avenue, Moncton, NB, E1C 9B6</a>
-                <a href="#" class="btn btn-sm btn-outline-info address-btn">1 Challenger Drive, Datmouth, NS B2y 4A2</a>
-                <a href="#" class="btn btn-sm btn-outline-info address-btn">125 Marine Science Dr, St. Andrews, NB E5B 0E4</a>
-                <br>
-                <br>
-            {% elif field.name == "role_of_participant" or field.name == "role" %}
-                <div class="conference_container">
-                    {% if field.name in help_text_dict %}
-                        {% bootstrap_label field.label %}
-                        {% with help_text_dict|lookup:field.name as help_text %}
-                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                                 data-trigger="hover"
-                                 title="{{ field.label }}"
-                                 data-content="{{ help_text }}">
-                            {% bootstrap_field field placeholder="" show_label=False size="small" %}
-                        {% endwith %}
-                    {% else %}
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    {% endif %}
-                </div>
-
-            {% elif field.name == "exclude_from_travel_plan" %}
-                {% if field.name in help_text_dict %}
-                    {% bootstrap_label field.label %}
-                    {% with help_text_dict|lookup:field.name as help_text %}
-                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                             data-trigger="hover"
-                             title="{{ field.label }}"
-                             data-content="{{ help_text }}">
-                        &nbsp;&nbsp;{{field}}
-                    {% endwith %}
-                {% else %}
-                    {% bootstrap_field field placeholder="" size="small" %}
-                {% endif %}
-
-            {% else %}
-                {% if field.name in help_text_dict %}
-                    {% bootstrap_label field.label %}
-                    {% with help_text_dict|lookup:field.name as help_text %}
-                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
-                             data-trigger="hover"
-                             title="{{ field.label }}"
-                             data-content="{{ help_text }}">
-                        {% bootstrap_field field placeholder="" show_label=False size="small" %}
-                    {% endwith %}
-                {% else %}
-                    {% bootstrap_field field placeholder="" size="small" %}
-                {% endif %}
-
-                {% if "user-info" in field.field.widget.attrs.class %}
-                    </div>
-                {% endif %}
-
-            {% endif %}
             {% endfor %}
 
-            <br>
+            {# GENERAL DETAILS #}
+            <div class="card mb-2">
+                <h2 class="card-header text-white bg-dark">
+                    {% trans "General Trip Information" %}
+                </h2>
+                <div class="card-body">
+                    <div class="card-text">
+                        {% for field in form %}
+                            {% if field.field.group == 1 %}
+                                {% include "travel/_trip_request_form_layout.html" %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# TRAVELLER #}
+            <div class="card mb-2">
+                <h2 class="card-header text-white bg-dark" id="group2-text-h2">
+                    {% trans "Traveller Information" %}
+                </h2>
+                <div class="card-body">
+                    <div class="card-text">
+                        {% for field in form %}
+                            {% if field.field.group == 2 %}
+                                {% include "travel/_trip_request_form_layout.html" %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# JUSTIFICATION #}
+            <div class="card mb-2">
+                <h2 class="card-header text-white bg-dark">
+                    {% trans "Trip Justification" %}
+                </h2>
+                <div class="card-body">
+                    <div class="card-text">
+                        {% for field in form %}
+                            {% if field.field.group == 3 %}
+                                {% include "travel/_trip_request_form_layout.html" %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+
+
+
         </div>
 
         <div class="container mb-3">
@@ -190,9 +169,9 @@
                 $("#id_first_name").val("");
                 $("#id_last_name").val("");
                 $("#id_email").val("");
-                $(".user-info").removeClass("gone");
+                $(".disappear-if-user").removeClass("gone");
             } else {
-                $(".user-info").addClass("gone");
+                $(".disappear-if-user").addClass("gone");
                 $("#id_first_name").val(userObj[myId]["first_name"]);
                 $("#id_last_name").val(userObj[myId]["last_name"]);
                 $("#id_email").val(userObj[myId]["email"]);
@@ -227,10 +206,9 @@
             $("#id_user")[0].focus()
         });
 
-        $(".address-btn").click(function (e) {
-            e.preventDefault();
-            $myBtn = $(this);
-            $("#id_address").val($myBtn.text());
+        $("#predefined-addresses").change(function () {
+            $myInput= $(this);
+            $("#id_address").val($myInput.val());
         });
 
     </script>

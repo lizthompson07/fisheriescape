@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.template import loader
-from_email = 'DoNotReply@DMApps.com'
+
+from_email = settings.SITE_FROM_EMAIL
 
 class ProjectSubmissionEmail:
     def __init__(self, object):
@@ -27,8 +29,8 @@ class ProjectSubmissionEmail:
             'section',
             'project_leads|project_leads',
         ]
-
         context = {'object': object, 'field_list':project_field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -53,5 +55,6 @@ class UserCreationEmail:
     def load_html_template(self, object):
         t = loader.get_template('projects/email_user_creation.html')
         context = {'object': object,}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
