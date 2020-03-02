@@ -1,3 +1,4 @@
+{% extends "whalesdb/whale_base.html" %}
 {% load bootstrap4 %}
 {% load i18n %}
 {% load static %}
@@ -6,24 +7,31 @@
 
 {% block content %}
 <div class="container">
-    <h2>{% trans title|add:" Entry" %}</h2>
+    <div class="card whale-transparent mt-2 pt-1">
+        <div class="card-header">
+            <h2>{% trans title %}</h2>
+        </div>
+    </div>
+    <div class="card whale-transparent mt-2 pt-1">
+        <div class="card-body">
+            <form method="post" class="form" enctype='multipart/form-data' >
+                {% csrf_token %}
 
-    <form method="post" class="form" enctype='multipart/form-data' >
-        {% csrf_token %}
+                {% for field in form %}
+                    {% bootstrap_field field placeholder="" size="small" %}
+                {% endfor %}
 
-        {% for field in form %}
-            {% bootstrap_field field placeholder="" size="small" %}
-        {% endfor %}
-
-        {% buttons %}
-            <button type="submit" class="btn btn-success" onclick="refreshParent()">
-                {% trans "Submit" %}
-            </button>
-            <a class="btn btn-secondary" onclick="window.close()" href="#">
-                {% trans "Close" %}
-            </a>
-        {% endbuttons %}
-    </form>
+                {% buttons %}
+                    <button type="submit" class="btn btn-success" onclick="refreshParent()">
+                        {% trans "Submit" %}
+                    </button>
+                    <a class="btn btn-secondary" onclick="window.close()" href="#">
+                        {% trans "Close" %}
+                    </a>
+                {% endbuttons %}
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock content %}
 
