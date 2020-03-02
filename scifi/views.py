@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
+from dm_apps.utils import custom_send_mail
 from django.db.models import TextField, Sum, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
@@ -738,14 +738,13 @@ class CustomTransactionCreateView(SciFiAccessRequiredMixin, CreateView):
         # create a new email object
         email = emails.NewEntryEmail(self.object)
         # send the email object
-        if settings.DEBUG and email.to_list:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-            messages.success(self.request,
-                             "The entry has been submitted and an email has been sent to the branch finance manager!")
-        else:
-            print('not sending email since in dev mode')
-            print(email)
+        if email.to_list:
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
 
         if form.cleaned_data["do_another"] == 1:
             return HttpResponseRedirect(reverse_lazy('scifi:ctrans_new'))

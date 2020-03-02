@@ -630,9 +630,8 @@ def construct(my_resource, pretty=True):
     gmd_contact = SubElement(root, 'gmd:contact')
 
     # for each point of contact
-    for person in my_resource.resource_people.all():
-        if person.role.id == 4:
-            gmd_contact.append(ci_responsible_party(person))
+    for person in my_resource.resource_people.filter(role__id=4):
+        gmd_contact.append(ci_responsible_party(person))
 
     # timestamp
     datestamp(root, 'gmd:dateStamp', timezone.now().year, timezone.now().month, timezone.now().day)
@@ -711,12 +710,12 @@ def construct(my_resource, pretty=True):
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_87", "RI_368",
                  "revision; révision")
 
-    # Custodians
+    # Custodians and other roles (not point of contact)
     # for each point of contact
-    for person in my_resource.resource_people.all():
-        if person.role.id == 1:
-            citedResponsibleParty = SubElement(CI_Citation, 'gmd:citedResponsibleParty')
-            citedResponsibleParty.append(ci_responsible_party(person))
+    for person in my_resource.resource_people.filter(~Q(role__id=4)).filter(role__code__isnull=False):
+        # if person.role.id == 1:
+        citedResponsibleParty = SubElement(CI_Citation, 'gmd:citedResponsibleParty')
+        citedResponsibleParty.append(ci_responsible_party(person))
 
     # abstract
     charstring(MD_DataIdentification, 'gmd:abstract', my_resource.descr_eng, my_resource.descr_fre)

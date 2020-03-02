@@ -9,4 +9,5 @@ def my_envr(request):
         'USING_LOCAL_DB': settings.USING_LOCAL_DB,
         'DEV_DB_NAME': settings.DEV_DB_NAME,
         'DEV_DB_HOST': settings.DEV_DB_HOST,
+        'SITE_FULL_URL': settings.SITE_FULL_URL,
     }

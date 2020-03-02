@@ -96,7 +96,7 @@ LEGEND_FONT_SIZE = '10pt'
 def generate_annual_watershed_report(site, year):
     # start assigning files and by cleaning the temp dir
     # base_dir = os.path.dirname(os.path.abspath(__file__))
-    target_dir = os.path.join(settings.BASE_DIR, 'static', 'img', 'camp', 'temp')
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'camp', 'temp')
     target_file_pie = os.path.join(target_dir, 'pie_chart.png')
     target_file_richness1 = os.path.join(target_dir, 'species_richness1.png')
     target_file_richness2 = os.path.join(target_dir, 'species_richness2.png')

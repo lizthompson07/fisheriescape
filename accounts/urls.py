@@ -21,7 +21,6 @@ urlpatterns = [
     path('users/<int:pk>/edit/', views.UserUpdateView.as_view(), name='account'),
     path('profiles/<int:pk>/edit/', views.ProfileUpdateView.as_view(), name='profile'),
     path('users/change-password/', views.change_password, name='change_password'),
-    path('account-request/', views.account_request, name='account_request'),
     path('request-access/', views.RequestAccessFormView.as_view(), name='request_access')
 
     ### NOTE: Password reset views are mapped in the dm_apps urls.py file. Views are still in the Accounts app views.py

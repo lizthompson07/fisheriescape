@@ -22,7 +22,7 @@
 
         <form method="post" class="form">
             {% csrf_token %}
-
+            {% bootstrap_form_errors form %}
 
             <div id="fields">
                 {% for field in form %}
