@@ -4,53 +4,45 @@
 {% load i18n %}
 {% bootstrap_css %}
 
-{% block header %}
-    <style>
-        body {
-            background-image: url("{% static 'img/whalesdb/whale-background.jpg' %}");
-            background-size: cover;
-        }
-
-        .card-title {
-        {#font-weight: bold;#}
-        }
-
-        .card {
-            cursor: pointer;
-        }
-
-        .shrink-me {
-            transform: scale(.8);
-        }
-
-
-    </style>
-
-{% endblock %}
-
 {% block tab_title %}
     {% trans 'Whale DB Home' %}
 {% endblock tab_title %}
 
 {% block body %}
 
-<div class=" text-center">
-    <h1 class="text-center montserrat" style="font-size: 56px">
-        {% trans 'Whale Equipment Metadata Repository' %}
-    </h1>
-</div>
 <div class="container">
-    {% for sec in section %}
-    <div class="jumbotron shrink-me" style="background-color: #ffffff; border: black solid 1px">
-        <div class="text-center roboto">
-            <h2>
-                {% trans sec.title %}
-            </h2>
+    <div class="jumbotron jumbotron-fluid mt-5 border border-dark whale-transparent">
+        <div class="container">
+            <h1 class="text-center">
+                {% trans 'Whale Equipment Metadata Repository' %}
+            </h1>
         </div>
     </div>
-    {% endfor %}
+    <div class="row">
+        <div class="col">
+            <div class="card border border-dark whale-transparent">
+                <div class="card-header">
+                    <h2>Deployments</h2>
+                </div>
+                <div class="card-body">
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:create_dep' %}" >{% trans 'New Deployment' %}</a>
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:list_dep' %}" >{% trans 'Deployment List' %}</a>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card border border-dark whale-transparent">
+                <div class="card-header">
+                    <h2>Equipment</h2>
+                </div>
+                <div class="card-body">
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:create_dep' %}" >{% trans 'New Deployment' %}</a>
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:list_dep' %}" >{% trans 'Deployment List' %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
 {% endblock body %}
 
 {% block body_js %}
