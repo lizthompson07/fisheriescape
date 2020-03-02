@@ -1,6 +1,7 @@
 {% extends "travel/travel_base.html" %}
 {% load i18n %}
 {% load static %}
+{% load custom_filters %}
 {% block content %}
     <style>
         body {
@@ -22,8 +23,6 @@
                 {% url 'travel:request_review_list' "awaiting" as event_approval_list_url %}
                 {% url 'travel:request_review_list' as event_assigned_list_url %}
                 {% url 'travel:request_new' as event_new_url %}
-                {% url 'travel:admin_approval_list' as admin_approval_list_url %}
-                {% url 'travel:admin_trip_verification_list' as trip_verification_list_url %}
                 <br>
                 <h3>
                     {% blocktrans %}
@@ -64,21 +63,36 @@
                         {# ADMIN ONLY STUFF #}
                         {% if is_admin %}
                             <hr>
-                            {% blocktrans %}
-                                Trip requests awaiting admin <a href="{{ admin_approval_list_url }}">approval</a>
-                            {% endblocktrans %}
-                            (<span class="{% if admin_number_waiting > 0 %}red-font blink-me{% endif %}">{{ admin_number_waiting }}</span>).
-                            <br><br>
-                            {% blocktrans %}
-                                Non-ADM trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>
-                            {% endblocktrans %}
-                            (<span class="{% if unverified_trips_non_adm > 0 %}red-font blink-me{% endif %}">{{ unverified_trips_non_adm }}</span>).
 
-                            <br><br>
-                            {% blocktrans %}
-                                ADM trips awaiting <a href="{{ trip_verification_list_url }}">verification</a>
-                            {% endblocktrans %}
-                            (<span class="{% if unverified_trips_adm > 0 %}red-font blink-me{% endif %}">{{ unverified_trips_adm }}</span>).
+                            {% if adm_number_waiting %}
+                                {% trans "Trip requests awaiting approval from ADM:" %}                            &nbsp;
+                                {% for tag in my_dict|lookup:"adm_tags" %}
+                                    {{ tag }}
+                                {% endfor %}
+                                <br><br>
+                            {% endif %}
+
+                            {% if rdg_number_waiting %}
+                                {% trans "Trip requests awaiting approval from RDG:" %}                            &nbsp;
+                                {% for tag in my_dict|lookup:"rdg_tags" %}
+                                    {{ tag }}
+                                {% endfor %}
+                                <br><br>
+                            {% endif %}
+
+                            {% if unverified_trips %}
+                                {% trans "Trips awaiting verification:" %}&nbsp;
+                                {% if adm_unverified_trips %}
+                                    <a href="{{ adm_trip_verification_list_url }}" class="btn btn-outline-dark">
+                                        {% trans "National" %} (<span
+                                            class="{% if adm_unverified_trips > 0 %}red-font blink-me{% endif %}">{{ adm_unverified_trips }}</span>)
+                                    </a>
+                                {% endif %}
+                                {% for tag in my_dict|lookup:"trip_tags" %}
+                                    {{ tag }}
+                                {% endfor %}
+                                <br><br>
+                            {% endif %}
 
                         {% endif %}
                     {% endif %}

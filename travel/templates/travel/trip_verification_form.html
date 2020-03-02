@@ -25,7 +25,7 @@
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
                 {% trans "Home" %}
             </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:admin_trip_verification_list' %}">
+            <li class="breadcrumb-item"><a href="{% url 'travel:admin_trip_verification_list' view.kwargs.region view.kwargs.adm %}">
                 {% trans "Trips Awaiting Verfication" %}
             </a></li>
             <li class="breadcrumb-item active" aria-current="page">
@@ -216,7 +216,7 @@
             <div class="center-col">
                 {% buttons %}
                     <button type="submit" class="btn btn-lg btn-success">Yes, looks good!</button>
-                    <a class="btn btn-secondary btn-lg" href="{% url 'travel:admin_trip_verification_list' %}">Cancel</a>
+                    <a class="btn btn-secondary btn-lg" href="{% url 'travel:admin_trip_verification_list' view.kwargs.region view.kwargs.adm %}">Cancel</a>
                     {% if object.trip_requests.count %}
                         {% echo "disabled" as disabled_var %}
                         {% trans "Cannot delete a trip that has requests attached to it." as tip_text %}
