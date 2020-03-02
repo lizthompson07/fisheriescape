@@ -993,7 +993,7 @@ def delete_reviewer(request, pk):
     if can_modify_request(request.user, my_obj.trip_request.id):
         # This function should only ever be run if the TR is unsubmitted
         if my_obj.trip_request.status_id != 8:
-            messages.error(request, "This function can only be used when the trip request is still a draft")
+            messages.error(request, _("This function can only be used when the trip request is still a draft"))
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
         else:
             my_obj.delete()
@@ -1009,8 +1009,8 @@ def delete_reviewer(request, pk):
 def manage_reviewers(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
     if can_modify_request(request.user, my_trip_request.id):
-        if my_trip_request.status_id != 8:
-            messages.error(request, "This function can only be used when the trip request is still a draft")
+        if my_trip_request.status_id != 8 and my_trip_request.status_id != 16:
+            messages.error(request, _("This function can only be used when the trip request is still a draft"))
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
         else:
             qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
