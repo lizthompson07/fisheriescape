@@ -324,17 +324,23 @@ class TripForm(forms.ModelForm):
         abstract_deadline = cleaned_data.get("abstract_deadline")
         registration_deadline = cleaned_data.get("registration_deadline")
 
-        if end_date < start_date:
-            raise forms.ValidationError(_('The start date of the trip must occur after the end date.'))
+        if not start_date:
+            raise forms.ValidationError(_('The start date of the trip must not be blank.'))
+
+        if not end_date:
+            raise forms.ValidationError(_('The end date of the trip must not be blank.'))
+
+        if start_date and end_date:
+            if end_date < start_date:
+                raise forms.ValidationError(_('The start date of the trip must occur after the end date.'))
+            if abs((start_date - end_date).days) > 100:
+                raise forms.ValidationError(_('The length of this trip is unrealistic.'))
 
         if abstract_deadline and abstract_deadline >= start_date:
             raise forms.ValidationError(_('The abstract deadline of the trip (if present) must occur before the start date.'))
 
         if registration_deadline and registration_deadline >= start_date:
             raise forms.ValidationError(_('The registration deadline of the trip (if present) must occur before the start date.'))
-
-        if abs((start_date - end_date).days) > 100:
-            raise forms.ValidationError(_('The length of this trip is unrealistic.'))
 
 
 class ReportSearchForm(forms.Form):
