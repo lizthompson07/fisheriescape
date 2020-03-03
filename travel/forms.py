@@ -69,6 +69,7 @@ class TripRequestForm(forms.ModelForm):
             "status",
             "exclude_from_travel_plan",
             "admin_notes",
+            "original_submission_date",
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
