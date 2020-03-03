@@ -400,6 +400,30 @@ class ReviewerForm(forms.ModelForm):
             'user': forms.Select(attrs=chosen_js),
         }
 
+    def clean(self):
+        """
+        The order, user, or role cannot be changed if the reviewer status is approved or queued
+        :return:
+        """
+        my_object = self.instance
+        cleaned_data = super().clean()
+        order = cleaned_data.get("order")
+        user = cleaned_data.get("user")
+        role = cleaned_data.get("role")
+
+        # Check the role
+        if my_object.status and my_object.status.id not in [4,20]:
+            # need to determine if there have been any changes
+            if my_object.role != role:
+                raise forms.ValidationError(_(f'Sorry, the role of a reviewer whose status is set to {my_object.status} cannot be changed'))
+
+            if my_object.user != user:
+                raise forms.ValidationError(
+                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.status}'))
+
+            if my_object.order != order:
+                raise forms.ValidationError(_(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
+
 
 ReviewerFormSet = modelformset_factory(
     model=models.Reviewer,

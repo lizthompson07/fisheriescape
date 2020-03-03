@@ -53,12 +53,17 @@ def is_approver(user, trip_request):
         return True
 
 
-def can_modify_request(user, trip_request_id):
+def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
     """
     returns True if user has permissions to delete or modify a request
 
     The answer of this question will depend on whether the trip is submitted.
     owners cannot edit a submitted trip
+
+    :param user:
+    :param trip_request_id:
+    :param trip_request_submit: If true, it means this function is being used to answer the question about whether a user can unsubmit a trip
+    :return:
     """
     if user.id:
         my_trip_request = models.TripRequest.objects.get(pk=trip_request_id)
@@ -76,6 +81,9 @@ def can_modify_request(user, trip_request_id):
         # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
         if not my_trip_request.submitted and \
                 (not my_trip_request.user or my_trip_request.user == user or user in my_trip_request.travellers):
+            return True
+
+        if trip_request_unsubmit and user == my_trip_request.user:
             return True
 
 
@@ -128,7 +136,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of requests where review is pending
+        context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).filter(
+            ~Q(trip_request__status_id=16)).count()  # number of requests where review is pending
 
         context["rdg_number_waiting"] = models.Reviewer.objects.filter(
             status_id=1,
@@ -150,26 +159,24 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
             [_("NL"), 49],
         ]
 
-
         my_dict = dict()
-        my_dict["adm_tags"]=list()
-        my_dict["rdg_tags"]=list()
-        my_dict["trip_tags"]=list()
+        my_dict["adm_tags"] = list()
+        my_dict["rdg_tags"] = list()
+        my_dict["trip_tags"] = list()
 
         for item in region_list:
             # RDG
             rdg_number_waiting = models.Reviewer.objects.filter(
-                    status_id=1,
-                    role_id=6,
-                    trip_request__section__division__branch__region_id=item[1],
-                ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
+                status_id=1,
+                role_id=6,
+                trip_request__section__division__branch__region_id=item[1],
+            ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
             rdg_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'rdg', "region": item[1]})
             rdg_class = "red-font blink-me" if rdg_number_waiting else ""
             rdg_tag = mark_safe(
                 f'<a href="{rdg_approval_list_url}" class="btn btn-outline-dark">{item[0]}'
-                    f' (<span class="{rdg_class}">{rdg_number_waiting}</span>)</a>'
+                f' (<span class="{rdg_class}">{rdg_number_waiting}</span>)</a>'
             )
-
 
             # ADM
             adm_number_waiting = models.Reviewer.objects.filter(
@@ -546,12 +553,12 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        my_reviewer = form.save(commit=False)
+        # don't save the reviewer yet because there are still changes to make
+        my_reviewer = form.save(commit=True)
 
         approved = form.cleaned_data.get("approved")
         stay_on_page = form.cleaned_data.get("stay_on_page")
         changes_requested = form.cleaned_data.get("changes_requested")
-        # print("stay on page", stay_on_page)
         # first scenario: changes were requested for the request
         # in this case, the reviewer status does not change but the request status will
         if not stay_on_page:
@@ -574,13 +581,12 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
             elif approved:
                 my_reviewer.status_id = 2
                 my_reviewer.status_date = timezone.now()
+                my_reviewer.save()
             # if it was approved, then we change the reviewer status to 'approved'
             else:
                 my_reviewer.status_id = 3
                 my_reviewer.status_date = timezone.now()
-
-        # now we save the reviewer for real
-        my_reviewer.save()
+                my_reviewer.save()
 
         # update any statuses if necessary
         utils.approval_seeker(my_reviewer.trip_request)
@@ -590,7 +596,7 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
             # if this is an adm or rdg review, we have to pass the type into the url.
             if my_reviewer.role_id in [5, 6, ]:
                 my_kwargs.update({"type": self.kwargs.get("type")})
-                return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
+            return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
         else:
             return HttpResponseRedirect(reverse("travel:index"))
 
@@ -633,6 +639,10 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
     model = models.TripRequest
     form_class = forms.TripRequestApprovalForm
     template_name = 'travel/trip_request_submission_form.html'
+
+    def test_func(self):
+        # This view is a little different. A trip owner should always be allowed to unsubmit
+        return can_modify_request(self.request.user, self.kwargs.get("pk"), True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -991,14 +1001,19 @@ def reset_reviewers(request, pk):
 def delete_reviewer(request, pk):
     my_obj = models.Reviewer.objects.get(pk=pk)
     if can_modify_request(request.user, my_obj.trip_request.id):
-        # This function should only ever be run if the TR is unsubmitted
-        if my_obj.trip_request.status_id != 8:
-            messages.error(request, _("This function can only be used when the trip request is still a draft"))
-            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
+        # This function should only ever be run if the TR is in draft or changes have been requested
+        # if not my_obj.trip_request.status_id in [8, 16]:
+        #     messages.error(request, _("Sorry, you will have to unsubmit the trip in order to make this change"))
+        #     return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
+        # else:
+        # now, the status of the reviewer matters.. under no circumstances should a reviewer that is not in "draft" or "queue" mode be modified / deleted
+        if my_obj.status_id not in [4, 20]:
+            messages.error(request, _(f"Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"))
         else:
+            # it is ok to delete the reviewer
             my_obj.delete()
             my_obj.trip_request.save()
-            return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_obj.trip_request.id}))
+        return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_obj.trip_request.id}))
     else:
         messages.error(request, _("You do not have the permissions to delete a reviewer"))
         return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
@@ -1009,38 +1024,36 @@ def delete_reviewer(request, pk):
 def manage_reviewers(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
     if can_modify_request(request.user, my_trip_request.id):
-        if my_trip_request.status_id != 8 and my_trip_request.status_id != 16:
-            messages.error(request, _("This function can only be used when the trip request is still a draft"))
-            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+        # if not my_trip_request.status_id in [8, 16]:
+        #     messages.error(request, _("Sorry, you will have to unsubmit the trip in order to make this change"))
+        #     return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+        # else:
+        qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
+        if request.method == 'POST':
+            formset = forms.ReviewerFormSet(request.POST)
+            if formset.is_valid():
+                formset.save()
+
+                my_trip_request.save()
+                # do something with the formset.cleaned_data
+                messages.success(request, _("The reviewer list has been successfully updated"))
+                return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_trip_request.id}))
         else:
-            qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
-            if request.method == 'POST':
-                formset = forms.ReviewerFormSet(request.POST)
+            formset = forms.ReviewerFormSet(
+                queryset=qs,
+                initial=[{"trip_request": my_trip_request}],
+            )
 
-                if formset.is_valid():
-                    formset.save()
-
-                    my_trip_request.save()
-                    # do something with the formset.cleaned_data
-                    messages.success(request, _("The reviewer list has been successfully updated"))
-                    return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_trip_request.id}))
-            else:
-                formset = forms.ReviewerFormSet(
-                    queryset=qs,
-                    initial=[{"trip_request": my_trip_request}],
-                )
-
-            context = {}
-            context['triprequest'] = my_trip_request
-            context['formset'] = formset
-            context["my_object"] = models.Reviewer.objects.first()
-            context["field_list"] = [
-                'trip_request',
-                'order',
-                'user',
-                'role',
-            ]
-            return render(request, 'travel/reviewer_formset.html', context)
+        context = {}
+        context['triprequest'] = my_trip_request
+        context['formset'] = formset
+        context["my_object"] = models.Reviewer.objects.first()
+        context["field_list"] = [
+            'order',
+            'user',
+            'role',
+        ]
+        return render(request, 'travel/reviewer_formset.html', context)
     else:
         messages.error(request, _("You do not have the permissions to modify the reviewer list"))
         return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
@@ -1053,8 +1066,6 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
     model = models.Conference
     filterset_class = filters.TripFilter
     template_name = 'travel/trip_list.html'
-
-
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
