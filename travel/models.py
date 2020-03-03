@@ -763,10 +763,13 @@ class Reviewer(models.Model):
     def comments_html(self):
         if self.comments:
             return textile.textile(self.comments)
+        else:
+            return "---"
 
     def save(self, *args, **kwargs):
-        # if not self.status:
-        #     self.status_date = timezone.now()
+        # If the trip request is current under review but changes have been requested, add this reviewer directly in the queue
+        if self.trip_request.status_id == 16 and self.status_id == 4:
+            self.status_id = 20
         return super().save(*args, **kwargs)
 
     @property

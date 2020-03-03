@@ -67,7 +67,7 @@
 
                     {# ADMIN NOTES #}
                     <a class="btn btn-dark" href="#" pop-href="{% url 'travel:admin_notes_edit' object.id %}">
-                        Administrative Notes
+                        {% trans "Administrative Notes" %}
                     </a>
 
 
@@ -96,13 +96,12 @@
 
             <div class="btn-group">
 
-
                 {# SUBMIT BUTTON #}
                 {% if object.status.id == 11 or object.status.id == 22 %} {# disabled for everyone #}
                     {% echo "disabled" as submit_disabled_var %}
                     {% trans "Approved or cancelled requests cannot by unsubmitted." as submit_tip_text %}
 {#                {% elif object.submitted and not is_admin and not is_owner %}#}
-                {% elif not can_modify %}
+                {% elif not can_modify and not is_owner %} {# owners can always unsubmit #}
                     {% echo "disabled" as submit_disabled_var %}
                     {% trans "You do not have permissions to submit / un-submit this request" as submit_tip_text %}
                 {% endif %}

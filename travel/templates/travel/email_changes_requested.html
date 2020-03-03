@@ -6,6 +6,10 @@
         text-align: left;
         margin-right: 15px;
     }
+    .comments{
+        {#color: #ff9700;#}
+        font-style: italic;
+    }
 </style>
 
 <em>
@@ -17,9 +21,9 @@
     {{ triprequest.user.first_name }},
     <br><br>
     The following changes are being requested from {{ triprequest.current_reviewer.user }}:
-    <br><br>
-    {{ triprequest.current_reviewer.comments|safe }}
-    <br><br>
+    <div class="comments">
+    {{ triprequest.current_reviewer.comments_html|safe }}
+    </div>
     Please address these changes and then re-submit your request to continue with the approval process.
     You can click <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">HERE</a> to access the request. Here are the request details:
 </p>
@@ -38,9 +42,9 @@
     {{ triprequest.user.first_name }},
     <br><br>
     Les modifications suivantes sont demandées par {{ triprequest.current_reviewer.user }}:
-    <br><br>
-    {{ triprequest.current_reviewer.comments }}
-    <br><br>
+    <div class="comments">
+    {{ triprequest.current_reviewer.comments_html|safe }}
+    </div>
     Veuillez adresser ces modifications, puis soumettez à nouveau votre demande pour poursuivre le processus d'approbation.
     Vous pouvez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour accéder la demande.
     Voici les détails du voyage:
