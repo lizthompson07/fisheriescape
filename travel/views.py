@@ -546,12 +546,12 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        my_reviewer = form.save(commit=False)
+        # don't save the reviewer yet because there are still changes to make
+        my_reviewer = form.save(commit=True)
 
         approved = form.cleaned_data.get("approved")
         stay_on_page = form.cleaned_data.get("stay_on_page")
         changes_requested = form.cleaned_data.get("changes_requested")
-        # print("stay on page", stay_on_page)
         # first scenario: changes were requested for the request
         # in this case, the reviewer status does not change but the request status will
         if not stay_on_page:
@@ -574,13 +574,12 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
             elif approved:
                 my_reviewer.status_id = 2
                 my_reviewer.status_date = timezone.now()
+                my_reviewer.save()
             # if it was approved, then we change the reviewer status to 'approved'
             else:
                 my_reviewer.status_id = 3
                 my_reviewer.status_date = timezone.now()
-
-        # now we save the reviewer for real
-        my_reviewer.save()
+                my_reviewer.save()
 
         # update any statuses if necessary
         utils.approval_seeker(my_reviewer.trip_request)

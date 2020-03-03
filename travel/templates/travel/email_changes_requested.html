@@ -6,6 +6,9 @@
         text-align: left;
         margin-right: 15px;
     }
+    .blue-font{
+        color: blue;
+    }
 </style>
 
 <em>
@@ -18,7 +21,9 @@
     <br><br>
     The following changes are being requested from {{ triprequest.current_reviewer.user }}:
     <br><br>
-    {{ triprequest.current_reviewer.comments|safe }}
+    <div class="blue-font">
+    {{ triprequest.current_reviewer.comments_html }}
+    </div>
     <br><br>
     Please address these changes and then re-submit your request to continue with the approval process.
     You can click <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">HERE</a> to access the request. Here are the request details:
@@ -39,7 +44,9 @@
     <br><br>
     Les modifications suivantes sont demandées par {{ triprequest.current_reviewer.user }}:
     <br><br>
-    {{ triprequest.current_reviewer.comments }}
+    <div class="blue-font">
+    {{ triprequest.current_reviewer.comments_html }}
+    </div>
     <br><br>
     Veuillez adresser ces modifications, puis soumettez à nouveau votre demande pour poursuivre le processus d'approbation.
     Vous pouvez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour accéder la demande.
