@@ -87,11 +87,6 @@ try:
 except UndefinedValueError:
     AZURE_AD = False
 
-USING_PRODUCTION_DB = local_conf.USING_PRODUCTION_DB
-USING_LOCAL_DB = local_conf.USING_LOCAL_DB
-DEV_DB_NAME = local_conf.DEV_DB_NAME
-DEV_DB_HOST = local_conf.DEV_DB_HOST
-
 # check to see if there is a file containing the google api key
 # if there is not, set this to a null string and maps will open in dev mode
 try:
@@ -103,10 +98,7 @@ if not GOOGLE_API_KEY:
     GOOGLE_API_KEY = ""
     print("no google api key file found.")
 
-
 GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
-
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -178,7 +170,23 @@ WSGI_APPLICATION = 'dm_apps.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 # DATABASE_ROUTERS = ['dm_apps.routers.WhaleDatabaseRouter', ]
+
+
+
+
 DATABASES = local_conf.DATABASES
+
+# This variable will describe the type of database we are connecting to (e.g PROD, DEV, TEST...)
+try:
+    DB_MODE = local_conf.DB_MODE
+    DB_HOST = local_conf.DB_HOST
+    DB_NAME = local_conf.DB_NAME
+    USING_LOCAL_DB = local_conf.USING_LOCAL_DB
+except AttributeError:
+    DB_MODE = "n/a"
+    DB_HOST = "n/a"
+    DB_NAME = "n/a"
+    USING_LOCAL_DB = True
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -217,7 +225,6 @@ if SENDGRID_API_KEY == "":
         USE_SMTP_EMAIL = True
 else:
     USE_SENDGRID = True
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
@@ -273,13 +280,11 @@ else:
         DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
         STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
 
-        STATIC_CONTAINER_NAME= "static"
+        STATIC_CONTAINER_NAME = "static"
         MEDIA_CONTAINER_NAME = "media"
         AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
         STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_CONTAINER_NAME}/'
         MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_CONTAINER_NAME}/'
-
-
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000

@@ -34,8 +34,10 @@
                             <td>{{ triprequest.section.full_name }}</td>
                         </tr>
                         {#            {% verbose_td_display trip field format="currency" th_width="20%" nullmark=not_sure date_format="%B %d, %Y" %}#}
-                    {% elif "phone" in field %}
-                        {% verbose_td_display triprequest field th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}
+{#                    {% elif "phone" in field %}#}
+{#                        {% verbose_td_display triprequest field th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}#}
+                    {% elif "original_submission" in field %}
+                        {% verbose_td_display triprequest field th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y %H:%M" %}
                     {% else %}
                         {% verbose_td_display triprequest field format="currency" th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}
                     {% endif %}

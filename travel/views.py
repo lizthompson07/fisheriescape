@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
+
 from dm_apps.utils import custom_send_mail
 from django.db.models import Sum, Q
 from django.shortcuts import render
@@ -127,32 +129,82 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of requests where review is pending
+
+        context["rdg_number_waiting"] = models.Reviewer.objects.filter(
+            status_id=1,
+            role_id=6,
+        ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
         context["adm_number_waiting"] = models.Reviewer.objects.filter(
             status_id=1,
-            role_id__in=[5, ],
-        ).filter(
-            ~Q(trip_request__status_id=16)
-        ).count()  # number of requests where admin review is pending
+            role_id=5,
+        ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
+        context["unverified_trips"] = models.Conference.objects.filter(
+            is_verified=False, is_adm_approval_required=False).count()
 
         region_list = [
-            ["gulf", 1],
-            ["mar", 2],
+            [_("Gulf"), 1],
+            [_("Maritime"), 2],
+            [_("C&A"), 19],
+            [_("Quebec"), 29],
+            [_("Pacific"), 39],
+            [_("NL"), 49],
         ]
 
+
+        my_dict = dict()
+        my_dict["adm_tags"]=list()
+        my_dict["rdg_tags"]=list()
+        my_dict["trip_tags"]=list()
+
         for item in region_list:
-            context[f"{item[0]}_rdg_number_waiting"] = models.Reviewer.objects.filter(
+            # RDG
+            rdg_number_waiting = models.Reviewer.objects.filter(
+                    status_id=1,
+                    role_id=6,
+                    trip_request__section__division__branch__region_id=item[1],
+                ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
+            rdg_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'rdg', "region": item[1]})
+            rdg_class = "red-font blink-me" if rdg_number_waiting else ""
+            rdg_tag = mark_safe(
+                f'<a href="{rdg_approval_list_url}" class="btn btn-outline-dark">{item[0]}'
+                    f' (<span class="{rdg_class}">{rdg_number_waiting}</span>)</a>'
+            )
+
+
+            # ADM
+            adm_number_waiting = models.Reviewer.objects.filter(
                 status_id=1,
-                role_id__in=[6, ],
+                role_id=5,
                 trip_request__section__division__branch__region_id=item[1],
-            ).filter(
-                ~Q(trip_request__status_id=16)
-            ).count()  # number of requests where admin review is pending
-            context[f"{item[0]}_unverified_trips"] = models.Conference.objects.filter(
-                is_verified=False, is_adm_approval_required=False, lead_id=item[1]).count()
+            ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
+            adm_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'adm', "region": item[1]})
+            adm_class = "red-font blink-me" if adm_number_waiting else ""
+            adm_tag = mark_safe(
+                f'<a href="{adm_approval_list_url}" class="btn btn-outline-dark">{item[0]}'
+                f' (<span class="{adm_class}">{adm_number_waiting}</span>)</a>'
+            )
+
+            # unverified trips
+            unverified_trips = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=False, lead_id=item[1]).count()
+            trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 0, "region": item[1]})
+            unverified_class = "red-font blink-me" if unverified_trips else ""
+            unverified_tag = mark_safe(
+                f'<a href="{trip_verification_list_url}" class="btn btn-outline-dark">{item[0]}'
+                f' (<span class="{unverified_class}">{unverified_trips}</span>)</a>'
+            )
+            if adm_number_waiting > 0:
+                my_dict["adm_tags"].append(adm_tag)
+            if rdg_number_waiting > 0:
+                my_dict["rdg_tags"].append(rdg_tag)
+            if unverified_trips > 0:
+                my_dict["trip_tags"].append(unverified_tag)
+
+        context['adm_unverified_trips'] = models.Conference.objects.filter(
+            is_verified=False, is_adm_approval_required=True).count()
 
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
-        context["adm_unverified_trips"] = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=True).count()
+        context["my_dict"] = my_dict
 
         return context
 
@@ -191,7 +243,7 @@ request_field_list = [
     f'total_request_cost|{_("Total cost (DFO)")}',
     'non_dfo_costs',
     'non_dfo_org',
-    'submitted',
+    'original_submission_date',
     f'processing_time|{_("Processing time")}',
 ]
 
@@ -215,7 +267,7 @@ request_group_field_list = [
     'total_request_cost|{}'.format(_("Total cost (DFO)")),
     'non_dfo_costs',
     'non_dfo_org',
-    'submitted',
+    'original_submission_date',
     f'processing_time|{_("Processing time")}',
 ]
 
@@ -344,8 +396,8 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
             qs = qs.filter(status_id=14)
         elif self.kwargs.get("type") == "rdg":
             qs = qs.filter(status_id=15)
-            if self.kwargs.get("region"):
-                qs = qs.filter(section__division__branch__region_id=self.kwargs.get("region"))
+        if self.kwargs.get("region"):
+            qs = qs.filter(section__division__branch__region_id=self.kwargs.get("region"))
 
         return qs
 
@@ -614,6 +666,9 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
         else:
             #  SUBMIT REQUEST
             my_trip_request.submitted = timezone.now()
+            # if there is not an original submission date, add one
+            if not my_trip_request.original_submission_date:
+                my_trip_request.original_submission_date = timezone.now()
             # if the request is being resubmitted, this is a special case...
             if my_trip_request.status_id == 16:
                 my_trip_request.status_id = 8
@@ -938,7 +993,7 @@ def delete_reviewer(request, pk):
     if can_modify_request(request.user, my_obj.trip_request.id):
         # This function should only ever be run if the TR is unsubmitted
         if my_obj.trip_request.status_id != 8:
-            messages.error(request, "This function can only be used when the trip request is still a draft")
+            messages.error(request, _("This function can only be used when the trip request is still a draft"))
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
         else:
             my_obj.delete()
@@ -954,8 +1009,8 @@ def delete_reviewer(request, pk):
 def manage_reviewers(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
     if can_modify_request(request.user, my_trip_request.id):
-        if my_trip_request.status_id != 8:
-            messages.error(request, "This function can only be used when the trip request is still a draft")
+        if my_trip_request.status_id != 8 and my_trip_request.status_id != 16:
+            messages.error(request, _("This function can only be used when the trip request is still a draft"))
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
         else:
             qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
@@ -999,6 +1054,8 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
     filterset_class = filters.TripFilter
     template_name = 'travel/trip_list.html'
 
+
+
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
@@ -1015,6 +1072,10 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             'dates|{}'.format(_("dates")),
             'number_of_days|{}'.format(_("length (days)")),
             'is_adm_approval_required|{}'.format(_("ADM approval required?")),
+            f'total_travellers|{_("Total travellers")}',
+            f'connected_requests|{_("Connected requests")}',
+            'is_verified',
+            'verified_by',
         ]
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context

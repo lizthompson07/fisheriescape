@@ -5,9 +5,9 @@ def my_envr(request):
     # return the value you want as a dictionary. you may add multiple values in there.
     return {
         # 'PRODUCTION_SERVER': settings.PRODUCTION_SERVER,
-        'USING_PRODUCTION_DB': settings.USING_PRODUCTION_DB,
+        'DB_MODE': settings.DB_MODE,
         'USING_LOCAL_DB': settings.USING_LOCAL_DB,
-        'DEV_DB_NAME': settings.DEV_DB_NAME,
-        'DEV_DB_HOST': settings.DEV_DB_HOST,
+        'DB_NAME': settings.DB_NAME,
+        'DB_HOST': settings.DB_HOST,
         'SITE_FULL_URL': settings.SITE_FULL_URL,
     }

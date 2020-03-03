@@ -7,15 +7,37 @@ from sendgrid.helpers.mail import Mail, Email, Personalization
 from django.core.mail import send_mail as django_send_mail
 
 
-def is_connection_available(prefix):
+def is_db_connection_available(dev=False):
+    prefix = "DEV_" if dev else ""
     try:
-        return config(prefix + '_DB_HOST') and \
-               config(prefix + '_DB_PORT') and \
-               config(prefix + '_DB_NAME') and \
-               config(prefix + '_DB_USER') and \
-               config(prefix + '_DB_PASSWORD')
+        return bool(
+               config(f'{prefix}DB_HOST') and \
+               config(f'{prefix}DB_PORT') and \
+               config(f'{prefix}DB_NAME') and \
+               config(f'{prefix}DB_USER') and \
+               config(f'{prefix}DB_PASSWORD') and \
+               config(f'{prefix}DB_MODE') if not dev else True
+        )
     except UndefinedValueError:
         return False
+
+
+def get_db_connection_dict(dev=False):
+    prefix = "DEV_" if dev else ""
+    key_list = [
+        f'{prefix}DB_MODE',
+        f'{prefix}DB_HOST',
+        f'{prefix}DB_PORT',
+        f'{prefix}DB_NAME',
+        f'{prefix}DB_USER',
+        f'{prefix}DB_PASSWORD',
+    ]
+    my_dict = dict()
+    for key in key_list:
+        casting = int if "port" in key.lower() else str
+        my_dict[key.replace(prefix, "")] = config(key, cast=casting, default="")
+    return my_dict
+
 
 
 def custom_send_mail(subject, html_message, from_email, recipient_list):
