@@ -128,7 +128,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).count()  # number of requests where review is pending
+        context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).filter(~Q(trip_request__status_id=16)).count()  # number of requests where review is pending
 
         context["rdg_number_waiting"] = models.Reviewer.objects.filter(
             status_id=1,
