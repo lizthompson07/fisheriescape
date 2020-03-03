@@ -325,23 +325,27 @@ class TripForm(forms.ModelForm):
         abstract_deadline = cleaned_data.get("abstract_deadline")
         registration_deadline = cleaned_data.get("registration_deadline")
 
-        if not start_date:
-            raise forms.ValidationError(_('The start date of the trip must not be blank.'))
-
-        if not end_date:
-            raise forms.ValidationError(_('The end date of the trip must not be blank.'))
-
         if start_date and end_date:
             if end_date < start_date:
+                msg = _('The start date of the trip must occur after the end date.')
+                self.add_error('start_date', msg)
+                self.add_error('end_date', msg)
                 raise forms.ValidationError(_('The start date of the trip must occur after the end date.'))
             if abs((start_date - end_date).days) > 100:
-                raise forms.ValidationError(_('The length of this trip is unrealistic.'))
+                msg = _('The length of this trip is unrealistic.')
+                self.add_error('start_date', msg)
+                self.add_error('end_date', msg)
+                raise forms.ValidationError(msg)
 
         if abstract_deadline and abstract_deadline >= start_date:
-            raise forms.ValidationError(_('The abstract deadline of the trip (if present) must occur before the start date.'))
+            msg = _('The abstract deadline of the trip (if present) must occur before the start date.')
+            self.add_error('abstract_deadline', msg)
+            raise forms.ValidationError(msg)
 
-        if registration_deadline and registration_deadline >= start_date:
-            raise forms.ValidationError(_('The registration deadline of the trip (if present) must occur before the start date.'))
+        if registration_deadline and registration_deadline > start_date:
+            msg = _('The registration deadline of the trip (if present) must occur before or on the start date.')
+            self.add_error('registration_deadline', msg)
+            raise forms.ValidationError(msg)
 
 
 class ReportSearchForm(forms.Form):
