@@ -23,8 +23,8 @@
                 </div>
                 &nbsp;
                 <div class="float-right">
-                <a href="#" pop-href="{% url 'travel:request_new' triprequest.id %}" class="btn btn-sm btn-primary">Add Traveller</a>
-            </div>
+                    <a href="#" pop-href="{% url 'travel:request_new' triprequest.id %}" class="btn btn-sm btn-primary">Add Traveller</a>
+                </div>
             {% endif %}
 
         </h3>
@@ -82,9 +82,22 @@
                     {% endfor %}
                     </tbody>
                     <tr>
-                        <th colspan="{{ child_field_list|length|add:-1|floatformat }}"
-                            style="text-align: right">{% trans "TOTAL COST:" %}</th>
+                        <th colspan="{{ child_field_list|length|add:-1|floatformat }}" style="text-align: right">
+                            {% trans "TOTAL COST:" %}
+                        </th>
                         <th style="width: 8%;">{{ triprequest.total_request_cost|currency:"True" }}</th>
+                    </tr>
+                    <tr>
+                        <td colspan="{{ child_field_list|length|add:-1|floatformat }}" style="text-align: right">
+                            {% trans "TOTAL DFO FUNDING:" %}
+                        </td>
+                        <td style="width: 8%;">{{ triprequest.total_dfo_funding|currency:"True" }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="{{ child_field_list|length|add:-1|floatformat }}" style="text-align: right">
+                            {% trans "TOTAL NON-DFO FUNDING:" %}
+                        </td>
+                        <td style="width: 8%;">{{ triprequest.total_non_dfo_funding|currency:"True" }}</td>
                     </tr>
                 </table>
             </div>

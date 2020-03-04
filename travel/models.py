@@ -173,7 +173,8 @@ class Conference(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     blank=True, null=True, related_name="trips")
     is_verified = models.BooleanField(default=False, verbose_name=_("verified?"))
-    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by", verbose_name=_("verified by"))
+    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by",
+                                    verbose_name=_("verified by"))
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
@@ -442,8 +443,8 @@ class TripRequest(models.Model):
     funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes"))
     # total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
-    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("estimated non-DFO costs (CAD)"))
-    non_dfo_org = models.CharField(max_length=1000, verbose_name=_("full name(s) of organization paying non-DFO costs"), blank=True,
+    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Amount of non-DFO funding (CAD)"))
+    non_dfo_org = models.CharField(max_length=1000, verbose_name=_("full name(s) of organization providing non-DFO funding"), blank=True,
                                    null=True)
 
     submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
@@ -525,9 +526,9 @@ class TripRequest(models.Model):
 
     @property
     def cost_breakdown(self):
+        """used for CFTS and travel plan"""
         my_str = ""
         for tr_cost in self.trip_request_costs.all():
-
             if tr_cost.rate_cad:
                 my_str += "{}: ${:,.2f} ({} x {:,.2f}); ".format(
                     tr_cost.cost,
@@ -537,10 +538,20 @@ class TripRequest(models.Model):
                 )
             else:
                 my_str += "{}: ${:,.2f}; ".format(tr_cost.cost, tr_cost.amount_cad)
+
+        if nz(self.non_dfo_costs, 0) > 0:
+            my_str += str(_('NOTE: This trip request contains non-DFO funding sources from {}. '
+                            'Total DFO funding: ${:,.2f} | Total non-DFO funding: ${:,.2f}'.format(
+                self.non_dfo_org,
+                self.total_dfo_funding,
+                self.total_non_dfo_funding,
+            )))
+
         return my_str
 
     @property
     def cost_breakdown_html(self):
+        """used for display on group traveller detail page"""
         my_str = ""
         for tr_cost in self.trip_request_costs.all():
             if tr_cost.rate_cad:
@@ -613,10 +624,41 @@ class TripRequest(models.Model):
         """ this is the total cost for the request; including any children"""
         if self.is_group_request:
             object_list = self.children_requests.all()
-            return sum([item.total_cost for item in object_list])
-
+            summed_costs = sum([item.total_cost for item in object_list])
         else:
-            return self.total_cost
+            summed_costs = self.total_cost
+        return summed_costs
+
+    @property
+    def total_non_dfo_funding(self):
+        """
+        this is the total non dfo funding. for individual requests, it is simply the non_dfo_costs field.
+        for group request, it is this summed over all children requests
+        """
+        if self.is_group_request:
+            object_list = self.children_requests.all()
+            return sum([nz(item.non_dfo_costs, 0) for item in object_list])
+        else:
+            return nz(self.non_dfo_costs, 0)
+
+    @property
+    def total_dfo_funding(self):
+        """
+        this will return the portion of funding to be paid by DFO.
+        The amount will be whatever is leftover when you subtract non-dfo funding from total costs
+        """
+        return nz(self.total_request_cost, 0) - nz(self.total_non_dfo_funding, 0)
+
+    @property
+    def total_non_dfo_funding_sources(self):
+        """
+        this is a comprehensive list of the non-dfo funding sources
+        """
+        if self.is_group_request:
+            object_list = self.children_requests.all()
+            return listrify(set([item.non_dfo_org for item in object_list]))
+        else:
+            return self.non_dfo_org
 
     @property
     def travellers(self):
@@ -686,14 +728,13 @@ class TripRequest(models.Model):
     def recommenders(self):
         return self.reviewers.filter(role_id=2)
 
-    
     @property
     def processing_time(self):
         # if draft
         if self.status.id == 8 or not self.original_submission_date:
             my_var = "---"
         # if approved, denied
-        elif self.status.id in [10,11]:
+        elif self.status.id in [10, 11]:
             my_var = self.reviewers.filter(status_date__isnull=False).last().status_date - self.original_submission_date
             my_var = f"{my_var.days} {_('day')}{pluralize(my_var.days)}"
         else:
@@ -707,6 +748,17 @@ class TripRequest(models.Model):
             return str(self.user)
         else:
             return f'{self.first_name} {self.last_name}'
+
+    @property
+    def dates(self):
+        my_str = "{}".format(
+            self.start_date.strftime("%Y-%m-%d"),
+        )
+        if self.end_date:
+            my_str += " &rarr; {}".format(
+                self.end_date.strftime("%Y-%m-%d"),
+            )
+        return my_str
 
 
 class TripRequestCost(models.Model):
@@ -768,7 +820,8 @@ class Reviewer(models.Model):
 
     def save(self, *args, **kwargs):
         # If the trip request is current under review but changes have been requested, add this reviewer directly in the queue
-        if self.trip_request.status_id == 16 and self.status_id == 4:
+
+        if self.trip_request.status_id != 8 and self.status_id == 4:
             self.status_id = 20
         return super().save(*args, **kwargs)
 
