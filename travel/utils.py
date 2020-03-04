@@ -8,32 +8,56 @@ from Levenshtein import distance
 
 from . import models
 from . import emails
+from shared_models import models as shared_models
 
+# eventually this should turn into a table in the DB!!
+division_reviewer_dict = {
+    # MAR
+    11: 1095,  # CESD --> Mar - CESD - Admin
+    15: 1102,  # RDSO --> Mar - RDSO - Admin
+    16: 530,  # SPAD --> Christina Maclean
+    17: 1101,  # PED --> Mar - PED - Admin
+    18: 1100,  # OESD --> Mar - OESD - Admin
+    19: 1103,  # CHS --> Ashley Macdonald
+
+    # GULF
+    1: 385,  # Aquatic health --> Amelie Robichaud
+    2: 385,  # Fisheries and Ecosystems --> Amelie Robichaud
+    3: 385,  # RDSO --> Amelie Robichaud
+}
 
 def get_reviewers(trip_request):
     # assuming there is a section, assign amelie and section management
     if trip_request.section:
-        # if in gulf region, add Amelie as a reviewer
-        if trip_request.section.division.branch.region_id == 1:
-            try:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=385, role_id=1, )
-            except IntegrityError:
-                print("not adding amelie")
+
+        # look to the section --> division and see who the reviewer is based on the above dict
+        try:
+            models.Reviewer.objects.get_or_create(trip_request=trip_request,
+                                                  user_id=division_reviewer_dict[trip_request.section.division.id], role_id=1)
+        except (IntegrityError, KeyError):
+            print("not adding a reviewer")
 
         # try adding section head, division manager and rds
         try:
+            # if the division head is the one creating the request, the section head should be skipped as a recommender AND
             # if the section head is the one creating the request, they should be skipped as a recommender
-            if trip_request.user != trip_request.section.head:
+            if trip_request.user != trip_request.section.head and trip_request.user != trip_request.section.division.head:
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.head, role_id=2, )
         except (IntegrityError, AttributeError):
             print("not adding section head")
         try:
-            models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.head, role_id=2, )
+            # if the division head is the one creating the request, they should be skipped as a recommender
+            if trip_request.user != trip_request.section.division.head:
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.head, role_id=2, )
         except (IntegrityError, AttributeError):
             print("not adding division manager")
+
         try:
             if trip_request.user != trip_request.section.division.branch.head:
-                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.head, role_id=2, )
+                if trip_request.section.division.branch.region_id == 2:
+                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=1102, role_id=1, ) # MAR RDSO ADMIN user
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.head,
+                                                      role_id=2, )
         except (IntegrityError, AttributeError):
             print("not adding RDS")
 
@@ -306,7 +330,6 @@ def manage_trip_warning(trip):
         # if the trip is >= 10K, we simply need to send an email to NCR
         else:
             if not trip.cost_warning_sent:
-
                 email = emails.TripCostWarningEmail(trip)
                 # # send the email object
                 custom_send_mail(

@@ -6,6 +6,7 @@ from django.contrib.auth.models import User as AuthUser
 from django.db import models
 from django.db.models import Q, Sum
 from django.dispatch import receiver
+from django.template.defaultfilters import pluralize
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -153,13 +154,13 @@ class Status(models.Model):
 
 
 class Conference(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
     is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "does attendance to this require ADM approval?"))
-    location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location (city, province, country)"))
-    lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is taking the lead?"),
-                             related_name="meeting_leads", blank=True, null=True)
+    location = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("location (city, province, country)"))
+    lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is the lead on this trip?"),
+                             related_name="meeting_leads", blank=False, null=True)
     has_event_template = models.NullBooleanField(default=False, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
@@ -171,10 +172,9 @@ class Conference(models.Model):
     notes = models.TextField(blank=True, null=True, verbose_name=_("general notes"))
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     blank=True, null=True, related_name="trips")
-    is_verified = models.BooleanField(default=False)
-    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by")
+    is_verified = models.BooleanField(default=False, verbose_name=_("verified?"))
+    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by", verbose_name=_("verified by"))
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
-
 
     def __str__(self):
         # check to see if a french value is given
@@ -386,30 +386,32 @@ class Conference(models.Model):
 class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
                                     default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trip_requests")
-    is_group_request = models.BooleanField(default=False,
-                                           verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
-    purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
-    reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
-    trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, null=True, verbose_name=_("trip"), related_name="trip_requests")
-
     # traveller info
     user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trip_requests",
                              verbose_name=_("DM Apps user"))
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, verbose_name=_("DFO section"), related_name="trip_requests")
+    is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Traveller belongs to which DFO region"),
+                               related_name="trip_requests",
+                               null=True, blank=True)
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
+                                verbose_name=_("under which DFO section is this request being made"), related_name="trip_requests")
+    is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
+                                                verbose_name=_("Is the traveller a research scientist (RES)?"))
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
     last_name = models.CharField(max_length=100, verbose_name=_("last name"), blank=True, null=True)
     address = models.CharField(max_length=1000, verbose_name=_("address"),
                                blank=True, null=True)
     phone = models.CharField(max_length=1000, verbose_name=_("phone"), blank=True, null=True)
     email = models.EmailField(verbose_name=_("email"), blank=True, null=True)
-    is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
-    is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
-                                                verbose_name=_("Is the traveller a research scientist (RES)?"))
     company_name = models.CharField(max_length=255, verbose_name=_("company name"), blank=True, null=True)
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("DFO region"),
-                               related_name="trip_requests",
-                               null=True, blank=True)
-    # trip_title = models.CharField(max_length=1000, verbose_name=_("trip title"))
+
+    # Trip Details
+    is_group_request = models.BooleanField(default=False,
+                                           verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
+    purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
+    reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
+    trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, null=True, verbose_name=_("trip"), related_name="trip_requests")
+
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True,
                                           null=True)
     destination = models.CharField(max_length=1000, verbose_name=_("destination location (city, province, country)"), blank=True,
@@ -439,41 +441,18 @@ class TripRequest(models.Model):
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
     funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes"))
-
-    # costs
-    air = models.FloatField(blank=True, null=True, verbose_name=_("air fare"))
-    rail = models.FloatField(blank=True, null=True, verbose_name=_("rail"))
-    rental_motor_vehicle = models.FloatField(blank=True, null=True, verbose_name=_("rental motor vehicles"))
-    personal_motor_vehicle = models.FloatField(blank=True, null=True, verbose_name=_("personal motor vehicles"))
-    taxi = models.FloatField(blank=True, null=True, verbose_name=_("taxi"))
-    other_transport = models.FloatField(blank=True, null=True, verbose_name=_("other transport"))
-    accommodations = models.FloatField(blank=True, null=True, verbose_name=_("accommodation"))
-    # meals = models.FloatField(blank=True, null=True, verbose_name=_("meals"))
-    no_breakfasts = models.IntegerField(blank=True, null=True, verbose_name=_("number of breakfasts"))
-    breakfasts_rate = models.FloatField(blank=True, null=True, verbose_name=_("breakfast rate (CAD/day)"), default=20.35)
-    breakfasts = models.FloatField(blank=True, null=True, verbose_name=_("breakfasts"))
-    no_lunches = models.IntegerField(blank=True, null=True, verbose_name=_("number of lunches"))
-    lunches_rate = models.FloatField(blank=True, null=True, verbose_name=_("lunch rate (CAD/day)"), default=20.60)
-    lunches = models.FloatField(blank=True, null=True, verbose_name=_("lunches"))
-    no_suppers = models.IntegerField(blank=True, null=True, verbose_name=_("number of suppers"))
-    suppers_rate = models.FloatField(blank=True, null=True, verbose_name=_("supper rate (CAD/day)"), default=50.55)
-    suppers = models.FloatField(blank=True, null=True, verbose_name=_("suppers"))
-    no_incidentals = models.IntegerField(blank=True, null=True, verbose_name=_("number of incidentals"))
-    incidentals_rate = models.FloatField(blank=True, null=True, verbose_name=_("incidental rate (CAD/day)"), default=17.30)
-    incidentals = models.FloatField(blank=True, null=True, verbose_name=_("incidentals"))
-    registration = models.FloatField(blank=True, null=True, verbose_name=_("registration"))
-    other = models.FloatField(blank=True, null=True, verbose_name=_("other"))
-    total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
+    # total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
     non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("estimated non-DFO costs (CAD)"))
     non_dfo_org = models.CharField(max_length=1000, verbose_name=_("full name(s) of organization paying non-DFO costs"), blank=True,
                                    null=True)
 
-    submitted = models.DateTimeField(verbose_name=_("date sumbitted"), blank=True, null=True)
+    submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
+    original_submission_date = models.DateTimeField(verbose_name=_("original submission date"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trip_requests",
                                limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
     parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
-    exclude_from_travel_plan = models.BooleanField(default=False)
+    exclude_from_travel_plan = models.BooleanField(default=False, verbose_name=_("Exclude this traveller from the travel plan?"))
 
     @property
     def admin_notes_html(self):
@@ -644,7 +623,7 @@ class TripRequest(models.Model):
         if self.is_group_request:
             return [tr.user for tr in self.children_requests.all()]
         else:
-            return self.user
+            return [self.user]
 
     @property
     def purpose_long(self):
@@ -706,6 +685,28 @@ class TripRequest(models.Model):
     @property
     def recommenders(self):
         return self.reviewers.filter(role_id=2)
+
+    
+    @property
+    def processing_time(self):
+        # if draft
+        if self.status.id == 8 or not self.original_submission_date:
+            my_var = "---"
+        # if approved, denied
+        elif self.status.id in [10,11]:
+            my_var = self.reviewers.filter(status_date__isnull=False).last().status_date - self.original_submission_date
+            my_var = f"{my_var.days} {_('day')}{pluralize(my_var.days)}"
+        else:
+            my_var = timezone.now() - self.original_submission_date
+            my_var = f"{my_var.days} {_('day')}{pluralize(my_var.days)}"
+        return my_var
+
+    @property
+    def requester_name(self):
+        if self.user:
+            return str(self.user)
+        else:
+            return f'{self.first_name} {self.last_name}'
 
 
 class TripRequestCost(models.Model):

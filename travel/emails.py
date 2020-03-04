@@ -18,6 +18,7 @@ trip_field_list = [
     'fiscal_year',
     'name',
     'nom',
+    'lead',
     'is_adm_approval_required',
     'location',
     'start_date',
