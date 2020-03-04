@@ -314,9 +314,8 @@ conf_field_list = [
     'registration_deadline',
     'is_adm_approval_required',
     'notes',
-    'non_res_total_cost|{}'.format("Non-research scientist total cost (from all connected requests, excluding BTA travel)"),
-
-    'total_cost|{}'.format("Total cost (from all connected requests, excluding BTA travel)"),
+    'total_cost|{}'.format("Total DFO cost (excluding BTA)"),
+    'non_res_total_cost|{}'.format("Total DFO cost from non-RES travellers (excluding BTA)"),
 ]
 
 cost_field_list = [
