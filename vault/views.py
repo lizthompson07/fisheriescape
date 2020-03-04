@@ -286,6 +286,7 @@ class OutingListView(VaultAccessRequired, FilterView):
         context["my_object"] = models.Outing.objects.first()
         context["field_list"] = [
             'id',
+            'observation_platform_id',
             'region',
             'purpose',
             'start_date',
@@ -293,7 +294,7 @@ class OutingListView(VaultAccessRequired, FilterView):
             'end_time',
             'duration',
             'identifier_string',
-            'observation_platform_id',
+
 
         ]
         return context
@@ -306,6 +307,7 @@ class OutingDetailView(VaultAccessRequired, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'id',
+            'observation_platform_id',
             'region',
             'purpose',
             'start_date',
@@ -313,7 +315,7 @@ class OutingDetailView(VaultAccessRequired, DetailView):
             'end_time',
             'duration',
             'identifier_string',
-            'observation_platform_id',
+
 
         ]
         return context

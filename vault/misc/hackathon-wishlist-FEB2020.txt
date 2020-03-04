@@ -11,4 +11,18 @@
 
 - how will new information be included once the initial data holdings are absorbed in the database?
 
+- Outing Tables -- how to do date/time pickers? DecimalField
+                -- how to do proper rounding to allow for quarter hour calculations?
+                -- how to have foreignKey display another field from the other table (i.e. instead of Observation platform id, display the name of the aircraft)
+
+
+Questions / Concerns
+1) If this:
+
+    "def __str__(self):
+        return self.identifier_string"
+
+    doesn't have a value in that column, it returns an error, so should this field be required to be set to not NULL?
+    (ran into this problem with the outing table)
+
 

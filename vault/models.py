@@ -194,17 +194,19 @@ class ObservationPlatform(models.Model):
 class Outing(models.Model):
     observation_platform = models.ForeignKey(ObservationPlatform, on_delete=models.DO_NOTHING, related_name="outings",
                                              verbose_name=_("observation platform"))
-    region = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    purpose = models.CharField(max_length=250, blank=True, null=True)
-    start_date = models.DateTimeField(blank=True, null=True)
-    start_time = models.DateTimeField(null=True, blank=True)
-    end_time = models.DateTimeField(null=True, blank=True)
-    duration = models.IntegerField(null=True, blank=True, verbose_name=_(""))
-    identifier_string = models.CharField(max_length=250, blank=True, null=True)
+    region = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Region"))
+    purpose = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Purpose"))
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date (YYYY-MM-DD)"))
+    start_time = models.TimeField(null=True, blank=True, verbose_name=_("Start time (format)"))
+    end_time = models.TimeField(null=True, blank=True, verbose_name=_("End time (format)"))
+    duration = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name=_("Duration (hours)"))
+    identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Identifier String"))
 
     def __str__(self):
         return self.identifier_string
 
+    def get_absolute_url(self):
+        return reverse("vault:outing_detail", kwargs={"pk":self.id})
 
 class Observation(models.Model):
     outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""))
