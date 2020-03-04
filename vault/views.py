@@ -68,6 +68,7 @@ class SpeciesListView(VaultAccessRequired, FilterView):
             'latin_name',
             'vor_code',
             'quebec_code',
+            'maritimes_code',
             'aphia_id',
         ]
         return context
@@ -120,7 +121,7 @@ class SpeciesDeleteView(VaultAccessRequired, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
-#
+
 #
 # #
 # # # OBSERVATIONPLATFORM #
@@ -196,6 +197,7 @@ class ObservationPlatformDeleteView(VaultAccessRequired, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+#
 # #
 # # # INSTRUMENTS #
 # # ###########
@@ -261,6 +263,88 @@ class InstrumentDeleteView(VaultAccessRequired, DeleteView):
     permission_required = "__all__"
     success_url = reverse_lazy('vault:instrument_list')
     success_message = 'The instrument was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+#
+# #
+# # # OUTINGS #
+# # ###########
+# #
+#
+class OutingListView(VaultAccessRequired, FilterView):
+    template_name = "vault/outing_list.html"
+    filterset_class = filters.OutingFilter
+    queryset = models.Outing.objects.annotate(
+        search_term=Concat('id', 'region', 'purpose', 'start_date', 'start_time', 'end_time', 'duration', 'identifier_string', 'observation_platform_id', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Outing.objects.first()
+        context["field_list"] = [
+            'id',
+            'observation_platform_id',
+            'region',
+            'purpose',
+            'start_date',
+            'start_time',
+            'end_time',
+            'duration',
+            'identifier_string',
+
+
+        ]
+        return context
+
+#
+class OutingDetailView(VaultAccessRequired, DetailView):
+    model = models.Outing
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'observation_platform_id',
+            'region',
+            'purpose',
+            'start_date',
+            'start_time',
+            'end_time',
+            'duration',
+            'identifier_string',
+
+
+        ]
+        return context
+
+#
+class OutingUpdateView(VaultAccessRequired, UpdateView):
+    model = models.Outing
+    form_class = forms.OutingForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Outing record successfully updated for : {my_object}"))
+        return super().form_valid(form)
+
+
+class OutingCreateView(VaultAccessRequired, CreateView):
+    model = models.Outing
+    form_class = forms.OutingForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Outing record successfully created for : {my_object}"))
+        return super().form_valid(form)
+
+class OutingDeleteView(VaultAccessRequired, DeleteView):
+    model = models.Outing
+    permission_required = "__all__"
+    success_url = reverse_lazy('vault:outing_list')
+    success_message = 'The outing was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)

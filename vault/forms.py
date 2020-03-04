@@ -16,3 +16,8 @@ class InstrumentForm(forms.ModelForm):
     class Meta:
         model = models.Instrument
         fields = "__all__"
+
+class OutingForm(forms.ModelForm):
+    class Meta:
+        model = models.Outing
+        fields = "__all__"
