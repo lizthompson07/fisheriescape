@@ -6,10 +6,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models.functions import Concat
 from django.utils.safestring import mark_safe
 
 from dm_apps.utils import custom_send_mail
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Value, TextField
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -1066,7 +1067,14 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
     model = models.Conference
     filterset_class = filters.TripFilter
     template_name = 'travel/trip_list.html'
-
+    queryset = models.Conference.objects.annotate(
+        search_term=Concat(
+            'name',
+            Value(" "),
+            'nom',
+            Value(" "),
+            'location',
+            output_field=TextField()))
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
