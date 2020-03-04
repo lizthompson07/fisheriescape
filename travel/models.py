@@ -288,11 +288,11 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip_request.total_request_cost for trip_request in
+        my_list = [trip_request.total_dfo_funding for trip_request in
                    self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
-            [trip_request.total_request_cost for trip_request in
+            [trip_request.total_dfo_funding for trip_request in
              TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))])
 
         return sum(my_list)
@@ -303,11 +303,11 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
-        my_list = [trip_request.total_request_cost for trip_request in
+        my_list = [trip_request.total_dfo_funding for trip_request in
                    self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False, is_research_scientist=False)]
         # group travellers
         my_list.extend(
-            [trip_request.total_request_cost for trip_request in
+            [trip_request.total_dfo_funding for trip_request in
              TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22])).filter(is_research_scientist=False)])
 
         return sum(my_list)
@@ -658,7 +658,7 @@ class TripRequest(models.Model):
             object_list = self.children_requests.all()
             return listrify(set([item.non_dfo_org for item in object_list]))
         else:
-            return self.non_dfo_org
+            return nz(self.non_dfo_org, "----")
 
     @property
     def travellers(self):
