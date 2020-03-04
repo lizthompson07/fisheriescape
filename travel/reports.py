@@ -126,12 +126,6 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
             else:
                 my_end = tr.end_date.strftime("%d/%m/%Y") if tr.end_date else "n/a"
 
-            # NON DFO COSTS
-            if tr.parent_request:
-                my_non_dfo_costs = nz(tr.parent_request.non_dfo_costs, 0)
-            else:
-                my_non_dfo_costs = nz(tr.non_dfo_costs, 0)
-
             # PURPOSE
             if tr.parent_request:
                 my_purpose = tr.parent_request.purpose_long_text
@@ -157,8 +151,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
                 my_dest,
                 my_start,
                 my_end,
-                tr.total_cost,
-                my_non_dfo_costs,
+                tr.total_dfo_funding,
+                tr.total_non_dfo_funding,
                 my_purpose,
                 notes,
             ]

@@ -1,9 +1,7 @@
 import json
 import os
 from copy import deepcopy
-from Levenshtein import distance
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -247,9 +245,10 @@ request_field_list = [
     'bta_attendees',
     'notes',
     # 'cost_table|{}'.format(_("DFO costs")),
-    f'total_request_cost|{_("Total cost (DFO)")}',
-    'non_dfo_costs',
-    'non_dfo_org',
+    f'total_request_cost|{_("Total costs")}',
+    f'total_dfo_funding|{_("Total amount of DFO funding")}',
+    f'total_non_dfo_funding|{_("Total amount of non-DFO funding")}',
+    f'total_non_dfo_funding_sources|{_("Non-DFO funding sources")}',
     'original_submission_date',
     f'processing_time|{_("Processing time")}',
 ]
@@ -271,25 +270,25 @@ request_group_field_list = [
     'bta_attendees',
     'late_justification',
     'notes',
-    'total_request_cost|{}'.format(_("Total cost (DFO)")),
-    'non_dfo_costs',
-    'non_dfo_org',
+    f'total_dfo_funding|{_("Total amount of DFO funding")}',
+    f'total_non_dfo_funding|{_("Total amount of non-DFO funding")}',
+    f'total_non_dfo_funding_sources|{_("Non-DFO funding sources")}',
+    'total_request_cost|{}'.format(_("Total cost")),
     'original_submission_date',
     f'processing_time|{_("Processing time")}',
 ]
 
 request_child_field_list = [
-    'first_name',
-    'last_name',
-    'is_public_servant',
-    'is_research_scientist',
-    'region',
-    'start_date',
-    'end_date',
+    f'requester_name|{_("Name")}',
+    # 'is_public_servant',
+    'is_research_scientist|{}'.format(_("RES?")),
+    # 'region',
+    'dates|{}'.format(_("Travel dates")),
     'departure_location',
     'role',
     'role_of_participant',
-    'total_cost|{}'.format("Total cost"),
+    'total_cost|{}'.format(_("Total cost")),
+    'non_dfo_costs|{}'.format(_("non-DFO funding")),
 
 ]
 
@@ -669,6 +668,8 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
             #  UNSUBMIT REQUEST
             if in_travel_admin_group(self.request.user) or my_trip_request.user == self.request.user:
                 my_trip_request.submitted = None
+                my_trip_request.status_id = 8
+                my_trip_request.save()
                 # reset all the reviewer statuses
                 utils.end_review_process(my_trip_request)
             else:
