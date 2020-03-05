@@ -298,7 +298,7 @@ def get_app_dict(request):
         app_dict["vault"] = {
             "title": _("Megafauna media vault"),
             "description": _("Media vault for marine megafauna."),
-            "status": "production",
+            "status": "dev",
             "access": "permission-required",
             "url": reverse('vault:index'),
             "icon_path": 'img/icons/vault.svg',
