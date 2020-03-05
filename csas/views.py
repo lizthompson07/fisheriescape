@@ -174,8 +174,9 @@ class IndexTemplateView(TemplateView):
 # the appropriate xxxCommon class, provide the few necessary fields                 #
 # ################################################################################# #
 class ContactsEntry(CreateCommon):
+    template_name = 'csas/_entry_form_with_nav.html'
     # The title to use on the Creation form
-    title = _("Contact Entry")
+    title = _("New Contact Entry")
     # The model Django uses to retrieve the object(s) used on the page
     model = models.ConContact
     # This is what controls what fields and what widgets for what fields should be used on the entry form
@@ -261,45 +262,103 @@ class MeetingDetails(DetailsCommon):
     # title to be displayed on the details page
     title = _("Meeting Details")
     # fields to be displayed on the details page
-    fields = ['quarter', 'start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
+    # fields = ['quarter', 'start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
+    #           'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
+    #           'csas_contact', ]
+    fields = ['start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
               'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
               'csas_contact', ]
 
 
+# #################################################### #
+#               End of Meeting Examples                #
+# #################################################### #
+
+
 class RequestEntry(CreateCommon):
     template_name = 'csas/_entry_form_with_nav.html'
-
     # The title to use on the Creation form
-    title = _("Request Entry")
+    title = _("New Request Entry")
     # The model Django uses to retrieve the object(s) used on the page
-    model = models.MetMeeting
+    # model = models.MetMeeting
+    model = models.ReqRequest
     # This is what controls what fields and what widgets for what fields should be used on the entry form
-    form_class = forms.MeetingForm
+    # form_class = forms.MeetingForm
+    form_class = forms.RequestForm
 
 
-
-class MeetingsTemplateView(CreateView):
-    template_name = 'csas/meetings.html'
-    model = models.MetMeeting
-    form_class = forms.MeetingForm
-
-
-class PublicationsTemplateView(CreateView):
-    template_name = 'csas/publications.html'
-    model = models.PubPublication
-    form_class = forms.PublicationForm
+class RequestUpdate(UpdateCommon):
+    # The title to use on the Update form
+    title = _("Update Request")
+    # The model Django uses to retrieve the object(s) used on the page
+    # model = models.MetMeeting
+    model = models.ReqRequest
+    # This is what controls what fields and what widgets for what fields should be used on the entry form
+    # form_class = forms.MeetingForm
+    form_class = forms.RequestForm
 
 
-class RequestsTemplateView(CreateView):
-    template_name = 'csas/requests.html'
-    model = models.MetMeeting
-    form_class = forms.MeetingForm
+class RequestList(ListCommon):
+    # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
+    # key = 'met'
+    key = 'req'
+    # The model Django uses to retrieve the object(s) used on the page
+    # model = models.MetMeeting
+    model = models.ReqRequest
+    # filter class used to filter the table. This is where you make changes to specify what fields to filter
+    # on and how those fields should be laid out or work, like inclusive vs. partial text searching
+    # filterset_class = filters.MeetingFilter
+    filterset_class = filters.RequestFilter
+    # fields used in the table on the filter page.
+    # fields = ['start_date', 'title_en', 'title_fr', 'location', 'process_type']
+    fields = ['region', 'title', 'client_name', 'have_funding']
+    # title to display on the Filter page
+    # title = _("Meeting List")
+    title = _("Request List")
 
 
-class OthersTemplateView(CreateView):
-    template_name = 'csas/others.html'
-    model = models.MetMeeting
-    form_class = forms.MeetingForm
+class RequestDetails(DetailsCommon):
+    # key used to create default urls. Without it you'll need to specify a list_url and update_url
+    # key = "met"
+    key = "req"
+    # model Django uses to get the object being displayed on the details page
+    # model = models.MetMeeting
+    model = models.ReqRequest
+    # title to be displayed on the details page
+    # title = _("Meeting Details")
+    title = _("Request Details")
+    # fields to be displayed on the details page
+    #fields = ['quarter', 'start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
+    #          'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
+    #          'csas_contact', ]
+    fields = ['title', 'in_year_request', 'region', 'client_sector', 'client_name', 'client_title', 'client_email',
+              'issue', 'priority', 'rationale', 'proposed_timing', 'rational_for_timing', 'have_funding',
+              'funding_notes', 'science_discussion', 'science_discussion_notes', 'decision', 'decision_explanation',
+              'advisor_submission', 'rd_submission', 'decision_date', ]
+
+
+# class MeetingsTemplateView(CreateView):
+#     template_name = 'csas/meetings.html'
+#     model = models.MetMeeting
+#     form_class = forms.MeetingForm
+
+
+# class PublicationsTemplateView(CreateView):
+#     template_name = 'csas/publications.html'
+#     model = models.PubPublication
+#     form_class = forms.PublicationForm
+
+
+# class RequestsTemplateView(CreateView):
+#     template_name = 'csas/requests.html'
+#     model = models.MetMeeting
+#     form_class = forms.MeetingForm
+
+
+# class OthersTemplateView(CreateView):
+#     template_name = 'csas/others.html'
+#     model = models.MetMeeting
+#     form_class = forms.MeetingForm
 
 
 class CommonLookup(CreateView):

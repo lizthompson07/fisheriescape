@@ -237,13 +237,44 @@ class PubPublication(models.Model):
 
 # ---------------------------------------------------------------------------------------
 # Create models for requests
+
+class RepPriority(Lookup):
+    rep_id = models.AutoField(primary_key=True)
+    # name = models.CharField(max_length=45)
+
+class RedDecision(models.Model):
+    red_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+
+
 class ReqRequest(models.Model):
     req_id = models.AutoField(primary_key=True)
-    title_en = models.CharField(max_length=255)
+    assigned_request_ID = models.CharField(max_length=45)
+    title = models.CharField(max_length=255)
+    in_year_request = models.BooleanField()
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
+    client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING)
+    client_name = models.CharField(max_length=100, help_text=_("Some help here"))
+    client_title = models.CharField(max_length=100)
+    client_email = models.CharField(max_length=255)
+    issue = models.TextField()
+    # priority = models.ForeignKey(RepPriority, on_delete=models.DO_NOTHING)
+    priority = models.CharField(max_length=40)
+    rationale = models.TextField()
+    proposed_timing = models.CharField(max_length=100)
+    rationale_for_timing = models.TextField()
+    have_funding = models.BooleanField()
+    funding_notes = models.TextField()
+    science_discussion = models.BooleanField()
+    science_discussion_notes = models.TextField()
+    # decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True)
+    decision_explanation = models.TextField()
+    advisor_submission = models.DateField()
+    rd_submission = models.DateField()
+    decision_date = models.DateField()
 
     def __str__(self):
-        return "{}".format(self.title_en)
-
+        return "{}".format(self.title)
 
 # ---------------------------------------------------------------------------------------
 # Create models for publications
