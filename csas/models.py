@@ -237,10 +237,10 @@ class PubPublication(models.Model):
 
 # ---------------------------------------------------------------------------------------
 # Create models for requests
-
 class RepPriority(Lookup):
     rep_id = models.AutoField(primary_key=True)
     # name = models.CharField(max_length=45)
+
 
 class RedDecision(models.Model):
     red_id = models.AutoField(primary_key=True)
@@ -259,7 +259,8 @@ class ReqRequest(models.Model):
     client_email = models.CharField(max_length=255)
     issue = models.TextField()
     # priority = models.ForeignKey(RepPriority, on_delete=models.DO_NOTHING)
-    priority = models.CharField(max_length=40)
+    priority = models.ForeignKey(RepPriority, on_delete=models.DO_NOTHING)    # CohHonorific is borrowed from Contacts
+    # priority = models.CharField(max_length=40)
     rationale = models.TextField()
     proposed_timing = models.CharField(max_length=100)
     rationale_for_timing = models.TextField()
@@ -268,10 +269,11 @@ class ReqRequest(models.Model):
     science_discussion = models.BooleanField()
     science_discussion_notes = models.TextField()
     # decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True)
-    decision_explanation = models.TextField()
-    advisor_submission = models.DateField()
-    rd_submission = models.DateField()
-    decision_date = models.DateField()
+    # decision = models.ForeignKey(CotType, on_delete=models.DO_NOTHING)    # CotType is borrowed from Contacts
+    # decision_explanation = models.TextField()
+    advisor_submission = models.DateField(null=True, blank=True)
+    rd_submission = models.DateField(null=True, blank=True)
+    decision_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return "{}".format(self.title)

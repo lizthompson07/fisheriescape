@@ -20,6 +20,10 @@ def load_lookup(model, options):
             model(name_en=opt[0], name_fr=opt[1]).save()
 
 
+# Load the (Request) priority model
+priorities = [['High', 'High(fr)'], ['Medium', 'Medium(fr)'], ['Low', 'Low(fr)'],]
+load_lookup(models.RepPriority, priorities)
+
 # Load the honorific model
 honorifics = [['Mr.', 'Mr. (fr)'], ['Mrs.', 'Mrs. (fr)'], ['Ms.', 'Ms. (fr)'], ['Dr.', 'Dr. (fr)'], ['Chief', 'Chief (fr)'], ['Capt.', 'Capt. (fr)'],]
 load_lookup(CohHonorific, honorifics)
