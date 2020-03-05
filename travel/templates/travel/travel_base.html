@@ -4,6 +4,7 @@
 {% load bootstrap4 %}
 {% block bug_create %}{% url 'tickets:bug_create' 'travel' %}{% endblock bug_create %}
 
+{% block jquery_import %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
 
 {% block title %}
     {% trans "Travel Plans" %} {% block subtitle %}{% endblock %}
