@@ -12,6 +12,10 @@ class CloserTemplateView(TemplateView):
     template_name = 'shared_models/close_me.html'
 
 
+class CloserNoRefreshTemplateView(TemplateView):
+    template_name = 'shared_models/close_me_no_refresh.html'
+
+
 # SECTION #
 ###########
 

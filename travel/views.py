@@ -14,7 +14,7 @@ from django.db.models import Sum, Q, Value, TextField
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView, FormView
 ###
@@ -35,6 +35,17 @@ from shared_models import models as shared_models
 # Create your views here.
 class CloserTemplateView(TemplateView):
     template_name = 'travel/close_me.html'
+
+
+def get_conf_details(request):
+    conf_dict = {}
+    for conf in models.Conference.objects.all():
+        conf_dict[conf.id] = {}
+        conf_dict[conf.id]['location'] = conf.location
+        conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
+        conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
+
+    return JsonResponse(conf_dict)
 
 
 def in_travel_admin_group(user):
@@ -1135,7 +1146,7 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
 
     def get_success_url(self):
         if self.kwargs.get("pop"):
-            return reverse("shared_models:close_me")
+            return reverse("shared_models:close_me_no_refresh")
         else:
             return super().get_success_url()
 
