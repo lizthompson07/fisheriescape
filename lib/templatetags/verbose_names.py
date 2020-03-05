@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 from django.template.defaultfilters import yesno
 from django.utils.safestring import SafeString, mark_safe
@@ -122,7 +123,8 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             try:
                 field_value = getattr(instance, field_name)
             except AttributeError:
-                print("Could not evaluate field value for '" + str(field_name) + "' for object '" + str(type(instance)) + "'")
+                if settings.DB_MODE == "DEV":
+                    print(f"Could not evaluate field value for '{field_name} for object {type(instance)}")
         else:
 
             # first check if there is a value :
