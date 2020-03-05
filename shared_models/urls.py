@@ -6,6 +6,7 @@ app_name = 'shared_models'
 
 urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
+    path('close_no_refresh/', views.CloserNoRefreshTemplateView.as_view(), name="close_me_no_refresh"),
 
     # SECTION #
     ###########
