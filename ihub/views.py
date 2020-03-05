@@ -1,12 +1,11 @@
 import math
 import os
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
-from django.core.mail import send_mail
+from dm_apps.utils import custom_send_mail
 from django.db.models import TextField, Q, Value
 from django.db.models.functions import Concat
 from django.shortcuts import render
@@ -481,11 +480,12 @@ class EntryCreateView(iHubEditRequiredMixin, CreateView):
         email = emails.NewEntryEmail(object)
         # send the email object
 
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-        else:
-            print(email)
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
         messages.success(self.request,
                          _("The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!"))
         return HttpResponseRedirect(reverse_lazy('ihub:entry_detail', kwargs={"pk": object.id}))

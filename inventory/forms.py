@@ -13,7 +13,7 @@ attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Ti
 
 class ResourceCreateForm(forms.ModelForm):
     add_custodian = forms.BooleanField(required=False, label="Add yourself as custodian")
-    add_point_of_contact = forms.BooleanField(required=False, label="Add Regional Data Manager as a Point of Contact")
+    # add_point_of_contact = forms.BooleanField(required=False, label="Add Regional Data Manager as a Point of Contact")
 
     class Meta:
         model = models.Resource
@@ -300,6 +300,7 @@ class ResourcePersonForm(forms.ModelForm):
         role_choices = [(r.id, "{} - {}".format(r.role, r.notes)) for r in models.PersonRole.objects.all()]
         role_choices.insert(0, (None, "-----"))
         self.fields['role'].choices = role_choices
+        self.fields['role'].choices = role_choices
 
 
 class PersonForm(forms.Form):
@@ -307,7 +308,7 @@ class PersonForm(forms.Form):
 
     first_name = forms.CharField()
     last_name = forms.CharField()
-    email = forms.EmailField(required=False)
+    email = forms.EmailField(required=True)
     position_eng = forms.CharField(label="Position title (English)", required=False)
     position_fre = forms.CharField(label="Position title (French)", required=False)
     phone = forms.CharField(widget=forms.TextInput(attrs={'placeholder': "000-000-0000 ext.000"}), required=False)
@@ -322,7 +323,7 @@ class PersonCreateForm(PersonForm):
     def clean_email(self):
         email = self.cleaned_data['email']
         # if email already exists in db
-        if User.objects.filter(email=email).count() > 0:
+        if User.objects.filter(email__iexact=email).count() > 0:
             raise forms.ValidationError("email address already exists in system.")
         return email
 

@@ -23,7 +23,7 @@ def get_section_choices(all=False, full_name=True):
                 "division__branch",
                 "division",
                 "name"
-            ) if s.projects.count() > 0] if not all else [(s.id, getattr(s, my_attr)) for s in
+            ) if s.trip_requests.count() > 0] if not all else [(s.id, getattr(s, my_attr)) for s in
                                                           shared_models.Section.objects.filter(
                                                               division__branch__name__icontains="science").order_by(
                                                               "division__branch__region",
@@ -84,7 +84,7 @@ class TripRequestFilter(django_filters.FilterSet):
         region_choices = get_region_choices()
         division_choices = get_division_choices()
         section_choices = get_section_choices()
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.trip_requests.count() > 0]
 
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
                                                                   label=_("Fiscal year"))
@@ -126,8 +126,11 @@ class TripFilter(django_filters.FilterSet):
     class Meta:
         model = models.Conference
         fields = {
+            'name': ['exact'],
             'fiscal_year': ['exact'],
-            'name': ['icontains'],
+            'lead': ['exact'],
+            'is_adm_approval_required': ['exact'],
+            'is_verified': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
@@ -135,7 +138,10 @@ class TripFilter(django_filters.FilterSet):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.trips.count() > 0]
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
                                                                   label=_("Fiscal year"))
-
+        self.filters['name'] = django_filters.CharFilter(field_name='search_term', label=_("Trip Title"), lookup_expr='icontains',
+                                            widget=forms.TextInput())
+        self.filters['lead'].label = _("Regional lead")
+        self.filters['is_adm_approval_required'].label = _("ADM approval required?")
 
 class TripRequestApprovalFilter(django_filters.FilterSet):
     class Meta:

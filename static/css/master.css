@@ -78,6 +78,15 @@
     background-color: #fecd11;
 }
 
+
+.dev-mode {
+    background-color: #ffaa06;
+}
+
+.test-mode {
+    background-color: #fe49ff;
+}
+
 .petri {
     background-color: wheat;
 }
@@ -215,13 +224,13 @@
 
 
 .blink-me {
-  animation: blinker 1s linear infinite;
+    animation: blinker 1s linear infinite;
 }
 
 @keyframes blinker {
-  50% {
-    opacity: 0;
-  }
+    50% {
+        opacity: 0;
+    }
 }
 
 
