@@ -5,6 +5,7 @@ app_name = 'travel'
 
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
+    path('util/conf_details', views.get_conf_details, name='conf_details'),
 
     # TRIP REQUEST #
     ################
