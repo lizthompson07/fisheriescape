@@ -47,7 +47,7 @@
 
     {% if field.name == "trip" %}
         <div class="mb-3">
-            <button id="add_trip" class="btn btn-primary" onclick="return popitup('{% url 'travel:trip_new' 1 %}','popoutWindow', height=800, width=700);">add a new trip</button>
+            <button id="add_trip" class="btn btn-success" onclick="return popitup('{% url 'travel:trip_new' 1 %}','popoutWindow', height=800, width=700);">add a new trip</button>
         </div>
     {% endif %}
 
