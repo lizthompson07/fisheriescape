@@ -17,8 +17,8 @@
             <hr />
             <div class="row mb-2">
                 <div class="col-4">{% trans "<h4> Requests for Science Advice </h4>" %}</div>
-                <div class="col-1"><a class="btn btn-primary" href="">{% trans "All" %}</a></div>
-                <div class="col-2"><a class="btn btn-primary" href="">{% trans "Maritimes" %}</a></div>
+                <div class="col-1"><a class="btn btn-primary" href="{% url 'csas:list_req'%}">{% trans "All" %}</a></div>
+                <div class="col-2"><a class="btn btn-primary" href="{% url 'csas:list_req'%}">{% trans "Maritimes" %}</a></div>
                 <div class="col"><a class="btn btn-primary" href="{% url 'csas:create_req' %}">{% trans "New Request" %}</a></div>
             </div>
             <div class="row mb-2">
