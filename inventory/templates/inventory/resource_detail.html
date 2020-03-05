@@ -2,7 +2,9 @@
 {% load static %}
 {% load verbose_names %}
 {% load custom_filters %}
-
+{% block subtitle %}
+    - {{ object.t_title }}
+{% endblock %}
 {% block content %}
     <style media="screen">
         body {
@@ -45,7 +47,7 @@
     <div class="container-fluid">
 
         <div class="text-center">
-            <h2>{{ object.title_eng }}</h2>
+            <h2>{{ object.t_title }}</h2>
         </div>
         <div id="floating-panel">
             {% with "btn btn-sm btn-outline-dark" as my_btn %}

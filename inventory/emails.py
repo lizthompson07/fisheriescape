@@ -4,7 +4,7 @@ from django.template import loader
 from . import models
 
 app_name = settings.WEB_APP_NAME  # should be a single word with one space
-from_email = 'DoNotReply@{}.com'.format(app_name)
+from_email = settings.SITE_FROM_EMAIL
 admin_email = 'david.fishman@dfo-mpo.gc.ca'
 
 
@@ -31,6 +31,7 @@ class CertificationRequestEmail:
             'object': self.person_object,
             'queryset': self.person_object.resource_people.filter(role=1)
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -62,6 +63,7 @@ class SectionReportEmail:
             'queryset': self.queryset,
             'section': self.section,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -83,6 +85,7 @@ class FlagForDeletionEmail:
             'object': object,
             'user': user,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -104,6 +107,7 @@ class FlagForPublicationEmail:
             'object': object,
             'user': user,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -125,6 +129,7 @@ class AddedAsCustodianEmail:
             'object': object,
             'user': user,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 
@@ -146,6 +151,7 @@ class RemovedAsCustodianEmail:
             'object': object,
             'user': user,
         }
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
 

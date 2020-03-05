@@ -5,7 +5,9 @@ from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetConfirmView
 from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail, EmailMessage
+from django.core.mail import EmailMessage
+from dm_apps.utils import custom_send_mail
+
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
@@ -186,34 +188,15 @@ def resend_verification_email(request, email):
         'token': account_activation_token.make_token(user),
     })
     to_email = user.email
-    from_email = 'DoNotReply@{}.com'.format(settings.WEB_APP_NAME)
-    email = EmailMessage(
-        mail_subject, message, to=[to_email], from_email=from_email,
+    from_email = settings.SITE_FROM_EMAIL
+    custom_send_mail(
+        subject=mail_subject,
+        html_message=message,
+        from_email=from_email,
+        recipient_list=to_email,
     )
-    if settings.USE_EMAIL:
-        email.send()
-    else:
-        print('not sending email since in dev mode')
-        print(message)
 
     return HttpResponse('A verification email has been sent. Please check your inbox.')
-
-
-def account_request(request):
-    if request.method == 'POST':
-        form = forms.AccountRequestForm(request.POST)
-        if form.is_valid():
-            email = emails.AccountRequestEmail(form.cleaned_data)
-            # send the email object
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-            messages.success(request, 'An email with your request has been send to the application administrator')
-            return HttpResponseRedirect(reverse('index'))
-    else:
-        form = forms.AccountRequestForm()
-    return render(request, 'registration/account_request_form.html', {
-        'form': form,
-    })
 
 
 def signup(request):
@@ -226,7 +209,7 @@ def signup(request):
             user.is_active = False
             user.save()
             current_site = get_current_site(request)
-            mail_subject = 'Activate your Gulf Region Data Management account.'
+            mail_subject = 'Activate your DM Apps account / Activez votre compte Applications GD'
             message = render_to_string('registration/acc_active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
@@ -234,15 +217,13 @@ def signup(request):
                 'token': account_activation_token.make_token(user),
             })
             to_email = form.cleaned_data.get('email')
-            from_email = 'DoNotReply@{}.com'.format(settings.WEB_APP_NAME)
-            email = EmailMessage(
-                mail_subject, message, to=[to_email], from_email=from_email,
+            from_email = settings.SITE_FROM_EMAIL
+            custom_send_mail(
+                html_message=message,
+                subject=mail_subject,
+                recipient_list=[to_email,],
+                from_email=from_email,
             )
-            if settings.USE_EMAIL:
-                email.send()
-            else:
-                print('not sending email since in dev mode')
-                print(message)
             return HttpResponse('Please confirm your email address to complete the registration')
     else:
         form = forms.SignupForm()
@@ -266,16 +247,13 @@ def activate(request, uidb64, token):
         return HttpResponse('Activation link is invalid!')
 
 
-# def UserResetPassword(request):
-#     form = UserForgotPasswordForm(None, request.POST)
-#     if request.method == 'POST':
-#         if form.is_valid():
-#             form.save(from_email='blah@blah.com', email_template_name='path/to/your/email_template.html')
-
-#
 class UserPassWordResetView(PasswordResetView):
     template_name = "registration/user_password_reset_form.html"
     success_message = "An email has been sent!"
+    form_class = forms.DMAppsPasswordResetForm
+    from_email = settings.SITE_FROM_EMAIL
+    subject_template_name = 'registration/dm_apps_password_reset_subject.txt'
+    email_template_name = 'registration/dm_apps_password_reset_email.html'
 
     def get_success_url(self, **kwargs):
         messages.success(self.request, self.success_message)
@@ -316,13 +294,12 @@ class RequestAccessFormView(LoginRequiredMixin, FormView):
         }
         email = emails.RequestAccessEmail(context)
         # send the email object
-        if settings.USE_EMAIL:
-            send_mail(message='', subject=email.subject, html_message=email.message, from_email=email.from_email,
-                      recipient_list=email.to_list, fail_silently=False, )
-        else:
-            print('not sending email since in dev mode')
-            print(email.subject)
-            print(email.message)
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
         messages.success(self.request,
                          message="your request has been sent to the site administrator")
         return HttpResponseRedirect(reverse('accounts:close_me'))

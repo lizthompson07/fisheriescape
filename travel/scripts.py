@@ -6,6 +6,11 @@ def resave_all():
     for obj in conf_list:
         obj.save()
 
+def add_original_submission_date():
+    for obj in models.TripRequest.objects.filter(submitted__isnull=False):
+        obj.original_submission_date = obj.submitted
+        obj.save()
+
 
 
 def copy_costs():
