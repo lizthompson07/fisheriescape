@@ -19,11 +19,17 @@
         }
     </style>
 
+    {% if view.kwargs.type == "rdg" %}
+        {% url 'travel:admin_approval_list' view.kwargs.type triprequest.section.division.branch.region.id as list_url%}
+    {% else %}
+        {% url 'travel:admin_approval_list' view.kwargs.type as list_url %}
+    {% endif %}
+
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
             {% if admin %}
-                <li class="breadcrumb-item"><a href="{% url 'travel:admin_approval_list' %}">Admin Request Approval List</a>
+                <li class="breadcrumb-item"><a href="{{ list_url }}">Admin Request Approval List ({{ type_bilingual }})</a>
                 </li>
 
             {% else %}

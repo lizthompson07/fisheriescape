@@ -74,13 +74,13 @@
                     </thead>
                     <tbody>
                     {% for object in object_list %}
-                        {% url 'travel:trip_verify' object.id as my_url %}
+                        {% url 'travel:trip_verify' object.id view.kwargs.region view.kwargs.adm as my_url %}
                         <tr href="{{ my_url }}">
                             {% for field in field_list %}
                                 {% if "number" in field or "adm" in field %}
                                     <td class="center-col">
                                         {% if "adm" in field %}
-                                            <span class="{% if object.is_adm_approval_required %}highlight red-font{% endif %}">
+                                            <span class="{% if object.is_adm_approval_required %}red-font{% endif %}">
 
                                         {% get_field_value object field safe=True %}
                                         </span>
