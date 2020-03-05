@@ -30,7 +30,7 @@
             {% endfor %}
 
             {% buttons %}
-                <button type="submit" class="btn btn-success" onclick="window.opener.updateTrip(); window.close()">
+                <button type="submit" class="btn btn-success" onclick="$('form').submit(); window.opener.updateTrip();">
                     {% trans "Update" %}
                 </button>
                 <a class="btn btn-secondary" onclick="window.close();" href="#">
