@@ -221,5 +221,4 @@ def verbose_td_display(instance, field_name, format=None, display_time=False, ur
         html_block = f'<tr>{th_tag_opener}{verbose_name}</th>{td_tag_opener}<a href="{url}">{field_value}</a></td></tr>'
     else:
         html_block = '<tr>{}{}</th>{}{}</td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, field_value)
-    print(html_block)
     return SafeString(html_block)
