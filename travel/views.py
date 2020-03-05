@@ -1624,7 +1624,7 @@ class TRCostUpdateView(LoginRequiredMixin, UpdateView):
             my_trip = my_object.trip_request.trip
         utils.manage_trip_warning(my_trip)
 
-        return HttpResponseRedirect(reverse('shared_models:close_me'))
+        return HttpResponseRedirect(reverse('shared_models:close_me_no_refresh'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
