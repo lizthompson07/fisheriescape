@@ -5,6 +5,19 @@ from . import models
 from . import custom_widgets
 
 
+class RequestForm(forms.ModelForm):
+    class Meta:
+        # model = models.MetMeeting    # if using this line, it works, but goes to meetings
+        model = models.ReqRequest
+        exclude = []
+        widgets = {
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.fields['program_contact'].wigets = forms.Select(choices=models.ConContact.objects.all())
+
+
 class ContactForm(forms.ModelForm):
     class Meta:
         model = models.ConContact
@@ -46,12 +59,12 @@ class PublicationForm(forms.ModelForm):
         }
 
 
-class RequestForm(forms.ModelForm):
-    class Meta:
-        model = models.ReqRequest
-        exclude = []
-        widgets = {
-        }
+#class RequestForm(forms.ModelForm):
+#    class Meta:
+#        model = models.ReqRequest
+#        exclude = []
+#        widgets = {
+#        }
 
 
 class OtherForm(forms.ModelForm):
