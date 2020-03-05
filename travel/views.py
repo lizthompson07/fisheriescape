@@ -48,7 +48,7 @@ def in_adm_admin_group(user):
 
 
 def is_approver(user, trip_request):
-    if user == trip_request.current_reviewer.user:
+    if trip_request.current_reviewer and user == trip_request.current_reviewer.user:
         return True
 
 
