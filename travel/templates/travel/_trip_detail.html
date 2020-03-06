@@ -183,7 +183,7 @@
                                                     </tr>
                                                 {% endfor %}
                                                 <tr class="plainjane">
-                                                    <th>{% trans "TOTAL" %}</th>
+                                                    <th>{% trans "TOTAL" %}({{ trip_requests_dict|length }})</th>
                                                     {% for cost in cost_dict %}
                                                         {% if cost != "total" %}
                                                             <th class="center-col">
