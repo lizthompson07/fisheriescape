@@ -390,7 +390,7 @@ class Conference(models.Model):
         """
         my_dict = dict()
         trip_requests = self.get_connected_requests()
-        tr_costs = TripRequestCost.objects.filter(trip_request_id__in=[tr.id for tr in trip_requests])
+        tr_costs = TripRequestCost.objects.filter(trip_request_id__in=[tr.id for tr in trip_requests], amount_cad__gt=0)
         costs = Cost.objects.filter(id__in=[tr_cost.cost_id for tr_cost in tr_costs])
         my_dict["trip_requests"] = dict()
         my_dict["costs"] = dict()
@@ -402,7 +402,7 @@ class Conference(models.Model):
             my_dict["trip_requests"][tr] = dict()
             my_dict["trip_requests"][tr]["total"] = 0
             for cost in costs:
-                if tr.trip_request_costs.filter(cost=cost).count() > 0:
+                if tr.trip_request_costs.filter(cost=cost, amount_cad__gt=0).count() > 0:
                     my_dict["trip_requests"][tr][cost] = tr.trip_request_costs.get(cost=cost).amount_cad
                     my_dict["trip_requests"][tr]["total"] += my_dict["trip_requests"][tr][cost]
                     my_dict["costs"][cost] += my_dict["trip_requests"][tr][cost]
