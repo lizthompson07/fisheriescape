@@ -15,7 +15,7 @@ from django.db.models import Sum, Q
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView, FormView
 ###
@@ -36,6 +36,17 @@ from shared_models import models as shared_models
 # Create your views here.
 class CloserTemplateView(TemplateView):
     template_name = 'travel/close_me.html'
+
+
+def get_conf_details(request):
+    conf_dict = {}
+    for conf in models.Conference.objects.all():
+        conf_dict[conf.id] = {}
+        conf_dict[conf.id]['location'] = conf.location
+        conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
+        conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
+
+    return JsonResponse(conf_dict)
 
 
 def in_travel_admin_group(user):
@@ -993,7 +1004,7 @@ def delete_reviewer(request, pk):
     if can_modify_request(request.user, my_obj.trip_request.id):
         # This function should only ever be run if the TR is unsubmitted
         if my_obj.trip_request.status_id != 8:
-            messages.error(request, "This function can only be used when the trip request is still a draft")
+            messages.error(request, _("This function can only be used when the trip request is still a draft"))
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
         else:
             my_obj.delete()
@@ -1009,8 +1020,8 @@ def delete_reviewer(request, pk):
 def manage_reviewers(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
     if can_modify_request(request.user, my_trip_request.id):
-        if my_trip_request.status_id != 8:
-            messages.error(request, "This function can only be used when the trip request is still a draft")
+        if my_trip_request.status_id != 8 and my_trip_request.status_id != 16:
+            messages.error(request, _("This function can only be used when the trip request is still a draft"))
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
         else:
             qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
@@ -1116,7 +1127,7 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
 
     def get_success_url(self):
         if self.kwargs.get("pop"):
-            return reverse("shared_models:close_me")
+            return reverse("shared_models:close_me_no_refresh")
         else:
             return super().get_success_url()
 
