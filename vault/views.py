@@ -9,7 +9,7 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import Count, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render
+# from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
@@ -17,6 +17,24 @@ from . import models
 from . import forms
 from . import filters
 from . import reports
+
+#for Dashboard test
+from django.http import JsonResponse
+from django.shortcuts import render
+from vault.models import Outing
+from django.core import serializers
+
+
+def dashboard_with_pivot(request):
+    return render(request, 'vault/dashboard_with_pivot.html', {})
+
+def pivot_data(request):
+    with open('js/vaultdashboard.js'):
+        dataset = Outing.objects.all()
+        data = serializers.serialize('json', dataset)
+        return JsonResponse(data, safe=False)
+
+#end Dashboard test section
 
 class CloserTemplateView(TemplateView):
     template_name = 'vault/close_me.html'

@@ -12,7 +12,13 @@ urlpatterns = [
     path('', views.index, name="index"),
 
     # path('admin/', admin.site.urls),
-    # path('upload-csv/', profile_upload, name="profile_upload")
+
+#     # DASHBOARD #
+#     ###########
+
+    path('dashboard/', views.dashboard_with_pivot, name="dashboard_with_pivot"),
+    path('data/', views.pivot_data, name='pivot_data'),
+
 #     # SPECIES #
 #     ###########
     path('species-list/', views.SpeciesListView.as_view(), name="species_list"),
