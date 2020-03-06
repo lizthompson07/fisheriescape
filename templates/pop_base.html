@@ -34,7 +34,14 @@
 <body>
 
 {% block body %}{% endblock %}
+
+{# I moved the jquery import here because if it's "include" from another file #}
+{# the jquery_import block can't be overriden by an extending template -Patrick 2020/03/04 #}
+{% block jquery_import %}<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+{% endblock %}
 {% include "_base_js.html" %}
+
 {% block body_js %}{% endblock %}
 
 </body>
