@@ -99,22 +99,22 @@
                     {% trans "List of Travellers (across all trip requests and including BTA)" %}
                 </h3>
                 <table class="table table-sm table-bordered" style="width: 75%;">
-                    <tr class="plainjane">
-                        <th rowspan="2" class="plainjane">{% trans "Name" %}</th>
-                        <th colspan="2" class="plainjane center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
+                    <tr>
+                        <th rowspan="2">{% trans "Name" %}</th>
+                        <th colspan="2" class="center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
                     </tr>
-                    <tr class="plainjane">
-                        <th class="plainjane center-col">{{ trip.fiscal_year }}</th>
-                        <th class="plainjane center-col">Total</th>
+                    <tr>
+                        <th class="center-col">{{ trip.fiscal_year }}</th>
+                        <th class="center-col">Total</th>
                     </tr>
                     {% for traveller in trip.total_traveller_list %}
                         {% with trip.get_summary_dict|lookup:traveller as d %}
-                            <tr class="plainjane">
-                                <td class="plainjane">
+                            <tr>
+                                <td>
                                     {{ traveller }}
                                     {% if traveller in trip.bta_traveller_list %}{% trans "(BTA)" %}{% endif %}
                                 </td>
-                                <td class="plainjane center-col">
+                                <td class="center-col">
                                     {% if traveller.id %}
                                         {{ d.fy_list|length }}
                                         {% if d.fy_list|length %}
@@ -134,7 +134,7 @@
                                     {% endif %}
                                 </td>
 
-                                <td class="plainjane center-col">
+                                <td class="center-col">
                                     {% if traveller.id %}
                                         {{ d.total_list|length }}
                                         {% if d.total_list|length %}
@@ -174,13 +174,15 @@
                                 <thead>
                                 <tr>
                                     <th rowspan="2" style="width: 120px">{% trans "Traveller" %}</th>
-                                    <th class="center-col" colspan="{{ cost_dict|length|add:1 }}">
+                                    <th class="center-col" colspan="{{ cost_dict|length }}">
                                         {% trans "Costs (CAD)" %}
                                     </th>
                                 </tr>
                                 <tr>
                                     {% for cost in cost_dict %}
-                                        <th class="center-col">{{ cost }}</th>
+                                        {% if cost != "total" %}
+                                            <th class="center-col">{{ cost }}</th>
+                                        {% endif %}
                                     {% endfor %}
                                     <th class="center-col">{% trans "TOTAL" %}</th>
                                 </tr>
@@ -190,13 +192,15 @@
                                     <tr>
                                         <td>{{ tr.requester_name }}</td>
                                         {% for cost in cost_dict %}
-                                            <td class="center-col">
-                                                {% if trip_requests_dict|lookup:tr|lookup:cost %}
-                                                    {{ trip_requests_dict|lookup:tr|lookup:cost|currency }}
-                                                {% else %}
-                                                    ---
-                                                {% endif %}
-                                            </td>
+                                            {% if cost != "total" %}
+                                                <td class="center-col">
+                                                    {% if trip_requests_dict|lookup:tr|lookup:cost %}
+                                                        {{ trip_requests_dict|lookup:tr|lookup:cost|currency }}
+                                                    {% else %}
+                                                        ---
+                                                    {% endif %}
+                                                </td>
+                                            {% endif %}
                                         {% endfor %}
                                         <td class="center-col">
                                             {{ trip_requests_dict|lookup:tr|lookup:"total"|currency }}
@@ -206,9 +210,11 @@
                                 <tr>
                                     <th>{% trans "TOTAL" %}</th>
                                     {% for cost in cost_dict %}
-                                        <th class="center-col">
-                                            {{ cost_dict|lookup:cost|currency }}
-                                        </th>
+                                        {% if cost != "total" %}
+                                            <th class="center-col">
+                                                {{ cost_dict|lookup:cost|currency }}
+                                            </th>
+                                        {% endif %}
                                     {% endfor %}
                                     <th class="center-col">
                                         {{ cost_dict|lookup:"total"|currency }}
