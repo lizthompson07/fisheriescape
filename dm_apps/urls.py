@@ -147,6 +147,12 @@ except RuntimeError:
     print("not connecting vault app")
 
 
+try:
+    urlpatterns += i18n_patterns(path('spring-cleanup/', include('spring_cleanup.urls')), prefix_default_language=True)
+except RuntimeError:
+    print("not connecting spring_cleanup app")
+
+
 # if not settings.DEBUG:
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
                                                                                        document_root=settings.MEDIA_ROOT)
