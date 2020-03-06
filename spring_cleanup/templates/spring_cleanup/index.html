@@ -1,0 +1,41 @@
+{% extends "sar_search/sar_search_base.html" %}
+{% load static %}
+{% block content %}
+
+    {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+    <div class="container">
+        <div class="jumbotron text-center">
+            <h1>SAR Search</h1>
+            <hr>
+            <h3>Species at Risk Search Tool</h3>
+        </div>
+        <h2>
+                Quickstart Menu:
+                <br>
+                <br>
+                <ul>
+                    <li>
+                        <a href="{% url 'sar_search:map' %}">SAR Map</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'sar_search:species_list' %}">Species List</a>
+                    </li>
+                </ul>
+
+        </h2>
+        <br>
+
+        <br>
+        <div align="center">
+            <img src="{% static "/img/sar_search/louse.jpg" %}" class="rounded" width="350" alt="...">
+        </div>
+        <div align="center">
+            {#            <p style="font-size: small">Photo credit: Jeffrey C. Domm</p>#}
+        </div>
+    </div>
+
+
+
+
+
+{% endblock content %}
