@@ -383,6 +383,33 @@ class Conference(models.Model):
                 my_dict[traveller]["fy_list"] = "---"
         return my_dict
 
+    @property
+    def get_cost_comparison_dict(self):
+        """
+        This method is used to return a dictionary of trip requests and will compare cost across all of them.
+        """
+        my_dict = dict()
+        trip_requests = self.get_connected_requests()
+        tr_costs = TripRequestCost.objects.filter(trip_request_id__in=[tr.id for tr in trip_requests])
+        costs = Cost.objects.filter(id__in=[tr_cost.cost_id for tr_cost in tr_costs])
+        my_dict["trip_requests"] = dict()
+        my_dict["costs"] = dict()
+        for cost in costs:
+            my_dict["costs"][cost] = 0
+            my_dict["costs"]["total"] = 0
+
+        for tr in trip_requests:
+            my_dict["trip_requests"][tr] = dict()
+            my_dict["trip_requests"][tr]["total"] = 0
+            for cost in costs:
+                if tr.trip_request_costs.filter(cost=cost).count() > 0:
+                    my_dict["trip_requests"][tr][cost] = tr.trip_request_costs.get(cost=cost).amount_cad
+                    my_dict["trip_requests"][tr]["total"] += my_dict["trip_requests"][tr][cost]
+                    my_dict["costs"][cost] += my_dict["trip_requests"][tr][cost]
+                    my_dict["costs"]["total"] += my_dict["trip_requests"][tr][cost]
+
+        return my_dict
+
 
 class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),

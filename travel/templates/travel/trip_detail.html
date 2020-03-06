@@ -33,9 +33,9 @@
         <h1>{{ object }}</h1>
 
         <div class="float-right">
-             <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts_trip' trip.id %}">
-                    CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
-                </a>
+            <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts_trip' trip.id %}">
+                CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+            </a>
         </div>
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'travel:trip_edit' object.id %}">
@@ -86,7 +86,7 @@
                         </li>
                     {% empty %}
                         <em>
-                        {% trans "There are no requests connected to this trip." %}
+                            {% trans "There are no requests connected to this trip." %}
                         </em>
                     {% endfor %}
                 </ul>
@@ -162,6 +162,66 @@
                     </tr>
                 </table>
                 <br>
+
+
+                <h3>
+                    {% trans "Comparision of travellers' costs (across all trip requests)" %}
+                </h3>
+                {% with trip.get_cost_comparison_dict as cc_dict %}
+                    {% with cc_dict|lookup:"costs" as cost_dict %}
+                        {% with cc_dict|lookup:"trip_requests" as trip_requests_dict %}
+                            <table class="table table-sm table-striped" style="width: 95%;">
+                                <thead>
+                                <tr>
+                                    <th rowspan="2">{% trans "Traveller" %}</th>
+                                    <th class="center-col" colspan="{{ cost_dict|length|add:1 }}">
+                                        {% trans "Costs (CAD)" %}
+                                    </th>
+                                </tr>
+                                <tr>
+                                    {% for cost in cost_dict %}
+                                        <th class="center-col">{{ cost }}</th>
+                                    {% endfor %}
+                                    <th class="center-col">{% trans "TOTAL" %}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for tr in trip_requests_dict %}
+                                    <tr>
+                                        <td>{{ tr.requester_name }}</td>
+                                        {% for cost in cost_dict %}
+                                            <td class="center-col">
+                                                {% if trip_requests_dict|lookup:tr|lookup:cost %}
+                                                    {{ trip_requests_dict|lookup:tr|lookup:cost|currency }}
+                                                {% else %}
+                                                    ---
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                        <td class="center-col">
+                                            {{ trip_requests_dict|lookup:tr|lookup:"total"|currency }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                <tr>
+                                    <th>{% trans "TOTAL" %}</th>
+                                    {% for cost in cost_dict %}
+                                        <td class="center-col">
+                                            {{ cost_dict|lookup:cost|currency }}
+                                        </td>
+                                    {% endfor %}
+                                    <th class="center-col">
+                                        {{ cost_dict|lookup:"total"|currency }}
+                                    </th>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        {% endwith %}
+                    {% endwith %}
+                {% endwith %}
+
+
                 <br>
                 <br>
                 <br>
