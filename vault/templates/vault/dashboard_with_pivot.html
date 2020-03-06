@@ -13,13 +13,21 @@
   <link rel="stylesheet" href="https://cdn.flexmonster.com/demo.css">
 </head>
 
-<body>
-<div id="pivot-table-container" data-url="{% url 'pivot_data' %}"></div>
-<div id="pivot-chart-container"></div>
-
 {% block extrascripts %}
 <script type="text/JavaScript" src="{%  static 'js/vaultdashboard.js' %}"></script>
 {% endblock %}
+
+<body>
+<nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'vault:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+        </ol>
+    </nav>
+<div id="pivot-table-container" data-url="{% url 'pivot_data' %}"></div>
+<div id="pivot-chart-container"></div>
+What's up
+
 
 </body>
 </html>

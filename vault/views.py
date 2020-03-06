@@ -29,10 +29,9 @@ def dashboard_with_pivot(request):
     return render(request, 'vault/dashboard_with_pivot.html', {})
 
 def pivot_data(request):
-    with open('js/vaultdashboard.js'):
-        dataset = Outing.objects.all()
-        data = serializers.serialize('json', dataset)
-        return JsonResponse(data, safe=False)
+    dataset = Outing.objects.all()
+    data = serializers.serialize('json', dataset)
+    return JsonResponse(data, safe=False)
 
 #end Dashboard test section
 
