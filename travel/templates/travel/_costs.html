@@ -70,7 +70,7 @@
                                     {% url 'travel:tr_cost_edit' obj.id as edit_url%}
                                 {% endif %}
 
-                                <tr data-toggle="tooltip" title="Edit" {% if not report_mode %} onclick="return popitup('{{edit_url}}','popoutWindow', height=800, width=700);" {% endif %}>
+                                <tr data-toggle="tooltip" title="Edit" {% if not report_mode %} href="{{edit_url}}" pop {% endif %}>
                                 {% for field in cost_field_list %}
                                     <td class="{% if not field == "cost" %}center-col{% endif %}{% if field == "amount_cad" and obj.amount_cad == 0 %}major-error{% endif %}">
                                         {% get_field_value obj field as my_val %}
