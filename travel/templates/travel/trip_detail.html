@@ -96,7 +96,7 @@
 
 
                 <h3>
-                    {% trans "List of travellers (across all trip requests and including BTA)" %}
+                    {% trans "List of Travellers (across all trip requests and including BTA)" %}
                 </h3>
                 <table class="table table-sm table-bordered" style="width: 75%;">
                     <tr class="plainjane">
@@ -165,7 +165,7 @@
 
 
                 <h3>
-                    {% trans "Comparision of travellers' costs (across all trip requests)" %}
+                    {% trans "Comparision of Travellers' Costs (across all trip requests)" %}
                 </h3>
                 {% with trip.get_cost_comparison_dict as cc_dict %}
                     {% with cc_dict|lookup:"costs" as cost_dict %}
@@ -173,7 +173,7 @@
                             <table class="table table-sm table-striped" style="width: 95%;">
                                 <thead>
                                 <tr>
-                                    <th rowspan="2">{% trans "Traveller" %}</th>
+                                    <th rowspan="2" style="width: 120px">{% trans "Traveller" %}</th>
                                     <th class="center-col" colspan="{{ cost_dict|length|add:1 }}">
                                         {% trans "Costs (CAD)" %}
                                     </th>
@@ -206,9 +206,9 @@
                                 <tr>
                                     <th>{% trans "TOTAL" %}</th>
                                     {% for cost in cost_dict %}
-                                        <td class="center-col">
+                                        <th class="center-col">
                                             {{ cost_dict|lookup:cost|currency }}
-                                        </td>
+                                        </th>
                                     {% endfor %}
                                     <th class="center-col">
                                         {{ cost_dict|lookup:"total"|currency }}
