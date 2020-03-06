@@ -83,14 +83,22 @@ def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
             return True
 
         # check to see if they are the active reviewer
-        if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
-            return True
-
+        # determine if this is a child trip or not.
+        if not my_trip_request.parent_request:
+            if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
+                return True
+        # This is a child trip request
+        else:
+            if my_trip_request.parent_request.current_reviewer and my_trip_request.parent_request.current_reviewer.user == user:
+                return True
         # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are either the owner OR a traveller
         # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
         if not my_trip_request.submitted and \
-                (not my_trip_request.user or my_trip_request.user == user or user in my_trip_request.travellers):
+                (not my_trip_request.user or # anybody can edit
+                 my_trip_request.user == user or # the user is the traveller and / or requester
+                 user in my_trip_request.travellers or # the user is a traveller on the trip
+                 my_trip_request.parent_request.user == user): # the user is the requester
             return True
 
         if trip_request_unsubmit and user == my_trip_request.user:
