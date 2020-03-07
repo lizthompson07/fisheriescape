@@ -99,7 +99,6 @@ try:
 except UndefinedValueError:
     MAPBOX_API_KEY = ""
 
-
 if not GOOGLE_API_KEY:
     GOOGLE_API_KEY = ""
     print("no google api key file found.")
@@ -176,8 +175,6 @@ WSGI_APPLICATION = 'dm_apps.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 # DATABASE_ROUTERS = ['dm_apps.routers.WhaleDatabaseRouter', ]
-
-
 
 
 DATABASES = local_conf.DATABASES
