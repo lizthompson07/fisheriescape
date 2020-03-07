@@ -33,3 +33,8 @@ class SpringCleanupRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 class IndexTemplateView(SpringCleanupRequiredMixin, TemplateView):
     template_name = 'spring_cleanup/index.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["google_api_key"] = settings.GOOGLE_API_KEY
+        messages.success(self.request, _("Click on an area!"))
+        return context
