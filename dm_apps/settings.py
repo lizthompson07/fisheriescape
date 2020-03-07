@@ -94,6 +94,12 @@ try:
 except UndefinedValueError:
     GOOGLE_API_KEY = ""
 
+try:
+    MAPBOX_API_KEY = config("MAPBOX_API_KEY")
+except UndefinedValueError:
+    MAPBOX_API_KEY = ""
+
+
 if not GOOGLE_API_KEY:
     GOOGLE_API_KEY = ""
     print("no google api key file found.")
