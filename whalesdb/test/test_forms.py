@@ -1,4 +1,5 @@
 from django.test import tag
+from django.urls import reverse
 
 from whalesdb.test.common_views import CommonFormTest, get_stn, get_prj, get_mor, get_dep
 from whalesdb import forms, models
@@ -30,6 +31,27 @@ class TestDepForm(CommonFormTest):
         form.is_valid()
         self.assertFalse(form.errors)
 
+    # test that the project field exists and that it has a "create_url" attribute
+    @tag('dep', 'form', 'field')
+    def test_dep_prj_field_create(self):
+        form = forms.DepForm()
+        self.assertIn("prj", form.fields)
+        self.assertTrue(hasattr(form.fields['stn'], 'create_url'))
+        self.assertEquals(form.fields['stn'].create_url, 'whalesdb:create_stn')
+
+        self.assertTrue(hasattr(form.fields['prj'], 'create_url'))
+        self.assertEquals(form.fields['prj'].create_url, 'whalesdb:create_prj')
+
+        self.assertTrue(hasattr(form.fields['mor'], 'create_url'))
+        self.assertEquals(form.fields['mor'].create_url, 'whalesdb:create_mor')
+
+    # The deployment form should have a minimum height and width used to resize popup windows
+    @tag('dep', 'form', 'properties')
+    def test_dep_properties(self):
+        form = forms.DepForm()
+        self.assertTrue(hasattr(form, 'min_height'))
+        self.assertTrue(hasattr(form, 'min_width'))
+
 
 class TestMorForm(CommonFormTest):
 
@@ -52,6 +74,13 @@ class TestMorForm(CommonFormTest):
         form = forms.MorForm(data=self.valid_data)
         form.is_valid()
         self.assertFalse(form.errors)
+
+    # The MooringSetup form should have a minimum height and width used to resize popup windows
+    @tag('mor', 'form', 'properties')
+    def test_mor_properties(self):
+        form = forms.MorForm()
+        self.assertTrue(hasattr(form, 'min_height'))
+        self.assertTrue(hasattr(form, 'min_width'))
 
 
 class TestSteForm(CommonFormTest):
@@ -97,6 +126,13 @@ class TestStnForm(CommonFormTest):
         form = forms.StnForm(data=self.valid_data)
         form.is_valid()
         self.assertFalse(form.errors)
+
+    # The Station form should have a minimum height and width used to resize popup windows
+    @tag('stn', 'form', 'properties')
+    def test_stv_properties(self):
+        form = forms.StnForm()
+        self.assertTrue(hasattr(form, 'min_height'))
+        self.assertTrue(hasattr(form, 'min_width'))
 
 
 class TestPrjForm(CommonFormTest):

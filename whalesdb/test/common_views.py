@@ -157,7 +157,7 @@ class CommonCreateTest(CommonTest):
 
     expected_form = None
     expected_view = None
-    expected_success_url = reverse_lazy("whalesdb:close_me")
+    expected_success_url = reverse_lazy("shared_models:close_me_no_refresh")
     data = None
     test_password = "test1234"
 

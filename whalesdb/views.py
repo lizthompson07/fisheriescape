@@ -47,15 +47,10 @@ class IndexView(TemplateView):
         return context
 
 
-class CloserTemplateView(TemplateView):
-    template_name = 'whalesdb/close_me.html'
-
-
-class CloserNoRefreshTemplateView(TemplateView):
-    template_name = 'whalesdb/close_me_no_refresh.html'
-
-
 class CreateCommon(UserPassesTestMixin, CreateView):
+    # key is used to construct commonly formatted strings
+    key = None
+
     # this is where the user should be redirected if they're not logged in
     login_url = '/accounts/login_required/'
 
@@ -65,8 +60,20 @@ class CreateCommon(UserPassesTestMixin, CreateView):
     # title to display on the CreateView page
     title = None
 
-    # create views are all intended to be pop out windows so upon success close the window
-    success_url = reverse_lazy("whalesdb:close_me")
+    def get_template_names(self):
+        if self.kwargs.get("pop"):
+            return 'whalesdb/_entry_form_no_nav.html'
+
+        return self.template_name
+
+    def get_success_url(self):
+        success_url = reverse_lazy("whalesdb:list_{}".format(self.key))
+
+        if self.kwargs.get("pop"):
+            # create views are all intended to be pop out windows so upon success close the window
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+        return success_url
 
     def test_func(self):
         return self.request.user.groups.filter(name='whalesdb_admin').exists()
@@ -81,6 +88,7 @@ class CreateCommon(UserPassesTestMixin, CreateView):
 
 
 class CreateDep(CreateCommon):
+    key = 'dep'
     model = models.DepDeployment
     form_class = forms.DepForm
     title = _("Create Deployment")
@@ -97,18 +105,21 @@ class CreateDep(CreateCommon):
 
 
 class CreateMor(CreateCommon):
+    key = 'mor'
     model = models.MorMooringSetup
     form_class = forms.MorForm
     title = _("Create Mooring Setup")
 
 
 class CreatePrj(CreateCommon):
+    key = 'prj'
     model = models.PrjProject
     form_class = forms.PrjForm
     title = _("Create Project")
 
 
 class CreateSte(CreateCommon):
+    key = 'ste'
     model = models.SteStationEvent
     form_class = forms.SteForm
     title = _("Create Station Event")
@@ -124,6 +135,7 @@ class CreateSte(CreateCommon):
 
 
 class CreateStn(CreateCommon):
+    key = 'stn'
     model = models.StnStation
     form_class = forms.StnForm
     title = _("Create Station")
@@ -140,7 +152,13 @@ class UpdateCommon(UserPassesTestMixin, UpdateView):
     title = None
 
     # update views are all intended to be pop out windows so upon success close the window
-    success_url = reverse_lazy("whalesdb:close_me")
+    success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+    def get_template_names(self):
+        if self.kwargs.get("pop"):
+            return 'whalesdb/_entry_form_no_nav.html'
+
+        return self.template_name
 
     # this function overrides UserPassesTestMixin.test_func() to determine if
     # the user should have access to this content, if the user is logged in

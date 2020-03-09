@@ -35,17 +35,21 @@ class URLTest(TestCase):
     def test_root_url_index_view(self):
         self.basic_en_url_test('whalesdb:index', 'whalesdb/', views.IndexView)
 
-    @tag('close', 'url')
-    def test_close_url_close_view(self):
-        self.basic_en_url_test('whalesdb:close_me', 'whalesdb/close', views.CloserTemplateView)
-
     @tag('dep', 'url', 'create')
     def test_url_create_dep_view(self):
         self.basic_en_url_test('whalesdb:create_dep', 'whalesdb/create/dep/', views.CreateDep)
 
+    @tag('dep', 'url', 'create', 'pop')
+    def test_url_create_pop_dep_view(self):
+        self.basic_en_url_test('whalesdb:create_dep', 'whalesdb/create/dep/pop/', views.CreateDep, {'pop'})
+
     @tag('dep', 'url', 'update')
     def test_url_update_dep_view(self):
         self.basic_en_url_test('whalesdb:update_dep', 'whalesdb/update/dep/1/', views.UpdateDep, {1})
+
+    @tag('dep', 'url', 'update', 'pop')
+    def test_url_update_pop_dep_view(self):
+        self.basic_en_url_test('whalesdb:update_dep', 'whalesdb/update/dep/1/pop/', views.UpdateDep, {1, 'pop'})
 
     @tag('dep', 'url', 'list')
     def test_url_list_dep_view(self):
@@ -59,9 +63,17 @@ class URLTest(TestCase):
     def test_url_create_mor_view(self):
         self.basic_en_url_test('whalesdb:create_mor', 'whalesdb/create/mor/', views.CreateMor)
 
+    @tag('mor', 'url', 'create', 'pop')
+    def test_url_create_pop_mor_view(self):
+        self.basic_en_url_test('whalesdb:create_mor', 'whalesdb/create/mor/pop/', views.CreateMor, {'pop'})
+
     @tag('mor', 'url', 'update')
     def test_url_update_mor_view(self):
         self.basic_en_url_test('whalesdb:update_mor', 'whalesdb/update/mor/1/', views.UpdateMor, {1})
+
+    @tag('mor', 'url', 'update', 'pop')
+    def test_url_update_pop_mor_view(self):
+        self.basic_en_url_test('whalesdb:update_mor', 'whalesdb/update/mor/1/pop/', views.UpdateMor, {1, 'pop'})
 
     @tag('mor', 'url', 'list')
     def test_url_list_mor_view(self):
@@ -75,9 +87,17 @@ class URLTest(TestCase):
     def test_url_create_prj_view(self):
         self.basic_en_url_test('whalesdb:create_prj', 'whalesdb/create/prj/', views.CreatePrj)
 
+    @tag('prj', 'url', 'create', 'pop')
+    def test_url_create_pop_prj_view(self):
+        self.basic_en_url_test('whalesdb:create_prj', 'whalesdb/create/prj/pop/', views.CreatePrj, {'pop'})
+
     @tag('prj', 'url', 'update')
     def test_url_update_prj_view(self):
         self.basic_en_url_test('whalesdb:update_prj', 'whalesdb/update/prj/1/', views.UpdatePrj, {1})
+
+    @tag('prj', 'url', 'update', 'pop')
+    def test_url_update_pop_prj_view(self):
+        self.basic_en_url_test('whalesdb:update_prj', 'whalesdb/update/prj/1/pop/', views.UpdatePrj, {1, 'pop'})
 
     @tag('prj', 'url', 'list')
     def test_url_list_prj_view(self):
@@ -91,9 +111,17 @@ class URLTest(TestCase):
     def test_url_create_stn_view(self):
         self.basic_en_url_test('whalesdb:create_stn', 'whalesdb/create/stn/', views.CreateStn)
 
+    @tag('stn', 'url', 'create', 'pop')
+    def test_url_create_pop_stn_view(self):
+        self.basic_en_url_test('whalesdb:create_stn', 'whalesdb/create/stn/pop/', views.CreateStn, {'pop'})
+
     @tag('stn', 'url', 'update')
     def test_url_update_stn_view(self):
         self.basic_en_url_test('whalesdb:update_stn', 'whalesdb/update/stn/1/', views.UpdateStn, {1})
+
+    @tag('stn', 'url', 'update', 'pop')
+    def test_url_update_pop_stn_view(self):
+        self.basic_en_url_test('whalesdb:update_stn', 'whalesdb/update/stn/1/pop/', views.UpdateStn, {1, 'pop'})
 
     @tag('stn', 'url', 'list')
     def test_url_list_stn_view(self):

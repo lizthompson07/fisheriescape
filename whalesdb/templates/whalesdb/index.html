@@ -11,7 +11,7 @@
 {% block body %}
 
 <div class="container">
-    <div class="jumbotron jumbotron-fluid mt-5 border border-dark whale-transparent">
+    <div class="jumbotron jumbotron-fluid mt-5 border border-dark">
         <div class="container">
             <h1 class="text-center">
                 {% trans 'Whale Equipment Metadata Repository' %}
@@ -20,18 +20,22 @@
     </div>
     <div class="row">
         <div class="col">
-            <div class="card border border-dark whale-transparent">
+            <div class="card border border-dark">
                 <div class="card-header">
                     <h2>Deployments</h2>
                 </div>
                 <div class="card-body">
                     <a class="btn btn-secondary" href="{% url 'whalesdb:create_dep' %}" >{% trans 'New Deployment' %}</a>
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_dep' %}" >{% trans 'Deployment List' %}</a>
+                    <hr />
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:list_stn' %}" >{% trans 'Stations' %}</a>
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:list_prj' %}" >{% trans 'Projects' %}</a>
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:list_mor' %}" >{% trans 'Mooring Setups' %}</a>
                 </div>
             </div>
         </div>
         <div class="col">
-            <div class="card border border-dark whale-transparent">
+            <div class="card border border-dark">
                 <div class="card-header">
                     <h2>Equipment</h2>
                 </div>
