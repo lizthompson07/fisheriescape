@@ -218,6 +218,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
         context['adm_unverified_trips'] = models.Conference.objects.filter(
             is_verified=False, is_adm_approval_required=True).count()
+        context['adm_trip_verification_list_url '] = reverse('travel:admin_trip_verification_list', kwargs={"adm": 1, "region": 0})
 
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
