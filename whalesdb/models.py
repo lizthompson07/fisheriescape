@@ -12,9 +12,12 @@ class DepDeployment(models.Model):
     dep_year = models.BigIntegerField(verbose_name=_("Year"))
     dep_month = models.BigIntegerField(verbose_name=_("Month"))
     dep_name = models.CharField(max_length=255, verbose_name=_("Deployment"))
-    stn = models.ForeignKey('StnStation', on_delete=models.DO_NOTHING, verbose_name=_("Station"))
-    prj = models.ForeignKey('PrjProject', on_delete=models.DO_NOTHING, verbose_name=_("Project"))
-    mor = models.ForeignKey('MorMooringSetup', on_delete=models.DO_NOTHING, verbose_name=_("Mooring Setup"))
+    stn = models.ForeignKey('StnStation', on_delete=models.DO_NOTHING, verbose_name=_("Station"),
+                            related_name="stations")
+    prj = models.ForeignKey('PrjProject', on_delete=models.DO_NOTHING, verbose_name=_("Project"),
+                            related_name="projects")
+    mor = models.ForeignKey('MorMooringSetup', on_delete=models.DO_NOTHING, verbose_name=_("Mooring Setup"),
+                            related_name="moorings")
 
     def __str__(self):
         return "{}".format(self.dep_name)
@@ -189,7 +192,7 @@ def mooring_directory_path(instance, filename):
 
 class MorMooringSetup(models.Model):
     mor_id = models.AutoField(primary_key=True)
-    mor_name = models.CharField(unique=True, max_length=50, blank=True, null=True, verbose_name=_("Name"))
+    mor_name = models.CharField(unique=True, max_length=50, verbose_name=_("Name"))
     mor_max_depth = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True,
                                         verbose_name=_("Max Depth"))
     mor_link_setup_image = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Setup Image Link"))
