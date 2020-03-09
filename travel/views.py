@@ -1189,7 +1189,9 @@ class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
 
     def get_success_url(self):
         if self.kwargs.get("back_to_verify"):
-            success_url = reverse_lazy('travel:admin_trip_verification_list')
+            adm = 1 if self.get_object().is_adm_approval_required else 0
+            region = self.get_object().lead.id if adm == 0 else 0
+            success_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"adm": adm, "region": region})
         else:
             success_url = reverse_lazy('travel:trip_list')
         return success_url
