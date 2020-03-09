@@ -136,3 +136,18 @@ class URLTest(TestCase):
         # The Station Event object requires a Deployment
         self.basic_en_url_test('whalesdb:create_ste', 'whalesdb/create/ste/1/', views.CreateSte, {1})
 
+    @tag('ste', 'url', 'create', 'pop')
+    def test_url_create_pop_ste_view(self):
+        # The Station Event object requires a Deployment
+        self.basic_en_url_test('whalesdb:create_ste', 'whalesdb/create/ste/1/pop/', views.CreateSte, {1, 'pop'})
+
+    @tag('ste', 'url', 'create')
+    def test_url_create_set_ste_view(self):
+        # The Station Event object requires a Deployment and a station event type
+        self.basic_en_url_test('whalesdb:create_ste', 'whalesdb/create/ste/1/2/', views.CreateSte, {1, 2})
+
+    @tag('ste', 'url', 'create', 'pop')
+    def test_url_create_set_pop_ste_view(self):
+        # The Station Event object requires a Deployment and a station event type
+        self.basic_en_url_test('whalesdb:create_ste', 'whalesdb/create/ste/1/2/pop/', views.CreateSte, {1, 2, 'pop'})
+

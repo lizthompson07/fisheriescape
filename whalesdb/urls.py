@@ -28,7 +28,9 @@ urlpatterns = [
     path('list/prj/', views.ListPrj.as_view(), name="list_prj"),
 
     path('create/ste/<int:dep_id>/<int:set_id>/', views.CreateSte.as_view(), name="create_ste"),
+    path('create/ste/<int:dep_id>/<int:set_id>/<str:pop>/', views.CreateSte.as_view(), name="create_ste"),
     path('create/ste/<int:dep_id>/', views.CreateSte.as_view(), name="create_ste"),
+    path('create/ste/<int:dep_id>/<str:pop>/', views.CreateSte.as_view(), name="create_ste"),
 
     path('create/stn/', views.CreateStn.as_view(), name="create_stn"),
     path('create/stn/<str:pop>/', views.CreateStn.as_view(), name="create_stn"),

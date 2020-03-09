@@ -29,6 +29,6 @@
 {% block body_js %}
 {{ block.super }}
 
-// This is the deployment details page, but we still need the station javascript for displaying the stations map
+{# This is the deployment details page, but we still need the station javascript for displaying the stations map #}
 {% include "whalesdb/_station_js.html" with stn=object.stn %}
 {% endblock %}
