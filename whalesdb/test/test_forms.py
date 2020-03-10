@@ -4,6 +4,15 @@ from django.urls import reverse
 from whalesdb.test.common_views import CommonFormTest, get_stn, get_prj, get_mor, get_dep
 from whalesdb import forms, models
 
+import json
+
+
+# location of the fixture files to load, which are also used to create valid_data for testing.
+prj_data = 'whalesdb/test/data/prj_fixture.json'
+stn_data = 'whalesdb/test/data/stn_fixture.json'
+mor_data = 'whalesdb/test/data/mor_fixture.json'
+dep_data = 'whalesdb/test/data/dep_fixture.json'
+
 
 # TODO: Create fixtures for loading dependencies in the 'get_valid_data()' methods in all form test classes
 class TestDepForm(CommonFormTest):
@@ -11,18 +20,12 @@ class TestDepForm(CommonFormTest):
     @staticmethod
     def get_valid_data():
 
-        stn = get_stn()
-        mor = get_mor()
-        prj = get_prj()
-
-        valid_data = {
-            'dep_year': 2020,
-            'dep_month': 2,
-            'dep_name': "DEP_001",
-            'stn': stn.pk,
-            'mor': mor.pk,
-            'prj': prj.pk
-        }
+        # make sure fixtures are loaded in calling class
+        # fixtures = [test_forms.mor_data, test_forms.prj_data, test_forms.stn_data]
+        valid_data = {}
+        with open(dep_data) as json_file:
+            data = json.load(json_file)
+            valid_data = data[3]['fields']
 
         return valid_data
 
@@ -82,15 +85,10 @@ class TestMorForm(CommonFormTest):
 
     @staticmethod
     def get_valid_data():
-
-        valid_data = {
-            "mor_name": "MOR_001",
-            "mor_max_depth": "10",
-            "mor_link_setup_image": "https://somelink.com/images/img001.png",
-            "mor_additional_equipment": "None",
-            "mor_general_moor_description": "This is a mooring description",
-            "more_notes": "Notes",
-        }
+        valid_data = {}
+        with open(mor_data) as json_file:
+            data = json.load(json_file)
+            valid_data = data[0]['fields']
 
         return valid_data
 
@@ -134,15 +132,10 @@ class TestStnForm(CommonFormTest):
 
     @staticmethod
     def get_valid_data():
-        valid_data = {
-            "stn_name": "STN_001",
-            "stn_code": "STN",
-            "stn_revision": "1",
-            "stn_planned_lat": "25",
-            "stn_planned_lon": "50",
-            "stn_planned_depth": "10",
-            "stn_notes": "Some Notes"
-        }
+        valid_data = {}
+        with open(stn_data) as json_file:
+            data = json.load(json_file)
+            valid_data = data[0]['fields']
 
         return valid_data
 
@@ -164,11 +157,10 @@ class TestPrjForm(CommonFormTest):
 
     @staticmethod
     def get_valid_data():
-        valid_data = {
-            "prj_name": 'PRJ_001',
-            "prj_description": "Some project description here",
-            "prj_url": "https//noneOfYourBusiness.com"
-        }
+        valid_data = {}
+        with open(prj_data) as json_file:
+            data = json.load(json_file)
+            valid_data = data[0]['fields']
 
         return valid_data
 

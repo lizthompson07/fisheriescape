@@ -26,6 +26,9 @@ class EqpForm(forms.ModelForm):
     class Meta:
         model = models.EqpEquipment
         exclude = []
+        widgets = {
+            'eqp_date_purchase': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+        }
 
 
 class MorForm(forms.ModelForm):
@@ -71,5 +74,5 @@ class SteForm(forms.ModelForm):
         model = models.SteStationEvent
         exclude = []
         widgets = {
-            'ste_date': forms.SelectDateWidget()
+            'ste_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
         }
