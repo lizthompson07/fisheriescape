@@ -407,7 +407,7 @@ class Resource(models.Model):
     @property
     def thumbnail(self):
         for file in self.files.all():
-            if "thumbnail" in file.caption or "vignette" in file.caption:
+            if "thumbnail" in file.caption.lower() or "vignette" in file.caption.lower():
                 return file.file.url
 
     @property
