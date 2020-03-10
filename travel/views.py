@@ -1,21 +1,20 @@
 import json
 import os
 from copy import deepcopy
-from Levenshtein import distance
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db.models.functions import Concat
 from django.utils.safestring import mark_safe
 
 from dm_apps.utils import custom_send_mail
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Value, TextField
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView, FormView
 ###
@@ -38,6 +37,17 @@ class CloserTemplateView(TemplateView):
     template_name = 'travel/close_me.html'
 
 
+def get_conf_details(request):
+    conf_dict = {}
+    for conf in models.Conference.objects.all():
+        conf_dict[conf.id] = {}
+        conf_dict[conf.id]['location'] = conf.location
+        conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
+        conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
+
+    return JsonResponse(conf_dict)
+
+
 def in_travel_admin_group(user):
     if user.id:
         return user.groups.filter(name='travel_admin').count() != 0
@@ -49,7 +59,7 @@ def in_adm_admin_group(user):
 
 
 def is_approver(user, trip_request):
-    if user == trip_request.current_reviewer.user:
+    if trip_request.current_reviewer and user == trip_request.current_reviewer.user:
         return True
 
 
@@ -73,14 +83,22 @@ def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
             return True
 
         # check to see if they are the active reviewer
-        if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
-            return True
-
+        # determine if this is a child trip or not.
+        if not my_trip_request.parent_request:
+            if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
+                return True
+        # This is a child trip request
+        else:
+            if my_trip_request.parent_request.current_reviewer and my_trip_request.parent_request.current_reviewer.user == user:
+                return True
         # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are either the owner OR a traveller
         # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
         if not my_trip_request.submitted and \
-                (not my_trip_request.user or my_trip_request.user == user or user in my_trip_request.travellers):
+                (not my_trip_request.user or # anybody can edit
+                 my_trip_request.user == user or # the user is the traveller and / or requester
+                 user in my_trip_request.travellers or # the user is a traveller on the trip
+                 my_trip_request.parent_request.user == user): # the user is the requester
             return True
 
         if trip_request_unsubmit and user == my_trip_request.user:
@@ -208,6 +226,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
         context['adm_unverified_trips'] = models.Conference.objects.filter(
             is_verified=False, is_adm_approval_required=True).count()
+        context['adm_trip_verification_list_url'] = reverse('travel:admin_trip_verification_list', kwargs={"adm": 1, "region": 0})
 
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
@@ -247,9 +266,10 @@ request_field_list = [
     'bta_attendees',
     'notes',
     # 'cost_table|{}'.format(_("DFO costs")),
-    f'total_request_cost|{_("Total cost (DFO)")}',
-    'non_dfo_costs',
-    'non_dfo_org',
+    f'total_request_cost|{_("Total costs")}',
+    f'total_dfo_funding|{_("Total amount of DFO funding")}',
+    f'total_non_dfo_funding|{_("Total amount of non-DFO funding")}',
+    f'total_non_dfo_funding_sources|{_("Non-DFO funding sources")}',
     'original_submission_date',
     f'processing_time|{_("Processing time")}',
 ]
@@ -271,25 +291,25 @@ request_group_field_list = [
     'bta_attendees',
     'late_justification',
     'notes',
-    'total_request_cost|{}'.format(_("Total cost (DFO)")),
-    'non_dfo_costs',
-    'non_dfo_org',
+    f'total_dfo_funding|{_("Total amount of DFO funding")}',
+    f'total_non_dfo_funding|{_("Total amount of non-DFO funding")}',
+    f'total_non_dfo_funding_sources|{_("Non-DFO funding sources")}',
+    'total_request_cost|{}'.format(_("Total cost")),
     'original_submission_date',
     f'processing_time|{_("Processing time")}',
 ]
 
 request_child_field_list = [
-    'first_name',
-    'last_name',
-    'is_public_servant',
-    'is_research_scientist',
-    'region',
-    'start_date',
-    'end_date',
+    f'requester_name|{_("Name")}',
+    # 'is_public_servant',
+    'is_research_scientist|{}'.format(_("RES?")),
+    # 'region',
+    'dates|{}'.format(_("Travel dates")),
     'departure_location',
     'role',
     'role_of_participant',
-    'total_cost|{}'.format("Total cost"),
+    'total_cost|{}'.format(_("Total cost")),
+    'non_dfo_costs|{}'.format(_("non-DFO funding")),
 
 ]
 
@@ -315,9 +335,8 @@ conf_field_list = [
     'registration_deadline',
     'is_adm_approval_required',
     'notes',
-    'non_res_total_cost|{}'.format("Non-research scientist total cost (from all connected requests, excluding BTA travel)"),
-
-    'total_cost|{}'.format("Total cost (from all connected requests, excluding BTA travel)"),
+    'total_cost|{}'.format("Total DFO cost (excluding BTA)"),
+    'non_res_total_cost|{}'.format("Total DFO cost from non-RES travellers (excluding BTA)"),
 ]
 
 cost_field_list = [
@@ -669,6 +688,8 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
             #  UNSUBMIT REQUEST
             if in_travel_admin_group(self.request.user) or my_trip_request.user == self.request.user:
                 my_trip_request.submitted = None
+                my_trip_request.status_id = 8
+                my_trip_request.save()
                 # reset all the reviewer statuses
                 utils.end_review_process(my_trip_request)
             else:
@@ -1066,7 +1087,14 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
     model = models.Conference
     filterset_class = filters.TripFilter
     template_name = 'travel/trip_list.html'
-
+    queryset = models.Conference.objects.annotate(
+        search_term=Concat(
+            'name',
+            Value(" "),
+            'nom',
+            Value(" "),
+            'location',
+            output_field=TextField()))
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
@@ -1104,9 +1132,18 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
 
 
 class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
-    template_name = 'travel/trip_form.html'
     model = models.Conference
     form_class = forms.TripForm
+
+    def get_template_names(self):
+        return 'travel/trip_form_popout.html' if self.kwargs.get("pop") else 'travel/trip_form.html'
+
+    def form_valid(self, form):
+        my_object = form.save()
+        if self.kwargs.get("pop"):
+            return HttpResponseRedirect(reverse("shared_models:close_me"))
+        else:
+            return HttpResponseRedirect(reverse('travel:trip_detail', kwargs={'pk': my_object.id}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1127,7 +1164,7 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
 
     def get_success_url(self):
         if self.kwargs.get("pop"):
-            return reverse("shared_models:close_me")
+            return reverse("shared_models:close_me_no_refresh")
         else:
             return super().get_success_url()
 
@@ -1161,7 +1198,9 @@ class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
 
     def get_success_url(self):
         if self.kwargs.get("back_to_verify"):
-            success_url = reverse_lazy('travel:admin_trip_verification_list')
+            adm = 1 if self.get_object().is_adm_approval_required else 0
+            region = self.get_object().lead.id if adm == 0 else 0
+            success_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"adm": adm, "region": region})
         else:
             success_url = reverse_lazy('travel:trip_list')
         return success_url
@@ -1635,7 +1674,7 @@ class TRCostUpdateView(LoginRequiredMixin, UpdateView):
             my_trip = my_object.trip_request.trip
         utils.manage_trip_warning(my_trip)
 
-        return HttpResponseRedirect(reverse('shared_models:close_me'))
+        return HttpResponseRedirect(reverse('shared_models:close_me_no_refresh'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

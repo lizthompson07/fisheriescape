@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 from django.template.defaultfilters import yesno
 from django.utils.safestring import SafeString, mark_safe
@@ -122,7 +123,8 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             try:
                 field_value = getattr(instance, field_name)
             except AttributeError:
-                print("Could not evaluate field value for '" + str(field_name) + "' for object '" + str(type(instance)) + "'")
+                if settings.DB_MODE == "DEV":
+                    print(f"Could not evaluate field value for '{field_name} for object {type(instance)}")
         else:
 
             # first check if there is a value :
@@ -150,7 +152,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
 
                 # check to see if it is a url
                 elif str(getattr(instance, field_name)).startswith("http"):
-                    field_value = '<a href="{url}">{url}</a>'.format(url=getattr(instance, field_name))
+                    field_value = '<a href="{url}" target="_blank">{url}</a>'.format(url=getattr(instance, field_name))
 
                 # check to see if it is a BooleanField
                 elif field_instance.get_internal_type() == 'BooleanField' or field_instance.get_internal_type() == 'NullBooleanField':
@@ -218,8 +220,7 @@ def verbose_td_display(instance, field_name, format=None, display_time=False, ur
     td_tag_opener = '<td style="width: {};">'.format(td_width) if td_width else '<td>'
 
     if url and field_value != "n/a":
-        html_block = '<tr>{}{}</th>{}<a href="{}">{}</a></td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, url, field_value)
+        html_block = f'<tr>{th_tag_opener}{verbose_name}</th>{td_tag_opener}<a href="{url}">{field_value}</a></td></tr>'
     else:
         html_block = '<tr>{}{}</th>{}{}</td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, field_value)
-
     return SafeString(html_block)

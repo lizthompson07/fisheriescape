@@ -3361,15 +3361,24 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         # grab a note if available
         if self.kwargs.get("type") == "theme":
-            context["note"] = models.Note.objects.get_or_create(section=None, functional_group=functional_group)[0]
+            try:
+                context["note"] = models.Note.objects.get_or_create(funding_source=small_item, functional_group=functional_group)[0]
+            except models.Note.MultipleObjectsReturned:
+                context["note"] = models.Note.objects.filter(section=None, functional_group=functional_group)[0]
             # anyone looking can edit
             context["can_edit"] = True
         elif self.kwargs.get("type") == "funding_source":
-            context["note"] = models.Note.objects.get_or_create(funding_source=small_item, functional_group=functional_group)[0]
+            try:
+                context["note"] = models.Note.objects.get_or_create(funding_source=small_item, functional_group=functional_group)[0]
+            except models.Note.MultipleObjectsReturned:
+                context["note"] = models.Note.objects.filter(unding_source=small_item, functional_group=functional_group)[0]
             # anyone looking can edit
             context["can_edit"] = True
         else:
-            context["note"] = models.Note.objects.get_or_create(section=small_item, functional_group=functional_group)[0]
+            try:
+                context["note"] = models.Note.objects.get_or_create(section=small_item, functional_group=functional_group)[0]
+            except models.Note.MultipleObjectsReturned:
+                context["note"] = models.Note.objects.filter(section=small_item, functional_group=functional_group)[0]
             if self.request.user in [small_item.head, small_item.division.head] or in_projects_admin_group(self.request.user):
                 context["can_edit"] = True
 
