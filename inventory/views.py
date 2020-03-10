@@ -173,6 +173,7 @@ class ResourceDetailView(DetailView):
             messages.info(self.request, "As {}, you have the necessary permissions to modify this record.".format(user_roles.first().role))
         elif in_inventory_dm_group(self.request.user):
             messages.info(self.request, _("As an application administrator, you have the necessary permissions to modify this record."))
+        context["google_api_key"] = settings.GOOGLE_API_KEY
         return context
 
 
