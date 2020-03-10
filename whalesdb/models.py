@@ -214,9 +214,9 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     Deletes file from filesystem
     when corresponding `MediaFile` object is deleted.
     """
-    # if instance.mor_setup_image:
-    #     if os.path.isfile(instance.mor_setup_image.path):
-    #         os.remove(instance.mor_setup_image.path)
+    if instance.mor_setup_image:
+        if os.path.isfile(instance.mor_setup_image.path):
+            os.remove(instance.mor_setup_image.path)
 
 
 @receiver(models.signals.pre_save, sender=MorMooringSetup)
@@ -226,16 +226,16 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     when corresponding `MediaFile` object is updated
     with new file.
     """
-    # if not instance.pk:
-    #     return False
-    # try:
-    #     old_file = MorMooringSetup.objects.get(pk=instance.pk).mor_setup_image
-    # except MorMooringSetup.DoesNotExist:
-    #     return False
-    # new_file = instance.mor_setup_image
-    # if not old_file == new_file:
-    #     if os.path.isfile(old_file.path):
-    #         os.remove(old_file.path)
+    if not instance.pk:
+        return False
+    try:
+        old_file = MorMooringSetup.objects.get(pk=instance.pk).mor_setup_image
+    except MorMooringSetup.DoesNotExist:
+        return False
+    new_file = instance.mor_setup_image
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
 
 
 class PrjProject(models.Model):

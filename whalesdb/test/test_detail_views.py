@@ -46,6 +46,8 @@ class TestDetailsDeployment(CommonDetailsTest):
         response = self.client.get(self.test_url)
 
         super().assert_context_fields(response)
+        # Google API key is required so map of station location doesn't nag about being in dev mode
+        self.assertIn("google_api_key", response.context)
         self.assertEqual(response.context['list_url'], 'whalesdb:list_dep')
         self.assertEqual(response.context['update_url'], 'whalesdb:update_dep')
 
@@ -190,8 +192,10 @@ class TestDetailsStation(CommonDetailsTest):
         response = self.client.get(self.test_url)
 
         super().assert_context_fields(response)
+
+        # Google API key is required so map of station location doesn't nag about being in dev mode
+        self.assertIn("google_api_key", response.context)
         self.assertEqual(response.context['list_url'], 'whalesdb:list_stn')
         self.assertEqual(response.context['update_url'], 'whalesdb:update_stn')
-
         self.assertEqual(response.context['object'], self.createDict()['stn_1'])
         super().assert_field_in_fields(response)
