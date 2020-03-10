@@ -48,7 +48,14 @@ try:
 except AttributeError:
     SHOW_TICKETING_APP = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'dmapps', 'dmapps.ent.dfo-mpo.ca', 'dmapps-dev.azurewebsites.net']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'dmapps',
+    'dmapps.ent.dfo-mpo.ca',
+    'dmapps-dev.azurewebsites.net',
+    'dmapps-test-web.azurewebsites.net',
+]
 try:
     extend_list = local_conf.ALLOWED_HOSTS_TO_ADD
     if len(extend_list):
@@ -170,8 +177,6 @@ WSGI_APPLICATION = 'dm_apps.wsgi.application'
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 # DATABASE_ROUTERS = ['dm_apps.routers.WhaleDatabaseRouter', ]
-
-
 
 
 DATABASES = local_conf.DATABASES
