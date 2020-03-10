@@ -500,7 +500,7 @@ class ResourceCertification(models.Model):
     resource = models.ForeignKey(Resource, on_delete=models.DO_NOTHING, related_name="certification_history")
     certifying_user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     certification_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
-    notes = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=False, null=True)
 
     class Meta:
         ordering = ['-certification_date']
