@@ -1132,9 +1132,11 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
 
 
 class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
-    template_name = 'travel/trip_form.html'
     model = models.Conference
     form_class = forms.TripForm
+
+    def get_template_names(self):
+        return 'travel/trip_form_popout.html' if self.kwargs.get("pop") else 'travel/trip_form.html'
 
     def form_valid(self, form):
         my_object = form.save()
