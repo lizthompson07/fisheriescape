@@ -19,6 +19,15 @@ class DepForm(forms.ModelForm):
         self.fields['mor'].create_url = 'whalesdb:create_mor'
 
 
+class EqpForm(forms.ModelForm):
+    min_height = 900
+    min_width = 600
+
+    class Meta:
+        model = models.EqpEquipment
+        exclude = []
+
+
 class MorForm(forms.ModelForm):
 
     min_height = 935

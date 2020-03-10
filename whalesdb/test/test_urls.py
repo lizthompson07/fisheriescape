@@ -1,6 +1,6 @@
 from django.test import tag
 
-from django.urls import reverse, resolve
+from django.urls import reverse_lazy, resolve
 from django.test import TestCase
 from django.utils.translation import activate
 
@@ -18,9 +18,9 @@ class URLTest(TestCase):
 
         # Test a URL can be reversed
         if args:
-            addr = reverse(signature, args=args)
+            addr = reverse_lazy(signature, args=args)
         else:
-            addr = reverse(signature)
+            addr = reverse_lazy(signature)
 
         self.assertEqual(addr, en_url)
 
@@ -150,4 +150,13 @@ class URLTest(TestCase):
     def test_url_create_set_pop_ste_view(self):
         # The Station Event object requires a Deployment and a station event type
         self.basic_en_url_test('whalesdb:create_ste', 'whalesdb/create/ste/1/2/pop/', views.CreateSte, {1, 2, 'pop'})
+
+    @tag('eqp', 'url', 'create')
+    def test_url_create_eqp_view(self):
+        # The Station Event object requires a Deployment and a station event type
+        self.basic_en_url_test('whalesdb:create_eqp', 'whalesdb/create/eqp/', views.CreateEqp)
+
+    @tag('eqp', 'url', 'list')
+    def test_url_list_eqp_view(self):
+        self.basic_en_url_test('whalesdb:list_eqp', 'whalesdb/list/eqp/', views.ListEqp)
 
