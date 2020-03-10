@@ -1,10 +1,11 @@
+{% extends "pop_base.html" %}
 {% load bootstrap4 %}
 {% load i18n %}
 {% load static %}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
 
-{% block content %}
+{% block body %}
 <div class="container">
     <div class="card border border-dark mt-2 pt-1">
         <div class="card-header">
@@ -39,7 +40,7 @@
                     <button type="submit" class="btn btn-success" onclick="saveForm();">
                         {% trans "Submit" %}
                     </button>
-                    <button type="submit" class="btn" onclick="cancel();">
+                    <button type="submit" class="btn btn-secondary" onclick="cancel();">
                         {% trans "Close" %}
                     </button>
                 {% endbuttons %}
@@ -47,8 +48,9 @@
         </div>
     </div>
 </div>
-{% endblock content %}
+{% endblock %}
 
+{% block body_js %}
 <script>
     var refresh = false;
 
@@ -88,3 +90,4 @@
     }
 
 </script>
+{% endblock %}

@@ -245,7 +245,8 @@ class CommonCreateTest(CommonTest):
         self.login_whale_user()
         response = self.client.post(self.test_url, data if data else self.data)
 
-        self.assertRedirects(response=response, expected_url=self.expected_success_url)
+        self.assertRedirects(response=response, expected_url=self.expected_success_url,
+                             msg_prefix="might be because of invalid data passed to testing method")
 
 
 ###########################################################################################

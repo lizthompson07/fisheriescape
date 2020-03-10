@@ -15,6 +15,7 @@ from whalesdb.test import test_forms
 
 
 class TestCreateDep(CommonCreateTest):
+    fixtures = [test_forms.mor_data, test_forms.prj_data, test_forms.stn_data]
 
     def setUp(self):
         super().setUp()
@@ -153,6 +154,11 @@ class TestCreateMor(CommonCreateTest):
         file = ContentFile(data.read(), self.img_file_name)
         # add the image to the data array
         self.data['mor_setup_image'] = self.img_file_path
+
+    def tearDown(self):
+        mors = models.MorMooringSetup.objects.all()
+        for mor in mors:
+            mor.delete()
 
     # Users must be logged in to create new objects
     @tag('mor', 'create', 'response', 'access')

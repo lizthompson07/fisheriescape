@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView, CreateView, DetailView, UpdateView
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.conf import settings
 
 from django.urls import reverse, reverse_lazy
 from django_filters.views import FilterView
@@ -251,8 +252,10 @@ class DetailsDep(DetailsCommon):
     title = _("Deployment Details")
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['google_api_key'] = settings.GOOGLE_API_KEY
 
         return context
 
@@ -283,6 +286,13 @@ class DetailsStn(DetailsCommon):
     fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
               'stn_planned_depth', 'stn_notes']
     creation_form_height = 400
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['google_api_key'] = settings.GOOGLE_API_KEY
+
+        return context
 
 
 class ListCommon(FilterView):
