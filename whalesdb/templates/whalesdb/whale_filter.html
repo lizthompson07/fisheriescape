@@ -62,7 +62,7 @@
 
     <div class="row mt-2">
         <div class="card border border-dark container">
-            <table class="table" id="id_details_table">
+            <table class="table" id="details_table">
                 <thead>
                 <tr>
                     {% for field in fields %}
@@ -108,7 +108,7 @@ function pop(url, tag) {
 
 function refreshTag(tag) {
     console.log("refresh called on: '" + tag + "'");
-    var id_tag = "#id_"+tag;
+    var id_tag = "#"+tag;
     $(id_tag).load("# "+id_tag+">*");
 }
 </script>

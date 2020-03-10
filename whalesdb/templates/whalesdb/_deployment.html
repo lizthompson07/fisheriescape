@@ -22,11 +22,11 @@
         </div>
 
          <div class="card border border-dark my-1">
-            <div class="card-header h5" id="id_ste">
+            <div class="card-header h5">
                 <a href="#fs-deployment-list-set" data-toggle="collapse">{% trans "Station Events" %}</a>
                 {# for deployments 1 = Deployment event in the SET table, 2 = Recovery in the SET table #}
-                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 1 'pop' %}','ste')" title="{% trans 'Add' %}">{% trans 'Deployment Event' %}</a>
-                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 2 'pop' %}','ste')" title="{% trans 'Add' %}">{% trans 'Recovery Event' %}</a>
+                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 1 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Deployment Event' %}</a>
+                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 2 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Recovery Event' %}</a>
             </div>
             <div class="card-body" id="fs-deployment-list-set">
                 {% for evt in dep.station_events.all %}
