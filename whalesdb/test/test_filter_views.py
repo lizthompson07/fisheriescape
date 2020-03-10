@@ -32,6 +32,30 @@ class TestListDep(CommonListTest):
         self.assertEqual("whalesdb:update_dep", response.context['update_url'])
 
 
+class TestListEqp(CommonListTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_eqp')
+
+    # User should be able to view lists without login required
+    @tag('eqp', 'eqp_list', 'response', 'access')
+    def test_eqp_list_en(self):
+        super().assert_view()
+
+    # User should be able to view lists without login required
+    @tag('eqp', 'eqp_list', 'response', 'access')
+    def test_eqp_list_fr(self):
+        super().assert_view(lang='fr')
+
+    # make sure project list context returns expected context objects
+    # The mooring view should use create_dep and details_dep for the create and details buttons
+    @tag('eqp', 'eqp_list', 'response', 'context')
+    def test_eqp_list_context_fields(self):
+        response = super().assert_list_view_context_fields()
+
+
 class TestListMooring(CommonListTest):
 
     def setUp(self):

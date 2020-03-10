@@ -12,6 +12,13 @@ class DepFilter(django_filters.FilterSet):
         fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
 
+class EqpFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EqpEquipment
+        fields = []
+
+
 class MorFilter(django_filters.FilterSet):
     mor_name = django_filters.CharFilter(field_name='mor_name', lookup_expr='icontains')
     mor_max_depth = django_filters.NumberFilter(field_name='mor_max_depth', lookup_expr='icontains')

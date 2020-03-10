@@ -5,6 +5,7 @@ from whalesdb.test.common_views import CommonFormTest, get_stn, get_prj, get_mor
 from whalesdb import forms, models
 
 
+# TODO: Create fixtures for loading dependencies in the 'get_valid_data()' methods in all form test classes
 class TestDepForm(CommonFormTest):
 
     @staticmethod
@@ -48,6 +49,30 @@ class TestDepForm(CommonFormTest):
     # The deployment form should have a minimum height and width used to resize popup windows
     @tag('dep', 'form', 'properties')
     def test_dep_properties(self):
+        form = forms.DepForm()
+        self.assertTrue(hasattr(form, 'min_height'))
+        self.assertTrue(hasattr(form, 'min_width'))
+
+
+class TestEqpForm(CommonFormTest):
+
+    @staticmethod
+    def get_valid_data():
+        valid_data = {
+        }
+
+        return valid_data
+
+    # TODO: Create a fixture for loading equipment dependencies
+    @tag('eqp', 'form', 'valid')
+    def test_eqp_valid_data(self):
+        form = forms.EqpForm(data=self.valid_data)
+        form.is_valid()
+        self.assertFalse(form.errors)
+
+    # The deployment form should have a minimum height and width used to resize popup windows
+    @tag('eqp', 'form', 'properties')
+    def test_eqp_properties(self):
         form = forms.DepForm()
         self.assertTrue(hasattr(form, 'min_height'))
         self.assertTrue(hasattr(form, 'min_width'))
