@@ -1136,6 +1136,13 @@ class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
     model = models.Conference
     form_class = forms.TripForm
 
+    def form_valid(self, form):
+        my_object = form.save()
+        if self.kwargs.get("pop"):
+            return HttpResponseRedirect(reverse("shared_models:close_me"))
+        else:
+            return HttpResponseRedirect(reverse('travel:trip_detail', kwargs={'pk': my_object.id}))
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict()
