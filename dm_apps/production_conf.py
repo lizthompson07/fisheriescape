@@ -1,3 +1,6 @@
+# THIS IS A TEMPORARY FILE WHILE DMAPPS IS TRANSITIONING INTO THE AZURE CLOUD
+# THIS IS A DUPLICATE OF DEFAULT_CONF WITH JUST THE TRAVEL APPLICATION TURNED ON
+
 # INSTRUCTIONS:  #
 ##################
 # please refer to the README and the project wiki for the most up-to-update information.
