@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.template import loader
 
 from_email = settings.SITE_FROM_EMAIL
@@ -32,8 +33,12 @@ class NewTripEmail:
         self.subject = 'Somebody created a new trip'
         self.message = self.load_html_template()
         self.from_email = from_email
-        self.to_list = [user.email for user in User.objects.filter(groups__name="travel_admin")]
-
+        if event.is_adm_approval_required:
+            self.to_list = [user.email for user in User.objects.filter(groups__name="travel_adm_admin")]
+            self.subject += ' - ADM verification needed'
+        else:
+            adm_admins = [user.id for user in User.objects.filter(groups__name="travel_adm_admin")]
+            self.to_list = [user.email for user in User.objects.filter(groups__name="travel_admin").filter(~Q(id__in=adm_admins))]
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
