@@ -57,7 +57,7 @@ function refreshTag(tag) {
         }, 1000);
     } else {
         console.log("refresh called on: '" + tag + "'");
-        var id_tag = "#id_"+tag;
+        var id_tag = "#"+tag;
         $(id_tag).load("# "+id_tag+">*");
     }
 }
