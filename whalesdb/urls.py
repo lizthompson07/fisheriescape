@@ -13,6 +13,9 @@ urlpatterns = [
     path('details/dep/<int:pk>/', views.DetailsDep.as_view(), name="details_dep"),
     path('list/dep/', views.ListDep.as_view(), name="list_dep"),
 
+    path('create/eqp/', views.CreateEqp.as_view(), name="create_eqp"),
+    path('list/eqp/', views.ListEqp.as_view(), name="list_eqp"),
+
     path('create/mor/', views.CreateMor.as_view(), name="create_mor"),
     path('create/mor/<str:pop>/', views.CreateMor.as_view(), name="create_mor"),
     path('update/mor/<int:pk>/', views.UpdateMor.as_view(), name="update_mor"),

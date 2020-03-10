@@ -104,6 +104,13 @@ class CreateDep(CreateCommon):
         return context
 
 
+class CreateEqp(CreateCommon):
+    key = 'eqp'
+    model = models.EqpEquipment
+    form_class = forms.EqpForm
+    title = _("Create Equipment")
+
+
 class CreateMor(CreateCommon):
     key = 'mor'
     model = models.MorMooringSetup
@@ -332,6 +339,14 @@ class ListDep(ListCommon):
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
     title = _("Deployment List")
     creation_form_height = 600
+
+
+class ListEqp(ListCommon):
+    key = 'eqp'
+    model = models.EqpEquipment
+    filterset_class = filters.EqpFilter
+    fields = []
+    title = _("Equipment List")
 
 
 class ListMor(ListCommon):
