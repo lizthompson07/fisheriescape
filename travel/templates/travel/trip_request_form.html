@@ -135,13 +135,23 @@
                 </div>
             {% endif %}
 
+            <div class="mb-3 blue-font center-col not-a-group-field">
+                <h2>
+                    {% trans "Select NEXT to enter trip costs" %}
+                </h2>
+            </div>
+
             <div class="container center-col">
                 {% buttons %}
                     {% if object %}
-                        <button type="submit" class="btn btn-success">Update</button>
+                        <button type="submit" class="btn btn-success">
+                            {% trans "Update" %}
+                        </button>
                         <a class="btn btn-secondary" href="{% url 'travel:request_detail' object.id %}">Cancel</a>
                     {% else %}
-                        <button type="submit" class="btn btn-success">Add</button>
+                        <button type="submit" class="btn btn-success">
+                            {% trans "Next" %}
+                        </button>
                         <a class="btn btn-secondary" href="{% url 'travel:request_list' %}">Cancel</a>
                     {% endif %}
                 {% endbuttons %}
@@ -225,14 +235,43 @@
         //            refreshConference();
         //      });
 
+        function updateTrip() {
+            $("#id_trip").load("# #id_trip>*", reloadTripSelect);
+        }
+
+        function reloadTripSelect() {
+            var maxValue=-1;
+
+            $("#id_trip option").each(function(){
+                maxValue = Math.max(maxValue, $(this).val());
+            });
+            console.log("max val: " + maxValue);
+
+            $("#id_trip").val(maxValue).trigger("chosen:updated");
+
+            $.ajax({
+                url: '{% url 'travel:conf_details' %}',
+                data: {},
+                dataType: 'json',
+                success: function(data) {
+                    confObj = data;
+                    refreshTripDetails();
+                }
+            });
+        }
+
         $("#id_trip").change(function () {
             // update location and (maybe) dates
-            myId = $(this).val();
+            refreshTripDetails();
+        });
+
+        function refreshTripDetails() {
+            myId = $("#id_trip").val();
             $("#id_destination").val(confObj[myId]["location"]);
             $("#id_start_date").flatpickr().setDate(confObj[myId]["start_date"]);
             $("#id_end_date").flatpickr().setDate(confObj[myId]["end_date"]);
             {#$("#id_email").val(userObj[myId]["email"]);#}
-        });
+        }
 
         $("#id_is_group_request").change(function () {
             refreshClassHideMe();
@@ -247,11 +286,6 @@
             // do not make these fields required, otherwise we will not see the form errors if omitted
             $("#id_user").prop("required", false);
             $("#id_section").prop("required", false);
-        });
-
-        $("#new_event").click(function () {
-            $("#id_stay_on_page").val(1);
-            $("form").submit();
         });
 
         $("#predefined-addresses").change(function () {

@@ -5,6 +5,7 @@ app_name = 'travel'
 
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
+    path('util/conf_details', views.get_conf_details, name='conf_details'),
 
     # TRIP REQUEST #
     ################
@@ -51,6 +52,7 @@ urlpatterns = [
     path('trip/new/pop/<int:pop>/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
     path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trip/<int:pk>/edit/popout/<int:pop>', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
     # admin
     path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.AdminTripVerificationListView.as_view(), name="admin_trip_verification_list"),

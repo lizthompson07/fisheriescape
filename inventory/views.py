@@ -993,7 +993,11 @@ def export_resource_xml(request, resource, publish):
     my_resource = models.Resource.objects.get(pk=resource)
 
     if publish == "yes":
-        my_resource.fgp_publication_date = timezone.now()
+        # if there is already a publication date, let's not overwrite it.
+        if my_resource.fgp_publication_date:
+            my_resource.date_last_modified = timezone.now()
+        else:
+            my_resource.fgp_publication_date = timezone.now()
         my_resource.flagged_4_publication = False
 
         my_resource.save()
