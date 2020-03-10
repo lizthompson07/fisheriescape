@@ -33,6 +33,7 @@ ALLOWED_HOSTS_TO_ADD = []
 # Specify the full url of the site. This is used in email templates to link the recipient back to the site; NO TRAILING SLASH!!
 SITE_FULL_URL = "https://dmapps-test-web.azurewebsites.net"
 
+
 # If the line below is set to True, you will connect to the dev database, provided that DEV db connection information is
 # available in environmental variables, e.g. 'DEV_DB_HOST', 'DEV_DB_PASSWORD', ... (see .env_sample)
 # If this is set to False, the application will defer to the 'DB_TYPE' env var to determine what type of database it is connecting to
