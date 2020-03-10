@@ -25,7 +25,7 @@
                         <span class="col">
                         {% bootstrap_field field placeholder="" size="small" show_label=false %}
                         </span><span class="col-1">
-                        <button class="btn btn-primary" onclick="return pop('{% url ''|add:field.field.create_url 'pop' %}', '{{field.name}}' )" >+</button>
+                        <button class="btn btn-primary" onclick="return pop('{% url ''|add:field.field.create_url 'pop' %}', 'id_{{field.name}}' )" >+</button>
                         </span>
                     </div>
                 {% else %}
@@ -83,7 +83,7 @@
 
     function refreshTag(tag) {
         console.log("refresh called on: '" + tag + "'");
-        var id_tag = "#id_"+tag;
+        var id_tag = "#"+tag;
         $(id_tag).load("# "+id_tag+">*");
     }
 
