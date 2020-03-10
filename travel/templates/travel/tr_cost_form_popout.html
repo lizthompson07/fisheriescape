@@ -66,10 +66,10 @@
 
                 {% endfor %}
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-success" onclick="refreshParent()">
+                    <button type="submit" class="btn btn-success" onclick="$('form').submit(); window.opener.refreshCosts();">
                         {% trans "Save" %}
                     </button>
-                    <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                    <a class="btn btn-secondary" onclick="window.close();" href="#">
                         {% trans "Close" %}
                     </a>
                 </div>
@@ -89,12 +89,6 @@
         var $days = $("#id_number_of_days");
 
         window.resizeTo(width = 900, height = 800);
-
-        window.onunload = refreshParent;
-
-        function refreshParent() {
-            window.opener.location.reload();
-        }
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
