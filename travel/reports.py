@@ -270,40 +270,43 @@ def generate_trip_list(fiscal_year, region, adm):
 
         data_row = list()
         my_dict = trip.get_cost_comparison_dict
+        j = 0
         for field in field_list:
+
             if "travellers" in field:
                 my_list = list()
                 for tr in my_dict.get("trip_requests"):
                     my_list.append(f'{tr.requester_name} ({tr.region}) - {currency(my_dict["trip_requests"][tr]["total"])}')
-                data_row.append(listrify(my_list, "\n"))
+                my_val = listrify(my_list, "\n")
+
+                my_ws.write(i, j, my_val, normal_format)
+
             elif "fiscal_year" in field:
-                data_row.append(str(get_field_value(trip, field)))
+                my_val = str(get_field_value(trip, field))
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif field == "name":
+                my_val = str(get_field_value(trip, field))
+                my_ws.write_url(i, j,
+                                url=f'{settings.SITE_FULL_URL}/{reverse("travel:trip_detail", kwargs={"pk": trip.id})}',
+                                string=my_val)
             elif "cost" in field:
-                data_row.append(nz(get_field_value(trip, field),0))
-
+                my_val = nz(get_field_value(trip, field), 0)
+                my_ws.write(i, j, my_val, currency_format)
             else:
-                data_row.append(get_field_value(trip, field))
+                my_val = get_field_value(trip, field)
+                my_ws.write(i, j, my_val, normal_format)
 
-        # adjust the width of the columns based on the max string length in each col
-        ## replace col_max[j] if str length j is bigger than stored value
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
 
-        j = 0
-        for d in data_row:
             # if new value > stored value... replace stored value
-            if len(str(d)) > col_max[j]:
-                if len(str(d)) < 75:
-                    col_max[j] = len(str(d))
+            if len(str(my_val)) > col_max[j]:
+                if len(str(my_val)) < 75:
+                    col_max[j] = len(str(my_val))
                 else:
                     col_max[j] = 75
             j += 1
-
-        my_ws.write_row(i, 0, data_row, normal_format)
-        my_ws.write_url(i, 1,
-                        url=f'{settings.SITE_FULL_URL}/{reverse("travel:trip_detail", kwargs={"pk": trip.id})}',
-                        string=data_row[1])
-        my_ws.write(i, 8, data_row[8], currency_format)
-        my_ws.write(i, 9, data_row[9], currency_format)
-
         i += 1
 
         # set column widths
