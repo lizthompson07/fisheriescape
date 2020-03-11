@@ -763,10 +763,10 @@ class TripRequest(models.Model):
         # if approved, denied
         elif self.status.id in [10, 11]:
             my_var = self.reviewers.filter(status_date__isnull=False).last().status_date - self.original_submission_date
-            my_var = f"{my_var.days} {_('day')}{pluralize(my_var.days)}"
+            my_var = "{} {}{}".format(my_var.days, _('day'), pluralize(my_var.days))
         else:
             my_var = timezone.now() - self.original_submission_date
-            my_var = f"{my_var.days} {_('day')}{pluralize(my_var.days)}"
+            my_var = "{} {}{}".format(my_var.days, _('day'), pluralize(my_var.days))
         return my_var
 
     @property
