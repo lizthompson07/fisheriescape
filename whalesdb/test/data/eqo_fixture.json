@@ -1,0 +1,9 @@
+[
+  {
+    "model": "whalesdb.eqoowner",
+    "pk": 1,
+    "fields": {
+		"eqo_institute": "Bedford Institute",
+    }
+  }
+]

@@ -1,35 +1,28 @@
 from django.test import tag
 from django.urls import reverse_lazy
 
-from whalesdb.test.common_views import CommonUpdateTest, get_mor, get_stn, get_prj
+from whalesdb.test.common_views import CommonUpdateTest
+from whalesdb.test import test_forms
+
 from whalesdb import views, models, forms
 
 
 class TestUpdateDep(CommonUpdateTest):
 
+    fixtures = [test_forms.mor_data, test_forms.prj_data, test_forms.stn_data]
+
     def setUp(self):
         super().setUp()
 
-        mor = get_mor()
-        prj = get_prj()
-        stn = get_stn()
-
-        self.data = {
-            "dep_year": 2020,
-            "dep_month": 2,
-            "dep_name": "DEP_001",
-            "stn": stn.pk,
-            "prj": prj.pk,
-            "mor": mor.pk
-        }
+        self.data = test_forms.TestDepForm.get_valid_data()
 
         obj = models.DepDeployment(
             dep_year=self.data['dep_year'],
             dep_month=self.data['dep_month'],
             dep_name=self.data['dep_name'],
-            stn=stn,
-            prj=prj,
-            mor=mor,
+            stn=models.StnStation.objects.get(pk=self.data['stn']),
+            prj=models.PrjProject.objects.get(pk=self.data['prj']),
+            mor=models.MorMooringSetup.objects.get(pk=self.data['mor']),
         )
         obj.save()
 

@@ -2,10 +2,14 @@ from django.utils.translation import activate
 from django.urls import reverse_lazy
 from django.test import tag
 
-from whalesdb.test.common_views import CommonDetailsTest, get_stn, get_prj, get_dep, get_mor
+from whalesdb.test.common_views import CommonDetailsTest
+from whalesdb.test import test_forms
+from whalesdb import models
 
 
 class TestDetailsDeployment(CommonDetailsTest):
+
+    fixtures = [test_forms.dep_data]
 
     def createDict(self):
         if self._details_dict:
@@ -13,7 +17,8 @@ class TestDetailsDeployment(CommonDetailsTest):
 
         self._details_dict = {}
 
-        dep_1 = get_dep()
+        # There should be one dep object loaded from the fixtures
+        dep_1 = models.DepDeployment.objects.get(pk=1)
 
         self._details_dict['dep_1'] = dep_1
 
@@ -57,13 +62,16 @@ class TestDetailsDeployment(CommonDetailsTest):
 
 class TestDetailsMooring(CommonDetailsTest):
 
+    fixtures = [test_forms.mor_data]
+
     def createDict(self):
         if self._details_dict:
             return self._details_dict
 
         self._details_dict = {}
 
-        mor_1 = get_mor()
+        # There should be one mooring setup loaded from the fixtures
+        mor_1 = models.MorMooringSetup.objects.get(pk=1)
 
         self._details_dict['mor_1'] = mor_1
 
@@ -105,13 +113,16 @@ class TestDetailsMooring(CommonDetailsTest):
 
 
 class TestDetailsProject(CommonDetailsTest):
+
+    fixtures = [test_forms.prj_data]
+
     def createDict(self):
         if self._details_dict:
             return self._details_dict
 
         self._details_dict = {}
 
-        prj_1 = get_prj()
+        prj_1 = models.PrjProject.objects.get(pk=1)
 
         self._details_dict['prj_1'] = prj_1
 
@@ -152,13 +163,16 @@ class TestDetailsProject(CommonDetailsTest):
 
 class TestDetailsStation(CommonDetailsTest):
 
+    fixtures = [test_forms.stn_data]
+
     def createDict(self):
         if self._details_dict:
             return self._details_dict
 
         self._details_dict = {}
 
-        stn_1 = get_stn()
+        # Should be one station loaded from the fixtures
+        stn_1 = models.StnStation.objects.get(pk=1)
 
         self._details_dict['stn_1'] = stn_1
 
