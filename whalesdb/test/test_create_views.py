@@ -6,22 +6,19 @@ from django.utils.six import BytesIO
 
 from PIL import Image
 
-from whalesdb.test.common_views import CommonCreateTest, get_stn, get_prj, get_dep, get_mor
+from whalesdb.test.common_views import CommonCreateTest
 
 from whalesdb import views, forms, models
 
 import os
-from whalesdb.test import test_forms
+from whalesdb.test import WhalesdbFactory as Factory
 
 
 class TestCreateDep(CommonCreateTest):
-    fixtures = [test_forms.mor_data, test_forms.prj_data, test_forms.stn_data]
 
     def setUp(self):
         super().setUp()
-
-        self.data = test_forms.TestDepForm.get_valid_data()
-
+        self.data = Factory.DepFactory.get_valid_data()
         self.test_url = reverse_lazy('whalesdb:create_dep')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
@@ -77,7 +74,7 @@ class TestCreateEqp(CommonCreateTest):
     def setUp(self):
         super().setUp()
 
-        self.data = test_forms.TestEqpForm.get_valid_data()
+        self.data = Factory.EqpFactory
 
         self.test_url = reverse_lazy('whalesdb:create_eqp')
 
@@ -133,7 +130,8 @@ class TestCreateMor(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
-        self.data = test_forms.TestMorForm.get_valid_data()
+
+        self.data = Factory.MorFactory.get_valid_data()
         self.test_url = reverse_lazy('whalesdb:create_mor')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
@@ -145,7 +143,8 @@ class TestCreateMor(CommonCreateTest):
         self.expected_form = forms.MorForm
 
         self.img_file_name = "MooringSetupTest.png"
-        self.img_file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + self.img_file_name
+        self.img_file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + \
+                             self.img_file_name
 
         data = BytesIO()
         Image.open(self.img_file_path).save(data, "PNG")
@@ -201,8 +200,8 @@ class TestCreatePrj(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
-        self.data = test_forms.TestPrjForm.get_valid_data()
 
+        self.data = Factory.PrjFactory.get_valid_data()
         self.test_url = reverse_lazy('whalesdb:create_prj')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
@@ -256,12 +255,18 @@ class TestCreateSte(CommonCreateTest):
     def setUp(self):
         super().setUp()
 
-        self.data = test_forms.TestSteForm.get_valid_data()
+        self.data = Factory.SteFactory.get_valid_data()
 
-        self.test_url = reverse_lazy('whalesdb:create_ste', args={self.data['dep']})
+        args = [self.data['dep'], 1, 'pop']
+        # the STE entry from should only be accessed via popup arguments are dep (deployment),
+        # set(Station Event Type) and 'pop' for popup
+        self.test_url = reverse_lazy('whalesdb:create_ste', args=args)
+
+        # because STE entry is a popup it should use the close_me_no_refresh
+        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
 
         self.expected_view = views.CreateSte
 
@@ -305,11 +310,11 @@ class TestCreateSte(CommonCreateTest):
 
 
 class TestCreateStn(CommonCreateTest):
-    data = test_forms.TestStnForm.get_valid_data()
 
     def setUp(self):
         super().setUp()
 
+        self.data = Factory.StnFactory.get_valid_data()
         self.test_url = reverse_lazy('whalesdb:create_stn')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore

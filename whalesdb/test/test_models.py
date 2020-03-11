@@ -27,7 +27,8 @@ class TestMorMooringSetup(TestCase):
 
         self.mooring_dic = {}
 
-        mor_1 = models.MorMooringSetup(mor_name="MOR001", mor_max_depth=100, mor_link_setup_image="https://somelink.com", mor_setup_image=file)
+        mor_1 = models.MorMooringSetup(mor_name="MOR001", mor_max_depth=100,
+                                       mor_link_setup_image="https://somelink.com", mor_setup_image=file)
         mor_1.save()
 
         # Check that the file was saved
