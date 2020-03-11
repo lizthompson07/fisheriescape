@@ -1311,6 +1311,8 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
         report = int(form.cleaned_data["report"])
         fy = form.cleaned_data["fiscal_year"]
         user = form.cleaned_data["user"]
+        region = nz(form.cleaned_data["region"], "None")
+        adm = nz(form.cleaned_data["adm"], "None")
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
@@ -1322,6 +1324,13 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("travel:travel_plan", kwargs={
                 'fy': fy,
                 'email': email,
+            }))
+
+        elif report == 3:
+            return HttpResponseRedirect(reverse("travel:export_trip_list", kwargs={
+                'fy': fy,
+                'region': region,
+                'adm': adm,
             }))
 
         else:
@@ -1337,6 +1346,17 @@ def export_cfts_list(request, fy):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
                 timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+def export_trip_list(request, fy, region, adm):
+    file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="export of trips {timezone.now().strftime("%Y-%m-%d")}.xlsx"'
             return response
     raise Http404
 

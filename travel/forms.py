@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User as AuthUser
 from shared_models import models as shared_models
+from travel.filters import get_region_choices
 
 from . import models
 
@@ -17,7 +18,11 @@ YES_NO_CHOICES = (
     (True, _("Yes")),
     (False, _("No")),
 )
-
+INT_YES_NO_CHOICES = (
+    (None, "-----"),
+    (1, _("Yes")),
+    (0, _("No")),
+)
 
 class ReviewerApprovalForm(forms.ModelForm):
     approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
@@ -358,12 +363,15 @@ class ReportSearchForm(forms.Form):
         (None, "------"),
         (1, "CFTS export (xlsx)"),
         # (2, "Print Travel Plan PDF"),
+        (3, "Export trip list (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     # report #1
     fiscal_year = forms.ChoiceField(required=False, label=_('Fiscal year'))
     # report #2
     user = forms.ChoiceField(required=False, label=_('DFO traveller (leave blank for all)'))
+    region = forms.ChoiceField(required=False, label=_('Region (optional)'))
+    adm = forms.ChoiceField(required=False, label=_('ADM approval required'), choices=INT_YES_NO_CHOICES)
 
     def __init__(self, *args, **kwargs):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id") if fy.trip_requests.count() > 0]
@@ -373,9 +381,13 @@ class ReportSearchForm(forms.Form):
                         AuthUser.objects.all().order_by("last_name", "first_name") if u.user_trip_requests.count() > 0]
         user_choices.insert(0, tuple((None, "---")))
 
+        region_choices = get_region_choices()
+        region_choices.insert(0, tuple((None, "---")))
+
         super().__init__(*args, **kwargs)
         self.fields['fiscal_year'].choices = fy_choices
         self.fields['user'].choices = user_choices
+        self.fields['region'].choices = region_choices
 
 
 class StatusForm(forms.ModelForm):
