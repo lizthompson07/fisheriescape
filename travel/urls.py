@@ -74,6 +74,8 @@ urlpatterns = [
     path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"),
     # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
 
+    path('reports/trip-list/fiscal-year/<int:fy>/region/<str:region>/adm/<str:adm>/', views.export_trip_list, name="export_trip_list"),
+
     # SETTINGS #
     ############
     path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
