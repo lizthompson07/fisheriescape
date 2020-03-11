@@ -258,7 +258,7 @@ def generate_trip_list(fiscal_year, region, adm):
         title += f" ({shared_models.Region.objects.get(pk=region)})"
 
     # define a worksheet
-    my_ws = workbook.add_worksheet(name=title)
+    my_ws = workbook.add_worksheet(name="trip list")
     my_ws.write(0, 0, title, title_format)
     my_ws.write_row(2, 0, header, header_format)
 
