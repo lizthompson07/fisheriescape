@@ -191,7 +191,6 @@ def generate_trip_list(fiscal_year, region, adm):
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
     target_file_path = os.path.join(target_dir, target_file)
     target_url = os.path.join(settings.MEDIA_ROOT, 'travel', 'temp', target_file)
-
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
 
@@ -201,6 +200,7 @@ def generate_trip_list(fiscal_year, region, adm):
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
     total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
+    currency_format = workbook.add_format({'num_format': '#,##0.00'})
 
     # get the trip list
     trip_list = models.Conference.objects.filter(fiscal_year=fiscal_year)
@@ -275,11 +275,11 @@ def generate_trip_list(fiscal_year, region, adm):
                 my_list = list()
                 for tr in my_dict.get("trip_requests"):
                     my_list.append(f'{tr.requester_name} ({tr.region}) - {currency(my_dict["trip_requests"][tr]["total"])}')
-                data_row.append(listrify(my_list,"\n"))
+                data_row.append(listrify(my_list, "\n"))
             elif "fiscal_year" in field:
                 data_row.append(str(get_field_value(trip, field)))
             elif "cost" in field:
-                data_row.append(currency(get_field_value(trip, field)))
+                data_row.append(nz(get_field_value(trip, field),0))
 
             else:
                 data_row.append(get_field_value(trip, field))
@@ -298,10 +298,12 @@ def generate_trip_list(fiscal_year, region, adm):
             j += 1
 
         my_ws.write_row(i, 0, data_row, normal_format)
-        print(data_row)
-        my_ws.write_url(i,1,
-                        url=f'{settings.SITE_FULL_URL}/{reverse("travel:trip_detail", kwargs={"pk":trip.id})}',
+        my_ws.write_url(i, 1,
+                        url=f'{settings.SITE_FULL_URL}/{reverse("travel:trip_detail", kwargs={"pk": trip.id})}',
                         string=data_row[1])
+        my_ws.write(i, 8, data_row[8], currency_format)
+        my_ws.write(i, 9, data_row[9], currency_format)
+
         i += 1
 
         # set column widths
