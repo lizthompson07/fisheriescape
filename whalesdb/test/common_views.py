@@ -1,88 +1,19 @@
-from django.test import TestCase, tag
+from django.test import TestCase
 from django.urls import reverse_lazy
 from django.utils.translation import activate
 from django.contrib.auth.models import User, Group
 
-from django.core.files.base import ContentFile
-from django.utils.six import BytesIO
-from PIL import Image
-
-import os
-
-from whalesdb import models
-
-
-def get_mor(with_image=True):
-    if models.MorMooringSetup.objects.filter(mor_name="MOR001"):
-        mor_1 = models.MorMooringSetup.objects.get(mor_name="MOR001")
-    elif with_image:
-        img_file_name = "MooringSetupTest.png"
-        img_file_path = os.path.dirname(os.path.realpath(__file__)) + os.path.sep + "data" + os.path.sep + img_file_name
-
-        data = BytesIO()
-        Image.open(img_file_path).save(data, "PNG")
-        data.seek(0)
-
-        file = ContentFile(data.read(), img_file_name)
-
-        mor_1 = models.MorMooringSetup(mor_name="MOR001", mor_max_depth=100,
-                                       mor_link_setup_image="https://somelink.com",
-                                       mor_setup_image=file)
-        mor_1.save()
-    else:
-        mor_1 = models.MorMooringSetup(mor_name="MOR001", mor_max_depth=100,
-                                       mor_link_setup_image="https://somelink.com")
-        mor_1.save()
-
-    return mor_1
-
-
-def get_prj():
-    if models.PrjProject.objects.filter(prj_name="PRJ_001"):
-        prj_1 = models.PrjProject.objects.get(prj_name="PRJ_001")
-    else:
-        prj_1 = models.PrjProject(prj_name="PRJ_001", prj_description="Sample Project",
-                                  prj_url="http://someproject.com")
-        prj_1.save()
-
-    return prj_1
-
-
-def get_stn():
-    if models.StnStation.objects.filter(stn_code="ST1"):
-        stn_1 = models.StnStation.objects.get(stn_code="ST1")
-    else:
-        stn_1 = models.StnStation(stn_name='Station 1', stn_code='ST1', stn_revision=1, stn_planned_lat=52,
-                                  stn_planned_lon=25, stn_planned_depth=1)
-        stn_1.save()
-
-    return stn_1
-
-
-def get_dep():
-    if models.DepDeployment.objects.filter(dep_name="DEP_001"):
-        dep_1 = models.DepDeployment.objects.get(dep_name="DEP_001")
-    else:
-        prj = get_prj()
-        mor = get_mor()
-        stn = get_stn()
-
-        dep_1 = models.DepDeployment(dep_year=2020, dep_month=2, dep_name='DEP_001', stn=stn, prj=prj, mor=mor)
-        dep_1.save()
-
-    return dep_1
-
 
 class CommonFormTest(TestCase):
-    valid_data = None
-
-    @staticmethod
-    def get_valid_data():
-        pass
+    form_class = None
+    test_factory = None
 
     def setUp(self) -> None:
-        if not self.valid_data:
-            self.get_valid_data()
+        activate('en')
+
+    def assert_valid_data(self):
+        form = self.form_class(data=self.test_factory.get_valid_data())
+        self.assertTrue(form.is_valid(), msg=form.errors)
 
 
 ###########################################################################################
@@ -174,7 +105,7 @@ class CommonCreateTest(CommonTest):
             user = User.objects.get(username=user_name)
         else:
             user = User.objects.create_user(username=user_name, first_name="Joe", last_name="Average",
-                                                         email="Average.Joe@dfo-mpo.gc.ca", password=self.test_password)
+                                            email="Average.Joe@dfo-mpo.gc.ca", password=self.test_password)
             user.save()
 
         self.client.login(username=user.username, password=self.test_password)
@@ -191,7 +122,7 @@ class CommonCreateTest(CommonTest):
             whale_group.save()
 
             user = User.objects.create_user(username=user_name, first_name="Hump", last_name="Back",
-                                                         email="Hump.Back@dfo-mpo.gc.ca", password=self.test_password)
+                                            email="Hump.Back@dfo-mpo.gc.ca", password=self.test_password)
             user.groups.add(whale_group)
             user.save()
 
@@ -245,8 +176,11 @@ class CommonCreateTest(CommonTest):
         self.login_whale_user()
         response = self.client.post(self.test_url, data if data else self.data)
 
-        self.assertRedirects(response=response, expected_url=self.expected_success_url,
-                             msg_prefix="might be because of invalid data passed to testing method")
+        if response.context and 'form' in response.context:
+            # If the data in this test is invaild the response will be invalid
+            self.assertTrue(response.context_data['form'].is_valid(), msg="Test data was likely invalid")
+
+        self.assertRedirects(response=response, expected_url=self.expected_success_url)
 
 
 ###########################################################################################

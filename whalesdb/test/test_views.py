@@ -3,7 +3,6 @@ from django.urls import reverse_lazy
 from django.utils.translation import activate
 
 from whalesdb.test.common_views import CommonTest
-from whalesdb import views, models, forms
 
 
 ###########################################################################################
