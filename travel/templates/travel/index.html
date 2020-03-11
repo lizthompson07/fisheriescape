@@ -17,7 +17,9 @@
                 <h1 class="three-em">
                     {% trans "Travel Management System" %}
                 </h1>
-                <h2>(Pre-approval to Travel)</h2>
+                <h2>
+                    {% trans "(Pre-approval to Travel)" %}
+                </h2>
                 <hr>
                 {% url 'travel:request_list' as event_list_url %}
                 {% url 'travel:request_review_list' "awaiting" as event_approval_list_url %}

@@ -63,7 +63,9 @@
 
     {% if field.name == "address" %}
         <div class="mb-4">
-            <span style="font-size: small">Use a Predefined Address:</span> &nbsp;
+            <span style="font-size: small">
+                {% trans "Use a Predefined Address:" %}
+            </span> &nbsp;
             <select name="" id="predefined-addresses">
                 <option value="">{% trans "-----" %}</option>
                 <option value="343 Université Avenue, Moncton, NB, E1C 9B6">{% trans "Gulf Fisheries Centre" %}</option>

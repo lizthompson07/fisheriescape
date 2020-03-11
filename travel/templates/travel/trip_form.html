@@ -68,10 +68,14 @@
             {% buttons %}
                 {% if object %}
                     <button type="submit" class="btn btn-success">Update</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">
+                    {% trans "Cancel" %}
+                    </a>
                 {% else %}
                     <button type="submit" class="btn btn-success">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">
+                    {% trans "Cancel" %}
+                    </a>
                 {% endif %}
 
 
