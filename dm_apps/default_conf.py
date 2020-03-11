@@ -9,13 +9,8 @@ import os
 from decouple import config
 from .utils import is_db_connection_available, get_db_connection_dict
 
-# DO NOT INTERACT WITH THESE VARIABLES HERE
-########################################################################
-DEV_DB_NAME = None
-DEV_DB_HOST = None
-USING_LOCAL_DB = False
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-########################################################################
+
+
 
 # Should Microsoft Azure AD be used for authentication? By default, if a file called `azure_oauth_settings.yml' is in the root dir, azure aad will be turned on
 # this is a manual override. Uncomment to turn off AAD regardless of the presence of the above mentioned file.
@@ -33,10 +28,6 @@ ALLOWED_HOSTS_TO_ADD = []
 # Specify the full url of the site. This is used in email templates to link the recipient back to the site; NO TRAILING SLASH!!
 SITE_FULL_URL = "https://dmapps-dev.azurewebsites.net"
 
-# If the line below is set to True, you will connect to the dev database, provided that DEV db connection information is
-# available in environmental variables, e.g. 'DEV_DB_HOST', 'DEV_DB_PASSWORD', ... (see .env_sample)
-# If this is set to False, the application will defer to the 'DB_TYPE' env var to determine what type of database it is connecting to
-FORCE_DEV_DB = False
 
 # add new applications to this dictionary; grey out any app you do not want
 # the dict key should be the actual name of the app
@@ -65,7 +56,120 @@ APP_DICT = {
     'vault': "Marine Megafauna Media Vault",
 }
 
+# By default, the application will use the setting from the environment variables (or .env file).
+# If those variables are not set, the local db will be created. If you would like to use a local db
+# disrespective of the environment variables, set it to True
+USE_LOCAL_DB = False
+
+
+###
+### Do not change below
+###
+
+DEPLOYMENT_STAGE = config('DB_MODE').upper()
+
+"""
+if is_db_connection_available():
+    DB_HOST = str(config('DB_HOST')).upper()
+    DB_PORT = int(config('DB_PORT'))
+    DB_NAME = str(config('DB_NAME')).upper()
+    DB_USER = str(config('DB_USER'))
+    DB_PASSWORD = str(config('DB_PASSWORD'))
+"""
+db_connections = get_db_connection_dict()
+
+def db_connection_values_exist(connection_dict):
+    return bool(
+        connection_dict['DB_HOST'] and \
+        connection_dict['DB_PORT'] and \
+        connection_dict['DB_NAME'] and \
+        connection_dict['DB_USER'] and \
+        connection_dict['DB_PASSWORD'] and \
+    )
+
+### Deploying application in production - don't change, unless you know what you're doing
+if DEPLOYMENT_STAGE == 'PROD': 
+    AZURE_AD = True
+    USE_LOCAL_DB = False
+    ALLOWED_HOSTS_TO_ADD = []
+    SITE_FULL_URL = "https://dmapps-prod-web.azurewebsites.net"
+    APP_DICT = {
+        'travel': 'Travel Management System'
+    }
+
+    
+
+### Deploying application in test environment 
+elif DEPLOYMENT_STAGE == 'TEST':
+    AZURE_AD = True
+    USE_LOCAL_DB = False
+    ALLOWED_HOSTS_TO_ADD = []
+    SITE_FULL_URL = "https://dmapps-test-web.azurewebsites.net"
+    APP_DICT = {
+        'travel': 'Travel Management System'
+    }
+
+
+### Deploying application in dev environment 
+elif DEPLOYMENT_STAGE == 'DEV':
+    AZURE_AD = True
+    USE_LOCAL_DB = False
+    ALLOWED_HOSTS_TO_ADD = []
+    SITE_FULL_URL = "https://dmapps-dev.azurewebsites.net"
+
+
+### Deploying application on your local machine 
+else:  
+    if not db_connection_values_exist(db_connections):
+        print("No connection vars specified - creating local db.")
+        USE_LOCAL_DB = True
+
+    # David's hack to switch databases:
+    """
+    USE_LOCAL_DB = False
+    db_connections['DB_HOST'] = "blah"
+    ...
+    """
+
+    
+
+
 MY_INSTALLED_APPS = [app for app in APP_DICT]
+
+
+
+if USE_LOCAL_DB:
+    my_default_db = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+else:
+    if not db_connection_values_exist(db_connections):
+        raise Exception("DB connection values are not specifid. Can not connect to the dabase.")
+
+    my_default_db = {
+        'ENGINE': 'django.db.backends.mysql',
+        'TIME_ZONE': 'America/Halifax',
+        'OPTIONS': {
+            'host': db_connections["DB_HOST"],
+            'port': db_connections["DB_PORT"],
+            'database': db_connections["DB_NAME"],
+            'user': db_connections["DB_USER"],
+            'password': db_connections["DB_PASSWORD"],
+            'init_command': 'SET default_storage_engine=INNODB',
+        }}
+
+DATABASES = {
+    'default': my_default_db,
+}
+
+
+
+
+
+
+
+###### This part needs to go.... pending discussion with David
 
 # check to see if the databases connection information is available in environmental variables:
 if FORCE_DEV_DB and is_db_connection_available(dev=True):
@@ -96,26 +200,3 @@ else:
     DB_HOST = "local"
 
 
-# Specify your database connection details
-if USING_LOCAL_DB:
-    print("No database connection information found in environmental variables. Using local Sqlite db")
-    my_default_db = {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-else:
-    my_default_db = {
-        'ENGINE': 'django.db.backends.mysql',
-        'TIME_ZONE': 'America/Halifax',
-        'OPTIONS': {
-            'host': db_dict["DB_HOST"],
-            'port': db_dict["DB_PORT"],
-            'database': db_dict["DB_NAME"],
-            'user': db_dict["DB_USER"],
-            'password': db_dict["DB_PASSWORD"],
-            'init_command': 'SET default_storage_engine=INNODB',
-        }}
-
-DATABASES = {
-    'default': my_default_db,
-}
