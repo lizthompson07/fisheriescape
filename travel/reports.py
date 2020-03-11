@@ -242,7 +242,7 @@ def generate_trip_list(fiscal_year, region, adm):
         "start_date",
         "end_date",
         "number_of_days|Number of days",
-        "travellers|Travellers (cost)",
+        "travellers|Travellers (region)",
         "non_res_total_cost|Total trip cost (excluding RES)",
         "total_cost|Total trip cost",
     ]
@@ -274,7 +274,7 @@ def generate_trip_list(fiscal_year, region, adm):
             if "travellers" in field:
                 my_list = list()
                 for tr in my_dict.get("trip_requests"):
-                    my_list.append(f'{tr.requester_name} ({currency(my_dict["trip_requests"][tr]["total"])})')
+                    my_list.append(f'{tr.requester_name} ({tr.region}) - {currency(my_dict["trip_requests"][tr]["total"])}')
                 data_row.append(listrify(my_list,"\n"))
             elif "fiscal_year" in field:
                 data_row.append(str(get_field_value(trip, field)))
