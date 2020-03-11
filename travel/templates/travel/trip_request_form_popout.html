@@ -1,5 +1,7 @@
 {% extends 'pop_base.html' %}
 
+{% block jquery_import %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
+
 {% load bootstrap4 %}
 {% load i18n %}
 {% load custom_filters %}
@@ -162,6 +164,15 @@
         var sectionObj = {{ section_json|safe|nz:"{}" }};
         var myId = "";
 
+        function refreshCosts() {
+            //console.log($("#id_cost").html());
+            $("#id_cost").load("# #id_cost>*", costReloaded);
+        }
+
+        function costReloaded() {
+            console.log("cost reloaded");
+            //console.log($("#id_cost").html());
+        }
 
         function refreshUserInfo() {
             myId = $("#id_user").val();

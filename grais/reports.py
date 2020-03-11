@@ -629,7 +629,7 @@ def generate_gc_cpue_report(year):
     # create the col_max column to store the length of each header
     # should be a maximum column width to 100
     col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header_row]
-    for c in models.Crab.objects.filter(trap__sample__season=year, species_id=26):
+    for c in models.Catch.objects.filter(trap__sample__season=year, species_id=26):
         data_row = [
             c.trap.sample.site.estuary.name,
             c.trap.sample.site.code,

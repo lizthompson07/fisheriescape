@@ -210,9 +210,9 @@ def generate_sub_species_richness_1(site, target_file):
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
     title_fre = "Comparaison annuelle de la diversité des espèces à chaque station d’échantillonnage du PSCA à"
-    title_fre1 = "{} pour le mois de juin seulement".format(site_name_fre)
+    title_fre1 = "{} pour le mois de juin ou juillet seulement".format(site_name_fre)
     sub_title_fre = "La diversité cumulative des espèces pour toutes les stations et le nombre de stations échantillonnées sont aussi indiqués."
-    title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for June only".format(site_name)
+    title_eng = "Annual comparison of species richness at each CAMP sampling station in {} for June or July only".format(site_name)
     sub_title_eng = "Cumulative species richness of all stations and number of stations sampled are also indicated."
 
     p = figure(
@@ -465,10 +465,10 @@ def generate_sub_do_1(site, target_file):
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
     title_eng = "Annual comparison of dissolved oxygen concentrations at each CAMP sampling station in {}".format(site_name)
-    title_eng1 = "for June only".format(site_name)
+    title_eng1 = "for June or July only".format(site_name)
     sub_title_eng = "Number of stations sampled is indicated."
     title_fre = "Comparaison annuelle de la concentration d’oxygène dissous à chaque station du PSCA à {} pour".format(site_name_fre)
-    title_fre1 = "le mois de juin seulement"
+    title_fre1 = "le mois de juin ou juillet seulement"
     sub_title_fre = "Le nombre de stations échantillonnées est indiqué."
 
     p = figure(
@@ -724,10 +724,10 @@ def generate_sub_green_crab_1(site, target_file):
     site_name = str(models.Site.objects.get(pk=site))
     site_name_fre = "{} ({})".format(models.Site.objects.get(pk=site).site, models.Site.objects.get(pk=site).province.abbrev_fre)
 
-    title_eng = "Annual comparison of Green Crab abundance observed during CAMP sampling in {} for June only".format(site_name)
+    title_eng = "Annual comparison of Green Crab abundance observed during CAMP sampling in {} for June or July only".format(site_name)
     sub_title_eng = "Number of stations sampled is indicated above columns."
     title_fre = "Comparaison annuelle de l’abondance de Crabes verts observée durant l’échantillonnage du PSCA à "
-    title_fre1 = "{} pour le mois de juin seulement".format(site_name_fre)
+    title_fre1 = "{} pour le mois de juin ou juillet seulement".format(site_name_fre)
     sub_title_fre = "Le nombre de stations échantillonnées est indiqué au-dessus des colonnes."
 
     color = palettes.BuGn[5][2]
