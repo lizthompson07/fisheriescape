@@ -69,7 +69,14 @@
                     <div class="user_div">
                         {% bootstrap_field field %}
                     </div>
-
+                {% elif field.name == "adm" %}
+                    <div class="adm_div">
+                        {% bootstrap_field field %}
+                    </div>
+                {% elif field.name == "region" %}
+                    <div class="region_div">
+                        {% bootstrap_field field %}
+                    </div>
                 {% else %}
                     {% bootstrap_field field %}
                 {% endif %}
@@ -91,6 +98,8 @@
         function hideAll() {
             $(".fiscal_year_div").addClass("gone");
             $(".user_div").addClass("gone");
+            $(".region_div").addClass("gone");
+            $(".adm_div").addClass("gone");
 
             $("#id_fiscal_year").prop('required', true);
             $("#id_user").prop('required', false);
@@ -109,18 +118,22 @@
                 $(".user_div").removeClass("gone");
 
             }
-
+            if (reportChoice == 3) {
+                $(".fiscal_year_div").removeClass("gone");
+                $(".region_div").removeClass("gone");
+                $(".adm_div").removeClass("gone");
+            }
         }
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
-            hideAll()
-            configureForm()
+            hideAll();
+            configureForm();
         });
 
         $("#id_report").change(function () {
-            hideAll()
-            configureForm()
+            hideAll();
+            configureForm();
         });
 
         $("form").submit(function () {
