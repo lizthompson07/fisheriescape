@@ -9,13 +9,71 @@ _set_codes_ = ['Deployment', 'Recovery']
 faker = Factory.create()
 
 
+class EqtFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EqtEquipmentTypeCode
+
+
+class EmmFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EmmMakeModel
+
+    eqt = factory.SubFactory(EqtFactory)
+    emm_make = faker.word()
+    emm_model = faker.word()
+    emm_depth_rating = faker.random_int(10, 10000)
+    emm_description = faker.text()
+
+    @staticmethod
+    def get_valid_data():
+
+        eqt = EqtFactory()
+
+        valid_data = {
+            'eqt': eqt.pk,
+            'emm_make': faker.word(),
+            'emm_model': faker.word(),
+            'emm_depth_rating': faker.random_int(10, 10000),
+            'emm_description': faker.text()
+        }
+
+        return valid_data
+
+
+class EqoFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EqoOwner
+
+
 class EqpFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqpEquipment
 
+    emm = factory.SubFactory(EmmFactory)
+    eqp_serial = faker.random_int(1, 1000000000)
+    eqp_asset_id = "DFO-{}".format(faker.random_int(9000000, 9999999))
+    eqp_date_purchase = faker.date()
+    eqp_notes = faker.text()
+    eqp_retired = faker.boolean()
+    eqo_owned_by = factory.SubFactory(EqoFactory)
+
     @staticmethod
     def get_valid_data():
-        return {}
+
+        emm = EmmFactory()
+        eqo = EqoFactory()
+
+        valid_data = {
+            "emm": emm.pk,
+            'eqp_serial': faker.random_int(1, 1000000000),
+            'eqp_asset_id': "DFO-{}".format(faker.random_int(9000000, 9999999)),
+            'eqp_date_purchase': faker.date(),
+            'eqp_notes': faker.text(),
+            'eqp_retired': faker.boolean(),
+            'eqo_owned_by': eqo.pk
+        }
+
+        return valid_data
 
 
 class MorFactory(factory.django.DjangoModelFactory):
@@ -81,9 +139,10 @@ class StnFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
+
         valid_data = {
             "stn_name": faker.name(),
-            "stn_code": factory.Iterator(_stn_codes_),
+            "stn_code": _stn_codes_[faker.random_int(0, len(_stn_codes_)-1)],
             "stn_revision": 1,
             "stn_planned_lat": faker.pydecimal(left_digits=2, right_digits=5),
             "stn_planned_lon": faker.pydecimal(left_digits=2, right_digits=5),
@@ -97,22 +156,27 @@ class StnFactory(factory.django.DjangoModelFactory):
 class DepFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.DepDeployment
+        django_get_or_create = ("stn", "prj", "mor", "dep_name",)
 
-    stn = StnFactory.create()
-    prj = PrjFactory.create()
-    mor = MorFactory.create()
+    stn = factory.SubFactory(StnFactory)
+    prj = factory.SubFactory(PrjFactory)
+    mor = factory.SubFactory(MorFactory)
     dep_year = faker.random_int(1980, 2060)
     dep_month = faker.random_int(1, 12)
-    dep_name = "{}-{}-{}".format(stn.stn_code, dep_year, dep_month)
+    dep_name = "{}-{}-{}".format(
+        factory.LazyAttribute(lambda o: o.stn_code),
+        factory.LazyAttribute(lambda o: o.dep_year),
+        factory.LazyAttribute(lambda o: o.dep_month)
+    )
 
     @staticmethod
     def get_valid_data():
-        stn = StnFactory.create()
-        prj = PrjFactory.create()
-        mor = MorFactory.create()
+
+        stn = StnFactory()
+        prj = PrjFactory()
+        mor = MorFactory()
         year = faker.random_int(1980, 2060)
         month = faker.random_int(1, 12)
-
         valid_data = {
             'stn': stn.pk,
             'dep_year': year,
@@ -151,21 +215,21 @@ class SteFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SteStationEvent
 
-    dep = DepFactory.create()
-    set_type = SetFactory.create()
-    crs = CruiseFactory.create()
+    dep = factory.SubFactory(DepFactory)
+    set_type = SetFactory()
+    crs = factory.SubFactory(CruiseFactory)
     ste_date = faker.date()
 
     @staticmethod
     def get_valid_data():
         dep = DepFactory()
-        set_type = SetFactory.create()
-        crs = CruiseFactory.create()
+        set_type = SetFactory()
+        crs = CruiseFactory()
 
         valid_data = {
-            "dep": dep,
-            "set_type": set_type,
-            "crs": crs,
+            "dep": dep.pk,
+            "set_type": set_type.pk,
+            "crs": crs.pk,
             "ste_date": faker.date()
         }
 

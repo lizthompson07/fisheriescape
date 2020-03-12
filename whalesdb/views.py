@@ -2,7 +2,7 @@ from django.views.generic import TemplateView, CreateView, DetailView, UpdateVie
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.conf import settings
 
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
@@ -105,11 +105,25 @@ class CreateDep(CreateCommon):
         return context
 
 
+class CreateEmm(CreateCommon):
+    key = 'emm'
+    model = models.EmmMakeModel
+    form_class = forms.EmmForm
+    title = _("Create Make/Model")
+
+
 class CreateEqp(CreateCommon):
     key = 'eqp'
     model = models.EqpEquipment
     form_class = forms.EqpForm
     title = _("Create Equipment")
+
+
+class CreateEqo(CreateCommon):
+    key = 'eqo'
+    model = models.EqoOwner
+    form_class = forms.EqoForm
+    title = _("Create Equipment Owner")
 
 
 class CreateMor(CreateCommon):
@@ -198,6 +212,18 @@ class UpdateDep(UpdateCommon):
         return context
 
 
+class UpdateEmm(UpdateCommon):
+    model = models.EmmMakeModel
+    form_class = forms.EmmForm
+    title = _("Update Make/Model")
+
+
+class UpdateEqp(UpdateCommon):
+    model = models.EqpEquipment
+    form_class = forms.EqpForm
+    title = _("Update Equipment")
+
+
 class UpdateMor(UpdateCommon):
     model = models.MorMooringSetup
     form_class = forms.MorForm
@@ -241,6 +267,9 @@ class DetailsCommon(DetailView):
 
         context['list_url'] = self.list_url if self.list_url else "whalesdb:list_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
+        context['auth'] = self.request.user.is_authenticated and \
+                          self.request.user.groups.filter(name='whalesdb_admin').exists()
+
 
         return context
 
@@ -258,6 +287,20 @@ class DetailsDep(DetailsCommon):
         context['google_api_key'] = settings.GOOGLE_API_KEY
 
         return context
+
+
+class DetailsEmm(DetailsCommon):
+    key = "emm"
+    model = models.EmmMakeModel
+    title = _("Make/Model Details")
+    fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating', 'emm_description']
+
+
+class DetailsEqp(DetailsCommon):
+    key = "eqp"
+    model = models.EqpEquipment
+    title = _("Equipment Details")
+    fields = ['emm', 'eqp_serial', 'eqp_asset_id', 'eqp_date_purchase', 'eqp_notes', 'eqp_retired', 'eqo_owned_by']
 
 
 class DetailsMor(DetailsCommon):
@@ -351,11 +394,19 @@ class ListDep(ListCommon):
     creation_form_height = 600
 
 
+class ListEmm(ListCommon):
+    key = 'emm'
+    model = models.EmmMakeModel
+    filterset_class = filters.EmmFilter
+    fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating']
+    title = _("Equipment List")
+
+
 class ListEqp(ListCommon):
     key = 'eqp'
     model = models.EqpEquipment
     filterset_class = filters.EqpFilter
-    fields = []
+    fields = ['emm', 'eqp_serial', 'eqp_date_purchase', 'eqo_owned_by', 'eqp_retired', "eqp_deployed"]
     title = _("Equipment List")
 
 

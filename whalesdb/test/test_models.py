@@ -33,7 +33,10 @@ class TestMorMooringSetup(TestCase):
 
         # Check that the file was saved
         expected_path = os.path.join(settings.MEDIA_DIR, "whalesdb", "mooring_setup", img_file_name)
+        self.assertTrue(os.path.exists(expected_path))
         self.assertTrue(os.path.isfile(expected_path))
 
         # Delete the image
         mor_1.delete()
+
+        self.assertFalse(os.path.exists(expected_path))

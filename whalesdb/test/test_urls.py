@@ -59,6 +59,50 @@ class URLTest(TestCase):
     def test_url_details_dep_view(self):
         self.basic_en_url_test('whalesdb:details_dep', 'whalesdb/details/dep/1/', views.DetailsDep, [1])
 
+    @tag('emm', 'url', 'create')
+    def test_url_create_emm_view(self):
+        self.basic_en_url_test('whalesdb:create_emm', 'whalesdb/create/emm/', views.CreateEmm)
+
+    @tag('emm', 'url', 'create', 'pop')
+    def test_url_create_pop_emm_view(self):
+        self.basic_en_url_test('whalesdb:create_emm', 'whalesdb/create/emm/pop/', views.CreateEmm, ['pop'])
+
+    @tag('emm', 'url', 'update', 'pop')
+    def test_url_update_emm_view(self):
+        self.basic_en_url_test('whalesdb:update_emm', 'whalesdb/update/emm/1/pop/', views.UpdateEmm, [1, 'pop'])
+
+    @tag('emm', 'url', 'list')
+    def test_url_list_emm_view(self):
+        self.basic_en_url_test('whalesdb:list_emm', 'whalesdb/list/emm/', views.ListEmm)
+
+    @tag('emm', 'url', 'details')
+    def test_url_details_emm_view(self):
+        self.basic_en_url_test('whalesdb:details_emm', 'whalesdb/details/emm/1/', views.DetailsEmm, [1])
+
+    @tag('eqp', 'url', 'create')
+    def test_url_create_eqp_view(self):
+        self.basic_en_url_test('whalesdb:create_eqp', 'whalesdb/create/eqp/', views.CreateEqp)
+
+    @tag('eqp', 'url', 'update')
+    def test_url_update_eqp_view(self):
+        self.basic_en_url_test('whalesdb:update_eqp', 'whalesdb/update/eqp/1/', views.UpdateEqp, [1])
+
+    @tag('eqp', 'url', 'update', 'pop')
+    def test_url_update_eqp_view(self):
+        self.basic_en_url_test('whalesdb:update_eqp', 'whalesdb/update/eqp/1/pop/', views.UpdateEqp, [1, 'pop'])
+
+    @tag('eqp', 'url', 'list')
+    def test_url_list_eqp_view(self):
+        self.basic_en_url_test('whalesdb:list_eqp', 'whalesdb/list/eqp/', views.ListEqp)
+
+    @tag('eqp', 'url', 'details')
+    def test_url_details_eqp_view(self):
+        self.basic_en_url_test('whalesdb:details_eqp', 'whalesdb/details/eqp/1/', views.DetailsEqp, [1])
+
+    @tag('eqo', 'url', 'create')
+    def test_url_create_eqo_view(self):
+        self.basic_en_url_test('whalesdb:create_eqo', 'whalesdb/create/eqo/pop/', views.CreateEqo, ['pop'])
+
     @tag('mor', 'url', 'create')
     def test_url_create_mor_view(self):
         self.basic_en_url_test('whalesdb:create_mor', 'whalesdb/create/mor/', views.CreateMor)
@@ -136,11 +180,3 @@ class URLTest(TestCase):
         # The Station Event object requires a Deployment and a station event type
         self.basic_en_url_test('whalesdb:create_ste', 'whalesdb/create/ste/1/2/pop/', views.CreateSte, [1, 2, 'pop'])
 
-    @tag('eqp', 'url', 'create')
-    def test_url_create_eqp_view(self):
-        # The Station Event object requires a Deployment and a station event type
-        self.basic_en_url_test('whalesdb:create_eqp', 'whalesdb/create/eqp/', views.CreateEqp)
-
-    @tag('eqp', 'url', 'list')
-    def test_url_list_eqp_view(self):
-        self.basic_en_url_test('whalesdb:list_eqp', 'whalesdb/list/eqp/', views.ListEqp)

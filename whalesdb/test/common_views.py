@@ -218,3 +218,4 @@ class CommonDetailsTest(CommonTest):
 
         self.assertIn("list_url", response.context)
         self.assertIn("update_url", response.context)
+        self.assertIn("auth", response.context)
