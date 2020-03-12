@@ -7381,6 +7381,17 @@ msgid ""
 "expenses for this request should be entered in Canadian dollars.</span>\n"
 "                    "
 msgstr ""
+"\n"
+"Les taux journaliers pour le petit déjeuner, le déjeuner, le souper et les faux frais devraient suivre la\n"
+"<a href=\"https://www.njc-cnm.gc.ca/\" target=\"_blank\">Directive sur les voyages du Conseil national mixte</a>.\n"
+"Pour les voyages au Canada et\n aux États-Unis, veuillez vous référer à\n"
+"<a href=\"https://www.njc-cnm.gc.ca/directive/d10/v238/s659/fr\" target=\"_blank\">l'annexe C</a>\n"
+"et pour tous les autres voyages, veuillez vous référer à\n"
+"<a href=\"https://www.njc-cnm.gc.ca/directive/app_d.php?lang=fr\" target=\"_blank\">l'annexe D</a>.\n"
+"<span class=\"red-font\">Veuillez noter que toutes les dépenses pour cette demande doivent être saisies en dollars canadiens.</span>\n"
+"                                    "
+
+
 
 #: .\travel\templates\travel\_costs.html:51
 msgid "There are no costs associated with this request"
@@ -7823,6 +7834,17 @@ msgid ""
 "span>\n"
 "                                    "
 msgstr ""
+"\n"
+"Les taux journaliers pour le petit déjeuner, le déjeuner, le souper et les faux frais devraient suivre la\n"
+"<a href=\"https://www.njc-cnm.gc.ca/\" target=\"_blank\">Directive sur les voyages du Conseil national mixte</a>.\n"
+"Pour les voyages au Canada et\n aux États-Unis, veuillez vous référer à\n"
+"<a href=\"https://www.njc-cnm.gc.ca/directive/d10/v238/s659/fr\" target=\"_blank\">l'annexe C</a>\n"
+"et pour tous les autres voyages, veuillez vous référer à\n"
+"<a href=\"https://www.njc-cnm.gc.ca/directive/app_d.php?lang=fr\" target=\"_blank\">l'annexe D</a>.\n"
+"<span class=\"red-font\">Veuillez noter que toutes les dépenses pour cette demande doivent être saisies en dollars canadiens.</span>\n"
+"                                    "
+
+
 
 #: .\travel\templates\travel\travel_base.html:10
 msgid "Travel Plans"
