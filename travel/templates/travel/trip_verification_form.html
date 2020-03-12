@@ -152,7 +152,7 @@
         <div class="mb-5">
             <div class="mb-3">
                 <div class="float-right">
-                    <a href="#" pop-href="{% url 'travel:trip_edit' object.id %}" class="btn btn-warning">
+                    <a href="#" pop-href="{% url 'travel:trip_edit' object.id 1 %}" class="btn btn-warning">
                         Edit Trip Details
                     </a>
                 </div>
@@ -177,7 +177,7 @@
                     <ul>
                         {% for triprequest in object.trip_requests.all %}
                             <li>
-                                <a href="{% url 'travel:request_detail' triprequest.id %}">{{ triprequest }}</a> by {{ triprequest.user }}
+                                <a href="{% url 'travel:request_detail' triprequest.id %}" target="_blank">{{ triprequest }}</a> by {{ triprequest.user }}
                                 (STATUS: <span style="background-color: {{ triprequest.status.color }}">{{ triprequest.status }}</span>)
 
                             </li>
