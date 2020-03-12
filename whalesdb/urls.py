@@ -13,8 +13,19 @@ urlpatterns = [
     path('details/dep/<int:pk>/', views.DetailsDep.as_view(), name="details_dep"),
     path('list/dep/', views.ListDep.as_view(), name="list_dep"),
 
+    path('create/emm/', views.CreateEmm.as_view(), name="create_emm"),
+    path('create/emm/<str:pop>/', views.CreateEmm.as_view(), name="create_emm"),
+    path('update/emm/<int:pk>/<str:pop>/', views.UpdateEmm.as_view(), name="update_emm"),
+    path('details/emm/<int:pk>/', views.DetailsEmm.as_view(), name="details_emm"),
+    path('list/emm/', views.ListEmm.as_view(), name="list_emm"),
+
     path('create/eqp/', views.CreateEqp.as_view(), name="create_eqp"),
+    path('update/eqp/<int:pk>/', views.UpdateEqp.as_view(), name="update_eqp"),
+    path('update/eqp/<int:pk>/<str:pop>/', views.UpdateEqp.as_view(), name="update_eqp"),
+    path('details/eqp/<int:pk>/', views.DetailsEqp.as_view(), name="details_eqp"),
     path('list/eqp/', views.ListEqp.as_view(), name="list_eqp"),
+
+    path('create/eqo/<str:pop>/', views.CreateEqo.as_view(), name="create_eqo"),
 
     path('create/mor/', views.CreateMor.as_view(), name="create_mor"),
     path('create/mor/<str:pop>/', views.CreateMor.as_view(), name="create_mor"),

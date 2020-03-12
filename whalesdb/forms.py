@@ -1,5 +1,6 @@
 from django import forms
 from whalesdb import models
+from dm_apps import custom_widgets
 import datetime
 
 
@@ -19,15 +20,37 @@ class DepForm(forms.ModelForm):
         self.fields['mor'].create_url = 'whalesdb:create_mor'
 
 
-class EqpForm(forms.ModelForm):
-    min_height = 900
+class EmmForm(forms.ModelForm):
+    min_height = 700
     min_width = 600
 
+    class Meta:
+        model = models.EmmMakeModel
+        exclude = []
+        widgets = {
+        }
+
+
+class EqpForm(forms.ModelForm):
     class Meta:
         model = models.EqpEquipment
         exclude = []
         widgets = {
             'eqp_date_purchase': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['emm'].create_url = 'whalesdb:create_emm'
+        self.fields['eqo_owned_by'].create_url = 'whalesdb:create_eqo'
+
+
+class EqoForm(forms.ModelForm):
+    class Meta:
+        model = models.EqoOwner
+        exclude = []
+        widgets = {
         }
 
 

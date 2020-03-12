@@ -74,7 +74,7 @@ class TestCreateEqp(CommonCreateTest):
     def setUp(self):
         super().setUp()
 
-        self.data = Factory.EqpFactory
+        self.data = Factory.EqpFactory.get_valid_data()
 
         self.test_url = reverse_lazy('whalesdb:create_eqp')
 
@@ -124,7 +124,6 @@ class TestCreateEqp(CommonCreateTest):
 
 
 class TestCreateMor(CommonCreateTest):
-
     img_file_name = None
     img_file_path = None
 
