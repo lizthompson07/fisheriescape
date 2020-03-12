@@ -71,13 +71,12 @@
             <table class="table" style="width: auto">
                 <thead>
                 <tr>
+                    <th></th>
+                    <th></th>
                     {% for field in field_list %}
-                        {% if field == "trip_request" %}
-                            <th></th>
-                        {% else %}
-                            <th scope="col">{% get_verbose_label my_object field %}</th>
-                        {% endif %}
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
                     {% endfor %}
+                    <th style="align-content: center" colspan="2">{% trans "Status" %}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -85,19 +84,42 @@
                     {% bootstrap_form_errors form %}
                     <tr>
                         {% for field in form %}
-                            <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
-                                {% bootstrap_field field size='small' show_label=False placeholder="" %}
-                            </td>
+                            {% if field.is_hidden %}
+                                <td>
+                                    {{ field }}
+                                </td>
+                            {% endif %}
                         {% endfor %}
+                        {% for field in form %}
+                            {% if not field.is_hidden %}
+                                {% if form.instance.id and not form.instance.status.id == 4 and not form.instance.status.id == 20 %}
+                                    <td>
+                                        {{ form.instance|getattribute:field.name }}
+                                        <span class="gone">{{ field }}</span>
+                                    </td>
+                                {% else %}
+
+                                    <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
+                                        {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                                    </td>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        <td>
+                            {{ form.instance.status|nz:"---" }}
+                        </td>
                         {% if form.instance.id %}
+                            {% if not form.instance.status.id == 4 and not form.instance.status.id == 20 %}
+                                {# NO delete button #}
+                            {% else %}
+                                <td>
 
-                            <td>
-
-                                {% url 'travel:delete_reviewer' form.instance.id as my_delete_url %}
-                                <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
-                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
-                                </a>
-                            </td>
+                                    {% url 'travel:delete_reviewer' form.instance.id as my_delete_url %}
+                                    <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
+                                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                                    </a>
+                                </td>
+                            {% endif %}
                         {% else %}
                             <td>(new record)</td>
                         {% endif %}
