@@ -144,6 +144,7 @@ class EqpEquipment(models.Model):
     eqp_date_purchase = models.DateField(blank=True, null=True, verbose_name=_("Date Purchased"))
     eqp_notes = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Notes"))
     eqp_retired = models.BooleanField(default=False, verbose_name=_("Retired?"))
+    eqp_deployed = models.BooleanField(default=False, verbose_name=_("Deployed?"))
     eqo_owned_by = models.ForeignKey("EqoOwner", on_delete=models.DO_NOTHING, verbose_name=_("Owner"))
 
     def __str__(self):

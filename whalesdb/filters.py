@@ -12,11 +12,18 @@ class DepFilter(django_filters.FilterSet):
         fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
 
+class EmmFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EmmMakeModel
+        fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating']
+
+
 class EqpFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.EqpEquipment
-        fields = []
+        fields = ['emm', 'eqp_serial', 'eqp_date_purchase', 'eqo_owned_by', 'eqp_retired', 'eqp_deployed']
 
 
 class MorFilter(django_filters.FilterSet):

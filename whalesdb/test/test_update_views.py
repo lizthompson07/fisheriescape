@@ -2,29 +2,19 @@ from django.test import tag
 from django.urls import reverse_lazy
 
 from whalesdb.test.common_views import CommonUpdateTest
-from whalesdb.test import test_forms
+from whalesdb.test import WhalesdbFactory as Factory
 
-from whalesdb import views, models, forms
+from whalesdb import views, forms
 
 
 class TestUpdateDep(CommonUpdateTest):
 
-    fixtures = [test_forms.mor_data, test_forms.prj_data, test_forms.stn_data]
-
     def setUp(self):
         super().setUp()
 
-        self.data = test_forms.TestDepForm.get_valid_data()
+        self.data = Factory.DepFactory.get_valid_data()
 
-        obj = models.DepDeployment(
-            dep_year=self.data['dep_year'],
-            dep_month=self.data['dep_month'],
-            dep_name=self.data['dep_name'],
-            stn=models.StnStation.objects.get(pk=self.data['stn']),
-            prj=models.PrjProject.objects.get(pk=self.data['prj']),
-            mor=models.MorMooringSetup.objects.get(pk=self.data['mor']),
-        )
-        obj.save()
+        obj = Factory.DepFactory()
 
         self.test_url = reverse_lazy('whalesdb:update_dep', args=(obj.pk,))
 
@@ -76,27 +66,13 @@ class TestUpdateDep(CommonUpdateTest):
 
 
 class TestUpdateMor(CommonUpdateTest):
-    data = {
-        "mor_name": "MOR_001",
-        "mor_max_depth": "10",
-        "mor_link_setup_image": "https://somelink.com/images/img001.png",
-        "mor_additional_equipment": "None",
-        "mor_general_moor_description": "This is a mooring description",
-        "mor_notes": "Notes",
-    }
 
     def setUp(self):
         super().setUp()
 
-        obj = models.MorMooringSetup(
-            mor_name=self.data['mor_name'],
-            mor_max_depth=self.data['mor_max_depth'],
-            mor_link_setup_image=self.data['mor_link_setup_image'],
-            mor_additional_equipment=self.data['mor_additional_equipment'],
-            mor_general_moor_description=self.data['mor_general_moor_description'],
-            mor_notes=self.data['mor_notes'],
-        )
-        obj.save()
+        self.data = Factory.MorFactory.get_valid_data()
+
+        obj = Factory.MorFactory()
 
         self.test_url = reverse_lazy('whalesdb:update_mor', args=(obj.pk,))
 
@@ -145,21 +121,13 @@ class TestUpdateMor(CommonUpdateTest):
 
 
 class TestUpdatePrj(CommonUpdateTest):
-    data = {
-        "prj_name": 'PRJ_001',
-        "prj_description": "Some project description here",
-        "prj_url": "https//noneOfYourBusiness.com"
-    }
 
     def setUp(self):
         super().setUp()
 
-        obj = models.PrjProject(
-            prj_name=self.data['prj_name'],
-            prj_description=self.data['prj_description'],
-            prj_url=self.data['prj_url'],
-        )
-        obj.save()
+        self.data = Factory.PrjFactory.get_valid_data()
+
+        obj = Factory.PrjFactory()
 
         self.test_url = reverse_lazy('whalesdb:update_prj', args=(obj.pk,))
 
@@ -208,29 +176,13 @@ class TestUpdatePrj(CommonUpdateTest):
 
 
 class TestUpdateStn(CommonUpdateTest):
-    data = {
-        "stn_name": "STN_001",
-        "stn_code": "STN",
-        "stn_revision": "1",
-        "stn_planned_lat": "25",
-        "stn_planned_lon": "50",
-        "stn_planned_depth": "10",
-        "stn_notes": "Some Notes"
-    }
 
     def setUp(self):
         super().setUp()
 
-        obj = models.StnStation(
-            stn_name=self.data['stn_name'],
-            stn_code=self.data['stn_code'],
-            stn_revision=self.data['stn_revision'],
-            stn_planned_lat=self.data['stn_planned_lat'],
-            stn_planned_lon=self.data['stn_planned_lon'],
-            stn_planned_depth=self.data['stn_planned_depth'],
-            stn_notes=self.data['stn_notes']
-        )
-        obj.save()
+        self.data = Factory.StnFactory.get_valid_data()
+
+        obj = Factory.StnFactory()
 
         self.test_url = reverse_lazy('whalesdb:update_stn', args=(obj.pk,))
 

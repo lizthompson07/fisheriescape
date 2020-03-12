@@ -3,13 +3,95 @@ from django.urls import reverse_lazy
 from django.test import tag
 
 from whalesdb.test.common_views import CommonDetailsTest
-from whalesdb.test import test_forms
+from whalesdb.test import WhalesdbFactory as Factory
 from whalesdb import models
 
 
-class TestDetailsDeployment(CommonDetailsTest):
+class TestDetailsEmm(CommonDetailsTest):
 
-    fixtures = [test_forms.dep_data]
+    def createDict(self):
+        if self._details_dict:
+            return self._details_dict
+
+        self._details_dict = {}
+
+        obj = Factory.EmmFactory()
+
+        self._details_dict['emm_1'] = obj
+
+        return self._details_dict
+
+    def setUp(self):
+        super().setUp()
+
+        emm_dic = self.createDict()
+
+        self.test_url = reverse_lazy('whalesdb:details_emm', args=(emm_dic['emm_1'].pk,))
+        self.test_expected_template = 'whalesdb/whales_details.html'
+        self.fields = []
+
+    @tag('emm', 'details_emm', 'response', 'access')
+    def test_details_emm_en(self):
+        super().assert_view()
+
+    # Station Details are visible to all
+    @tag('emm', 'details_emm', 'response', 'access')
+    def test_details_emm_fr(self):
+        super().assert_view(lang='fr')
+
+    # Test that the context contains the proper fields
+    @tag('emm', 'details_emm', 'context')
+    def test_context_fields_emm(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        super().assert_context_fields(response)
+
+
+class TestDetailsEqp(CommonDetailsTest):
+
+    def createDict(self):
+        if self._details_dict:
+            return self._details_dict
+
+        self._details_dict = {}
+
+        obj = Factory.EqpFactory()
+
+        self._details_dict['eqp_1'] = obj
+
+        return self._details_dict
+
+    def setUp(self):
+        super().setUp()
+
+        eqp_dic = self.createDict()
+
+        self.test_url = reverse_lazy('whalesdb:details_eqp', args=(eqp_dic['eqp_1'].pk,))
+        self.test_expected_template = 'whalesdb/whales_details.html'
+        self.fields = []
+
+    @tag('eqp', 'details_eqp', 'response', 'access')
+    def test_details_eqp_en(self):
+        super().assert_view()
+
+    # Station Details are visible to all
+    @tag('eqp', 'details_eqp', 'response', 'access')
+    def test_details_eqp_fr(self):
+        super().assert_view(lang='fr')
+
+    # Test that the context contains the proper fields
+    @tag('eqp', 'details_eqp', 'context')
+    def test_context_fields_eqp(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        super().assert_context_fields(response)
+
+
+class TestDetailsDeployment(CommonDetailsTest):
 
     def createDict(self):
         if self._details_dict:
@@ -18,7 +100,7 @@ class TestDetailsDeployment(CommonDetailsTest):
         self._details_dict = {}
 
         # There should be one dep object loaded from the fixtures
-        dep_1 = models.DepDeployment.objects.get(pk=1)
+        dep_1 = Factory.DepFactory()
 
         self._details_dict['dep_1'] = dep_1
 
@@ -62,8 +144,6 @@ class TestDetailsDeployment(CommonDetailsTest):
 
 class TestDetailsMooring(CommonDetailsTest):
 
-    fixtures = [test_forms.mor_data]
-
     def createDict(self):
         if self._details_dict:
             return self._details_dict
@@ -71,7 +151,7 @@ class TestDetailsMooring(CommonDetailsTest):
         self._details_dict = {}
 
         # There should be one mooring setup loaded from the fixtures
-        mor_1 = models.MorMooringSetup.objects.get(pk=1)
+        mor_1 = Factory.MorFactory()
 
         self._details_dict['mor_1'] = mor_1
 
@@ -114,15 +194,13 @@ class TestDetailsMooring(CommonDetailsTest):
 
 class TestDetailsProject(CommonDetailsTest):
 
-    fixtures = [test_forms.prj_data]
-
     def createDict(self):
         if self._details_dict:
             return self._details_dict
 
         self._details_dict = {}
 
-        prj_1 = models.PrjProject.objects.get(pk=1)
+        prj_1 = Factory.PrjFactory()
 
         self._details_dict['prj_1'] = prj_1
 
@@ -163,8 +241,6 @@ class TestDetailsProject(CommonDetailsTest):
 
 class TestDetailsStation(CommonDetailsTest):
 
-    fixtures = [test_forms.stn_data]
-
     def createDict(self):
         if self._details_dict:
             return self._details_dict
@@ -172,7 +248,7 @@ class TestDetailsStation(CommonDetailsTest):
         self._details_dict = {}
 
         # Should be one station loaded from the fixtures
-        stn_1 = models.StnStation.objects.get(pk=1)
+        stn_1 = Factory.StnFactory()
 
         self._details_dict['stn_1'] = stn_1
 
