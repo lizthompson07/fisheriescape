@@ -6,9 +6,8 @@ from django.urls import reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
-from . import forms
-from . import models
-from . import filters
+from . import forms, models, filters, utils
+
 import json
 
 
@@ -44,6 +43,7 @@ class IndexView(TemplateView):
                 ]
             },
         ]
+        context['auth'] = utils.whales_authorized(self.request.user)
 
         return context
 
@@ -267,8 +267,7 @@ class DetailsCommon(DetailView):
 
         context['list_url'] = self.list_url if self.list_url else "whalesdb:list_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
-        context['auth'] = self.request.user.is_authenticated and \
-                          self.request.user.groups.filter(name='whalesdb_admin').exists()
+        context['auth'] = utils.whales_authorized(self.request.user)
 
 
         return context
@@ -376,8 +375,7 @@ class ListCommon(FilterView):
         context['details_url'] = self.details_url if self.details_url else "whalesdb:details_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
 
-        context['auth'] = self.request.user.is_authenticated and \
-                          self.request.user.groups.filter(name='whalesdb_admin').exists()
+        context['auth'] = utils.whales_authorized(self.request.user)
 
         if self.creation_form_height:
             context['height'] = self.creation_form_height

@@ -37,6 +37,9 @@ class TestIndexView(CommonTest):
         # expect to see section in the context
         self.assertIn("section", response.context)
 
+        # expected to determine if the user is authorized to add content
+        self.assertIn("auth", response.context)
+
         # expect to see an 'entry form' section as the first element of section
         entry_forms = response.context['section'][0]
 
