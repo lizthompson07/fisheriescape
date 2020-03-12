@@ -1,0 +1,15 @@
+[
+  {
+    "model": "whalesdb.stnstation",
+    "pk": 1,
+    "fields": {
+		"stn_name": "stn 001",
+		"stn_code": "STN",
+		"stn_revision": "1",
+		"stn_planned_lat": "63",
+		"stn_planned_lon": "36",
+		"stn_planned_depth": "1000",
+		"stn_notes": "Notes Notes Notes"
+    }
+  }
+]
