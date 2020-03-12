@@ -79,6 +79,14 @@ class URLTest(TestCase):
     def test_url_details_emm_view(self):
         self.basic_en_url_test('whalesdb:details_emm', 'whalesdb/details/emm/1/', views.DetailsEmm, [1])
 
+    @tag('eqh', 'url', 'create')
+    def test_url_create_pop_eqh_view(self):
+        self.basic_en_url_test('whalesdb:create_eqh', 'whalesdb/create/eqh/1/pop/', views.CreateEqh, [1, 'pop'])
+
+    @tag('eqh', 'url', 'update', 'pop')
+    def test_url_update_eqh_view(self):
+        self.basic_en_url_test('whalesdb:update_eqh', 'whalesdb/update/eqh/1/pop/', views.UpdateEqh, [1, 'pop'])
+
     @tag('eqp', 'url', 'create')
     def test_url_create_eqp_view(self):
         self.basic_en_url_test('whalesdb:create_eqp', 'whalesdb/create/eqp/', views.CreateEqp)

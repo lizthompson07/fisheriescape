@@ -120,7 +120,7 @@ class EqaAdcBitsCode(models.Model):
 
 class EqhHydrophoneProperty(models.Model):
     emm = models.OneToOneField(EmmMakeModel, on_delete=models.DO_NOTHING, primary_key=True,
-                               verbose_name=_("Hydrophone"))
+                               verbose_name=_("Hydrophone"), related_name="hydrophones")
     eqh_range_min = models.BigIntegerField(verbose_name=_("Min Range (dB)"))
     eqh_range_max = models.BigIntegerField(verbose_name=_("Max Range (db)"))
 

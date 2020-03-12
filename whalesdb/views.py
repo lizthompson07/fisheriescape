@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView, CreateView, DetailView, UpdateView
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import HttpResponseRedirect
 from django.conf import settings
 
 from django.urls import reverse_lazy
@@ -111,6 +112,27 @@ class CreateEmm(CreateCommon):
     form_class = forms.EmmForm
     title = _("Create Make/Model")
 
+    def form_valid(self, form):
+        emm = form.save()
+
+        if emm.eqt.pk == 4:
+            return HttpResponseRedirect(reverse_lazy('whalesdb:details_emm', args=(emm.pk,)))
+        else:
+            return HttpResponseRedirect(self.get_success_url())
+
+
+class CreateEqh(CreateCommon):
+    key = 'eqh'
+    model = models.EqhHydrophoneProperty
+    form_class = forms.EqhForm
+    title = _("Hydrophone Properties")
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['emm'] = self.kwargs['pk']
+
+        return initial
+
 
 class CreateEqp(CreateCommon):
     key = 'eqp'
@@ -218,6 +240,12 @@ class UpdateEmm(UpdateCommon):
     title = _("Update Make/Model")
 
 
+class UpdateEqh(UpdateCommon):
+    model = models.EqhHydrophoneProperty
+    form_class = forms.EqhForm
+    title = _("Hydrophone Properties")
+
+
 class UpdateEqp(UpdateCommon):
     model = models.EqpEquipment
     form_class = forms.EqpForm
@@ -291,6 +319,7 @@ class DetailsDep(DetailsCommon):
 class DetailsEmm(DetailsCommon):
     key = "emm"
     model = models.EmmMakeModel
+    template_name = 'whalesdb/emm_details.html'
     title = _("Make/Model Details")
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating', 'emm_description']
 
@@ -397,7 +426,7 @@ class ListEmm(ListCommon):
     model = models.EmmMakeModel
     filterset_class = filters.EmmFilter
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating']
-    title = _("Equipment List")
+    title = _("Make/Model List")
 
 
 class ListEqp(ListCommon):
