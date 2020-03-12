@@ -31,6 +31,15 @@ class EmmForm(forms.ModelForm):
         }
 
 
+class EqhForm(forms.ModelForm):
+    class Meta:
+        model = models.EqhHydrophoneProperty
+        exclude = []
+        widgets = {
+            'emm': forms.HiddenInput()
+        }
+
+
 class EqpForm(forms.ModelForm):
     class Meta:
         model = models.EqpEquipment

@@ -6,12 +6,17 @@ from shared_models import models as shared_models
 
 _stn_codes_ = ['ABC', 'DEF', 'GHI', 'JKL', 'MNO', 'PQR', 'STU', 'VWX', 'YZZ']
 _set_codes_ = ['Deployment', 'Recovery']
+_eqt_codes_ = ['Acoustic recorder', 'Environmental sensor', 'Hydrophone', 'OTN reciever']
+
 faker = Factory.create()
 
 
 class EqtFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqtEquipmentTypeCode
+        django_get_or_create = ('eqt_name',)
+
+    eqt_name = faker.word(_eqt_codes_)
 
 
 class EmmFactory(factory.django.DjangoModelFactory):
@@ -24,10 +29,14 @@ class EmmFactory(factory.django.DjangoModelFactory):
     emm_depth_rating = faker.random_int(10, 10000)
     emm_description = faker.text()
 
+    # if providing an eqt_type use the WhalesdbFactory._eqt_type_codes array
     @staticmethod
-    def get_valid_data():
+    def get_valid_data(eqt_type=None):
 
-        eqt = EqtFactory()
+        if type:
+            eqt = EqtFactory(eqt_name=eqt_type)
+        else:
+            eqt = EqtFactory()
 
         valid_data = {
             'eqt': eqt.pk,
@@ -35,6 +44,29 @@ class EmmFactory(factory.django.DjangoModelFactory):
             'emm_model': faker.word(),
             'emm_depth_rating': faker.random_int(10, 10000),
             'emm_description': faker.text()
+        }
+
+        return valid_data
+
+
+class EqhFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EqhHydrophoneProperty
+
+    emm = factory.SubFactory(EmmFactory)
+    eqh_range_min = faker.random_int(0, 100)
+    eqh_range_max = faker.random_int(100, 1000)
+
+    @staticmethod
+    def get_valid_data():
+        # specifically testing when an equipment is a Hydrophone
+        eqt = EqtFactory(eqt_name=_eqt_codes_[2])
+        emm = EmmFactory(eqt=eqt)
+
+        valid_data = {
+            'emm': emm.pk,
+            'eqh_range_min': faker.random_int(0, 100),
+            'eqh_range_max': faker.random_int(100, 1000)
         }
 
         return valid_data
