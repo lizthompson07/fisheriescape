@@ -110,6 +110,8 @@ class TripRequestForm(forms.ModelForm):
             'region': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}),
             'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field"}),
             'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field"}),
+            'non_dfo_costs': forms.NumberInput(attrs={"class": "not-a-group-field"}),
+            'non_dfo_org': forms.TextInput(attrs={"class": "not-a-group-field"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -119,8 +121,8 @@ class TripRequestForm(forms.ModelForm):
 
         section_choices = [(s.id, s.full_name) for s in
                            shared_models.Section.objects.filter(division__branch_id__in=[1, 3, 9, ]).order_by("division__branch__region",
-                                                                                                           "division__branch",
-                                                                                                           "division", "name")]
+                                                                                                              "division__branch",
+                                                                                                              "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
         trip_choices = [(t.id, str(t)) for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
@@ -228,6 +230,8 @@ class ChildTripRequestForm(forms.ModelForm):
             'start_date',
             'end_date',
             'departure_location',
+            'non_dfo_costs',
+            'non_dfo_org',
             'role',
             'role_of_participant',
             'exclude_from_travel_plan',
@@ -268,7 +272,8 @@ class ChildTripRequestForm(forms.ModelForm):
             'end_date',
             'departure_location',
             'exclude_from_travel_plan',
-
+            'non_dfo_costs',
+            'non_dfo_org',
         ]
         for field in field_list:
             self.fields[field].group = 1
@@ -399,6 +404,31 @@ class ReviewerForm(forms.ModelForm):
             'trip_request': forms.HiddenInput(),
             'user': forms.Select(attrs=chosen_js),
         }
+
+    def clean(self):
+        """
+        The order, user, or role cannot be changed if the reviewer status is approved or queued
+        :return:
+        """
+        my_object = self.instance
+        cleaned_data = super().clean()
+        order = cleaned_data.get("order")
+        user = cleaned_data.get("user")
+        role = cleaned_data.get("role")
+
+        # Check the role
+        if my_object.status and my_object.status.id not in [4, 20]:
+            # need to determine if there have been any changes
+            if my_object.role != role:
+                raise forms.ValidationError(_(f'Sorry, the role of a reviewer whose status is set to {my_object.status} cannot be changed'))
+
+            if my_object.user != user:
+                raise forms.ValidationError(
+                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.status}'))
+
+            if my_object.order != order:
+                raise forms.ValidationError(
+                    _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
 
 
 ReviewerFormSet = modelformset_factory(
