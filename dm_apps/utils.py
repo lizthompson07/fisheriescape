@@ -7,15 +7,49 @@ from sendgrid.helpers.mail import Mail, Email, Personalization
 from django.core.mail import send_mail as django_send_mail
 
 
+def get_azure_connection_dict():
+    key_list = [
+        'AD_app_id',
+        'AD_app_secret',
+        'AD_redirect',
+        'AD_authority',
+        'AD_authorize_endpoint',
+        'AD_token_endpoint',
+    ]
+    my_dict = dict()
+    for key in key_list:
+        casting = str
+        my_dict[key] = config(key, cast=casting, default="")
+    return my_dict
+
+
+def azure_ad_values_exist(connection_dict):
+    key_list = [
+        'AD_app_id',
+        'AD_app_secret',
+        'AD_redirect',
+        'AD_authority',
+        'AD_authorize_endpoint',
+        'AD_token_endpoint',
+    ]
+    # if all values are present, below expression should be evaluated as False
+    there_is_something_missing = False in [connection_dict[key] != "" for key in key_list]
+    return there_is_something_missing is False
+
 
 def db_connection_values_exist(connection_dict):
-    return bool(
-        connection_dict['DB_HOST'] and \
-        connection_dict['DB_PORT'] and \
-        connection_dict['DB_NAME'] and \
-        connection_dict['DB_USER'] and \
-        connection_dict['DB_PASSWORD'] and \
-    )
+    key_list = [
+        # 'DB_MODE',
+        'DB_HOST',
+        'DB_PORT',
+        'DB_NAME',
+        'DB_USER',
+        'DB_PASSWORD',
+    ]
+    # if all values are present, below expression should be evaluated as False
+    there_is_something_missing = False in [connection_dict[key] != "" for key in key_list]
+    return there_is_something_missing is False
+
 
 def get_db_connection_dict():
     key_list = [
@@ -29,7 +63,7 @@ def get_db_connection_dict():
     my_dict = dict()
     for key in key_list:
         casting = int if "port" in key.lower() else str
-        my_dict[key.replace(prefix, "")] = config(key, cast=casting, default="")
+        my_dict[key] = config(key, cast=casting, default="")
     return my_dict
 
 
