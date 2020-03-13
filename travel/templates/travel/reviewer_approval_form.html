@@ -20,7 +20,7 @@
     </style>
 
     {% if view.kwargs.type == "rdg" %}
-        {% url 'travel:admin_approval_list' view.kwargs.type triprequest.section.division.branch.region.id as list_url%}
+        {% url 'travel:admin_approval_list' view.kwargs.type triprequest.section.division.branch.region.id as list_url %}
     {% else %}
         {% url 'travel:admin_approval_list' view.kwargs.type as list_url %}
     {% endif %}
@@ -46,9 +46,10 @@
     </nav>
 
     <div class="container">
-
+    <span id="the-top"></span>
         {% if admin %}
-            <h1>Do you wish to approve on behalf of the {{ triprequest.current_reviewer.user }} ({{ triprequest.current_reviewer.role }})?</h1>
+            <h1>Do you wish to approve on behalf of the {{ triprequest.current_reviewer.user }}
+                ({{ triprequest.current_reviewer.role }})?</h1>
         {% else %}
             <h1>Do you wish to approve the following request?</h1>
         {% endif %}
@@ -99,11 +100,19 @@
         <br><br>
         <hr>
         {% include "travel/_trip_request_detail.html" %}
+        <br><br>
+        <div class="center-col">
+            <h2>
+                <a href="#the-top">({% trans "Back to top" %})</a>
+            </h2>
+        </div>
     </div>
 
 
 
     <br><br><br>
+
+
 {% endblock content %}
 {% block body_js %}
 
