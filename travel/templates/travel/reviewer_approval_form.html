@@ -27,16 +27,21 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                {% trans "Home" %}
+            </a></li>
             {% if admin %}
-                <li class="breadcrumb-item"><a href="{{ list_url }}">Admin Request Approval List ({{ type_bilingual }})</a>
+                <li class="breadcrumb-item"><a href="{{ list_url }}">
+                    {% trans "Admin Request Approval List" %} ({{ type_bilingual }})</a>
                 </li>
 
             {% else %}
-                <li class="breadcrumb-item"><a href="{% url 'travel:request_review_list' 'awaiting' %}">Requests Awaiting Your Review</a>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_review_list' 'awaiting' %}">
+                    {% trans "Requests Awaiting Your Review" %}
+                </a>
                 </li>
             {% endif %}
-            <li class="breadcrumb-item active" aria-current="page">{{ triprequest }} Reviewer Approval</li>
+            <li class="breadcrumb-item active" aria-current="page">{{ triprequest }} {% trans "Reviewer Approval" %}</li>
         </ol>
     </nav>
 

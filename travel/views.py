@@ -266,12 +266,12 @@ request_field_list = [
     'bta_attendees',
     'notes',
     # 'cost_table|{}'.format(_("DFO costs")),
-    f'total_request_cost|{_("Total costs")}',
-    f'total_dfo_funding|{_("Total amount of DFO funding")}',
-    f'total_non_dfo_funding|{_("Total amount of non-DFO funding")}',
-    f'total_non_dfo_funding_sources|{_("Non-DFO funding sources")}',
+    'total_request_cost|{}'.format(_("Total costs")),
+    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
+    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
+    'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
     'original_submission_date',
-    f'processing_time|{_("Processing time")}',
+    'processing_time|{}'.format(_("Processing time")),
 ]
 
 request_group_field_list = [
@@ -291,16 +291,16 @@ request_group_field_list = [
     'bta_attendees',
     'late_justification',
     'notes',
-    f'total_dfo_funding|{_("Total amount of DFO funding")}',
-    f'total_non_dfo_funding|{_("Total amount of non-DFO funding")}',
-    f'total_non_dfo_funding_sources|{_("Non-DFO funding sources")}',
+    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
+    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
+    'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
     'total_request_cost|{}'.format(_("Total cost")),
     'original_submission_date',
-    f'processing_time|{_("Processing time")}',
+    'processing_time|{}'.format(_("Processing time")),
 ]
 
 request_child_field_list = [
-    f'requester_name|{_("Name")}',
+    'requester_name|{}'.format(_("Name")),
     # 'is_public_servant',
     'is_research_scientist|{}'.format(_("RES?")),
     # 'region',
@@ -369,11 +369,11 @@ class TripRequestListView(TravelAccessRequiredMixin, FilterView):
             'fiscal_year',
             'is_group_request',
             'status',
-            f'section|{_("DFO section")}',
-            f'requester_name|{_("Requester name")}',
+            'section|{}'.format(_("DFO section")),
+            'requester_name|{}'.format(_("Requester name")),
             'trip.tname',
-            f'destination|{_("Destination")}',
-            f'start_date|{_("Departure date")}',
+            'destination|{}'.format(_("Destination")),
+            'start_date|{}'.format(_("Departure date")),
             # f'end_date|{_("End")}',
             # 'total_request_cost|{}'.format(_("Total request cost (DFO)")),
             'processing_time|{}'.format(_("Processing time")),
@@ -1106,13 +1106,13 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
         context["my_object"] = models.Conference.objects.first()
         context["field_list"] = [
             'fiscal_year',
-            'tname|{}'.format("Trip title"),
+            'tname|{}'.format(_("Trip title")),
             'location|{}'.format(_("location")),
             'dates|{}'.format(_("dates")),
             'number_of_days|{}'.format(_("length (days)")),
             'is_adm_approval_required|{}'.format(_("ADM approval required?")),
-            f'total_travellers|{_("Total travellers")}',
-            f'connected_requests|{_("Connected requests")}',
+            'total_travellers|{}'.format(_("Total travellers")),
+            'connected_requests|{}'.format(_("Connected requests")),
             'is_verified',
             'verified_by',
         ]
@@ -1311,6 +1311,8 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
         report = int(form.cleaned_data["report"])
         fy = form.cleaned_data["fiscal_year"]
         user = form.cleaned_data["user"]
+        region = nz(form.cleaned_data["region"], "None")
+        adm = nz(form.cleaned_data["adm"], "None")
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
@@ -1322,6 +1324,13 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("travel:travel_plan", kwargs={
                 'fy': fy,
                 'email': email,
+            }))
+
+        elif report == 3:
+            return HttpResponseRedirect(reverse("travel:export_trip_list", kwargs={
+                'fy': fy,
+                'region': region,
+                'adm': adm,
             }))
 
         else:
@@ -1337,6 +1346,17 @@ def export_cfts_list(request, fy):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
                 timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+def export_trip_list(request, fy, region, adm):
+    file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="export of trips {timezone.now().strftime("%Y-%m-%d")}.xlsx"'
             return response
     raise Http404
 

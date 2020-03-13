@@ -2,6 +2,8 @@
 {% load static %}
 {% load verbose_names %}
 {% load custom_filters %}
+{% load custom_tags %}
+{% load i18n %}
 {% block subtitle %}
     - {{ object.t_title }}
 {% endblock %}
@@ -184,7 +186,7 @@
                 {% include "inventory/_resource_detail_basic.html" %}
             </div>
 
-            <div class="col-4">
+            <div class="col-3">
                 {# <a href="{% url 'inventory:resource_full_detail' object.id %}"> #}
                 {# <h2>Review Full Record</h2> #}
                 {# </a> #}
@@ -220,7 +222,39 @@
 
             </div>
 
-            <div class="col-4">
+            <div class="col-5">
+
+
+                <style>
+                    #map {
+                        height: 200px; /* The height is 400 pixels */
+                        width: 100%; /* The width is the width of the web page */
+                    }
+                </style>
+
+                {#  thumbnail #}
+                <div class="row mb-3">
+                    <div class="col">
+                        {% if object.thumbnail %}
+                            {% echo object.thumbnail|safe as img_url %}
+                        {% else %}
+                            {% static 'inventory/no_image.svg' as img_url %}
+                        {% endif %}
+
+                        <a href="{{ img_url }}" data-toggle="tooltip"
+                           title="{% trans "to add/change a thumbnail to this resource, add a new file with the word 'thumbnail' included in the caption" %}">
+                            <img src="{{ img_url }}" alt="{% trans "missing thumbnail" %}" height="200px">
+                        </a>
+
+                    </div>
+                    {% if object.bounds %}
+                        <div class="col">
+                            <div id="map"></div>
+                        </div>
+                    {% endif %}
+                </div>
+
+
                 <h4 class="neighbours">Keywords etc.</h4>
                 <div class="neighbours">
                     <a class="btn btn-sm btn-outline-primary"
@@ -264,6 +298,66 @@
                 $(this).text("(Show all)")
             }
         })
+    </script>
+
+
+    <script>
+        {% if object.bounds %}
+            function initialize() {
+
+                window.map = new google.maps.Map(document.getElementById('map'), {
+                    mapTypeId: google.maps.MapTypeId.SATELLITE,
+                    disableDefaultUI: true
+                });
+                var infowindow = new google.maps.InfoWindow();
+                var bounds = new google.maps.LatLngBounds();
+
+                // extend bounds var
+                {% for point in object.bounds%}
+                    bounds.extend(new google.maps.LatLng({{point|last}}, {{ point|first}}));
+                {% endfor %}
+
+                // Define the LatLng coordinates for the polygon's path.
+                var polygonCoords = [
+                    {% for point in object.bounds %}
+                        {lat: {{point|last}}, lng: {{point|first}}},
+                    {% endfor %}
+                ];
+
+                // Construct the stratum.
+                var color = '#ea4544';
+                var myPolygon = new google.maps.Polygon({
+                    path: polygonCoords,
+                    strokeColor: 'red',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 3,
+                    {#fillColor: color,#}
+                    {#fillOpacity: 0.35#}
+                });
+                myPolygon.setMap(map);
+                {#bounds.extend(myPolygon.getBounds());#}
+
+                map.fitBounds(bounds);
+                // add a click event on the polygon
+
+
+                myPolygon.setMap(map);
+                {#bounds.extend(myPolygon.getBounds());#}
+
+                map.fitBounds(bounds);
+
+                // add a click event on the polygon
+            }
+            function loadScript() {
+                var script = document.createElement('script');
+                script.type = 'text/javascript';
+                script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+                document.body.appendChild(script);
+            }
+
+            window.onload = loadScript();
+        {% endif %}
+
     </script>
 
 

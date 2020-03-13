@@ -1,0 +1,86 @@
+[
+  {
+    "model": "whalesdb.mormooringsetup",
+    "pk": 1,
+    "fields": {
+		"mor_name": "mor 001",
+		"mor_max_depth": "500",
+
+		"mor_link_setup_image": "http://somelink.com/images/",
+		"mor_additional_equipment": "No additional Equipment",
+		"mor_general_moor_description": "Some description",
+		"mor_notes": "Notes Notes Notes"
+    }
+  },
+  {
+    "model": "whalesdb.prjproject",
+    "pk": 1,
+    "fields": {
+      "prj_name": "prj 001",
+      "prj_description": "Description, Description, Description",
+      "prj_url": "http://somelink.com/prj_001/"
+    }
+  },
+  {
+    "model": "whalesdb.stnstation",
+    "pk": 1,
+    "fields": {
+		"stn_name": "stn 001",
+		"stn_code": "STN",
+		"stn_revision": "1",
+		"stn_planned_lat": "63",
+		"stn_planned_lon": "36",
+		"stn_planned_depth": "1000",
+		"stn_notes": "Notes Notes Notes"
+    }
+  },
+  {
+    "model": "whalesdb.depdeployment",
+    "pk": 1,
+    "fields": {
+		"dep_year": "2020",
+		"dep_month": "03",
+		"dep_name": "STN-2020-03",
+		"stn": 1,
+		"prj": 1,
+		"mor": 1
+    }
+	},
+	{
+		"model": "whalesdb.setstationeventcode",
+		"pk": 1,
+		"fields": {
+			"set_name": "Deployment",
+			"set_description": "Equipment is placed in the water. Note: the time associated with an AMAR deployment event should be DROP TIME."
+		}
+	},
+	{
+		"model": "whalesdb.setstationeventcode",
+		"pk": 2,
+		"fields": {
+			"set_name": "Recovery ",
+			"set_description": "Equipment is recovered from the water. Note: the time associated with an AMAR recovery event should be RELEASE TIME."
+		}
+	},
+	{
+		"model": "whalesdb.depdeployment",
+		"pk": 1,
+		"fields": {
+			"dep": 1,
+			"set_type": 1,
+			"ste_date": "2020-03-03",
+			"crs": 1,
+			"ste_lat_ship": 35,
+			"ste_lon_ship": 53,
+			"ste_depth_ship": 100,
+			"ste_lat_mcal": 45,
+			"ste_lon_mcal": 51,
+			"ste_depth_mcal": 500,
+			"ste_team": "Me, Myself and I",
+			"ste_instrument_cond": "Good",
+			"ste_weather_cond": "Sunny",
+			"ste_logs": "Click here for log files",
+			"ste_notes": "Notes, Notes, Notes"
+		}
+	}
+]
