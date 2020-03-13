@@ -1,29 +1,17 @@
 # INSTRUCTIONS:  #
 ##################
 # please refer to the README and the project wiki for the most up-to-update information.
-# Duplicate this file and rename it to my_conf.py
-# The 'my_conf.py' file is in the .gitignore
+# If you want to customize this app, duplicate this file and rename it to my_conf.py and make changes
+# through that file. The 'my_conf.py' file is in the .gitignore
 # As this file in a part of the repository, please do not make any customizations here
 
 import os
 from decouple import config
 from .utils import db_connection_values_exist, get_db_connection_dict
 
-
-
-# Should Microsoft Azure AD be used for authentication? By default, if a file called `azure_oauth_settings.yml' is in the root dir, azure aad will be turned on
-# this is a manual override. Uncomment to turn off AAD regardless of the presence of the above mentioned file.
-# AZURE_AD = False
-
-# Should the ticketing app be displayed on the main index page?
-SHOW_TICKETING_APP = True
-
-# Should DEBUG mode be turned on? Uncomment the line below to turn on debugging
-# DEBUG = True
-
-# To add any custom hosts to this application's list of allowed hosts, provide them here
-ALLOWED_HOSTS_TO_ADD = []
-
+########
+# APPS #
+########
 
 # add new applications to this dictionary; grey out any app you do not want
 # the dict key should be the actual name of the app
@@ -52,6 +40,10 @@ APP_DICT = {
     'vault': "Marine Megafauna Media Vault",
 }
 
+#############
+# DATABASES #
+#############
+
 # By default, the application will use the setting from the environment variables (or .env file).
 # If those variables are not set, the local db will be created. If you would like to use a local db
 # disrespective of the environment variables, set it to True
@@ -64,13 +56,7 @@ USE_LOCAL_DB = False
 
 DEPLOYMENT_STAGE = config('DEPLOYMENT_STAGE').upper()
 
-# This is used in email templates to link the recipient back to the site
-#TODO: Some basic checks for format?
-SITE_FULL_URL = config('SITE_FULL_URL')
-
-
 db_connections = get_db_connection_dict()
-
 
 ### Deploying application in production - don't change, unless you know what you're doing
 if DEPLOYMENT_STAGE == 'PROD': 
@@ -109,25 +95,21 @@ else:
     ## I.e. if db connection is specified in env variables or .env file, then the new sqlite db would not be used
 
     
-
-
 MY_INSTALLED_APPS = [app for app in APP_DICT]
 
 
-
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if USE_LOCAL_DB:
     my_default_db = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-    #TODO: David, since "DEV" is also database in the DEV stage environment, 
-    # should this be "LOCAL" and => another color in the context processor???
-    DB_MODE = "DEV"  ## LOCAL
+    DB_MODE = "LOCAL"
     DB_NAME = "db.sqlite3"
     DB_HOST = "local"
 else:
     if not db_connection_values_exist(db_connections):
-        raise Exception("DB connection values are not specifid. Can not connect to the dabase.")
+        raise Exception("DB connection values are not specified. Can not connect to the database.")
 
     my_default_db = {
         'ENGINE': 'django.db.backends.mysql',
@@ -145,13 +127,17 @@ else:
     DB_NAME = db_connections["DB_NAME"]
     DB_HOST = db_connections["DB_HOST"]
 
-    # Determine which DB we are using from the host name"
-    if "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps":
-        DB_MODE = "DEV"
-    elif  "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps-test":
-        DB_MODE = "TEST"
-    elif  "dmapps-prod-db" in db_connections["DB_HOST"] :
-        DB_MODE = "PROD"
+    # give the user an option to not define the db mode. If not provided, it will be guessed at from the host name
+    if not db_connections["DB_MODE"]:
+        # Determine which DB we are using from the host name"
+        if "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps":
+            DB_MODE = "DEV"
+        elif  "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps-test":
+            DB_MODE = "TEST"
+        elif  "dmapps-prod-db" in db_connections["DB_HOST"] :
+            DB_MODE = "PROD"
+    else:
+        DB_MODE = db_connections["DB_MODE"]
 
 DATABASES = {
     'default': my_default_db,
