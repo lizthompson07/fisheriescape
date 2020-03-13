@@ -7,8 +7,7 @@
 
 import os
 from decouple import config
-from .utils import is_db_connection_available, get_db_connection_dict
-
+from .utils import db_connection_values_exist, get_db_connection_dict
 
 
 
@@ -24,9 +23,6 @@ SHOW_TICKETING_APP = True
 
 # To add any custom hosts to this application's list of allowed hosts, provide them here
 ALLOWED_HOSTS_TO_ADD = []
-
-# Specify the full url of the site. This is used in email templates to link the recipient back to the site; NO TRAILING SLASH!!
-SITE_FULL_URL = "https://dmapps-dev.azurewebsites.net"
 
 
 # add new applications to this dictionary; grey out any app you do not want
@@ -66,33 +62,21 @@ USE_LOCAL_DB = False
 ### Do not change below
 ###
 
-DEPLOYMENT_STAGE = config('DB_MODE').upper()
+DEPLOYMENT_STAGE = config('DEPLOYMENT_STAGE').upper()
 
-"""
-if is_db_connection_available():
-    DB_HOST = str(config('DB_HOST')).upper()
-    DB_PORT = int(config('DB_PORT'))
-    DB_NAME = str(config('DB_NAME')).upper()
-    DB_USER = str(config('DB_USER'))
-    DB_PASSWORD = str(config('DB_PASSWORD'))
-"""
+# This is used in email templates to link the recipient back to the site
+#TODO: Some basic checks for format?
+SITE_FULL_URL = config('SITE_FULL_URL')
+
+
 db_connections = get_db_connection_dict()
 
-def db_connection_values_exist(connection_dict):
-    return bool(
-        connection_dict['DB_HOST'] and \
-        connection_dict['DB_PORT'] and \
-        connection_dict['DB_NAME'] and \
-        connection_dict['DB_USER'] and \
-        connection_dict['DB_PASSWORD'] and \
-    )
 
 ### Deploying application in production - don't change, unless you know what you're doing
 if DEPLOYMENT_STAGE == 'PROD': 
     AZURE_AD = True
     USE_LOCAL_DB = False
     ALLOWED_HOSTS_TO_ADD = []
-    SITE_FULL_URL = "https://dmapps-prod-web.azurewebsites.net"
     APP_DICT = {
         'travel': 'Travel Management System'
     }
@@ -104,7 +88,6 @@ elif DEPLOYMENT_STAGE == 'TEST':
     AZURE_AD = True
     USE_LOCAL_DB = False
     ALLOWED_HOSTS_TO_ADD = []
-    SITE_FULL_URL = "https://dmapps-test-web.azurewebsites.net"
     APP_DICT = {
         'travel': 'Travel Management System'
     }
@@ -115,7 +98,6 @@ elif DEPLOYMENT_STAGE == 'DEV':
     AZURE_AD = True
     USE_LOCAL_DB = False
     ALLOWED_HOSTS_TO_ADD = []
-    SITE_FULL_URL = "https://dmapps-dev.azurewebsites.net"
 
 
 ### Deploying application on your local machine 
@@ -124,12 +106,7 @@ else:
         print("No connection vars specified - creating local db.")
         USE_LOCAL_DB = True
 
-    # David's hack to switch databases:
-    """
-    USE_LOCAL_DB = False
-    db_connections['DB_HOST'] = "blah"
-    ...
-    """
+    ## I.e. if db connection is specified in env variables or .env file, then the new sqlite db would not be used
 
     
 
@@ -143,6 +120,11 @@ if USE_LOCAL_DB:
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+    #TODO: David, since "DEV" is also database in the DEV stage environment, 
+    # should this be "LOCAL" and => another color in the context processor???
+    DB_MODE = "DEV"  ## LOCAL
+    DB_NAME = "db.sqlite3"
+    DB_HOST = "local"
 else:
     if not db_connection_values_exist(db_connections):
         raise Exception("DB connection values are not specifid. Can not connect to the dabase.")
@@ -159,44 +141,18 @@ else:
             'init_command': 'SET default_storage_engine=INNODB',
         }}
 
+    # if we have a connection, get the names of db and host to pass in as context processors
+    DB_NAME = db_connections["DB_NAME"]
+    DB_HOST = db_connections["DB_HOST"]
+
+    # Determine which DB we are using from the host name"
+    if "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps":
+        DB_MODE = "DEV"
+    elif  "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps-test":
+        DB_MODE = "TEST"
+    elif  "dmapps-prod-db" in db_connections["DB_HOST"] :
+        DB_MODE = "PROD"
+
 DATABASES = {
     'default': my_default_db,
 }
-
-
-
-
-
-
-
-###### This part needs to go.... pending discussion with David
-
-# check to see if the databases connection information is available in environmental variables:
-if FORCE_DEV_DB and is_db_connection_available(dev=True):
-    db_dict = get_db_connection_dict(dev=True)
-    DB_MODE = "DEV"
-    if is_db_connection_available() and get_db_connection_dict()["DB_MODE"].upper() == "PROD":
-        print("production db connection string present however running dev mode since FORCE_DEV_MODE setting is set to True")
-    # if we have a connection, get the names of db and host to pass in as context processors
-    DB_NAME = db_dict["DB_NAME"].upper()
-    DB_HOST = db_dict["DB_HOST"].upper()
-
-# if not, check to see if general database information was provided
-elif is_db_connection_available():
-    if FORCE_DEV_DB:
-        print("FORCE_DEV_MODE setting is set to True, however could not find dev DB connection information")
-    db_dict = get_db_connection_dict()
-    DB_MODE = db_dict["DB_MODE"].upper()
-
-    # if we have a connection, get the names of db and host to pass in as context processors
-    DB_NAME = db_dict["DB_NAME"].upper()
-    DB_HOST = db_dict["DB_HOST"].upper()
-
-#  otherwise we are using a local sqlite version
-else:
-    USING_LOCAL_DB = True
-    DB_MODE = "DEV"
-    DB_NAME = "db.sqlite3"
-    DB_HOST = "local"
-
-
