@@ -57,8 +57,13 @@
         <br>
         <form method="post" class="form">
             {% csrf_token %}
-            <div class="float-right">
-                <a class="" href="#" id="save">({% trans "Save comments without approving" %})</a>
+            <div class="float-right mb-3">
+                <a class="btn btn-outline-dark " href="{% url 'travel:request_print' triprequest.id %}" target="_blank">
+                    {% trans "Print Travel Plan" %}&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                </a>
+                <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts_request' triprequest.id %}" target="_blank">
+                    {% trans "CFTS Report" %} &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+                </a>
             </div>
             {% for field in form %}
                 {% bootstrap_field field placeholder="" %}
@@ -66,32 +71,27 @@
 
 
 
-            <div class="float-right">
-                <a class="btn btn-outline-dark " href="{% url 'travel:request_print' triprequest.id %}" target="_blank">
-                    Print Travel Plan&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
-                </a>
-                <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts_request' triprequest.id %}" target="_blank">
-                    CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
-                </a>
-            </div>
-            <div class="">
 
+            <div class="">
+                <a class="btn btn-lg btn-secondary" id="save" href="#">
+                    {% trans "Save comments" %}
+                </a>
                 <a class="btn btn-lg btn-success" id="yes" href="#">
-                    {% trans "Yes" %}
+                    {% trans "I approve" %}
                 </a>
                 <a class="btn btn-lg btn-danger" id="no" href="#">
-                    {% trans "No" %}
+                    {% trans "I do not approve" %}
                 </a>
                 <a class="btn btn-lg" id="request_changes" href="#" style="background-color: orange">
-                    {% trans "Request Changes" %}
+                    {% trans "Request changes" %}
                 </a>
                 <a class="btn btn-lg btn-primary" href="{% url 'travel:request_detail' triprequest.id %}">
-                    {% trans "Make Changes Yourself" %}
+                    {% trans "Make changes yourself" %}
                 </a>
 
-                <a class="btn btn-lg btn-secondary" href="{% url 'travel:request_review_list' %}">
-                    {% trans "Cancel" %}
-                </a>
+{#                <a class="btn btn-lg btn-secondary" href="{% url 'travel:request_review_list' %}">#}
+{#                    {% trans "Cancel" %}#}
+{#                </a>#}
                 <input type="submit" class="hidden">
             </div>
 
