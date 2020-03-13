@@ -95,10 +95,10 @@ def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
         # check to see if they are either the owner OR a traveller
         # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
         if not my_trip_request.submitted and \
-                (not my_trip_request.user or # anybody can edit
-                 my_trip_request.user == user or # the user is the traveller and / or requester
-                 user in my_trip_request.travellers or # the user is a traveller on the trip
-                 my_trip_request.parent_request.user == user): # the user is the requester
+                (not my_trip_request.user or  # anybody can edit
+                 my_trip_request.user == user or  # the user is the traveller and / or requester
+                 user in my_trip_request.travellers or  # the user is a traveller on the trip
+                 my_trip_request.parent_request.user == user):  # the user is the requester
             return True
 
         if trip_request_unsubmit and user == my_trip_request.user:
@@ -617,7 +617,8 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
                 my_kwargs.update({"type": self.kwargs.get("type")})
             return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
         else:
-            return HttpResponseRedirect(reverse("travel:index"))
+            # This means that they have approved or did not approve...
+            return HttpResponseRedirect(reverse("travel:request_review_list", kwargs={"which_ones": "awaiting"}))
 
 
 class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
@@ -1095,6 +1096,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             Value(" "),
             'location',
             output_field=TextField()))
+
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
