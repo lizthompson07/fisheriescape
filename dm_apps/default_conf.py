@@ -7,15 +7,9 @@
 
 import os
 from decouple import config
-from .utils import is_db_connection_available, get_db_connection_dict
+from .utils import db_connection_values_exist, get_db_connection_dict
 
-# DO NOT INTERACT WITH THESE VARIABLES HERE
-########################################################################
-DEV_DB_NAME = None
-DEV_DB_HOST = None
-USING_LOCAL_DB = False
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-########################################################################
+
 
 # Should Microsoft Azure AD be used for authentication? By default, if a file called `azure_oauth_settings.yml' is in the root dir, azure aad will be turned on
 # this is a manual override. Uncomment to turn off AAD regardless of the presence of the above mentioned file.
@@ -30,13 +24,6 @@ SHOW_TICKETING_APP = True
 # To add any custom hosts to this application's list of allowed hosts, provide them here
 ALLOWED_HOSTS_TO_ADD = []
 
-# Specify the full url of the site. This is used in email templates to link the recipient back to the site; NO TRAILING SLASH!!
-SITE_FULL_URL = "https://dmapps-dev.azurewebsites.net"
-
-# If the line below is set to True, you will connect to the dev database, provided that DEV db connection information is
-# available in environmental variables, e.g. 'DEV_DB_HOST', 'DEV_DB_PASSWORD', ... (see .env_sample)
-# If this is set to False, the application will defer to the 'DB_TYPE' env var to determine what type of database it is connecting to
-FORCE_DEV_DB = False
 
 # add new applications to this dictionary; grey out any app you do not want
 # the dict key should be the actual name of the app
@@ -65,56 +52,106 @@ APP_DICT = {
     'vault': "Marine Megafauna Media Vault",
 }
 
+# By default, the application will use the setting from the environment variables (or .env file).
+# If those variables are not set, the local db will be created. If you would like to use a local db
+# disrespective of the environment variables, set it to True
+USE_LOCAL_DB = False
+
+
+###
+### Do not change below
+###
+
+DEPLOYMENT_STAGE = config('DEPLOYMENT_STAGE').upper()
+
+# This is used in email templates to link the recipient back to the site
+#TODO: Some basic checks for format?
+SITE_FULL_URL = config('SITE_FULL_URL')
+
+
+db_connections = get_db_connection_dict()
+
+
+### Deploying application in production - don't change, unless you know what you're doing
+if DEPLOYMENT_STAGE == 'PROD': 
+    AZURE_AD = True
+    USE_LOCAL_DB = False
+    ALLOWED_HOSTS_TO_ADD = []
+    APP_DICT = {
+        'travel': 'Travel Management System'
+    }
+
+    
+
+### Deploying application in test environment 
+elif DEPLOYMENT_STAGE == 'TEST':
+    AZURE_AD = True
+    USE_LOCAL_DB = False
+    ALLOWED_HOSTS_TO_ADD = []
+    APP_DICT = {
+        'travel': 'Travel Management System'
+    }
+
+
+### Deploying application in dev environment 
+elif DEPLOYMENT_STAGE == 'DEV':
+    AZURE_AD = True
+    USE_LOCAL_DB = False
+    ALLOWED_HOSTS_TO_ADD = []
+
+
+### Deploying application on your local machine 
+else:  
+    if not db_connection_values_exist(db_connections):
+        print("No connection vars specified - creating local db.")
+        USE_LOCAL_DB = True
+
+    ## I.e. if db connection is specified in env variables or .env file, then the new sqlite db would not be used
+
+    
+
+
 MY_INSTALLED_APPS = [app for app in APP_DICT]
 
-# check to see if the databases connection information is available in environmental variables:
-if FORCE_DEV_DB and is_db_connection_available(dev=True):
-    db_dict = get_db_connection_dict(dev=True)
-    DB_MODE = "DEV"
-    if is_db_connection_available() and get_db_connection_dict()["DB_MODE"].upper() == "PROD":
-        print("production db connection string present however running dev mode since FORCE_DEV_MODE setting is set to True")
-    # if we have a connection, get the names of db and host to pass in as context processors
-    DB_NAME = db_dict["DB_NAME"].upper()
-    DB_HOST = db_dict["DB_HOST"].upper()
-
-# if not, check to see if general database information was provided
-elif is_db_connection_available():
-    if FORCE_DEV_DB:
-        print("FORCE_DEV_MODE setting is set to True, however could not find dev DB connection information")
-    db_dict = get_db_connection_dict()
-    DB_MODE = db_dict["DB_MODE"].upper()
-
-    # if we have a connection, get the names of db and host to pass in as context processors
-    DB_NAME = db_dict["DB_NAME"].upper()
-    DB_HOST = db_dict["DB_HOST"].upper()
-
-#  otherwise we are using a local sqlite version
-else:
-    USING_LOCAL_DB = True
-    DB_MODE = "DEV"
-    DB_NAME = "db.sqlite3"
-    DB_HOST = "local"
 
 
-# Specify your database connection details
-if USING_LOCAL_DB:
-    print("No database connection information found in environmental variables. Using local Sqlite db")
+if USE_LOCAL_DB:
     my_default_db = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+    #TODO: David, since "DEV" is also database in the DEV stage environment, 
+    # should this be "LOCAL" and => another color in the context processor???
+    DB_MODE = "DEV"  ## LOCAL
+    DB_NAME = "db.sqlite3"
+    DB_HOST = "local"
 else:
+    if not db_connection_values_exist(db_connections):
+        raise Exception("DB connection values are not specifid. Can not connect to the dabase.")
+
     my_default_db = {
         'ENGINE': 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
         'OPTIONS': {
-            'host': db_dict["DB_HOST"],
-            'port': db_dict["DB_PORT"],
-            'database': db_dict["DB_NAME"],
-            'user': db_dict["DB_USER"],
-            'password': db_dict["DB_PASSWORD"],
+            'host': db_connections["DB_HOST"],
+            'port': db_connections["DB_PORT"],
+            'database': db_connections["DB_NAME"],
+            'user': db_connections["DB_USER"],
+            'password': db_connections["DB_PASSWORD"],
             'init_command': 'SET default_storage_engine=INNODB',
         }}
+
+    # if we have a connection, get the names of db and host to pass in as context processors
+    DB_NAME = db_connections["DB_NAME"]
+    DB_HOST = db_connections["DB_HOST"]
+
+    # Determine which DB we are using from the host name"
+    if "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps":
+        DB_MODE = "DEV"
+    elif  "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps-test":
+        DB_MODE = "TEST"
+    elif  "dmapps-prod-db" in db_connections["DB_HOST"] :
+        DB_MODE = "PROD"
 
 DATABASES = {
     'default': my_default_db,
