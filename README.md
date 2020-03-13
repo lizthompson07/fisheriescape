@@ -27,9 +27,3 @@
 ### Running the django development server
 1. If you are using a local Sqlite dataabase, be sure to run migrations before you get started: `python manage.py migrate`.
 1. Change directory to the root `dm_apps` folder (if not already there) and run the development server: `python manage.py runserver`
-
-### Notes
-- Without any additional configuration, the app will connect to the Gulf Region's development database called [glf_sci_site_dev] (see file `dev.cnf` for database connection details)
-- The development server is essentially a slave of the production database. There is currently no script to automate the syncing 
-so it will be done on an as needed basis. **The development database is overwritten each time it is synced with the production database.** So don't store any valuable data on there! 
-- For more elaborate details about getting setup, please visit the site's [wiki](https://github.com/dfo-mar-odis/dm_apps/wiki).
