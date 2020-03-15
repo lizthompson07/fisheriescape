@@ -34,7 +34,7 @@ MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 # Django security key
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
 # should debug mode be turned on or off? default = False
-DEBUG = config("DEBUG", cast=bool, default="False")
+DEBUG = config("DEBUG", cast=bool, default=False)
 # this is used in email templates to link the recipient back to the site
 SITE_FULL_URL = config("SITE_FULL_URL", cast=str, default="http://dmapps")
 # the default 'from' email address used for system emails

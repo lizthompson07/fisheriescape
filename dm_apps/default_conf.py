@@ -40,6 +40,30 @@ APP_DICT = {
     'vault': "Marine Megafauna Media Vault",
 }
 
+# This variable is used to employ a preconfiguartion of applications for Azure deployment
+DEPLOYMENT_STAGE = config("DEPLOYMENT_STAGE", cast=str, default="").upper()
+
+### Deploying application in production - don't change, unless you know what you're doing
+if DEPLOYMENT_STAGE == 'PROD':
+    # overwrite app_dict with only the applications to be deployed to PROD
+    APP_DICT = {
+        'travel': 'Travel Management System'
+    }
+
+### Deploying application in test environment
+elif DEPLOYMENT_STAGE == 'TEST':
+    # overwrite app_dict with only the applications to be deployed to TEST
+    APP_DICT = {
+        'travel': 'Travel Management System'
+    }
+
+
+elif DEPLOYMENT_STAGE == 'DEV':
+    # no changes to make, just a placeholder
+    pass
+
+MY_INSTALLED_APPS = [app for app in APP_DICT]
+
 #############
 # DATABASES #
 #############
@@ -50,52 +74,8 @@ APP_DICT = {
 USE_LOCAL_DB = False
 
 
-###
-### Do not change below
-###
-
-DEPLOYMENT_STAGE = config('DEPLOYMENT_STAGE').upper()
-
 db_connections = get_db_connection_dict()
 
-### Deploying application in production - don't change, unless you know what you're doing
-if DEPLOYMENT_STAGE == 'PROD': 
-    AZURE_AD = True
-    USE_LOCAL_DB = False
-    ALLOWED_HOSTS_TO_ADD = []
-    APP_DICT = {
-        'travel': 'Travel Management System'
-    }
-
-    
-
-### Deploying application in test environment 
-elif DEPLOYMENT_STAGE == 'TEST':
-    AZURE_AD = True
-    USE_LOCAL_DB = False
-    ALLOWED_HOSTS_TO_ADD = []
-    APP_DICT = {
-        'travel': 'Travel Management System'
-    }
-
-
-### Deploying application in dev environment 
-elif DEPLOYMENT_STAGE == 'DEV':
-    AZURE_AD = True
-    USE_LOCAL_DB = False
-    ALLOWED_HOSTS_TO_ADD = []
-
-
-### Deploying application on your local machine 
-else:  
-    if not db_connection_values_exist(db_connections):
-        print("No connection vars specified - creating local db.")
-        USE_LOCAL_DB = True
-
-    ## I.e. if db connection is specified in env variables or .env file, then the new sqlite db would not be used
-
-    
-MY_INSTALLED_APPS = [app for app in APP_DICT]
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
