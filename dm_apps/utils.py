@@ -9,12 +9,13 @@ from django.core.mail import send_mail as django_send_mail
 
 def get_azure_connection_dict():
     key_list = [
-        'AD_app_id',
-        'AD_app_secret',
-        'AD_redirect',
-        'AD_authority',
-        'AD_authorize_endpoint',
-        'AD_token_endpoint',
+        'AAD_APP_ID',
+        'AAD_APP_SECRET',
+        'AAD_REDIRECT',
+        'AAD_SCOPES',
+        'AAD_AUTHORITY',
+        'AAD_AUTHORIZE_ENDPOINT',
+        'AAD_TOKEN_ENDPOINT',
     ]
     my_dict = dict()
     for key in key_list:
@@ -25,12 +26,13 @@ def get_azure_connection_dict():
 
 def azure_ad_values_exist(connection_dict):
     key_list = [
-        'AD_app_id',
-        'AD_app_secret',
-        'AD_redirect',
-        'AD_authority',
-        'AD_authorize_endpoint',
-        'AD_token_endpoint',
+        'AAD_APP_ID',
+        'AAD_APP_SECRET',
+        'AAD_REDIRECT',
+        'AAD_SCOPES',
+        'AAD_AUTHORITY',
+        'AAD_AUTHORIZE_ENDPOINT',
+        'AAD_TOKEN_ENDPOINT',
     ]
     # if all values are present, below expression should be evaluated as False
     there_is_something_missing = False in [connection_dict[key] != "" for key in key_list]
