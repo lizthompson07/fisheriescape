@@ -26,14 +26,14 @@ class MeetingFilter(FilterSet):
 
 
 class RequestFilter(FilterSet):
-    #start_date = django_filters.ChoiceFilter(field_name='start_date', lookup_expr='exact')
+    # start_date = django_filters.ChoiceFilter(field_name='start_date', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name='region', lookup_expr='exact')
 
     class Meta:
         model = models.ReqRequest
-        #fields = ['start_date', 'title_en', 'process_type', 'lead_region']
-        #fields = ['region', 'title', 'client_name', 'have_funding']
-        fields = ['client_name']
+        # fields = ['start_date', 'title_en', 'process_type', 'lead_region']
+        fields = ['region', 'client_sector', 'title', 'client_name', 'funding']
+        # fields = {'finding': ['Yes', 'No'],}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
