@@ -111,9 +111,9 @@ else:
         # Determine which DB we are using from the host name"
         if "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps":
             DB_MODE = "DEV"
-        elif  "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps-test":
+        elif "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps-test":
             DB_MODE = "TEST"
-        elif  "dmapps-prod-db" in db_connections["DB_HOST"]:
+        elif "dmapps-prod-db" in db_connections["DB_HOST"]:
             DB_MODE = "PROD"
     else:
         DB_MODE = db_connections["DB_MODE"]
