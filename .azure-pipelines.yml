@@ -35,9 +35,9 @@ steps:
       pip install -r requirements.txt
     displayName: 'Install prerequisites'
 
-#  - script: |
-#      python create_env_file.py --secret-key "$(SECRET_KEY)" --sendgrid-api-key "$(SENDGRID_API_KEY)" --oauth-app-id "$(app_id)" --oauth-app-secret "$(app_secret)" --oauth-redirect "$(redirect)" --oauth-scopes "$(scopes)" --oauth-authority "$(authority)" --oauth-authorize-endpoint "$(authorize_endpoint)" --oauth-token-endpoint "$(token_endpoint)" --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME)"
-#    displayName: 'Creating configuration file'
+  - script: |
+      python create_env_file.py --secret-key "$(SECRET_KEY)" --sendgrid-api-key "$(SENDGRID_API_KEY)" --oauth-app-id "$(app_id)" --oauth-app-secret "$(app_secret)" --oauth-redirect "$(redirect)" --oauth-scopes "$(scopes)" --oauth-authority "$(authority)" --oauth-authorize-endpoint "$(authorize_endpoint)" --oauth-token-endpoint "$(token_endpoint)" --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME)"
+    displayName: 'Creating configuration file'
 
   - script: |
       python manage.py migrate
