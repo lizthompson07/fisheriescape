@@ -73,10 +73,11 @@ MY_INSTALLED_APPS = [app for app in APP_DICT]
 # disrespective of the environment variables, set it to True
 USE_LOCAL_DB = False
 
-
+# get the connection information from the env; if not all values present, default to local db
 db_connections = get_db_connection_dict()
-
-
+if not db_connection_values_exist(db_connections):
+    USE_LOCAL_DB = True
+    print("DB connection values are not specified. Can not connect to the database. Connecting to local db instead.")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if USE_LOCAL_DB:
@@ -88,8 +89,6 @@ if USE_LOCAL_DB:
     DB_NAME = "db.sqlite3"
     DB_HOST = "local"
 else:
-    if not db_connection_values_exist(db_connections):
-        raise Exception("DB connection values are not specified. Can not connect to the database.")
 
     my_default_db = {
         'ENGINE': 'django.db.backends.mysql',
@@ -114,7 +113,7 @@ else:
             DB_MODE = "DEV"
         elif  "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps-test":
             DB_MODE = "TEST"
-        elif  "dmapps-prod-db" in db_connections["DB_HOST"] :
+        elif  "dmapps-prod-db" in db_connections["DB_HOST"]:
             DB_MODE = "PROD"
     else:
         DB_MODE = db_connections["DB_MODE"]

@@ -65,7 +65,8 @@ def get_db_connection_dict():
     my_dict = dict()
     for key in key_list:
         casting = int if "port" in key.lower() else str
-        my_dict[key] = config(key, cast=casting, default="")
+        default_value = 3306 if "port" in key.lower() else ""
+        my_dict[key] = config(key, cast=casting, default=default_value)
     return my_dict
 
 
