@@ -4,12 +4,12 @@ from django.db.models import Q
 from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 from xml.dom import minidom
 from django.utils import timezone
-
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from lib.functions.custom_functions import attr_error_2_none
 from lib.templatetags.custom_filters import nz
 from . import models
 from django.urls import reverse
-
 
 def prettify(elem):
     """Return a pretty-printed XML string for the Element.
@@ -1082,9 +1082,14 @@ def verify(resource):
             my_filter = field_list[1]
 
             if field == 'certification_history':
+                cert_now_html = mark_safe(f'<a href={reverse("inventory:resource_certify", kwargs={"pk": resource.id})}>{_("certify now")}</a>')
                 if resource.certification_history.count() == 0:
-                    checklist.append('This record has not been certified')
+                    checklist.append(f'This record has not been certified ({cert_now_html})')
                     rating = rating - 1
+                elif abs((resource.certification_history.first().certification_date - timezone.now()).days) > 30:
+                    checklist.append(f'This record has not been certified within the past 30 days ({cert_now_html})')
+                    rating = rating - 1
+
             elif field == 'keywords':
                 keyword_domain = models.KeywordDomain.objects.get(pk=my_filter)
                 if resource.keywords.filter(keyword_domain=keyword_domain).count() == 0:

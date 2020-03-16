@@ -1,0 +1,18 @@
+[
+	{
+		"model": "whalesdb.setstationeventcode",
+		"pk": 1,
+		"fields": {
+			"set_name": "Deployment",
+			"set_description": "Equipment is placed in the water. Note: the time associated with an AMAR deployment event should be DROP TIME."
+		}
+	},
+	{
+		"model": "whalesdb.setstationeventcode",
+		"pk": 2,
+		"fields": {
+			"set_name": "Recovery ",
+			"set_description": "Equipment is recovered from the water. Note: the time associated with an AMAR recovery event should be RELEASE TIME."
+		}
+	}
+]

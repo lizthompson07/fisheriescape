@@ -52,6 +52,7 @@ urlpatterns = [
     path('trip/new/pop/<int:pop>/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
     path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trip/<int:pk>/edit/popout/<int:pop>', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
     # admin
     path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.AdminTripVerificationListView.as_view(), name="admin_trip_verification_list"),
@@ -72,6 +73,8 @@ urlpatterns = [
     path('reports/cfts/request/<int:trip_request>/', views.export_request_cfts, name="export_cfts_request"),
     path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"),
     # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
+
+    path('reports/trip-list/fiscal-year/<int:fy>/region/<str:region>/adm/<str:adm>/', views.export_trip_list, name="export_trip_list"),
 
     # SETTINGS #
     ############
