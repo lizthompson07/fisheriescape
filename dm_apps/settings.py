@@ -16,38 +16,75 @@ import requests
 from django.utils.translation import gettext_lazy as _
 from decouple import config, UndefinedValueError
 from msrestazure.azure_active_directory import MSIAuthentication
+from . import utils
 
 # Custom variables
 
 WEB_APP_NAME = "DMApps"
-SITE_FROM_EMAIL = "DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
-# check to see if there is a user-defined local configuration file
-# if there is, we we use this as our local configuration, otherwise we use the default
-try:
-    from . import my_conf as local_conf
-except ModuleNotFoundError and ImportError:
-    from . import default_conf as local_conf
+# some simple settings that we import from the .env file or the environmental variables
+####################################################
+# Django security key
+SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
+# should debug mode be turned on or off? default = False
+DEBUG = config("DEBUG", cast=bool, default=False)
+# this is used in email templates to link the recipient back to the site
+SITE_FULL_URL = config("SITE_FULL_URL", cast=str, default="http://dmapps")
+# the default 'from' email address used for system emails
+SITE_FROM_EMAIL = config("SITE_FROM_EMAIL", cast=str, default="DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca")
+# google maps API key
+GOOGLE_API_KEY = config("GOOGLE_API_KEY", cast=str, default="")
+# github api key
+GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
+# Should the ticketing app be displayed on the main index page?
+SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 
-    print("my_conf.py' not found. using default configuration file 'default_conf.py' instead.")
+# Slightly more complicated settings
+####################################
+#
+# Azure AD
+azure_connection_dict = utils.get_azure_connection_dict()
+if utils.azure_ad_values_exist(azure_connection_dict):
+    # check to see if a manual override is provided in env
+    AZURE_AD = config("AZURE_AD", cast=bool, default=True)
+    # if AZURE_AD is set to false, it is because of a manual override
+    if not AZURE_AD:
+        print("Azure Active Directory oauth credentials available but settings present to manually overriding usage")
+    else:
+        print("Azure Active Directory oauth credentials provided. User authentication will be handled by AAD.")
 else:
-    print("using custom configuration file: 'my_conf.py'.")
+    # there is not a complete set of connection values in the env
+    AZURE_AD = False
 
-try:
-    DEBUG = local_conf.DEBUG
-except AttributeError:
-    DEBUG = False
+#
+# Email settings
+SENDGRID_API_KEY = config('SENDGRID_API_KEY', cast=str, default="")
+EMAIL_HOST = config('EMAIL_HOST', cast=str, default="")
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default="")
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str, default="")
+EMAIL_PORT = config('EMAIL_PORT', cast=str, default="")
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=str, default="")
 
-try:
-    SHOW_TICKETING_APP = local_conf.SHOW_TICKETING_APP
-except AttributeError:
-    SHOW_TICKETING_APP = True
+# first check to see if a sendgrid api key is available
+if SENDGRID_API_KEY == "":
+    USE_SENDGRID = False
+    # if there is nothing there, let's check for SMTP EMAIL configuration
+    if EMAIL_HOST == "":
+        print("No email service credentials found in system config.")
+        USE_SMTP_EMAIL = False
+    else:
+        USE_SMTP_EMAIL = True
+else:
+    USE_SENDGRID = True
 
+#
+# Allowed Hosts
+# the user can provide a one-off host to allow (i.e., if they do not wish to add it to the settings file)
 ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
@@ -55,69 +92,25 @@ ALLOWED_HOSTS = [
     'dmapps.ent.dfo-mpo.ca',
     'dmapps-dev.azurewebsites.net',
     'dmapps-test-web.azurewebsites.net',
+    'dmapps-prod-web.azurewebsites.net',
 ]
-try:
-    extend_list = local_conf.ALLOWED_HOSTS_TO_ADD
-    if len(extend_list):
-        ALLOWED_HOSTS.extend(local_conf.ALLOWED_HOSTS_TO_ADD)
-        print("The following hostnames are being added to the ALLOWED_HOSTS variable", local_conf.ALLOWED_HOSTS_TO_ADD)
-except AttributeError:
-    pass
-
-# this is used in email templates to link the recipient back to the site
-try:
-    SITE_FULL_URL = local_conf.SITE_FULL_URL
-except AttributeError:
-    SITE_FULL_URL = ""
-
-try:
-    config("app_id")
-    config("app_secret")
-    config("redirect")
-    config("scopes")
-    config("authority")
-    config("authorize_endpoint")
-    config("token_endpoint")
-    # check to see if a manual override is provided in local configuration file
-    try:
-        AZURE_AD = local_conf.AZURE_AD
-        if not AZURE_AD:
-            print("Azure Active Directory oauth credentials provided but local settings file manually overriding usage")
-    except AttributeError:
-        if not config("app_id") or config("app_id") == "":
-            AZURE_AD = False
-        else:
-            print("Azure Active Directory oauth credentials provided. User authentication will be handled by AAD.")
-            AZURE_AD = True
-
-
-except UndefinedValueError:
-    AZURE_AD = False
-
-# check to see if there is a file containing the google api key
-# if there is not, set this to a null string and maps will open in dev mode
-try:
-    GOOGLE_API_KEY = config("GOOGLE_API_KEY")
-except UndefinedValueError:
-    GOOGLE_API_KEY = ""
-
-if not GOOGLE_API_KEY:
-    GOOGLE_API_KEY = ""
-    print("no google api key file found.")
-
-GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-try:
-    SECRET_KEY = config('SECRET_KEY')
-except UndefinedValueError:
-    SECRET_KEY = "fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD"
+ALLOWED_HOST_TO_ADD = config("ALLOWED_HOST_TO_ADD", cast=str, default="")
+if ALLOWED_HOST_TO_ADD != "":
+    ALLOWED_HOSTS.append(ALLOWED_HOST_TO_ADD)
+    print("The following hostname is being added to the ALLOWED_HOSTS variable", ALLOWED_HOST_TO_ADD)
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
+
+#################################################
+# APPS -- will look to local configuration file #
+#################################################
+# check to see if there is a user-defined local configuration file
+# if there is, we use this as our local configuration, otherwise we use the default
+try:
+    from . import my_conf as local_conf
+except ModuleNotFoundError and ImportError:
+    from . import default_conf as local_conf
 
 # Application definition
 INSTALLED_APPS = [
@@ -173,12 +166,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'dm_apps.wsgi.application'
 
-# Database
+######################################################
+# DATABASES -- will look to local configuration file #
+######################################################
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
-
 # DATABASE_ROUTERS = ['dm_apps.routers.WhaleDatabaseRouter', ]
-
-
 DATABASES = local_conf.DATABASES
 
 # This variable will describe the type of database we are connecting to (e.g PROD, DEV, TEST...)
@@ -186,12 +178,12 @@ try:
     DB_MODE = local_conf.DB_MODE
     DB_HOST = local_conf.DB_HOST
     DB_NAME = local_conf.DB_NAME
-    USING_LOCAL_DB = local_conf.USING_LOCAL_DB
+    USE_LOCAL_DB = local_conf.USE_LOCAL_DB
 except AttributeError:
     DB_MODE = "n/a"
     DB_HOST = "n/a"
     DB_NAME = "n/a"
-    USING_LOCAL_DB = True
+    USE_LOCAL_DB = True
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -210,26 +202,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
-# Email settings
-SENDGRID_API_KEY = config('SENDGRID_API_KEY', cast=str, default="")
-EMAIL_HOST = config('EMAIL_HOST', cast=str, default="")
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', cast=str, default="")
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', cast=str, default="")
-EMAIL_PORT = config('EMAIL_PORT', cast=str, default="")
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=str, default="")
-
-# first check to see if a sendgrid api key is available
-if SENDGRID_API_KEY == "":
-    USE_SENDGRID = False
-    # if there is nothing there, let's check for SMTP EMAIL configuration
-    if EMAIL_HOST == "":
-        print("No email service credentials found in system config.")
-        USE_SMTP_EMAIL = False
-    else:
-        USE_SMTP_EMAIL = True
-else:
-    USE_SENDGRID = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
