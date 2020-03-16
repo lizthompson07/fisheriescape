@@ -93,14 +93,14 @@ else:
     my_default_db = {
         'ENGINE': 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
-        'OPTIONS': {
-            'host': db_connections["DB_HOST"],
-            'port': db_connections["DB_PORT"],
-            'database': db_connections["DB_NAME"],
-            'user': db_connections["DB_USER"],
-            'password': db_connections["DB_PASSWORD"],
-            'init_command': 'SET default_storage_engine=INNODB',
-        }}
+
+        'HOST': db_connections["DB_HOST"],
+        'PORT': db_connections["DB_PORT"],
+        'NAME': db_connections["DB_NAME"],
+        'USER': db_connections["DB_USER"],
+        'PASSWORD': db_connections["DB_PASSWORD"],
+        'INIT_COMMAND': 'SET default_storage_engine=INNODB',
+        }
 
     # if we have a connection, get the names of db and host to pass in as context processors
     DB_NAME = db_connections["DB_NAME"]
