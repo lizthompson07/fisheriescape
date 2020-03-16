@@ -119,6 +119,7 @@ INSTALLED_APPS = [
                      'django.contrib.sessions',
                      'django.contrib.messages',
                      'django.contrib.staticfiles',
+                     'django.contrib.gis',
                      'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
@@ -270,3 +271,5 @@ TRACK_PAGEVIEWS = True
 TRACK_QUERY_STRING = True
 TRACK_REFERER = True
 TRACK_SUPERUSERS = False
+
+GDAL_LIBRARY_PATH = r'C:\users\fishmand\projects\geodjango_venv\Lib\site-packages\osgeo\gdal300.dll'

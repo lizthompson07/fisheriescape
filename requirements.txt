@@ -50,5 +50,5 @@ django-storages[azure]
 msrestazure==0.6.2
 
 # THESE TWO LIBRARIES CAN BE PROBLEMATIC
-mysqlclient==1.4.6
-shapely==1.6.4.post2
+# mysqlclient==1.4.6
+#shapely==1.6.4.post2
