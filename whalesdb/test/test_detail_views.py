@@ -112,7 +112,7 @@ class TestDetailsDeployment(CommonDetailsTest):
         dep_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_dep', args=(dep_dic['dep_1'].pk,))
-        self.test_expected_template = 'whalesdb/depdeployment_details.html'
+        self.test_expected_template = 'whalesdb/details_dep.html'
         self.fields = ['dep_year', 'dep_month', 'dep_name', 'stn', 'prj', 'mor']
 
     # Station Details are visible to all
@@ -163,7 +163,7 @@ class TestDetailsMooring(CommonDetailsTest):
         mor_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_mor', args=(mor_dic['mor_1'].pk,))
-        self.test_expected_template = 'whalesdb/mormooringsetup_details.html'
+        self.test_expected_template = 'whalesdb/details_mor.html'
         self.fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image', 'mor_additional_equipment',
                        'mor_general_moor_description', 'mor_notes']
 
@@ -260,19 +260,19 @@ class TestDetailsStation(CommonDetailsTest):
         stn_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_stn', args=(stn_dic['stn_1'].pk,))
-        self.test_expected_template = 'whalesdb/stnstation_details.html'
+        self.test_expected_template = 'whalesdb/details_stn.html'
         self.fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
                        'stn_planned_depth', 'stn_notes']
 
     # Station Details are visible to all
     @tag('stn', 'details_stn', 'response', 'access')
     def test_details_stn_en(self):
-        super().assert_view(expected_template='whalesdb/stnstation_details.html')
+        super().assert_view(expected_template='whalesdb/details_stn.html')
 
     # Station Details are visible to all
     @tag('stn', 'stn', 'details_stn', 'response', 'access')
     def test_details_stn_fr(self):
-        super().assert_view(lang='fr', expected_template='whalesdb/stnstation_details.html')
+        super().assert_view(lang='fr', expected_template='whalesdb/details_stn.html')
 
     # Test that the context contains the proper fields
     @tag('stn', 'details_stn', 'context')

@@ -304,7 +304,7 @@ class DetailsCommon(DetailView):
 class DetailsDep(DetailsCommon):
     key = "dep"
     model = models.DepDeployment
-    template_name = 'whalesdb/depdeployment_details.html'
+    template_name = 'whalesdb/details_dep.html'
     title = _("Deployment Details")
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
@@ -334,7 +334,7 @@ class DetailsEqp(DetailsCommon):
 class DetailsMor(DetailsCommon):
     key = "mor"
     model = models.MorMooringSetup
-    template_name = 'whalesdb/mormooringsetup_details.html'
+    template_name = 'whalesdb/details_mor.html'
     title = _("Mooring Setup Details")
     fields = ["mor_name", "mor_max_depth", "mor_link_setup_image", "mor_additional_equipment",
               "mor_general_moor_description", "mor_notes"]
@@ -353,7 +353,7 @@ class DetailsStn(DetailsCommon):
     key = 'stn'
     model = models.StnStation
     title = _("Station Details")
-    template_name = 'whalesdb/stnstation_details.html'
+    template_name = 'whalesdb/details_stn.html'
     fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
               'stn_planned_depth', 'stn_notes']
     creation_form_height = 400
