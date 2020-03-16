@@ -91,7 +91,6 @@ class Person(models.Model):
         super().save(*args, **kwargs)
 
 
-
 class Status(models.Model):
     label = models.CharField(max_length=25)
     code = models.CharField(max_length=25, blank=True, null=True)
@@ -405,6 +404,21 @@ class Resource(models.Model):
         # self.date_last_modified = timezone.now()
         super().save(*args, **kwargs)
 
+    @property
+    def thumbnail(self):
+        for file in self.files.all():
+            if "thumbnail" in file.caption.lower() or "vignette" in file.caption.lower():
+                return file.file.url
+
+    @property
+    def bounds(self):
+        if self.east_bounding and self.west_bounding and self.south_bounding and self.north_bounding:
+            return [
+                (self.east_bounding, self.north_bounding),
+                (self.west_bounding, self.north_bounding),
+                (self.west_bounding, self.south_bounding),
+                (self.east_bounding, self.south_bounding),
+            ]
 
 class ContentType(models.Model):
     title = models.CharField(max_length=255, verbose_name="Name (English)")
@@ -486,7 +500,7 @@ class ResourceCertification(models.Model):
     resource = models.ForeignKey(Resource, on_delete=models.DO_NOTHING, related_name="certification_history")
     certifying_user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     certification_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
-    notes = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=False, null=True)
 
     class Meta:
         ordering = ['-certification_date']
