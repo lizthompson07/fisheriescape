@@ -19,7 +19,7 @@
     {% if not DB_MODE == 'PROD' %}
         <div class="center-col {% if DB_MODE == "DEV" %}dev-mode{% elif DB_MODE == "TEST" %}test-mode{% else %}major-error{% endif %}">
             WORKING IN {{ DB_MODE }} MODE: you are connected to [<var>{{ DB_NAME }}</var>] on host [<var>{{ DB_HOST }}</var>].
-            {% if USING_LOCAL_DB %}You are connected a local SQLITE database{% endif %}
+            {% if USE_LOCAL_DB %}You are connected a local SQLITE database{% endif %}
         </div>
     {% endif %}
 

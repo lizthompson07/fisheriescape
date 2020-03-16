@@ -7,35 +7,66 @@ from sendgrid.helpers.mail import Mail, Email, Personalization
 from django.core.mail import send_mail as django_send_mail
 
 
-def is_db_connection_available(dev=False):
-    prefix = "DEV_" if dev else ""
-    try:
-        return bool(
-               config(f'{prefix}DB_HOST') and \
-               config(f'{prefix}DB_PORT') and \
-               config(f'{prefix}DB_NAME') and \
-               config(f'{prefix}DB_USER') and \
-               config(f'{prefix}DB_PASSWORD') and \
-               config(f'{prefix}DB_MODE') if not dev else True
-        )
-    except UndefinedValueError:
-        return False
-
-
-def get_db_connection_dict(dev=False):
-    prefix = "DEV_" if dev else ""
+def get_azure_connection_dict():
     key_list = [
-        f'{prefix}DB_MODE',
-        f'{prefix}DB_HOST',
-        f'{prefix}DB_PORT',
-        f'{prefix}DB_NAME',
-        f'{prefix}DB_USER',
-        f'{prefix}DB_PASSWORD',
+        'AAD_APP_ID',
+        'AAD_APP_SECRET',
+        'AAD_REDIRECT',
+        'AAD_SCOPES',
+        'AAD_AUTHORITY',
+        'AAD_AUTHORIZE_ENDPOINT',
+        'AAD_TOKEN_ENDPOINT',
+    ]
+    my_dict = dict()
+    for key in key_list:
+        casting = str
+        my_dict[key] = config(key, cast=casting, default="")
+    return my_dict
+
+
+def azure_ad_values_exist(connection_dict):
+    key_list = [
+        'AAD_APP_ID',
+        'AAD_APP_SECRET',
+        'AAD_REDIRECT',
+        'AAD_SCOPES',
+        'AAD_AUTHORITY',
+        'AAD_AUTHORIZE_ENDPOINT',
+        'AAD_TOKEN_ENDPOINT',
+    ]
+    # if all values are present, below expression should be evaluated as False
+    there_is_something_missing = False in [connection_dict[key] != "" for key in key_list]
+    return there_is_something_missing is False
+
+
+def db_connection_values_exist(connection_dict):
+    key_list = [
+        # 'DB_MODE',
+        'DB_HOST',
+        'DB_PORT',
+        'DB_NAME',
+        'DB_USER',
+        'DB_PASSWORD',
+    ]
+    # if all values are present, below expression should be evaluated as False
+    there_is_something_missing = False in [connection_dict[key] != "" for key in key_list]
+    return there_is_something_missing is False
+
+
+def get_db_connection_dict():
+    key_list = [
+        'DB_MODE',
+        'DB_HOST',
+        'DB_PORT',
+        'DB_NAME',
+        'DB_USER',
+        'DB_PASSWORD',
     ]
     my_dict = dict()
     for key in key_list:
         casting = int if "port" in key.lower() else str
-        my_dict[key.replace(prefix, "")] = config(key, cast=casting, default="")
+        default_value = 3306 if "port" in key.lower() else ""
+        my_dict[key] = config(key, cast=casting, default=default_value)
     return my_dict
 
 
