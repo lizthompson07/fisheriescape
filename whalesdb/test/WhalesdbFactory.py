@@ -6,7 +6,7 @@ from shared_models import models as shared_models
 
 _stn_codes_ = ['ABC', 'DEF', 'GHI', 'JKL', 'MNO', 'PQR', 'STU', 'VWX', 'YZZ']
 _set_codes_ = ['Deployment', 'Recovery']
-_eqt_codes_ = ['Acoustic recorder', 'Environmental sensor', 'Hydrophone', 'OTN reciever']
+_eqt_codes_ = ['Acoustic recorder', 'Environmental sensor', 'OTN reciever', 'Hydrophone']
 
 faker = Factory.create()
 
@@ -17,6 +17,10 @@ class EqtFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ('eqt_name',)
 
     eqt_name = faker.word(_eqt_codes_)
+
+    # It's important to make sure the eqt_ids and eqt_names match up because the IDs are what are used to determine
+    # if the Hydrophone or Acoustic recorder details page is shown.
+    eqt_id = _eqt_codes_.index(eqt_name) + 1
 
 
 class EmmFactory(factory.django.DjangoModelFactory):

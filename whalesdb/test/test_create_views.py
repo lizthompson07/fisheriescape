@@ -76,15 +76,15 @@ class TestCreateEmm(CommonCreateTest):
     def setUp(self):
         super().setUp()
 
-        self.data = Factory.EmmFactory.get_valid_data(Factory._eqt_codes_[3])
+        self.data = Factory.EmmFactory.get_valid_data(Factory._eqt_codes_[2])
 
         # Hydrophone properties requires a make and model emm_id
         self.test_url = reverse_lazy('whalesdb:create_emm')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'whalesdb/_entry_form.html'
 
-        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
+        self.expected_success_url = reverse_lazy('whalesdb:list_emm')
 
         self.expected_view = views.CreateEmm
         self.expected_form = forms.EmmForm
