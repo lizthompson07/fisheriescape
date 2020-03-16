@@ -18,11 +18,16 @@ def load_lookup(model, options):
         # filter the model looking for this option. The option is only added if the filter returns a NoneType object
         if not model.objects.filter(name_en=opt[0]):
             model(name_en=opt[0], name_fr=opt[1]).save()
-
-
+			
 # Load the (Request) priority model
-priorities = [['High', 'High(fr)'], ['Medium', 'Medium(fr)'], ['Low', 'Low(fr)'],]
+priorities = [['High ', ' High(fr)'], ['Medium ', ' Medium(fr)'], ['Low ', ' Low(fr)'],]
 load_lookup(models.RepPriority, priorities)
+
+
+# Load the (Request) proposed timing model
+timings = [['By quarter ', ' By quarter(fr)'], ['By month ', ' By month(fr)'],]
+load_lookup(models.RetTiming, timings)
+
 
 # Load the honorific model
 honorifics = [['Mr.', 'Mr. (fr)'], ['Mrs.', 'Mrs. (fr)'], ['Ms.', 'Ms. (fr)'], ['Dr.', 'Dr. (fr)'], ['Chief', 'Chief (fr)'], ['Capt.', 'Capt. (fr)'],]

@@ -1,21 +1,26 @@
 from django import forms
-
 from . import models
-
 from . import custom_widgets
 
 
 class RequestForm(forms.ModelForm):
     class Meta:
-        # model = models.MetMeeting    # if using this line, it works, but goes to meetings
         model = models.ReqRequest
-        exclude = []
+
+        # fields shown on screen
+        # fields = ("assigned_request_ID", "title",)    # only show listed fields
+        # fields = ["assigned_request_ID", "title"]     # [" "] is the same as (" ",)
+        exclude = ["assigned_req_id"]                   # show all fields except listed fields
+
+        # use some widgets
         widgets = {
+            # "region": forms.Select(attrs={"class": "chosen-select-contains"})
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.fields['program_contact'].wigets = forms.Select(choices=models.ConContact.objects.all())
+        # self.fields['program_contact'].widgets = forms.Select(choices=models.ConContact.objects.all())
+        self.fields['adviser_submission'].widgets = forms.DateField(help_text="Select date")
 
 
 class ContactForm(forms.ModelForm):
@@ -59,7 +64,7 @@ class PublicationForm(forms.ModelForm):
         }
 
 
-#class RequestForm(forms.ModelForm):
+# class RequestForm(forms.ModelForm):
 #    class Meta:
 #        model = models.ReqRequest
 #        exclude = []
@@ -67,11 +72,11 @@ class PublicationForm(forms.ModelForm):
 #        }
 
 
-class OtherForm(forms.ModelForm):
-    class Meta:
-        model = models.OthOther
-        exclude = []
-        widgets = {
-        }
+# class OtherForm(forms.ModelForm):
+#    class Meta:
+#        model = models.OthOther
+#        exclude = []
+#        widgets = {
+#        }
 
 
