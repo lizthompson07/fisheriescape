@@ -239,7 +239,10 @@ class PubPublication(models.Model):
 # Create models for requests
 class RepPriority(Lookup):
     rep_id = models.AutoField(primary_key=True)
-    # name = models.CharField(max_length=45)
+
+
+class RetTiming(Lookup):
+    ret_id = models.AutoField(primary_key=True)
 
 
 class RedDecision(models.Model):
@@ -248,35 +251,44 @@ class RedDecision(models.Model):
 
 
 class ReqRequest(models.Model):
-    req_id = models.AutoField(primary_key=True)
-    assigned_request_ID = models.CharField(max_length=45)
-    title = models.CharField(max_length=255)
-    in_year_request = models.BooleanField()
+    req_id = models.AutoField(primary_key=True, verbose_name=_("Request ID"))
+    assigned_req_id = models.CharField(max_length=45, verbose_name=_("Assigned Request Number"))
+    title = models.CharField(max_length=255, verbose_name=_("Title"))
+    in_year_request = models.BooleanField(verbose_name=_("In-Year Request"))
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
-    client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING)
-    client_name = models.CharField(max_length=100, help_text=_("Some help here"))
-    client_title = models.CharField(max_length=100)
-    client_email = models.CharField(max_length=255)
-    issue = models.TextField()
-    # priority = models.ForeignKey(RepPriority, on_delete=models.DO_NOTHING)
-    priority = models.ForeignKey(RepPriority, on_delete=models.DO_NOTHING)    # CohHonorific is borrowed from Contacts
-    # priority = models.CharField(max_length=40)
-    rationale = models.TextField()
-    proposed_timing = models.CharField(max_length=100)
-    rationale_for_timing = models.TextField()
-    have_funding = models.BooleanField()
-    funding_notes = models.TextField()
-    science_discussion = models.BooleanField()
-    science_discussion_notes = models.TextField()
+    client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
+    client_name = models.CharField(max_length=100, verbose_name=_("Client Name"))
+    client_title = models.CharField(max_length=100, verbose_name=_("Client Title"))
+    client_email = models.CharField(max_length=255, verbose_name=_("Client E-mail"))
+    issue = models.TextField(verbose_name=_("Issue"),
+                             help_text=_("Issue requiring science information and/or advice. Posted as a question "
+                                         "to be answered by Science."))
+    priority = models.ForeignKey(RepPriority, on_delete=models.DO_NOTHING, verbose_name=_("Priority"))
+    rationale = models.TextField(verbose_name=_("Rationale for Request"),
+                                 help_text=_("Rationale or context for the request: What will the information/advice "
+                                             "be used for? Who will be the end user(s)? Will it impact other DFO "
+                                             "programs or regions?"))
+    proposed_timing = models.ForeignKey(RetTiming, on_delete=models.DO_NOTHING, verbose_name=_("Proposed Timing"),
+                                        help_text=_("Latest possible date to receive Science Advice."))
+    rationale_for_timing = models.TextField(verbose_name=_("Rationale for Timing"),
+                                            help_text=_("Explain rationale for proposed timing."))
+    funding = models.BooleanField(help_text=_("Do you have funds to cover extra costs associated with this request?"))
+    funding_notes = models.TextField(max_length=100, verbose_name=_("Funding Notes"))
+    science_discussion = models.BooleanField(verbose_name=_("Science Discussion"),
+                                             help_text=_("Have you talked to Science about this request?"))
+    science_discussion_notes = models.CharField(max_length=100, verbose_name=_("Science Discussion Notes"),
+                                                help_text=_("If you have talked to Science about this request, "
+                                                            "to whom have you talked?"))
     # decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True)
     # decision = models.ForeignKey(CotType, on_delete=models.DO_NOTHING)    # CotType is borrowed from Contacts
     # decision_explanation = models.TextField()
-    advisor_submission = models.DateField(null=True, blank=True)
-    rd_submission = models.DateField(null=True, blank=True)
-    decision_date = models.DateField(null=True, blank=True)
+    adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"))
+    rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"))
+    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"))
 
     def __str__(self):
         return "{}".format(self.title)
+
 
 # ---------------------------------------------------------------------------------------
 # Create models for publications
