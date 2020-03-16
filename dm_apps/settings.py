@@ -17,12 +17,10 @@ from django.utils.translation import gettext_lazy as _
 from decouple import config, UndefinedValueError
 from msrestazure.azure_active_directory import MSIAuthentication
 from . import utils
+
 # Custom variables
 
 WEB_APP_NAME = "DMApps"
-
-
-
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -63,7 +61,6 @@ else:
     # there is not a complete set of connection values in the env
     AZURE_AD = False
 
-
 #
 # Email settings
 SENDGRID_API_KEY = config('SENDGRID_API_KEY', cast=str, default="")
@@ -85,7 +82,6 @@ if SENDGRID_API_KEY == "":
 else:
     USE_SENDGRID = True
 
-
 #
 # Allowed Hosts
 # the user can provide a one-off host to allow (i.e., if they do not wish to add it to the settings file)
@@ -102,10 +98,8 @@ if ALLOWED_HOST_TO_ADD != "":
     ALLOWED_HOSTS.append(ALLOWED_HOST_TO_ADD)
     print("The following hostname is being added to the ALLOWED_HOSTS variable", ALLOWED_HOST_TO_ADD)
 
-
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
-
 
 #################################################
 # APPS -- will look to local configuration file #
@@ -183,12 +177,12 @@ try:
     DB_MODE = local_conf.DB_MODE
     DB_HOST = local_conf.DB_HOST
     DB_NAME = local_conf.DB_NAME
-    USING_LOCAL_DB = local_conf.USING_LOCAL_DB
+    USE_LOCAL_DB = local_conf.USE_LOCAL_DB
 except AttributeError:
     DB_MODE = "n/a"
     DB_HOST = "n/a"
     DB_NAME = "n/a"
-    USING_LOCAL_DB = True
+    USE_LOCAL_DB = True
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
