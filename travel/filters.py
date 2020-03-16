@@ -1,5 +1,6 @@
 # from accounts import models as account_models
-from gettext import gettext as _
+# from  import gettext as _
+from django.utils.translation import gettext as _
 from django import forms
 import django_filters
 from django.contrib.auth.models import User
@@ -79,7 +80,11 @@ class TripRequestFilter(django_filters.FilterSet):
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in User.objects.all().order_by("last_name", "first_name")
                         if u.user_trip_requests.count() > 0]
         self.filters['user'] = django_filters.ChoiceFilter(field_name='user', lookup_expr='exact', choices=user_choices,
-                                                           widget=forms.Select(attrs=chosen_js))
+                                                           widget=forms.Select(attrs=chosen_js), label=_('User'))
+
+        trip_choices = [(trip.id, f"{trip}") for trip in models.Conference.objects.all().order_by(_("name")) if trip.trip_requests.count() > 0]
+        self.filters['trip'] = django_filters.ChoiceFilter(field_name='trip', lookup_expr='exact', choices=trip_choices,
+                                                           widget=forms.Select(attrs=chosen_js), label=_('Trip title'))
 
         region_choices = get_region_choices()
         division_choices = get_division_choices()

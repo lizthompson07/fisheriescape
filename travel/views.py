@@ -83,14 +83,22 @@ def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
             return True
 
         # check to see if they are the active reviewer
-        if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
-            return True
-
+        # determine if this is a child trip or not.
+        if not my_trip_request.parent_request:
+            if my_trip_request.current_reviewer and my_trip_request.current_reviewer.user == user:
+                return True
+        # This is a child trip request
+        else:
+            if my_trip_request.parent_request.current_reviewer and my_trip_request.parent_request.current_reviewer.user == user:
+                return True
         # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are either the owner OR a traveller
         # SPECIAL CASE: sometimes we complete requests on behalf of somebody else.
         if not my_trip_request.submitted and \
-                (not my_trip_request.user or my_trip_request.user == user or user in my_trip_request.travellers):
+                (not my_trip_request.user or  # anybody can edit
+                 my_trip_request.user == user or  # the user is the traveller and / or requester
+                 user in my_trip_request.travellers or  # the user is a traveller on the trip
+                 my_trip_request.parent_request.user == user):  # the user is the requester
             return True
 
         if trip_request_unsubmit and user == my_trip_request.user:
@@ -258,12 +266,12 @@ request_field_list = [
     'bta_attendees',
     'notes',
     # 'cost_table|{}'.format(_("DFO costs")),
-    f'total_request_cost|{_("Total costs")}',
-    f'total_dfo_funding|{_("Total amount of DFO funding")}',
-    f'total_non_dfo_funding|{_("Total amount of non-DFO funding")}',
-    f'total_non_dfo_funding_sources|{_("Non-DFO funding sources")}',
+    'total_request_cost|{}'.format(_("Total costs")),
+    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
+    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
+    'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
     'original_submission_date',
-    f'processing_time|{_("Processing time")}',
+    'processing_time|{}'.format(_("Processing time")),
 ]
 
 request_group_field_list = [
@@ -283,16 +291,16 @@ request_group_field_list = [
     'bta_attendees',
     'late_justification',
     'notes',
-    f'total_dfo_funding|{_("Total amount of DFO funding")}',
-    f'total_non_dfo_funding|{_("Total amount of non-DFO funding")}',
-    f'total_non_dfo_funding_sources|{_("Non-DFO funding sources")}',
+    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
+    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
+    'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
     'total_request_cost|{}'.format(_("Total cost")),
     'original_submission_date',
-    f'processing_time|{_("Processing time")}',
+    'processing_time|{}'.format(_("Processing time")),
 ]
 
 request_child_field_list = [
-    f'requester_name|{_("Name")}',
+    'requester_name|{}'.format(_("Name")),
     # 'is_public_servant',
     'is_research_scientist|{}'.format(_("RES?")),
     # 'region',
@@ -361,11 +369,11 @@ class TripRequestListView(TravelAccessRequiredMixin, FilterView):
             'fiscal_year',
             'is_group_request',
             'status',
-            f'section|{_("DFO section")}',
-            f'requester_name|{_("Requester name")}',
+            'section|{}'.format(_("DFO section")),
+            'requester_name|{}'.format(_("Requester name")),
             'trip.tname',
-            f'destination|{_("Destination")}',
-            f'start_date|{_("Departure date")}',
+            'destination|{}'.format(_("Destination")),
+            'start_date|{}'.format(_("Departure date")),
             # f'end_date|{_("End")}',
             # 'total_request_cost|{}'.format(_("Total request cost (DFO)")),
             'processing_time|{}'.format(_("Processing time")),
@@ -609,7 +617,8 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
                 my_kwargs.update({"type": self.kwargs.get("type")})
             return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
         else:
-            return HttpResponseRedirect(reverse("travel:index"))
+            # This means that they have approved or did not approve...
+            return HttpResponseRedirect(reverse("travel:request_review_list", kwargs={"which_ones": "awaiting"}))
 
 
 class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
@@ -1087,6 +1096,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             Value(" "),
             'location',
             output_field=TextField()))
+
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
     #     if kwargs["data"] is None:
@@ -1098,13 +1108,13 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
         context["my_object"] = models.Conference.objects.first()
         context["field_list"] = [
             'fiscal_year',
-            'tname|{}'.format("Trip title"),
+            'tname|{}'.format(_("Trip title")),
             'location|{}'.format(_("location")),
             'dates|{}'.format(_("dates")),
             'number_of_days|{}'.format(_("length (days)")),
             'is_adm_approval_required|{}'.format(_("ADM approval required?")),
-            f'total_travellers|{_("Total travellers")}',
-            f'connected_requests|{_("Connected requests")}',
+            'total_travellers|{}'.format(_("Total travellers")),
+            'connected_requests|{}'.format(_("Connected requests")),
             'is_verified',
             'verified_by',
         ]
@@ -1124,9 +1134,18 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
 
 
 class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
-    template_name = 'travel/trip_form.html'
     model = models.Conference
     form_class = forms.TripForm
+
+    def get_template_names(self):
+        return 'travel/trip_form_popout.html' if self.kwargs.get("pop") else 'travel/trip_form.html'
+
+    def form_valid(self, form):
+        my_object = form.save()
+        if self.kwargs.get("pop"):
+            return HttpResponseRedirect(reverse("shared_models:close_me"))
+        else:
+            return HttpResponseRedirect(reverse('travel:trip_detail', kwargs={'pk': my_object.id}))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1181,7 +1200,9 @@ class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
 
     def get_success_url(self):
         if self.kwargs.get("back_to_verify"):
-            success_url = reverse_lazy('travel:admin_trip_verification_list')
+            adm = 1 if self.get_object().is_adm_approval_required else 0
+            region = self.get_object().lead.id if adm == 0 else 0
+            success_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"adm": adm, "region": region})
         else:
             success_url = reverse_lazy('travel:trip_list')
         return success_url
@@ -1292,6 +1313,8 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
         report = int(form.cleaned_data["report"])
         fy = form.cleaned_data["fiscal_year"]
         user = form.cleaned_data["user"]
+        region = nz(form.cleaned_data["region"], "None")
+        adm = nz(form.cleaned_data["adm"], "None")
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
@@ -1303,6 +1326,13 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("travel:travel_plan", kwargs={
                 'fy': fy,
                 'email': email,
+            }))
+
+        elif report == 3:
+            return HttpResponseRedirect(reverse("travel:export_trip_list", kwargs={
+                'fy': fy,
+                'region': region,
+                'adm': adm,
             }))
 
         else:
@@ -1318,6 +1348,17 @@ def export_cfts_list(request, fy):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
                 timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+def export_trip_list(request, fy, region, adm):
+    file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="export of trips {timezone.now().strftime("%Y-%m-%d")}.xlsx"'
             return response
     raise Http404
 
@@ -1655,7 +1696,7 @@ class TRCostUpdateView(LoginRequiredMixin, UpdateView):
             my_trip = my_object.trip_request.trip
         utils.manage_trip_warning(my_trip)
 
-        return HttpResponseRedirect(reverse('shared_models:close_me'))
+        return HttpResponseRedirect(reverse('shared_models:close_me_no_refresh'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

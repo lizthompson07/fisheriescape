@@ -6,6 +6,8 @@ from decouple import config, UndefinedValueError
 
 # This is necessary for testing with non-HTTPS localhost
 # Remove this if deploying to production
+from dm_apps import utils
+
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 # This is necessary because Azure does not guarantee
@@ -16,37 +18,19 @@ os.environ['OAUTHLIB_IGNORE_SCOPE_CHANGE'] = '1'
 # Load the azure_oauth_settings.yml file
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-settings = dict()
-settings['app_id'] = None
-settings['app_secret'] = None
-settings['redirect'] = None
-settings['scopes'] = None
-settings['authority'] = None
-settings['authorize_endpoint'] = None
-settings['token_endpoint'] = None
+aad_connection_dict = utils.get_azure_connection_dict()
 
-try:
-    settings['app_id'] = config("app_id")
-    settings['app_secret'] = config("app_secret")
-    settings['redirect'] = config("redirect")
-    settings['scopes'] = config("scopes")
-    settings['authority'] = config("authority")
-    settings['authorize_endpoint'] = config("authorize_endpoint")
-    settings['token_endpoint'] = config("token_endpoint")
-except UndefinedValueError:
-    pass
-
-if settings.get("app_id"):
-    authorize_url = '{0}{1}'.format(settings['authority'], settings['authorize_endpoint'])
-    token_url = '{0}{1}'.format(settings['authority'], settings['token_endpoint'])
+if utils.azure_ad_values_exist(aad_connection_dict):
+    authorize_url = '{0}{1}'.format(aad_connection_dict['AAD_AUTHORITY'], aad_connection_dict['AAD_AUTHORIZE_ENDPOINT'])
+    token_url = '{0}{1}'.format(aad_connection_dict['AAD_AUTHORITY'], aad_connection_dict['AAD_TOKEN_ENDPOINT'])
 
 
 # Method to generate a sign-in url
 def get_sign_in_url():
     # Initialize the OAuth client
-    aad_auth = OAuth2Session(settings['app_id'],
-                             scope=settings['scopes'],
-                             redirect_uri=settings['redirect'])
+    aad_auth = OAuth2Session(aad_connection_dict['AAD_APP_ID'],
+                             scope=aad_connection_dict['AAD_SCOPES'],
+                             redirect_uri=aad_connection_dict['AAD_REDIRECT'])
 
     sign_in_url, state = aad_auth.authorization_url(authorize_url, prompt='login')
 
@@ -56,13 +40,13 @@ def get_sign_in_url():
 # Method to exchange auth code for access token
 def get_token_from_code(callback_url, expected_state):
     # Initialize the OAuth client
-    aad_auth = OAuth2Session(settings['app_id'],
+    aad_auth = OAuth2Session(aad_connection_dict['AAD_APP_ID'],
                              state=expected_state,
-                             scope=settings['scopes'],
-                             redirect_uri=settings['redirect'])
+                             scope=aad_connection_dict['AAD_SCOPES'],
+                             redirect_uri=aad_connection_dict['AAD_REDIRECT'])
 
     token = aad_auth.fetch_token(token_url,
-                                 client_secret=settings['app_secret'],
+                                 client_secret=aad_connection_dict['AAD_APP_SECRET'],
                                  authorization_response=callback_url)
 
     return token
@@ -89,14 +73,14 @@ def get_token(request):
         expire_time = token['expires_at'] - 300
         if now >= expire_time:
             # Refresh the token
-            aad_auth = OAuth2Session(settings['app_id'],
+            aad_auth = OAuth2Session(aad_connection_dict['AAD_APP_ID'],
                                      token=token,
-                                     scope=settings['scopes'],
-                                     redirect_uri=settings['redirect'])
+                                     scope=aad_connection_dict['AAD_SCOPES'],
+                                     redirect_uri=aad_connection_dict['AAD_REDIRECT'])
 
             refresh_params = {
-                'client_id': settings['app_id'],
-                'client_secret': settings['app_secret'],
+                'client_id': aad_connection_dict['AAD_APP_ID'],
+                'client_secret': aad_connection_dict['AAD_APP_SECRET'],
             }
             new_token = aad_auth.refresh_token(token_url, **refresh_params)
 

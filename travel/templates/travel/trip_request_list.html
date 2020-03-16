@@ -21,14 +21,20 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Trip Requests</li>
+            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                {% trans "Home" %}
+            </a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {% trans "Trip Requests" %}
+            </li>
         </ol>
     </nav>
 
     <div class="container-fluid">
 
-        <h1 class="big-header">Trip Requests </h1>
+        <h1 class="big-header">
+            {% trans "Trip Requests" %}
+        </h1>
 
         <form class="form" action="." method="get" id="filter-form">
             <div class="row">
@@ -42,7 +48,7 @@
                 {% endfor %}
                 <div class="col">
                     <br>
-                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                    <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
 
                 </div>
             </div>
@@ -59,7 +65,9 @@
                 <em>{% trans 'displaying' %} {{ filter_list.count }} {% trans 'of' %} {{ filter.qs.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'travel:request_new' %}" class="btn btn-sm btn-primary">New Trip Request</a>
+                <a href="{% url 'travel:request_new' %}" class="btn btn-sm btn-primary">
+                    {% trans "New Trip Request" %}
+                </a>
             </div>
         </div>
 
