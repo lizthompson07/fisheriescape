@@ -8,7 +8,7 @@ class CommonFormTest(TestCase):
     form_class = None
     test_factory = None
 
-    fixtures = ['whalesdb/test/data/lookup_fixture.json']
+    fixtures = ['lookup_fixture.json']
 
     def setUp(self) -> None:
         activate('en')
@@ -23,7 +23,7 @@ class CommonFormTest(TestCase):
 # a redirect if permissions are required to access a view
 ###########################################################################################
 class CommonTest(TestCase):
-    fixtures = ['whalesdb/test/data/lookup_fixture.json']
+    fixtures = ['lookup_fixture.json']
 
     test_url = None
     test_expected_template = None
