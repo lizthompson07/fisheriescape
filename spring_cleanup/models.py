@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from shared_models import models as shared_models
-from shapely.geometry import Polygon, Point, LineString
+from django.contrib.gis.db import models
 
 
 class Birds(models.Model):
@@ -34,6 +34,7 @@ class Route(models.Model):
     description_fr = models.TextField(blank=True, null=True, verbose_name=_("Route description (FR)"))
     recommended_people = models.IntegerField(blank=True, null=True, verbose_name=_("recommended number of people"))
     estimated_time_required = models.FloatField(blank=True, null=True, verbose_name=_("estimated time needed"))
+    polygon = models.MultiPolygonField(srid=4326)
 
 
 class Outing(models.Model):
