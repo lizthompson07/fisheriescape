@@ -1,14 +1,14 @@
 from django.views.generic import TemplateView, CreateView, DetailView, UpdateView
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import HttpResponseRedirect
 from django.conf import settings
 
 from django.urls import reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
-from . import forms
-from . import models
-from . import filters
+from . import forms, models, filters, utils
+
 import json
 
 
@@ -17,78 +17,66 @@ class IndexView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data()
-        context['section'] = [
-            {
-                'title': 'Entry Forms',
-                'forms': [
-                    {
-                        'title': _("Deployment List"),
-                        'url': "whalesdb:list_dep",
-                        'icon': "img/whalesdb/deployment.svg",
-                    },
-                    {
-                        'title': _("Mooring Setup List"),
-                        'url': "whalesdb:list_mor",
-                        'icon': "img/whalesdb/mooring.svg",
-                    },
-                    {
-                        'title': _("Project List"),
-                        'url': "whalesdb:list_prj",
-                        'icon': "img/whalesdb/project.svg",
-                    },
-                    {
-                        'title': _("Station List"),
-                        'url': "whalesdb:list_stn",
-                        'icon': "img/whalesdb/station.svg",
-                    },
-                ]
-            },
-        ]
+        context['auth'] = utils.whales_authorized(self.request.user)
 
         return context
 
 
-class CreateCommon(UserPassesTestMixin, CreateView):
-    # key is used to construct commonly formatted strings
+# CommonCreate Extends the UserPassesTestMixin used to determine if a user has
+# has the correct privileges to interact with Creation Views
+class CommonCreate(UserPassesTestMixin, CreateView):
+
+    # key is used to construct commonly formatted strings, such as used in the get_success_url
     key = None
 
     # this is where the user should be redirected if they're not logged in
     login_url = '/accounts/login_required/'
 
     # default template to use to create an update
+    #  _entry_form.html contains the common navigation elements at the top of the template
+    #  _entry_form_no_nav.html does not contain navigation at the top of the template
     template_name = 'whalesdb/_entry_form.html'
 
     # title to display on the CreateView page
     title = None
 
+    # If a url is setup to use <str:pop> in its path, indicating the creation form is in a popup window
+    # get_template_names will return the _entry_form_no_nav.html template.
     def get_template_names(self):
         if self.kwargs.get("pop"):
             return 'whalesdb/_entry_form_no_nav.html'
 
         return self.template_name
 
+    # Upon success most creation views will be redirected to their respective 'CommonList' view. To send
+    # a successful creation view somewhere else, override this method
     def get_success_url(self):
         success_url = reverse_lazy("whalesdb:list_{}".format(self.key))
 
         if self.kwargs.get("pop"):
-            # create views are all intended to be pop out windows so upon success close the window
+            # create views intended to be pop out windows should close the window upon success
             success_url = reverse_lazy("shared_models:close_me_no_refresh")
 
         return success_url
 
+    # overrides the UserPassesTestMixin test to check that a user belongs to the whalesdb_admin group
     def test_func(self):
         return self.request.user.groups.filter(name='whalesdb_admin').exists()
 
+    # Get context returns elements used on the page. Make sure when extending to call
+    # context = super().get_context_data(**kwargs) so that elements created in the parent
+    # class are inherited by the extending class.
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         if self.title:
+            # used as the title of the creation view. Called in the _entry_form and _entry_form_no_nav tempaltes
             context["title"] = self.title
 
         return context
 
 
-class CreateDep(CreateCommon):
+class DepCreate(CommonCreate):
     key = 'dep'
     model = models.DepDeployment
     form_class = forms.DepForm
@@ -105,42 +93,70 @@ class CreateDep(CreateCommon):
         return context
 
 
-class CreateEmm(CreateCommon):
+class EmmCreate(CommonCreate):
     key = 'emm'
     model = models.EmmMakeModel
     form_class = forms.EmmForm
     title = _("Create Make/Model")
 
+    def form_valid(self, form):
+        emm = form.save()
 
-class CreateEqp(CreateCommon):
+        if emm.eqt.pk == 4:
+            return HttpResponseRedirect(reverse_lazy('whalesdb:details_emm', args=(emm.pk,)))
+        else:
+            return HttpResponseRedirect(self.get_success_url())
+
+
+class EqhCreate(CommonCreate):
+    key = 'eqh'
+    model = models.EqhHydrophoneProperty
+    form_class = forms.EqhForm
+    title = _("Hydrophone Properties")
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['emm'] = self.kwargs['pk']
+
+        return initial
+
+
+class EqpCreate(CommonCreate):
+    # This key is used by CommonCreate to create the 'whalesdb:list_eqp' name in the get_success_url method
     key = 'eqp'
+
+    # The model this class uses
     model = models.EqpEquipment
+
+    # The form class this model uses
     form_class = forms.EqpForm
+
+    # the title to use on this views creation template
     title = _("Create Equipment")
 
 
-class CreateEqo(CreateCommon):
+class EqoCreate(CommonCreate):
     key = 'eqo'
     model = models.EqoOwner
     form_class = forms.EqoForm
     title = _("Create Equipment Owner")
 
 
-class CreateMor(CreateCommon):
+class MorCreate(CommonCreate):
     key = 'mor'
     model = models.MorMooringSetup
     form_class = forms.MorForm
     title = _("Create Mooring Setup")
 
 
-class CreatePrj(CreateCommon):
+class PrjCreate(CommonCreate):
     key = 'prj'
     model = models.PrjProject
     form_class = forms.PrjForm
     title = _("Create Project")
 
 
-class CreateSte(CreateCommon):
+class SteCreate(CommonCreate):
     key = 'ste'
     model = models.SteStationEvent
     form_class = forms.SteForm
@@ -156,14 +172,14 @@ class CreateSte(CreateCommon):
         return init
 
 
-class CreateStn(CreateCommon):
+class StnCreate(CommonCreate):
     key = 'stn'
     model = models.StnStation
     form_class = forms.StnForm
     title = _("Create Station")
 
 
-class UpdateCommon(UserPassesTestMixin, UpdateView):
+class CommonUpdate(UserPassesTestMixin, UpdateView):
     # this is where the user should be redirected if they're not logged in
     login_url = '/accounts/login_required/'
 
@@ -196,7 +212,7 @@ class UpdateCommon(UserPassesTestMixin, UpdateView):
         return context
 
 
-class UpdateDep(UpdateCommon):
+class DepUpdate(CommonUpdate):
     model = models.DepDeployment
     form_class = forms.DepForm
     title = _("Update Deployment")
@@ -212,37 +228,43 @@ class UpdateDep(UpdateCommon):
         return context
 
 
-class UpdateEmm(UpdateCommon):
+class EmmUpdate(CommonUpdate):
     model = models.EmmMakeModel
     form_class = forms.EmmForm
     title = _("Update Make/Model")
 
 
-class UpdateEqp(UpdateCommon):
+class EqhUpdate(CommonUpdate):
+    model = models.EqhHydrophoneProperty
+    form_class = forms.EqhForm
+    title = _("Hydrophone Properties")
+
+
+class EqpUpdate(CommonUpdate):
     model = models.EqpEquipment
     form_class = forms.EqpForm
     title = _("Update Equipment")
 
 
-class UpdateMor(UpdateCommon):
+class MorUpdate(CommonUpdate):
     model = models.MorMooringSetup
     form_class = forms.MorForm
     title = _("Update Mooring Setup")
 
 
-class UpdatePrj(UpdateCommon):
+class PrjUpdate(CommonUpdate):
     model = models.PrjProject
     form_class = forms.PrjForm
     title = _("Update Project")
 
 
-class UpdateStn(UpdateCommon):
+class StnUpdate(CommonUpdate):
     model = models.StnStation
     form_class = forms.StnForm
     title = _("Update Station")
 
 
-class DetailsCommon(DetailView):
+class CommonDetails(DetailView):
     # default template to use to create a details view
     template_name = "whalesdb/whales_details.html"
 
@@ -267,17 +289,16 @@ class DetailsCommon(DetailView):
 
         context['list_url'] = self.list_url if self.list_url else "whalesdb:list_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
-        context['auth'] = self.request.user.is_authenticated and \
-                          self.request.user.groups.filter(name='whalesdb_admin').exists()
+        context['auth'] = utils.whales_authorized(self.request.user)
 
 
         return context
 
 
-class DetailsDep(DetailsCommon):
+class DepDetails(CommonDetails):
     key = "dep"
     model = models.DepDeployment
-    template_name = 'whalesdb/depdeployment_details.html'
+    template_name = 'whalesdb/details_dep.html'
     title = _("Deployment Details")
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
@@ -289,31 +310,32 @@ class DetailsDep(DetailsCommon):
         return context
 
 
-class DetailsEmm(DetailsCommon):
+class EmmDetails(CommonDetails):
     key = "emm"
     model = models.EmmMakeModel
+    template_name = 'whalesdb/emm_details.html'
     title = _("Make/Model Details")
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating', 'emm_description']
 
 
-class DetailsEqp(DetailsCommon):
+class EqpDetails(CommonDetails):
     key = "eqp"
     model = models.EqpEquipment
     title = _("Equipment Details")
     fields = ['emm', 'eqp_serial', 'eqp_asset_id', 'eqp_date_purchase', 'eqp_notes', 'eqp_retired', 'eqo_owned_by']
 
 
-class DetailsMor(DetailsCommon):
+class MorDetails(CommonDetails):
     key = "mor"
     model = models.MorMooringSetup
-    template_name = 'whalesdb/mormooringsetup_details.html'
+    template_name = 'whalesdb/details_mor.html'
     title = _("Mooring Setup Details")
     fields = ["mor_name", "mor_max_depth", "mor_link_setup_image", "mor_additional_equipment",
               "mor_general_moor_description", "mor_notes"]
     creation_form_height = 600
 
 
-class DetailsPrj(DetailsCommon):
+class PrjDetails(CommonDetails):
     key = 'prj'
     model = models.PrjProject
     title = _("Project Details")
@@ -321,11 +343,11 @@ class DetailsPrj(DetailsCommon):
     creation_form_height = 725
 
 
-class DetailsStn(DetailsCommon):
+class StnDetails(CommonDetails):
     key = 'stn'
     model = models.StnStation
     title = _("Station Details")
-    template_name = 'whalesdb/stnstation_details.html'
+    template_name = 'whalesdb/details_stn.html'
     fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
               'stn_planned_depth', 'stn_notes']
     creation_form_height = 400
@@ -338,7 +360,7 @@ class DetailsStn(DetailsCommon):
         return context
 
 
-class ListCommon(FilterView):
+class CommonList(FilterView):
     # default template to use to create a filter view
     template_name = 'whalesdb/whale_filter.html'
 
@@ -376,8 +398,7 @@ class ListCommon(FilterView):
         context['details_url'] = self.details_url if self.details_url else "whalesdb:details_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
 
-        context['auth'] = self.request.user.is_authenticated and \
-                          self.request.user.groups.filter(name='whalesdb_admin').exists()
+        context['auth'] = utils.whales_authorized(self.request.user)
 
         if self.creation_form_height:
             context['height'] = self.creation_form_height
@@ -385,7 +406,7 @@ class ListCommon(FilterView):
         return context
 
 
-class ListDep(ListCommon):
+class DepList(CommonList):
     key = 'dep'
     model = models.DepDeployment
     filterset_class = filters.DepFilter
@@ -394,15 +415,15 @@ class ListDep(ListCommon):
     creation_form_height = 600
 
 
-class ListEmm(ListCommon):
+class EmmList(CommonList):
     key = 'emm'
     model = models.EmmMakeModel
     filterset_class = filters.EmmFilter
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating']
-    title = _("Equipment List")
+    title = _("Make/Model List")
 
 
-class ListEqp(ListCommon):
+class EqpList(CommonList):
     key = 'eqp'
     model = models.EqpEquipment
     filterset_class = filters.EqpFilter
@@ -410,7 +431,7 @@ class ListEqp(ListCommon):
     title = _("Equipment List")
 
 
-class ListMor(ListCommon):
+class MorList(CommonList):
     key = 'mor'
     model = models.MorMooringSetup
     filterset_class = filters.MorFilter
@@ -419,7 +440,7 @@ class ListMor(ListCommon):
     creation_form_height = 725
 
 
-class ListPrj(ListCommon):
+class PrjList(CommonList):
     key = 'prj'
     model = models.PrjProject
     filterset_class = filters.PrjFilter
@@ -428,7 +449,7 @@ class ListPrj(ListCommon):
     creation_form_height = 400
 
 
-class ListStn(ListCommon):
+class StnList(CommonList):
     key = 'stn'
     model = models.StnStation
     filterset_class = filters.StnFilter
