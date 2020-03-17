@@ -38,6 +38,7 @@ APP_DICT = {
     'trapnet': "TrapNet",
     'whalesdb': "Whale Equipment Deployment Inventory",
     'vault': "Marine Megafauna Media Vault",
+    'spring_cleanup': "Gulf Region Spring Cleanup",
 }
 
 # This variable is used to employ a preconfiguartion of applications for Azure deployment
@@ -91,7 +92,7 @@ if USE_LOCAL_DB:
 else:
 
     my_default_db = {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.contrib.gis.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
         'OPTIONS': {
             'host': db_connections["DB_HOST"],
