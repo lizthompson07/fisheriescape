@@ -26,7 +26,7 @@ class TestCreateDep(CommonCreateTest):
 
         self.expected_success_url = reverse_lazy('whalesdb:list_dep')
 
-        self.expected_view = views.CreateDep
+        self.expected_view = views.DepCreate
         self.expected_form = forms.DepForm
 
     # Users must be logged in to create new objects
@@ -76,7 +76,8 @@ class TestCreateEmm(CommonCreateTest):
     def setUp(self):
         super().setUp()
 
-        self.data = Factory.EmmFactory.get_valid_data(Factory._eqt_codes_[2])
+        # test for eqt_id = 3 - 'otn recorder' which doesn't have special pages for the success field
+        self.data = Factory.EmmFactory.get_valid_data(3)
 
         # Hydrophone properties requires a make and model emm_id
         self.test_url = reverse_lazy('whalesdb:create_emm')
@@ -86,7 +87,7 @@ class TestCreateEmm(CommonCreateTest):
 
         self.expected_success_url = reverse_lazy('whalesdb:list_emm')
 
-        self.expected_view = views.CreateEmm
+        self.expected_view = views.EmmCreate
         self.expected_form = forms.EmmForm
 
     # Users must be logged in to create new objects
@@ -120,21 +121,23 @@ class TestCreateEmm(CommonCreateTest):
     def test_create_emm_context_fields(self):
         response = super().assert_create_view_context_fields()
 
-        self.assertIn("form", response.context)
-        self.assertIn("emm", response.context['form'].initial)
-        self.assertEquals(self.emm_id, response.context['form'].initial['emm'])
-
     # test that given some valid data the view will redirect to the list
     @tag('emm', 'create', 'redirect')
     def test_create_emm_successful_url(self):
         super().assert_successful_url()
 
-    # If the created emm object is a Hydrophone type
+    # If the created emm object is a Hydrophone type user should be sent to the details page to add
+    # hydrophone details
     @tag('emm', 'create', 'redirect', 'eqh')
     def test_create_emm_hydrophone_successful_url(self):
-        self.data = Factory.EmmFactory.get_valid_data(Factory._eqt_codes_[2])
-        self.expected_success_url = reverse_lazy('whalesdb:details_emm')
-        super().assert_successful_url()
+        data = Factory.EmmFactory.get_valid_data(4)
+
+        self.login_whale_user()
+        response = self.client.post(self.test_url, data)
+
+        # should only be one EMM object in the db
+        emm_id = models.EmmMakeModel.objects.all()[0].pk
+        self.assertRedirects(response=response, expected_url=reverse_lazy('whalesdb:details_emm', args=(emm_id,)))
 
 
 class TestCreateEqh(CommonCreateTest):
@@ -154,7 +157,7 @@ class TestCreateEqh(CommonCreateTest):
 
         self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
-        self.expected_view = views.CreateEqh
+        self.expected_view = views.EqhCreate
         self.expected_form = forms.EqhForm
 
     # Users must be logged in to create new objects
@@ -212,7 +215,7 @@ class TestCreateEqp(CommonCreateTest):
 
         self.expected_success_url = reverse_lazy('whalesdb:list_eqp')
 
-        self.expected_view = views.CreateEqp
+        self.expected_view = views.EqpCreate
         self.expected_form = forms.EqpForm
 
     # Users must be logged in to create new objects
@@ -267,7 +270,7 @@ class TestCreateMor(CommonCreateTest):
 
         self.expected_success_url = reverse_lazy('whalesdb:list_mor')
 
-        self.expected_view = views.CreateMor
+        self.expected_view = views.MorCreate
         self.expected_form = forms.MorForm
 
         self.img_file_name = "MooringSetupTest.png"
@@ -337,7 +340,7 @@ class TestCreatePrj(CommonCreateTest):
 
         self.expected_success_url = reverse_lazy('whalesdb:list_prj')
 
-        self.expected_view = views.CreatePrj
+        self.expected_view = views.PrjCreate
 
         self.expected_form = forms.PrjForm
 
@@ -396,7 +399,7 @@ class TestCreateSte(CommonCreateTest):
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
 
-        self.expected_view = views.CreateSte
+        self.expected_view = views.SteCreate
 
         self.expected_form = forms.SteForm
 
@@ -448,7 +451,7 @@ class TestCreateStn(CommonCreateTest):
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'whalesdb/_entry_form.html'
 
-        self.expected_view = views.CreateStn
+        self.expected_view = views.StnCreate
 
         self.expected_form = forms.StnForm
 
