@@ -11,7 +11,7 @@ from .utils import db_connection_values_exist, get_db_connection_dict
 
 ########
 # APPS #
-########
+#########
 
 # add new applications to this dictionary; grey out any app you do not want
 # the dict key should be the actual name of the app
