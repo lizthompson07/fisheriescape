@@ -21,7 +21,7 @@ class TestUpdateDep(CommonUpdateTest):
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'whalesdb/_entry_form.html'
 
-        self.expected_view = views.UpdateDep
+        self.expected_view = views.DepUpdate
 
         self.expected_form = forms.DepForm
 
@@ -65,6 +65,119 @@ class TestUpdateDep(CommonUpdateTest):
         super().assert_successful_url()
 
 
+class TestUpdateEmm(CommonUpdateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.EmmFactory.get_valid_data()
+
+        obj = Factory.EmmFactory()
+
+        self.test_url = reverse_lazy('whalesdb:update_emm', args=(obj.pk, 'pop',))
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+
+        self.expected_view = views.EmmUpdate
+
+        self.expected_form = forms.EmmForm
+
+    # Users must be logged in to update stations
+    @tag('emm', 'update_emm', 'response', 'access')
+    def test_update_emm_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to update stations
+    @tag('emm', 'update_emm', 'response', 'access')
+    def test_update_emm_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('emm', 'update_emm', 'response', 'access')
+    def test_update_emm_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('emm', 'update_emm', 'form')
+    def test_update_emm_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('emm', 'update_emm', 'context')
+    def test_update_emm_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('emm', 'update_emm', 'redirect')
+    def test_update_emm_successful_url(self):
+        super().assert_successful_url()
+
+
+class TestUpdateEqh(CommonUpdateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.EqhFactory.get_valid_data()
+
+        obj = Factory.EqhFactory()
+
+        self.test_url = reverse_lazy('whalesdb:update_eqh', args=(obj.pk, 'pop',))
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+
+        self.expected_view = views.EqhUpdate
+
+        self.expected_form = forms.EqhForm
+
+    # Users must be logged in to update stations
+    @tag('eqh', 'update_eqh', 'response', 'access')
+    def test_update_eqh_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to update stations
+    @tag('eqh', 'update_eqh', 'response', 'access')
+    def test_update_eqh_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('eqh', 'update_eqh', 'response', 'access')
+    def test_update_eqh_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('eqh', 'update_eqh', 'form')
+    def test_update_eqh_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('eqh', 'update_eqh', 'context')
+    def test_update_eqh_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+        # Emm field should NOT be in the update dialog
+        self.assertNotIn("emm", response.context)
+
+    # test that given some valid data the view will redirect to the list
+    @tag('eqh', 'update_eqh', 'redirect')
+    def test_update_eqh_successful_url(self):
+        super().assert_successful_url()
+
+
 class TestUpdateMor(CommonUpdateTest):
 
     def setUp(self):
@@ -79,7 +192,7 @@ class TestUpdateMor(CommonUpdateTest):
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'whalesdb/_entry_form.html'
 
-        self.expected_view = views.UpdateMor
+        self.expected_view = views.MorUpdate
 
         self.expected_form = forms.MorForm
 
@@ -134,7 +247,7 @@ class TestUpdatePrj(CommonUpdateTest):
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'whalesdb/_entry_form.html'
 
-        self.expected_view = views.UpdatePrj
+        self.expected_view = views.PrjUpdate
 
         self.expected_form = forms.PrjForm
 
@@ -189,7 +302,7 @@ class TestUpdateStn(CommonUpdateTest):
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'whalesdb/_entry_form.html'
 
-        self.expected_view = views.UpdateStn
+        self.expected_view = views.StnUpdate
 
         self.expected_form = forms.StnForm
 
