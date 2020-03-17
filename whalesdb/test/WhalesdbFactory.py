@@ -11,23 +11,11 @@ _eqt_codes_ = ['Acoustic recorder', 'Environmental sensor', 'OTN reciever', 'Hyd
 faker = Factory.create()
 
 
-class EqtFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.EqtEquipmentTypeCode
-        django_get_or_create = ('eqt_name',)
-
-    eqt_name = faker.word(_eqt_codes_)
-
-    # It's important to make sure the eqt_ids and eqt_names match up because the IDs are what are used to determine
-    # if the Hydrophone or Acoustic recorder details page is shown.
-    eqt_id = _eqt_codes_.index(eqt_name) + 1
-
-
 class EmmFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EmmMakeModel
 
-    eqt = factory.SubFactory(EqtFactory)
+    eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=faker.random_int(1, 4))
     emm_make = faker.word()
     emm_model = faker.word()
     emm_depth_rating = faker.random_int(10, 10000)
@@ -35,12 +23,10 @@ class EmmFactory(factory.django.DjangoModelFactory):
 
     # if providing an eqt_type use the WhalesdbFactory._eqt_type_codes array
     @staticmethod
-    def get_valid_data(eqt_type=None):
+    def get_valid_data(eqt_id=None):
 
-        if type:
-            eqt = EqtFactory(eqt_name=eqt_type)
-        else:
-            eqt = EqtFactory()
+        eqt_id = eqt_id if eqt_id else faker.random_int(1, 4)
+        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=eqt_id)
 
         valid_data = {
             'eqt': eqt.pk,
@@ -64,7 +50,7 @@ class EqhFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def get_valid_data():
         # specifically testing when an equipment is a Hydrophone
-        eqt = EqtFactory(eqt_name=_eqt_codes_[2])
+        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=4)
         emm = EmmFactory(eqt=eqt)
 
         valid_data = {
