@@ -62,6 +62,29 @@ class EqhFactory(factory.django.DjangoModelFactory):
         return valid_data
 
 
+class EqrFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EqrRecorderProperties
+
+    emm = factory.SubFactory(EmmFactory)
+    ert = models.ErtRecorderType.objects.get(ert_id=faker.random_int(1, 4))
+    eqr_internal_hydro = faker.boolean()
+
+    @staticmethod
+    def get_valid_data():
+        # specifically testing when an equipment is an Acoustic Recorder
+        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=1)
+        emm = EmmFactory(eqt=eqt)
+
+        valid_data = {
+            'emm': emm.pk,
+            'ert': models.ErtRecorderType.objects.get(ert_id=faker.random_int(1, 4)),
+            'eqr_internal_hydro': faker.boolean()
+        }
+
+        return valid_data
+
+
 class EqoFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqoOwner

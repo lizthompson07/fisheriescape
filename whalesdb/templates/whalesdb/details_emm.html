@@ -47,5 +47,37 @@
         {% endif %}
         </div>
     </div>
+    {% elif object.eqt.pk == 1 %}
+    <div class="card border border-dark my-1" id="rec">
+        <h5 class="card-header">
+                <div class="row align-items-center">
+                    <span class="col">
+                        {% trans "Recorder Properties" %}
+                    </span>
+                    {% if auth %}
+                    <span class="px-1">
+                        {% if not object.recorders %}
+                        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_eqr' object.pk 'pop' %}','rec')" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
+                        {% else %}
+                        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:update_eqr' object.pk 'pop' %}','rec')" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+        </h5>
+        <div class="card-body">
+        {% if object.recorders %}
+            {% with object.recorders as recorder %}
+            <div class="row" >
+                <div class="container"><span class="font-weight-bold">{% get_verbose_label recorder 'ert' %} : </span><span>{% get_field_value recorder 'ert' %}</span></div>
+            </div>
+            <div class="row" >
+                <div class="container"><span class="font-weight-bold">{% get_verbose_label recorder 'eqr_internal_hydro' %} : </span><span>{% get_field_value recorder 'eqr_internal_hydro' %}</span></div>
+            </div>
+            {% endwith %}
+        {% endif %}
+        </div>
+    </div>
+
     {% endif %}
 {% endblock field_override %}
