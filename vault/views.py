@@ -18,7 +18,7 @@ from . import forms
 from . import filters
 from . import reports
 
-#for Dashboard test
+#for Dashboard 1 test
 from django.http import JsonResponse
 from django.shortcuts import render
 from vault.models import Outing
@@ -33,7 +33,7 @@ def pivot_data(request):
     data = serializers.serialize('json', dataset)
     return JsonResponse(data, safe=False)
 
-#end Dashboard test section
+#end Dashboard 1 test section
 
 class CloserTemplateView(TemplateView):
     template_name = 'vault/close_me.html'

@@ -13,7 +13,7 @@ urlpatterns = [
 
     # path('admin/', admin.site.urls),
 
-#     # DASHBOARD #
+#     # DASHBOARD 1 #
 #     ###########
 
     path('dashboard/', views.dashboard_with_pivot, name="dashboard_with_pivot"),
