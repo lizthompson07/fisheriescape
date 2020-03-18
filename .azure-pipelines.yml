@@ -49,7 +49,13 @@ steps:
 
   - script: |
       pushd '$(projectRoot)'
+# Whales needs some initial data loaded for lookup tables for the tests to pass, on my dev machine I use a MySQL DB
+# and fixtures in the testing classes to load the data, but in this environment using an Sqlite DB migrations have
+# to be done then fixtures loaded manually before the tests are run
+      python manage.py migrate whalesdb
+      python manage.py loaddata whalesdb/fixtures/initial_data.json
       python manage.py test whalesdb.test
+# TODO: Database created in the previous step needs to be manually deleted here.
     condition: succeededOrFailed()
     displayName: 'Run tests'
 
