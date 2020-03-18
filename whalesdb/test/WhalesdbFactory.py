@@ -78,7 +78,7 @@ class EqrFactory(factory.django.DjangoModelFactory):
 
         valid_data = {
             'emm': emm.pk,
-            'ert': models.ErtRecorderType.objects.get(ert_id=faker.random_int(1, 4)),
+            'ert': faker.random_int(1, 4),
             'eqr_internal_hydro': faker.boolean()
         }
 
