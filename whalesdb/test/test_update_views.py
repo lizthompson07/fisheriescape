@@ -127,7 +127,8 @@ class TestUpdateEqh(CommonUpdateTest):
 
         self.data = Factory.EqhFactory.get_valid_data()
 
-        obj = Factory.EqhFactory()
+        emm = Factory.EmmFactory(eqt_id=4)
+        obj = Factory.EqhFactory(emm=emm)
 
         self.test_url = reverse_lazy('whalesdb:update_eqh', args=(obj.pk, 'pop',))
 
@@ -185,7 +186,8 @@ class TestUpdateEqr(CommonUpdateTest):
 
         self.data = Factory.EqrFactory.get_valid_data()
 
-        obj = Factory.EqrFactory()
+        emm = Factory.EmmFactory(eqt_id=1)
+        obj = Factory.EqrFactory(emm=emm)
 
         self.test_url = reverse_lazy('whalesdb:update_eqr', args=(obj.pk, 'pop',))
 

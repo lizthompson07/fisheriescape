@@ -66,7 +66,8 @@ class EmmMakeModel(models.Model):
 
 class EcpChannelProperty(models.Model):
     ecp_id = models.AutoField(primary_key=True)
-    emm_id = models.ForeignKey('EqrRecorderProperties', on_delete=models.DO_NOTHING, verbose_name=_("Recorder"))
+    eqr = models.ForeignKey('EqrRecorderProperties', on_delete=models.DO_NOTHING, verbose_name=_("Recorder"),
+                            related_name="channels")
     ecp_channel_no = models.BigIntegerField(verbose_name=_("Channel Number"))
     eqa_adc_bits = models.ForeignKey('EqaAdcBitsCode', on_delete=models.DO_NOTHING, db_column='eqa_adc_bits',
                                      verbose_name=_("ADC Bits"))
@@ -76,7 +77,7 @@ class EcpChannelProperty(models.Model):
                                                 verbose_name=_("Minimum voltage"))
 
     class Meta:
-        unique_together = (('ecp_channel_no', 'emm_id'),)
+        unique_together = (('ecp_channel_no', 'eqr'),)
 
     def __str__(self):
         return "{}: {}".format(_("Channel"), self.ecp_channel_no)
@@ -120,7 +121,7 @@ class EqaAdcBitsCode(models.Model):
 
 class EqhHydrophoneProperty(models.Model):
     emm = models.OneToOneField(EmmMakeModel, on_delete=models.DO_NOTHING, primary_key=True,
-                               verbose_name=_("Hydrophone"), related_name="hydrophones")
+                               verbose_name=_("Hydrophone"), related_name="hydrophone")
     eqh_range_min = models.BigIntegerField(verbose_name=_("Min Range (dB)"))
     eqh_range_max = models.BigIntegerField(verbose_name=_("Max Range (db)"))
 
@@ -153,7 +154,7 @@ class EqpEquipment(models.Model):
 
 class EqrRecorderProperties(models.Model):
     emm = models.OneToOneField('EmmMakeModel', primary_key=True, on_delete=models.CASCADE,
-                            verbose_name=_("Make and Model"), related_name="recorders")
+                            verbose_name=_("Make and Model"), related_name="recorder")
     ert = models.ForeignKey('ErtRecorderType', on_delete=models.DO_NOTHING, verbose_name=_("Recorder Type"))
     eqr_internal_hydro = models.BooleanField(default=False, verbose_name=_("Has Internal Hydrophone"))
 

@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.core.files.base import ContentFile
 from django.utils.six import BytesIO
 from django.conf import settings
@@ -6,8 +6,50 @@ from django.conf import settings
 from PIL import Image
 
 from whalesdb import models
+from whalesdb.test import WhalesdbFactory as Factory
 
 import os
+
+
+class TestEmm(TestCase):
+
+    fixtures = ['initial_data']
+
+    def setup(self):
+        pass
+
+    # Make and model objects if eqt_id == 4 are hydrophone equipment and have a one to one entry in the
+    # EqhHydrophoneProperties table. The Eqh table has a related name on the emm object
+    @tag('emm', 'model', 'emm_model')
+    def test_emm_eqh_hydrophones(self):
+        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=4)
+        emm = Factory.EmmFactory(eqt=eqt)
+        # create an Eqh object from the factory, in theory it should share the emm object
+        # when emm.hydrophone is called there should be a single matching entry
+        eqh = Factory.EqhFactory(emm=emm)
+
+        hydrophone = emm.hydrophone
+        self.assertEquals(eqh, hydrophone)
+
+    # When a make and model is eqt_id == 1 it is a recorder type and channels should be accessable through the
+    # related name emm.channels
+    @tag('emm', 'model', 'emm_model')
+    def test_emm_ecp_channels(self):
+        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=1)
+        emm = Factory.EmmFactory(eqt=eqt)
+
+        eqr = Factory.EqrFactory(emm=emm)
+        ecp1 = Factory.EcpFactory(eqr=eqr, ecp_channel_no=1)
+        ecp2 = Factory.EcpFactory(eqr=eqr, ecp_channel_no=2)
+
+        recorder = emm.recorder
+        self.assertEquals(eqr, recorder)
+
+        channels = recorder.channels.all()
+        self.assertEquals(2, channels.count())
+
+        self.assertIn(ecp1, channels)
+        self.assertIn(ecp2, channels)
 
 
 class TestMorMooringSetup(TestCase):

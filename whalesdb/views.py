@@ -339,6 +339,7 @@ class EmmDetails(CommonDetails):
 
 class EqpDetails(CommonDetails):
     key = "eqp"
+    template_name = "whalesdb/details_eqp.html"
     model = models.EqpEquipment
     title = _("Equipment Details")
     fields = ['emm', 'eqp_serial', 'eqp_asset_id', 'eqp_date_purchase', 'eqp_notes', 'eqp_retired', 'eqo_owned_by']
