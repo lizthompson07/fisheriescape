@@ -153,8 +153,8 @@ class EqpEquipment(models.Model):
 
 class EqrRecorderProperties(models.Model):
     emm = models.OneToOneField('EmmMakeModel', primary_key=True, on_delete=models.CASCADE,
-                            verbose_name=_("Make and Model"))
-    ert_id = models.ForeignKey('ErtRecorderType', on_delete=models.DO_NOTHING, verbose_name=_("Recorder Type"))
+                            verbose_name=_("Make and Model"), related_name="recorders")
+    ert = models.ForeignKey('ErtRecorderType', on_delete=models.DO_NOTHING, verbose_name=_("Recorder Type"))
     eqr_internal_hydro = models.BooleanField(default=False, verbose_name=_("Has Internal Hydrophone"))
 
     def __str__(self):
