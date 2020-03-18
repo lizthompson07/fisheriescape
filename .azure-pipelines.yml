@@ -55,7 +55,7 @@ steps:
       python manage.py migrate whalesdb
       python manage.py loaddata whalesdb/fixtures/initial_data.json
       python manage.py test whalesdb.test
-# TODO: Database created in the previous step needs to be manually deleted here.
+# TODO: Database created in the previous step should be manually deleted here so it doesn't interfere with other testing
     condition: succeededOrFailed()
     displayName: 'Run tests'
 
