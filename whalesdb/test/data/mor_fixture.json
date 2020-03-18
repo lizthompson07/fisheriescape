@@ -1,0 +1,15 @@
+[
+  {
+    "model": "whalesdb.mormooringsetup",
+    "pk": 1,
+    "fields": {
+		"mor_name": "mor 001",
+		"mor_max_depth": "500",
+
+		"mor_link_setup_image": "http://somelink.com/images/",
+		"mor_additional_equipment": "No additional Equipment",
+		"mor_general_moor_description": "Some description",
+		"mor_notes": "Notes Notes Notes"
+    }
+  }
+]

@@ -1,14 +1,10 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
-#   * Remove `managed = True` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.dispatch import receiver
 
 from shared_models import models as shared_models
+
+import os
 
 
 class DepDeployment(models.Model):
@@ -16,12 +12,19 @@ class DepDeployment(models.Model):
     dep_year = models.BigIntegerField(verbose_name=_("Year"))
     dep_month = models.BigIntegerField(verbose_name=_("Month"))
     dep_name = models.CharField(max_length=255, verbose_name=_("Deployment"))
-    stn = models.ForeignKey('StnStation', on_delete=models.DO_NOTHING, verbose_name=_("Station"))
-    prj = models.ForeignKey('PrjProject', on_delete=models.DO_NOTHING, verbose_name=_("Project"))
-    mor = models.ForeignKey('MorMooringSetup', on_delete=models.DO_NOTHING, verbose_name=_("Mooring Setup"))
+    stn = models.ForeignKey('StnStation', on_delete=models.DO_NOTHING, verbose_name=_("Station"),
+                            related_name="stations")
+    prj = models.ForeignKey('PrjProject', on_delete=models.DO_NOTHING, verbose_name=_("Project"),
+                            related_name="projects")
+    mor = models.ForeignKey('MorMooringSetup', on_delete=models.DO_NOTHING, verbose_name=_("Mooring Setup"),
+                            related_name="moorings")
 
     def __str__(self):
         return "{}".format(self.dep_name)
+
+    @property
+    def station_events(self):
+        return self.stestationevents.all()
 
 
 class EcaCalibrationEvent(models.Model):
@@ -117,7 +120,7 @@ class EqaAdcBitsCode(models.Model):
 
 class EqhHydrophoneProperty(models.Model):
     emm = models.OneToOneField(EmmMakeModel, on_delete=models.DO_NOTHING, primary_key=True,
-                               verbose_name=_("Hydrophone"))
+                               verbose_name=_("Hydrophone"), related_name="hydrophones")
     eqh_range_min = models.BigIntegerField(verbose_name=_("Min Range (dB)"))
     eqh_range_max = models.BigIntegerField(verbose_name=_("Max Range (db)"))
 
@@ -141,6 +144,7 @@ class EqpEquipment(models.Model):
     eqp_date_purchase = models.DateField(blank=True, null=True, verbose_name=_("Date Purchased"))
     eqp_notes = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Notes"))
     eqp_retired = models.BooleanField(default=False, verbose_name=_("Retired?"))
+    eqp_deployed = models.BooleanField(default=False, verbose_name=_("Deployed?"))
     eqo_owned_by = models.ForeignKey("EqoOwner", on_delete=models.DO_NOTHING, verbose_name=_("Owner"))
 
     def __str__(self):
@@ -182,22 +186,57 @@ class PrmParameterCode(models.Model):
         return "{}".format(self.prm_name)
 
 
+def mooring_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/whalesdb/mooring_setup/<filename>
+    return 'whalesdb/mooring_setup/{}'.format(filename)
+
+
 class MorMooringSetup(models.Model):
     mor_id = models.AutoField(primary_key=True)
-    mor_name = models.CharField(unique=True, max_length=50, blank=True, null=True, verbose_name=_("Name"))
+    mor_name = models.CharField(unique=True, max_length=50, verbose_name=_("Name"))
     mor_max_depth = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True,
                                         verbose_name=_("Max Depth"))
     mor_link_setup_image = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Setup Image Link"))
 
     # Note: I added the setup image field to try out putting the mooring setup image directly in the database
-    mor_setup_image = models.ImageField(blank=True, null=True, verbose_name=_("Setup Image"))
+    mor_setup_image = models.ImageField(upload_to=mooring_directory_path, blank=True, null=True, verbose_name=_("Setup Image"))
 
-    mor_additional_equipment = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Equipment"))
-    mor_general_moor_description = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Equipment"))
-    more_notes = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Equipment"))
+    mor_additional_equipment = models.TextField(blank=True, null=True, verbose_name=_("Equipment"))
+    mor_general_moor_description = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+    mor_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     def __str__(self):
         return "{}".format(self.mor_name)
+
+
+@receiver(models.signals.post_delete, sender=MorMooringSetup)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.mor_setup_image:
+        if os.path.isfile(instance.mor_setup_image.path):
+            os.remove(instance.mor_setup_image.path)
+
+
+@receiver(models.signals.pre_save, sender=MorMooringSetup)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+    try:
+        old_file = MorMooringSetup.objects.get(pk=instance.pk).mor_setup_image
+    except MorMooringSetup.DoesNotExist:
+        return False
+    new_file = instance.mor_setup_image
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
 
 
 class PrjProject(models.Model):
@@ -221,7 +260,8 @@ class SetStationEventCode(models.Model):
 
 class SteStationEvent(models.Model):
     ste_id = models.AutoField(primary_key=True)
-    dep = models.ForeignKey(DepDeployment, on_delete=models.DO_NOTHING, verbose_name=_("Deployment"))
+    dep = models.ForeignKey(DepDeployment, on_delete=models.DO_NOTHING, related_name='station_events',
+                            verbose_name=_("Deployment"))
     set_type = models.ForeignKey('SetStationEventCode', on_delete=models.DO_NOTHING, db_column='set_type',
                                  verbose_name=_("Event Type"))
     ste_date = models.DateField(verbose_name=_("Date"))

@@ -1,9 +1,15 @@
 import xlsxwriter as xlsxwriter
 from django.conf import settings
 from django.template.defaultfilters import yesno
-from lib.functions.custom_functions import nz
+from django.urls import reverse
+from django.utils import timezone
+
+from lib.functions.custom_functions import nz, listrify
 from lib.functions.verbose_field_name import verbose_field_name
+from lib.templatetags.custom_filters import currency
+from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from . import models
+from shared_models import models as shared_models
 import os
 
 
@@ -126,18 +132,11 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
             else:
                 my_end = tr.end_date.strftime("%d/%m/%Y") if tr.end_date else "n/a"
 
-            # NON DFO COSTS
-            if tr.parent_request:
-                my_non_dfo_costs = nz(tr.parent_request.non_dfo_costs, 0)
-            else:
-                my_non_dfo_costs = nz(tr.non_dfo_costs, 0)
-
             # PURPOSE
             if tr.parent_request:
                 my_purpose = tr.parent_request.purpose_long_text
             else:
                 my_purpose = tr.purpose_long_text
-
 
             my_role = "{} - {}".format(
                 nz(tr.role, "MISSING"),
@@ -157,8 +156,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
                 my_dest,
                 my_start,
                 my_end,
-                tr.total_cost,
-                my_non_dfo_costs,
+                tr.total_dfo_funding,
+                tr.total_non_dfo_funding,
                 my_purpose,
                 notes,
             ]
@@ -181,6 +180,138 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
 
         for j in range(0, len(col_max)):
             ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
+
+
+def generate_trip_list(fiscal_year, region, adm):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'travel', 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#D6D1C0', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
+    currency_format = workbook.add_format({'num_format': '#,##0.00'})
+
+    # get the trip list
+    trip_list = models.Conference.objects.filter(fiscal_year=fiscal_year)
+
+    # optional filter on trips for adm_approval_required
+    if adm != "None":
+        trip_list = trip_list.filter(is_adm_approval_required=bool(int(adm)))
+
+    # optional filter on trips for regional lead
+    if region != "None":
+        # too dangerous to only filter by the lead field... we should look at each request / traveller and determine
+        # if they are the correct region
+        request_list = list()
+        # for each trip
+        for trip in trip_list:
+            # look at a list of the requests...
+            for request in trip.trip_requests.all():
+                # if group request, focus on children
+                if request.is_group_request:
+                    for child_request in request.children_requests.all():
+                        # if the traveller is in the region of interest, add the request tp the list
+                        if child_request.region_id == region:
+                            # add the parent request
+                            request_list.append(request)
+                            break
+                else:
+                    # if the traveller is in the region of interest, add the request tp the list
+                    if request.region_id == int(region):
+                        # add the request
+                        request_list.append(request)
+                        break
+        trip_list = trip_list.filter(trip_requests__in=request_list)
+
+    field_list = [
+        "fiscal_year",
+        "name",
+        "is_adm_approval_required",
+        "location",
+        "start_date",
+        "end_date",
+        "number_of_days|Number of days",
+        "travellers|Travellers (region)",
+        "non_res_total_cost|Total trip cost (excluding RES)",
+        "total_cost|Total trip cost",
+    ]
+
+    # get_cost_comparison_dict
+
+    # define the header
+    header = [get_verbose_label(trip_list.first(), field) for field in field_list]
+    # header.append('Number of projects tagged')
+
+    title = f"Trip List for {shared_models.FiscalYear.objects.get(pk=fiscal_year)}"
+    if region != "None":
+        title += f" ({shared_models.Region.objects.get(pk=region)})"
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="trip list")
+    my_ws.write(0, 0, title, title_format)
+    my_ws.write_row(2, 0, header, header_format)
+
+    i = 3
+    for trip in trip_list:
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+        data_row = list()
+        my_dict = trip.get_cost_comparison_dict
+        j = 0
+        for field in field_list:
+
+            if "travellers" in field:
+                my_list = list()
+                for tr in my_dict.get("trip_requests"):
+                    my_list.append(f'{tr.requester_name} ({tr.region}) - {currency(my_dict["trip_requests"][tr]["total"])}')
+                my_val = listrify(my_list, "\n")
+
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "fiscal_year" in field:
+                my_val = str(get_field_value(trip, field))
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif field == "name":
+                my_val = str(get_field_value(trip, field))
+                my_ws.write_url(i, j,
+                                url=f'{settings.SITE_FULL_URL}/{reverse("travel:trip_detail", kwargs={"pk": trip.id})}',
+                                string=my_val)
+            elif "cost" in field:
+                my_val = nz(get_field_value(trip, field), 0)
+                my_ws.write(i, j, my_val, currency_format)
+            else:
+                my_val = get_field_value(trip, field)
+                my_ws.write(i, j, my_val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(my_val)) > col_max[j]:
+                if len(str(my_val)) < 75:
+                    col_max[j] = len(str(my_val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
     return target_url

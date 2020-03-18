@@ -287,7 +287,7 @@ def get_app_dict(request):
             "status": "dev",
             "access": "login-required",
             "url": reverse('whalesdb:index'),
-            "icon_path": 'img/whales/whales_dark.svg',
+            "icon_path": 'img/whalesdb/whales_dark.svg',
             "region": "regional",
         }
     except NoReverseMatch:

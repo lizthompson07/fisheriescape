@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import User as AuthUser
 from shared_models import models as shared_models
+from travel.filters import get_region_choices
 
 from . import models
 
@@ -17,7 +18,11 @@ YES_NO_CHOICES = (
     (True, _("Yes")),
     (False, _("No")),
 )
-
+INT_YES_NO_CHOICES = (
+    (None, "-----"),
+    (1, _("Yes")),
+    (0, _("No")),
+)
 
 class ReviewerApprovalForm(forms.ModelForm):
     approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
@@ -110,6 +115,8 @@ class TripRequestForm(forms.ModelForm):
             'region': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}),
             'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field"}),
             'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field"}),
+            'non_dfo_costs': forms.NumberInput(attrs={"class": "not-a-group-field"}),
+            'non_dfo_org': forms.TextInput(attrs={"class": "not-a-group-field"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -119,8 +126,8 @@ class TripRequestForm(forms.ModelForm):
 
         section_choices = [(s.id, s.full_name) for s in
                            shared_models.Section.objects.filter(division__branch_id__in=[1, 3, 9, ]).order_by("division__branch__region",
-                                                                                                           "division__branch",
-                                                                                                           "division", "name")]
+                                                                                                              "division__branch",
+                                                                                                              "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
         trip_choices = [(t.id, str(t)) for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
@@ -228,6 +235,8 @@ class ChildTripRequestForm(forms.ModelForm):
             'start_date',
             'end_date',
             'departure_location',
+            'non_dfo_costs',
+            'non_dfo_org',
             'role',
             'role_of_participant',
             'exclude_from_travel_plan',
@@ -268,7 +277,8 @@ class ChildTripRequestForm(forms.ModelForm):
             'end_date',
             'departure_location',
             'exclude_from_travel_plan',
-
+            'non_dfo_costs',
+            'non_dfo_org',
         ]
         for field in field_list:
             self.fields[field].group = 1
@@ -353,12 +363,15 @@ class ReportSearchForm(forms.Form):
         (None, "------"),
         (1, "CFTS export (xlsx)"),
         # (2, "Print Travel Plan PDF"),
+        (3, "Export trip list (xlsx)"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     # report #1
     fiscal_year = forms.ChoiceField(required=False, label=_('Fiscal year'))
     # report #2
     user = forms.ChoiceField(required=False, label=_('DFO traveller (leave blank for all)'))
+    region = forms.ChoiceField(required=False, label=_('Region (optional)'))
+    adm = forms.ChoiceField(required=False, label=_('ADM approval required'), choices=INT_YES_NO_CHOICES)
 
     def __init__(self, *args, **kwargs):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id") if fy.trip_requests.count() > 0]
@@ -368,9 +381,13 @@ class ReportSearchForm(forms.Form):
                         AuthUser.objects.all().order_by("last_name", "first_name") if u.user_trip_requests.count() > 0]
         user_choices.insert(0, tuple((None, "---")))
 
+        region_choices = get_region_choices()
+        region_choices.insert(0, tuple((None, "---")))
+
         super().__init__(*args, **kwargs)
         self.fields['fiscal_year'].choices = fy_choices
         self.fields['user'].choices = user_choices
+        self.fields['region'].choices = region_choices
 
 
 class StatusForm(forms.ModelForm):
@@ -399,6 +416,31 @@ class ReviewerForm(forms.ModelForm):
             'trip_request': forms.HiddenInput(),
             'user': forms.Select(attrs=chosen_js),
         }
+
+    def clean(self):
+        """
+        The order, user, or role cannot be changed if the reviewer status is approved or queued
+        :return:
+        """
+        my_object = self.instance
+        cleaned_data = super().clean()
+        order = cleaned_data.get("order")
+        user = cleaned_data.get("user")
+        role = cleaned_data.get("role")
+
+        # Check the role
+        if my_object.status and my_object.status.id not in [4, 20]:
+            # need to determine if there have been any changes
+            if my_object.role != role:
+                raise forms.ValidationError(_(f'Sorry, the role of a reviewer whose status is set to {my_object.status} cannot be changed'))
+
+            if my_object.user != user:
+                raise forms.ValidationError(
+                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.status}'))
+
+            if my_object.order != order:
+                raise forms.ValidationError(
+                    _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
 
 
 ReviewerFormSet = modelformset_factory(

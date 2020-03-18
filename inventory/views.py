@@ -173,6 +173,7 @@ class ResourceDetailView(DetailView):
             messages.info(self.request, "As {}, you have the necessary permissions to modify this record.".format(user_roles.first().role))
         elif in_inventory_dm_group(self.request.user):
             messages.info(self.request, _("As an application administrator, you have the necessary permissions to modify this record."))
+        context["google_api_key"] = settings.GOOGLE_API_KEY
         return context
 
 
@@ -993,7 +994,11 @@ def export_resource_xml(request, resource, publish):
     my_resource = models.Resource.objects.get(pk=resource)
 
     if publish == "yes":
-        my_resource.fgp_publication_date = timezone.now()
+        # if there is already a publication date, let's not overwrite it.
+        if my_resource.fgp_publication_date:
+            my_resource.date_last_modified = timezone.now()
+        else:
+            my_resource.fgp_publication_date = timezone.now()
         my_resource.flagged_4_publication = False
 
         my_resource.save()
