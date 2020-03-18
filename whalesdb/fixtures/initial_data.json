@@ -42,5 +42,33 @@
     "set_name": "Recovery ",
       "set_description": "Equipment is recovered from the water. Note: the time associated with an AMAR recovery event should be RELEASE TIME."
     }
+  },
+  {
+    "model": "whalesdb.ertrecordertype",
+    "pk": 1,
+    "fields": {
+      "ert_name": "Guardbuoy"
+    }
+  },
+  {
+    "model": "whalesdb.ertrecordertype",
+    "pk": 2,
+    "fields": {
+      "ert_name": "AURAL"
+    }
+  },
+  {
+    "model": "whalesdb.ertrecordertype",
+    "pk": 3,
+    "fields": {
+      "ert_name": "MARU"
+    }
+  },
+  {
+    "model": "whalesdb.ertrecordertype",
+    "pk": 4,
+    "fields": {
+      "ert_name": "AMAR"
+    }
   }
 ]

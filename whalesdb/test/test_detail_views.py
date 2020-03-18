@@ -27,7 +27,7 @@ class TestDetailsEmm(CommonDetailsTest):
         emm_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_emm', args=(emm_dic['emm_1'].pk,))
-        self.test_expected_template = 'whalesdb/emm_details.html'
+        self.test_expected_template = 'whalesdb/details_emm.html'
         self.fields = []
 
     @tag('emm', 'details_emm', 'response', 'access')
