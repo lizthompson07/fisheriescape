@@ -56,4 +56,3 @@ Faker==4.0.1
 # THESE TWO LIBRARIES CAN BE PROBLEMATIC
 mysqlclient==1.4.6
 shapely==1.7.0
-
