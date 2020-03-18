@@ -26,7 +26,9 @@
                 </div>
                 <div class="card-body">
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_dep' %}" >{% trans 'Deployments' %}</a>
+                    {% if auth %}
                     <a class="btn btn-secondary" href="{% url 'whalesdb:create_dep' %}" >{% trans 'New Deployment' %}</a>
+                    {% endif %}
                     <hr />
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_stn' %}" >{% trans 'Stations' %}</a>
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_prj' %}" >{% trans 'Projects' %}</a>

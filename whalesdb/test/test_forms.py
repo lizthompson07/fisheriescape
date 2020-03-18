@@ -1,3 +1,4 @@
+from django import forms as d_forms
 from django.test import tag
 from faker import Factory
 
@@ -46,6 +47,25 @@ class TestDepForm(CommonFormTest):
         self.assertTrue(hasattr(form, 'min_width'))
 
 
+class TestEqhForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.EqhForm
+        self.test_factory = factory.EqhFactory
+
+    @tag('eqh', 'form', 'valid')
+    def test_eqh_valid_data(self):
+        self.assert_valid_data()
+
+    # test that the required fields exists and that they has a "create_url" attribute
+    @tag('eqh', 'form', 'field')
+    def test_eqh_field_create(self):
+        form = self.form_class()
+        self.assertIn("emm", form.fields)
+        self.assertIsInstance(form.fields['emm'].widget, d_forms.HiddenInput)
+
+
 class TestEqpForm(CommonFormTest):
 
     def setUp(self) -> None:
@@ -59,7 +79,7 @@ class TestEqpForm(CommonFormTest):
 
     # test that the required fields exists and that they has a "create_url" attribute
     @tag('eqp', 'form', 'field')
-    def test_dep_field_create(self):
+    def test_eqp_field_create(self):
         form = self.form_class()
         self.assertIn("emm", form.fields)
         self.assertIn("eqo_owned_by", form.fields)

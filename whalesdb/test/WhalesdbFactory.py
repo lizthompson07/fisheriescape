@@ -6,28 +6,27 @@ from shared_models import models as shared_models
 
 _stn_codes_ = ['ABC', 'DEF', 'GHI', 'JKL', 'MNO', 'PQR', 'STU', 'VWX', 'YZZ']
 _set_codes_ = ['Deployment', 'Recovery']
+_eqt_codes_ = ['Acoustic recorder', 'Environmental sensor', 'OTN reciever', 'Hydrophone']
+
 faker = Factory.create()
-
-
-class EqtFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.EqtEquipmentTypeCode
 
 
 class EmmFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EmmMakeModel
 
-    eqt = factory.SubFactory(EqtFactory)
+    eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=faker.random_int(1, 4))
     emm_make = faker.word()
     emm_model = faker.word()
     emm_depth_rating = faker.random_int(10, 10000)
     emm_description = faker.text()
 
+    # if providing an eqt_type use the WhalesdbFactory._eqt_type_codes array
     @staticmethod
-    def get_valid_data():
+    def get_valid_data(eqt_id=None):
 
-        eqt = EqtFactory()
+        eqt_id = eqt_id if eqt_id else faker.random_int(1, 4)
+        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=eqt_id)
 
         valid_data = {
             'eqt': eqt.pk,
@@ -35,6 +34,29 @@ class EmmFactory(factory.django.DjangoModelFactory):
             'emm_model': faker.word(),
             'emm_depth_rating': faker.random_int(10, 10000),
             'emm_description': faker.text()
+        }
+
+        return valid_data
+
+
+class EqhFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EqhHydrophoneProperty
+
+    emm = factory.SubFactory(EmmFactory)
+    eqh_range_min = faker.random_int(0, 100)
+    eqh_range_max = faker.random_int(100, 1000)
+
+    @staticmethod
+    def get_valid_data():
+        # specifically testing when an equipment is a Hydrophone
+        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=4)
+        emm = EmmFactory(eqt=eqt)
+
+        valid_data = {
+            'emm': emm.pk,
+            'eqh_range_min': faker.random_int(0, 100),
+            'eqh_range_max': faker.random_int(100, 1000)
         }
 
         return valid_data
