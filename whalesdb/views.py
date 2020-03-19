@@ -121,6 +121,13 @@ class EqhCreate(CommonCreate):
         return initial
 
 
+class EqoCreate(CommonCreate):
+    key = 'eqo'
+    model = models.EqoOwner
+    form_class = forms.EqoForm
+    title = _("Create Equipment Owner")
+
+
 class EqpCreate(CommonCreate):
     # This key is used by CommonCreate to create the 'whalesdb:list_eqp' name in the get_success_url method
     key = 'eqp'
@@ -135,11 +142,17 @@ class EqpCreate(CommonCreate):
     title = _("Create Equipment")
 
 
-class EqoCreate(CommonCreate):
-    key = 'eqo'
-    model = models.EqoOwner
-    form_class = forms.EqoForm
-    title = _("Create Equipment Owner")
+class EqrCreate(CommonCreate):
+    key = 'eqr'
+    model = models.EqrRecorderProperties
+    form_class = forms.EqrForm
+    title = _("Recorder Properties")
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['emm'] = self.kwargs['pk']
+
+        return initial
 
 
 class MorCreate(CommonCreate):
@@ -246,6 +259,12 @@ class EqpUpdate(CommonUpdate):
     title = _("Update Equipment")
 
 
+class EqrUpdate(CommonUpdate):
+    model = models.EqrRecorderProperties
+    form_class = forms.EqrForm
+    title = _("Recorder Properties")
+
+
 class MorUpdate(CommonUpdate):
     model = models.MorMooringSetup
     form_class = forms.MorForm
@@ -313,13 +332,14 @@ class DepDetails(CommonDetails):
 class EmmDetails(CommonDetails):
     key = "emm"
     model = models.EmmMakeModel
-    template_name = 'whalesdb/emm_details.html'
+    template_name = 'whalesdb/details_emm.html'
     title = _("Make/Model Details")
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating', 'emm_description']
 
 
 class EqpDetails(CommonDetails):
     key = "eqp"
+    template_name = "whalesdb/details_eqp.html"
     model = models.EqpEquipment
     title = _("Equipment Details")
     fields = ['emm', 'eqp_serial', 'eqp_asset_id', 'eqp_date_purchase', 'eqp_notes', 'eqp_retired', 'eqo_owned_by']

@@ -27,7 +27,7 @@ class TestDetailsEmm(CommonDetailsTest):
         emm_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_emm', args=(emm_dic['emm_1'].pk,))
-        self.test_expected_template = 'whalesdb/emm_details.html'
+        self.test_expected_template = 'whalesdb/details_emm.html'
         self.fields = []
 
     @tag('emm', 'details_emm', 'response', 'access')
@@ -69,7 +69,7 @@ class TestDetailsEqp(CommonDetailsTest):
         eqp_dic = self.createDict()
 
         self.test_url = reverse_lazy('whalesdb:details_eqp', args=(eqp_dic['eqp_1'].pk,))
-        self.test_expected_template = 'whalesdb/whales_details.html'
+        self.test_expected_template = 'whalesdb/details_eqp.html'
         self.fields = []
 
     @tag('eqp', 'details_eqp', 'response', 'access')
