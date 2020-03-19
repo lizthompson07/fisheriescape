@@ -48,7 +48,12 @@
 {% endblock content %}
 
 {% block body_js %}
-{% include 'whalesdb/_deployment_js.html'%}
+
+{# if the view includes a path to a javascript file in a java_script context variable, include it here #}
+{% if java_script %}
+{% include ''|add:java_script %}
+{% endif %}
+
 <script>
 
 function saveForm() {

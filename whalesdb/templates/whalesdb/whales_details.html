@@ -33,6 +33,12 @@
 {% endblock %}
 
 {% block body_js %}
+
+{# if the view includes a path to a javascript file in a java_script context variable, include it here #}
+{% if java_script %}
+{% include ''|add:java_script %}
+{% endif %}
+
 <script>
 
 var interval;
