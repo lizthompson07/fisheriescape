@@ -40,6 +40,14 @@ class EqhForm(forms.ModelForm):
         }
 
 
+class EqoForm(forms.ModelForm):
+    class Meta:
+        model = models.EqoOwner
+        exclude = []
+        widgets = {
+        }
+
+
 class EqpForm(forms.ModelForm):
     class Meta:
         model = models.EqpEquipment
@@ -55,11 +63,12 @@ class EqpForm(forms.ModelForm):
         self.fields['eqo_owned_by'].create_url = 'whalesdb:create_eqo'
 
 
-class EqoForm(forms.ModelForm):
+class EqrForm(forms.ModelForm):
     class Meta:
-        model = models.EqoOwner
+        model = models.EqrRecorderProperties
         exclude = []
         widgets = {
+            'emm': forms.HiddenInput()
         }
 
 

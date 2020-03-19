@@ -248,7 +248,7 @@ def load_emm(file_name):
 
                     st = models.ErtRecorderType.objects.get(ert_name=sub_type)
 
-                    models.EqrRecorderProperties(emm=emm, ert_id=st, eqr_internal_hydro=internal_hydro).save()
+                    models.EqrRecorderProperties(emm=emm, ert=st, eqr_internal_hydro=internal_hydro).save()
 
                     eqr = models.EqrRecorderProperties.objects.get(emm=emm)
                     print("Created Recorder Properties for: '" + str(eqr) + "'")
@@ -278,7 +278,7 @@ def load_ecp(file_name):
             try:
                 eqr = models.EqrRecorderProperties.objects.get(emm=emm)
 
-                if not model.objects.filter(emm_id=eqr, ecp_channel_no=data[2]):
+                if not model.objects.filter(emm=emm, ecp_channel_no=data[2]):
                     print(str(data))
 
                     ecp_channel_no = data[2]
@@ -287,11 +287,11 @@ def load_ecp(file_name):
                     ecp_voltage_range_max = data[5] if data[5] else None
 
                     print("Setting Channel properties for '" + str(eqr) + "'")
-                    models.EcpChannelProperty(emm_id=eqr, ecp_channel_no=ecp_channel_no, eqa_adc_bits=eqa_adc_bits,
+                    models.EcpChannelProperty(eqr=eqr, ecp_channel_no=ecp_channel_no, eqa_adc_bits=eqa_adc_bits,
                                               ecp_voltage_range_min=ecp_voltage_range_min,
                                               ecp_voltage_range_max=ecp_voltage_range_max).save()
             except models.EqrRecorderProperties.DoesNotExist:
-                print("no recorder mathing emm: '" + str(eqr) + "'")
+                print("no recorder matching emm: '" + str(emm) + "'")
         except models.EmmMakeModel.DoesNotExist:
             print("Could not find make/model '" + data[0] + "/" + data[1] + "'")
 

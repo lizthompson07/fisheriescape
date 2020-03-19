@@ -255,6 +255,67 @@ class TestCreateEqp(CommonCreateTest):
         super().assert_successful_url()
 
 
+class TestCreateEqr(CommonCreateTest):
+
+    emm_id = 1
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.EqrFactory.get_valid_data()
+
+        # Hydrophone properties requires a make and model emm_id
+        self.test_url = reverse_lazy('whalesdb:create_eqr', args=(self.emm_id, 'pop',))
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+
+        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
+
+        self.expected_view = views.EqrCreate
+        self.expected_form = forms.EqrForm
+
+    # Users must be logged in to create new objects
+    @tag('eqr', 'create', 'response', 'access')
+    def test_create_eqr_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new objects
+    @tag('eqr', 'create', 'response', 'access')
+    def test_create_eqr_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('eqr', 'create', 'response', 'access')
+    def test_create_eqr_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('eqr', 'create', 'form')
+    def test_create_eqr_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('eqr', 'create', 'context')
+    def test_create_eqr_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+        self.assertIn("form", response.context)
+        self.assertIn("emm", response.context['form'].initial)
+        self.assertEquals(self.emm_id, response.context['form'].initial['emm'])
+
+    # test that given some valid data the view will redirect to the list
+    @tag('eqr', 'create', 'redirect')
+    def test_create_eqr_successful_url(self):
+        super().assert_successful_url()
+
+
 class TestCreateMor(CommonCreateTest):
     img_file_name = None
     img_file_path = None
