@@ -84,8 +84,12 @@ class URLTest(TestCase):
         self.basic_en_url_test('whalesdb:create_eqh', 'whalesdb/create/eqh/1/pop/', views.EqhCreate, [1, 'pop'])
 
     @tag('eqh', 'url', 'update', 'pop')
-    def test_url_update_eqh_view(self):
+    def test_url_update_pop_eqh_view(self):
         self.basic_en_url_test('whalesdb:update_eqh', 'whalesdb/update/eqh/1/pop/', views.EqhUpdate, [1, 'pop'])
+
+    @tag('eqo', 'url', 'create')
+    def test_url_create_eqo_view(self):
+        self.basic_en_url_test('whalesdb:create_eqo', 'whalesdb/create/eqo/pop/', views.EqoCreate, ['pop'])
 
     @tag('eqp', 'url', 'create')
     def test_url_create_eqp_view(self):
@@ -107,9 +111,13 @@ class URLTest(TestCase):
     def test_url_details_eqp_view(self):
         self.basic_en_url_test('whalesdb:details_eqp', 'whalesdb/details/eqp/1/', views.EqpDetails, [1])
 
-    @tag('eqo', 'url', 'create')
-    def test_url_create_eqo_view(self):
-        self.basic_en_url_test('whalesdb:create_eqo', 'whalesdb/create/eqo/pop/', views.EqoCreate, ['pop'])
+    @tag('eqr', 'url', 'create')
+    def test_url_create_pop_eqr_view(self):
+        self.basic_en_url_test('whalesdb:create_eqr', 'whalesdb/create/eqr/1/pop/', views.EqrCreate, [1, 'pop'])
+
+    @tag('eqr', 'url', 'update', 'pop')
+    def test_url_update_pop_eqr_view(self):
+        self.basic_en_url_test('whalesdb:update_eqr', 'whalesdb/update/eqr/1/pop/', views.EqrUpdate, [1, 'pop'])
 
     @tag('mor', 'url', 'create')
     def test_url_create_mor_view(self):
