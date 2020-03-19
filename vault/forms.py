@@ -21,3 +21,8 @@ class OutingForm(forms.ModelForm):
     class Meta:
         model = models.Outing
         fields = "__all__"
+
+class PersonForm(forms.ModelForm):
+    class Meta:
+        model = models.Person
+        fields = "__all__"

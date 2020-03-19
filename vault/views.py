@@ -366,3 +366,75 @@ class OutingDeleteView(VaultAccessRequired, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+#
+# #
+# # # PERSON #
+# # ###########
+# #
+#
+class PersonListView(VaultAccessRequired, FilterView):
+    template_name = "vault/person_list.html"
+    filterset_class = filters.PersonFilter
+    queryset = models.Person.objects.annotate(
+        search_term=Concat('id', 'first_name', 'last_name', 'organisation', 'email', 'phone', 'roles', output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Person.objects.first()
+        context["field_list"] = [
+            'id',
+            'first_name',
+            'last_name',
+            'organisation',
+            'email',
+            'phone',
+            'roles',
+
+        ]
+        return context
+
+class PersonDetailView(VaultAccessRequired, DetailView):
+    model = models.Person
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'first_name',
+            'last_name',
+            'organisation',
+            'email',
+            'phone',
+            'roles',
+        ]
+        return context
+
+class PersonUpdateView(VaultAccessRequired, UpdateView):
+    model = models.Person
+    form_class = forms.PersonForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Person record successfully updated for : {my_object}"))
+        return super().form_valid(form)
+
+
+class PersonCreateView(VaultAccessRequired, CreateView):
+    model = models.Person
+    form_class = forms.PersonForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Person record successfully created for : {my_object}"))
+        return super().form_valid(form)
+
+class PersonDeleteView(VaultAccessRequired, DeleteView):
+    model = models.Person
+    permission_required = "__all__"
+    success_url = reverse_lazy('vault:person_list')
+    success_message = 'The person was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)

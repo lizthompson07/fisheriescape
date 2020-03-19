@@ -49,6 +49,14 @@ urlpatterns = [
     path('outing/<int:pk>/view/', views.OutingDetailView.as_view(), name="outing_detail"),
     path('outing/<int:pk>/edit/', views.OutingUpdateView.as_view(), name="outing_edit"),
     path('outing/<int:pk>/delete/', views.OutingDeleteView.as_view(), name="outing_delete"),
+
+    # # PERSON #
+    path('person-list/', views.PersonListView.as_view(), name="person_list"),
+    path('person/new/', views.PersonCreateView.as_view(), name="person_new"),
+    path('person/<int:pk>/view/', views.PersonDetailView.as_view(), name="person_detail"),
+    path('person/<int:pk>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
+    path('person/<int:pk>/delete/', views.PersonDeleteView.as_view(), name="person_delete"),
+
 ]
 
 

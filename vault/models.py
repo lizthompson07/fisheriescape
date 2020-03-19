@@ -66,8 +66,19 @@ class Person(models.Model):
     organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_(""), null=True, blank=True)
     email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     phone = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    # m2m
     roles = models.ManyToManyField(Role, verbose_name=_(""))
+
+def __str__(self):
+     # check to see if a french value is given
+    if getattr(self, str(_("english_name"))):
+
+         return "{}".format(getattr(self, str(_("english_name"))))
+     # if there is no translated term, just pull from the english field
+    else:
+        return "{}".format(self.english_name)
+
+def get_absolute_url(self):
+     return reverse("vault:person_detail", kwargs={"pk": self.id})
 
 
 class MetadataField(models.Model):
