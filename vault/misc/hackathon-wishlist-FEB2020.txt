@@ -15,6 +15,7 @@
                 -- how to do proper rounding to allow for quarter hour calculations?
                 -- how to have foreignKey display another field from the other table (i.e. instead of Observation platform id, display the name of the aircraft)
 
+- dashboard(s) for showing stats and information most requested by management
 
 Questions / Concerns
 1) If this:
