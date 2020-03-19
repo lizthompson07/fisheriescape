@@ -18,14 +18,15 @@
                 {% csrf_token %}
 
                 {% for field in form %}
-                   {% if field.field.create_url %}
+                   {% if field.field.create_url and auth %}
                     <div>
                        {% bootstrap_label field.label %}
                     </div>
                     <div class="row col pl-0">
                         <span class="col">
                         {% bootstrap_field field placeholder="" size="small" show_label=false %}
-                        </span><span class="col-1">
+                        </span>
+                        <span class="col-1">
                         <button class="btn btn-primary" onclick="return pop('{% url ''|add:field.field.create_url 'pop' %}', 'id_{{field.name}}' )" >+</button>
                         </span>
                     </div>
@@ -51,6 +52,10 @@
 {% endblock %}
 
 {% block body_js %}
+{# if the view includes a path to a javascript file in a java_script context variable, include it here #}
+{% if java_script %}
+{% include ''|add:java_script %}
+{% endif %}
 <script>
     var refresh = false;
 
