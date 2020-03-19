@@ -43,7 +43,7 @@ class EqhFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqhHydrophoneProperty
 
-    emm = factory.SubFactory(EmmFactory)
+    emm = EmmFactory(eqt_id=4)
     eqh_range_min = faker.random_int(0, 100)
     eqh_range_max = faker.random_int(100, 1000)
 
@@ -57,6 +57,55 @@ class EqhFactory(factory.django.DjangoModelFactory):
             'emm': emm.pk,
             'eqh_range_min': faker.random_int(0, 100),
             'eqh_range_max': faker.random_int(100, 1000)
+        }
+
+        return valid_data
+
+
+class EqrFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EqrRecorderProperties
+
+    emm = EmmFactory(eqt_id=1)
+    ert = models.ErtRecorderType.objects.get(ert_id=faker.random_int(1, 4))
+    eqr_internal_hydro = faker.boolean()
+
+    @staticmethod
+    def get_valid_data():
+        # specifically testing when an equipment is an Acoustic Recorder
+        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=1)
+        emm = EmmFactory(eqt=eqt)
+
+        valid_data = {
+            'emm': emm.pk,
+            'ert': faker.random_int(1, 4),
+            'eqr_internal_hydro': faker.boolean()
+        }
+
+        return valid_data
+
+
+class EcpFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EcpChannelProperty
+
+    eqr = factory.SubFactory(EqrFactory)
+    ecp_channel_no = faker.random_int(1, 9)
+    eqa_adc_bits = models.EqaAdcBitsCode.objects.get(eqa_id=faker.random_int(1, 3))
+    ecp_voltage_range_min = faker.random_int(1, 1000)
+    ecp_voltage_range_max = ecp_voltage_range_min + faker.random_int(1, 1000)
+
+    @staticmethod
+    def get_valid_data():
+        # specifically testing when an equipment is an Acoustic Recorder
+        eqr = EqrFactory()
+        min_volt = faker.random_int(1, 1000)
+        valid_data = {
+            'eqr':  eqr.pk,
+            'ecp_channel_no':  faker.random_int(1, 9),
+            'eqa_adc_bits':  models.EqaAdcBitsCode.objects.get(eqa_id=faker.random_int(1, 3)),
+            'ecp_voltage_range_min':  min_volt,
+            'ecp_voltage_range_max':  min_volt + faker.random_int(1, 1000),
         }
 
         return valid_data
