@@ -288,4 +288,5 @@ class TestDetailsStation(CommonDetailsTest):
         self.assertEqual(response.context['list_url'], 'whalesdb:list_stn')
         self.assertEqual(response.context['update_url'], 'whalesdb:update_stn')
         self.assertEqual(response.context['object'], self.createDict()['stn_1'])
+
         super().assert_field_in_fields(response)

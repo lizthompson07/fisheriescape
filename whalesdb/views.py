@@ -89,8 +89,22 @@ class DepCreate(CommonCreate):
                         models.StnStation.objects.all().order_by('stn_id').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
+        context['java_script'] = 'whalesdb/_entry_dep_js.html'
 
         return context
+
+
+class EdaCreate(CommonCreate):
+    key = 'eda'
+    model = models.EdaEquipmentAttachment
+    form_class = forms.EdaForm
+    title = _("Select Equipment")
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['dep'] = self.kwargs['dep']
+
+        return initial
 
 
 class EmmCreate(CommonCreate):
@@ -237,6 +251,7 @@ class DepUpdate(CommonUpdate):
                         models.StnStation.objects.all().order_by('stn_id').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
+        context['java_script'] = 'whalesdb/_entry_dep_js.html'
 
         return context
 
