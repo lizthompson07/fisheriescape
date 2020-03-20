@@ -1,13 +1,13 @@
-from django.test import tag
+from django.test import tag, RequestFactory
 from django.urls import reverse_lazy
 
-from whalesdb.test.common_views import CommonUpdateTest
+from whalesdb.test.common_views import CommonUpdateTest, setup_view
 from whalesdb.test import WhalesdbFactory as Factory
 
-from whalesdb import views, forms
+from whalesdb import views, forms, models
 
 
-class TestUpdateDep(CommonUpdateTest):
+class TestDepUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -25,12 +25,12 @@ class TestUpdateDep(CommonUpdateTest):
 
         self.expected_form = forms.DepForm
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('dep', 'update_dep', 'response', 'access')
     def test_update_dep_en(self):
         super().assert_view(expected_code=302)
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('dep', 'update_dep', 'response', 'access')
     def test_update_dep_fr(self):
         super().assert_view(lang='fr', expected_code=302)
@@ -58,14 +58,39 @@ class TestUpdateDep(CommonUpdateTest):
 
         # Deploymnets also need to return a JSON formatted list of Station Codes
         self.assertIn("station_json", response.context)
+        self.assertIn("java_script", response.context)
+        self.assertEquals("whalesdb/_entry_dep_js.html", response.context['java_script'])
 
     # test that given some valid data the view will redirect to the list
     @tag('dep', 'update_dep', 'redirect')
     def test_update_dep_successful_url(self):
         super().assert_successful_url()
 
+    # If a deployment event has been issued, a deployment should no longer be editable and the
+    # test_func method should return false. This is to prevent URL hijacking and letting a user
+    # paste in data to a url to update a view
+    @tag('dep', 'update_dep', 'access')
+    def test_update_dep_test_func_denied(self):
+        dep = Factory.DepFactory()
 
-class TestUpdateEmm(CommonUpdateTest):
+        # have to create the request and setup the view
+        req_factory = RequestFactory()
+        request = req_factory.get(reverse_lazy("whalesdb:update_dep", kwargs={'pk': dep.pk, 'pop': 'pop'}))
+        request.user = self.login_whale_user()
+        view = setup_view(views.DepUpdate(), request, pk=dep.pk)
+
+        # check to see if a deployment that's not been deployed can be edited
+        self.assertTrue(view.test_func())
+
+        # create a deployment event
+        set_type = models.SetStationEventCode.objects.get(pk=1)  # 1 == Deployment event
+        dep_evt = Factory.SteFactory(dep=dep, set_type=set_type)
+
+        # deployment should no longer be editable
+        self.assertFalse(view.test_func())
+
+
+class TestEmmUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -83,12 +108,12 @@ class TestUpdateEmm(CommonUpdateTest):
 
         self.expected_form = forms.EmmForm
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('emm', 'update_emm', 'response', 'access')
     def test_update_emm_en(self):
         super().assert_view(expected_code=302)
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('emm', 'update_emm', 'response', 'access')
     def test_update_emm_fr(self):
         super().assert_view(lang='fr', expected_code=302)
@@ -120,7 +145,7 @@ class TestUpdateEmm(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdateEqh(CommonUpdateTest):
+class TestEqhUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -139,12 +164,12 @@ class TestUpdateEqh(CommonUpdateTest):
 
         self.expected_form = forms.EqhForm
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('eqh', 'update_eqh', 'response', 'access')
     def test_update_eqh_en(self):
         super().assert_view(expected_code=302)
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('eqh', 'update_eqh', 'response', 'access')
     def test_update_eqh_fr(self):
         super().assert_view(lang='fr', expected_code=302)
@@ -179,7 +204,63 @@ class TestUpdateEqh(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdateEqr(CommonUpdateTest):
+class TestEqpUpdate(CommonUpdateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.EqpFactory.get_valid_data()
+
+        emm = Factory.EmmFactory()
+        obj = Factory.EqpFactory(emm=emm)
+
+        self.test_url = reverse_lazy('whalesdb:update_eqp', args=(obj.pk, 'pop',))
+
+        # Since this is intended to be used as a pop-out form, use the no nav entry form
+        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+
+        self.expected_view = views.EqpUpdate
+
+        self.expected_form = forms.EqpForm
+
+    # Users must be logged in to update object
+    @tag('eqp', 'update_eqp', 'response', 'access')
+    def test_update_eqp_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to update object
+    @tag('eqp', 'update_eqp', 'response', 'access')
+    def test_update_eqp_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('eqp', 'update_eqp', 'response', 'access')
+    def test_update_eqp_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('eqp', 'update_eqp', 'form')
+    def test_update_eqp_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('eqp', 'update_eqp', 'context')
+    def test_update_eqp_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('eqp', 'update_eqp', 'redirect')
+    def test_update_eqp_successful_url(self):
+        super().assert_successful_url()
+
+
+class TestEqrUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -198,12 +279,12 @@ class TestUpdateEqr(CommonUpdateTest):
 
         self.expected_form = forms.EqrForm
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('eqr', 'update_eqr', 'response', 'access')
     def test_update_eqr_en(self):
         super().assert_view(expected_code=302)
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('eqr', 'update_eqr', 'response', 'access')
     def test_update_eqr_fr(self):
         super().assert_view(lang='fr', expected_code=302)
@@ -238,7 +319,7 @@ class TestUpdateEqr(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdateMor(CommonUpdateTest):
+class TestMorUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -256,12 +337,12 @@ class TestUpdateMor(CommonUpdateTest):
 
         self.expected_form = forms.MorForm
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('mor', 'update_mor', 'response', 'access')
     def test_update_mor_en(self):
         super().assert_view(expected_code=302)
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('mor', 'update_mor', 'response', 'access')
     def test_update_mor_fr(self):
         super().assert_view(lang='fr', expected_code=302)
@@ -293,7 +374,7 @@ class TestUpdateMor(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdatePrj(CommonUpdateTest):
+class TestPrjUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -316,7 +397,7 @@ class TestUpdatePrj(CommonUpdateTest):
     def test_update_prj_en(self):
         super().assert_view(expected_code=302)
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('prj', 'update_prj', 'response', 'access')
     def test_update_prj_fr(self):
         super().assert_view(lang='fr', expected_code=302)
@@ -348,7 +429,7 @@ class TestUpdatePrj(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdateStn(CommonUpdateTest):
+class TestStnUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -371,7 +452,7 @@ class TestUpdateStn(CommonUpdateTest):
     def test_update_stn_en(self):
         super().assert_view(expected_code=302)
 
-    # Users must be logged in to update stations
+    # Users must be logged in to update object
     @tag('stn', 'update_stn', 'response', 'access')
     def test_update_stn_fr(self):
         super().assert_view(lang='fr', expected_code=302)
@@ -395,7 +476,7 @@ class TestUpdateStn(CommonUpdateTest):
     # Each view might require specific context fields
     @tag('stn', 'update_stn', 'context')
     def test_update_stn_context_fields(self):
-        super().assert_create_view_context_fields()
+        response = super().assert_create_view_context_fields()
 
     # test that given some valid data the view will redirect to the list
     @tag('stn', 'update_stn', 'redirect')
