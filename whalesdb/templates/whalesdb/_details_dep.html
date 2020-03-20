@@ -51,13 +51,18 @@
                     <span class="col">
                         {% trans "Station Events" %}
                     </span>
-                    {# for deployments 1 = Deployment event in the SET table, 2 = Recovery in the SET table #}
+            {# if the user is authorized to edit content. for deployments 1 = Deployment event in the SET table, 2 = Recovery in the SET table #}
+            {% if auth %}
+                {% if not dep.station_events.last %}
                     <span class="px-1">
                         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 1 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Deployment Event' %}</a>
                     </span>
+                {% elif dep.station_events.last.set_type.set_id == 1 %}
                     <span class="px-1">
                         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 2 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Recovery Event' %}</a>
                     </span>
+                {% endif %}
+            {% endif %}
                 </div>
             </div>
             <div class="card-body" id="fs-deployment-list-set">
