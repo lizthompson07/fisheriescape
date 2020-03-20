@@ -1,13 +1,13 @@
-from django.test import tag
+from django.test import tag, RequestFactory
 from django.urls import reverse_lazy
 
-from whalesdb.test.common_views import CommonUpdateTest
+from whalesdb.test.common_views import CommonUpdateTest, setup_view
 from whalesdb.test import WhalesdbFactory as Factory
 
-from whalesdb import views, forms
+from whalesdb import views, forms, models
 
 
-class TestUpdateDep(CommonUpdateTest):
+class TestDepUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -66,8 +66,31 @@ class TestUpdateDep(CommonUpdateTest):
     def test_update_dep_successful_url(self):
         super().assert_successful_url()
 
+    # If a deployment event has been issued, a deployment should no longer be editable and the
+    # test_func method should return false. This is to prevent URL hijacking and letting a user
+    # paste in data to a url to update a view
+    @tag('dep', 'update_dep', 'access')
+    def test_update_dep_test_func_denied(self):
+        dep = Factory.DepFactory()
 
-class TestUpdateEmm(CommonUpdateTest):
+        # have to create the request and setup the view
+        req_factory = RequestFactory()
+        request = req_factory.get(reverse_lazy("whalesdb:update_dep", kwargs={'pk': dep.pk, 'pop': 'pop'}))
+        request.user = self.login_whale_user()
+        view = setup_view(views.DepUpdate(), request, pk=dep.pk)
+
+        # check to see if a deployment that's not been deployed can be edited
+        self.assertTrue(view.test_func())
+
+        # create a deployment event
+        set_type = models.SetStationEventCode.objects.get(pk=1)  # 1 == Deployment event
+        dep_evt = Factory.SteFactory(dep=dep, set_type=set_type)
+
+        # deployment should no longer be editable
+        self.assertFalse(view.test_func())
+
+
+class TestEmmUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -122,7 +145,7 @@ class TestUpdateEmm(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdateEqh(CommonUpdateTest):
+class TestEqhUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -181,7 +204,7 @@ class TestUpdateEqh(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdateEqp(CommonUpdateTest):
+class TestEqpUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -237,7 +260,7 @@ class TestUpdateEqp(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdateEqr(CommonUpdateTest):
+class TestEqrUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -296,7 +319,7 @@ class TestUpdateEqr(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdateMor(CommonUpdateTest):
+class TestMorUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -351,7 +374,7 @@ class TestUpdateMor(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdatePrj(CommonUpdateTest):
+class TestPrjUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
@@ -406,7 +429,7 @@ class TestUpdatePrj(CommonUpdateTest):
         super().assert_successful_url()
 
 
-class TestUpdateStn(CommonUpdateTest):
+class TestStnUpdate(CommonUpdateTest):
 
     def setUp(self):
         super().setUp()
