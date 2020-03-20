@@ -122,7 +122,7 @@ class EqpFactory(factory.django.DjangoModelFactory):
 
     emm = factory.SubFactory(EmmFactory)
     eqp_serial = faker.random_int(1, 1000000000)
-    eqp_asset_id = "DFO-{}".format(faker.random_int(9000000, 9999999))
+    eqp_asset_id = factory.Sequence(lambda n: "DFO-{}".format(faker.random_int(9000000, 9999999)))
     eqp_date_purchase = faker.date()
     eqp_notes = faker.text()
     eqp_retired = faker.boolean()
@@ -302,6 +302,29 @@ class SteFactory(factory.django.DjangoModelFactory):
             "set_type": set_type.pk,
             "crs": crs.pk,
             "ste_date": faker.date()
+        }
+
+        return valid_data
+
+
+class EdaFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EdaEquipmentAttachment
+
+    dep = factory.SubFactory(DepFactory)
+    eqp = factory.SubFactory(EqpFactory)
+
+    @staticmethod
+    def get_valid_data():
+        dep = DepFactory()
+
+        # Eda will only show recorders, so no hydrophones here
+        emm = EmmFactory(eqt_id=1)
+        eqp = EqpFactory(emm=emm)
+
+        valid_data = {
+            "dep": dep.pk,
+            "eqp": eqp.pk
         }
 
         return valid_data
