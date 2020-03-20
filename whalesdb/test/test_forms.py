@@ -3,7 +3,7 @@ from django.test import tag
 from faker import Factory
 
 from whalesdb.test.common_views import CommonFormTest
-from whalesdb import forms
+from whalesdb import forms, models
 
 import whalesdb.test.WhalesdbFactory as factory
 
@@ -45,6 +45,44 @@ class TestDepForm(CommonFormTest):
         form = self.form_class()
         self.assertTrue(hasattr(form, 'min_height'))
         self.assertTrue(hasattr(form, 'min_width'))
+
+
+class TestEdaForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.EdaForm
+        self.test_factory = factory.EdaFactory
+
+    @tag('eda', 'form', 'valid')
+    def test_eda_valid_data(self):
+        self.assert_valid_data()
+
+    # test that the required fields exists and that they has a "create_url" attribute
+    @tag('eda', 'form', 'field')
+    def test_eda_field_create(self):
+        form = self.form_class()
+        self.assertIn("dep", form.fields)
+        self.assertIsInstance(form.fields['dep'].widget, d_forms.HiddenInput)
+
+    # The only Recorders should be able to be attached to a deployment so the equipment drop down should
+    # filter out hydrophones
+    @tag('eda', 'form', 'field')
+    def test_eda_field_filter(self):
+        recorder = factory.EmmFactory(eqt_id=1)
+        hydrophone = factory.EmmFactory(eqt_id=4)
+
+        rec_1 = factory.EqpFactory.create(emm=recorder)
+        rec_2 = factory.EqpFactory.create(emm=recorder)
+
+        hydro_1 = factory.EqpFactory(emm=hydrophone)
+
+        form = self.form_class()
+
+        self.assertIn("eqp", form.fields)
+        self.assertIn(rec_1, form.fields['eqp'].queryset)
+        self.assertIn(rec_2, form.fields['eqp'].queryset)
+        self.assertNotIn(hydro_1, form.fields['eqp'].queryset)
 
 
 class TestEqhForm(CommonFormTest):
@@ -89,6 +127,13 @@ class TestEqpForm(CommonFormTest):
 
         self.assertTrue(hasattr(form.fields['eqo_owned_by'], 'create_url'))
         self.assertEquals(form.fields['eqo_owned_by'].create_url, 'whalesdb:create_eqo')
+
+    # The form should have a minimum height and width used to resize popup windows
+    @tag('eqp', 'form', 'properties')
+    def test_eqp_properties(self):
+        form = self.form_class()
+        self.assertTrue(hasattr(form, 'min_height'))
+        self.assertTrue(hasattr(form, 'min_width'))
 
 
 class TestEmmForm(CommonFormTest):
@@ -139,6 +184,27 @@ class TestSteForm(CommonFormTest):
     @tag('ste', 'form', 'valid_data')
     def test_ste_valid_data(self):
         self.assert_valid_data()
+
+    # The Ste form should have a minimum height and width used to resize popup windows
+    @tag('ste', 'form', 'properties')
+    def test_ste_properties(self):
+        form = self.form_class()
+        self.assertTrue(hasattr(form, 'min_height'))
+        self.assertTrue(hasattr(form, 'min_width'))
+
+    # This form has some fields that should be hidden
+    @tag('ste', 'form', 'widgets')
+    def test_ste_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['ste_date'], 'widget'))
+        self.assertIsInstance(form.fields['ste_date'].widget, d_forms.DateInput)
+
+        self.assertTrue(hasattr(form.fields['dep'], 'widget'))
+        self.assertIsInstance(form.fields['dep'].widget, d_forms.HiddenInput)
+
+        self.assertTrue(hasattr(form.fields['set_type'], 'widget'))
+        self.assertIsInstance(form.fields['set_type'].widget, d_forms.HiddenInput)
 
 
 class TestStnForm(CommonFormTest):
