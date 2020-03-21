@@ -276,4 +276,3 @@ TRACK_SUPERUSERS = False
 
 if "win" in sys.platform.lower():
     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
-SPATIALITE_LIBRARY_PATH='/usr/local/lib/mod_spatialite.dylib'
