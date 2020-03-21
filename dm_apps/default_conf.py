@@ -41,6 +41,15 @@ APP_DICT = {
     'spring_cleanup': "Gulf Region Spring Cleanup",
 }
 
+# If the GEODJANGO setting is set to False, turn off any apps that require it
+GEODJANGO = config("GEODJANGO", cast=bool, default=False)
+if not GEODJANGO:
+    try:
+        del APP_DICT['spring_cleanup']
+        print("turning off spring cleanup app because geodjango is not enabled")
+    except KeyError:
+        pass
+
 # This variable is used to employ a preconfiguartion of applications for Azure deployment
 DEPLOYMENT_STAGE = config("DEPLOYMENT_STAGE", cast=str, default="").upper()
 
@@ -83,7 +92,7 @@ if not db_connection_values_exist(db_connections):
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if USE_LOCAL_DB:
     my_default_db = {
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite' if GEODJANGO else 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
     DB_MODE = "LOCAL"
@@ -93,7 +102,7 @@ else:
 
     my_default_db = {
         # 'ENGINE': 'django.db.backends.mysql',
-        'ENGINE': 'django.contrib.gis.db.backends.mysql',
+        'ENGINE': 'django.contrib.gis.db.backends.mysql' if GEODJANGO else 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
 
         'HOST': db_connections["DB_HOST"],
