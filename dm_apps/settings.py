@@ -243,7 +243,7 @@ if AZURE_STORAGE_ACCOUNT_NAME == "":
 else:
     # we can try to connect to the azure storage account, but this will only work if the machine we are accessing from has permissions
     try:
-        token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
+        MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
     except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
         print('Cannot connect to azure storage account. Serving static and media files from local staticfiles directory using whitenoise.')
         # serve locally using whitenoise
