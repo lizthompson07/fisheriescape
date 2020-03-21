@@ -83,7 +83,7 @@ if not db_connection_values_exist(db_connections):
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if USE_LOCAL_DB:
     my_default_db = {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
     DB_MODE = "LOCAL"
