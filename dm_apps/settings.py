@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+import sys
 
 import requests
 from django.utils.translation import gettext_lazy as _
@@ -273,4 +274,5 @@ TRACK_QUERY_STRING = True
 TRACK_REFERER = True
 TRACK_SUPERUSERS = False
 
-GDAL_LIBRARY_PATH = r'C:\users\fishmand\projects\geodjango_venv\Lib\site-packages\osgeo\gdal300.dll'
+if "win" in sys.platform.lower():
+    GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
