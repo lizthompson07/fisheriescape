@@ -92,17 +92,17 @@ if USE_LOCAL_DB:
 else:
 
     my_default_db = {
-        # 'ENGINE': 'django.db.backends.mysql',
-        'ENGINE': 'django.contrib.gis.db.backends.mysql',
+        # 'ENGINE': 'django.contrib.gis.db.backends.mysql',
+        'ENGINE': 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
-
-        'HOST': db_connections["DB_HOST"],
-        'PORT': db_connections["DB_PORT"],
-        'NAME': db_connections["DB_NAME"],
-        'USER': db_connections["DB_USER"],
-        'PASSWORD': db_connections["DB_PASSWORD"],
-        'INIT_COMMAND': 'SET default_storage_engine=INNODB',
-        }
+        'OPTIONS': {
+            'host': db_connections["DB_HOST"],
+            'port': db_connections["DB_PORT"],
+            'database': db_connections["DB_NAME"],
+            'user': db_connections["DB_USER"],
+            'password': db_connections["DB_PASSWORD"],
+            'init_command': 'SET default_storage_engine=INNODB',
+        }}
 
     # if we have a connection, get the names of db and host to pass in as context processors
     DB_NAME = db_connections["DB_NAME"]
@@ -113,9 +113,9 @@ else:
         # Determine which DB we are using from the host name"
         if "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps":
             DB_MODE = "DEV"
-        elif "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps-test":
+        elif  "dmapps-dev-db" in db_connections["DB_HOST"] and db_connections["DB_NAME"] == "dmapps-test":
             DB_MODE = "TEST"
-        elif "dmapps-prod-db" in db_connections["DB_HOST"]:
+        elif  "dmapps-prod-db" in db_connections["DB_HOST"]:
             DB_MODE = "PROD"
     else:
         DB_MODE = db_connections["DB_MODE"]

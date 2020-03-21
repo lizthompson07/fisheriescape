@@ -1,0 +1,55 @@
+{% extends "spring_cleanup/spring_cleanup_base.html" %}
+{% load static %}
+{% block content %}
+    <style>
+        .jumbotron {
+            padding: 20px;
+            opacity: 80%;
+        }
+
+        #map {
+            height: 600px;
+        }
+
+    </style>
+    {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+        <div id="map"></div>
+{#    <div class="container">#}
+{#        <div class="jumbotron text-center">#}
+{#            <h1>Earth Day GFC Spring Cleanup</h1>#}
+{#        </div>#}
+{#    </div>#}
+
+
+
+
+
+{% endblock %}
+{% block body_js %}
+
+
+    <script>
+
+        // Initialize and add the map
+        function initMap() {
+            var gfc = {lat: 46.100329, lng: -64.785304};
+            // The map, centered at Uluru
+            var map = new google.maps.Map(
+                document.getElementById('map'), {
+                    zoom: 17,
+                    center: gfc,
+                    mapTypeId: 'satellite',
+                });
+            // The marker, positioned at Uluru
+            var marker = new google.maps.Marker({position: gfc, map: map});
+            marker.addListener('click', function () {
+                {#map.setZoom(8);#}
+                {#map.setCenter(marker.getPosition());#}
+                alert("you just clicked")
+            });
+        }
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&callback=initMap">
+    </script>
+{% endblock %}
