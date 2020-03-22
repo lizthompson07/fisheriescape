@@ -10,7 +10,7 @@ from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView, ListView
 from django_filters.views import FilterView
 from shapely.geometry import box
 
@@ -30,11 +30,12 @@ class SpringCleanupRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class IndexTemplateView(SpringCleanupRequiredMixin, TemplateView):
+class IndexTemplateView(SpringCleanupRequiredMixin, ListView):
     template_name = 'spring_cleanup/index.html'
+    model = models.Route
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["google_api_key"] = settings.GOOGLE_API_KEY
-        messages.success(self.request, _("Click on an area!"))
+        # messages.success(self.request, _("Click on an area!"))
         return context
