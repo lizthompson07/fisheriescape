@@ -134,6 +134,18 @@ INSTALLED_APPS = [
                      'tickets',
                  ] + local_conf.MY_INSTALLED_APPS
 
+
+# If the GEODJANGO setting is set to False, turn off any apps that require it
+GEODJANGO = config("GEODJANGO", cast=bool, default=False)
+if not GEODJANGO:
+    INSTALLED_APPS.remove('django.contrib.gis')
+    try:
+        INSTALLED_APPS.remove('spring_cleanup')
+        print("turning off spring cleanup app because geodjango is not enabled")
+    except KeyError:
+        pass
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',

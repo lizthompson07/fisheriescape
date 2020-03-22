@@ -41,15 +41,6 @@ APP_DICT = {
     'spring_cleanup': "Gulf Region Spring Cleanup",
 }
 
-# If the GEODJANGO setting is set to False, turn off any apps that require it
-GEODJANGO = config("GEODJANGO", cast=bool, default=False)
-if not GEODJANGO:
-    try:
-        del APP_DICT['spring_cleanup']
-        print("turning off spring cleanup app because geodjango is not enabled")
-    except KeyError:
-        pass
-
 # This variable is used to employ a preconfiguartion of applications for Azure deployment
 DEPLOYMENT_STAGE = config("DEPLOYMENT_STAGE", cast=str, default="").upper()
 
@@ -82,6 +73,8 @@ MY_INSTALLED_APPS = [app for app in APP_DICT]
 # If those variables are not set, the local db will be created. If you would like to use a local db
 # disrespective of the environment variables, set it to True
 USE_LOCAL_DB = False
+# If the GEODJANGO setting is set to True, make sure to use the spatially enabled db api wrappers
+GEODJANGO = config("GEODJANGO", cast=bool, default=False)
 
 # get the connection information from the env; if not all values present, default to local db
 db_connections = get_db_connection_dict()
