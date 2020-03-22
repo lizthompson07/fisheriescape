@@ -142,7 +142,7 @@ if not GEODJANGO:
     try:
         INSTALLED_APPS.remove('spring_cleanup')
         print("turning off spring cleanup app because geodjango is not enabled")
-    except KeyError:
+    except ValueError:
         pass
 
 
@@ -286,5 +286,5 @@ TRACK_QUERY_STRING = True
 TRACK_REFERER = True
 TRACK_SUPERUSERS = False
 
-# if "win" in sys.platform.lower():
-#     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
+if "win" in sys.platform.lower() and GEODJANGO:
+    GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
