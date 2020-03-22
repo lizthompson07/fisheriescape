@@ -286,5 +286,5 @@ TRACK_QUERY_STRING = True
 TRACK_REFERER = True
 TRACK_SUPERUSERS = False
 
-if "win" in sys.platform.lower():
-    GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
+# if "win" in sys.platform.lower():
+#     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
