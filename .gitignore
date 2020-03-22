@@ -49,7 +49,7 @@ Thumbs.db
 # local configuration #
 #######################
 local_conf.py
-my_conf.py
+my_conf*
 my_wsgi.py
 my_dev.cnf
 

@@ -36,6 +36,9 @@ class Route(models.Model):
     estimated_time_required = models.FloatField(blank=True, null=True, verbose_name=_("estimated time needed"))
     polygon = models.MultiPolygonField(srid=4326)
 
+    @property
+    def coords(self):
+        return self.polygon.coords[0][0]
 
 class Outing(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, blank=True, null=True, on_delete=models.DO_NOTHING)
