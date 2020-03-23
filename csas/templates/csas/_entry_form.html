@@ -3,11 +3,11 @@
 {% load static %}
 {% bootstrap_css %}
 {% bootstrap_javascript jquery='full' %}
-<script type=" text/javascript" src="{% static "js/popItOut.js" %}"></script>
+<script type="text/javascript" src="{% static 'js/popItOut.js' %}"></script>
 
 {% block content %}
-<div class="container">
-    <h2>{% trans title %}</h2>
+<div class="container mt-1">
+    <br><h2>{% trans title %}</h2><br>
 
     <form method="post" class="form" enctype='multipart/form-data' >
         {% csrf_token %}
@@ -28,6 +28,6 @@
 </div>
 {% endblock content %}
 
-{% block body_js %}
+<!-- {% block body_js %}
 {% include 'whalesdb/_deployment_js.html'%}
-{% endblock %}
+{% endblock %} -->
