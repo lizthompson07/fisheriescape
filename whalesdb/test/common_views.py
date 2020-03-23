@@ -4,6 +4,16 @@ from django.utils.translation import activate
 from django.contrib.auth.models import User, Group
 
 
+# This is used to simulate calling the as_veiw() function normally called in the urls.py
+# this will return a view that can then have it's internal methods tested
+def setup_view(view, request, *args, **kwargs):
+
+    view.request = request
+    view.args = args
+    view.kwargs = kwargs
+    return view
+
+
 class CommonFormTest(TestCase):
     form_class = None
     test_factory = None
@@ -31,9 +41,46 @@ class CommonTest(TestCase):
     login_url_en = login_url_base + "/en/"
     login_url_fr = login_url_base + "/fr/"
 
-    # All views should at a minimum have a title field
+    test_password = "test1234"
+
+    # use when a user needs to be logged in.
+    def login_regular_user(self):
+        user_name = "Regular"
+        if User.objects.filter(username=user_name):
+            user = User.objects.get(username=user_name)
+        else:
+            user = User.objects.create_user(username=user_name, first_name="Joe", last_name="Average",
+                                            email="Average.Joe@dfo-mpo.gc.ca", password=self.test_password)
+            user.save()
+
+        self.client.login(username=user.username, password=self.test_password)
+
+        return user
+
+    # use when a user needs to be logged in.
+    def login_whale_user(self):
+        user_name = "Whale"
+        if User.objects.filter(username=user_name):
+            user = User.objects.get(username=user_name)
+        else:
+            whale_group = Group(name="whalesdb_admin")
+            whale_group.save()
+
+            user = User.objects.create_user(username=user_name, first_name="Hump", last_name="Back",
+                                            email="Hump.Back@dfo-mpo.gc.ca", password=self.test_password)
+            user.groups.add(whale_group)
+            user.save()
+
+        self.client.login(username=user.username, password=self.test_password)
+
+        return user
+
+    # All views should at a minimum have a title field and determine if a user is authorized,
+    # and if content is editable
     def assert_context_fields(self, response):
         self.assertIn("title", response.context)
+        self.assertIn("auth", response.context)
+        self.assertIn("editable", response.context)
 
     # This is a standard view test most classes should run at some point to ensure
     # that a view is reachable and to check permissions/redirect if required
@@ -94,45 +141,12 @@ class CommonCreateTest(CommonTest):
     expected_view = None
     expected_success_url = reverse_lazy("shared_models:close_me_no_refresh")
     data = None
-    test_password = "test1234"
 
     def setUp(self):
         super().setUp()
 
         # CreateViews intended to be used from a views.ListCommon should use the _entry_form.html template
         self.test_expected_template = 'whalesdb/_entry_form.html'
-
-    # use when a user needs to be logged in.
-    def login_regular_user(self):
-        user_name = "Regular"
-        if User.objects.filter(username=user_name):
-            user = User.objects.get(username=user_name)
-        else:
-            user = User.objects.create_user(username=user_name, first_name="Joe", last_name="Average",
-                                            email="Average.Joe@dfo-mpo.gc.ca", password=self.test_password)
-            user.save()
-
-        self.client.login(username=user.username, password=self.test_password)
-
-        return user
-
-    # use when a user needs to be logged in.
-    def login_whale_user(self):
-        user_name = "Whale"
-        if User.objects.filter(username=user_name):
-            user = User.objects.get(username=user_name)
-        else:
-            whale_group = Group(name="whalesdb_admin")
-            whale_group.save()
-
-            user = User.objects.create_user(username=user_name, first_name="Hump", last_name="Back",
-                                            email="Hump.Back@dfo-mpo.gc.ca", password=self.test_password)
-            user.groups.add(whale_group)
-            user.save()
-
-        self.client.login(username=user.username, password=self.test_password)
-
-        return user
 
     # If a user is logged in and not in 'whalesdb_admin' they should be get a 403 restriction
     def assert_logged_in_not_access(self):
@@ -222,4 +236,3 @@ class CommonDetailsTest(CommonTest):
 
         self.assertIn("list_url", response.context)
         self.assertIn("update_url", response.context)
-        self.assertIn("auth", response.context)
