@@ -106,7 +106,7 @@
                     google.maps.event.addListener(myPolygon, 'click', function (event) {
                         map.setCenter(localBounds{{ forloop.counter0 }}.getCenter());
                         map.setZoom(20);
-                        window.location.href = "{% url 'index'  %}";
+                        window.location.href = "{% url 'spring_cleanup:route_detail' object.id  %}";
                         {#infowindow.setContent("{{object.id}}");#}
                         {#infowindow.open(map, marker{{ forloop.counter0 }});#}
                     });

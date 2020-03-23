@@ -18,6 +18,7 @@ from . import models
 from . import forms
 from . import filters
 
+
 class SpringCleanupRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
@@ -37,5 +38,22 @@ class IndexTemplateView(SpringCleanupRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["google_api_key"] = settings.GOOGLE_API_KEY
+        # messages.success(self.request, _("Click on an area!"))
+        return context
+
+
+class RouteDetailView(LoginRequiredMixin, DetailView):
+    model = models.Route
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["google_api_key"] = settings.GOOGLE_API_KEY
+        context["field_list"] = [
+            'id',
+            'tdesc|{}'.format(_("Description")),
+            'recommended_people',
+            'estimated_time_required',
+            'approx_area|{}'.format(_("approximate area (km.sq.)")),
+        ]
         # messages.success(self.request, _("Click on an area!"))
         return context

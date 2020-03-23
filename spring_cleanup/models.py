@@ -40,6 +40,22 @@ class Route(models.Model):
     def coords(self):
         return self.polygon.coords[0][0]
 
+    @property
+    def area_km2(self):
+        return self.polygon.transform(3492, clone=True).area/1000000
+
+    @property
+    def tdesc(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("description_en"))):
+            return "{}".format(getattr(self, str(_("description_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.description_en)
+
+    def birds(self):
+        return set([bird for outing in self.outings.all() for bird in outing.birds.all()])
+
 class Outing(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, blank=True, null=True, on_delete=models.DO_NOTHING)
     route = models.ForeignKey(Route, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="outings")
