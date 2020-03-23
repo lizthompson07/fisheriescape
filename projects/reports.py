@@ -17,7 +17,7 @@ import os
 from shared_models import models as shared_models
 
 
-def generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, sections):
+def generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, sections, omcatagory=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
     target_file = "temp_export.xlsx"
@@ -51,48 +51,102 @@ def generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, secti
     else:
         section_list = shared_models.Section.objects.all()
 
-    # We're only using B-Base funding
-    # funding_type = models.FundingSourceType.objects.get(pk=funding)
-    # funding_src = models.FundingSource.objects.filter(name="SARA", funding_source_type=funding_type)
-    funding_src = models.FundingSource.objects.get(pk=funding)
+    project_list = models.Project.objects.filter(year=fiscal_year, section__in=section_list)
 
-    project_list = models.Project.objects.filter(year=fiscal_year, section__in=section_list, default_funding_source=funding_src)
+    if omcatagory and omcatagory != "None":
+        om_list = models.OMCategory.objects.filter(pk__in=omcatagory.split(','))
 
-    # Use the header key as the col label, then use the array[0] for the col format and array[1] for col size
-    header = {
-        "Project ID": [normal_format, 20],
-        "Project Title": [normal_format, 20],
-        "Salary": [number_format, 20],
-        "O&M Cost": [number_format, 20],
-        "Capital Cost": [number_format, 20],
-        "Project Staff": [normal_format, 20],
-        "Start Date of Project": [normal_format, 20],
-        "End Date of Project": [normal_format, 20],
-        "Project-Specific Priorities": [normal_format, 150],
-        "Project Objectives & Description": [normal_format, 150],
-        "Project Deliverables / Activities": [normal_format, 150],
-        "Milestones": [normal_format, 150],
-        "Additional Notes": [normal_format, 150],
-    }
+        # Use the header key as the col label, then use the array[0] for the col format and array[1] for col size
+        header = {
+            "Project ID": [normal_format, 20],
+            "Project Title": [normal_format, 20],
+            "Project Objectives & Description": [normal_format, 150],
+            "Salary": [number_format, 20],
+            "O&M Cost": [number_format, 20],
+            "Capital Cost": [number_format, 20],
+        }
 
-    worksheet1 = workbook.add_worksheet(name="Submitted Projects")
-    write_funding_sheet(worksheet1, header_format, header, project_list.filter(approved=False), funding_src)
+        worksheet1 = workbook.add_worksheet(name="Submitted Projects")
+        write_funding_omcategory_sheet(worksheet1, header_format, header, project_list.filter(approved=False), om_list)
 
-    worksheet2 = workbook.add_worksheet(name="Approved Projects")
-    write_funding_sheet(worksheet2, header_format, header, project_list.filter(approved=True), funding_src)
+        worksheet2 = workbook.add_worksheet(name="Approved Projects")
+        write_funding_omcategory_sheet(worksheet2, header_format, header, project_list.filter(approved=True), om_list)
+        workbook.close()
+    else:
 
-    workbook.close()
+        # We're only using B-Base funding
+        # funding_type = models.FundingSourceType.objects.get(pk=funding)
+        # funding_src = models.FundingSource.objects.filter(name="SARA", funding_source_type=funding_type)
+        funding_src = models.FundingSource.objects.get(pk=funding)
+
+        project_list = project_list.filter(default_funding_source=funding_src)
+
+        # Use the header key as the col label, then use the array[0] for the col format and array[1] for col size
+        header = {
+            "Project ID": [normal_format, 20],
+            "Project Title": [normal_format, 20],
+            "Salary": [number_format, 20],
+            "O&M Cost": [number_format, 20],
+            "Capital Cost": [number_format, 20],
+            "Project Staff": [normal_format, 20],
+            "Start Date of Project": [normal_format, 20],
+            "End Date of Project": [normal_format, 20],
+            "Project-Specific Priorities": [normal_format, 150],
+            "Project Objectives & Description": [normal_format, 150],
+            "Project Deliverables / Activities": [normal_format, 150],
+            "Milestones": [normal_format, 150],
+            "Additional Notes": [normal_format, 150],
+        }
+
+        worksheet1 = workbook.add_worksheet(name="Submitted Projects")
+        write_funding_sheet(worksheet1, header_format, header, project_list.filter(approved=False), funding_src)
+
+        worksheet2 = workbook.add_worksheet(name="Approved Projects")
+        write_funding_sheet(worksheet2, header_format, header, project_list.filter(approved=True), funding_src)
+
+        workbook.close()
 
     return target_url
 
 
-# used to generate a common sheet format
-def write_funding_sheet(worksheet, header_format, header, projects, funding):
+def write_funding_header(worksheet, header_format, header):
     keys = [k for k in header.keys()]
     worksheet.write_row(0, 0, keys, header_format)
 
     for i in range(0, len(keys)):
         worksheet.set_column(i, i, header[keys[i]][1], header[keys[i]][0])
+
+
+# used to generate a common sheet format
+def write_funding_omcategory_sheet(worksheet, header_format, header, projects, om_list):
+
+    write_funding_header(worksheet=worksheet, header_format=header_format, header=header)
+
+    row = 1
+    for project in projects:
+
+        om_cost = project.om_costs.filter(om_category__in=om_list).aggregate(Sum("budget_requested"))
+
+        staff_cost = staff_list.filter(om_category=funding).aggregate(Sum('cost'))
+
+        capital_cost = project.capital_costs.filter(om_category__in=om_list).aggregate(Sum("budget_requested"))
+        data = [
+            project.id,
+            project.project_title,
+            html2text.html2text(project.description).replace("\n\n", "[_EOL_]").replace("\n", " ").replace("[_EOL_]",
+                                                                                                           "\n\n"),
+            nz(staff_cost['cost__sum'], 0),
+            nz(om_cost['budget_requested__sum'], 0),
+            nz(capital_cost['budget_requested__sum'], 0),
+        ]
+        worksheet.write_row(row, 0, data)
+
+        row += 1
+
+
+# used to generate a common sheet format
+def write_funding_sheet(worksheet, header_format, header, projects, funding):
+    write_funding_header(worksheet=worksheet, header_format=header_format, header=header)
 
     row = 1
     for project in projects:
