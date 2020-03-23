@@ -128,7 +128,6 @@ else:
 if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns += i18n_patterns(path('whalesdb/', include('whalesdb.urls')), prefix_default_language=True)
 else:
-    print(e)
     print("not connecting whalesdb app")
 
 if settings.INSTALLED_APPS.count("trapnet"):
