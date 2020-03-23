@@ -61,12 +61,12 @@ class Organisation(models.Model):
 
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    last_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_(""), null=True, blank=True)
-    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    phone = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    roles = models.ManyToManyField(Role, verbose_name=_(""))
+    first_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("First name"))
+    last_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last name"))
+    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_("Organisation"), null=True, blank=True)
+    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Email address"))
+    phone = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Phone number"))
+    roles = models.ManyToManyField(Role, verbose_name=_("Roles"))
 
     def __str__(self):
         return self.first_name
