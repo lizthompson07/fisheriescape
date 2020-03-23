@@ -23,6 +23,7 @@ class Status(models.Model):
     color = models.CharField(max_length=15, blank=True, null=True)
     old_id = models.IntegerField(blank=True, null=True)
     description_text = models.CharField(max_length=250, blank=True, null=True)
+    test = models.CharField(blank=True, null=True, max_length=100)
 
     def __str__(self):
         # check to see if a french value is given
