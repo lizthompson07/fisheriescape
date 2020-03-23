@@ -9,7 +9,7 @@
 
     <style>
         body {
-            background-image: url("{% static 'img/sky.jpg' %}");
+            background-image: url("{% static 'spring_cleanup/img/sky.jpg' %}");
             background-size: cover;
         }
 
@@ -25,7 +25,7 @@
     </style>
 
     <div class="mb-5 center-col">
-        <h1 class="mytitle" style="font-size: 40px">
+        <h1 class="mytitle" style="font-size: 50px">
             {% trans "Welcome to the Gulf Region Spring Cleanup Coordination App" %}
 
         </h1>
@@ -67,16 +67,18 @@
 
             {% for object in object_list %}
                 {% if object.polygon %}
+                    var localBounds{{ forloop.counter0 }} = new google.maps.LatLngBounds();
 
                     // extend bounds var
                     {% for coord in object.coords %}
-                        bounds.extend(new google.maps.LatLng({{coord.last}}, {{ coord.first }}));
+                        bounds.extend(new google.maps.LatLng({{coord.1}}, {{ coord.0 }}));
+                        localBounds{{ forloop.parentloop.counter0 }}.extend(new google.maps.LatLng({{coord.1}}, {{ coord.0 }}));
                     {% endfor %}
 
                     // Define the LatLng coordinates for the polygon's path.
                     var polygonCoords = [
-                        {% for coord in polygon.coords %}
-                            {lat: {{coord.last}}, lng: {{coord.first}}, {% if point.order %}order: {{point.order}}{% endif %}},
+                        {% for coord in object.coords %}
+                            {lat: {{coord.1}}, lng: {{coord.0}}, order: {{forloop.counter0}}},
                         {% endfor %}
                     ];
 
@@ -93,7 +95,22 @@
                     });
 
                     myPolygon.setMap(map);
-                    {#bounds.extend(myPolygon.getBounds());#}
+
+                    marker{{ forloop.counter0 }} = new google.maps.Marker({
+                        position: new google.maps.LatLng(localBounds{{ forloop.counter0 }}.getCenter().lat,localBounds{{ forloop.counter0 }}.getCenter().long),
+                        map: map,
+                    });
+
+                    marker{{ forloop.counter0 }}.setMap(map);
+
+                    google.maps.event.addListener(myPolygon, 'click', function (event) {
+                        map.setCenter(localBounds{{ forloop.counter0 }}.getCenter());
+                        map.setZoom(20);
+                        window.location.href = "{% url 'index'  %}";
+                        {#infowindow.setContent("{{object.id}}");#}
+                        {#infowindow.open(map, marker{{ forloop.counter0 }});#}
+                    });
+
 
                     map.fitBounds(bounds);
                     // add a click event on the polygon
