@@ -54,16 +54,25 @@ def generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, secti
     project_list = models.Project.objects.filter(year=fiscal_year, section__in=section_list)
 
     if omcatagory and omcatagory != "None":
+        # get a list of OM Categories matching what the user selected in the web form
         om_list = models.OMCategory.objects.filter(pk__in=omcatagory.split(','))
+
+        # Use the OMCost table to get a list of projects that have one of the categories assiged to it
+        om_costs_projects = [omc.project.pk for omc in models.OMCost.objects.filter(om_category__in=om_list)]
+
+        # filter down the list of projects to projects in both the project list and in the OMCost list
+        project_list = project_list.filter(pk__in=om_costs_projects)
 
         # Use the header key as the col label, then use the array[0] for the col format and array[1] for col size
         header = {
             "Project ID": [normal_format, 20],
             "Project Title": [normal_format, 20],
+            "Project Leads": [normal_format, 20],
             "Project Objectives & Description": [normal_format, 150],
             "Salary": [number_format, 20],
             "O&M Cost": [number_format, 20],
             "Capital Cost": [number_format, 20],
+            "Total Cost": [number_format, 20]
         }
 
         worksheet1 = workbook.add_worksheet(name="Submitted Projects")
@@ -125,19 +134,27 @@ def write_funding_omcategory_sheet(worksheet, header_format, header, projects, o
     row = 1
     for project in projects:
 
-        om_cost = project.om_costs.filter(om_category__in=om_list).aggregate(Sum("budget_requested"))
+        prj_desc = html2text.html2text(project.description) if project.description else None
 
-        staff_cost = staff_list.filter(om_category=funding).aggregate(Sum('cost'))
+        staff_list = project.staff_members.all()
+        staff_leads = project.project_leads
 
-        capital_cost = project.capital_costs.filter(om_category__in=om_list).aggregate(Sum("budget_requested"))
+        om_cost = project.om_costs.aggregate(Sum("budget_requested"))
+        staff_cost = staff_list.aggregate(Sum('cost'))
+        capital_cost = project.capital_costs.aggregate(Sum("budget_requested"))
+        total_cost = (staff_cost['cost__sum'] if staff_cost['cost__sum'] else 0) +\
+                     (capital_cost['budget_requested__sum'] if capital_cost['budget_requested__sum'] else 0) +\
+                     (om_cost['budget_requested__sum'] if om_cost['budget_requested__sum'] else 0)
+
         data = [
             project.id,
             project.project_title,
-            html2text.html2text(project.description).replace("\n\n", "[_EOL_]").replace("\n", " ").replace("[_EOL_]",
-                                                                                                           "\n\n"),
+            staff_leads,
+            prj_desc.replace("\n\n", "[_EOL_]").replace("\n", " ").replace("[_EOL_]", "\n\n") if prj_desc else "",
             nz(staff_cost['cost__sum'], 0),
             nz(om_cost['budget_requested__sum'], 0),
             nz(capital_cost['budget_requested__sum'], 0),
+            nz(total_cost, 0),
         ]
         worksheet.write_row(row, 0, data)
 
