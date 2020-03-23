@@ -20,6 +20,8 @@ class Lookup(models.Model):
         abstract = True
 
 
+# ---------------------------------------------------------------------------------------
+# Create models for contacts
 class CohHonorific(Lookup):
     coh_id = models.AutoField(primary_key=True)
 
@@ -45,23 +47,28 @@ class SecSector(Lookup):
 
 
 class ConContact(models.Model):
-    con_id = models.AutoField(primary_key=True)
-    honorific = models.ForeignKey(CohHonorific, on_delete=models.DO_NOTHING)
-    first_name = models.CharField(max_length=100, help_text=_("Some help here"))
-    last_name = models.CharField(max_length=100)
-    affiliation = models.CharField(max_length=100)
-    job_title = models.CharField(max_length=100)
-    language = models.ForeignKey(LanLanguage, on_delete=models.DO_NOTHING)
-    contact_type = models.ForeignKey(CotType, on_delete=models.DO_NOTHING)
-    notification_preference = models.ForeignKey(NotNotificationPreference, models.DO_NOTHING)
-    phone = models.CharField(max_length=12)
-    email = models.CharField(max_length=255)
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
-    section = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING)
-    role = models.ForeignKey(RolRole, on_delete=models.DO_NOTHING)
-    expertise = models.CharField(max_length=100)
-    cc_grad = models.BooleanField()
-    notes = models.TextField()
+    con_id = models.AutoField(primary_key=True, verbose_name=_("ID"))
+    honorific = models.ForeignKey(CohHonorific, on_delete=models.DO_NOTHING, verbose_name=_("Honorific"))
+    first_name = models.CharField(max_length=100, verbose_name=_("First Name"))
+    last_name = models.CharField(max_length=100, verbose_name=_("Last Name"))
+    affiliation = models.CharField(max_length=100, verbose_name=_("Affiliation"))
+    job_title = models.CharField(max_length=100, verbose_name=_("Job Title"))
+    language = models.ForeignKey(LanLanguage, on_delete=models.DO_NOTHING, verbose_name=_("Language"))
+    contact_type = models.ForeignKey(CotType, on_delete=models.DO_NOTHING, verbose_name=_("Contact Type"))
+    notification_preference = models.ForeignKey(NotNotificationPreference, models.DO_NOTHING,
+                                                verbose_name=_("Notification Preference"))
+    phone = models.CharField(max_length=12, verbose_name=_("Phone"))
+    email = models.CharField(max_length=255, verbose_name=_("E-mail"))
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
+                               verbose_name=_("Region"))
+    sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Sector"))
+    role = models.ForeignKey(RolRole, on_delete=models.DO_NOTHING,
+                             help_text=_("Indicates permissions i.e. regional coordinator, regional science adviser, "
+                                         "regional admin, director, etc."),
+                             verbose_name=_("Role"))
+    expertise = models.CharField(max_length=100, verbose_name=_("Expertise"))
+    cc_grad = models.BooleanField(verbose_name=_("Chair Course Graduate"))
+    notes = models.TextField(verbose_name=_("Notes"))
 
     def __str__(self):
         return "{}, {}".format(self.last_name, self.first_name)

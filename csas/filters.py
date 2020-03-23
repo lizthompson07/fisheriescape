@@ -8,7 +8,7 @@ from . import models
 class ContactFilter(FilterSet):
     class Meta:
         model = models.ConContact
-        fields = ['last_name', 'first_name', 'contact_type']
+        fields = ['last_name', 'first_name', 'contact_type', 'region']
 
 
 class MeetingFilter(FilterSet):
