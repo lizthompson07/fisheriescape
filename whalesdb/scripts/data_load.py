@@ -278,7 +278,7 @@ def load_ecp(file_name):
             try:
                 eqr = models.EqrRecorderProperties.objects.get(emm=emm)
 
-                if not model.objects.filter(emm=emm, ecp_channel_no=data[2]):
+                if not model.objects.filter(eqr=eqr, ecp_channel_no=data[2]):
                     print(str(data))
 
                     ecp_channel_no = data[2]

@@ -131,20 +131,26 @@ except RuntimeError as e:
     print(e)
     print("not connecting whalesdb app")
 
-try:
+if settings.INSTALLED_APPS.count("trapnet"):
     urlpatterns += i18n_patterns(path('trapnet/', include('trapnet.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting TrapNet")
 
-try:
+if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns += i18n_patterns(path('sar-search/', include('sar_search.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting SAR Search")
 
-try:
-    urlpatterns += i18n_patterns(path('vault/', include('vault.urls')), prefix_default_language=True)
-except RuntimeError:
+if settings.INSTALLED_APPS.count("vault"):
+        urlpatterns += i18n_patterns(path('vault/', include('vault.urls')), prefix_default_language=True)
+else:
     print("not connecting vault app")
+
+
+if settings.INSTALLED_APPS.count("spring_cleanup"):
+    urlpatterns += i18n_patterns(path('spring-cleanup/', include('spring_cleanup.urls')), prefix_default_language=True)
+else:
+    print("not connecting spring_cleanup app")
 
 
 # if not settings.DEBUG:

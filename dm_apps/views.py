@@ -53,6 +53,20 @@ def get_app_dict(request):
         except NoReverseMatch:
             pass
 
+
+    try:
+        app_dict["spring_cleanup"] = {
+            "title": _("GFC Spring Cleanup!"),
+            "description": _("App to coordinate a spring cleanup in the area around the GFC. Sign up today!!."),
+            "status": "production",
+            "access": "permission-required",
+            "url": reverse('spring_cleanup:index'),
+            "icon_path": 'img/icons/earth.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
     try:
         app_dict["grais"] = {
             "title": _("grAIS"),
