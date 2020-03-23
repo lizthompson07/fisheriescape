@@ -225,8 +225,8 @@ class RequestDetails(DetailsCommon):
     # fields = ['quarter', 'start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
     #           'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
     #           'csas_contact', ]
-    fields = ['title', 'in_year_request', 'region', 'client_sector', 'client_Name', 'client_title', 'client_email',
-              'issue', 'priority', 'rationale', 'proposed_timing', 'rational_for_timing', 'funding',
+    fields = ['title', 'in_year_request', 'region', 'client_sector', 'client_name', 'client_title', 'client_email',
+              'issue', 'priority', 'rationale', 'proposed_timing', 'rationale_for_timing', 'funding',
               'funding_notes', 'science_discussion', 'science_discussion_notes', 'adviser_submission',
               'rd_submission', 'decision_date', ]
 
@@ -269,7 +269,7 @@ class ContactsList(ListCommon):
     filterset_class = filters.ContactFilter
 
     # fields used in the table on the filter page.
-    fields = ['last_name', 'first_name', 'affiliation', 'language', 'contact_type']
+    fields = ['con_id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'email', 'phone']
 
     # title to display on the Filter page
     title = _("Contact List")
@@ -284,7 +284,7 @@ class ContactsDetails(DetailsCommon):
     title = _("Contact Details")
     # fields to be displayed on the details page
     fields = ['honorific', 'first_name', 'last_name', 'affiliation', 'job_title', 'language', 'contact_type',
-              'notification_preference', 'phone', 'email', 'region', 'section', 'role', 'expertise', 'cc_grad', 'notes']
+              'notification_preference', 'phone', 'email', 'region', 'sector', 'role', 'expertise', 'cc_grad', 'notes']
 
 
 # ----------------------------------------------------------------------------------------------------
