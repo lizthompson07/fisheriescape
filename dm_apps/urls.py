@@ -40,94 +40,94 @@ urlpatterns += i18n_patterns(
          name='password_reset_confirm'),
     prefix_default_language=True)
 
-try:
+if settings.INSTALLED_APPS.count("inventory"):
     urlpatterns += i18n_patterns(path('inventory/', include('inventory.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting inventory app")
 
-try:
+if settings.INSTALLED_APPS.count("tickets"):
     urlpatterns += i18n_patterns(path('dm-tickets/', include('tickets.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting ticket app")
 
-try:
+if settings.INSTALLED_APPS.count("oceanography"):
     urlpatterns += i18n_patterns(path('oceanography/', include('oceanography.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting oceanography app")
 
-try:
+if settings.INSTALLED_APPS.count("grais"):
     urlpatterns += i18n_patterns(path('grais/', include('grais.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting grais app")
 
-try:
+if settings.INSTALLED_APPS.count("herring"):
     urlpatterns += i18n_patterns(path('hermorrhage/', include('herring.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting hermorrhage app")
 
-try:
+if settings.INSTALLED_APPS.count("camp"):
     urlpatterns += i18n_patterns(path('camp/', include('camp.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting camp app")
 
-try:
+if settings.INSTALLED_APPS.count("diets"):
     urlpatterns += i18n_patterns(path('diets/', include('diets.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting diets app")
 
-try:
+if settings.INSTALLED_APPS.count("projects"):
     urlpatterns += i18n_patterns(path('projects/', include('projects.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting projects app")
 
-try:
+if settings.INSTALLED_APPS.count("ihub"):
     urlpatterns += i18n_patterns(path('ihub/', include('ihub.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting ihub app")
 
-try:
+if settings.INSTALLED_APPS.count("scifi"):
     urlpatterns += i18n_patterns(path('scifi/', include('scifi.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting scifi app")
 
-try:
+if settings.INSTALLED_APPS.count("masterlist"):
     urlpatterns += i18n_patterns(path('master-list/', include('masterlist.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting masterlist app")
 
-try:
+if settings.INSTALLED_APPS.count("shares"):
     urlpatterns += i18n_patterns(path('gulf-shares/', include('shares.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting shares app")
 
-try:
+if settings.INSTALLED_APPS.count("travel"):
     urlpatterns += i18n_patterns(path('travel-plans/', include('travel.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting travel app")
 
-try:
+if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns += i18n_patterns(path('ios2/', include('ios2.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting spot")
 
-try:
+if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns += i18n_patterns(path('grants-and-contributions/', include('spot.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting spot")
 
-try:
+if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns += i18n_patterns(path('publications/', include('publications.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting publications app")
 
-try:
+if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns += i18n_patterns(path('staff/', include('staff.urls')), prefix_default_language=True)
-except RuntimeError:
+else:
     print("not connecting staff app")
 
-try:
+if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns += i18n_patterns(path('whalesdb/', include('whalesdb.urls')), prefix_default_language=True)
-except RuntimeError as e:
+else:
     print(e)
     print("not connecting whalesdb app")
 
