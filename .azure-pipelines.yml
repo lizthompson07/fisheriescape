@@ -32,12 +32,13 @@ steps:
   - script: |
       python -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
+      # sudo apt-get install binutils libproj-dev gdal-bin libsqlite3-mod-spatialite spatialite-bin
       pip install -r requirements.txt
     displayName: 'Install prerequisites'
 
-#  - script: |
-#      python create_env_file.py --secret-key "$(SECRET_KEY)" --sendgrid-api-key "$(SENDGRID_API_KEY)" --oauth-app-id "$(app_id)" --oauth-app-secret "$(app_secret)" --oauth-redirect "$(redirect)" --oauth-scopes "$(scopes)" --oauth-authority "$(authority)" --oauth-authorize-endpoint "$(authorize_endpoint)" --oauth-token-endpoint "$(token_endpoint)" --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME)"
-#    displayName: 'Creating configuration file'
+  #  - script: |
+  #      python create_env_file.py --secret-key "$(SECRET_KEY)" --sendgrid-api-key "$(SENDGRID_API_KEY)" --oauth-app-id "$(app_id)" --oauth-app-secret "$(app_secret)" --oauth-redirect "$(redirect)" --oauth-scopes "$(scopes)" --oauth-authority "$(authority)" --oauth-authorize-endpoint "$(authorize_endpoint)" --oauth-token-endpoint "$(token_endpoint)" --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME)"
+  #    displayName: 'Creating configuration file'
 
   - script: |
       python manage.py migrate
@@ -49,13 +50,13 @@ steps:
 
   - script: |
       pushd '$(projectRoot)'
-# Whales needs some initial data loaded for lookup tables for the tests to pass, on my dev machine I use a MySQL DB
-# and fixtures in the testing classes to load the data, but in this environment using an Sqlite DB migrations have
-# to be done then fixtures loaded manually before the tests are run
+      # Whales needs some initial data loaded for lookup tables for the tests to pass, on my dev machine I use a MySQL DB
+      # and fixtures in the testing classes to load the data, but in this environment using an Sqlite DB migrations have
+      # to be done then fixtures loaded manually before the tests are run
       python manage.py migrate whalesdb
       python manage.py loaddata whalesdb/fixtures/initial_data.json
       python manage.py test whalesdb.test
-# TODO: Database created in the previous step should be manually deleted here so it doesn't interfere with other testing
+      # TODO: Database created in the previous step should be manually deleted here so it doesn't interfere with other testing
     condition: succeededOrFailed()
     displayName: 'Run tests'
 

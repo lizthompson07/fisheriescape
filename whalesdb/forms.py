@@ -20,6 +20,22 @@ class DepForm(forms.ModelForm):
         self.fields['mor'].create_url = 'whalesdb:create_mor'
 
 
+class EdaForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EdaEquipmentAttachment
+        exclude = []
+        widgets = {
+            'dep': forms.HiddenInput(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # exclude hydrophones from the equipment selection list
+        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__eqt_id=4)
+
+
 class EmmForm(forms.ModelForm):
     min_height = 700
     min_width = 600
@@ -49,6 +65,9 @@ class EqoForm(forms.ModelForm):
 
 
 class EqpForm(forms.ModelForm):
+    min_height = 850
+    min_width = 600
+
     class Meta:
         model = models.EqpEquipment
         exclude = []
@@ -110,10 +129,14 @@ class StnForm(forms.ModelForm):
 
 
 class SteForm(forms.ModelForm):
+    min_height = 935
+    min_width = 600
 
     class Meta:
         model = models.SteStationEvent
         exclude = []
         widgets = {
-            'ste_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+            'ste_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'dep': forms.HiddenInput(),
+            'set_type': forms.HiddenInput(),
         }

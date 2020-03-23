@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-1 pt-1">
                         {# if the user is authenticated and has permissions show the add button #}
-                        {% if auth %}
+                        {% if editable %}
                         <a class="btn btn-primary" href="{% url ''|add:create_url %}" title="{% trans 'Add' %}">+</a>
                         {% endif %}
 
@@ -69,7 +69,7 @@
                     <th>{% get_verbose_label filter.qs.first field %}</th>
                     {% endfor %}
                     <th></th>
-                    {% if auth %}
+                    {% if editable %}
                     <th></th>
                     {% endif %}
                 </tr>
@@ -81,7 +81,7 @@
                         <td>{% get_field_value obj field %}</td>
                         {% endfor %}
                             <td><a class="btn btn-primary btn-sm" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a></td>
-                            {% if auth %}
+                            {% if editable %}
                             <td><a class="btn btn-primary btn-sm" href="#" onclick="return pop('{% url ''|add:update_url obj.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
                             {% endif %}
                         </tr>

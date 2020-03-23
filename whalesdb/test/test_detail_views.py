@@ -1,13 +1,13 @@
 from django.utils.translation import activate
 from django.urls import reverse_lazy
-from django.test import tag
+from django.test import tag, RequestFactory
 
-from whalesdb.test.common_views import CommonDetailsTest
+from whalesdb.test.common_views import CommonDetailsTest, setup_view
 from whalesdb.test import WhalesdbFactory as Factory
-from whalesdb import models
+from whalesdb import views, models
 
 
-class TestDetailsEmm(CommonDetailsTest):
+class TestEmmDetails(CommonDetailsTest):
 
     def createDict(self):
         if self._details_dict:
@@ -49,7 +49,7 @@ class TestDetailsEmm(CommonDetailsTest):
         super().assert_context_fields(response)
 
 
-class TestDetailsEqp(CommonDetailsTest):
+class TestEqpDetails(CommonDetailsTest):
 
     def createDict(self):
         if self._details_dict:
@@ -91,7 +91,7 @@ class TestDetailsEqp(CommonDetailsTest):
         super().assert_context_fields(response)
 
 
-class TestDetailsDeployment(CommonDetailsTest):
+class TestDepDetails(CommonDetailsTest):
 
     def createDict(self):
         if self._details_dict:
@@ -141,8 +141,57 @@ class TestDetailsDeployment(CommonDetailsTest):
         self.assertEqual(response.context["object"], self.createDict()['dep_1'])
         super().assert_field_in_fields(response)
 
+    # If a deployment event has been issued, a deployment should no longer be editable and the
+    # test_func method should return false. This is to prevent URL hijacking and letting a user
+    # paste in data to a url to update a view
+    @tag('dep', 'details_dep', 'access')
+    def test_details_dep_test_func(self):
+        dep = Factory.DepFactory()
 
-class TestDetailsMooring(CommonDetailsTest):
+        # have to create the request and setup the view
+        req_factory = RequestFactory()
+        test_url = reverse_lazy("whalesdb:details_dep", kwargs={'pk': dep.pk})
+        request = req_factory.get(test_url)
+        request.user = self.login_whale_user()
+        view = setup_view(views.DepDetails(), request, pk=dep.pk)
+
+        # check to see if a deployment that's not been deployed can be edited
+        self.assertTrue(view.test_func())
+
+        # create a deployment event
+        set_type = models.SetStationEventCode.objects.get(pk=1)  # 1 == Deployment event
+        dep_evt = Factory.SteFactory(dep=dep, set_type=set_type)
+
+        # deployment should no longer be editable
+        self.assertFalse(view.test_func())
+
+    # Same as test_details_dep_test_func, but we're testing the context returns the expected values
+    # page is editable if the user is authorized and test_func returns true
+    @tag('dep', 'details_dep', 'context', 'access')
+    def test_details_dep_context_auth_denied(self):
+        activate('en')
+
+        dep = Factory.DepFactory()
+        test_url = reverse_lazy("whalesdb:details_dep", kwargs={'pk': dep.pk})
+
+        self.login_whale_user()
+        response = self.client.get(test_url)
+
+        self.assertIn("editable", response.context)
+        self.assertTrue(response.context['editable'])
+
+        # create a deployment event
+        set_type = models.SetStationEventCode.objects.get(pk=1)  # 1 == Deployment event
+        dep_evt = Factory.SteFactory(dep=dep, set_type=set_type)
+
+        response = self.client.get(test_url)
+
+        self.assertIn("editable", response.context)
+        self.assertTrue(response.context['auth'])
+        self.assertFalse(response.context['editable'])
+
+
+class TestMorDetails(CommonDetailsTest):
 
     def createDict(self):
         if self._details_dict:
@@ -192,7 +241,7 @@ class TestDetailsMooring(CommonDetailsTest):
         super().assert_field_in_fields(response)
 
 
-class TestDetailsProject(CommonDetailsTest):
+class TestPrjDetails(CommonDetailsTest):
 
     def createDict(self):
         if self._details_dict:
@@ -239,7 +288,7 @@ class TestDetailsProject(CommonDetailsTest):
         super().assert_field_in_fields(response)
 
 
-class TestDetailsStation(CommonDetailsTest):
+class TestStnDetails(CommonDetailsTest):
 
     def createDict(self):
         if self._details_dict:
@@ -288,4 +337,5 @@ class TestDetailsStation(CommonDetailsTest):
         self.assertEqual(response.context['list_url'], 'whalesdb:list_stn')
         self.assertEqual(response.context['update_url'], 'whalesdb:update_stn')
         self.assertEqual(response.context['object'], self.createDict()['stn_1'])
+
         super().assert_field_in_fields(response)
