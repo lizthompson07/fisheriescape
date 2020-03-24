@@ -1,1 +1,1 @@
-startUpCommand:  python manage.py migrate
+/antenv/bin/python /home/site/wwwroot/ manage.py migrate
