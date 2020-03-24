@@ -328,3 +328,47 @@ class EdaFactory(factory.django.DjangoModelFactory):
         }
 
         return valid_data
+
+
+class RscFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.RscRecordingSchedule
+
+    rsc_name = faker.word()
+    rsc_period = faker.random_int(1, 1000000)
+
+    @staticmethod
+    def get_valid_data():
+
+        valid_data = {
+            "rsc_name": faker.word(),
+            "rsc_period": faker.random_int(1, 1000000)
+        }
+
+        return valid_data
+
+
+class RstFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.RstRecordingStage
+
+    rst_channel_no = faker.random_int(0, 9)
+    rsc = factory.SubFactory(RscFactory)
+    rst_active = faker.random_element(elements=("A", "S"))
+    rst_duration = faker.random_int(0, 10000)
+    rst_rate = faker.pyfloat(left_digits=5, right_digits=2)
+
+    @staticmethod
+    def get_valid_data():
+
+        rsc = RscFactory()
+
+        valid_data = {
+            "rst_channel_no": faker.random_int(0, 9),
+            "rsc": rsc.pk,
+            "rst_active": faker.random_element(elements=("A", "S")),
+            "rst_duration": faker.random_int(0, 10000),
+            "rst_rate": faker.pyfloat(left_digits=5, right_digits=2)
+        }
+
+        return valid_data

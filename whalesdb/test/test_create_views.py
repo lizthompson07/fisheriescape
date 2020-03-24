@@ -501,6 +501,120 @@ class TestPrjCreate(CommonCreateTest):
         super().assert_successful_url()
 
 
+class TestRscCreate(CommonCreateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.RscFactory.get_valid_data()
+        self.test_url = reverse_lazy('whalesdb:create_rsc')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form.html'
+
+        self.expected_view = views.RscCreate
+
+        self.expected_form = forms.RscForm
+
+        self.expected_success_url = "whalesdb:details_rsc"
+
+    # Users must be logged in to create new stations
+    @tag('rsc', 'create', 'response', 'access')
+    def test_create_rsc_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('rsc', 'create', 'response', 'access')
+    def test_create_rsc_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('rsc', 'create', 'response', 'access')
+    def test_create_rsc_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('rsc', 'create', 'form')
+    def test_create_rsc_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('rsc', 'create', 'context')
+    def test_create_rsc_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('rsc', 'create', 'redirect')
+    def test_create_rsc_successful_url(self):
+        super().assert_successful_url(signature="whalesdb:details_rsc")
+
+
+class TestRstCreate(CommonCreateTest):
+
+    rsc_id = 1
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.RstFactory.get_valid_data()
+        self.test_url = reverse_lazy('whalesdb:create_rst', args=[self.rsc_id, 'pop'])
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+
+        self.expected_view = views.RstCreate
+
+        self.expected_form = forms.RstForm
+
+        self.expected_success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+    # Users must be logged in to create new stations
+    @tag('rst', 'create', 'response', 'access')
+    def test_create_rst_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('rst', 'create', 'response', 'access')
+    def test_create_rst_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('rst', 'create', 'response', 'access')
+    def test_create_rst_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('rst', 'create', 'form')
+    def test_create_rst_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('rst', 'create', 'context')
+    def test_create_rst_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+        self.assertIn("form", response.context)
+        self.assertIn("rsc", response.context['form'].initial)
+        self.assertEquals(self.rsc_id, response.context['form'].initial['rsc'])
+
+    # test that given some valid data the view will redirect to the list
+    @tag('rst', 'create', 'redirect')
+    def test_create_rst_successful_url(self):
+        super().assert_successful_url()
+
+
 class TestSteCreate(CommonCreateTest):
 
     def setUp(self):
