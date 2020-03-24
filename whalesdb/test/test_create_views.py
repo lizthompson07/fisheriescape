@@ -14,7 +14,7 @@ import os
 from whalesdb.test import WhalesdbFactory as Factory
 
 
-class TestCreateDep(CommonCreateTest):
+class TestDepCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -71,7 +71,7 @@ class TestCreateDep(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateEda(CommonCreateTest):
+class TestEdaCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -128,7 +128,7 @@ class TestCreateEda(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateEmm(CommonCreateTest):
+class TestEmmCreate(CommonCreateTest):
 
     emm_id = 1
 
@@ -199,7 +199,7 @@ class TestCreateEmm(CommonCreateTest):
         self.assertRedirects(response=response, expected_url=reverse_lazy('whalesdb:details_emm', args=(emm_id,)))
 
 
-class TestCreateEqh(CommonCreateTest):
+class TestEqhCreate(CommonCreateTest):
 
     emm_id = 1
 
@@ -260,7 +260,7 @@ class TestCreateEqh(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateEqp(CommonCreateTest):
+class TestEqpCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -314,7 +314,7 @@ class TestCreateEqp(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateEqr(CommonCreateTest):
+class TestEqrCreate(CommonCreateTest):
 
     emm_id = 1
 
@@ -375,7 +375,7 @@ class TestCreateEqr(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateMor(CommonCreateTest):
+class TestMorCreate(CommonCreateTest):
     img_file_name = None
     img_file_path = None
 
@@ -447,7 +447,7 @@ class TestCreateMor(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreatePrj(CommonCreateTest):
+class TestPrjCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -501,7 +501,7 @@ class TestCreatePrj(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateSte(CommonCreateTest):
+class TestSteCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -560,7 +560,7 @@ class TestCreateSte(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateStn(CommonCreateTest):
+class TestStnCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
