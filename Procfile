@@ -1,0 +1,1 @@
+startUpCommand:  python manage.py migrate
