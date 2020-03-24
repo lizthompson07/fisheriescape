@@ -45,8 +45,8 @@ class EccCalibrationValue(models.Model):
 
 class EdaEquipmentAttachment(models.Model):
     eda_id = models.AutoField(primary_key=True)
-    eqp = models.OneToOneField('EqpEquipment', on_delete=models.DO_NOTHING, verbose_name=_("Equipment"),
-                            related_name='equipment')
+    eqp = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING, verbose_name=_("Equipment"),
+                            related_name='deployments')
     dep = models.ForeignKey('DepDeployment', on_delete=models.DO_NOTHING, verbose_name=_("Deployment"),
                             related_name='attachments')
 

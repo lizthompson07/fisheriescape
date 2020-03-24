@@ -4,7 +4,7 @@ from django.urls import reverse_lazy
 from whalesdb.test.common_views import CommonListTest
 
 
-class TestListDep(CommonListTest):
+class TestDepList(CommonListTest):
 
     def setUp(self):
         super().setUp()
@@ -32,7 +32,7 @@ class TestListDep(CommonListTest):
         self.assertEqual("whalesdb:update_dep", response.context['update_url'])
 
 
-class TestListEmm(CommonListTest):
+class TestEmmList(CommonListTest):
 
     def setUp(self):
         super().setUp()
@@ -55,7 +55,7 @@ class TestListEmm(CommonListTest):
         response = super().assert_list_view_context_fields()
 
 
-class TestListEqp(CommonListTest):
+class TestEqpList(CommonListTest):
 
     def setUp(self):
         super().setUp()
@@ -78,7 +78,7 @@ class TestListEqp(CommonListTest):
         response = super().assert_list_view_context_fields()
 
 
-class TestListMooring(CommonListTest):
+class TestMooringList(CommonListTest):
 
     def setUp(self):
         super().setUp()
@@ -106,7 +106,7 @@ class TestListMooring(CommonListTest):
         self.assertEqual("whalesdb:update_mor", response.context['update_url'])
 
 
-class TestListProject(CommonListTest):
+class TestProjectList(CommonListTest):
 
     def setUp(self):
         super().setUp()
@@ -134,7 +134,7 @@ class TestListProject(CommonListTest):
         self.assertEqual("whalesdb:update_prj", response.context['update_url'])
 
 
-class TestListStation(CommonListTest):
+class TestStationList(CommonListTest):
 
     def setUp(self):
         super().setUp()
