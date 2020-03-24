@@ -114,3 +114,16 @@ class TestMorMooringSetup(TestCase):
         mor_1.delete()
 
         self.assertFalse(os.path.exists(expected_path))
+
+
+class TestRstRecordingStage(TestCase):
+
+    def setUp(self) -> None:
+        pass
+
+    @tag('rst', 'rsc', 'relationship')
+    def test_rst_relationship(self):
+        rsc = Factory.RscFactory()
+        rst = Factory.RstFactory(rsc=rsc)
+
+        self.assertEquals(1, rsc.stages.count())
