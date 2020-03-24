@@ -25,6 +25,7 @@ class Status(models.Model):
     description_text = models.CharField(max_length=250, blank=True, null=True)
     test = models.CharField(blank=True, null=True, max_length=100)
 
+
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
