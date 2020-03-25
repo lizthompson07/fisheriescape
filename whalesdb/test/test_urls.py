@@ -171,6 +171,26 @@ class URLTest(TestCase):
     def test_url_details_prj_view(self):
         self.basic_en_url_test('whalesdb:details_prj', 'whalesdb/details/prj/1/', views.PrjDetails, [1])
 
+    @tag('rsc', 'url', 'create')
+    def test_url_create_rsc_view(self):
+        self.basic_en_url_test('whalesdb:create_rsc', 'whalesdb/create/rsc/', views.RscCreate)
+
+    @tag('rsc', 'url', 'list')
+    def test_url_list_rsc_view(self):
+        self.basic_en_url_test('whalesdb:list_rsc', 'whalesdb/list/rsc/', views.RscList)
+
+    @tag('rsc', 'url', 'details')
+    def test_url_details_rsc_view(self):
+        self.basic_en_url_test('whalesdb:details_rsc', 'whalesdb/details/rsc/1/', views.RscDetails, [1])
+
+    @tag('rst', 'url', 'create')
+    def test_url_create_rst_view(self):
+        self.basic_en_url_test('whalesdb:create_rst', 'whalesdb/create/rst/1/pop/', views.RstCreate, [1, 'pop'])
+
+    @tag('rst', 'url', 'delete')
+    def test_url_delete_rst_view(self):
+        self.basic_en_url_test('whalesdb:delete_rst', 'whalesdb/delete/rst/1/', views.rst_delete, [1])
+
     @tag('stn', 'url', 'create')
     def test_url_create_stn_view(self):
         self.basic_en_url_test('whalesdb:create_stn', 'whalesdb/create/stn/', views.StnCreate)

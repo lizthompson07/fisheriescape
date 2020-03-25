@@ -1,5 +1,6 @@
 from django.views.generic import TemplateView, CreateView, DetailView, UpdateView
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.conf import settings
 
@@ -10,6 +11,16 @@ from django.utils.translation import gettext_lazy as _
 from . import forms, models, filters, utils
 
 import json
+
+
+def rst_delete(request, pk):
+    rst = models.RstRecordingStage.objects.get(pk=pk)
+    if utils.whales_authorized(request.user):
+        rst.delete()
+        messages.success(request, _("The recording stage has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
 class IndexView(TemplateView):
@@ -54,7 +65,7 @@ class CommonCreate(UserPassesTestMixin, CreateView):
     # Upon success most creation views will be redirected to their respective 'CommonList' view. To send
     # a successful creation view somewhere else, override this method
     def get_success_url(self):
-        success_url = reverse_lazy("whalesdb:list_{}".format(self.key))
+        success_url = self.success_url if self.success_url else reverse_lazy("whalesdb:list_{}".format(self.key))
 
         if self.kwargs.get("pop"):
             # create views intended to be pop out windows should close the window upon success
@@ -188,6 +199,31 @@ class PrjCreate(CommonCreate):
     model = models.PrjProject
     form_class = forms.PrjForm
     title = _("Create Project")
+
+
+class RscCreate(CommonCreate):
+    key = 'rsc'
+    model = models.RscRecordingSchedule
+    form_class = forms.RscForm
+    title = _("Create Recording Schedule")
+
+    def form_valid(self, form):
+        obj = form.save()
+
+        return HttpResponseRedirect(reverse_lazy("whalesdb:details_rsc", kwargs={"pk": obj.pk}))
+
+
+class RstCreate(CommonCreate):
+    key = 'rst'
+    model = models.RstRecordingStage
+    form_class = forms.RstForm
+    title = _("Create Recording Stage")
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['rsc'] = self.kwargs['rsc']
+
+        return initial
 
 
 class SteCreate(CommonCreate):
@@ -333,6 +369,9 @@ class CommonDetails(DetailView):
     list_url = None
     update_url = None
 
+    # By default detail objects are editable, set to false to remove update buttons
+    editable = True
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -346,7 +385,8 @@ class CommonDetails(DetailView):
         context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = context['editable'] = utils.whales_authorized(self.request.user)
+        context['auth'] = utils.whales_authorized(self.request.user)
+        context['editable'] = context['auth'] and self.editable
 
         return context
 
@@ -409,6 +449,15 @@ class PrjDetails(CommonDetails):
     creation_form_height = 725
 
 
+class RscDetails(CommonDetails):
+    key = 'rsc'
+    model = models.RscRecordingSchedule
+    title = _("Recording Schedule Details")
+    template_name = "whalesdb/details_rsc.html"
+    fields = ['rsc_name', 'rsc_period']
+    editable = False
+
+
 class StnDetails(CommonDetails):
     key = 'stn'
     model = models.StnStation
@@ -452,6 +501,9 @@ class CommonList(FilterView):
     # if not set by the extending class the default popup height will be used
     creation_form_height = None
 
+    # By default Listed objects will have an update button, set editable to false in extending classes to disable
+    editable = True
+
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
@@ -466,7 +518,8 @@ class CommonList(FilterView):
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = context['editable'] = utils.whales_authorized(self.request.user)
+        context['auth'] = utils.whales_authorized(self.request.user)
+        context['editable'] = context['auth'] and self.editable
 
         if self.creation_form_height:
             context['height'] = self.creation_form_height
@@ -515,6 +568,15 @@ class PrjList(CommonList):
     title = _("Project List")
     fields = ['prj_name', 'prj_description']
     creation_form_height = 400
+
+
+class RscList(CommonList):
+    key = 'rsc'
+    model = models.RscRecordingSchedule
+    filterset_class = filters.RscFilter
+    title = _("Recording Schedule List")
+    fields = ['rsc_name', 'rsc_period']
+    editable = False
 
 
 class StnList(CommonList):
