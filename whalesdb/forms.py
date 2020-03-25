@@ -116,6 +116,23 @@ class PrjForm(forms.ModelForm):
         }
 
 
+class RscForm(forms.ModelForm):
+    class Meta:
+        model = models.RscRecordingSchedule
+        exclude = []
+        widgets = {
+        }
+
+
+class RstForm(forms.ModelForm):
+    class Meta:
+        model = models.RstRecordingStage
+        exclude = []
+        widgets = {
+            'rsc': forms.HiddenInput()
+        }
+
+
 class StnForm(forms.ModelForm):
     min_height = 935
     min_width = 600

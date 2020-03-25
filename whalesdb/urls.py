@@ -49,6 +49,13 @@ urlpatterns = [
     path('details/prj/<int:pk>/', views.PrjDetails.as_view(), name="details_prj"),
     path('list/prj/', views.PrjList.as_view(), name="list_prj"),
 
+    path('create/rsc/', views.RscCreate.as_view(), name="create_rsc"),
+    path('details/rsc/<int:pk>/', views.RscDetails.as_view(), name="details_rsc"),
+    path('list/rsc/', views.RscList.as_view(), name="list_rsc"),
+
+    path('create/rst/<int:rsc>/<str:pop>/', views.RstCreate.as_view(), name="create_rst"),
+    path('delete/rst/<int:pk>/', views.rst_delete, name="delete_rst"),
+
     path('create/ste/<int:dep_id>/<int:set_id>/<str:pop>/', views.SteCreate.as_view(), name="create_ste"),
 
     path('create/stn/', views.StnCreate.as_view(), name="create_stn"),
