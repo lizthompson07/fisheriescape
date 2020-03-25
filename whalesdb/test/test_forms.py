@@ -174,6 +174,50 @@ class TestMorForm(CommonFormTest):
         self.assertTrue(hasattr(form, 'min_width'))
 
 
+class TestPrjForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.PrjForm
+        self.test_factory = factory.PrjFactory
+
+    @tag('prj', 'form', 'valid_data')
+    def test_prj_valid_data(self):
+        self.assert_valid_data()
+
+
+class TestRscForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.RscForm
+        self.test_factory = factory.RscFactory
+
+    @tag('rsc', 'form', 'valid_data')
+    def test_rsc_valid_data(self):
+        self.assert_valid_data()
+
+
+class TestRstForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.RstForm
+        self.test_factory = factory.RstFactory
+
+    @tag('rst', 'form', 'valid_data')
+    def test_rst_valid_data(self):
+        self.assert_valid_data()
+
+    # This form has some fields that should be hidden
+    @tag('rst', 'form', 'widgets')
+    def test_rst_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['rsc'], 'widget'))
+        self.assertIsInstance(form.fields['rsc'].widget, d_forms.HiddenInput)
+
+
 class TestSteForm(CommonFormTest):
 
     def setUp(self) -> None:
@@ -224,15 +268,3 @@ class TestStnForm(CommonFormTest):
         form = self.form_class()
         self.assertTrue(hasattr(form, 'min_height'))
         self.assertTrue(hasattr(form, 'min_width'))
-
-
-class TestPrjForm(CommonFormTest):
-
-    def setUp(self) -> None:
-        super().setUp()
-        self.form_class = forms.PrjForm
-        self.test_factory = factory.PrjFactory
-
-    @tag('prj', 'form', 'valid_data')
-    def test_prj_valid_data(self):
-        self.assert_valid_data()
