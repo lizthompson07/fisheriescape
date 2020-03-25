@@ -372,3 +372,23 @@ class RstFactory(factory.django.DjangoModelFactory):
         }
 
         return valid_data
+
+
+class TeaFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TeaTeamMember
+
+    tea_abb = faker.word()
+    tea_last_name = faker.word()
+    tea_first_name = faker.word()
+
+    @staticmethod
+    def get_valid_data():
+
+        valid_data = {
+            "tea_abb": faker.word(),
+            "tea_last_name": faker.word(),
+            "tea_first_name": faker.word(),
+        }
+
+        return valid_data

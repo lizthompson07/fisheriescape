@@ -264,7 +264,25 @@ class TestStnForm(CommonFormTest):
 
     # The Station form should have a minimum height and width used to resize popup windows
     @tag('stn', 'form', 'properties')
-    def test_stv_properties(self):
+    def test_stn_properties(self):
         form = self.form_class()
         self.assertTrue(hasattr(form, 'min_height'))
         self.assertTrue(hasattr(form, 'min_width'))
+
+
+class TestTeaForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.TeaForm
+        self.test_factory = factory.TeaFactory
+
+    @tag('tea', 'form', 'valid_data')
+    def test_tea_valid_data(self):
+        self.assert_valid_data()
+
+    # The Station form should have a minimum height and width used to resize popup windows
+    @tag('tea', 'form', 'properties')
+    def test_tea_properties(self):
+        pass
+        # form = self.form_class()
