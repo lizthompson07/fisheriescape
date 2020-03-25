@@ -65,6 +65,21 @@
         </a>
     </div>
   </li>
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+    aria-haspopup="true" aria-expanded="false">
+        {% trans "Datasets" %}
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="{% url 'whalesdb:list_rsc' %}">
+            {% trans "Recording Schedule List" %}
+        </a>
+        <hr />
+        <a class="dropdown-item" href="{% url 'whalesdb:list_tea' %}">
+            {% trans "Team Member List" %}
+        </a>
+    </div>
+  </li>
 {% endblock left_all %}
 
 {% block left_unauth %}

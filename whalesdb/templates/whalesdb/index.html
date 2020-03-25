@@ -60,6 +60,12 @@
                     {% if auth %}
                     <a class="btn btn-secondary" href="{% url 'whalesdb:create_rsc' %}" >{% trans 'New Recording Schedule' %}</a>
                     {% endif %}
+                    <hr />
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:list_tea' %}" >{% trans 'Team Members' %}</a>
+                    {% if auth %}
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:create_tea' %}" >{% trans 'New Team Member' %}</a>
+                    {% endif %}
+
                 </div>
             </div>
         </div>
