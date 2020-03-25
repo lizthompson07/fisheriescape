@@ -19,7 +19,7 @@
                     <span class="col">
                         {% trans "Hydrophone Properties" %}
                     </span>
-                    {% if auth %}
+                    {% if editable %}
                     <span class="px-1">
                         {% if not emm.hydrophones %}
                         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_eqh' emm.pk 'pop' %}','hydro')" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
@@ -50,7 +50,7 @@
                     <span class="col">
                         {% trans "Recorder Properties" %}
                     </span>
-                    {% if auth %}
+                    {% if editable %}
                     <span class="px-1">
                         {% if not emm.recorder %}
                         <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_eqr' emm.pk 'pop' %}','rec')" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
@@ -81,14 +81,14 @@
                 <span class="col">
                     {% trans "Channel Properties" %}
                 </span>
-                {% if auth %}
+                {% if editable %}
                 <span class="px-1">
                     <a class="btn btn-primary" href="#" onclick="" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
                 </span>
                 {% endif %}
             </div>
         </h5>
-        <tr class="card-body">
+        <div class="card-body">
             <table class="table">
                 <thead>
                 <tr><th>{% trans 'Channel No.'%}</th><th>{% trans 'ADC Bits'%}</th><th>{% trans 'Voltage (max)'%}</th><th>{% trans 'Voltage (min)'%}</th></tr>
