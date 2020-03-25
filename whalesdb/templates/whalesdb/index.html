@@ -22,11 +22,11 @@
         <div class="col">
             <div class="card border border-dark">
                 <div class="card-header">
-                    <h2>Deployments</h2>
+                    <h2>{% trans 'Deployments' %}</h2>
                 </div>
                 <div class="card-body">
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_dep' %}" >{% trans 'Deployments' %}</a>
-                    {% if auth %}
+                    {% if editable %}
                     <a class="btn btn-secondary" href="{% url 'whalesdb:create_dep' %}" >{% trans 'New Deployment' %}</a>
                     {% endif %}
                     <hr />
@@ -39,10 +39,11 @@
         <div class="col">
             <div class="card border border-dark">
                 <div class="card-header">
-                    <h2>Equipment</h2>
+                    <h2>{% trans 'Equipment' %}</h2>
                 </div>
                 <div class="card-body">
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_eqp' %}" >{% trans 'Equipment' %}</a>
+                    <hr />
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_emm' %}" >{% trans 'Make/Model' %}</a>
                 </div>
             </div>

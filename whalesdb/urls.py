@@ -13,6 +13,8 @@ urlpatterns = [
     path('details/dep/<int:pk>/', views.DepDetails.as_view(), name="details_dep"),
     path('list/dep/', views.DepList.as_view(), name="list_dep"),
 
+    path('create/eda/<int:dep>/<str:pop>/', views.EdaCreate.as_view(), name="create_eda"),
+
     path('create/emm/', views.EmmCreate.as_view(), name="create_emm"),
     path('create/emm/<str:pop>/', views.EmmCreate.as_view(), name="create_emm"),
     path('update/emm/<int:pk>/<str:pop>/', views.EmmUpdate.as_view(), name="update_emm"),

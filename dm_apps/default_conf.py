@@ -39,6 +39,7 @@ APP_DICT = {
     'whalesdb': "Whale Equipment Deployment Inventory",
 	'csas': "Canadian Science Advisory Secretariat",
     'vault': "Marine Megafauna Media Vault",
+    'spring_cleanup': "Gulf Region Spring Cleanup",
 }
 
 # This variable is used to employ a preconfiguartion of applications for Azure deployment
@@ -73,6 +74,8 @@ MY_INSTALLED_APPS = [app for app in APP_DICT]
 # If those variables are not set, the local db will be created. If you would like to use a local db
 # disrespective of the environment variables, set it to True
 USE_LOCAL_DB = False
+# If the GEODJANGO setting is set to True, make sure to use the spatially enabled db api wrappers
+GEODJANGO = config("GEODJANGO", cast=bool, default=False)
 
 # get the connection information from the env; if not all values present, default to local db
 db_connections = get_db_connection_dict()
@@ -83,7 +86,7 @@ if not db_connection_values_exist(db_connections):
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if USE_LOCAL_DB:
     my_default_db = {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite' if GEODJANGO else 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
     DB_MODE = "LOCAL"
@@ -92,7 +95,8 @@ if USE_LOCAL_DB:
 else:
 
     my_default_db = {
-        'ENGINE': 'django.db.backends.mysql',
+        # 'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.contrib.gis.db.backends.mysql' if GEODJANGO else 'django.db.backends.mysql',
         'TIME_ZONE': 'America/Halifax',
 
         'HOST': db_connections["DB_HOST"],
