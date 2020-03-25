@@ -237,8 +237,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-
-
     try:
         app_dict["sar_search"] = {
             "title": _("SAR Search"),
@@ -252,7 +250,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-
     try:
         app_dict["shares"] = {
             "title": _("Gulf Shares"),
@@ -265,7 +262,6 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
-
 
     try:
         app_dict["masterlist"] = {
@@ -293,6 +289,18 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+    try:
+        app_dict["csas"] = {
+            "title": _("Canadian Science Advisory Secretariat"),
+            "description": _("Tool for tracking meetings, requests and publications."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('csas:index'),
+            "icon_path": 'img/csas/csas_image.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
 
     try:
         app_dict["vault"] = {
