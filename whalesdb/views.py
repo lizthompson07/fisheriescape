@@ -17,7 +17,10 @@ class IndexView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data()
-        context['auth'] = utils.whales_authorized(self.request.user)
+
+        # for the most part if the user is authorized then the content is editable
+        # but extending classes can choose to make content not editable even if the user is authorized
+        context['auth'] = context['editable'] = utils.whales_authorized(self.request.user)
 
         return context
 
@@ -73,6 +76,10 @@ class CommonCreate(UserPassesTestMixin, CreateView):
             # used as the title of the creation view. Called in the _entry_form and _entry_form_no_nav tempaltes
             context["title"] = self.title
 
+        # for the most part if the user is authorized then the content is editable
+        # but extending classes can choose to make content not editable even if the user is authorized
+        context['auth'] = context['editable'] = self.test_func()
+
         return context
 
 
@@ -89,8 +96,22 @@ class DepCreate(CommonCreate):
                         models.StnStation.objects.all().order_by('stn_id').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
+        context['java_script'] = 'whalesdb/_entry_dep_js.html'
 
         return context
+
+
+class EdaCreate(CommonCreate):
+    key = 'eda'
+    model = models.EdaEquipmentAttachment
+    form_class = forms.EdaForm
+    title = _("Select Equipment")
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['dep'] = self.kwargs['dep']
+
+        return initial
 
 
 class EmmCreate(CommonCreate):
@@ -213,6 +234,8 @@ class CommonUpdate(UserPassesTestMixin, UpdateView):
 
     # this function overrides UserPassesTestMixin.test_func() to determine if
     # the user should have access to this content, if the user is logged in
+    # This function could be overridden in extending classes to preform further testing to see if
+    # an object is editable
     def test_func(self):
         return self.request.user.groups.filter(name='whalesdb_admin').exists()
 
@@ -222,6 +245,10 @@ class CommonUpdate(UserPassesTestMixin, UpdateView):
         if self.title:
             context["title"] = self.title
 
+        # for the most part if the user is authorized then the content is editable
+        # but extending classes can choose to make content not editable even if the user is authorized
+        context['auth'] = context['editable'] = self.test_func()
+
         return context
 
 
@@ -230,6 +257,14 @@ class DepUpdate(CommonUpdate):
     form_class = forms.DepForm
     title = _("Update Deployment")
 
+    def test_func(self):
+        auth = super().test_func()
+        if auth:
+            # editable if the object has no station events
+            auth = self.model.objects.get(pk=self.kwargs['pk']).station_events.count() <= 0
+
+        return auth
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -237,6 +272,7 @@ class DepUpdate(CommonUpdate):
                         models.StnStation.objects.all().order_by('stn_id').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
+        context['java_script'] = 'whalesdb/_entry_dep_js.html'
 
         return context
 
@@ -308,8 +344,9 @@ class CommonDetails(DetailView):
 
         context['list_url'] = self.list_url if self.list_url else "whalesdb:list_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
-        context['auth'] = utils.whales_authorized(self.request.user)
-
+        # for the most part if the user is authorized then the content is editable
+        # but extending classes can choose to make content not editable even if the user is authorized
+        context['auth'] = context['editable'] = utils.whales_authorized(self.request.user)
 
         return context
 
@@ -321,10 +358,19 @@ class DepDetails(CommonDetails):
     title = _("Deployment Details")
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
+    def test_func(self):
+        # editable if the object has no station events
+        auth = self.model.objects.get(pk=self.kwargs['pk']).station_events.count() <= 0
+
+        return auth
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context['google_api_key'] = settings.GOOGLE_API_KEY
+        # auth is set in the CommonDetails.get_context_data function.
+        # So if the user has auth AND the object is editable set auth to true
+        context['editable'] = self.test_func() and context['auth']
 
         return context
 
@@ -418,7 +464,9 @@ class CommonList(FilterView):
         context['details_url'] = self.details_url if self.details_url else "whalesdb:details_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
 
-        context['auth'] = utils.whales_authorized(self.request.user)
+        # for the most part if the user is authorized then the content is editable
+        # but extending classes can choose to make content not editable even if the user is authorized
+        context['auth'] = context['editable'] = utils.whales_authorized(self.request.user)
 
         if self.creation_form_height:
             context['height'] = self.creation_form_height

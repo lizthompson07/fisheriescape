@@ -62,10 +62,69 @@ class TestCreateDep(CommonCreateTest):
 
         # Deploymnets also need to return a JSON formatted list of Station Codes
         self.assertIn("station_json", response.context)
+        self.assertIn("java_script", response.context)
+        self.assertEquals("whalesdb/_entry_dep_js.html", response.context['java_script'])
 
     # test that given some valid data the view will redirect to the list
     @tag('dep', 'create', 'redirect')
     def test_create_dep_successful_url(self):
+        super().assert_successful_url()
+
+
+class TestCreateEda(CommonCreateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.EdaFactory.get_valid_data()
+
+        # ['deployment id', 'Equipment_id', 'set_to_popup']
+        args = [self.data['dep'], 'pop']
+
+        self.test_url = reverse_lazy('whalesdb:create_eda', args=args)
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+
+        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
+
+        self.expected_view = views.EdaCreate
+        self.expected_form = forms.EdaForm
+
+    # Users must be logged in to create new objects
+    @tag('eda', 'create', 'response', 'access')
+    def test_create_eda_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new objects
+    @tag('eda', 'create', 'response', 'access')
+    def test_create_eda_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    @tag('eda', 'create', 'response', 'access')
+    def test_create_eda_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('eda', 'create', 'form')
+    def test_create_eda_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('eda', 'create', 'context')
+    def test_create_eda_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('eda', 'create', 'redirect')
+    def test_create_eda_successful_url(self):
         super().assert_successful_url()
 
 
@@ -547,7 +606,7 @@ class TestCreateStn(CommonCreateTest):
     # Each view might require specific context fields
     @tag('stn', 'create', 'context')
     def test_create_stn_context_fields(self):
-        super().assert_create_view_context_fields()
+        response = super().assert_create_view_context_fields()
 
     # test that given some valid data the view will redirect to the list
     @tag('stn', 'create', 'redirect')
