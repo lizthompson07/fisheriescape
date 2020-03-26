@@ -256,26 +256,27 @@ if AZURE_STORAGE_ACCOUNT_NAME == "":
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 else:
     # we can try to connect to the azure storage account, but this will only work if the machine we are accessing from has permissions
-    try:
-        token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
-    except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
-        print('Cannot connect to azure storage account. Serving static and media files from local staticfiles directory using whitenoise.')
-        # serve locally using whitenoise
-        MEDIA_ROOT = MEDIA_DIR
-        MEDIA_URL = '/media/'
-        STATIC_URL = '/static/'
-        STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-        STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-    else:
-        # serve from azure
-        DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
-        STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
+    # try:
+    #     pass
+    #     # token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
+    # except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
+    #     print('Cannot connect to azure storage account. Serving static and media files from local staticfiles directory using whitenoise.')
+    #     # serve locally using whitenoise
+    #     MEDIA_ROOT = MEDIA_DIR
+    #     MEDIA_URL = '/media/'
+    #     STATIC_URL = '/static/'
+    #     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    #     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+    # else:
+    # serve from azure
+    DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
+    STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
 
-        STATIC_CONTAINER_NAME = "static"
-        MEDIA_CONTAINER_NAME = "media"
-        AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
-        STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_CONTAINER_NAME}/'
-        MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_CONTAINER_NAME}/'
+    STATIC_CONTAINER_NAME = "static"
+    MEDIA_CONTAINER_NAME = "media"
+    AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
+    STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_CONTAINER_NAME}/'
+    MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_CONTAINER_NAME}/'
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
