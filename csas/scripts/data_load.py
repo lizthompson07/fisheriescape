@@ -18,7 +18,8 @@ def load_lookup(model, options):
         # filter the model looking for this option. The option is only added if the filter returns a NoneType object
         if not model.objects.filter(name_en=opt[0]):
             model(name_en=opt[0], name_fr=opt[1]).save()
-			
+
+
 # Load the (Request) priority model
 priorities = [['High ', ' High(fr)'], ['Medium ', ' Medium(fr)'], ['Low ', ' Low(fr)'],]
 load_lookup(models.RepPriority, priorities)
@@ -74,3 +75,5 @@ load_lookup(models.LocLocation, locations)
 # Load Process Types
 process = [['test process ', ' test process(fr)']]
 load_lookup(models.AptAdvisoryProcessType, process)
+
+print("Data Load complete")
