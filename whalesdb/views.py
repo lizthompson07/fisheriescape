@@ -8,7 +8,8 @@ from django.urls import reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
-from . import forms, models, filters, utils
+from whalesdb import forms, models, filters, utils
+from shared_models.views import CreateCommon
 
 import json
 
@@ -38,20 +39,10 @@ class IndexView(TemplateView):
 
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
-class CommonCreate(UserPassesTestMixin, CreateView):
-    # key is used to construct commonly formatted strings, such as used in the get_success_url
-    key = None
+class CommonCreate(CreateCommon):
 
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
-
-    # default template to use to create an update
-    #  _entry_form.html contains the common navigation elements at the top of the template
-    #  _entry_form_no_nav.html does not contain navigation at the top of the template
-    template_name = 'whalesdb/_entry_form.html'
-
-    # title to display on the CreateView page
-    title = None
+    nav_menu = 'whalesdb/nav_menu.html'
+    site_css = 'whalesdb/whales_css.css'
 
     # If a url is setup to use <str:pop> in its path, indicating the creation form is in a popup window
     # get_template_names will return the _entry_form_no_nav.html template.
@@ -81,15 +72,7 @@ class CommonCreate(UserPassesTestMixin, CreateView):
     # class are inherited by the extending class.
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        if self.title:
-            # used as the title of the creation view. Called in the _entry_form and _entry_form_no_nav tempaltes
-            context["title"] = self.title
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = context['editable'] = self.test_func()
-
+        context['editable'] = context['auth']
         return context
 
 
