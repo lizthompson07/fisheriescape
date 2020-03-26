@@ -22,7 +22,7 @@ class TestDepCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_dep')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_dep')
 
@@ -142,7 +142,7 @@ class TestEmmCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_emm')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_emm')
 
@@ -270,7 +270,7 @@ class TestEqpCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_eqp')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_eqp')
 
@@ -386,7 +386,7 @@ class TestMorCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_mor')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_mor')
 
@@ -456,7 +456,7 @@ class TestPrjCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_prj')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_prj')
 
@@ -510,7 +510,7 @@ class TestRscCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_rsc')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_view = views.RscCreate
 
@@ -683,7 +683,7 @@ class TestStnCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_stn')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_view = views.StnCreate
 
@@ -737,7 +737,7 @@ class TestTeaCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_tea')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_view = views.TeaCreate
 

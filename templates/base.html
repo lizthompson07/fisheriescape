@@ -35,7 +35,8 @@
 </head>
 
 <body>
-
+{# 2020/03/26 - P. Upson - added block navigation tags so this template can be extended and the navigation elements hidden for popups #}
+{% block navigation %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark transparent">
     <a class="navbar-brand bigbrand" href="{% url 'index' %}">
         <img src="{% static 'img/icons/iconfinder_cluster-data-group-organize_2205240 - white.png' %}" width="30" height="30"
@@ -100,6 +101,7 @@
         </ul>
     </div>
 </nav>
+{% endblock navigation %}
 
 {% autoescape off %}
     {% bootstrap_messages size='small' %}
