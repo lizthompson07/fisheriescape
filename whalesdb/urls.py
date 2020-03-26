@@ -64,4 +64,7 @@ urlpatterns = [
     path('update/stn/<int:pk>/<str:pop>/', views.StnUpdate.as_view(), name="update_stn"),
     path('details/stn/<int:pk>/', views.StnDetails.as_view(), name="details_stn"),
     path('list/stn/', views.StnList.as_view(), name="list_stn"),
+
+    path('create/tea/', views.TeaCreate.as_view(), name="create_tea"),
+    path('list/tea/', views.TeaList.as_view(), name="list_tea"),
 ]
