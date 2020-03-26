@@ -187,3 +187,29 @@ class TestStnList(CommonListTest):
         self.assertEqual("whalesdb:create_stn", response.context['create_url'])
         self.assertEqual("whalesdb:details_stn", response.context['details_url'])
         self.assertEqual("whalesdb:update_stn", response.context['update_url'])
+
+
+class TestTeaList(CommonListTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_tea')
+
+    # User should be able to view lists without login required
+    @tag('tea', 'tea_list', 'response', 'access')
+    def test_tea_list_en(self):
+        super().assert_view()
+
+    # User should be able to view lists without login required
+    @tag('tea', 'tea_list', 'response', 'access')
+    def test_tea_list_fr(self):
+        super().assert_view(lang='fr')
+
+    # make sure project list context returns expected context objects
+    # The station view should use create_tea and details_tea for the create and details buttons
+    @tag('tea', 'tea_list', 'response', 'context')
+    def test_tea_list_context_fields(self):
+        response = super().assert_list_view_context_fields()
+
+        self.assertEqual("whalesdb:create_tea", response.context['create_url'])

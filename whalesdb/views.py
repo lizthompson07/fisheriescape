@@ -39,7 +39,6 @@ class IndexView(TemplateView):
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
 class CommonCreate(UserPassesTestMixin, CreateView):
-
     # key is used to construct commonly formatted strings, such as used in the get_success_url
     key = None
 
@@ -247,6 +246,13 @@ class StnCreate(CommonCreate):
     model = models.StnStation
     form_class = forms.StnForm
     title = _("Create Station")
+
+
+class TeaCreate(CommonCreate):
+    key = 'tea'
+    model = models.TeaTeamMember
+    form_class = forms.TeaForm
+    title = _("Create Team Member")
 
 
 class CommonUpdate(UserPassesTestMixin, UpdateView):
@@ -512,9 +518,15 @@ class CommonList(FilterView):
         if self.title:
             context['title'] = self.title
 
-        context['create_url'] = self.create_url if self.create_url else "whalesdb:create_{}".format(self.key)
-        context['details_url'] = self.details_url if self.details_url else "whalesdb:details_{}".format(self.key)
-        context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
+        # if the url is not None, use the value specified by the url variable.
+        # if the url is None, create a url using the views key
+        # this way if no URL, say details_url, is provided it's assumed the default RUL will be 'whalesdb:details_key'
+        # if the details_url = False in the extending view then False will be passed to the context['detials_url']
+        # variable and in the template where the variable is used for buttons and links the button and/or links can
+        # be left out without causing URL Not Found issues.
+        context['create_url'] = self.create_url if self.create_url is not None else "whalesdb:create_{}".format(self.key)
+        context['details_url'] = self.details_url if self.details_url is not None else "whalesdb:details_{}".format(self.key)
+        context['update_url'] = self.update_url if self.update_url is not None else "whalesdb:update_{}".format(self.key)
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
@@ -585,3 +597,14 @@ class StnList(CommonList):
     filterset_class = filters.StnFilter
     fields = ['stn_name', 'stn_code', 'stn_revision']
     title = _("Station List")
+
+
+class TeaList(CommonList):
+    key = 'tea'
+    model = models.TeaTeamMember
+    filterset_class = filters.TeaFilter
+    fields = ["tea_abb", "tea_last_name", "tea_first_name"]
+    title = _("Team Member List")
+
+    details_url = False
+    update_url = False

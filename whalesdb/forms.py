@@ -157,3 +157,11 @@ class SteForm(forms.ModelForm):
             'dep': forms.HiddenInput(),
             'set_type': forms.HiddenInput(),
         }
+
+
+class TeaForm(forms.ModelForm):
+    class Meta:
+        model = models.TeaTeamMember
+        exclude = []
+        widgets = {
+        }
