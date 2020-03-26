@@ -1,17 +1,20 @@
 import django_filters
-from django_filters import FilterSet
-from django import forms
+# from django_filters import FilterSet
+# from django import forms
 
 from . import models
 
 
-class ContactFilter(FilterSet):
+class ContactFilter(django_filters.FilterSet):
+    first_name = django_filters.CharFilter(field_name='first_name', lookup_expr='icontains')
+    last_name = django_filters.CharFilter(field_name='last_name', lookup_expr='icontains')
+
     class Meta:
         model = models.ConContact
         fields = ['last_name', 'first_name', 'contact_type', 'region']
 
 
-class MeetingFilter(FilterSet):
+class MeetingFilter(django_filters.FilterSet):
     start_date = django_filters.ChoiceFilter(field_name='start_date', lookup_expr='exact')
 
     class Meta:
@@ -25,9 +28,11 @@ class MeetingFilter(FilterSet):
         self.filters['start_date'] = django_filters.ChoiceFilter(field_name='start_date', lookup_expr='exact', choices=dates)
 
 
-class RequestFilter(FilterSet):
+class RequestFilter(django_filters.FilterSet):
     # start_date = django_filters.ChoiceFilter(field_name='start_date', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name='region', lookup_expr='exact')
+    title = django_filters.CharFilter(field_name='title', lookup_expr='icontains')
+    client_name = django_filters.CharFilter(field_name='client_name', lookup_expr='icontains')
 
     class Meta:
         model = models.ReqRequest
