@@ -22,7 +22,7 @@ class TestDepCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_dep')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_dep')
 
@@ -39,7 +39,7 @@ class TestDepCreate(CommonCreateTest):
     def test_create_dep_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('dep', 'create', 'response', 'access')
     def test_create_dep_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -101,7 +101,7 @@ class TestEdaCreate(CommonCreateTest):
     def test_create_eda_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eda', 'create', 'response', 'access')
     def test_create_eda_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -142,7 +142,7 @@ class TestEmmCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_emm')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_emm')
 
@@ -159,7 +159,7 @@ class TestEmmCreate(CommonCreateTest):
     def test_create_emm_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('emm', 'create', 'response', 'access')
     def test_create_emm_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -229,7 +229,7 @@ class TestEqhCreate(CommonCreateTest):
     def test_create_eqh_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eqh', 'create', 'response', 'access')
     def test_create_eqh_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -270,7 +270,7 @@ class TestEqpCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_eqp')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_eqp')
 
@@ -287,7 +287,7 @@ class TestEqpCreate(CommonCreateTest):
     def test_create_eqp_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eqp', 'create', 'response', 'access')
     def test_create_eqp_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -344,7 +344,7 @@ class TestEqrCreate(CommonCreateTest):
     def test_create_eqr_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eqr', 'create', 'response', 'access')
     def test_create_eqr_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -386,7 +386,7 @@ class TestMorCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_mor')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_mor')
 
@@ -420,7 +420,7 @@ class TestMorCreate(CommonCreateTest):
     def test_create_mor_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('mor', 'create', 'response', 'access')
     def test_create_mor_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -456,7 +456,7 @@ class TestPrjCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_prj')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_prj')
 
@@ -474,7 +474,7 @@ class TestPrjCreate(CommonCreateTest):
     def test_create_prj_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('prj', 'create', 'response', 'access')
     def test_create_prj_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -510,7 +510,7 @@ class TestRscCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_rsc')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.RscCreate
 
@@ -528,7 +528,7 @@ class TestRscCreate(CommonCreateTest):
     def test_create_rsc_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('rsc', 'create', 'response', 'access')
     def test_create_rsc_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -584,7 +584,7 @@ class TestRstCreate(CommonCreateTest):
     def test_create_rst_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('rst', 'create', 'response', 'access')
     def test_create_rst_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -647,7 +647,7 @@ class TestSteCreate(CommonCreateTest):
     def test_create_ste_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('ste', 'create', 'response', 'access')
     def test_create_ste_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -683,7 +683,7 @@ class TestStnCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_stn')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.StnCreate
 
@@ -701,7 +701,7 @@ class TestStnCreate(CommonCreateTest):
     def test_create_stn_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('stn', 'create', 'response', 'access')
     def test_create_stn_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -737,7 +737,7 @@ class TestTeaCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_tea')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.TeaCreate
 
@@ -755,7 +755,7 @@ class TestTeaCreate(CommonCreateTest):
     def test_create_tea_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('tea', 'create', 'response', 'access')
     def test_create_tea_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
