@@ -22,10 +22,6 @@ class DepDeployment(models.Model):
     def __str__(self):
         return "{}".format(self.dep_name)
 
-    @property
-    def station_events(self):
-        return self.stestationevents.all()
-
 
 class EcaCalibrationEvent(models.Model):
     eca_id = models.AutoField(primary_key=True)

@@ -21,7 +21,7 @@
                     </div>
                     <div class="col-1 pt-1">
                         {# if the user is authenticated and has permissions show the add button #}
-                        {% if editable %}
+                        {% if auth %}
                         <a class="btn btn-primary" href="{% url ''|add:create_url %}" title="{% trans 'Add' %}">+</a>
                         {% endif %}
 
