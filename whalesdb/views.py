@@ -9,7 +9,7 @@ from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
 from whalesdb import forms, models, filters, utils
-from shared_models.views import CreateCommon, UpdateCommon
+from shared_models.views import CreateCommon, UpdateCommon, FilterCommon
 
 import json
 
@@ -41,7 +41,7 @@ class IndexView(TemplateView):
 # has the correct privileges to interact with Creation Views
 class CommonCreate(CreateCommon):
 
-    nav_menu = 'whalesdb/nav_menu.html'
+    nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
 
     # If a url is setup to use <str:pop> in its path, indicating the creation form is in a popup window
@@ -246,7 +246,7 @@ class TeaCreate(CommonCreate):
 
 class CommonUpdate(UpdateCommon):
 
-    nav_menu = 'whalesdb/nav_menu.html'
+    nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
 
     # update views are all intended to be pop out windows so upon success close the window
@@ -469,15 +469,10 @@ class StnDetails(CommonDetails):
         return context
 
 
-class CommonList(FilterView):
-    # default template to use to create a filter view
-    template_name = 'whalesdb/whale_filter.html'
+class CommonList(FilterCommon):
 
-    # title to display on the list page
-    title = None
-
-    # key used for creating default create, update and details URLs in the get_context_data method
-    key = None
+    nav_menu = 'whalesdb/whale_nav_menu.html'
+    site_css = 'whalesdb/whales_css.css'
 
     # fields to be used as columns to display an object in the filter view table
     fields = []

@@ -1,32 +1,8 @@
-{% extends "base.html" %}
+{% extends "shared_models/shared_base.html" %}
 {% load i18n %}
 {% load static %}
 {% load bootstrap4 %}
 
-{% block jquery_import %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
-
-{# include css style elements in here #}
-{% block header %}
-{% if site_css %}
-<style>
-{% include ''|add:site_css %}
-</style>
-{% endif %}
-{% endblock %}
-
-{# include navigation elements in here #}
-{% block left_all %}
-{% if nav_menu %}
-{% include ''|add:nav_menu %}
-{% endif %}
-{% endblock left_all %}
-
-{% block title %}
-{# include css style elements in here #}
-{% if title %}{{ title }}{% endif %}
-{% endblock title %}
-
-{% block body %}
 {% block content %}<div class="container">
     <div class="card border border-dark mt-2 pt-1">
         <div class="card-header">
@@ -66,15 +42,10 @@
         </div>
     </div>
 </div>{% endblock content %}
-{% endblock body %}
 
 {% block body_js %}
 
-{# if the view includes a path to a javascript file in a java_script context variable, include it here #}
-{% if java_script %}
-{% include ''|add:java_script %}
-{% endif %}
-
+{{block.super}}
 <script>
 
 function saveForm() {
