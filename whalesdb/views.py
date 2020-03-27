@@ -535,6 +535,11 @@ class DepList(CommonList):
     title = _("Deployment List")
     creation_form_height = 600
 
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+        context['editable'] = False
+        return context
+
 
 class EmmList(CommonList):
     key = 'emm'
