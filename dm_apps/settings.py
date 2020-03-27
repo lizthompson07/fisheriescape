@@ -30,7 +30,7 @@ MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
 # some simple settings that we import from the .env file or the environmental variables
 ####################################################
-# Django security key
+# Django security keye
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
 # should debug mode be turned on or off? default = False
 DEBUG = config("DEBUG", cast=bool, default=False)
@@ -247,31 +247,20 @@ STATICFILES_DIRS = [
 ]
 
 AZURE_STORAGE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", cast=str, default="")
+AZURE_STORAGE_ACCESS_KEY = config("AZURE_STORAGE_ACCESS_KEY", cast=str, default="")
 # if no account name was provided, serve static and media files with whitenoise
-if AZURE_STORAGE_ACCOUNT_NAME == "":
+if AZURE_STORAGE_ACCOUNT_NAME == "" or AZURE_STORAGE_ACCESS_KEY == "":
+    print('Serving static and media files from local staticfiles directory using Whitenoise.')
     MEDIA_ROOT = MEDIA_DIR
     MEDIA_URL = '/media/'
     STATIC_URL = '/static/'
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 else:
-    # we can try to connect to the azure storage account, but this will only work if the machine we are accessing from has permissions
-    # try:
-    #     pass
-    #     # token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
-    # except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
-    #     print('Cannot connect to azure storage account. Serving static and media files from local staticfiles directory using whitenoise.')
-    #     # serve locally using whitenoise
-    #     MEDIA_ROOT = MEDIA_DIR
-    #     MEDIA_URL = '/media/'
-    #     STATIC_URL = '/static/'
-    #     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    #     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-    # else:
     # serve from azure
+    print('Azure storage blob connection information found. Serving static and mediafile from azure storage blob.')
     DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
     STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
-
     STATIC_CONTAINER_NAME = "static"
     MEDIA_CONTAINER_NAME = "media"
     AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
