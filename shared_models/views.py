@@ -128,7 +128,6 @@ class CreateCommon(UserPassesTestMixin, CreateView, ABC):
 
     # default template to use to create an update
     #  _entry_form.html contains the common navigation elements at the top of the template
-    #  _entry_form_no_nav.html does not contain navigation at the top of the template
     template_name = 'shared_models/_entry_form.html'
 
     # an extending class can override this similarly to how the template_name attribute can be overriden
@@ -146,11 +145,23 @@ class CreateCommon(UserPassesTestMixin, CreateView, ABC):
     # 'shared_models/_entry_form.html' template
     site_css = None
 
-    def get_title(self, **kwargs):
+    def get_title(self):
         if not self.title:
             raise AttributeError("No title attribute set in the class extending CreateCommon")
 
         return self.title
+
+    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
+    def get_java_script(self):
+        return self.java_script
+
+    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
+    def get_nav_menu(self):
+        return self.nav_menu
+
+    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
+    def get_site_css(self):
+        return self.site_css
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -159,13 +170,90 @@ class CreateCommon(UserPassesTestMixin, CreateView, ABC):
 
         context["auth"] = self.test_func()
 
-        if self.java_script:
-            context['java_script'] = self.java_script
+        java_script = self.get_java_script()
+        nav_menu = self.get_nav_menu()
+        site_css = self.get_site_css()
 
-        if self.nav_menu:
-            context['nav_menu'] = self.nav_menu
+        if java_script:
+            context['java_script'] = java_script
 
-        if self.site_css:
-            context['site_css'] = self.site_css
+        if nav_menu:
+            context['nav_menu'] = nav_menu
+
+        if site_css:
+            context['site_css'] = site_css
+
+        return context
+
+
+# UpdateCreate Extends the UserPassesTestMixin used to determine if a user has
+# has the correct privileges to interact with Creation Views
+class UpdateCommon(UserPassesTestMixin, UpdateView, ABC):
+
+    # key is used to construct commonly formatted strings, such as used in the get_success_url
+    key = None
+
+    # this is where the user should be redirected if they're not logged in
+    login_url = '/accounts/login_required/'
+
+    # title to display on the UpdateView page
+    title = None
+
+    # default template to use to update an update
+    #  _entry_form.html contains the common navigation elements at the top of the template
+    template_name = 'shared_models/_entry_form.html'
+
+    # an extending class can override this similarly to how the template_name attribute can be overriden
+    # Except in this case the value will be used to include a java_script file at the bottom of the
+    # 'shared_models/_entry_form.html' template
+    java_script = None
+
+    # an extending class can override this similarly to how the template_name attribute can be overriden
+    # Except in this case the value will be used to include a nav_menu file at the top of the
+    # 'shared_models/_entry_form.html' template
+    nav_menu = None
+
+    # an extending class can override this similarly to how the template_name attribute can be overriden
+    # Except in this case the value will be used to include a site_css file at the top of the
+    # 'shared_models/_entry_form.html' template
+    site_css = None
+
+    def get_title(self):
+        if not self.title:
+            raise AttributeError("No title attribute set in the class extending CreateCommon")
+
+        return self.title
+
+    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
+    def get_java_script(self):
+        return self.java_script
+
+    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
+    def get_nav_menu(self):
+        return self.nav_menu
+
+    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
+    def get_site_css(self):
+        return self.site_css
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["title"] = self.get_title()
+
+        context["auth"] = self.test_func()
+
+        java_script = self.get_java_script()
+        nav_menu = self.get_nav_menu()
+        site_css = self.get_site_css()
+
+        if java_script:
+            context['java_script'] = java_script
+
+        if nav_menu:
+            context['nav_menu'] = nav_menu
+
+        if site_css:
+            context['site_css'] = site_css
 
         return context
