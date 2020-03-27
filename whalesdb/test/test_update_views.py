@@ -19,7 +19,7 @@ class TestDepUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_dep', args=(obj.pk,))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_view = views.DepUpdate
 
@@ -331,7 +331,7 @@ class TestMorUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_mor', args=(obj.pk,))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_view = views.MorUpdate
 
@@ -386,7 +386,7 @@ class TestPrjUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_prj', args=(obj.pk,))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_view = views.PrjUpdate
 
@@ -441,7 +441,7 @@ class TestStnUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_stn', args=(obj.pk,))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/_entry_form.html'
 
         self.expected_view = views.StnUpdate
 

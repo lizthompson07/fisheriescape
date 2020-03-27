@@ -9,7 +9,7 @@ from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
 from whalesdb import forms, models, filters, utils
-from shared_models.views import CreateCommon
+from shared_models.views import CreateCommon, UpdateCommon
 
 import json
 
@@ -51,6 +51,12 @@ class CommonCreate(CreateCommon):
             return 'whalesdb/_entry_form_no_nav.html'
 
         return self.template_name
+
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return None
+
+        return self.nav_menu
 
     # Upon success most creation views will be redirected to their respective 'CommonList' view. To send
     # a successful creation view somewhere else, override this method
@@ -238,24 +244,27 @@ class TeaCreate(CommonCreate):
     title = _("Create Team Member")
 
 
-class CommonUpdate(UserPassesTestMixin, UpdateView):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
+class CommonUpdate(UpdateCommon):
 
-    # default template to use to create an update
-    template_name = 'whalesdb/_entry_form.html'
-
-    # title to display on the CreateView page
-    title = None
+    nav_menu = 'whalesdb/nav_menu.html'
+    site_css = 'whalesdb/whales_css.css'
 
     # update views are all intended to be pop out windows so upon success close the window
     success_url = reverse_lazy("shared_models:close_me_no_refresh")
 
+    # If a url is setup to use <str:pop> in its path, indicating the creation form is in a popup window
+    # get_template_names will return the _entry_form_no_nav.html template.
     def get_template_names(self):
         if self.kwargs.get("pop"):
             return 'whalesdb/_entry_form_no_nav.html'
 
         return self.template_name
+
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return None
+
+        return self.nav_menu
 
     # this function overrides UserPassesTestMixin.test_func() to determine if
     # the user should have access to this content, if the user is logged in
@@ -264,16 +273,12 @@ class CommonUpdate(UserPassesTestMixin, UpdateView):
     def test_func(self):
         return self.request.user.groups.filter(name='whalesdb_admin').exists()
 
+    # Get context returns elements used on the page. Make sure when extending to call
+    # context = super().get_context_data(**kwargs) so that elements created in the parent
+    # class are inherited by the extending class.
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        if self.title:
-            context["title"] = self.title
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = context['editable'] = self.test_func()
-
+        context['editable'] = context['auth']
         return context
 
 
