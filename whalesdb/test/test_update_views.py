@@ -19,7 +19,7 @@ class TestDepUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_dep', args=(obj.pk,))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.DepUpdate
 
@@ -35,7 +35,7 @@ class TestDepUpdate(CommonUpdateTest):
     def test_update_dep_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('dep', 'update_dep', 'response', 'access')
     def test_update_dep_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -118,7 +118,7 @@ class TestEmmUpdate(CommonUpdateTest):
     def test_update_emm_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('emm', 'update_emm', 'response', 'access')
     def test_update_emm_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -174,7 +174,7 @@ class TestEqhUpdate(CommonUpdateTest):
     def test_update_eqh_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eqh', 'update_eqh', 'response', 'access')
     def test_update_eqh_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -233,7 +233,7 @@ class TestEqpUpdate(CommonUpdateTest):
     def test_update_eqp_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eqp', 'update_eqp', 'response', 'access')
     def test_update_eqp_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -289,7 +289,7 @@ class TestEqrUpdate(CommonUpdateTest):
     def test_update_eqr_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eqr', 'update_eqr', 'response', 'access')
     def test_update_eqr_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -331,7 +331,7 @@ class TestMorUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_mor', args=(obj.pk,))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.MorUpdate
 
@@ -347,7 +347,7 @@ class TestMorUpdate(CommonUpdateTest):
     def test_update_mor_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('mor', 'update_mor', 'response', 'access')
     def test_update_mor_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -386,7 +386,7 @@ class TestPrjUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_prj', args=(obj.pk,))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.PrjUpdate
 
@@ -402,7 +402,7 @@ class TestPrjUpdate(CommonUpdateTest):
     def test_update_prj_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('prj', 'update_prj', 'response', 'access')
     def test_update_prj_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -441,7 +441,7 @@ class TestStnUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_stn', args=(obj.pk,))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'shared_models/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.StnUpdate
 
@@ -457,7 +457,7 @@ class TestStnUpdate(CommonUpdateTest):
     def test_update_stn_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('stn', 'update_stn', 'response', 'access')
     def test_update_stn_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms

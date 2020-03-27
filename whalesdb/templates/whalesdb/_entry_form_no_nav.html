@@ -1,4 +1,4 @@
-{% extends "shared_models/_entry_form.html" %}
+{% extends "shared_models/shared_entry_form.html" %}
 {% load bootstrap4 %}
 {% load i18n %}
 {% load static %}
@@ -6,12 +6,10 @@
 {% bootstrap_javascript jquery='full' %}
 
 {% block navigation %}{% endblock navigation %}
+{% block header %}{% endblock header %}
 
 {% block body_js %}
-{# if the view includes a path to a javascript file in a java_script context variable, include it here #}
-{% if java_script %}
-{% include ''|add:java_script %}
-{% endif %}
+{{ block.super }}
 <script>
     var refresh = false;
 

@@ -109,7 +109,7 @@ class CommonListTest(CommonTest):
     def setUp(self):
         super().setUp()
 
-        self.test_expected_template = 'whalesdb/whale_filter.html'
+        self.test_expected_template = 'shared_models/shared_filter.html'
 
     # List context should return:
     #   - a title to display in the html template
@@ -145,8 +145,8 @@ class CommonCreateTest(CommonTest):
     def setUp(self):
         super().setUp()
 
-        # CreateViews intended to be used from a views.ListCommon should use the _entry_form.html template
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        # CreateViews intended to be used from a views.ListCommon should use the shared_entry_form.html template
+        self.test_expected_template = 'whalesdb/shared_entry_form.html'
 
     # If a user is logged in and not in 'whalesdb_admin' they should be get a 403 restriction
     def assert_logged_in_not_access(self):
