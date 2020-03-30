@@ -47,6 +47,16 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
         if region:
             trip_request_list = trip_request_list.filter(section__division__branch__region_id=region)
 
+        # at this point, the trip will also include parent trips. We must exclude them
+        trip_request_id_list = list()
+        for tr in trip_request_list:
+            if tr.is_group_request:
+                trip_request_id_list.extend([child_tr.id for child_tr in tr.children_requests.all()])
+            else:
+                trip_request_id_list.append(tr.id)
+
+        trip_request_list = models.TripRequest.objects.filter(id__in=trip_request_id_list)
+
     elif trip_request:
         my_trip_request = models.TripRequest.objects.get(pk=trip_request)
         if my_trip_request.is_group_request:

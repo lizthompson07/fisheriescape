@@ -1346,7 +1346,7 @@ def export_cfts_list(request, fy, region):
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
+            response['Content-Disposition'] = 'inline; filename="CFTS export {}.xlsx"'.format(
                 timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
