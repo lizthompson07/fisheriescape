@@ -8,7 +8,8 @@ from django.urls import reverse_lazy
 from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
-from . import forms, models, filters, utils
+from whalesdb import forms, models, filters, utils
+from shared_models.views import CreateCommon, UpdateCommon, FilterCommon
 
 import json
 
@@ -38,21 +39,10 @@ class IndexView(TemplateView):
 
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
-class CommonCreate(UserPassesTestMixin, CreateView):
+class CommonCreate(CreateCommon):
 
-    # key is used to construct commonly formatted strings, such as used in the get_success_url
-    key = None
-
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
-
-    # default template to use to create an update
-    #  _entry_form.html contains the common navigation elements at the top of the template
-    #  _entry_form_no_nav.html does not contain navigation at the top of the template
-    template_name = 'whalesdb/_entry_form.html'
-
-    # title to display on the CreateView page
-    title = None
+    nav_menu = 'whalesdb/whale_nav_menu.html'
+    site_css = 'whalesdb/whales_css.css'
 
     # If a url is setup to use <str:pop> in its path, indicating the creation form is in a popup window
     # get_template_names will return the _entry_form_no_nav.html template.
@@ -61,6 +51,12 @@ class CommonCreate(UserPassesTestMixin, CreateView):
             return 'whalesdb/_entry_form_no_nav.html'
 
         return self.template_name
+
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return None
+
+        return self.nav_menu
 
     # Upon success most creation views will be redirected to their respective 'CommonList' view. To send
     # a successful creation view somewhere else, override this method
@@ -82,15 +78,7 @@ class CommonCreate(UserPassesTestMixin, CreateView):
     # class are inherited by the extending class.
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        if self.title:
-            # used as the title of the creation view. Called in the _entry_form and _entry_form_no_nav tempaltes
-            context["title"] = self.title
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = context['editable'] = self.test_func()
-
+        context['editable'] = context['auth']
         return context
 
 
@@ -249,24 +237,34 @@ class StnCreate(CommonCreate):
     title = _("Create Station")
 
 
-class CommonUpdate(UserPassesTestMixin, UpdateView):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
+class TeaCreate(CommonCreate):
+    key = 'tea'
+    model = models.TeaTeamMember
+    form_class = forms.TeaForm
+    title = _("Create Team Member")
 
-    # default template to use to create an update
-    template_name = 'whalesdb/_entry_form.html'
 
-    # title to display on the CreateView page
-    title = None
+class CommonUpdate(UpdateCommon):
+
+    nav_menu = 'whalesdb/whale_nav_menu.html'
+    site_css = 'whalesdb/whales_css.css'
 
     # update views are all intended to be pop out windows so upon success close the window
     success_url = reverse_lazy("shared_models:close_me_no_refresh")
 
+    # If a url is setup to use <str:pop> in its path, indicating the creation form is in a popup window
+    # get_template_names will return the _entry_form_no_nav.html template.
     def get_template_names(self):
         if self.kwargs.get("pop"):
             return 'whalesdb/_entry_form_no_nav.html'
 
         return self.template_name
+
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return None
+
+        return self.nav_menu
 
     # this function overrides UserPassesTestMixin.test_func() to determine if
     # the user should have access to this content, if the user is logged in
@@ -275,16 +273,12 @@ class CommonUpdate(UserPassesTestMixin, UpdateView):
     def test_func(self):
         return self.request.user.groups.filter(name='whalesdb_admin').exists()
 
+    # Get context returns elements used on the page. Make sure when extending to call
+    # context = super().get_context_data(**kwargs) so that elements created in the parent
+    # class are inherited by the extending class.
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        if self.title:
-            context["title"] = self.title
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = context['editable'] = self.test_func()
-
+        context['editable'] = context['auth']
         return context
 
 
@@ -475,15 +469,10 @@ class StnDetails(CommonDetails):
         return context
 
 
-class CommonList(FilterView):
-    # default template to use to create a filter view
-    template_name = 'whalesdb/whale_filter.html'
+class CommonList(FilterCommon):
 
-    # title to display on the list page
-    title = None
-
-    # key used for creating default create, update and details URLs in the get_context_data method
-    key = None
+    nav_menu = 'whalesdb/whale_nav_menu.html'
+    site_css = 'whalesdb/whales_css.css'
 
     # fields to be used as columns to display an object in the filter view table
     fields = []
@@ -512,9 +501,15 @@ class CommonList(FilterView):
         if self.title:
             context['title'] = self.title
 
-        context['create_url'] = self.create_url if self.create_url else "whalesdb:create_{}".format(self.key)
-        context['details_url'] = self.details_url if self.details_url else "whalesdb:details_{}".format(self.key)
-        context['update_url'] = self.update_url if self.update_url else "whalesdb:update_{}".format(self.key)
+        # if the url is not None, use the value specified by the url variable.
+        # if the url is None, create a url using the views key
+        # this way if no URL, say details_url, is provided it's assumed the default RUL will be 'whalesdb:details_key'
+        # if the details_url = False in the extending view then False will be passed to the context['detials_url']
+        # variable and in the template where the variable is used for buttons and links the button and/or links can
+        # be left out without causing URL Not Found issues.
+        context['create_url'] = self.create_url if self.create_url is not None else "whalesdb:create_{}".format(self.key)
+        context['details_url'] = self.details_url if self.details_url is not None else "whalesdb:details_{}".format(self.key)
+        context['update_url'] = self.update_url if self.update_url is not None else "whalesdb:update_{}".format(self.key)
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
@@ -534,6 +529,11 @@ class DepList(CommonList):
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
     title = _("Deployment List")
     creation_form_height = 600
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+        context['editable'] = False
+        return context
 
 
 class EmmList(CommonList):
@@ -585,3 +585,14 @@ class StnList(CommonList):
     filterset_class = filters.StnFilter
     fields = ['stn_name', 'stn_code', 'stn_revision']
     title = _("Station List")
+
+
+class TeaList(CommonList):
+    key = 'tea'
+    model = models.TeaTeamMember
+    filterset_class = filters.TeaFilter
+    fields = ["tea_abb", "tea_last_name", "tea_first_name"]
+    title = _("Team Member List")
+
+    details_url = False
+    update_url = False
