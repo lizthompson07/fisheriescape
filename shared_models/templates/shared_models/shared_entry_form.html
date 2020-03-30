@@ -1,12 +1,9 @@
-{% extends "whalesdb/whale_base.html" %}
-{% load bootstrap4 %}
+{% extends "shared_models/shared_base.html" %}
 {% load i18n %}
 {% load static %}
-{% bootstrap_css %}
-{% bootstrap_javascript jquery='full' %}
+{% load bootstrap4 %}
 
-{% block content %}
-<div class="container">
+{% block content %}<div class="container">
     <div class="card border border-dark mt-2 pt-1">
         <div class="card-header">
             <h2>{% trans title %}</h2>
@@ -44,16 +41,11 @@
             </form>
         </div>
     </div>
-</div>
-{% endblock content %}
+</div>{% endblock content %}
 
 {% block body_js %}
 
-{# if the view includes a path to a javascript file in a java_script context variable, include it here #}
-{% if java_script %}
-{% include ''|add:java_script %}
-{% endif %}
-
+{{block.super}}
 <script>
 
 function saveForm() {
