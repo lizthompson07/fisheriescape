@@ -98,7 +98,7 @@ def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
                 (not my_trip_request.user or  # anybody can edit
                  my_trip_request.user == user or  # the user is the traveller and / or requester
                  user in my_trip_request.travellers or  # the user is a traveller on the trip
-                 my_trip_request.parent_request.user == user):  # the user is the requester
+                 (my_trip_request.parent_request and my_trip_request.parent_request.user == user)):  # the user is the requester
             return True
 
         if trip_request_unsubmit and user == my_trip_request.user:
