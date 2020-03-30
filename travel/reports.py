@@ -93,7 +93,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
         "Notes",
     ]
     if include_trip_request_status:
-        header.append("Request Status")
+        header.insert(0, "Request Status")
 
     # create the col_max column to store the length of each header
     # should be a maximum column width to 100
@@ -196,7 +196,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             ]
 
             if include_trip_request_status:
-                data_row.append(my_status)
+                data_row.insert(0, my_status)
 
             # adjust the width of the columns based on the max string length in each col
             ## replace col_max[j] if str length j is bigger than stored value
