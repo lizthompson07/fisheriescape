@@ -28,6 +28,20 @@ class MeetingFilter(django_filters.FilterSet):
         self.filters['start_date'] = django_filters.ChoiceFilter(field_name='start_date', lookup_expr='exact', choices=dates)
 
 
+class PublicationFilter(django_filters.FilterSet):
+    pub_num = django_filters.ChoiceFilter(field_name='pub_num', lookup_expr='exact')
+
+    class Meta:
+        model = models.PubPublication
+        fields = ['pub_num']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # dates = [(y[0], str(y[0])) for y in models.PubPublication.objects.all().values_list('pub_num').distinct()]
+        # self.filters['pub_num'] = django_filters.ChoiceFilter(field_name='pub_num', lookup_expr='exact', choices=dates)
+
+
 class RequestFilter(django_filters.FilterSet):
     # start_date = django_filters.ChoiceFilter(field_name='start_date', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name='region', lookup_expr='exact')
