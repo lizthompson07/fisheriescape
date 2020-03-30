@@ -345,6 +345,66 @@ class MeetingDetails(DetailsCommon):
               'csas_contact', ]
 
 
+# ----------------------------------------------------------------------------------------------------
+# 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+# Create "Meeting" forms
+#
+class PublicationEntry(CreateCommon):
+    # The title to use on the Creation form
+    title = _("Publication Entry")
+
+    # The model Django uses to retrieve the object(s) used on the page
+    model = models.PubPublication
+
+    # This is what controls what fields and what widgets for what fields should be used on the entry form
+    form_class = forms.PublicationForm
+
+
+class PublicationUpdate(UpdateCommon):
+    # The title to use on the Update form
+    title = _("Update Publication")
+    # The model Django uses to retrieve the object(s) used on the page
+    model = models.PubPublication
+    # This is what controls what fields and what widgets for what fields should be used on the entry form
+    form_class = forms.PublicationForm
+
+
+class PublicationList(ListCommon):
+    # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
+    key = 'pub'
+
+    # The model Django uses to retrieve the object(s) used on the page
+    model = models.PubPublication
+
+    # filter class used to filter the table. This is where you make changes to specify what fields to filter
+    # on and how those fields should be laid out or work, like inclusive vs. partial text searching
+    filterset_class = filters.PublicationFilter
+
+    # fields used in the table on the filter page.
+    # fields = ['start_date', 'title_en', 'title_fr', 'location', 'process_type']
+    fields = []
+
+    # title to display on the Filter page
+    title = _("Publication List")
+
+
+class PublicationDetails(DetailsCommon):
+    # key used to create default urls. Without it you'll need to specify a list_url and update_url
+    key = "pub"
+    # model Django uses to get the object being displayed on the details page
+    model = models.PubPublication
+    # title to be displayed on the details page
+    title = _("Publication Details")
+    # fields to be displayed on the details page
+    # fields = ['quarter', 'start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
+    #           'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
+    #           'csas_contact', ]
+    # fields = ['start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
+    #           'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
+    #           'csas_contact', ]
+    fields = []
+
+
 # #################################################### #
 #               End of Meeting Examples                #
 # #################################################### #
