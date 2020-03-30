@@ -38,8 +38,10 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
     if region == "None":
         region = None
 
+    include_trip_request_status = False
     # get a request list
     if fiscal_year or region:
+        include_trip_request_status = True
         # if this report is being called from the reports page...
         trip_request_list = models.TripRequest.objects.all()
         if fiscal_year:
@@ -90,6 +92,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
         "Purpose",
         "Notes",
     ]
+    if include_trip_request_status:
+        header.append("Request Status")
 
     # create the col_max column to store the length of each header
     # should be a maximum column width to 100
@@ -124,6 +128,12 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             else:
                 if tr.funding_source:
                     notes += "\n\nFUNDING SOURCE: {}".format(tr.funding_source)
+
+            # Request status
+            if tr.parent_request:
+                my_status = str(tr.parent_request.status)
+            else:
+                my_status = str(tr.status)
 
             # REASON
             if tr.parent_request:
@@ -184,6 +194,9 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 my_purpose,
                 notes,
             ]
+
+            if include_trip_request_status:
+                data_row.append(my_status)
 
             # adjust the width of the columns based on the max string length in each col
             ## replace col_max[j] if str length j is bigger than stored value
