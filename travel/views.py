@@ -1319,7 +1319,7 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
                 'fy': fy,
-                'user': user,
+                'region': region,
             }))
         elif report == 2:
             email = form.cleaned_data["traveller"]
@@ -1340,8 +1340,8 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("travel:report_search"))
 
 
-def export_cfts_list(request, fy):
-    file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy)
+def export_cfts_list(request, fy, region):
+    file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
