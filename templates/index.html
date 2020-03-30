@@ -122,22 +122,22 @@
                                         {% trans "access to this app requires you to be logged in" as login_msg %}
                                         {% trans "this app is opened to all users" as open_msg %}
 
-                                        {% if app_dict|lookup:app|lookup:"access" == "permission-required" %}
-                                            <span data-toggle="tooltip" title="{{ permissions_msg }}">
-                                                                            <img src="{% static 'img/icons/padlock.svg' %}" alt=""
-                                                                                 style="width: 15px">
-                                                                        </span>
-                                        {% elif app_dict|lookup:app|lookup:"access" == "login-required" %}
-                                            <span data-toggle="tooltip" title="{{ login_msg }}">
-                                                                            <img src="{% static 'img/icons/user.svg' %}"
-                                                                                 alt="" style="width: 15px">
-                                                                        </span>
-                                        {% else %}
-                                            <span class="" data-toggle="tooltip" title="{{ open_msg }}">
-                                                                            <img src="{% static 'img/icons/language.svg' %}" alt=""
-                                                                                 width="15px">
-                                                                        </span>
-                                        {% endif %}
+{#                                        {% if app_dict|lookup:app|lookup:"access" == "permission-required" %}#}
+{#                                            <span data-toggle="tooltip" title="{{ permissions_msg }}">#}
+{#                                                                            <img src="{% static 'img/icons/padlock.svg' %}" alt=""#}
+{#                                                                                 style="width: 15px">#}
+{#                                                                        </span>#}
+{#                                        {% elif app_dict|lookup:app|lookup:"access" == "login-required" %}#}
+{#                                            <span data-toggle="tooltip" title="{{ login_msg }}">#}
+{#                                                                            <img src="{% static 'img/icons/user.svg' %}"#}
+{#                                                                                 alt="" style="width: 15px">#}
+{#                                                                        </span>#}
+{#                                        {% else %}#}
+{#                                            <span class="" data-toggle="tooltip" title="{{ open_msg }}">#}
+{#                                                                            <img src="{% static 'img/icons/language.svg' %}" alt=""#}
+{#                                                                                 width="15px">#}
+{#                                                                        </span>#}
+{#                                        {% endif %}#}
                                         {% if app_dict|lookup:app|lookup:"status" == "beta" %}
                                             <span class="badge badge-pill badge-warning" style="font-size: x-small">
                                                 {% trans "beta" %}
@@ -170,10 +170,10 @@
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
-                        <h4 class="alert-heading">{{ a.tsubject }}</h4>
+                        <h4 class="alert-heading">{{ a.tsubject|safe }}</h4>
 
                         <p style="font-size: small">{{ a.valid_from }}</p>
-                        <p class="mb-0">{{ a.tmessage }}</p>
+                        <p class="mb-0">{{ a.tmessage|safe }}</p>
                     </div>
                 {% endfor %}
 
