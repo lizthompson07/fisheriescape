@@ -11,6 +11,22 @@ from whalesdb.test import WhalesdbFactory as Factory
 import os
 
 
+class TestDep(TestCase):
+    fixtures = ['initial_data']
+
+    @tag('dep', 'model', 'dep_model')
+    def test_dep_station_events(self):
+        dep = Factory.DepFactory()
+        set = models.SetStationEventCode.objects.get(pk=1)
+
+        self.assertEquals(dep.station_events.count(), 0)
+
+        ste = Factory.SteFactory(dep=dep, set_type=set)
+
+        self.assertEquals(dep.station_events.count(), 1)
+        self.assertEquals(dep.station_events.first().dep, dep)
+        self.assertEquals(dep.station_events.first().set_type, set)
+
 class TestEmm(TestCase):
 
     fixtures = ['initial_data']
@@ -52,6 +68,38 @@ class TestEmm(TestCase):
         self.assertIn(ecp2, channels)
 
 
+# The EDA table connects equipment to deployments. This can be used from deployments to see what equipment is
+# currently attached to a deployment, what equipment was previously attached to a deployment or the reverse to see
+# what deployment a piece of equipment was or is attached to. This doesn't need to be tested directly, but
+# the relationships for dep.attachements and eqp.deploymnets if the page ends up broken because of a model change
+# the test should explain why.
+class TestEdaEquipmentAttachment(TestCase):
+
+    fixtures = ['initial_data']
+
+    def setUp(self) -> None:
+        pass
+
+    @tag('dep', 'eqp', 'eda', 'relationship')
+    def test_eda_relationship(self):
+        emm = Factory.EmmFactory(eqt_id=1)
+        eqp = Factory.EqpFactory(emm=emm)
+        dep_1 = Factory.DepFactory()
+        dep_2 = Factory.DepFactory()
+
+        eda = Factory.EdaFactory(eqp=eqp, dep=dep_1)
+
+        self.assertEquals(1, dep_1.attachments.all().count())
+        self.assertEquals(1, eqp.deployments.all().count())
+        self.assertEquals(dep_1, eqp.deployments.all().last().dep)
+
+        eda = Factory.EdaFactory(eqp=eqp, dep=dep_2)
+
+        self.assertEquals(1, dep_2.attachments.all().count())
+        self.assertEquals(2, eqp.deployments.all().count())
+        self.assertEquals(dep_2, eqp.deployments.all().last().dep)
+
+
 class TestMorMooringSetup(TestCase):
 
     def setUp(self) -> None:
@@ -82,3 +130,16 @@ class TestMorMooringSetup(TestCase):
         mor_1.delete()
 
         self.assertFalse(os.path.exists(expected_path))
+
+
+class TestRstRecordingStage(TestCase):
+
+    def setUp(self) -> None:
+        pass
+
+    @tag('rst', 'rsc', 'relationship')
+    def test_rst_relationship(self):
+        rsc = Factory.RscFactory()
+        rst = Factory.RstFactory(rsc=rsc)
+
+        self.assertEquals(1, rsc.stages.count())

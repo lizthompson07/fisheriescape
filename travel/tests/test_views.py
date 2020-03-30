@@ -187,8 +187,8 @@ class TestIndexView(CommonTest):
 #     def setUp(self):
 #         super().setUp()
 #
-#         # CreateViews intended to be used from a views.ListCommon should use the _entry_form.html template
-#         self.test_expected_template = 'whalesdb/_entry_form.html'
+#         # CreateViews intended to be used from a views.ListCommon should use the shared_entry_form.html template
+#         self.test_expected_template = 'whalesdb/shared_entry_form.html'
 #
 #     # use when a user needs to be logged in.
 #     def login(self):
@@ -252,7 +252,7 @@ class TestIndexView(CommonTest):
 #         self.test_url = reverse_lazy('whalesdb:create_prj')
 #
 #         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-#         self.test_expected_template = 'whalesdb/_entry_form.html'
+#         self.test_expected_template = 'whalesdb/shared_entry_form.html'
 #
 #         self.expected_view = views.CreatePrj
 #
@@ -268,7 +268,7 @@ class TestIndexView(CommonTest):
 #     def test_prj_create_fr(self):
 #         super().create_logged_in_not_access()
 #
-#     # Logged in user should get to the _entry_form.html template
+#     # Logged in user should get to the shared_entry_form.html template
 #     @tag('create_prj', 'response', 'access')
 #     def test_prj_create_en(self):
 #         super().create_logged_in_not_access()
@@ -285,7 +285,7 @@ class TestIndexView(CommonTest):
 #         self.test_url = reverse_lazy('whalesdb:create_stn')
 #
 #         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-#         self.test_expected_template = 'whalesdb/_entry_form.html'
+#         self.test_expected_template = 'whalesdb/shared_entry_form.html'
 #
 #         self.expected_view = views.CreateStn
 #
@@ -301,7 +301,7 @@ class TestIndexView(CommonTest):
 #     def test_stn_create_login_redirect_fr(self):
 #         super().create_login_redirect_fr()
 #
-#     # Logged in user should get to the _entry_form.html template
+#     # Logged in user should get to the shared_entry_form.html template
 #     @tag('create_stn', 'response', 'access')
 #     def test_stn_create_en(self):
 #         super().create_logged_in_not_access()
@@ -319,7 +319,7 @@ class TestIndexView(CommonTest):
 #         self.test_url = reverse_lazy('whalesdb:create_mor')
 #
 #         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-#         self.test_expected_template = 'whalesdb/_entry_form.html'
+#         self.test_expected_template = 'whalesdb/shared_entry_form.html'
 #
 #         self.expected_view = views.CreateMor
 #         self.expected_form = forms.MorForm
@@ -334,7 +334,7 @@ class TestIndexView(CommonTest):
 #     def test_mor_create_login_redirect_fr(self):
 #         super().create_login_redirect_fr()
 #
-#     # Logged in user should get to the _entry_form.html template
+#     # Logged in user should get to the shared_entry_form.html template
 #     @tag('create_mor', 'response', 'access')
 #     def test_mor_create_en(self):
 #         super().create_logged_in_not_access()

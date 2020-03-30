@@ -22,10 +22,6 @@ class DepDeployment(models.Model):
     def __str__(self):
         return "{}".format(self.dep_name)
 
-    @property
-    def station_events(self):
-        return self.stestationevents.all()
-
 
 class EcaCalibrationEvent(models.Model):
     eca_id = models.AutoField(primary_key=True)
@@ -45,8 +41,8 @@ class EccCalibrationValue(models.Model):
 
 class EdaEquipmentAttachment(models.Model):
     eda_id = models.AutoField(primary_key=True)
-    eqp = models.OneToOneField('EqpEquipment', on_delete=models.DO_NOTHING, verbose_name=_("Equipment"),
-                            related_name='equipment')
+    eqp = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING, verbose_name=_("Equipment"),
+                            related_name='deployments')
     dep = models.ForeignKey('DepDeployment', on_delete=models.DO_NOTHING, verbose_name=_("Deployment"),
                             related_name='attachments')
 
@@ -375,7 +371,7 @@ class RscRecordingSchedule(models.Model):
 class RstRecordingStage(models.Model):
     rst_id = models.AutoField(primary_key=True)
     rst_channel_no = models.BigIntegerField(blank=True, null=True, verbose_name=_("Channel Number"))
-    rsc = models.ForeignKey(RscRecordingSchedule, models.DO_NOTHING, verbose_name=_("Schedule"))
+    rsc = models.ForeignKey(RscRecordingSchedule, models.DO_NOTHING, verbose_name=_("Schedule"), related_name="stages")
     rst_active = models.CharField(max_length=1, verbose_name=_("(A)ctive or (S)leep"))
     rst_duration = models.BigIntegerField(verbose_name=_("Duration"))
     rst_rate = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True, verbose_name=_("Rate (Hz)"))
