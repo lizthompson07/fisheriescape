@@ -23,7 +23,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-30 13:50-0300\n"
+"POT-Creation-Date: 2020-03-30 14:57-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -383,8 +383,9 @@ msgid "Travel Management System"
 msgstr "Système de gestion de voyage"
 
 #: .\dm_apps\views.py:62
-msgid "Regional travel management tool."
-msgstr "Outil de gestion des voyages régionaux."
+msgid ""
+"Management tool to facilitate regional and national travel pre-approval."
+msgstr ""
 
 #: .\dm_apps\views.py:74 .\projects\templates\projects\projects_base.html:9
 msgid "Project Planning"
@@ -559,14 +560,6 @@ msgstr ""
 #: .\dm_apps\views.py:322
 msgid "Tools for necropsies and inventory of marine mammal equipment"
 msgstr ""
-
-#: .\dm_apps\views.py:340
-msgid ""
-"Please note that this site is only intended for the storage of "
-"<b>unclassified information</b>."
-msgstr ""
-"Veuillez noter que ce site est uniquement destiné au stockage de "
-"<b>information non classifiée</b>."
 
 #: .\grais\models.py:78
 #, fuzzy
@@ -9479,6 +9472,16 @@ msgstr "titre du projet"
 #| msgid "Section"
 msgid "Station List"
 msgstr "Section"
+
+#~ msgid "Regional travel management tool."
+#~ msgstr "Outil de gestion des voyages régionaux."
+
+#~ msgid ""
+#~ "Please note that this site is only intended for the storage of "
+#~ "<b>unclassified information</b>."
+#~ msgstr ""
+#~ "Veuillez noter que ce site est uniquement destiné au stockage de "
+#~ "<b>information non classifiée</b>."
 
 #~ msgid "Save comments without approving"
 #~ msgstr "Enregistrer les commentaires sans approuver"

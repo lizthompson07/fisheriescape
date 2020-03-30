@@ -59,7 +59,7 @@ def get_app_dict(request):
     try:
         app_dict["travel"] = {
             "title": _("Travel Management System"),
-            "description": _("Regional travel management tool."),
+            "description": _("Management tool to facilitate regional and national travel pre-approval."),
             "status": "beta",
             "access": "permission-required",
             "url": reverse('travel:index'),
@@ -336,8 +336,8 @@ class IndexView(TemplateView):
     template_name = 'index.html'
 
     def dispatch(self, request, *args, **kwargs):
-        messages.info(request,
-                      mark_safe(_("Please note that this site is only intended for the storage of <b>unclassified information</b>.")))
+        # messages.info(request,
+        #               mark_safe(_("Please note that this site is only intended for the storage of <b>unclassified information</b>.")))
         # messages.warning(request,
         #               mark_safe(_("<b>On Friday January 10, 2020 at 12pm AST, the site will be down for a few hours for scheduled maintenance. Sorry for any inconvenience.</b>")))
         return super().dispatch(request, *args, **kwargs)
