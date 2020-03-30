@@ -10,9 +10,11 @@
             background-image: url("{% static 'img/waves1.jpg' %}");
             background-size: cover;
         }
+
         h1 {
             font-size: 4.5em;
         }
+
         h2 {
             font-size: 2em;
         }
@@ -22,7 +24,7 @@
             background-color: #eeeeee;
             box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
             transition: 0.3s;
-            width: 200px;
+            width: 275px;
             margin: 10px
         }
 
@@ -30,22 +32,20 @@
             box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
         }
 
-
         .card-title {
-            height: 50px;
-            font-size: 1.3em;
+            height: 30px;
+            font-size: 1em;
         }
 
         .card-img {
-            height: 110px;
+            height: 100%;
         }
 
-        .card-img-top {
-            padding: 45px;
-        }
 
         .card-text {
-            height: 120px;
+            height: 70px;
+            font-size: .8em;
+
         }
 
     </style>
@@ -59,11 +59,10 @@
 {% block body %}
 
 
-    <br>
     <div class="container-fluid">
 
     <div class=" text-center">
-        <h1 class="text-center" style="font-size: 80px">
+        <h1 class="text-center" style="font-size: 70px">
             {% trans 'Data Management Apps' %}
         </h1>
         <h2 class="">
@@ -91,118 +90,96 @@
     </div>
 
 
-    <div class="container">
-        <br>
-        {% trans "Select" as btn_text %}
-        {% with app_dict_shared as app_dict %}
-            <div class="row">
-                {% for app in app_dict %}
+    <br>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-9">
 
-                    <div class="card" href="{{ app_dict|lookup:app|lookup:"url" }}">
-                        <div class="card-body">
-                            <h4 class="card-title"> {{ app_dict|lookup:app|lookup:"title" }}</h4>
-                            <p class="card-img">
-                                <img class="card-img-top" src="{% static app_dict|lookup:app|lookup:"icon_path" %}" alt="Card image">
-                            </p>
-                            <p class="card-text">{{ app_dict|lookup:app|lookup:"description" }}</p>
-                            <div class="text-center" style="margin: auto">
+                {% trans "Select" as btn_text %}
+                {% with app_dict as app_dict %}
+                    <div class="row">
+                        {% for app in app_dict %}
 
-                                {% trans "access to this app requires special permissions" as permissions_msg %}
-                                {% trans "access to this app requires you to be logged in" as login_msg %}
-                                {% trans "this app is opened to all users" as open_msg %}
+                            <div class="card" href="{{ app_dict|lookup:app|lookup:"url" }}">
+                                <div class="card-body">
+                                    <div class="row mb-4">
+                                        <div class="col-3">
+                                            <img class="card-img " src="{% static app_dict|lookup:app|lookup:"icon_path" %}">
+                                        </div>
+                                        <div class="col">
+                                            <h4 class="card-title">
+                                                {{ app_dict|lookup:app|lookup:"title" }}
+                                            </h4>
+                                        </div>
+                                    </div>
+                                    <p class="card-text">
+                                        {{ app_dict|lookup:app|lookup:"description" }}
+{#                                        <br>#}
+{#                                        <br>#}
+                                    &nbsp;
+                                    &nbsp;
+                                        {% trans "access to this app requires special permissions" as permissions_msg %}
+                                        {% trans "access to this app requires you to be logged in" as login_msg %}
+                                        {% trans "this app is opened to all users" as open_msg %}
 
-                                {% if app_dict|lookup:app|lookup:"access" == "permission-required" %}
-                                    <span data-toggle="tooltip" title="{{ permissions_msg }}">
+                                        {% if app_dict|lookup:app|lookup:"access" == "permission-required" %}
+                                            <span data-toggle="tooltip" title="{{ permissions_msg }}">
                                                                             <img src="{% static 'img/icons/padlock.svg' %}" alt=""
-                                                                                 style="width: 25px">
+                                                                                 style="width: 15px">
                                                                         </span>
-                                {% elif app_dict|lookup:app|lookup:"access" == "login-required" %}
-                                    <span data-toggle="tooltip" title="{{ login_msg }}">
+                                        {% elif app_dict|lookup:app|lookup:"access" == "login-required" %}
+                                            <span data-toggle="tooltip" title="{{ login_msg }}">
                                                                             <img src="{% static 'img/icons/user.svg' %}"
-                                                                                 alt="" style="width: 25px">
+                                                                                 alt="" style="width: 15px">
                                                                         </span>
-                                {% else %}
-                                    <span class="" data-toggle="tooltip" title="{{ open_msg }}">
+                                        {% else %}
+                                            <span class="" data-toggle="tooltip" title="{{ open_msg }}">
                                                                             <img src="{% static 'img/icons/language.svg' %}" alt=""
-                                                                                 width="25px">
+                                                                                 width="15px">
                                                                         </span>
-                                {% endif %}
-                                {% if app_dict|lookup:app|lookup:"status" == "beta" %}
-                                    <span class="badge badge-pill badge-warning" style="font-size: small">
+                                        {% endif %}
+                                        {% if app_dict|lookup:app|lookup:"status" == "beta" %}
+                                            <span class="badge badge-pill badge-warning" style="font-size: x-small">
                                                 {% trans "beta" %}
                                             </span>
-                                {% elif app_dict|lookup:app|lookup:"status" == "dev" %}
-                                    <span class="badge badge-pill badge-danger" style="font-size: small">
+                                        {% elif app_dict|lookup:app|lookup:"status" == "dev" %}
+                                            <span class="badge badge-pill badge-danger" style="font-size: x-small">
                                                 {% trans "dev" %}
                                             </span>
-                                {% endif %}
+                                        {% endif %}
+                                    </p>
+                                </div>
+
                             </div>
-                        </div>
 
+
+                        {% endfor %}
                     </div>
+                {% endwith %}
 
 
-                {% endfor %}
             </div>
-        {% endwith %}
+            <div class="col-3 ">
+                <h3>
+                    <u>
+                        {% trans "Announcements" %}
+                    </u>
+                </h3>
+                {% for a in announcements %}
+                    <div class="alert {{ a.alert_type }}" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="alert-heading">{{ a.tsubject }}</h4>
 
-        <br><br>
-        {% trans "Select" as btn_text %}
-        {% with app_dict_regional as app_dict %}
-            <div class="row">
-                {% for app in app_dict %}
-
-                    <div class="card" href="{{ app_dict|lookup:app|lookup:"url" }}">
-                        <div class="card-body">
-                            <h4 class="card-title"> {{ app_dict|lookup:app|lookup:"title" }}</h4>
-                            <p class="card-img">
-                                <img class="card-img-top" src="{% static app_dict|lookup:app|lookup:"icon_path" %}" alt="Card image">
-                            </p>
-                            <p class="card-text">{{ app_dict|lookup:app|lookup:"description" }}</p>
-                            <div class="text-center" style="margin: auto">
-
-                                {% trans "access to this app requires special permissions" as permissions_msg %}
-                                {% trans "access to this app requires you to be logged in" as login_msg %}
-                                {% trans "this app is opened to all users" as open_msg %}
-
-                                {% if app_dict|lookup:app|lookup:"access" == "permission-required" %}
-                                    <span data-toggle="tooltip" title="{{ permissions_msg }}">
-                                                                            <img src="{% static 'img/icons/padlock.svg' %}" alt=""
-                                                                                 style="width: 25px">
-                                                                        </span>
-                                {% elif app_dict|lookup:app|lookup:"access" == "login-required" %}
-                                    <span data-toggle="tooltip" title="{{ login_msg }}">
-                                                                            <img src="{% static 'img/icons/user.svg' %}"
-                                                                                 alt="" style="width: 25px">
-                                                                        </span>
-                                {% else %}
-                                    <span class="" data-toggle="tooltip" title="{{ open_msg }}">
-                                                                            <img src="{% static 'img/icons/language.svg' %}" alt=""
-                                                                                 width="25px">
-                                                                        </span>
-                                {% endif %}
-                                {% if app_dict|lookup:app|lookup:"status" == "beta" %}
-                                    <span class="badge badge-pill badge-warning" style="font-size: small">
-                                                {% trans "beta" %}
-                                            </span>
-                                {% elif app_dict|lookup:app|lookup:"status" == "dev" %}
-                                    <span class="badge badge-pill badge-danger" style="font-size: small">
-                                                {% trans "dev" %}
-                                            </span>
-                                {% endif %}
-                            </div>
-                        </div>
-
+                        <p style="font-size: small">{{ a.valid_from }}</p>
+                        <p class="mb-0">{{ a.tmessage }}</p>
                     </div>
-
-
                 {% endfor %}
+
             </div>
-        {% endwith %}
-
-
+        </div>
     </div>
-
 
     <br><br>
 
