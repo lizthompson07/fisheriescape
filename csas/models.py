@@ -258,15 +258,15 @@ class RedDecision(models.Model):
 
 
 class ReqRequest(models.Model):
-    req_id = models.AutoField(primary_key=True, verbose_name=_("Request ID"))
+    req_id = models.AutoField(primary_key=True, verbose_name=_("Req.ID"))
     assigned_req_id = models.CharField(max_length=45, verbose_name=_("Assigned Request Number"))
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     in_year_request = models.BooleanField(verbose_name=_("In-Year Request"))
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
-    client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
-    client_name = models.CharField(max_length=100, verbose_name=_("Client Name"))
-    client_title = models.CharField(max_length=100, verbose_name=_("Client Title"))
-    client_email = models.CharField(max_length=255, verbose_name=_("Client E-mail"))
+    client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Sector"))
+    client_name = models.CharField(max_length=100, verbose_name=_("Name"))
+    client_title = models.CharField(max_length=100, verbose_name=_("Title"))
+    client_email = models.CharField(max_length=255, verbose_name=_("E-mail"))
     issue = models.TextField(verbose_name=_("Issue"),
                              help_text=_("Issue requiring science information and/or advice. Posted as a question "
                                          "to be answered by Science."))

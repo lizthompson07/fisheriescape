@@ -7,9 +7,10 @@
 <script type="text/javascript" src="{% static 'js/popItOut.js' %}"></script>
 
 {% block content %}
+<br><br>
 <div class="container">
-
-    <br><h2>{% trans title %}</h2><br>
+    <div class="jumbotron">
+    <h1>{% trans title %}</h1><br>
 
     <form method="post" class="form" enctype='multipart/form-data' >
         {% csrf_token %}
@@ -27,6 +28,7 @@
             </a>
         {% endbuttons %}
     </form>
+    </div>
 </div>
 
 {% endblock content %}

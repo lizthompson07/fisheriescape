@@ -10,8 +10,11 @@
 {% endblock title %}
 
 {% block body %}
+
+<br><br>
 <div class="container mt-1" >
-    <br><h2>{% trans title %}</h2><br>
+    <div class="jumbotron">
+    <h2>{% trans title %}</h2><br>
     <a class="btn btn-primary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
     <a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:update_url object.pk %}','popoutWindow')" title="{% trans 'Add' %}">{% trans 'Update' %}</a>
 
@@ -23,5 +26,6 @@
         </div>
         {% endfor %}
     {% endblock field_override %}
+    </div>
 </div>
 {% endblock %}
