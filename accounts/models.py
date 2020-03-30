@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+
 from shared_models import models as shared_models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -38,12 +40,28 @@ class Profile(models.Model):
 
 
 class Announcement(models.Model):
+
+    alert_type_choices = (
+        ("alert-primary","primary (blue"),
+        ("alert-secondary","secondary (light grey)"),
+        ("alert-success","success (green)"),
+        ("alert-danger","danger (red)"),
+        ("alert-warning","warning (yellow)"),
+        ("alert-info","info (teal)"),
+        ("alert-light","light (white)"),
+        ("alert-dark","dark (dark grey)"),
+    )
+
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
     subject_en = models.CharField(max_length=150)
     subject_fr = models.CharField(max_length=150, blank=True, null=True)
     message_en = models.TextField()
     message_fr = models.TextField(blank=True, null=True)
+    alert_type = models.CharField(max_length=25, default='primary', choices=alert_type_choices)
+
+    def __str__(self):
+        return self.tsubject
 
     class Meta:
         ordering = ['-valid_from', ]
@@ -65,3 +83,8 @@ class Announcement(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             return "{}".format(self.message_en)
+
+    @property
+    def is_current(self):
+        """does the current date fall in between announcement validation period?"""
+        return (self.valid_from <= timezone.now()) and (self.valid_to >= timezone.now())

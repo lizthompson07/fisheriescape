@@ -6,9 +6,12 @@ from django.urls import reverse, NoReverseMatch
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
+from accounts.models import Announcement
 
 
 # Create your views here.
+
+
 def get_app_dict(request):
     """
     This function will go through and try to connect to all apps in the project. If an app is not available
@@ -53,16 +56,28 @@ def get_app_dict(request):
         except NoReverseMatch:
             pass
 
+    try:
+        app_dict["travel"] = {
+            "title": _("Travel Management System"),
+            "description": _("Regional travel management tool."),
+            "status": "beta",
+            "access": "permission-required",
+            "url": reverse('travel:index'),
+            "icon_path": 'img/icons/paper-plane.svg',
+            "region": "all",
+        }
+    except NoReverseMatch:
+        pass
 
     try:
-        app_dict["spring_cleanup"] = {
-            "title": _("GFC Spring Cleanup!"),
-            "description": _("App to coordinate a spring cleanup in the area around the GFC. Sign up today!!."),
+        app_dict["projects"] = {
+            "title": _("Project Planning"),
+            "description": _("Tool for the tracking, development and coordination of science project workplans."),
             "status": "production",
-            "access": "permission-required",
-            "url": reverse('spring_cleanup:index'),
-            "icon_path": 'img/icons/earth.svg',
-            "region": "regional",
+            "access": "login-required",
+            "url": reverse('projects:index'),
+            "icon_path": 'img/icons/scope.svg',
+            "region": "all",
         }
     except NoReverseMatch:
         pass
@@ -120,19 +135,6 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["projects"] = {
-            "title": _("Project Planning"),
-            "description": _("Tool for the tracking, development and coordination of science project workplans."),
-            "status": "production",
-            "access": "login-required",
-            "url": reverse('projects:index'),
-            "icon_path": 'img/icons/scope.svg',
-            "region": "all",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
         app_dict["scifi"] = {
             "title": _("SciFi"),
             "description": _("Gulf Science finance tracking and reporting tool."),
@@ -141,6 +143,19 @@ def get_app_dict(request):
             "url": reverse('scifi:index'),
             "icon_path": 'img/icons/money1.svg',
             "region": "all",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["spring_cleanup"] = {
+            "title": _("GFC Spring Cleanup!"),
+            "description": _("App to coordinate a spring cleanup in the area around the GFC. Sign up today!!."),
+            "status": "production",
+            "access": "permission-required",
+            "url": reverse('spring_cleanup:index'),
+            "icon_path": 'img/icons/earth.svg',
+            "region": "regional",
         }
     except NoReverseMatch:
         pass
@@ -167,21 +182,6 @@ def get_app_dict(request):
             "url": reverse('diets:index'),
             "icon_path": 'img/icons/fork.svg',
             "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-
-
-    try:
-        app_dict["travel"] = {
-            "title": _("Travel Management System"),
-            "description": _("Regional travel management tool."),
-            "status": "beta",
-            "access": "permission-required",
-            "url": reverse('travel:index'),
-            "icon_path": 'img/icons/paper-plane.svg',
-            "region": "all",
         }
     except NoReverseMatch:
         pass
@@ -251,8 +251,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-
-
     try:
         app_dict["sar_search"] = {
             "title": _("SAR Search"),
@@ -266,7 +264,6 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-
     try:
         app_dict["shares"] = {
             "title": _("Gulf Shares"),
@@ -279,7 +276,6 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
-
 
     try:
         app_dict["masterlist"] = {
@@ -306,7 +302,6 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
-
 
     try:
         app_dict["vault"] = {
@@ -361,4 +356,6 @@ class IndexView(TemplateView):
 
         context["app_dict_shared"] = app_dict_shared
         context["app_dict_regional"] = app_dict_regional
+        context["app_dict"] = app_odict
+        context["announcements"] = [a for a in Announcement.objects.all() if a.is_current]
         return context
