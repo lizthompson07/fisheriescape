@@ -969,6 +969,8 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
             'Total G&Cs',
             verbose_field_name(project_list.first(), 'submitted'),
             verbose_field_name(project_list.first(), 'approved'),
+            verbose_field_name(project_list.first(), 'notes'),
+            verbose_field_name(project_list.first(), 'meeting_notes'),
 
         ]
 
@@ -1100,6 +1102,8 @@ def generate_master_spreadsheet(fiscal_year, regions, divisions, sections, user=
                 gc_total,
                 yesno(p.submitted),
                 yesno(p.approved),
+                html2text.html2text(nz(p.notes, "")),
+                html2text.html2text(nz(p.meeting_notes, "")),
             ]
 
             # adjust the width of the columns based on the max string length in each col
