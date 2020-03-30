@@ -46,7 +46,7 @@ class CloserTemplateView(TemplateView):
 
 # Ticket #
 ##########
-class TicketListView(FilterView):
+class TicketListView(LoginRequiredMixin, FilterView):
     filterset_class = filters.TicketFilter
     template_name = "tickets/ticket_list.html"
     queryset = models.Ticket.objects.annotate(

@@ -288,6 +288,65 @@ class TestPrjDetails(CommonDetailsTest):
         super().assert_field_in_fields(response)
 
 
+class TestRscDetails(CommonDetailsTest):
+
+    def createDict(self):
+        if self._details_dict:
+            return self._details_dict
+
+        self._details_dict = {}
+
+        rsc_1 = Factory.RscFactory()
+
+        self._details_dict['rsc_1'] = rsc_1
+
+        return self._details_dict
+
+    def setUp(self):
+        super().setUp()
+
+        stn_dic = self.createDict()
+
+        self.test_url = reverse_lazy('whalesdb:details_rsc', args=(stn_dic['rsc_1'].pk,))
+        self.test_expected_template = 'whalesdb/details_rsc.html'
+
+    # Project Details are visible to all
+    @tag('rsc', 'details_rsc', 'response', 'access')
+    def test_details_rsc_en(self):
+        super().assert_view()
+
+    # Project Details are visible to all
+    @tag('rsc', 'details_rsc', 'response', 'access')
+    def test_details_rsc_fr(self):
+        super().assert_view(lang='fr')
+
+    # Test that the context contains the proper fields
+    @tag('rsc', 'details_rsc', 'context')
+    def test_context_fields_rsc(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        super().assert_context_fields(response)
+        self.assertEqual(response.context['list_url'], 'whalesdb:list_rsc')
+        self.assertEqual(response.context['update_url'], 'whalesdb:update_rsc')
+
+        self.assertEqual(response.context['object'], self.createDict()['rsc_1'])
+        self.assertFalse(response.context['editable'])
+        super().assert_field_in_fields(response)
+
+    # Test that an rsc object isn't editable even if the user is logged in with rights
+    @tag('rsc', 'details_rsc', 'auth', 'context')
+    def test_context_fields_auth_rsc(self):
+        activate('en')
+
+        self.login_whale_user()
+        response = self.client.get(self.test_url)
+
+        self.assertTrue(response.context['auth'])
+        self.assertFalse(response.context['editable'])
+
+
 class TestStnDetails(CommonDetailsTest):
 
     def createDict(self):

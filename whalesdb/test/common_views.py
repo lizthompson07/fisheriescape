@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, resolve
 from django.utils.translation import activate
 from django.contrib.auth.models import User, Group
 
@@ -109,7 +109,7 @@ class CommonListTest(CommonTest):
     def setUp(self):
         super().setUp()
 
-        self.test_expected_template = 'whalesdb/whale_filter.html'
+        self.test_expected_template = 'shared_models/shared_filter.html'
 
     # List context should return:
     #   - a title to display in the html template
@@ -145,8 +145,8 @@ class CommonCreateTest(CommonTest):
     def setUp(self):
         super().setUp()
 
-        # CreateViews intended to be used from a views.ListCommon should use the _entry_form.html template
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        # CreateViews intended to be used from a views.ListCommon should use the shared_entry_form.html template
+        self.test_expected_template = 'whalesdb/shared_entry_form.html'
 
     # If a user is logged in and not in 'whalesdb_admin' they should be get a 403 restriction
     def assert_logged_in_not_access(self):
@@ -188,7 +188,7 @@ class CommonCreateTest(CommonTest):
     #   - Requires: self.test_url
     #   - Requires: self.data
     #   - Requires: self.expected_success_url
-    def assert_successful_url(self, data=None):
+    def assert_successful_url(self, data=None, signature=None):
         activate('en')
 
         self.login_whale_user()
@@ -198,7 +198,14 @@ class CommonCreateTest(CommonTest):
             # If the data in this test is invaild the response will be invalid
             self.assertTrue(response.context_data['form'].is_valid(), msg="Test data was likely invalid")
 
-        self.assertRedirects(response=response, expected_url=self.expected_success_url)
+        if signature:
+            # in the event a successful url returns an address with an ID, like a creation form redirecting
+            # to a details page, set the signature variable and this will resolve the url to get the URL name instead
+            # of the URL
+            self.assertEquals(302, response.status_code)
+            self.assertEquals(signature, resolve(response.url).view_name)
+        else:
+            self.assertRedirects(response=response, expected_url=self.expected_success_url)
 
 
 ###########################################################################################
