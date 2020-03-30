@@ -43,6 +43,9 @@
                 </div>
                 <div class="card-body">
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_eqp' %}" >{% trans 'Equipment' %}</a>
+                    {% if auth %}
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:create_eqp' %}" >{% trans 'New Equipment' %}</a>
+                    {% endif %}
                     <hr />
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_emm' %}" >{% trans 'Make/Model' %}</a>
                 </div>
@@ -60,6 +63,26 @@
                     {% if auth %}
                     <a class="btn btn-secondary" href="{% url 'whalesdb:create_rsc' %}" >{% trans 'New Recording Schedule' %}</a>
                     {% endif %}
+                    <hr />
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:list_tea' %}" >{% trans 'Team Members' %}</a>
+                    {% if auth %}
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:create_tea' %}" >{% trans 'New Team Member' %}</a>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card border border-dark">
+                <div class="card-header">
+                    <h2>{% trans 'Other Lookups' %}</h2>
+                </div>
+                <div class="card-body">
+                    {# add EQA_ADC_BITS_CODE #}
+                    {# add PRM_PARAMETER_CODE #}
+                    {# add EQT_EQUIPMENT_TYPE_CODE #}
+                    {# add ERT_RECORDER_TYPE #}
+                    {# add RTT_TIMEZONE_CODE #}
                 </div>
             </div>
         </div>

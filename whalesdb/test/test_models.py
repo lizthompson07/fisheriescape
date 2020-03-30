@@ -11,6 +11,22 @@ from whalesdb.test import WhalesdbFactory as Factory
 import os
 
 
+class TestDep(TestCase):
+    fixtures = ['initial_data']
+
+    @tag('dep', 'model', 'dep_model')
+    def test_dep_station_events(self):
+        dep = Factory.DepFactory()
+        set = models.SetStationEventCode.objects.get(pk=1)
+
+        self.assertEquals(dep.station_events.count(), 0)
+
+        ste = Factory.SteFactory(dep=dep, set_type=set)
+
+        self.assertEquals(dep.station_events.count(), 1)
+        self.assertEquals(dep.station_events.first().dep, dep)
+        self.assertEquals(dep.station_events.first().set_type, set)
+
 class TestEmm(TestCase):
 
     fixtures = ['initial_data']
