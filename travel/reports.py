@@ -13,7 +13,7 @@ from shared_models import models as shared_models
 import os
 
 
-def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
+def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, trip=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
     target_file = "temp_export.xlsx"
@@ -33,8 +33,21 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
     # spreadsheet: Project List #
     #############################
 
+    if fiscal_year == "None":
+        fiscal_year = None
+    if region == "None":
+        region = None
+
     # get a request list
-    if trip_request:
+    if fiscal_year or region:
+        # if this report is being called from the reports page...
+        trip_request_list = models.TripRequest.objects.all()
+        if fiscal_year:
+            trip_request_list = trip_request_list.filter(fiscal_year_id=fiscal_year)
+        if region:
+            trip_request_list = trip_request_list.filter(section__division__branch__region_id=region)
+
+    elif trip_request:
         my_trip_request = models.TripRequest.objects.get(pk=trip_request)
         if my_trip_request.is_group_request:
             is_group = True
