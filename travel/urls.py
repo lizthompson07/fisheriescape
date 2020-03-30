@@ -69,7 +69,7 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/export-cfts-list/year/<int:fy>/user/<int:user>/', views.export_cfts_list, name="export_cfts_list"),
+    path('reports/export-cfts-list/year/<int:fy>/region/<int:region>/', views.export_cfts_list, name="export_cfts_list"),
     path('reports/cfts/request/<int:trip_request>/', views.export_request_cfts, name="export_cfts_request"),
     path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"),
     # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
