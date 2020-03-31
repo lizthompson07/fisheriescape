@@ -44,14 +44,6 @@ class CommonCreate(CreateCommon):
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
 
-    # If a url is setup to use <str:pop> in its path, indicating the creation form is in a popup window
-    # get_template_names will return the _entry_form_no_nav.html template.
-    def get_template_names(self):
-        if self.kwargs.get("pop"):
-            return 'whalesdb/_entry_form_no_nav.html'
-
-        return self.template_name
-
     def get_nav_menu(self):
         if self.kwargs.get("pop"):
             return None
@@ -251,14 +243,6 @@ class CommonUpdate(UpdateCommon):
 
     # update views are all intended to be pop out windows so upon success close the window
     success_url = reverse_lazy("shared_models:close_me_no_refresh")
-
-    # If a url is setup to use <str:pop> in its path, indicating the creation form is in a popup window
-    # get_template_names will return the _entry_form_no_nav.html template.
-    def get_template_names(self):
-        if self.kwargs.get("pop"):
-            return 'whalesdb/_entry_form_no_nav.html'
-
-        return self.template_name
 
     def get_nav_menu(self):
         if self.kwargs.get("pop"):
