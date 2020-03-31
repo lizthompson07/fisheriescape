@@ -32,6 +32,9 @@ class CsasListCommon(shared_view.FilterCommon):
     # if not set by the extending class the default popup height will be used
     creation_form_height = None
 
+    def test_func(self):
+        return utils.csas_authorized(self.request.user)
+
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
@@ -41,7 +44,6 @@ class CsasListCommon(shared_view.FilterCommon):
         context['details_url'] = self.details_url if self.details_url else "csas:details_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "csas:update_{}".format(self.key)
 
-        context['auth'] = utils.csas_authorized(self.request.user)
 
         return context
 
@@ -49,8 +51,7 @@ class CsasListCommon(shared_view.FilterCommon):
 # The Create Common class is a quick way to create an entry form. define a new class that extends it
 # provide a title, model and form_class and away you go.
 #
-# Create Common uses the _entry_form.html template to display common forms in a popup dialog intended
-# to be attached to some "add new" button.
+# Create Common uses the shared_models/shared_entry_form.html template to display common forms in a standard way
 #
 # class CreateCommon(UserPassesTestMixin, CreateView):
 class CsasCreateCommon(shared_view.CreateCommon):
@@ -70,31 +71,19 @@ class CsasCreateCommon(shared_view.CreateCommon):
 # template to display common forms in a popup dialog intended to be attached to some "update" button.
 #
 # class UpdateCommon(UserPassesTestMixin, UpdateView):
-class UpdateCommon(UpdateView):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
+class CsasUpdateCommon(shared_view.UpdateCommon):
 
-    # default template to use to create an update
-    template_name = 'csas/_entry_form.html'
+    nav_menu = 'csas/csas_nav.html'
+    site_css = 'csas/csas_css.css'
 
-    # title to display on the CreateView page
-    title = None
+    def test_func(self):
+        return utils.csas_authorized(self.request.user)
 
-    # update views are all intended to be pop out windows so upon success close the window
-    success_url = reverse_lazy("csas:close_me")
+    def get_nav_menu(self):
+        if hasattr(self, 'kwargs') and self.kwargs.get("pop"):
+            return None
 
-    # this function overrides UserPassesTestMixin.test_func() to determine if
-    # the user should have access to this content, if the user is logged in
-    # def test_func(self):
-    #     return self.request.user.groups.filter(name='whalesdb_admin').exists()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        if self.title:
-            context["title"] = self.title
-
-        return context
+        return super().get_nav_menu()
 
 
 class DetailsCommon(DetailView):
@@ -154,13 +143,16 @@ class RequestEntry(CsasCreateCommon):
         return reverse_lazy("csas:list_req")
 
 
-class RequestUpdate(UpdateCommon):
+class RequestUpdate(CsasUpdateCommon):
     # The title to use on the Update form
     title = _("Update Request")
     # The model Django uses to retrieve the object(s) used on the page
     model = models.ReqRequest
     # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.RequestForm
+
+    def get_success_url(self):
+        return reverse_lazy("csas:details_req", args=(self.object.pk,))
 
 
 class RequestList(CsasListCommon):
@@ -219,7 +211,7 @@ class ContactsEntry(CsasCreateCommon):
     form_class = forms.ContactForm
 
 
-class ContactsUpdate(UpdateCommon):
+class ContactsUpdate(CsasUpdateCommon):
     # The title to use on the Update form
     title = _("Update Contact")
     # The model Django uses to retrieve the object(s) used on the page
@@ -274,7 +266,7 @@ class MeetingEntry(CsasCreateCommon):
     form_class = forms.MeetingForm
 
 
-class MeetingUpdate(UpdateCommon):
+class MeetingUpdate(CsasUpdateCommon):
     # The title to use on the Update form
     title = _("Update Meeting")
     # The model Django uses to retrieve the object(s) used on the page
@@ -332,7 +324,7 @@ class PublicationEntry(CsasCreateCommon):
     form_class = forms.PublicationForm
 
 
-class PublicationUpdate(UpdateCommon):
+class PublicationUpdate(CsasUpdateCommon):
     # The title to use on the Update form
     title = _("Update Publication")
     # The model Django uses to retrieve the object(s) used on the page

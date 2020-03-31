@@ -12,12 +12,20 @@
 {% endif %}
 {% endblock %}
 
+{% block navigation %}
+{# if the nav_menu object is not set, this displays the default navigation #}
+{# if the nav_menu object is set, but is none or False, default navigation is hidden #}
+{% with show_nav=nav_menu %}
+{{ block.super }}
+{% endwith %}
+{% endblock %}
+
+{% if nav_menu %}
 {# include navigation elements in here #}
 {% block left_all %}
-{% if nav_menu %}
 {% include ''|add:nav_menu %}
-{% endif %}
 {% endblock left_all %}
+{% endif %}
 
 {% block title %}
 {# include css style elements in here #}

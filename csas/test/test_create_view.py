@@ -5,12 +5,13 @@ from django.contrib.auth.models import AnonymousUser
 from csas.views import CsasCreateCommon, RequestEntry
 from csas.test import csas_common_test as cct
 
-from csas import models
+from csas import models, forms
 
 from shared_models import views as shared_views
 
 
-class CreateCommonTest(TestCase):
+# Test the CSAS' extention of the shared_models CreateCommon shared framework
+class CreateCommonTest(cct.CommonTestCase):
 
     view = None
 
@@ -29,46 +30,42 @@ class CreateCommonTest(TestCase):
         css = self.view.get_site_css()
         self.assertEquals(css, cct.EXPECTED_CSS)
 
+    # test that if no user is logged in they will not be authorized to see add/update buttons in the template
+    def test_anonymous_user_fail(self):
+        self.assert_anonymous_user_auth_fail()
+
+    # test that if the user is logged in, but not in the csas_admin group, they will not be authorized to see
+    # add/update buttons in the template
+    def test_regular_user_fail(self):
+        self.assert_regular_user_auth_fail()
+
+    # test that if a user is logged, and part of the csas_admin group, they will be authorized to see add/update
+    # buttons in the template
+    def test_csas_admin_func_pass(self):
+        self.assert_csas_admin_user_auth_pass()
+
 
 class ReqCreateViewTest(TestCase):
 
-    view = None
+    # view = None  # view object is held in the cct.CommonTestCase class
 
     def setUp(self) -> None:
         self.view = RequestEntry()
 
+    # Make sure the Req creation view is extending the CsasCreateCommon class.
     def test_req_create_extends(self):
         self.assertIsInstance(self.view, CsasCreateCommon)
 
+    # req should be using the ReqRequest model
     def test_req_create_model(self):
         self.assertEquals(self.view.model, models.ReqRequest)
 
-    def test_req_redirect(self):
+    # upon success req redirects to the req filter view
+    def test_req_success(self):
         addr = self.view.get_success_url()
         self.assertEquals(addr, reverse_lazy('csas:list_req'))
 
-    def test_req_test_func_fail(self):
-        # have to initialize the view as though Django did it.
-        req_factory = RequestFactory()
-        request = req_factory.get(reverse_lazy("csas:create_req"))
-        request.user = AnonymousUser()
-
-        view = cct.setup_view(self.view, request)
-
-        auth = view.test_func()
-
-        self.assertFalse(auth)
-
-    def test_req_test_func_pass(self):
-
-        # have to initialize the view as though Django did it.
-        req_factory = RequestFactory()
-        request = req_factory.get(reverse_lazy("csas:create_req"))
-
-        request.user = cct.login_csas_user(self)
-
-        view = cct.setup_view(self.view, request)
-
-        auth = view.test_func()
-
-        self.assertTrue(auth)
+    # Use the RequestForm class for the req object
+    def test_req_form(self):
+        form_class = self.view.get_form_class()
+        self.assertEquals(form_class, forms.RequestForm)
