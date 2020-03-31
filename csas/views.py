@@ -4,22 +4,17 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 from django_filters.views import FilterView
 
 from django.urls import reverse_lazy
-from . import models, forms, filters
+from csas import models, forms, filters, utils
 from django.utils.translation import gettext_lazy as _
+
+from shared_models import views as shared_view
 
 
 # Extend this class to add a new list view
-class ListCommon(FilterView):
-    # default template to use to create a filter view
-    template_name = 'csas/csas_filter.html'
+class CsasListCommon(shared_view.FilterCommon):
 
-    # title to display on the list page
-    title = None
-
-    # key used for creating default create, update and details URLs in the get_context_data method
-    # The csas/csas_list.html template expects url 'labels' to follow the format of create_[key],
-    # update_[key] and details_[key]
-    key = None
+    nav_menu = 'csas/csas_nav.html'
+    site_css = 'csas/csas_css.css'
 
     # fields to be used as columns to display an object in the filter view table
     fields = []
@@ -42,20 +37,11 @@ class ListCommon(FilterView):
 
         context['fields'] = self.fields
 
-        if self.title:
-            context['title'] = self.title
-
         context['create_url'] = self.create_url if self.create_url else "csas:create_{}".format(self.key)
         context['details_url'] = self.details_url if self.details_url else "csas:details_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "csas:update_{}".format(self.key)
 
-        # When you eventually get to requiring authentication, this will be needed
-        # context['auth'] = self.request.user.is_authenticated and \
-        #                   self.request.user.groups.filter(name='whalesdb_admin').exists()
-        context['auth'] = True
-
-        if self.creation_form_height:
-            context['height'] = self.creation_form_height
+        context['auth'] = utils.csas_authorized(self.request.user)
 
         return context
 
@@ -67,31 +53,14 @@ class ListCommon(FilterView):
 # to be attached to some "add new" button.
 #
 # class CreateCommon(UserPassesTestMixin, CreateView):
-class CreateCommon(CreateView):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
+class CsasCreateCommon(shared_view.CreateCommon):
 
-    # default template to use to create an update
-    template_name = 'csas/_entry_form.html'
+    nav_menu = 'csas/csas_nav.html'
+    site_css = 'csas/csas_css.css'
 
-    # title to display on the CreateView page
-    title = None
-
-    # create views are all intended to be pop out windows so upon success close the window
-    success_url = reverse_lazy("csas:close_me")
-
-    # This will be needed when you eventually get to requiring authentication
-    # def test_func(self):
-    #     return self.request.user.groups.filter(name='whalesdb_admin').exists()
-
-    def get_context_data(self, **kwargs):
-        print("here")
-        context = super().get_context_data(**kwargs)
-
-        if self.title:
-            context["title"] = self.title
-
-        return context
+    # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
+    def test_func(self):
+        return utils.csas_authorized(self.request.user)
 
 
 # The Update Common class is a quick way to create an entry form to edit existing objects.
@@ -172,14 +141,17 @@ class IndexTemplateView(TemplateView):
 # 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 # Create "Request" forms
 #
-class RequestEntry(CreateCommon):
-    template_name = 'csas/_entry_form_with_nav.html'
+class RequestEntry(CsasCreateCommon):
+
     # The title to use on the Creation form
     title = _("New Request Entry")
     # The model Django uses to retrieve the object(s) used on the page
     model = models.ReqRequest
     # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.RequestForm
+
+    def get_success_url(self):
+        return reverse_lazy("csas:list_req")
 
 
 class RequestUpdate(UpdateCommon):
@@ -191,7 +163,7 @@ class RequestUpdate(UpdateCommon):
     form_class = forms.RequestForm
 
 
-class RequestList(ListCommon):
+class RequestList(CsasListCommon):
     # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
     key = 'req'
 
@@ -237,7 +209,7 @@ class RequestDetails(DetailsCommon):
 # All you have to do to create new entry forms is extend                            #
 # the appropriate xxxCommon class, provide the few necessary fields                 #
 # ################################################################################# #
-class ContactsEntry(CreateCommon):
+class ContactsEntry(CsasCreateCommon):
     template_name = 'csas/_entry_form_with_nav.html'
     # The title to use on the Creation form
     title = _("New Contact Entry")
@@ -256,7 +228,7 @@ class ContactsUpdate(UpdateCommon):
     form_class = forms.ContactForm
 
 
-class ContactsList(ListCommon):
+class ContactsList(CsasListCommon):
     # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
     key = 'con'
 
@@ -291,7 +263,7 @@ class ContactsDetails(DetailsCommon):
 # 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 # Create "Meeting" forms
 #
-class MeetingEntry(CreateCommon):
+class MeetingEntry(CsasCreateCommon):
     # The title to use on the Creation form
     title = _("Meeting Entry")
 
@@ -311,7 +283,7 @@ class MeetingUpdate(UpdateCommon):
     form_class = forms.MeetingForm
 
 
-class MeetingList(ListCommon):
+class MeetingList(CsasListCommon):
     # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
     key = 'met'
 
@@ -349,7 +321,7 @@ class MeetingDetails(DetailsCommon):
 # 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
 # Create "Meeting" forms
 #
-class PublicationEntry(CreateCommon):
+class PublicationEntry(CsasCreateCommon):
     # The title to use on the Creation form
     title = _("Publication Entry")
 
@@ -369,7 +341,7 @@ class PublicationUpdate(UpdateCommon):
     form_class = forms.PublicationForm
 
 
-class PublicationList(ListCommon):
+class PublicationList(CsasListCommon):
     # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
     key = 'pub'
 
