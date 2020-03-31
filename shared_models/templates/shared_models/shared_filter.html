@@ -86,7 +86,12 @@
                             <td><a class="btn btn-primary btn-sm" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a></td>
                             {% endif %}
                             {% if editable and update_url%}
-                            <td><a class="btn btn-primary btn-sm" href="#" onclick="return pop('{% url ''|add:update_url obj.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
+                                {# if the update url contains /pop/ then open the url in a popup window #}
+                                {% if '/pop/' in update_url %}
+                                    <td><a class="btn btn-primary btn-sm" href="#" onclick="return pop('{% url ''|add:update_url obj.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
+                                {% else %}
+                                    <td><a class="btn btn-primary btn-sm" href="{% url ''|add:update_url obj.pk %}" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
+                                {% endif %}
                             {% endif %}
                         </tr>
                     {% endfor %}

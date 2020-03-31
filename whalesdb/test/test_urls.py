@@ -73,7 +73,7 @@ class URLTest(TestCase):
 
     @tag('emm', 'url', 'update', 'pop')
     def test_url_update_emm_view(self):
-        self.basic_en_url_test('whalesdb:update_emm', 'whalesdb/update/emm/1/pop/', views.EmmUpdate, [1, 'pop'])
+        self.basic_en_url_test('whalesdb:update_emm', 'whalesdb/update/emm/1/', views.EmmUpdate, [1])
 
     @tag('emm', 'url', 'list')
     def test_url_list_emm_view(self):
