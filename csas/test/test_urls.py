@@ -39,3 +39,9 @@ class URLTest(TestCase):
 
     def test_req_create_url(self):
         self.assert_basic_url('csas:create_req', 'csas/request/new/', views.RequestEntry)
+
+    def test_req_update_url(self):
+        self.assert_basic_url('csas:update_req', 'csas/request/update/1/', views.RequestUpdate, [1])
+
+    def test_req_update_pop_url(self):
+        self.assert_basic_url('csas:update_req', 'csas/request/update/1/pop/', views.RequestUpdate, [1, 'pop'])
