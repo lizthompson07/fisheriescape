@@ -23,8 +23,9 @@ urlpatterns = [
 
     path('request/', views.RequestList.as_view(), name="list_req"),
     path('request/new/',                 views.RequestEntry.as_view(),       name="create_req"),
-    path('request/update/<int:pk>',      views.RequestUpdate.as_view(),      name="update_req"),
-    path('request/details/<int:pk>',     views.RequestDetails.as_view(),     name="details_req"),
+    path('request/update/<int:pk>/',      views.RequestUpdate.as_view(),      name="update_req"),
+    path('request/update/<int:pk>/<str:pop>/',      views.RequestUpdate.as_view(),      name="update_req"),
+    path('request/details/<int:pk>/',     views.RequestDetails.as_view(),     name="details_req"),
 
     # path('meetings/',     views.MeetingsTemplateView.as_view(),     name="meetings"),
     # path('publications/', views.PublicationsTemplateView.as_view(), name="publications"),

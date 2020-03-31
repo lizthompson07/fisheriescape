@@ -16,7 +16,7 @@
     <div class="jumbotron">
     <h2>{% trans title %}</h2><br>
     <a class="btn btn-primary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
-    <a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:update_url object.pk %}','popoutWindow')" title="{% trans 'Add' %}">{% trans 'Update' %}</a>
+    <a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:update_url object.pk 'pop' %}','popoutWindow')" title="{% trans 'Add' %}">{% trans 'Update' %}</a>
 
     {% block field_override %}
         <h2>{{ object.prj_name }}</h2>
