@@ -17,7 +17,7 @@ urlpatterns = [
 
     path('create/emm/', views.EmmCreate.as_view(), name="create_emm"),
     path('create/emm/<str:pop>/', views.EmmCreate.as_view(), name="create_emm"),
-    path('update/emm/<int:pk>/<str:pop>/', views.EmmUpdate.as_view(), name="update_emm"),
+    path('update/emm/<int:pk>/', views.EmmUpdate.as_view(), name="update_emm"),
     path('details/emm/<int:pk>/', views.EmmDetails.as_view(), name="details_emm"),
     path('list/emm/', views.EmmList.as_view(), name="list_emm"),
 
