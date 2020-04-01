@@ -50,12 +50,17 @@ steps:
 
   - script: |
       pushd '$(projectRoot)'
+
+      # python manage.py migrate whalesdb # I don't think we need to run the migrations for whales, it's been done I think
+
       # Whales needs some initial data loaded for lookup tables for the tests to pass, on my dev machine I use a MySQL DB
       # and fixtures in the testing classes to load the data, but in this environment using an Sqlite DB migrations have
       # to be done then fixtures loaded manually before the tests are run
-      python manage.py migrate whalesdb
       python manage.py loaddata whalesdb/fixtures/initial_data.json
-      python manage.py test whalesdb.test
+
+      # run tests for shared_models and whalesdb
+      python manage.py test shared_models.test whalesdb.test
+
       # TODO: Database created in the previous step should be manually deleted here so it doesn't interfere with other testing
     condition: succeededOrFailed()
     displayName: 'Run tests'
