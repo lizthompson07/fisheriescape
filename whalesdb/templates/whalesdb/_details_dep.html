@@ -34,11 +34,11 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="card-body collapse" id="fs-list-attachments">
+            <div class="card-body expand" id="fs-list-attachments">
                 <div class="card-text">
                     <ul>
                     {% for att in dep.attachments.all %}
-                        <li><a href="">{{att.eqp}}</a> - This is a place holder, this should link to the Recording Dataset</li>
+                        <li><a href="{% url 'whalesdb:details_eqp' att.eqp.pk %}">{{att.eqp}}</a> - This is a place holder, this should link to the Recording Dataset</li>
                     {% endfor %}
                     </ul>
                 </div>

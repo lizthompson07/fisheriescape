@@ -17,6 +17,7 @@
     - Once you have downloaded the files, you can install them as follows:
         - `pip install /path/to/local/file/mysqlclient‑1.x.x‑cp36‑cp36m‑win_amd64.whl`
         - `pip install /path/to/local/file/shapely‑1.x.x‑cp36‑cp36m‑win_amd64.whl`
+    - ***Do not forget to uncomment the two lines from the requirements.txt file***
 
 1. For an Oracle Database Backend
     1. Run the command `python -m pip install cx_oracle --upgrade`
@@ -25,5 +26,6 @@
     1. You may need to install the [Oracle Instant client](https://www.oracle.com/technetwork/database/database-technologies/instant-client/overview/index.html)
     
 ### Running the django development server
-1. If you are using a local Sqlite dataabase, be sure to run migrations before you get started: `python manage.py migrate`.
+1. If you are using a local Sqlite database (i.e. this is the default configuration), 
+be sure to run migrations before you get started: `python manage.py migrate`.
 1. Change directory to the root `dm_apps` folder (if not already there) and run the development server: `python manage.py runserver`

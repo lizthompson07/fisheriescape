@@ -44,6 +44,14 @@ class PrjFilter(django_filters.FilterSet):
         fields = []
 
 
+class RscFilter(django_filters.FilterSet):
+    rsc_name = django_filters.CharFilter(field_name='rsc_name', lookup_expr='icontains')
+
+    class Meta:
+        model = models.RscRecordingSchedule
+        fields = []
+
+
 class StnFilter(django_filters.FilterSet):
     stn_name = django_filters.CharFilter(field_name='stn_name', lookup_expr='icontains')
     stn_code = django_filters.ChoiceFilter(field_name='stn_code')
@@ -61,3 +69,13 @@ class StnFilter(django_filters.FilterSet):
 
         self.filters['stn_code'] = django_filters.ChoiceFilter(field_name='stn_code', lookup_expr='exact',
                                                                choices=code_list)
+
+
+class TeaFilter(django_filters.FilterSet):
+    tea_abb = django_filters.CharFilter(field_name='tea_abb', lookup_expr='icontains')
+    tea_last_name = django_filters.CharFilter(field_name='tea_last_name', lookup_expr='icontains')
+    tea_first_name = django_filters.CharFilter(field_name='tea_first_name', lookup_expr='icontains')
+
+    class Meta:
+        model = models.TeaTeamMember
+        fields = []
