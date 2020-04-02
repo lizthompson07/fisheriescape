@@ -99,10 +99,10 @@ class TestEmmUpdate(CommonUpdateTest):
 
         obj = Factory.EmmFactory()
 
-        self.test_url = reverse_lazy('whalesdb:update_emm', args=(obj.pk, 'pop',))
+        self.test_url = reverse_lazy('whalesdb:update_emm', args=(obj.pk,))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.EmmUpdate
 
@@ -158,7 +158,7 @@ class TestEqhUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_eqh', args=(obj.pk, 'pop',))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.EqhUpdate
 
@@ -217,7 +217,7 @@ class TestEqpUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_eqp', args=(obj.pk, 'pop',))
 
         # Since this is intended to be used as a pop-out form, use the no nav entry form
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.EqpUpdate
 
@@ -273,7 +273,7 @@ class TestEqrUpdate(CommonUpdateTest):
         self.test_url = reverse_lazy('whalesdb:update_eqr', args=(obj.pk, 'pop',))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.EqrUpdate
 
