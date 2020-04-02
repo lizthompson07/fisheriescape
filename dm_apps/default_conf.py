@@ -39,6 +39,7 @@ APP_DICT = {
     'whalesdb': "Whale Equipment Deployment Inventory",
     'vault': "Marine Megafauna Media Vault",
     'spring_cleanup': "Gulf Region Spring Cleanup",
+    'shiny': "Collection of Shiny Apps hosted on the DM Apps server",
 }
 
 # This variable is used to employ a preconfiguartion of applications for Azure deployment

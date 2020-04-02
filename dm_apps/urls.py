@@ -152,6 +152,12 @@ else:
     print("not connecting spring_cleanup app")
 
 
+if settings.INSTALLED_APPS.count("shiny"):
+    urlpatterns += i18n_patterns(path('shiny-apps/', include('shiny.urls')), prefix_default_language=True)
+else:
+    print("not connecting shiny app repo")
+
+
 # if not settings.DEBUG:
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
                                                                                        document_root=settings.MEDIA_ROOT)
