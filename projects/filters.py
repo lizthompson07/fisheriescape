@@ -11,6 +11,7 @@ chosen_js = {"class": "chosen-select-contains"}
 
 
 class ProjectFilter(django_filters.FilterSet):
+    project_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
     fiscal_year = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact')
     project_title = django_filters.CharFilter(field_name='project_title', lookup_expr='icontains')
     tags = django_filters.ModelChoiceFilter(field_name='tags__name', lookup_expr='icontains', label=_("Tags / Keywords"),

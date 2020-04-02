@@ -761,6 +761,7 @@ class ProjectListView(LoginRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
 
         context["field_list"] = [
+            "id",
             "year",
             "region",
             "division",
