@@ -495,6 +495,10 @@ def get_region_choices(all=False):
             shared_models.Region.objects.filter(id__in=region_list).order_by("name", )]
 
 
+def get_omcatagory_choices():
+    return [(o.id, str(o)) for o in models.OMCategory.objects.all()]
+
+
 def get_funding_sources(all=False):
     return [(fs.id, str(fs)) for fs in models.FundingSource.objects.all()]
 
@@ -2345,6 +2349,7 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
 
         context['division_json'] = json.dumps(division_dict)
         context['section_json'] = json.dumps(section_dict)
+        context['omcatagory_json'] = json.dumps(get_omcatagory_choices())
         return context
 
     def form_valid(self, form):
@@ -2354,6 +2359,7 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
         regions = listrify(form.cleaned_data["region"])
         divisions = listrify(form.cleaned_data["division"])
         sections = listrify(form.cleaned_data["section"])
+        omcatagory = listrify(form.cleaned_data['omcatagory'])
 
         if regions == "":
             regions = "None"
@@ -2363,6 +2369,9 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
 
         if sections == "":
             sections = "None"
+
+        if omcatagory == "":
+            omcatagory = "None"
 
         if report == 1:
             return HttpResponseRedirect(reverse("projects:report_master", kwargs={
@@ -2459,6 +2468,15 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
                 'regions': regions,
                 'divisions': divisions,
                 'sections': sections,
+            }))
+        elif report == 20:
+            return HttpResponseRedirect(reverse("projects:xls_funding_by_om", kwargs={
+                'funding': funding,
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+                'omcatagory': omcatagory,
             }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -2599,7 +2617,7 @@ class PDFFundingReport(PDFReportTemplate):
         return context
 
 
-def funding_spreadsheet(request, fiscal_year, funding, regions=None, divisions=None, sections=None):
+def funding_spreadsheet(request, fiscal_year, funding, regions=None, divisions=None, sections=None, omcatagory=None):
     # sections arg will be coming in as None from the my_section view
     if regions is None:
         regions = "None"
@@ -2608,15 +2626,15 @@ def funding_spreadsheet(request, fiscal_year, funding, regions=None, divisions=N
     if sections is None:
         sections = "None"
 
-    file_url = reports.generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, sections)
+    file_url = reports.generate_funding_spreadsheet(fiscal_year, funding, regions, divisions, sections, omcatagory)
 
     funding_src = models.FundingSource.objects.get(pk=funding)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="{} {} Funding.xlsx"'.format(
-                fiscal_year, funding_src)
+            response['Content-Disposition'] = 'inline; filename="{} {} Funding{}.xlsx"'.format(
+                fiscal_year, funding_src, " By OM Catagory" if omcatagory else "")
             return response
     raise Http404
 
