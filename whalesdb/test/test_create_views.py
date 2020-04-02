@@ -84,7 +84,7 @@ class TestEdaCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_eda', args=args)
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
@@ -212,7 +212,7 @@ class TestEqhCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_eqh', args=(self.emm_id, 'pop',))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
@@ -327,7 +327,7 @@ class TestEqrCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_eqr', args=(self.emm_id, 'pop',))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
@@ -566,7 +566,7 @@ class TestRstCreate(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_rst', args=[self.rsc_id, 'pop'])
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.RstCreate
 
@@ -631,7 +631,7 @@ class TestSteCreate(CommonCreateTest):
         self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.SteCreate
 
