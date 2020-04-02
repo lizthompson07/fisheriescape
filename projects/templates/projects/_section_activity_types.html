@@ -21,7 +21,7 @@
                 <table class="table table-sm table-hover project-table sortable">
                     <thead>
                     {% for field in field_list %}
-                        <th>{% get_verbose_label object_list.first field %}</th>
+                        <th>{% get_verbose_label random_project field %}</th>
                     {% endfor %}
                     </thead>
                     {% for object in qs %}
