@@ -24,7 +24,7 @@
                 <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="100px">
             </div>
             <div class="">
-                <h1>Shiny Apps Hosted on Dm Apps</h1>
+                <h1>{% trans "Shiny Apps Hosted on DM Apps" %}</h1>
             </div>
         </div>
             <hr>
@@ -36,9 +36,15 @@
                     <img class="card-img-top" src="{% static 'shiny/img/salmon.jpg' %}" alt="Card image cap">
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">Juvenile Atlantic Salmon Densities in the Restigouche Watershed</h5>
-                    <p class="card-text">Bilingual description of this shiny app needed.</p>
-                    <a href="http://dmapps:3838/restigouche" class="btn btn-primary" target="_blank">Go!</a>
+                    <h5 class="card-title">
+                        {% trans "Juvenile Atlantic Salmon Densities in the Restigouche Watershed" %}
+                    </h5>
+                    <p class="card-text">
+                        {% trans "Juvenile Atlantic Salmon Densities in the Restigouche Watershed" %}
+                    </p>
+                    <a href="http://dmapps:3838/restigouche" class="btn btn-primary" target="_blank">
+                        {% trans "Go!" %}
+                    </a>
                 </div>
             </div>
 
@@ -47,9 +53,15 @@
                     <img class="card-img-top" src="{% static 'shiny/img/trawl.jpg' %}" alt="Card image cap">
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">2018 Sustainability Survey Viewer</h5>
-                    <p class="card-text">Bilingual description of this shiny app needed.</p>
-                    <a href="http://dmapps:3838/sustainability" class="btn btn-primary" target="_blank">Go!</a>
+                    <h5 class="card-title">
+                        {% trans "2018 Sustainability Survey Viewer" %}
+                    </h5>
+                    <p class="card-text">
+                        {% trans "2018 Sustainability Survey Viewer" %}
+                    </p>
+                    <a href="http://dmapps:3838/sustainability" class="btn btn-primary" target="_blank">
+                        {% trans "Go!" %}
+                    </a>
                 </div>
             </div>
 
