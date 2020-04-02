@@ -371,4 +371,6 @@ class IndexView(TemplateView):
         context["app_dict_regional"] = app_dict_regional
         context["app_dict"] = app_odict
         context["announcements"] = [a for a in Announcement.objects.all() if a.is_current]
+        if settings.DEVOPS_BUILD_NUMBER and settings.DEVOPS_BUILD_NUMBER != "":
+            context["build_number"] = settings.DEVOPS_BUILD_NUMBER
         return context
