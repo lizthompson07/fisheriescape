@@ -151,7 +151,7 @@ def get_app_dict(request):
         app_dict["spring_cleanup"] = {
             "title": _("GFC Spring Cleanup!"),
             "description": _("App to coordinate a spring cleanup in the area around the GFC. Sign up today!!."),
-            "status": "production",
+            "status": "dev",
             "access": "permission-required",
             "url": reverse('spring_cleanup:index'),
             "icon_path": 'img/icons/earth.svg',
@@ -187,13 +187,13 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["spot"] = {
-            "title": _("Grants & Contributions"),
-            "description": _("Gulf Region application for the tracking of Gs & Cs."),
-            "status": "beta",
+        app_dict["shiny"] = {
+            "title": _("R Shiny Apps"),
+            "description": _("Collection of Shiny Apps hosted on the DM Apps server"),
+            "status": "production",
             "access": "permission-required",
-            "url": reverse('spot:index'),
-            "icon_path": 'img/icons/agreement.svg',
+            "url": reverse('shiny:index'),
+            "icon_path": 'img/icons/rproj.png',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -278,19 +278,6 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["masterlist"] = {
-            "title": _("MasterList"),
-            "description": _("Regional master list and consultation instructions."),
-            "status": "dev",
-            "access": "permission-required",
-            "url": reverse('masterlist:index'),
-            "icon_path": 'img/icons/connection.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
         app_dict["whalesdb"] = {
             "title": _("Whale Equipment Deployment Inventory"),
             "description": _("Tool for managing whale equipment, deployments and recordings."),
@@ -324,6 +311,32 @@ def get_app_dict(request):
             "access": "permission-required",
             "url": reverse('necropsy:index'),
             "icon_path": 'img/icons/necropsy.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["spot"] = {
+            "title": _("Grants & Contributions"),
+            "description": _("Gulf Region application for the tracking of Gs & Cs."),
+            "status": "beta",
+            "access": "permission-required",
+            "url": reverse('spot:index'),
+            "icon_path": 'img/icons/agreement.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
+        app_dict["masterlist"] = {
+            "title": _("MasterList"),
+            "description": _("Regional master list and consultation instructions."),
+            "status": "dev",
+            "access": "permission-required",
+            "url": reverse('masterlist:index'),
+            "icon_path": 'img/icons/connection.svg',
             "region": "regional",
         }
     except NoReverseMatch:
