@@ -171,10 +171,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             else:
                 my_purpose = tr.purpose_long_text
 
-            my_role = "{} - {}".format(
-                nz(tr.role, "MISSING"),
-                nz(tr.role_of_participant, "No description provided")
-            )
+            my_role = "{}".format(nz(tr.role, "MISSING"),)
 
             my_name = "{}, {}".format(tr.last_name, tr.first_name)
             if tr.is_research_scientist:
