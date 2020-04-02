@@ -12,8 +12,13 @@
 {% block body %}
 <div class="container mt-1">
     <a class="btn btn-primary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
-    {% if editable %}
-    <a class="btn btn-primary" href="#" onclick="return pop('{% url ''|add:update_url object.pk 'pop' %}','all')" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+    {% if editable and update_url%}
+        {# if the update url contains /pop/ then open the url in a popup window #}
+        {% if '/pop/' in update_url %}
+            <a class="btn btn-primary btn-sm" href="#" onclick="return pop('{% url ''|add:update_url object.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+        {% else %}
+            <a class="btn btn-primary btn-sm" href="{% url ''|add:update_url object.pk %}" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+        {% endif %}
     {% endif %}
 
     {% block field_override %}
@@ -27,7 +32,6 @@
             {% endfor %}
             </div>
         </div>
-        <h2></h2>
     {% endblock field_override %}
 </div>
 {% endblock %}

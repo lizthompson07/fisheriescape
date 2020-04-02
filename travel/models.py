@@ -717,7 +717,9 @@ class TripRequest(models.Model):
         """
         For CFTS report
         """
-        my_str = "{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
+        my_str = "{}: {}".format("ROLE OF PARTICIPANT", nz(self.role_of_participant, "No description provided"))
+
+        my_str += "\n\n{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
 
         my_str += "\n\n{}: {}".format("BENEFIT TO DFO", nz(self.benefit_to_dfo, "n/a"))
 

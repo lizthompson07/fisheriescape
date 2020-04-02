@@ -116,6 +116,23 @@ class PrjForm(forms.ModelForm):
         }
 
 
+class RscForm(forms.ModelForm):
+    class Meta:
+        model = models.RscRecordingSchedule
+        exclude = []
+        widgets = {
+        }
+
+
+class RstForm(forms.ModelForm):
+    class Meta:
+        model = models.RstRecordingStage
+        exclude = []
+        widgets = {
+            'rsc': forms.HiddenInput()
+        }
+
+
 class StnForm(forms.ModelForm):
     min_height = 935
     min_width = 600
@@ -139,4 +156,12 @@ class SteForm(forms.ModelForm):
             'ste_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
             'dep': forms.HiddenInput(),
             'set_type': forms.HiddenInput(),
+        }
+
+
+class TeaForm(forms.ModelForm):
+    class Meta:
+        model = models.TeaTeamMember
+        exclude = []
+        widgets = {
         }

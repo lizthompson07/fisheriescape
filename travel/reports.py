@@ -13,7 +13,7 @@ from shared_models import models as shared_models
 import os
 
 
-def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
+def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, trip=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
     target_file = "temp_export.xlsx"
@@ -33,8 +33,33 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
     # spreadsheet: Project List #
     #############################
 
+    if fiscal_year == "None":
+        fiscal_year = None
+    if region == "None":
+        region = None
+
+    include_trip_request_status = False
     # get a request list
-    if trip_request:
+    if fiscal_year or region:
+        include_trip_request_status = True
+        # if this report is being called from the reports page...
+        trip_request_list = models.TripRequest.objects.all()
+        if fiscal_year:
+            trip_request_list = trip_request_list.filter(fiscal_year_id=fiscal_year)
+        if region:
+            trip_request_list = trip_request_list.filter(section__division__branch__region_id=region)
+
+        # at this point, the trip will also include parent trips. We must exclude them
+        trip_request_id_list = list()
+        for tr in trip_request_list:
+            if tr.is_group_request:
+                trip_request_id_list.extend([child_tr.id for child_tr in tr.children_requests.all()])
+            else:
+                trip_request_id_list.append(tr.id)
+
+        trip_request_list = models.TripRequest.objects.filter(id__in=trip_request_id_list)
+
+    elif trip_request:
         my_trip_request = models.TripRequest.objects.get(pk=trip_request)
         if my_trip_request.is_group_request:
             is_group = True
@@ -67,6 +92,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
         "Purpose",
         "Notes",
     ]
+    if include_trip_request_status:
+        header.insert(0, "Request Status")
 
     # create the col_max column to store the length of each header
     # should be a maximum column width to 100
@@ -101,6 +128,12 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
             else:
                 if tr.funding_source:
                     notes += "\n\nFUNDING SOURCE: {}".format(tr.funding_source)
+
+            # Request status
+            if tr.parent_request:
+                my_status = str(tr.parent_request.status)
+            else:
+                my_status = str(tr.status)
 
             # REASON
             if tr.parent_request:
@@ -138,10 +171,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
             else:
                 my_purpose = tr.purpose_long_text
 
-            my_role = "{} - {}".format(
-                nz(tr.role, "MISSING"),
-                nz(tr.role_of_participant, "No description provided")
-            )
+            my_role = "{}".format(nz(tr.role, "MISSING"),)
 
             my_name = "{}, {}".format(tr.last_name, tr.first_name)
             if tr.is_research_scientist:
@@ -161,6 +191,9 @@ def generate_cfts_spreadsheet(fiscal_year=None, trip_request=None, trip=None):
                 my_purpose,
                 notes,
             ]
+
+            if include_trip_request_status:
+                data_row.insert(0, my_status)
 
             # adjust the width of the columns based on the max string length in each col
             ## replace col_max[j] if str length j is bigger than stored value

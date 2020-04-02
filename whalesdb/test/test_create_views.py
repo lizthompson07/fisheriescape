@@ -14,7 +14,7 @@ import os
 from whalesdb.test import WhalesdbFactory as Factory
 
 
-class TestCreateDep(CommonCreateTest):
+class TestDepCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -22,7 +22,7 @@ class TestCreateDep(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_dep')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_dep')
 
@@ -39,7 +39,7 @@ class TestCreateDep(CommonCreateTest):
     def test_create_dep_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('dep', 'create', 'response', 'access')
     def test_create_dep_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -71,7 +71,7 @@ class TestCreateDep(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateEda(CommonCreateTest):
+class TestEdaCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -84,7 +84,7 @@ class TestCreateEda(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_eda', args=args)
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
@@ -101,7 +101,7 @@ class TestCreateEda(CommonCreateTest):
     def test_create_eda_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eda', 'create', 'response', 'access')
     def test_create_eda_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -128,7 +128,7 @@ class TestCreateEda(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateEmm(CommonCreateTest):
+class TestEmmCreate(CommonCreateTest):
 
     emm_id = 1
 
@@ -142,7 +142,7 @@ class TestCreateEmm(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_emm')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_emm')
 
@@ -159,7 +159,7 @@ class TestCreateEmm(CommonCreateTest):
     def test_create_emm_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('emm', 'create', 'response', 'access')
     def test_create_emm_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -199,7 +199,7 @@ class TestCreateEmm(CommonCreateTest):
         self.assertRedirects(response=response, expected_url=reverse_lazy('whalesdb:details_emm', args=(emm_id,)))
 
 
-class TestCreateEqh(CommonCreateTest):
+class TestEqhCreate(CommonCreateTest):
 
     emm_id = 1
 
@@ -212,7 +212,7 @@ class TestCreateEqh(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_eqh', args=(self.emm_id, 'pop',))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
@@ -229,7 +229,7 @@ class TestCreateEqh(CommonCreateTest):
     def test_create_eqh_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eqh', 'create', 'response', 'access')
     def test_create_eqh_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -260,7 +260,7 @@ class TestCreateEqh(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateEqp(CommonCreateTest):
+class TestEqpCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -270,7 +270,7 @@ class TestCreateEqp(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_eqp')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_eqp')
 
@@ -287,7 +287,7 @@ class TestCreateEqp(CommonCreateTest):
     def test_create_eqp_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eqp', 'create', 'response', 'access')
     def test_create_eqp_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -314,7 +314,7 @@ class TestCreateEqp(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateEqr(CommonCreateTest):
+class TestEqrCreate(CommonCreateTest):
 
     emm_id = 1
 
@@ -327,7 +327,7 @@ class TestCreateEqr(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_eqr', args=(self.emm_id, 'pop',))
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
@@ -344,7 +344,7 @@ class TestCreateEqr(CommonCreateTest):
     def test_create_eqr_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('eqr', 'create', 'response', 'access')
     def test_create_eqr_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -375,7 +375,7 @@ class TestCreateEqr(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateMor(CommonCreateTest):
+class TestMorCreate(CommonCreateTest):
     img_file_name = None
     img_file_path = None
 
@@ -386,7 +386,7 @@ class TestCreateMor(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_mor')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_mor')
 
@@ -420,7 +420,7 @@ class TestCreateMor(CommonCreateTest):
     def test_create_mor_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('mor', 'create', 'response', 'access')
     def test_create_mor_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -447,7 +447,7 @@ class TestCreateMor(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreatePrj(CommonCreateTest):
+class TestPrjCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -456,7 +456,7 @@ class TestCreatePrj(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_prj')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_success_url = reverse_lazy('whalesdb:list_prj')
 
@@ -474,7 +474,7 @@ class TestCreatePrj(CommonCreateTest):
     def test_create_prj_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('prj', 'create', 'response', 'access')
     def test_create_prj_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -501,7 +501,121 @@ class TestCreatePrj(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateSte(CommonCreateTest):
+class TestRscCreate(CommonCreateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.RscFactory.get_valid_data()
+        self.test_url = reverse_lazy('whalesdb:create_rsc')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_view = views.RscCreate
+
+        self.expected_form = forms.RscForm
+
+        self.expected_success_url = "whalesdb:details_rsc"
+
+    # Users must be logged in to create new stations
+    @tag('rsc', 'create', 'response', 'access')
+    def test_create_rsc_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('rsc', 'create', 'response', 'access')
+    def test_create_rsc_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
+    @tag('rsc', 'create', 'response', 'access')
+    def test_create_rsc_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('rsc', 'create', 'form')
+    def test_create_rsc_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('rsc', 'create', 'context')
+    def test_create_rsc_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('rsc', 'create', 'redirect')
+    def test_create_rsc_successful_url(self):
+        super().assert_successful_url(signature="whalesdb:details_rsc")
+
+
+class TestRstCreate(CommonCreateTest):
+
+    rsc_id = 1
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.RstFactory.get_valid_data()
+        self.test_url = reverse_lazy('whalesdb:create_rst', args=[self.rsc_id, 'pop'])
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_view = views.RstCreate
+
+        self.expected_form = forms.RstForm
+
+        self.expected_success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+    # Users must be logged in to create new stations
+    @tag('rst', 'create', 'response', 'access')
+    def test_create_rst_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('rst', 'create', 'response', 'access')
+    def test_create_rst_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
+    @tag('rst', 'create', 'response', 'access')
+    def test_create_rst_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('rst', 'create', 'form')
+    def test_create_rst_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('rst', 'create', 'context')
+    def test_create_rst_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+        self.assertIn("form", response.context)
+        self.assertIn("rsc", response.context['form'].initial)
+        self.assertEquals(self.rsc_id, response.context['form'].initial['rsc'])
+
+    # test that given some valid data the view will redirect to the list
+    @tag('rst', 'create', 'redirect')
+    def test_create_rst_successful_url(self):
+        super().assert_successful_url()
+
+
+class TestSteCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -517,7 +631,7 @@ class TestCreateSte(CommonCreateTest):
         self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form_no_nav.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.SteCreate
 
@@ -533,7 +647,7 @@ class TestCreateSte(CommonCreateTest):
     def test_create_ste_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('ste', 'create', 'response', 'access')
     def test_create_ste_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -560,7 +674,7 @@ class TestCreateSte(CommonCreateTest):
         super().assert_successful_url()
 
 
-class TestCreateStn(CommonCreateTest):
+class TestStnCreate(CommonCreateTest):
 
     def setUp(self):
         super().setUp()
@@ -569,7 +683,7 @@ class TestCreateStn(CommonCreateTest):
         self.test_url = reverse_lazy('whalesdb:create_stn')
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
-        self.test_expected_template = 'whalesdb/_entry_form.html'
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
 
         self.expected_view = views.StnCreate
 
@@ -587,7 +701,7 @@ class TestCreateStn(CommonCreateTest):
     def test_create_stn_fr(self):
         super().assert_view(lang='fr', expected_code=302)
 
-    # Logged in user in the whalesdb_admin group should get to the _entry_form.html template
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
     @tag('stn', 'create', 'response', 'access')
     def test_create_stn_en_access(self):
         # ensure a user not in the whalesdb_admin group cannot access creation forms
@@ -611,4 +725,58 @@ class TestCreateStn(CommonCreateTest):
     # test that given some valid data the view will redirect to the list
     @tag('stn', 'create', 'redirect')
     def test_create_stn_successful_url(self):
+        super().assert_successful_url()
+
+
+class TestTeaCreate(CommonCreateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.TeaFactory.get_valid_data()
+        self.test_url = reverse_lazy('whalesdb:create_tea')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_view = views.TeaCreate
+
+        self.expected_form = forms.TeaForm
+
+        self.expected_success_url = reverse_lazy('whalesdb:list_tea')
+
+    # Users must be logged in to create new stations
+    @tag('tea', 'create', 'response', 'access')
+    def test_create_tea_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('tea', 'create', 'response', 'access')
+    def test_create_tea_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
+    @tag('tea', 'create', 'response', 'access')
+    def test_create_tea_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('tea', 'create', 'form')
+    def test_create_tea_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('tea', 'create', 'context')
+    def test_create_tea_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('tea', 'create', 'redirect')
+    def test_create_tea_successful_url(self):
         super().assert_successful_url()

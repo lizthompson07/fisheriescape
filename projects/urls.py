@@ -194,6 +194,8 @@ urlpatterns = [
          views.PDFFundingReport.as_view(), name="pdf_funding"),
     path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.funding_spreadsheet, name="xls_funding"),
+    path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/omcatagory/<str:omcatagory>/',
+         views.funding_spreadsheet, name="xls_funding_by_om"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
     # INTERACTIVE WORKPLANS #
