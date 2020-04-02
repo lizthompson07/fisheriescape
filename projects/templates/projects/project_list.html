@@ -80,8 +80,12 @@
             {% for field in field_list %}
                 {% if field == 'tags' %}
                     <th style="width: 10%;">{% get_verbose_label object_list.first field %}</th>
+                {% elif "year" in field %}
+                    <th style="width: 80px;">{% get_verbose_label object_list.first field %}</th>
                 {% elif "title" in field %}
-                    <th style="width: 20%;">{% get_verbose_label object_list.first field %}</th>
+                    <th style="width: 25%;">{% get_verbose_label object_list.first field %}</th>
+                {% elif "leads" in field %}
+                    <th style="width: 18%;">{% get_verbose_label object_list.first field %}</th>
                 {% else %}
                     <th>{% get_verbose_label object_list.first field %}</th>
                 {% endif %}

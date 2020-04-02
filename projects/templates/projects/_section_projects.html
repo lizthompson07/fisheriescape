@@ -19,7 +19,7 @@
                 <h5>
                     <a href="#project-list-1" data-toggle="collapse">
 
-                        {% trans "Recommended" %} ({{ really_approved_projects.count }})
+                        {% trans "Recommended" %} ({{ recommended_projects.count }})
                     </a>
                 </h5>
             </div>
@@ -30,7 +30,7 @@
                         <th>{% get_verbose_label random_project field %}</th>
                     {% endfor %}
                     </thead>
-                    {% for object in really_approved_projects %}
+                    {% for object in recommended_projects %}
                         <tr pop href="{% url 'projects:project_overview' object.id 1 %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
@@ -61,8 +61,8 @@
 
                 <h5>
                     <a href="#project-list-2" data-toggle="collapse">
-                    <span class="{% if unapproved_projects.count > 0 %}red-font{% endif %}">
-                        {% trans "Not Recommended" %} ({{ unapproved_projects.count }})
+                    <span class="{% if unrecommended_projects.count > 0 %}red-font{% endif %}">
+                        {% trans "Not Recommended" %} ({{ unrecommended_projects.count }})
                     </span>
                     </a>
                 </h5>
@@ -74,7 +74,7 @@
                         <th>{% get_verbose_label random_project field %}</th>
                     {% endfor %}
                     </thead>
-                    {% for object in unapproved_projects %}
+                    {% for object in unrecommended_projects %}
                         <tr pop href="{% url 'projects:project_overview' object.id 1 %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
