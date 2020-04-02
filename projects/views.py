@@ -569,11 +569,11 @@ class MyProjectListView(LoginRequiredMixin, FilterView):
 
         staff_instances = self.request.user.staff_instances.filter(project__year=fy)
         context['fte_approved_projects'] = staff_instances.filter(
-            project__approved=True, project__submitted=True
+            project__recommended_for_funding=True, project__submitted=True
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
         context['fte_unapproved_projects'] = staff_instances.filter(
-            project__approved=False, project__submitted=True
+            project__recommended_for_funding=False, project__submitted=True
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
         context['fte_unsubmitted_projects'] = staff_instances.filter(
             project__submitted=False
@@ -3159,6 +3159,7 @@ class IWGroupList(ManagerOrAdminRequiredMixin, FormView):
         project_list = models.Project.objects.filter(
             year=fy,
             submitted=True,
+            recommended_for_funding=True,
         )
         if my_section:
             project_list = project_list.filter(section=my_section)
@@ -3167,9 +3168,6 @@ class IWGroupList(ManagerOrAdminRequiredMixin, FormView):
         elif my_region:
             project_list = project_list.filter(section__division__branch__region=my_region)
 
-        # If GULF region, we will further refine the list of projects
-        if my_region and my_region.id == 1:
-            project_list = project_list.filter(approved=True)
 
         # This view is being retrofitted to be able to show projects by Theme/Program (instead of only by division/section)
         if self.kwargs.get("type") == "theme":
@@ -3334,7 +3332,7 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         context['functional_group'] = functional_group
 
         # assemble project_list
-        project_list = models.Project.objects.filter(year=fy, submitted=True, ).order_by("id")
+        project_list = models.Project.objects.filter(year=fy, submitted=True, recommended_for_funding=True).order_by("id")
 
         # apply filters from previous view
         if self.kwargs.get("region") != 0:
@@ -3360,11 +3358,6 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         elif my_region:
             project_list = project_list.filter(section__division__branch__region=my_region)
 
-        # If from gulf region, filter out any un approved projects
-        if my_region.id == 1:
-            project_list = project_list.filter(
-                approved=True,
-            )
 
         if self.kwargs.get("type") == "theme":
             project_list = project_list.filter(section__division__branch__region=my_region)
