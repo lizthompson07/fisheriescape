@@ -370,6 +370,7 @@ class ReportSearchForm(forms.Form):
         (None, "----- Funding ------"),
         (18, _("Funding (PDF)")),
         (19, _("Funding (MS Excel)")),
+        (20, _("Summary Report by O&M Category (MS Excel)")),
 
         (None, ""),
         (None, "----- GULF ------"),
@@ -391,6 +392,7 @@ class ReportSearchForm(forms.Form):
     funding_src = forms.ChoiceField(required=False, label=_("Funding Source"))
     division = forms.MultipleChoiceField(required=False, label="Divisions (Leave blank to select all)")
     section = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
+    omcatagory = forms.MultipleChoiceField(required=False, label="O&M Catagories (Leave blank to select all)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -401,6 +403,7 @@ class ReportSearchForm(forms.Form):
         self.fields['region'].choices = views.get_region_choices()
         self.fields['division'].choices = views.get_division_choices()
         self.fields["section"].choices = views.get_section_choices()
+        self.fields["omcatagory"].choices = views.get_omcatagory_choices()
         self.fields["fiscal_year"].choices = fy_choices
 
 
