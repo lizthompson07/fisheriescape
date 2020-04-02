@@ -640,42 +640,46 @@ class SectionListView(LoginRequiredMixin, FilterView):
         section = shared_models.Section.objects.get(pk=self.kwargs.get("section"))
         fy = object_list.first().year if object_list.count() > 0 else None
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['unapproved_projects'] = object_list.filter(approved=False, submitted=True)
+        context['unrecommended_projects'] = object_list.filter(recommended_for_funding=False, submitted=True)
         context['unsubmitted_projects'] = object_list.filter(submitted=False)
 
+
+        # CAN PROBABLY DELETE THIS
         # in FY 2021, MAR Region is looking at only submitted projects (don't care about approved status for now)
         # This should be delete once the process in both regions is the same
-        really_approved_projects = object_list.filter(approved=True, submitted=True)
-        context['really_approved_projects'] = really_approved_projects
+        # context['really_recommended_projects'] = really_recommended_projects
 
         # if object_list.first().section.division.branch.region.id == 1:
         #     approved_projects = object_list.filter(approved=True, submitted=True)
         # else:
         #     approved_projects = object_list.filter(submitted=True)
-        approved_projects = object_list.filter(submitted=True)
-        context['approved_projects'] = approved_projects
+        # approved_projects = object_list.filter(submitted=True)
+
+
+        recommended_projects = object_list.filter(recommended_for_funding=True, submitted=True)
+        context['recommended_projects'] = recommended_projects
 
         # need to create a dict for displaying projects by funding source.
         fs_dict = {}
-        funding_sources = set([project.default_funding_source for project in approved_projects])
+        funding_sources = set([project.default_funding_source for project in recommended_projects])
         for fs in funding_sources:
-            fs_dict[fs] = approved_projects.filter(default_funding_source=fs)
+            fs_dict[fs] = recommended_projects.filter(default_funding_source=fs)
         context['fs_dict'] = fs_dict
 
         # need to create a dict for displaying projects by functional group.
         fg_dict = {}
-        functional_groups = set([project.functional_group for project in approved_projects])
+        functional_groups = set([project.functional_group for project in recommended_projects])
         for fg in functional_groups:
             fg_dict[fg] = {}
-            fg_dict[fg]["projects"] = approved_projects.filter(functional_group=fg)
+            fg_dict[fg]["projects"] = recommended_projects.filter(functional_group=fg)
             fg_dict[fg]["note"] = models.Note.objects.get_or_create(section=section, functional_group=fg)[0]
         context['fg_dict'] = fg_dict
 
         # need to create a dict for displaying projects by activity type.
         at_dict = {}
-        activity_types = set([project.activity_type for project in approved_projects])
+        activity_types = set([project.activity_type for project in recommended_projects])
         for at in activity_types:
-            at_dict[at] = approved_projects.filter(activity_type=at)
+            at_dict[at] = recommended_projects.filter(activity_type=at)
         context['at_dict'] = at_dict
 
         # need to create a staff list dictionary
@@ -688,14 +692,14 @@ class SectionListView(LoginRequiredMixin, FilterView):
             user_dict[user] = {}
             user_dict[user]["qs"] = user.staff_instances.filter(
                 project__year=fy
-            ).order_by("project__submitted", "project__approved", "lead", "project__project_title")
+            ).order_by("project__submitted", "project__recommended_for_funding", "lead", "project__project_title")
 
-            user_dict[user]["fte_approved"] = user.staff_instances.filter(
-                project__approved=True, project__submitted=True, project__year=fy
+            user_dict[user]["fte_recommended"] = user.staff_instances.filter(
+                project__recommended_for_funding=True, project__submitted=True, project__year=fy
             ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
-            user_dict[user]["fte_unapproved"] = user.staff_instances.filter(
-                project__approved=False, project__submitted=True, project__year=fy
+            user_dict[user]["fte_not_recommended"] = user.staff_instances.filter(
+                project__recommended_for_funding=False, project__submitted=True, project__year=fy
             ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
             user_dict[user]["fte_unsubmitted"] = user.staff_instances.filter(
