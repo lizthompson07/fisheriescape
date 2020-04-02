@@ -18,7 +18,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="{% url 'projects:index'  %}">
+                <a href="{% url 'projects:index' %}">
                     {% trans "Home" %}
                 </a>
             </li>
@@ -37,6 +37,7 @@
                 {% blocktrans with name=user.first_name %}
                     {{ name }}'s Project List
                 {% endblocktrans %}
+                ({{ fy }})
             </h1>
         </div>
         <div class="row">
