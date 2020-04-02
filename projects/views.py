@@ -624,7 +624,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
             "status_report_count|{}".format(_("Status reports")),
         ]
 
-        object_list = context.get("object_list")
+        object_list = self.get_queryset()
         context['region'] = object_list.first().section.division.branch.region
         section = shared_models.Section.objects.get(pk=self.kwargs.get("section"))
         fy = object_list.first().year if object_list.count() > 0 else None
