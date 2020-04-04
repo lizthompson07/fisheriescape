@@ -3,7 +3,7 @@
 {% load bootstrap4 %}
 {% load i18n %}
 
-
+{% load static %}
 
 {% block body %}
 
@@ -26,6 +26,21 @@
             {% csrf_token %}
 
             {% for field in form %}
+                {% if field.name == "name" %}
+                   <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading blink-me mb-3">
+                            {% trans "Important:" %}
+                        </h4>
+                        <p>
+                            {% trans "With exception of words like DFO and ICES, please do not use undefined acronyms in trip titles!!!" %}
+                            <br>
+                            <br>
+                            <img src="{% static 'admin/img/icon-no.svg' %}" alt=""> "ICES ASC 2020"
+                            <br>
+                            <img src="{% static 'admin/img/icon-yes.svg' %}" alt=""> "ICES Annual Science Conference (ASC) 2020"
+                        </p>
+                    </div>
+                {% endif %}
                 {% bootstrap_field field placeholder="" size="small" %}
             {% endfor %}
 
@@ -45,7 +60,7 @@
 {% block body_js %}
 
     <script type="application/javascript">
-                window.resizeTo(width = 700, height = 900);
+        window.resizeTo(width = 700, height = 900);
 
     </script>
 {% endblock %}
