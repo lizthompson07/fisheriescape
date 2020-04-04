@@ -12,10 +12,16 @@
         }
 
         .card-img-top {
+            height: 200px;
         }
-
+        .card-title{
+            height: 85px;
+        }
         .card-img-containter {
             text-align: center;
+        }
+        table, tr, th, td {
+            font-size: small;
         }
     </style>
     <div class="container">
@@ -27,21 +33,31 @@
                 <h1>{% trans "Shiny Apps Hosted on DM Apps" %}</h1>
             </div>
         </div>
-            <hr>
+        <hr>
 
         <div class="row mt-4">
 
             <div class="card mb-3" style="width: 18rem;">
-                <div class="card-img-containter">
+                <div class="card-img-containter mb-3">
                     <img class="card-img-top" src="{% static 'shiny/img/salmon.jpg' %}" alt="Card image cap">
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">
+                    <h5 class="card-title mb-3">
                         {% trans "Juvenile Atlantic Salmon Densities in the Restigouche Watershed" %}
                     </h5>
-                    <p class="card-text">
-                        {% trans "Juvenile Atlantic Salmon Densities in the Restigouche Watershed" %}
-                    </p>
+                    <div class="card-text">
+                        <table class="table table-sm">
+                            <tr>
+                                <th>{% trans "Author" %}</th>
+                                <td>Guillaume Dauphin</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Description" %}</th>
+                                <td>{% trans "n/a" %}</td>
+                            </tr>
+                        </table>
+
+                    </div>
                     <a href="http://dmapps:3838/restigouche" class="btn btn-primary" target="_blank">
                         {% trans "Go!" %}
                     </a>
@@ -49,17 +65,56 @@
             </div>
 
             <div class="card mb-3" style="width: 18rem;">
-                <div class="card-img-containter">
+                <div class="card-img-containter mb-3">
                     <img class="card-img-top" src="{% static 'shiny/img/trawl.jpg' %}" alt="Card image cap">
                 </div>
                 <div class="card-body">
-                    <h5 class="card-title">
+                    <h5 class="card-title mb-3">
                         {% trans "2018 Sustainability Survey Viewer" %}
                     </h5>
-                    <p class="card-text">
-                        {% trans "2018 Sustainability Survey Viewer" %}
-                    </p>
+
+                    <div class="card-text">
+                        <table class="table table-sm">
+                            <tr>
+                                <th>{% trans "Author" %}</th>
+                                <td>n/a</td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Description" %}</th>
+                                <td>{% trans "n/a" %}</td>
+                            </tr>
+                        </table>
+
+                    </div>
                     <a href="http://dmapps:3838/sustainability" class="btn btn-primary" target="_blank">
+                        {% trans "Go!" %}
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mb-3" style="width: 18rem;">
+                <div class="card-img-containter mb-3">
+                    <img class="card-img-top" src="{% static 'shiny/img/narw.jfif' %}" alt="Card image cap">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        {% trans "DFO/TC Right Whale Sightings Trigger Analysis" %}
+                    </h5>
+
+                    <div class="card-text">
+                        <table class="table table-sm">
+                            <tr>
+                                <th>{% trans "Author" %}</th>
+                                <td><a href="https://github.com/leeyuhc/DFO_dyna">leeyuhc</a></td>
+                            </tr>
+                            <tr>
+                                <th>{% trans "Description" %}</th>
+                                <td>{% trans "n/a" %}</td>
+                            </tr>
+                        </table>
+
+                    </div>
+                    <a href="http://dmapps:3838/DFO_dyna" class="btn btn-primary" target="_blank">
                         {% trans "Go!" %}
                     </a>
                 </div>
