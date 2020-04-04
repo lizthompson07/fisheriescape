@@ -4,6 +4,7 @@
 {% load i18n %}
 
 {% load static %}
+{% load custom_filters %}
 
 {% block body %}
 
@@ -41,7 +42,22 @@
                         </p>
                     </div>
                 {% endif %}
-                {% bootstrap_field field placeholder="" size="small" %}
+
+
+
+                {% if field.name in help_text_dict and "_date" not in field.name %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False %}
+                    {% endwith %}
+                {% else %}
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
+
+{#                {% bootstrap_field field placeholder="" size="small" %}#}
             {% endfor %}
 
             {% buttons %}
