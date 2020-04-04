@@ -6,7 +6,6 @@ from projects import reports
 
 from projects.test import ProjectsFactory as Factory
 
-
 class StdReportTest(TestCase):
 
     EXPECTED_TARGET_DIR = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
@@ -111,11 +110,47 @@ class CovidReportTest(TestCase):
         report.generate_spread_sheet()
         self.assertTrue(os.path.exists(report.target_file_path))
 
+    def assertSharedStringArray(self, strings_array, string_table, offset, section_heading, heading_array):
+        self.assertEquals(strings_array._get_shared_string(string_table[0][offset].string), section_heading)
+
+        for i in range(0, len(heading_array)):
+            self.assertEquals(strings_array._get_shared_string(string_table[1][i+offset].string),
+                              heading_array[i])
+
     def test_covid_create_worksheet(self):
-        # As far as I can tell there is no way to retrieve a cell's data using the xlswriter API, therefore
-        # there's no way to verify the column headers automatically
         self.report.create_worksheets()
         sheet = self.report.get_worksheet(title=self.EXPECTED_WORKSHEETS[0])
+        strings_array = sheet.str_table
+        table = sheet.table
+
+        # worksheets have a string table that is accessed by [row][column], it has two values
+        # .string - an index into a string array
+        # .format - the xlswriter.format.Format object describing how to format the cell
+
+        # The SharedStringTable stores strings for the xlswriter, but it hast to be "sorted" before strings can be
+        # retirieved from it.
+        strings_array._sort_string_data()
+
+        # use to skip blank columns that have been merged for the section heading
+        section_offset = 0
+        section_heading = self.EXPECTED_SECTION_HEADINGS[0]
+        self.assertSharedStringArray(strings_array, table, section_offset, section_heading, self.EXPECTED_OPI_HEADINGS)
+
+        section_offset += len(self.EXPECTED_OPI_HEADINGS)
+        section_heading = self.EXPECTED_SECTION_HEADINGS[1]
+        self.assertSharedStringArray(strings_array, table, section_offset, section_heading, self.EXPECTED_REC_HEADINGS)
+
+        section_offset += len(self.EXPECTED_REC_HEADINGS)
+        section_heading = self.EXPECTED_SECTION_HEADINGS[2]
+        self.assertSharedStringArray(strings_array, table, section_offset, section_heading, self.EXPECTED_ANA_HEADINGS)
+
+        section_offset += len(self.EXPECTED_ANA_HEADINGS)
+        section_heading = self.EXPECTED_SECTION_HEADINGS[3]
+        self.assertSharedStringArray(strings_array, table, section_offset, section_heading, self.EXPECTED_IMP_HEADINGS)
+
+        section_offset += len(self.EXPECTED_IMP_HEADINGS)
+        section_heading = self.EXPECTED_SECTION_HEADINGS[4]
+        self.assertSharedStringArray(strings_array, table, section_offset, section_heading, self.EXPECTED_MIT_HEADINGS)
 
     def test_covid_get_worksheet(self):
         sheet = self.report.get_worksheet(title=self.EXPECTED_WORKSHEETS[0])
