@@ -72,7 +72,9 @@ class StdReport:
         return self.__sections__
 
     def get_format(self, format_name):
-        if format_name not in self.wb_format:
+        # For some reason sometimes StdReport keeps a reference to wb_format, so it might remember a format, but
+        # that format isn't in the workbooks formats
+        if format_name not in self.wb_format or self.wb_format[format_name] not in self.get_workbook().formats:
             self.wb_format[format_name] = self.get_workbook().add_format(self.formats[format_name])
 
         return self.wb_format[format_name]
@@ -187,6 +189,10 @@ class CovidReport(StdReport):
 
     def create_worksheets(self):
 
+        sec_head = self.get_format("section_header")
+        col_head = self.get_format("col_header")
+        nor_text = self.get_format("normal_text")
+
         sh = self.sheets[0]
         sheet = self.get_worksheet(title=sh['title'])
 
@@ -198,17 +204,17 @@ class CovidReport(StdReport):
             for s in subsec:
                 sheet.set_column(running_col_idx, running_col_idx,
                                  (s['width'] if 'width' in s else 20),
-                                 (s["format"] if "format" in s else self.get_format('normal_text'))
+                                 (s["format"] if "format" in s else nor_text)
                                  )
 
             if len(subsec) > 1:
                 sheet.merge_range(0, running_col_idx, 0, running_col_idx + (len(subsec)-1), sec['title'],
-                                  self.get_format('section_header'))
+                                  sec_head)
             else:
-                sheet.write_row(0, running_col_idx, [sec['title']], self.get_format('section_header'))
+                sheet.write_row(0, running_col_idx, [sec['title']], sec_head)
 
             subsec_array = [s["title"] for s in subsec]
-            sheet.write_row(1, running_col_idx, subsec_array, self.get_format('col_header'))
+            sheet.write_row(1, running_col_idx, subsec_array, col_head)
 
             running_col_idx += len(subsec)
 
