@@ -100,15 +100,16 @@ class CovidReportTest(TestCase):
         self.report = reports.CovidReport()
 
     def test_covid_generate(self):
+        report = reports.CovidReport()
         Factory.ProjectFactory(project_title="Test Project")
         Factory.ProjectFactory(project_title="Test Project 2")
 
-        if os.path.exists(self.report.target_file_path):
-            os.remove(self.report.target_file_path)
+        if os.path.exists(report.target_file_path):
+            os.remove(report.target_file_path)
 
-        self.assertFalse(os.path.exists(self.report.target_file_path))
-        self.report.generate_spread_sheet()
-        self.assertTrue(os.path.exists(self.report.target_file_path))
+        self.assertFalse(os.path.exists(report.target_file_path))
+        report.generate_spread_sheet()
+        self.assertTrue(os.path.exists(report.target_file_path))
 
     def test_covid_create_worksheet(self):
         # As far as I can tell there is no way to retrieve a cell's data using the xlswriter API, therefore
