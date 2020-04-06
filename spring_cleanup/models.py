@@ -20,7 +20,7 @@ class Birds(models.Model):
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
 
     def __str__(self):
-        my_str = f'{self.tname} <em>{self.latin}</em> ({self.code})'
+        my_str = f'{self.tname} - <em>{self.latin}</em> ({self.code})'
         return mark_safe(my_str)
 
     # This is just for the sake of views.SpeciesListView
