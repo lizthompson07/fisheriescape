@@ -5,7 +5,10 @@ from django.db import models
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+
+from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 from django.contrib.gis.db import models
 
@@ -17,23 +20,28 @@ class Birds(models.Model):
     code = models.CharField(max_length=255, blank=True, null=True, unique=True)
 
     def __str__(self):
-        my_str = getattr(self, str(_("name")))
-        return my_str
+        my_str = f'{self.tname} <em>{self.latin}</em> ({self.code})'
+        return mark_safe(my_str)
 
     # This is just for the sake of views.SpeciesListView
     @property
     def tname(self):
-        return str(self)
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name']
 
 
 class Route(models.Model):
-    description_en = models.TextField(blank=True, null=True, verbose_name=_("Route description (EN)"))
-    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Route description (FR)"))
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("route description (EN)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("route description (FR)"))
     recommended_people = models.IntegerField(blank=True, null=True, verbose_name=_("recommended number of people"))
-    estimated_time_required = models.FloatField(blank=True, null=True, verbose_name=_("estimated time needed"))
+    estimated_time_required = models.FloatField(blank=True, null=True, verbose_name=_("estimated time needed (hours)"))
     polygon = models.MultiPolygonField(srid=4326)
 
     @property
@@ -42,7 +50,7 @@ class Route(models.Model):
 
     @property
     def area_km2(self):
-        return self.polygon.transform(3492, clone=True).area/1000000
+        return self.polygon.transform(3492, clone=True).area / 1000000
 
     @property
     def tdesc(self):
@@ -56,15 +64,36 @@ class Route(models.Model):
     def birds(self):
         return set([bird for outing in self.outings.all() for bird in outing.birds.all()])
 
+    @property
+    def current_outing(self):
+        if Outing.objects.filter(route=self, fiscal_year_id=fiscal_year(sap_style=True)):
+            return Outing.objects.get(route=self, fiscal_year_id=fiscal_year(sap_style=True))
+        else:
+            return None
+
+    def __str__(self):
+        return _("Route no. {}".format(self.id))
+
+
 class Outing(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, blank=True, null=True, on_delete=models.DO_NOTHING)
     route = models.ForeignKey(Route, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="outings")
-    actual_time_required = models.FloatField(blank=True, null=True, verbose_name=_("estimated time needed"))
-    green_bags_collected = models.IntegerField(blank=True, null=True, verbose_name=_("estimated time needed"))
-    blue_bags_collected = models.IntegerField(blank=True, null=True, verbose_name=_("estimated time needed"))
-    birds = models.ManyToManyField(Birds, blank=False)
-    users = models.ManyToManyField(User, blank=False)
-    comments = models.TextField(blank=True, null=True, verbose_name=_("Route description (FR)"))
+    date = models.DateTimeField(blank=True, null=True, verbose_name=_("date of outing"))
+    actual_time_required = models.FloatField(blank=True, null=True, verbose_name=_("actual time it took (hours)"))
+    green_bags_collected = models.IntegerField(blank=True, null=True, verbose_name=_("no. green bags collected"))
+    blue_bags_collected = models.IntegerField(blank=True, null=True, verbose_name=_("no. blue bags collected"))
+    birds = models.ManyToManyField(Birds, blank=False, verbose_name=_("birds observed"))
+    users = models.ManyToManyField(User, blank=False, verbose_name=_("who signed up"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
+
+    class Meta:
+        unique_together = (("route", "fiscal_year"),)
+
+    def __str__(self):
+        return str(self.fiscal_year)
+
+    def get_absolute_url(self):
+        return reverse("spring_cleanup:route_detail", kwargs={"pk": self.route.id})
 
 
 def file_directory_path(instance, filename):
