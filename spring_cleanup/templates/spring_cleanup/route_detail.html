@@ -151,7 +151,12 @@
                 {% if object.birds|length == 0 %}
                     <em>{% trans "No birds have been observed on this route..." %}</em>
                 {% else %}
-                    WORK NEEDED HERE...
+                    <ul>
+                    {% for bird in object.birds %}
+                        <li>{{ bird }}</li>
+                    {% endfor %}
+
+                    </ul>
                 {% endif %}
 
             </div>
