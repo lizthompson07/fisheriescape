@@ -96,7 +96,7 @@ ALLOWED_HOSTS = [
     'dmapps-dev.azurewebsites.net',
     'dmapps-test-web.azurewebsites.net',
     'dmapps-prod-web.azurewebsites.net',
-    'dmapps-prod-web-stagging.azurewebsites.net',
+    'dmapps-prod-web-staging.azurewebsites.net',
 ]
 ALLOWED_HOST_TO_ADD = config("ALLOWED_HOST_TO_ADD", cast=str, default="")
 if ALLOWED_HOST_TO_ADD != "":
