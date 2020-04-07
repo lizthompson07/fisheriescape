@@ -38,7 +38,7 @@ DEBUG = config("DEBUG", cast=bool, default=False)
 # Where do you want to set the bar for logging? {DEBUG, INFO, WARNING, ERROR, CRITICAL}
 LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
 # What is the path to the log file?
-LOG_FILE_PATH = config("LOG_FILE_PATH", cast=str, default=os.path.join(LOGS_DIR, 'warnings.log'))
+LOG_FILE_PATH = config("LOG_FILE_PATH", cast=str, default=os.path.join(LOGS_DIR, 'error.log'))
 # this is used in email templates to link the recipient back to the site
 SITE_FULL_URL = config("SITE_FULL_URL", cast=str, default="http://dmapps")
 # the default 'from' email address used for system emails
