@@ -582,11 +582,11 @@ class TripRequest(models.Model):
         my_str = ""
         for tr_cost in self.trip_request_costs.all():
             if tr_cost.rate_cad:
-                my_str += "<b>{}</b>: ${:,.2f} ({} x {:,.2f})<br>".format(
+                my_str += "<b>{}</b>: ${:,.2f}  ({} x {:,.2f})<br>".format(
                     tr_cost.cost,
-                    nz(tr_cost.rate_cad, 0),
-                    nz(tr_cost.number_of_days, 0),
                     nz(tr_cost.amount_cad, 0),
+                    nz(tr_cost.number_of_days, 0),
+                    nz(tr_cost.rate_cad, 0),
                 )
             else:
                 my_str += "<b>{}</b>: ${:,.2f}<br> ".format(tr_cost.cost, tr_cost.amount_cad)
