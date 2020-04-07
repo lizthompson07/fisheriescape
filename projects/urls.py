@@ -22,7 +22,8 @@ urlpatterns = [
     path('project/<int:pk>/submit/popout/<int:pop>/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
     path('project/<int:pk>/notes/', views.ProjectNotesUpdateView.as_view(), name="project_notes"),
     path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
-    path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
+    # path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
+    path('recommendation/project/<int:pk>/', views.ProjectRecommendationUpdateView.as_view(), name="project_recommend"),
 
     # From management views
     ################

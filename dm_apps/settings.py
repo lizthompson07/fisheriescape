@@ -44,6 +44,8 @@ GOOGLE_API_KEY = config("GOOGLE_API_KEY", cast=str, default="")
 GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 # Should the ticketing app be displayed on the main index page?
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
+# Should the ticketing app be displayed on the main index page?
+DEVOPS_BUILD_NUMBER = config("DEVOPS_BUILD_NUMBER", cast=str, default="")
 
 # Slightly more complicated settings
 ####################################
