@@ -57,6 +57,7 @@ $.ajax({
                     ]
                 }
             }
+            licenseKey: "Z7JI-XBE53D-2A402S-134J2Z"
         });
         new Flexmonster({
             container: "#pivot-chart-container",
@@ -104,6 +105,7 @@ $.ajax({
                     }
                 }
             }
+            licenseKey: "Z7JI-XBE53D-2A402S-134J2Z"
         });
     }
 });

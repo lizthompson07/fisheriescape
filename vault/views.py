@@ -438,3 +438,86 @@ class PersonDeleteView(VaultAccessRequired, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+#
+# #
+# # # OBSERVATION #
+# # ###########
+# #
+#
+class ObservationListView(VaultAccessRequired, FilterView):
+    template_name = "vault/observation_list.html"
+    filterset_class = filters.ObservationFilter
+    queryset = models.Observation.objects.annotate(
+        search_term=Concat('id', 'outing', 'instrument', 'datetime', 'latitude', 'longitude', 'observer', 'metadata', 'opportunistic',
+                           output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Observation.objects.first()
+        context["field_list"] = [
+            'id',
+            'outing',
+            'instrument',
+            'datetime',
+            'latitude',
+            'longitude',
+            'observer',
+            'metadata',
+            'opportunistic',
+
+        ]
+        return context
+
+
+class ObservationDetailView(VaultAccessRequired, DetailView):
+    model = models.Observation
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'outing',
+            'instrument',
+            'datetime',
+            'latitude',
+            'longitude',
+            'observer',
+            'metadata',
+            'opportunistic',
+        ]
+        return context
+
+
+class ObservationUpdateView(VaultAccessRequired, UpdateView):
+    model = models.Observation
+    form_class = forms.ObservationForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Observation record successfully updated for : {my_object}"))
+        return super().form_valid(form)
+
+
+class ObservationCreateView(VaultAccessRequired, CreateView):
+    model = models.Observation
+    form_class = forms.ObservationForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Observation record successfully created for : {my_object}"))
+        return super().form_valid(form)
+
+
+class ObservationDeleteView(VaultAccessRequired, DeleteView):
+    model = models.Observation
+    permission_required = "__all__"
+    success_url = reverse_lazy('vault:observation_list')
+    success_message = 'The observation was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+

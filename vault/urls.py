@@ -57,6 +57,13 @@ urlpatterns = [
     path('person/<int:pk>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
     path('person/<int:pk>/delete/', views.PersonDeleteView.as_view(), name="person_delete"),
 
+    # # OBSERVATION #
+    path('observation-list/', views.ObservationListView.as_view(), name="observation_list"),
+    path('observation/new/', views.ObservationCreateView.as_view(), name="observation_new"),
+    path('observation/<int:pk>/view/', views.ObservationDetailView.as_view(), name="observation_detail"),
+    path('observation/<int:pk>/edit/', views.ObservationUpdateView.as_view(), name="observation_edit"),
+    path('observation/<int:pk>/delete/', views.ObservationDeleteView.as_view(), name="observation_delete"),
+
 ]
 
 

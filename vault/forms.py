@@ -26,3 +26,8 @@ class PersonForm(forms.ModelForm):
     class Meta:
         model = models.Person
         fields = "__all__"
+
+class ObservationForm(forms.ModelForm):
+    class Meta:
+        model = models.Observation
+        fields = "__all__"

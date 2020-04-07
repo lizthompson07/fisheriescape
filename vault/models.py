@@ -82,12 +82,14 @@ class MetadataField(models.Model):
         (2, _("float")),
         (3, _("string")),
     )
-    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    nom = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Name"))
+    nom = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Nom"))
     description_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("English description"))
     description_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French description"))
     data_type = models.IntegerField(choices=DATA_TYPE_CHOICES, verbose_name=_("data type"))
 
+    def __str__(self):
+        return self.name
 
 # used for defining metadata field categories, when applicable
 class MetadataFieldCategory(models.Model):
@@ -215,18 +217,24 @@ class Outing(models.Model):
         return reverse("vault:outing_detail", kwargs={"pk": self.id})
 
 class Observation(models.Model):
-    outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""))
-    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""))
-    datetime = models.DateTimeField(null=True, blank=True, verbose_name=_(""))
-    longitude = models.FloatField(null=True, blank=True, verbose_name=_(""))
-    latitude = models.FloatField(null=True, blank=True, verbose_name=_(""))
-    observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""), null=True, blank=True)
+    outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Outing"))
+    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Instrument"))
+    datetime = models.DateTimeField(null=True, blank=True, help_text="Format YYYY-MM-DD 00:00:00", verbose_name=_("Date and Time"))
+    longitude = models.FloatField(null=True, blank=True, verbose_name=_("Longitude"))
+    latitude = models.FloatField(null=True, blank=True, verbose_name=_("Latitude"))
+    observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Observer"), null=True, blank=True)
     metadata = models.ManyToManyField(MetadataField, through="ObservationMetadatum")
     opportunistic = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.outing.identifier_string
+
+    def get_absolute_url(self):
+        return reverse("vault:observation_detail", kwargs={"pk": self.id})
+
 class ObservationMetadatum(models.Model):
-    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_metadata", verbose_name=_(""))
-    metadata_field = models.ForeignKey(MetadataField, on_delete=models.CASCADE, related_name="observation_metadata")
+    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_metadata", verbose_name=_("Observation"))
+    metadata_field = models.ForeignKey(MetadataField, on_delete=models.CASCADE, related_name="observation_metadata", verbose_name=_("Metadata field"))
     value = models.CharField(max_length=1000)
 
 
