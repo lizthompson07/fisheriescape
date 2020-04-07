@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
+
 class Species(models.Model):
     code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("Internal code"), unique=True)
     english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("English name"))
@@ -211,7 +212,7 @@ class Outing(models.Model):
         return self.identifier_string
 
     def get_absolute_url(self):
-        return reverse("vault:outing_detail", kwargs={"pk":self.id})
+        return reverse("vault:outing_detail", kwargs={"pk": self.id})
 
 class Observation(models.Model):
     outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""))
