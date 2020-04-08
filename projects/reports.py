@@ -317,12 +317,12 @@ class CovidReport(StdReport):
             sheet.write(row, 1, project.pk, row_format[1])
             sheet.write(row, 2, project.section.division.tname, row_format[2])
             sheet.write(row, 3, project.section.tname, row_format[3])
-            sheet.write(row, 4, project.activity_type.name, row_format[4])
+            sheet.write(row, 4, project.activity_type.name if project.activity_type else "", row_format[4])
             sheet.write(row, 5, dfo_staff.count(), row_format[5])
             sheet.write(row, 6, non_dfo_staff.count(), row_format[6])
 
-            sheet.write(row, 8, project.start_date.strftime("%Y-%m-%d"), row_format[8])
-            sheet.write(row, 9, project.end_date.strftime("%Y-%m-%d"), row_format[9])
+            sheet.write(row, 8, project.start_date.strftime("%Y-%m-%d") if project.start_date else "", row_format[8])
+            sheet.write(row, 9, project.end_date.strftime("%Y-%m-%d") if project.end_date else "", row_format[9])
 
             sheet.write(row, 16, travel, row_format[16])
             row += 1
