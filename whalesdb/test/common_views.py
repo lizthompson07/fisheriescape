@@ -18,7 +18,7 @@ class CommonFormTest(TestCase):
     form_class = None
     test_factory = None
 
-    fixtures = ['initial_data.json']
+    fixtures = ['employee_type.json']
 
     def setUp(self) -> None:
         activate('en')
@@ -33,7 +33,7 @@ class CommonFormTest(TestCase):
 # a redirect if permissions are required to access a view
 ###########################################################################################
 class CommonTest(TestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['employee_type.json']
 
     test_url = None
     test_expected_template = None

@@ -1,6 +1,7 @@
 from copy import deepcopy
 from lib.functions.custom_functions import fiscal_year
 
+import datetime
 import html2text as html2text
 import xlsxwriter as xlsxwriter
 from django.conf import settings
@@ -30,6 +31,7 @@ class StdReport:
             'border': 1,
             'border_color': 'black',
             "align": 'center',
+            "valign": 'top',
             "text_wrap": True
         },
         "col_header": {
@@ -46,6 +48,10 @@ class StdReport:
             "text_wrap": True,
             "border": 0,
             "border_color": 'black',
+        },
+        "date_format": {
+            'num_format': "yy-mm-dd",
+            'align': 'left',
         }
     }
 
@@ -53,11 +59,39 @@ class StdReport:
 
     __workbook__ = None
 
-    __sections__ = None
+    __sheets__ = []
+
+    report_sections = "None"
+    report_divisions = "None"
+    report_regions = "None"
+    report_fiscal_year = "None"
+
+    def __init__(self, regions="None", divisions="None", sections="None", fiscal_year="None"):
+        self.report_regions = regions
+        self.report_divisions = divisions
+        self.report_sections = sections
+        self.report_fiscal_year = fiscal_year
+
+    def get_section_list(self):
+        # need to assemble a section list
+        #  first look at the sections arg; if not null, we don't need anything else
+        if self.report_sections != "None":
+            section_list = shared_models.Section.objects.filter(id__in=self.report_sections.split(","))
+        #  next look at the divisions arg; if not null, we don't need anything else
+        elif self.report_divisions != "None":
+            section_list = shared_models.Section.objects.filter(division_id__in=self.report_divisions.split(","))
+        #  next look at the divisions arg; if not null, we don't need anything else
+        elif self.report_regions != "None":
+            section_list = shared_models.Section.objects.filter(
+                division__branch__region_id__in=self.report_regions.split(","))
+        else:
+            section_list = shared_models.Section.objects.all()
+
+        return section_list
 
     def get_workbook(self) -> xlsxwriter.Workbook:
         if not self.__workbook__:
-            self.__workbook__ = xlsxwriter.Workbook(self.target_file_path)
+            self.__workbook__ = xlsxwriter.Workbook(self.target_file_path, {'remove_timezone': True})
 
         return self.__workbook__
 
@@ -66,10 +100,11 @@ class StdReport:
         if not sheet:
             sheet = self.get_workbook().add_worksheet(name=title)
 
-        return sheet
+            sheets = [s['title'] for s in self.__sheets__]
+            if title not in sheets:
+                self.__sheets__.append({"title": title})
 
-    def get_sections(self) -> list:
-        return self.__sections__
+        return sheet
 
     def get_format(self, format_name):
         # For some reason sometimes StdReport keeps a reference to wb_format, so it might remember a format, but
@@ -78,6 +113,57 @@ class StdReport:
             self.wb_format[format_name] = self.get_workbook().add_format(self.formats[format_name])
 
         return self.wb_format[format_name]
+
+    def create_headers(self):
+
+        sec_head = self.get_format("section_header")
+        col_head = self.get_format("col_header")
+        nor_text = self.get_format("normal_text")
+
+        for i in range(0, len(self.__sheets__)):
+            sh = self.__sheets__[i]
+            sheet = self.get_worksheet(title=sh['title'])
+
+            running_col_idx = 0
+            for i in range(0, len(sh['sub'])):
+                sec = sh['sub'][i]
+                subsec = sec['sub'] if 'sub' in sec else None
+
+                if subsec:
+                    for s in subsec:
+                        sheet.set_column(running_col_idx, running_col_idx,
+                                         (s['width'] if 'width' in s else 20),
+                                         (self.get_format(s["format"]) if "format" in s else nor_text)
+                                         )
+
+                    if len(subsec) > 1:
+                        sheet.merge_range(0, running_col_idx, 0, running_col_idx + (len(subsec) - 1), sec['title'],
+                                          sec_head)
+                    else:
+                        sheet.write_row(0, running_col_idx, [sec['title']], sec_head)
+
+                    subsec_array = [s["title"] for s in subsec]
+                    sheet.write_row(1, running_col_idx, subsec_array, col_head)
+
+                else:
+                    sheet.set_column(running_col_idx, running_col_idx,
+                                     (sec['width'] if 'width' in sec else 20),
+                                     (self.get_format(sec["format"]) if "format" in sec else nor_text)
+                                     )
+                    # if the section has no sub-sections, merge it with the column heading row
+                    sheet.merge_range(0, running_col_idx, 1, running_col_idx, sec['title'], sec_head)
+
+                running_col_idx += len(subsec) if subsec else 1
+
+    def add_section(self, section, worksheet='Sheet1'):
+        # create the worksheet if it doesn't exist and make sure it's added to the __sheets__ array
+        sheet = self.get_worksheet(title=worksheet)
+
+        sheet_meta = self.__sheets__[self.get_workbook().worksheets().index(sheet)]
+        if 'sub' not in sheet_meta:
+            sheet_meta['sub'] = list()
+
+        sheet_meta['sub'].append(section)
 
 
 class CovidReport(StdReport):
@@ -88,7 +174,7 @@ class CovidReport(StdReport):
             "sub": [
                 {
                     "title": "Project/Activity title",
-                    "width": 500
+                    "width": 50
                 },
                 {
                     "title": "Project ID",
@@ -113,9 +199,11 @@ class CovidReport(StdReport):
                 },
                 {
                     "title": "Original start date",
+                    "format": "date_format"
                 },
                 {
                     "title": "Original end date",
+                    "format": "date_format"
                 },
             ]
         },
@@ -180,84 +268,63 @@ class CovidReport(StdReport):
         }
     ]
 
-    sheets = [
+    __sheets__ = [
         {
             "title": "COVID Assessment",
             "sub": __sections__
         }
     ]
 
-    def create_worksheets(self):
-
-        sec_head = self.get_format("section_header")
-        col_head = self.get_format("col_header")
-        nor_text = self.get_format("normal_text")
-
-        sh = self.sheets[0]
-        sheet = self.get_worksheet(title=sh['title'])
-
-        running_col_idx = 0
-        for i in range(0, len(sh['sub'])):
-            sec = sh['sub'][i]
-            subsec = sec['sub']
-
-            for s in subsec:
-                sheet.set_column(running_col_idx, running_col_idx,
-                                 (s['width'] if 'width' in s else 20),
-                                 (s["format"] if "format" in s else nor_text)
-                                 )
-
-            if len(subsec) > 1:
-                sheet.merge_range(0, running_col_idx, 0, running_col_idx + (len(subsec)-1), sec['title'],
-                                  sec_head)
-            else:
-                sheet.write_row(0, running_col_idx, [sec['title']], sec_head)
-
-            subsec_array = [s["title"] for s in subsec]
-            sheet.write_row(1, running_col_idx, subsec_array, col_head)
-
-            running_col_idx += len(subsec)
-
-    sections = "None"
-    divisions = "None"
-    regions = "None"
-    fiscal_year = "None"
-
     def generate_spread_sheet(self):
-        self.create_worksheets()
-
-        section_list = None
-        project_list = models.Project.objects.all()
-
-        # need to assemble a section list
-        #  first look at the sections arg; if not null, we don't need anything else
-        if self.sections != "None":
-            section_list = shared_models.Section.objects.filter(id__in=self.sections.split(","))
-        #  next look at the divisions arg; if not null, we don't need anything else
-        elif self.divisions != "None":
-            section_list = shared_models.Section.objects.filter(division_id__in=self.divisions.split(","))
-        #  next look at the divisions arg; if not null, we don't need anything else
-        elif self.regions != "None":
-            section_list = shared_models.Section.objects.filter(division__branch__region_id__in=self.regions.split(","))
-        else:
-            section_list = shared_models.Section.objects.all()
-
-        if section_list:
-            project_list = project_list(section__in=section_list)
-
-        if self.fiscal_year is not "None":
-            project_list = project_list.filter(year=self.fiscal_year)
+        self.create_headers()
 
         # start on row 2 because sections is row 0, subsections is row 1
         row = 2
-        sheet = self.get_worksheet(title=self.sheets[0]["title"])
-        for project in project_list:
-            data = [
-                project.project_title,
-                project.pk
-            ]
+        sheet = self.get_worksheet(title=self.__sheets__[0]["title"])
+        row_format = list()
+        for s in self.__sections__:
+            if "sub" in s:
+                for c in s["sub"]:
+                    if "width" in c:
+                        col_idx = len(row_format)
+                        sheet.set_column(col_idx, col_idx, width=c["width"])
+                    row_format.append(self.get_format(c["format"] if "format" in c else "normal_text"))
+            else:
+                if "width" in s:
+                    col_idx = len(row_format)
+                    sheet.set_column(col_idx, col_idx, width=c["width"])
+                row_format.append(self.get_format(s["format"] if "format" in s else "normal_text"))
 
-            sheet.write_row(row, 0, data)
+        section_list = self.get_section_list()
+
+        project_list = models.Project.objects.all()
+
+        if section_list:
+            project_list = project_list.filter(section__in=section_list)
+
+        if self.report_fiscal_year is not "None":
+            project_list = project_list.filter(year=self.report_fiscal_year)
+
+        for project in project_list:
+
+            staff = project.staff_members.all()
+            dfo_staff = staff.filter(employee_type__cost_type=1)
+            non_dfo_staff = staff.filter(employee_type__cost_type=2)
+
+            travel = "yes" if project.om_costs.filter(om_category__group=1, budget_requested__gt=0) else "No"
+
+            sheet.write(row, 0, project.project_title, row_format[0])
+            sheet.write(row, 1, project.pk, row_format[1])
+            sheet.write(row, 2, project.section.division.tname, row_format[2])
+            sheet.write(row, 3, project.section.tname, row_format[3])
+            sheet.write(row, 4, project.activity_type.name, row_format[4])
+            sheet.write(row, 5, dfo_staff.count(), row_format[5])
+            sheet.write(row, 6, non_dfo_staff.count(), row_format[6])
+
+            sheet.write(row, 8, project.start_date.strftime("%Y-%m-%d"), row_format[8])
+            sheet.write(row, 9, project.end_date.strftime("%Y-%m-%d"), row_format[9])
+
+            sheet.write(row, 16, travel, row_format[16])
             row += 1
 
         self.get_workbook().close()
