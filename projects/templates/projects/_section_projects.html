@@ -10,7 +10,7 @@
 
 <div class="projects">
     <div class="mb-3">
-        <h2>{% trans "By Approval Status" %}</h2>
+        <h2>{% trans "By Recommendation Status" %}</h2>
     </div>
 
     <div class="row">
@@ -19,7 +19,7 @@
                 <h5>
                     <a href="#project-list-1" data-toggle="collapse">
 
-                        {% trans "Submitted & Approved" %} ({{ really_approved_projects.count }})
+                        {% trans "Recommended" %} ({{ recommended_projects.count }})
                     </a>
                 </h5>
             </div>
@@ -27,18 +27,18 @@
                 <table class="table table-sm table-hover project-table sortable">
                     <thead>
                     {% for field in field_list %}
-                        <th>{% get_verbose_label object_list.first field %}</th>
+                        <th>{% get_verbose_label random_project field %}</th>
                     {% endfor %}
                     </thead>
-                    {% for object in really_approved_projects %}
+                    {% for object in recommended_projects %}
                         <tr pop href="{% url 'projects:project_overview' object.id 1 %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
                             <td style="width: 100px">
-                                <a href="#" pop-href="{% url 'projects:project_approve' object.id %}"
+                                <a href="#" pop-href="{% url 'projects:project_recommend' object.id %}"
                                    class="stop-pop btn btn-xsm btn-danger">
-                                    {% trans "unapprove" %}
+                                    {% trans "un-recommend" %}
                                 </a>
                             </td>
                         </tr>
@@ -61,8 +61,8 @@
 
                 <h5>
                     <a href="#project-list-2" data-toggle="collapse">
-                    <span class="{% if unapproved_projects.count > 0 %}red-font{% endif %}">
-                        {% trans "Submitted & Unapproved" %} ({{ unapproved_projects.count }})
+                    <span class="{% if unrecommended_projects.count > 0 %}red-font{% endif %}">
+                        {% trans "Not Recommended" %} ({{ unrecommended_projects.count }})
                     </span>
                     </a>
                 </h5>
@@ -71,23 +71,23 @@
                 <table class="table table-sm table-hover project-table sortable">
                     <thead>
                     {% for field in field_list %}
-                        <th>{% get_verbose_label object_list.first field %}</th>
+                        <th>{% get_verbose_label random_project field %}</th>
                     {% endfor %}
                     </thead>
-                    {% for object in unapproved_projects %}
+                    {% for object in unrecommended_projects %}
                         <tr pop href="{% url 'projects:project_overview' object.id 1 %}">
                             {% for field in field_list %}
                                 <td>{% get_field_value object field %}</td>
                             {% endfor %}
-                            <td style="width: 150px">
+                            <td style="width: 200px">
                                 <a href="#" pop-href="{% url 'projects:project_submit' object.id 1 %}"
                                    class="stop-pop btn btn-xsm btn-warning">
                                     {% trans "un-submit" %}
                                 </a>
 
-                                <a href="#" pop-href="{% url 'projects:project_approve' object.id %}"
+                                <a href="#" pop-href="{% url 'projects:project_recommend' object.id %}"
                                    class="stop-pop btn btn-xsm btn-success">
-                                    {% trans "approve" %}
+                                    {% trans "recommend" %}
                                 </a>
                             </td>
                         </tr>
@@ -119,7 +119,7 @@
                 <table class="table table-sm table-hover project-table sortable">
                     <thead>
                     {% for field in field_list %}
-                        <th>{% get_verbose_label object_list.first field %}</th>
+                        <th>{% get_verbose_label random_project field %}</th>
                     {% endfor %}
                     </thead>
                     {% for object in unsubmitted_projects %}

@@ -76,6 +76,7 @@ class ProjectForm(forms.ModelForm):
             'approved',
             'meeting_notes',
             'programs',
+            "recommended_for_funding",
         ]
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
@@ -181,17 +182,19 @@ class NoteForm(forms.ModelForm):
         }
 
 
-class ProjectApprovalForm(forms.ModelForm):
+class ProjectRecommendationForm(forms.ModelForm):
     class Meta:
         model = models.Project
         fields = [
             'last_modified_by',
             'meeting_notes',
-            'approved',
+            # 'approved',
+            "recommended_for_funding",
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'approved': forms.HiddenInput(),
+            # 'approved': forms.HiddenInput(),
+            'recommended_for_funding': forms.HiddenInput(),
         }
 
 
@@ -228,7 +231,7 @@ class AdminStaffForm(forms.ModelForm):
 class AdminProjectProgramForm(forms.ModelForm):
     class Meta:
         model = models.Project
-        fields = ["project_title", "programs", "approved", "meeting_notes"]
+        fields = ["project_title", "programs", "recommended_for_funding", "approved", "meeting_notes"]
 
         widgets = {
             'programs': forms.SelectMultiple(attrs=chosen_js),
@@ -666,8 +669,6 @@ class FileForm(forms.ModelForm):
         }
 
 
-
-
 class IWForm(forms.Form):
     fiscal_year = forms.ChoiceField(label=_("Fiscal year"), widget=forms.Select(attrs=chosen_js), required=True)
     region = forms.ChoiceField(label=_("Region"), widget=forms.Select(attrs=chosen_js), required=False)
@@ -677,17 +678,13 @@ class IWForm(forms.Form):
     def __init__(self, *args, **kwargs):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
 
-
         super().__init__(*args, **kwargs)
-
 
         region_choices = views.get_region_choices()
         region_choices.insert(0, tuple((None, "---")))
 
         division_choices = views.get_division_choices()
         section_choices = views.get_section_choices(full_name=False)
-
-
 
         # if there is a region, we should limit the divisions and sections
         if kwargs.get("initial"):

@@ -65,3 +65,12 @@ def copy_over_project_codes():
         p.existing_project_codes.add(p.existing_project_code)
 
 
+
+def recommend_approved_projects():
+    projects = models.Project.objects.filter(approved=True)
+
+    for p in projects:
+        p.recommended_for_funding = True
+        p.approved = False
+        p.save()
+

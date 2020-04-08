@@ -369,6 +369,7 @@ class Project(models.Model):
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
     # approved = models.BooleanField(default=False, verbose_name=_("approved"))
     approved = models.BooleanField(default=False, verbose_name=_("approved"))
+    recommended_for_funding = models.BooleanField(default=False, verbose_name=_("recommended"))
     # section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
 
     # manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))

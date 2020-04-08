@@ -5,6 +5,10 @@
 {% load i18n %}
 {% block header %}
 {% endblock %}
+{% block subtitle %}
+    - {% if object %}    {{ object }}{% else %}    {% trans "New Trip" %}{% endif %}
+{% endblock %}
+
 {% block content %}
 
 
@@ -19,11 +23,11 @@
             {% if object %}
                 <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Edit" %}
+                    {% trans "Edit" %}
                 </li>
             {% else %}
                 <li class="breadcrumb-item active" aria-current="page">
-                {% trans "New" %}
+                    {% trans "New" %}
                 </li>
             {% endif %}
         </ol>
@@ -35,7 +39,7 @@
             {% if object %}
                 {{ object }}
             {% else %}
-                New Trip
+                {% trans "New Trip" %}
             {% endif %}
         </h1>
 
@@ -45,7 +49,21 @@
             {% csrf_token %}
             {% bootstrap_form_errors form %}
             {% for field in form %}
-
+                {% if field.name == "name" %}
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading blink-me mb-3">
+                            {% trans "Important:" %}
+                        </h4>
+                        <p>
+                            {% trans "With exception of words like DFO and ICES, please do not use undefined acronyms in trip titles!!!" %}
+                            <br>
+                            <br>
+                            <img src="{% static 'admin/img/icon-no.svg' %}" alt=""> "ICES ASC 2020"
+                            <br>
+                            <img src="{% static 'admin/img/icon-yes.svg' %}" alt=""> "ICES Annual Science Conference (ASC) 2020"
+                        </p>
+                    </div>
+                {% endif %}
 
                 {% if field.name in help_text_dict and "_date" not in field.name %}
                     {% bootstrap_label field.label %}
@@ -58,10 +76,6 @@
                 {% else %}
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
-
-
-{#                {% bootstrap_field field placeholder="" %}#}
-
             {% endfor %}
 
 
@@ -69,12 +83,12 @@
                 {% if object %}
                     <button type="submit" class="btn btn-success">Update</button>
                     <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">
-                    {% trans "Cancel" %}
+                        {% trans "Cancel" %}
                     </a>
                 {% else %}
                     <button type="submit" class="btn btn-success">Add</button>
                     <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">
-                    {% trans "Cancel" %}
+                        {% trans "Cancel" %}
                     </a>
                 {% endif %}
 
@@ -99,9 +113,6 @@
             $("#id_email").val(userObj[myId]["email"]);
         }
 
-        
-
-
 
         $("#id_user").change(function () {
             refreshUserInfo();
@@ -121,8 +132,6 @@
             // Stuff to do as soon as the DOM is ready
             refreshUserInfo();
         });
-
-
 
 
     </script>

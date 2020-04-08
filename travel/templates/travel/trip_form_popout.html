@@ -3,7 +3,8 @@
 {% load bootstrap4 %}
 {% load i18n %}
 
-
+{% load static %}
+{% load custom_filters %}
 
 {% block body %}
 
@@ -26,7 +27,37 @@
             {% csrf_token %}
 
             {% for field in form %}
-                {% bootstrap_field field placeholder="" size="small" %}
+                {% if field.name == "name" %}
+                   <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading blink-me mb-3">
+                            {% trans "Important:" %}
+                        </h4>
+                        <p>
+                            {% trans "With exception of words like DFO and ICES, please do not use undefined acronyms in trip titles!!!" %}
+                            <br>
+                            <br>
+                            <img src="{% static 'admin/img/icon-no.svg' %}" alt=""> "ICES ASC 2020"
+                            <br>
+                            <img src="{% static 'admin/img/icon-yes.svg' %}" alt=""> "ICES Annual Science Conference (ASC) 2020"
+                        </p>
+                    </div>
+                {% endif %}
+
+
+
+                {% if field.name in help_text_dict and "_date" not in field.name %}
+                    {% bootstrap_label field.label %}
+                    {% with help_text_dict|lookup:field.name as help_text %}
+                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                             title="{{ field.label }}"
+                             data-content="{{ help_text }}">
+                        {% bootstrap_field field placeholder="" show_label=False %}
+                    {% endwith %}
+                {% else %}
+                    {% bootstrap_field field placeholder="" %}
+                {% endif %}
+
+{#                {% bootstrap_field field placeholder="" size="small" %}#}
             {% endfor %}
 
             {% buttons %}
@@ -45,7 +76,7 @@
 {% block body_js %}
 
     <script type="application/javascript">
-                window.resizeTo(width = 700, height = 900);
+        window.resizeTo(width = 700, height = 900);
 
     </script>
 {% endblock %}

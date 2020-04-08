@@ -569,11 +569,11 @@ class MyProjectListView(LoginRequiredMixin, FilterView):
 
         staff_instances = self.request.user.staff_instances.filter(project__year=fy)
         context['fte_approved_projects'] = staff_instances.filter(
-            project__approved=True, project__submitted=True
+            project__recommended_for_funding=True, project__submitted=True
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
         context['fte_unapproved_projects'] = staff_instances.filter(
-            project__approved=False, project__submitted=True
+            project__recommended_for_funding=False, project__submitted=True
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
         context['fte_unsubmitted_projects'] = staff_instances.filter(
             project__submitted=False
@@ -587,6 +587,7 @@ class MyProjectListView(LoginRequiredMixin, FilterView):
         context["project_field_list"] = [
             "year",
             "submitted|{}".format("Submitted"),
+            "recommended_for_funding",
             "approved",
             "section|Section",
             "project_title",
@@ -617,6 +618,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context["random_project"] = models.Project.objects.first()
         context["field_list"] = [
             "project_title",
             "functional_group",
@@ -627,47 +629,57 @@ class SectionListView(LoginRequiredMixin, FilterView):
             "project_leads|{}".format("Leads"),
             "status_report_count|{}".format(_("Status reports")),
         ]
+        # we do this so that we are only grabbing the objects that are passing through the filter
+        object_list = context.get("object_list")
+        try:
+            context['region'] = object_list.first().section.division.branch.region
+        except (ValueError, AttributeError):
+            # it is possible the object list is empty. in that case, grab the first instance from the qs
+            context['region'] = self.get_queryset().first().section.division.branch.region
 
-        object_list = self.get_queryset()
-        context['region'] = object_list.first().section.division.branch.region
         section = shared_models.Section.objects.get(pk=self.kwargs.get("section"))
         fy = object_list.first().year if object_list.count() > 0 else None
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['unapproved_projects'] = object_list.filter(approved=False, submitted=True)
+        context['unrecommended_projects'] = object_list.filter(recommended_for_funding=False, submitted=True)
         context['unsubmitted_projects'] = object_list.filter(submitted=False)
 
+
+        # CAN PROBABLY DELETE THIS
         # in FY 2021, MAR Region is looking at only submitted projects (don't care about approved status for now)
         # This should be delete once the process in both regions is the same
-        really_approved_projects = object_list.filter(approved=True, submitted=True)
-        context['really_approved_projects'] = really_approved_projects
-        if object_list.first().section.division.branch.region.id == 1:
-            approved_projects = object_list.filter(approved=True, submitted=True)
-        else:
-            approved_projects = object_list.filter(submitted=True)
+        # context['really_recommended_projects'] = really_recommended_projects
 
-        context['approved_projects'] = approved_projects
+        # if object_list.first().section.division.branch.region.id == 1:
+        #     approved_projects = object_list.filter(approved=True, submitted=True)
+        # else:
+        #     approved_projects = object_list.filter(submitted=True)
+        # approved_projects = object_list.filter(submitted=True)
+
+
+        recommended_projects = object_list.filter(recommended_for_funding=True, submitted=True)
+        context['recommended_projects'] = recommended_projects
 
         # need to create a dict for displaying projects by funding source.
         fs_dict = {}
-        funding_sources = set([project.default_funding_source for project in approved_projects])
+        funding_sources = set([project.default_funding_source for project in recommended_projects])
         for fs in funding_sources:
-            fs_dict[fs] = approved_projects.filter(default_funding_source=fs)
+            fs_dict[fs] = recommended_projects.filter(default_funding_source=fs)
         context['fs_dict'] = fs_dict
 
         # need to create a dict for displaying projects by functional group.
         fg_dict = {}
-        functional_groups = set([project.functional_group for project in approved_projects])
+        functional_groups = set([project.functional_group for project in recommended_projects])
         for fg in functional_groups:
             fg_dict[fg] = {}
-            fg_dict[fg]["projects"] = approved_projects.filter(functional_group=fg)
+            fg_dict[fg]["projects"] = recommended_projects.filter(functional_group=fg)
             fg_dict[fg]["note"] = models.Note.objects.get_or_create(section=section, functional_group=fg)[0]
         context['fg_dict'] = fg_dict
 
         # need to create a dict for displaying projects by activity type.
         at_dict = {}
-        activity_types = set([project.activity_type for project in approved_projects])
+        activity_types = set([project.activity_type for project in recommended_projects])
         for at in activity_types:
-            at_dict[at] = approved_projects.filter(activity_type=at)
+            at_dict[at] = recommended_projects.filter(activity_type=at)
         context['at_dict'] = at_dict
 
         # need to create a staff list dictionary
@@ -680,14 +692,14 @@ class SectionListView(LoginRequiredMixin, FilterView):
             user_dict[user] = {}
             user_dict[user]["qs"] = user.staff_instances.filter(
                 project__year=fy
-            ).order_by("project__submitted", "project__approved", "lead", "project__project_title")
+            ).order_by("project__submitted", "project__recommended_for_funding", "lead", "project__project_title")
 
-            user_dict[user]["fte_approved"] = user.staff_instances.filter(
-                project__approved=True, project__submitted=True, project__year=fy
+            user_dict[user]["fte_recommended"] = user.staff_instances.filter(
+                project__recommended_for_funding=True, project__submitted=True, project__year=fy
             ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
-            user_dict[user]["fte_unapproved"] = user.staff_instances.filter(
-                project__approved=False, project__submitted=True, project__year=fy
+            user_dict[user]["fte_not_recommended"] = user.staff_instances.filter(
+                project__recommended_for_funding=False, project__submitted=True, project__year=fy
             ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
             user_dict[user]["fte_unsubmitted"] = user.staff_instances.filter(
@@ -715,6 +727,14 @@ class SectionListView(LoginRequiredMixin, FilterView):
         return context
 
 
+#
+#
+#
+#
+# CAN THIS VIEW BE DELETED?????
+#
+#
+#
 class MySectionListView(LoginRequiredMixin, FilterView):
     template_name = 'projects/my_section_list.html'
     filterset_class = filters.MySectionFilter
@@ -745,6 +765,7 @@ class ProjectListView(LoginRequiredMixin, FilterView):
         context = super().get_context_data(**kwargs)
 
         context["field_list"] = [
+            "id",
             "year",
             "region",
             "division",
@@ -943,11 +964,11 @@ class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class ProjectApprovalUpdateView(CanModifyProjectRequiredMixin, UpdateView):
+class ProjectRecommendationUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Project
     template_name = "projects/project_action_form_popout.html"
     success_url = reverse_lazy("projects:close_me")
-    form_class = forms.ProjectApprovalForm
+    form_class = forms.ProjectRecommendationForm
 
     def get_initial(self):
         return {
@@ -956,18 +977,18 @@ class ProjectApprovalUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        action = _("Un-approve") if self.object.approved else _("Approve")
+        action = _("Un-recommend") if self.object.recommended_for_funding else _("Recommend")
         context["action"] = action
-        btn_color = "danger" if self.object.submitted else "success"
+        btn_color = "danger" if self.object.recommended_for_funding else "success"
         context["btn_color"] = btn_color
         return context
 
     def form_valid(self, form):
         my_object = form.save(commit=False)
-        if my_object.approved:
-            my_object.approved = False
+        if my_object.recommended_for_funding:
+            my_object.recommended_for_funding = False
         else:
-            my_object.approved = True
+            my_object.recommended_for_funding = True
         my_object.save()
         return HttpResponseRedirect(reverse('projects:close_me'))
 
@@ -1084,6 +1105,7 @@ class ProjectCloneUpdateView(ProjectUpdateView):
         new_obj.pk = None
         new_obj.submitted = False
         new_obj.approved = False
+        new_obj.recommended_for_funding = False
         new_obj.date_last_modified = timezone.now()
         new_obj.last_modified_by = self.request.user
         new_obj.save()
@@ -3137,6 +3159,7 @@ class IWGroupList(ManagerOrAdminRequiredMixin, FormView):
         project_list = models.Project.objects.filter(
             year=fy,
             submitted=True,
+            recommended_for_funding=True,
         )
         if my_section:
             project_list = project_list.filter(section=my_section)
@@ -3145,10 +3168,6 @@ class IWGroupList(ManagerOrAdminRequiredMixin, FormView):
         elif my_region:
             project_list = project_list.filter(section__division__branch__region=my_region)
 
-
-        # If GULF region, we will further refine the list of projects
-        if my_region and my_region.id == 1:
-            project_list = project_list.filter(approved=True)
 
         # This view is being retrofitted to be able to show projects by Theme/Program (instead of only by division/section)
         if self.kwargs.get("type") == "theme":
@@ -3279,7 +3298,7 @@ class IWGroupList(ManagerOrAdminRequiredMixin, FormView):
             if division != 0:
                 region = shared_models.Division.objects.get(pk=division).branch.region.id
             else:
-                region = nz(form.cleaned_data['region'],0)
+                region = nz(form.cleaned_data['region'], 0)
 
         return HttpResponseRedirect(reverse("projects:iw_group_list", kwargs={
             "region": region,
@@ -3298,7 +3317,6 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
 
         fy = shared_models.FiscalYear.objects.get(id=self.kwargs.get("fiscal_year"))
 
-
         # This view is being retrofitted to be able to show projects by Program (instead of only by section)
         if self.kwargs.get("type") == "theme":
             small_item = None
@@ -3314,8 +3332,7 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         context['functional_group'] = functional_group
 
         # assemble project_list
-        project_list = models.Project.objects.filter(year=fy, submitted=True, ).order_by("id")
-
+        project_list = models.Project.objects.filter(year=fy, submitted=True, recommended_for_funding=True).order_by("id")
 
         # apply filters from previous view
         if self.kwargs.get("region") != 0:
@@ -3341,12 +3358,6 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
         elif my_region:
             project_list = project_list.filter(section__division__branch__region=my_region)
 
-
-        # If from gulf region, filter out any un approved projects
-        if my_region.id == 1:
-            project_list = project_list.filter(
-                approved=True,
-            )
 
         if self.kwargs.get("type") == "theme":
             project_list = project_list.filter(section__division__branch__region=my_region)
