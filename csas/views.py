@@ -210,6 +210,9 @@ class ContactsEntry(CsasCreateCommon):
     # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.ContactForm
 
+    def get_success_url(self):
+        return reverse_lazy("csas:list_con")
+
 
 class ContactsUpdate(CsasUpdateCommon):
     # The title to use on the Update form
@@ -218,6 +221,13 @@ class ContactsUpdate(CsasUpdateCommon):
     model = models.ConContact
     # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.ContactForm
+
+    def get_success_url(self):
+
+        if "pop" in self.kwargs:
+            return reverse_lazy("shared_models:close_me")
+
+        return reverse_lazy("csas:details_con", args=(self.object.pk,))
 
 
 class ContactsList(CsasListCommon):
