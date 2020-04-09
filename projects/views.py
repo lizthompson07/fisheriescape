@@ -2500,6 +2500,13 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
                 'sections': sections,
                 'omcatagory': omcatagory,
             }))
+        elif report == 21:
+            return HttpResponseRedirect(reverse("projects:xls_covid", kwargs={
+                'fiscal_year': fiscal_year,
+                'regions': regions,
+                'divisions': divisions,
+                'sections': sections,
+            }))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("projects:report_search"))
@@ -2637,6 +2644,26 @@ class PDFFundingReport(PDFReportTemplate):
             context['project_leads'][project.pk] = listrify(
                 [(l.user if l.user else l.name) for l in project.staff_members.all().filter(lead=True)])
         return context
+
+
+def covid_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None):
+    # sections arg will be coming in as None from the my_section view
+    if regions is None:
+        regions = "None"
+    if divisions is None:
+        divisions = "None"
+    if sections is None:
+        sections = "None"
+
+    covid_rpt = reports.CovidReport(regions=regions, divisions=divisions, sections=sections, fiscal_year=fiscal_year)
+    covid_rpt.generate_spread_sheet()
+
+    if os.path.exists(covid_rpt.target_url):
+        with open(covid_rpt.target_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="{} covid.xlsx"'.format(fiscal_year)
+            return response
+    raise Http404
 
 
 def funding_spreadsheet(request, fiscal_year, funding, regions=None, divisions=None, sections=None, omcatagory=None):
