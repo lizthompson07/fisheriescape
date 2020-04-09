@@ -18,7 +18,7 @@ from . import forms
 from . import filters
 from . import reports
 
-#for Dashboard 1 test
+# for Dashboard 1 test
 from django.http import JsonResponse
 from django.shortcuts import render
 from vault.models import Outing
@@ -28,19 +28,18 @@ from django.core import serializers
 def dashboard_with_pivot(request):
     return render(request, 'vault/dashboard_with_pivot.html', {})
 
+
 def pivot_data(request):
     dataset = Outing.objects.all()
     data = serializers.serialize('json', dataset)
     return JsonResponse(data, safe=False)
 
-#end Dashboard 1 test section
 
-class CloserTemplateView(TemplateView):
-    template_name = 'vault/close_me.html'
+# end Dashboard 1 test section
 
 
-def in_vault_group(user):
-    if user:
+def in_vault_admin_group(user):
+    if "vault_admin" in [g.name for g in user.groups.all()]:
         return True
 
 
@@ -48,7 +47,20 @@ class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
     def test_func(self):
-        return in_vault_group(self.request.user)
+        return True
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class VaultAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return in_vault_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -58,9 +70,9 @@ class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
 
 
 @login_required(login_url='/accounts/login_required/')
-@user_passes_test(in_vault_group, login_url='/accounts/denied/')
 def index(request):
     return render(request, 'vault/index.html')
+
 
 # #
 # # # SPECIES #
@@ -90,6 +102,7 @@ class SpeciesListView(VaultAccessRequired, FilterView):
         ]
         return context
 
+
 #
 class SpeciesDetailView(VaultAccessRequired, DetailView):
     model = models.Species
@@ -108,6 +121,7 @@ class SpeciesDetailView(VaultAccessRequired, DetailView):
         ]
         return context
 
+
 #
 class SpeciesUpdateView(VaultAccessRequired, UpdateView):
     model = models.Species
@@ -124,9 +138,10 @@ class SpeciesCreateView(VaultAccessRequired, CreateView):
     form_class = forms.SpeciesForm
 
     def form_valid(self, form):
-        my_object=form.save()
+        my_object = form.save()
         messages.success(self.request, _(f"Species record successfully created for : {my_object}"))
         return super().form_valid(form)
+
 
 class SpeciesDeleteView(VaultAccessRequired, DeleteView):
     model = models.Species
@@ -166,6 +181,7 @@ class ObservationPlatformListView(VaultAccessRequired, FilterView):
         ]
         return context
 
+
 #
 class ObservationPlatformDetailView(VaultAccessRequired, DetailView):
     model = models.ObservationPlatform
@@ -182,6 +198,7 @@ class ObservationPlatformDetailView(VaultAccessRequired, DetailView):
             'longname',
         ]
         return context
+
 
 #
 class ObservationPlatformUpdateView(VaultAccessRequired, UpdateView):
@@ -214,6 +231,7 @@ class ObservationPlatformDeleteView(VaultAccessRequired, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
 #
 # #
 # # # INSTRUMENTS #
@@ -234,10 +252,11 @@ class InstrumentListView(VaultAccessRequired, FilterView):
             'instrument_type',
             'name',
             'nom',
-            #'metadata',
+            # 'metadata',
 
         ]
         return context
+
 
 #
 class InstrumentDetailView(VaultAccessRequired, DetailView):
@@ -254,6 +273,7 @@ class InstrumentDetailView(VaultAccessRequired, DetailView):
 
         ]
         return context
+
 
 #
 class InstrumentUpdateView(VaultAccessRequired, UpdateView):
@@ -274,6 +294,7 @@ class InstrumentCreateView(VaultAccessRequired, CreateView):
         my_object = form.save()
         messages.success(self.request, _(f"Instrument record successfully created for : {my_object}"))
         return super().form_valid(form)
+
 
 class InstrumentDeleteView(VaultAccessRequired, DeleteView):
     model = models.Instrument
@@ -296,7 +317,8 @@ class OutingListView(VaultAccessRequired, FilterView):
     template_name = "vault/outing_list.html"
     filterset_class = filters.OutingFilter
     queryset = models.Outing.objects.annotate(
-        search_term=Concat('id', 'region', 'purpose', 'start_date', 'start_time', 'end_time', 'duration', 'identifier_string', 'observation_platform_id', output_field=TextField()))
+        search_term=Concat('id', 'region', 'purpose', 'start_date', 'start_time', 'end_time', 'duration', 'identifier_string',
+                           'observation_platform_id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -312,9 +334,9 @@ class OutingListView(VaultAccessRequired, FilterView):
             'duration',
             'identifier_string',
 
-
         ]
         return context
+
 
 #
 class OutingDetailView(VaultAccessRequired, DetailView):
@@ -333,9 +355,9 @@ class OutingDetailView(VaultAccessRequired, DetailView):
             'duration',
             'identifier_string',
 
-
         ]
         return context
+
 
 #
 class OutingUpdateView(VaultAccessRequired, UpdateView):
@@ -357,6 +379,7 @@ class OutingCreateView(VaultAccessRequired, CreateView):
         messages.success(self.request, _(f"Outing record successfully created for : {my_object}"))
         return super().form_valid(form)
 
+
 class OutingDeleteView(VaultAccessRequired, DeleteView):
     model = models.Outing
     permission_required = "__all__"
@@ -366,6 +389,7 @@ class OutingDeleteView(VaultAccessRequired, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
 
 #
 # #
@@ -394,6 +418,7 @@ class PersonListView(VaultAccessRequired, FilterView):
         ]
         return context
 
+
 class PersonDetailView(VaultAccessRequired, DetailView):
     model = models.Person
 
@@ -409,6 +434,7 @@ class PersonDetailView(VaultAccessRequired, DetailView):
             'roles',
         ]
         return context
+
 
 class PersonUpdateView(VaultAccessRequired, UpdateView):
     model = models.Person
@@ -428,6 +454,7 @@ class PersonCreateView(VaultAccessRequired, CreateView):
         my_object = form.save()
         messages.success(self.request, _(f"Person record successfully created for : {my_object}"))
         return super().form_valid(form)
+
 
 class PersonDeleteView(VaultAccessRequired, DeleteView):
     model = models.Person
@@ -519,5 +546,3 @@ class ObservationDeleteView(VaultAccessRequired, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
-
