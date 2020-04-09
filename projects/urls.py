@@ -197,6 +197,8 @@ urlpatterns = [
          views.funding_spreadsheet, name="xls_funding"),
     path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/omcatagory/<str:omcatagory>/',
          views.funding_spreadsheet, name="xls_funding_by_om"),
+    path('reports/covid/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.covid_spreadsheet, name="xls_covid"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
     # INTERACTIVE WORKPLANS #
