@@ -368,6 +368,7 @@ class ReportSearchForm(forms.Form):
         (1, "Master spreadsheet (MS Excel)"),
         (16, _("Feedback summary")),
         (17, _("Data management summary")),
+        (21, _("COVID Assessment")),
 
         (None, ""),
         (None, "----- Funding ------"),
