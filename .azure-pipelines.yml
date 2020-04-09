@@ -52,6 +52,11 @@ steps:
   - script: |
       pushd '$(projectRoot)'
 
+      python manage.py test shared_models.test
+
+      python manage.py loaddata projects/fixtures/om_category.json projects/fixtures/fiscal_year.json projects/fixtures/activity_type.json projects/fixtures/employee_type.json projects/fixtures/funding_source.json
+      python manage.py test projects.test
+
       # python manage.py migrate whalesdb # I don't think we need to run the migrations for whales, it's been done I think
 
       # Whales needs some initial data loaded for lookup tables for the tests to pass, on my dev machine I use a MySQL DB
@@ -60,7 +65,7 @@ steps:
       python manage.py loaddata whalesdb/fixtures/initial_data.json
 
       # run tests for shared_models and whalesdb
-      python manage.py test shared_models.test whalesdb.test
+      python manage.py test whalesdb.test
 
       # TODO: Database created in the previous step should be manually deleted here so it doesn't interfere with other testing
     condition: succeededOrFailed()
