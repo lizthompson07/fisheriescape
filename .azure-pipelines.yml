@@ -52,10 +52,26 @@ steps:
   - script: |
       pushd '$(projectRoot)'
 
+      #testing for shared_models app
       python manage.py test shared_models.test
 
+      # testing for projects app
       python manage.py loaddata projects/fixtures/om_category.json projects/fixtures/fiscal_year.json projects/fixtures/activity_type.json projects/fixtures/employee_type.json projects/fixtures/funding_source.json
       python manage.py test projects.test
+
+      # testing for travel app
+      python manage.py loaddata \
+      travel/fixtures/travel_cost.json \
+      travel/fixtures/travel_costcategory.json \
+      travel/fixtures/travel_helptext.json \
+      travel/fixtures/travel_njcrates.json \
+      travel/fixtures/travel_purpose.json \
+      travel/fixtures/travel_reason.json \
+      travel/fixtures/travel_reviewerrole.json \
+      travel/fixtures/travel_role.json \
+      travel/fixtures/travel_status.json \
+      travel/fixtures/shared_models_fiscalyear.json
+      python manage.py test travel.test
 
       # python manage.py migrate whalesdb # I don't think we need to run the migrations for whales, it's been done I think
 
