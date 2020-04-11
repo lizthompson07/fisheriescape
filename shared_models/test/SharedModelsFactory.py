@@ -18,8 +18,8 @@ class UserFactory(factory.django.DjangoModelFactory):
     password = test_password
 
     @staticmethod
-    def test_password():
-        return "test1234"
+    def get_test_password():
+        return test_password
 
     @staticmethod
     def get_fresh_data():
