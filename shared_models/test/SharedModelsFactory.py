@@ -2,9 +2,11 @@ import factory
 from django.contrib.auth.models import User
 from faker import Faker
 from shared_models import models as shared_models
+from django.contrib.auth.hashers import make_password
 
 faker = Faker()
 test_password = "test1234"
+
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -15,7 +17,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     last_name = faker.last_name()
     email = f"{first_name}.{last_name}@dfo-mpo.gc.ca"
     username = email
-    password = test_password
+    password = make_password(test_password)
 
     @staticmethod
     def get_test_password():
@@ -32,10 +34,8 @@ class UserFactory(factory.django.DjangoModelFactory):
             "last_name": last_name,
             "email": email,
             "username": email,
-            "password": test_password,
+            "password": make_password(test_password),
         }
-
-
 
 
 class SectionFactory(factory.django.DjangoModelFactory):
@@ -59,4 +59,3 @@ class SectionFactory(factory.django.DjangoModelFactory):
             "username": email,
             "password": "test1234",
         }
-
