@@ -58,7 +58,8 @@ class CommonTest(TestCase):
     # use when a user needs to be logged in.
     def get_and_login_regular_user(self):
         user = UserFactory(**UserFactory.get_fresh_data())
-        self.client.login(username=user.username, password=UserFactory.get_test_password())
+        login_successful = self.client.login(username=user.username, password=UserFactory.get_test_password())
+        self.assertEqual(login_successful, True)
         return user
 
     # use when a user needs to be logged in.
@@ -66,7 +67,8 @@ class CommonTest(TestCase):
         user = UserFactory(**UserFactory.get_fresh_data())
         travel_admin_group = Group(name="travel_admin")
         user.groups.add(travel_admin_group)
-        self.client.login(username=user.username, password=UserFactory.get_test_password())
+        login_successful = self.client.login(username=user.username, password=UserFactory.get_test_password())
+        self.assertEqual(login_successful, True)
         return user
 
     # use when a user needs to be logged in.
@@ -74,7 +76,8 @@ class CommonTest(TestCase):
         user = UserFactory(**UserFactory.get_fresh_data())
         travel_admin_adm_group = Group(name="travel_admin_adm")
         user.groups.add(travel_admin_adm_group)
-        self.client.login(username=user.username, password=UserFactory.get_test_password())
+        login_successful = self.client.login(username=user.username, password=UserFactory.get_test_password())
+        self.assertEqual(login_successful, True)
         return user
 
     # at this point there is nothing to check across all context vars

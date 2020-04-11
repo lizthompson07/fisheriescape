@@ -51,8 +51,8 @@ class TestIndexView(CommonTest):
         self.assertEqual(response.context["is_reviewer"], False)
 
         # let's test what happens with someone is a reviewer
-        reg_user = self.get_and_login_regular_user()
+        # admi_user = self.get_and_login_regular_user()
         #
-        my_trip = TripFactory()
-        my_trip.save()
+        # my_trip = TripFactory()
+        # my_trip.save()
 
