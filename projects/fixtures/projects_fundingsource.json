@@ -1,0 +1,425 @@
+[
+  {
+    "model": "projects.fundingsource",
+    "pk": 39,
+    "fields": {
+      "name": "ACCASP",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 35,
+    "fields": {
+      "name": "AIS",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 49,
+    "fields": {
+      "name": "Aquaculture Monitoring",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 48,
+    "fields": {
+      "name": "Bill C-68",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 1,
+    "fields": {
+      "name": "Core",
+      "nom": "Base",
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 36,
+    "fields": {
+      "name": "ES",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 44,
+    "fields": {
+      "name": "IGS",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 20,
+    "fields": {
+      "name": "NCP",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 30,
+    "fields": {
+      "name": "OFSI",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 43,
+    "fields": {
+      "name": "OPP",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 37,
+    "fields": {
+      "name": "SAP",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 17,
+    "fields": {
+      "name": "SARA",
+      "nom": null,
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 38,
+    "fields": {
+      "name": "Uncertain",
+      "nom": "incertaine",
+      "funding_source_type": 1
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 15,
+    "fields": {
+      "name": "ACCASP",
+      "nom": "",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 6,
+    "fields": {
+      "name": "ACRDP",
+      "nom": "",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 14,
+    "fields": {
+      "name": "AEIP",
+      "nom": "",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 31,
+    "fields": {
+      "name": "AFF",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 23,
+    "fields": {
+      "name": "AIS (SPERA)",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 28,
+    "fields": {
+      "name": "AMMP",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 7,
+    "fields": {
+      "name": "Arctic Science Program (AS)",
+      "nom": "",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 25,
+    "fields": {
+      "name": "Bill C-68",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 13,
+    "fields": {
+      "name": "CAAHRD",
+      "nom": "",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 32,
+    "fields": {
+      "name": "Deputy's Reserve",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 8,
+    "fields": {
+      "name": "Ecosystem Stressors (ES) (SPERA)",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 41,
+    "fields": {
+      "name": "Fisheries Act - Freshwater",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 9,
+    "fields": {
+      "name": "FSCP",
+      "nom": "",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 10,
+    "fields": {
+      "name": "FSERP",
+      "nom": "",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 26,
+    "fields": {
+      "name": "GRDI",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 29,
+    "fields": {
+      "name": "IGS",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 22,
+    "fields": {
+      "name": "MCT (Oceans)",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 19,
+    "fields": {
+      "name": "MCT (Science)",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 18,
+    "fields": {
+      "name": "MSP",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 11,
+    "fields": {
+      "name": "National Monitoring Fund (NMF)",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 46,
+    "fields": {
+      "name": "NCP (Oceans)",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 21,
+    "fields": {
+      "name": "OPP",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 5,
+    "fields": {
+      "name": "PARR",
+      "nom": "",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 52,
+    "fields": {
+      "name": "PIER1",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 27,
+    "fields": {
+      "name": "PIER",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 45,
+    "fields": {
+      "name": "SARA",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 24,
+    "fields": {
+      "name": "SDMSC",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 4,
+    "fields": {
+      "name": "SPERA",
+      "nom": "",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 2,
+    "fields": {
+      "name": "Unspecified",
+      "nom": "non specifi\u00e9",
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 42,
+    "fields": {
+      "name": "Whale MC Funding",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 40,
+    "fields": {
+      "name": "World Class Tanker Safety",
+      "nom": null,
+      "funding_source_type": 2
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 34,
+    "fields": {
+      "name": "ACRDP",
+      "nom": null,
+      "funding_source_type": 3
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 16,
+    "fields": {
+      "name": "Snow Crab",
+      "nom": null,
+      "funding_source_type": 3
+    }
+  },
+  {
+    "model": "projects.fundingsource",
+    "pk": 3,
+    "fields": {
+      "name": "Unspecified",
+      "nom": "non specifi\u00e9",
+      "funding_source_type": 3
+    }
+  }
+]
