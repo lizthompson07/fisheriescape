@@ -102,6 +102,8 @@ ALLOWED_HOSTS = [
     'dmapps-test-web.azurewebsites.net',
     'dmapps-prod-web.azurewebsites.net',
     'dmapps-prod-web-staging.azurewebsites.net',
+    'sci-zone.azure.cloud.dfo-mpo.gc.ca',
+    'sci-zone.dfo-mpo.gc.ca',
 ]
 ALLOWED_HOST_TO_ADD = config("ALLOWED_HOST_TO_ADD", cast=str, default="")
 if ALLOWED_HOST_TO_ADD != "":

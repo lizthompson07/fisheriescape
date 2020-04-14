@@ -30,7 +30,7 @@ class IndividualTripRequestFactory(factory.django.DjangoModelFactory):
     is_group_request = False
 
 
-class GroupTripRequestFactory(factory.django.DjangoModelFactory):
+class ParentTripRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.TripRequest
         django_get_or_create = ('trip', 'user', 'is_group_request')
@@ -39,6 +39,15 @@ class GroupTripRequestFactory(factory.django.DjangoModelFactory):
     section = factory.SubFactory(SectionFactory)
     user = factory.SubFactory(UserFactory)
     is_group_request = True
+
+
+class ChildTripRequestFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TripRequest
+
+    parent_request = factory.SubFactory(ParentTripRequestFactory)
+    user = factory.SubFactory(UserFactory)
+    is_group_request = False
 
 
 class ReviewerFactory(factory.django.DjangoModelFactory):
