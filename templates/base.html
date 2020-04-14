@@ -40,9 +40,9 @@
 {% block navigation %}
 {# for sites that wish to turn the navigation off, they can by calling this block with show_nav=False. If show_nav is None or True it's displayed #}
 {% if show_nav == None or show_nav %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark transparent">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark transparent py-0">
     <a class="navbar-brand bigbrand" href="{% url 'index' %}">
-        <img src="{% static 'img/icons/iconfinder_cluster-data-group-organize_2205240 - white.png' %}" width="30" height="30"
+        <img src="{% static 'img/icons/iconfinder_cluster-data-group-organize_2205240 - white.png' %}" width="30"
              class="d-inline-block align-top" alt="" data-toggle="tooltip" title="{% trans "Data Management Home" %}">
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"

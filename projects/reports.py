@@ -302,7 +302,7 @@ class CovidReport(StdReport):
         if section_list:
             project_list = project_list.filter(section__in=section_list)
 
-        if self.report_fiscal_year is not "None":
+        if self.report_fiscal_year != "None":
             project_list = project_list.filter(year=self.report_fiscal_year)
 
         for project in project_list:

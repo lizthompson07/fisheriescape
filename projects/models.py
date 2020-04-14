@@ -64,6 +64,9 @@ class Theme(models.Model):
         ordering = ['name', ]
 
 
+#
+##
+### Can this model be deleted?
 class Program(models.Model):
     is_core_choices = (
         # (None, _("Unknown")),
@@ -206,6 +209,7 @@ class FundingSource(models.Model):
 
     class Meta:
         ordering = ['funding_source_type', 'name', ]
+        unique_together = [('funding_source_type', 'name'), ]
 
 
 class Tag(models.Model):
