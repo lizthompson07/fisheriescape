@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.contrib.auth import models as django_models
 
 from projects import models
-from shared_models.test.SharedModelsFactory import UserFactory, SectionFactory
+from shared_models.test.SharedModelsFactoryFloor import UserFactory, SectionFactory
 
 faker = Factory.create()
 

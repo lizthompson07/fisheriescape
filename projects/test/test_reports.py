@@ -5,10 +5,10 @@ from django.conf import settings
 
 from projects import reports
 
-from projects.test import ProjectsFactory as Factory
+from projects.test import ProjectsFactoryFloor as Factory
 
 from shared_models import models as shared_models
-from shared_models.test.SharedModelsFactory import RegionFactory, BranchFactory, DivisionFactory, SectionFactory
+from shared_models.test.SharedModelsFactoryFloor import RegionFactory, BranchFactory, DivisionFactory, SectionFactory
 
 fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fixtures')
 standard_fixtures = [file for file in os.listdir(fixtures_dir)]

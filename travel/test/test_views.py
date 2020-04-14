@@ -2,7 +2,7 @@ from django.test import tag
 from django.urls import reverse_lazy
 from django.utils.translation import activate
 
-from travel.test.TravelFactory import ReviewerFactory
+from travel.test.TravelFactoryFloor import ReviewerFactory
 from travel.test.common_views import CommonTest
 
 
