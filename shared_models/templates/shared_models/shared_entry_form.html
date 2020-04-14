@@ -3,45 +3,56 @@
 {% load static %}
 {% load bootstrap4 %}
 
-{% block content %}<div class="container">
-    <div class="card border border-dark mt-2 pt-1">
-        <div class="card-header">
-            <h2>{% trans title %}</h2>
+{% block content %}
+    <div class="container mt-1">
+        <div class="container card border border-dark mt-2 pt-1">
+            <div class="card-header bg-transparent">
+                <h2>{% trans title %}</h2>
+            </div>
+        </div>
+
+        <div class="container card border border-dark mt-2 pt-1">
+            <div class="card-body">
+                <form method="post" class="form" enctype='multipart/form-data' >
+                    {% csrf_token %}
+
+                    <div class="row mt-2">
+                        <div class="col">
+                            <div class="row">
+                                {% for field in form %}
+                                    <div class="col-6">
+                                        {% if field.field.create_url %}
+                                            <div>
+                                                {% bootstrap_label field.label %}
+                                            </div>
+                                            <div class="row col pl-0">
+                                                <!-- <span class="col"> -->
+                                                {% bootstrap_field field placeholder="" size="small" show_label=false %}
+                                                <!-- </span><span class="col-1"> -->
+                                                <button class="btn btn-primary"
+                                                        onclick="return pop('{% url ''|add:field.field.create_url 'pop' %}',
+                                                        'id_{{field.name}}' )" >+</button>
+                                                <!-- </span> -->
+                                            </div>
+                                        {% else %}
+                                            {% bootstrap_field field placeholder="" size="small" %}
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% buttons %}
+                        <button type="submit" class="btn btn-success" onclick="saveForm();">
+                            {% trans "Submit" %}
+                        </button>
+                    {% endbuttons %}
+                </form>
+            </div>
         </div>
     </div>
-    <div class="card border border-dark mt-2 pt-1">
-        <div class="card-body">
-            <form method="post" class="form" enctype='multipart/form-data' >
-                {% csrf_token %}
-
-                {% for field in form %}
-                   {% if field.field.create_url %}
-                    <div>
-                       {% bootstrap_label field.label %}
-                    </div>
-                    <div class="row col pl-0">
-                        <span class="col">
-                        {% bootstrap_field field placeholder="" size="small" show_label=false %}
-                        </span><span class="col-1">
-                        <button class="btn btn-primary" onclick="return pop('{% url ''|add:field.field.create_url 'pop' %}', 'id_{{field.name}}' )" >+</button>
-                        </span>
-                    </div>
-                    {% else %}
-
-                   {% bootstrap_field field placeholder="" size="small" %}
-
-                   {% endif %}
-                {% endfor %}
-
-                {% buttons %}
-                    <button type="submit" class="btn btn-success" onclick="saveForm();">
-                        {% trans "Submit" %}
-                    </button>
-                {% endbuttons %}
-            </form>
-        </div>
-    </div>
-</div>{% endblock content %}
+{% endblock content %}
 
 {% block body_js %}
 
