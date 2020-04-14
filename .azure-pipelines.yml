@@ -56,7 +56,12 @@ steps:
       python manage.py test shared_models.test
 
       # testing for projects app
-      python manage.py loaddata projects/fixtures/om_category.json projects/fixtures/fiscal_year.json projects/fixtures/activity_type.json projects/fixtures/employee_type.json projects/fixtures/funding_source.json
+      python manage.py loaddata \
+      projects/fixtures/om_category.json \
+      projects/fixtures/fiscal_year.json \
+      projects/fixtures/activity_type.json \
+      projects/fixtures/employee_type.json \
+      projects/fixtures/funding_source.json
       python manage.py test projects.test
 
       # testing for travel app
