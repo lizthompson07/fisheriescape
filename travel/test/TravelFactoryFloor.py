@@ -3,7 +3,7 @@ import factory
 from django.utils import timezone
 from faker import Faker
 
-from shared_models.test.SharedModelsFactory import SectionFactory, UserFactory
+from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFactory
 from .. import models
 
 faker = Faker()
