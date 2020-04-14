@@ -1,0 +1,70 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+
+<div class="">
+    <h3>
+        {% trans "Supplier:" %}
+    </h3>
+</div>
+
+{% if object.necropsy_supplier_related.count == 0 %}
+    <em>
+        {% trans "No suppliers have been added to this entry" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th>
+                {% trans "Supplier" %}
+            </th>
+            <th>
+                {% trans "Contact Number" %}
+            </th>
+            <th>
+                {% trans "Email" %}
+            </th>
+            <th>
+                {% trans "Last Purchased on" %}
+            </th>
+              <th>
+                {% trans "Last Invoice" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.necropsy_supplier_related.all %}
+        <tr href="{% url 'mmutools:supplier_edit' obj.id %}" pop>
+            <td>
+                {{ obj.supplier }}
+            </td>
+            <td>
+                {{ obj.contact_number }}
+            </td>
+            <td>
+                {{ obj.email }}
+            </td>
+            <td>
+                {{ obj.last_purchased }}
+            </td>
+            <td>
+                {{ obj.last_invoice }}
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+<a class="" href="#"
+   onclick="return popitup('{% url 'mmutools:supplier_new' %}','popoutWindow')">
+    {% trans "(Add Supplier)" %}
+</a>
+
+<br>
+<br>
+<br>
+
+
+
+
