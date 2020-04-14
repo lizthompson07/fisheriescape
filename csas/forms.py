@@ -2,6 +2,9 @@ from django import forms
 from . import models
 from . import custom_widgets
 
+from django.forms import Textarea
+from django.contrib.auth.models import User
+
 
 class RequestForm(forms.ModelForm):
     class Meta:
@@ -10,17 +13,29 @@ class RequestForm(forms.ModelForm):
         # fields shown on screen
         # fields = ("assigned_request_ID", "title",)    # only show listed fields
         # fields = ["assigned_request_ID", "title"]     # [" "] is the same as (" ",)
-        exclude = ["assigned_req_id"]                   # show all fields except listed fields
+        superusers = User.objects.filter(is_superuser=True).values_list('username')
+        current_user = User.username
+        print(superusers, current_user, "-----------------")
+        if superusers is True:
+            exclude = []
+        else:
+            exclude = ["assigned_req_id", "adviser_submission", "rd_submission", "decision_date"]    # except listed fields
 
         # use some widgets
         widgets = {
+            "issue": Textarea(attrs={"rows": 1, "cols": 20}),
+            "rationale": Textarea(attrs={"rows": 1, "cols": 20}),
+            "rationale_for_timing": Textarea(attrs={"rows": 1, "cols": 20}),
+            "funding_notes": Textarea(attrs={"rows": 1, "cols": 20}),
             # "region": forms.Select(attrs={"class": "chosen-select-contains"})
         }
+
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.fields['program_contact'].widgets = forms.Select(choices=models.ConContact.objects.all())
-        self.fields['adviser_submission'].widgets = forms.DateField(help_text="Select date")
+        # self.fields['adviser_submission'].widgets = forms.DateField(help_text="Select date")
 
 
 class ContactForm(forms.ModelForm):
@@ -28,6 +43,7 @@ class ContactForm(forms.ModelForm):
         model = models.ConContact
         exclude = []
         widgets = {
+            "notes": Textarea(attrs={"rows": 1, "cols": 20}),
         }
 
     def __init__(self, *args, **kwargs):

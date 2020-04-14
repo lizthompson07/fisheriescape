@@ -1,11 +1,11 @@
 {% load static %}
 
 body {
-    background-image: url("{% static 'img/csas/csas_background_2.png' %}");
+    background-image: url("{% static 'img/csas/csas_background_22.webp' %}");
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
 }
 .card, .jumbotron {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.8);
 }
