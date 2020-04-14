@@ -17,7 +17,7 @@
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th>
-                {% trans "Quantity" %}
+                {% trans "Quantity Lent" %}
             </th>
             <th>
                 {% trans "Lent To" %}
@@ -30,7 +30,7 @@
         {% for obj in object.necropsy_lending_related.all %}
             <tr href="{% url 'mmutools:lending_edit' obj.id %}" pop>
                 <td>
-                    {{ obj.quantity }}
+                    {{ obj.quantity_lent }}
                 </td>
                 <td>
                     {{ obj.lent_to }}

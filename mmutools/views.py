@@ -126,7 +126,7 @@ class QuantityListView(VaultAccessRequired, FilterView):
     template_name = "mmutools/quantity_list.html"
     filterset_class = filters.QuantityFilter
     queryset = models.Quantity.objects.annotate(
-        search_term=Concat('id', 'item', 'unique_id', 'serial_number', 'quantity_oh', 'quantity_oo', 'last_audited', 'last_audited_by', 'location_stored', 'bin_id', output_field=TextField()))
+        search_term=Concat('id', 'item', 'unique_id', 'serial_number', 'quantity_oh', 'quantity_lent', 'quantity_oo', 'last_audited', 'last_audited_by', 'location_stored', 'bin_id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -137,6 +137,7 @@ class QuantityListView(VaultAccessRequired, FilterView):
             'unique_id',
             'serial_number',
             'quantity_oh',
+            'quantity_lent',
             'quantity_oo',
             'last_audited',
             'last_audited_by',
@@ -156,12 +157,12 @@ class QuantityDetailView(VaultAccessRequired, DetailView):
             'unique_id',
             'serial_number',
             'quantity_oh',
+            'quantity_lent',
             'quantity_oo',
             'last_audited',
             'last_audited_by',
             'location_stored',
             'bin_id',
-
         ]
         return context
 
@@ -404,7 +405,7 @@ class LendingListView(VaultAccessRequired, FilterView):
     template_name = "mmutools/lending_list.html"
     filterset_class = filters.LendingFilter
     queryset = models.Lending.objects.annotate(
-        search_term=Concat('id', 'item', 'quantity', 'lent_to', 'lent_date', output_field=TextField()))
+        search_term=Concat('id', 'item', 'quantity_lent', 'lent_to', 'lent_date', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -412,7 +413,7 @@ class LendingListView(VaultAccessRequired, FilterView):
         context["field_list"] = [
             'id',
             'item',
-            'quantity',
+            'quantity_lent',
             'lent_to',
             'lent_date',
 
@@ -427,7 +428,7 @@ class LendingDetailView(VaultAccessRequired, DetailView):
         context["field_list"] = [
             'id',
             'item',
-            'quantity',
+            'quantity_lent',
             'lent_to',
             'lent_date',
 

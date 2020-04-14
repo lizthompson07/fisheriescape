@@ -72,6 +72,24 @@ class Item(models.Model):
     def get_absolute_url(self):
         return reverse("mmutools:item_detail", kwargs={"pk": self.id})
 
+class Lending(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="necropsy_lending_related", related_query_name="necropsy_lendings",
+                                           verbose_name=_("Item"))
+    quantity_lent = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity Lent"))
+    lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Lent To"))
+    lent_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Lent Date"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("quantity_lent"))):
+
+            return "{}".format(getattr(self, str(_("quantity_lent"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.quantity_lent)
+
+    def get_absolute_url(self):
+        return reverse("mmutools:lending_detail", kwargs={"pk": self.id})
 
 class Quantity(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="necropsy_quantity_related", related_query_name="necropsy_quantitys",
@@ -79,6 +97,8 @@ class Quantity(models.Model):
     unique_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Unique Id"))
     serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Serial Number"))
     quantity_oh = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity on Hand"))
+    quantity_lent = models.ForeignKey(Lending, on_delete=models.DO_NOTHING, related_name="quantities",
+                                           verbose_name=_("Quantity Lent"))
     quantity_oo = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity on Order"))
     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Last Audited"))
     last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last Audited By"))
@@ -127,7 +147,8 @@ def file_directory_path(instance, filename):
 
 class File(models.Model):
     caption = models.CharField(max_length=255, verbose_name=_("caption"))
-    supplier = models.ForeignKey(Supplier, on_delete=models.DO_NOTHING, related_name="necropsy_file_related", related_query_name="necropsy_files", verbose_name=_("Supplier"))
+    supplier = models.ForeignKey(Supplier, on_delete=models.DO_NOTHING, related_name="necropsy_file_related",
+                                 related_query_name="necropsy_files", verbose_name=_("Supplier"))
     file = models.FileField(upload_to=file_directory_path, verbose_name=_("file"))
     date_uploaded = models.DateTimeField(default=timezone.now, verbose_name=_("date uploaded"))
 
@@ -167,26 +188,6 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
-
-class Lending(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="necropsy_lending_related", related_query_name="necropsy_lendings",
-                                           verbose_name=_("Item"))
-    quantity = models.ForeignKey(Quantity, on_delete=models.DO_NOTHING, related_name="quantities",
-                                           verbose_name=_("Quantity"))
-    lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Lent To"))
-    lent_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Lent Date"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("quantity"))):
-
-            return "{}".format(getattr(self, str(_("quantity"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.quantity)
-
-    def get_absolute_url(self):
-        return reverse("mmutools:lending_detail", kwargs={"pk": self.id})
 
 class Organisation(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("English name"))
