@@ -1,5 +1,5 @@
 import factory
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from faker import Faker
 from shared_models import models as shared_models
 from django.contrib.auth.hashers import make_password
@@ -8,54 +8,56 @@ faker = Faker()
 test_password = "test1234"
 
 
+class GroupFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Group
+        django_get_or_create = ('name',)
+
+    name = factory.LazyAttribute(lambda o: faker.word())
+
+
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
-        django_get_or_create = ('username',)
 
-    first_name = faker.first_name()
-    last_name = faker.last_name()
-    email = f"{first_name}.{last_name}@dfo-mpo.gc.ca"
-    username = email
+    first_name = factory.LazyAttribute(lambda o: faker.first_name())
+    last_name = factory.LazyAttribute(lambda o: faker.last_name())
+    username = factory.LazyAttribute(lambda o: f"{o.first_name}.{o.last_name}@dfo-mpo.gc.ca")
+    email = factory.LazyAttribute(lambda o: f"{o.first_name}.{o.last_name}@dfo-mpo.gc.ca")
     password = make_password(test_password)
 
     @staticmethod
     def get_test_password():
         return test_password
 
-    @staticmethod
-    def get_fresh_data():
-        first_name = faker.first_name()
-        last_name = faker.last_name()
-        email = f"{first_name}.{last_name}@dfo-mpo.gc.ca"
 
-        return {
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email,
-            "username": email,
-            "password": make_password(test_password),
-        }
+class RegionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = shared_models.Region
+
+    name = factory.LazyAttribute(lambda o: faker.word())
+
+
+class BranchFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = shared_models.Branch
+
+    region = factory.SubFactory(RegionFactory)
+    name = factory.LazyAttribute(lambda o: faker.word())
+
+
+class DivisionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = shared_models.Division
+
+    branch = factory.SubFactory(BranchFactory)
+    name = factory.LazyAttribute(lambda o: faker.word())
 
 
 class SectionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = shared_models.Section
-        django_get_or_create = ('name',)
 
-    name = faker.word()
-    head = UserFactory()
-
-    @staticmethod
-    def get_fresh_data():
-        first_name = faker.first_name()
-        last_name = faker.last_name()
-        email = f"{first_name}.{last_name}@dfo-mpo.gc.ca"
-
-        return {
-            "first_name": first_name,
-            "last_name": last_name,
-            "email": email,
-            "username": email,
-            "password": "test1234",
-        }
+    division = factory.SubFactory(DivisionFactory)
+    head = factory.SubFactory(UserFactory)
+    name = factory.LazyAttribute(lambda o: faker.word())

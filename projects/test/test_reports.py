@@ -8,12 +8,14 @@ from projects import reports
 from projects.test import ProjectsFactory as Factory
 
 from shared_models import models as shared_models
+from shared_models.test.SharedModelsFactory import RegionFactory, BranchFactory, DivisionFactory, SectionFactory
+
+fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fixtures')
+standard_fixtures = [file for file in os.listdir(fixtures_dir)]
 
 
 class StdReportTest(TestCase):
-
-    fixtures = ["om_category.json", "fiscal_year.json", "activity_type.json", "employee_type.json",
-                'funding_source.json']
+    fixtures = standard_fixtures
 
     EXPECTED_TARGET_DIR = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
     EXPECTED_TARGET_FILE = "temp_export.xlsx"
@@ -76,7 +78,7 @@ class StdReportTest(TestCase):
 
         if col_heading:
             for i in range(0, len(col_heading)):
-                self.assertEquals(strings_array._get_shared_string(string_table[1][i+offset].string),
+                self.assertEquals(strings_array._get_shared_string(string_table[1][i + offset].string),
                                   col_heading[i]["title"])
         else:
             self.assertFalse(hasattr(string_table[1][offset], "string"))
@@ -198,9 +200,7 @@ class StdReportTest(TestCase):
 
 
 class CovidReportTest(TestCase):
-
-    fixtures = ["om_category.json", "fiscal_year.json", "activity_type.json", "employee_type.json",
-                'funding_source.json']
+    fixtures = standard_fixtures
 
     report = None
 
@@ -268,12 +268,12 @@ class CovidReportTest(TestCase):
         # self.assertEqual(prj.end_date.strftime("%Y-%m-%d"), val)
 
     def create_test_data(self):
-        self.reg = Factory.RegionFactory()
-        self.bra = Factory.BranchFactory(region=self.reg)
-        self.div_1 = Factory.DivisionFactory(name="Div 1", branch=self.bra)
-        self.div_2 = Factory.DivisionFactory(name="Div 2", branch=self.bra)
-        self.sec_1 = Factory.SectionFactory(division=self.div_1)
-        self.sec_2 = Factory.SectionFactory(division=self.div_2)
+        self.reg = RegionFactory()
+        self.bra = BranchFactory(region=self.reg)
+        self.div_1 = DivisionFactory(name="Div 1", branch=self.bra)
+        self.div_2 = DivisionFactory(name="Div 2", branch=self.bra)
+        self.sec_1 = SectionFactory(division=self.div_1)
+        self.sec_2 = SectionFactory(division=self.div_2)
 
         self.fy_current = shared_models.FiscalYear.objects.get(pk=2020)
         self.fy_previous = shared_models.FiscalYear.objects.get(pk=2018)

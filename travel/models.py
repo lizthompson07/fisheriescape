@@ -446,15 +446,6 @@ class TripRequest(models.Model):
                                    null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True, blank=True)
     end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True, blank=True)
-
-    #############
-    # these two fields should be deleted eventually if the event planning peice happens through this app...
-    # has_event_template = models.NullBooleanField(default=False,
-    #                                              verbose_name=_(
-    #                                                  "Is there an event template being completed for this trip or meeting?"))
-    # event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Regional event lead"),
-    #                                related_name="trip_events", blank=True, null=True)
-    ################
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of traveller"))
 
     # purpose
@@ -512,10 +503,6 @@ class TripRequest(models.Model):
         return reverse('travel:request_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
-
-        if self.start_date:
-            self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
-
         # if the start and end dates are null, but there is a trip, use those.. to populate
         if self.trip and not self.start_date:
             # print("adding start date from trip")
@@ -523,6 +510,9 @@ class TripRequest(models.Model):
         if self.trip and not self.end_date:
             # print("adding end date from trip")
             self.end_date = self.trip.end_date
+
+        if self.start_date:
+            self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
 
         # If this is a group request, the parent record should not have any costs
         if self.is_group_request:

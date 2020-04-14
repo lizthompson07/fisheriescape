@@ -2,7 +2,7 @@ from django.test import tag
 from django.urls import reverse_lazy
 from django.utils.translation import activate
 
-from travel.test.TravelFactory import TripFactory
+from travel.test.TravelFactory import ReviewerFactory
 from travel.test.common_views import CommonTest
 
 
@@ -50,9 +50,13 @@ class TestIndexView(CommonTest):
         self.assertEqual(response.context["is_admin"], False)
         self.assertEqual(response.context["is_reviewer"], False)
 
-        # let's test what happens with someone is a reviewer
-        # admi_user = self.get_and_login_regular_user()
-        #
-        # my_trip = TripFactory()
-        # my_trip.save()
+        # if a regular user is also a reviewer, the 'is_reviewer' var should be true
+        ReviewerFactory(user=reg_user)
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.context["is_reviewer"], True)
 
+        # an admin user should be identified as such by the `is_admin` var in the template
+        self.client.logout()
+        admin_user = self.get_and_login_travel_admin_user()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.context["is_admin"], True)

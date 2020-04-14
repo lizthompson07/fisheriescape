@@ -64,6 +64,9 @@ class Theme(models.Model):
         ordering = ['name', ]
 
 
+#
+##
+### Can this model be deleted?
 class Program(models.Model):
     is_core_choices = (
         # (None, _("Unknown")),

@@ -1,21 +1,10 @@
+import os
 from django.test import TestCase
-from django.urls import reverse_lazy, resolve
 from django.utils.translation import activate
-from django.contrib.auth.models import User, Group
+from shared_models.test.SharedModelsFactory import UserFactory, GroupFactory
 
-from shared_models.test.SharedModelsFactory import UserFactory
-
-standard_fixtures = [
-    'travel_cost.json',
-    'travel_costcategory.json',
-    'travel_helptext.json',
-    'travel_njcrates.json',
-    'travel_purpose.json',
-    'travel_reason.json',
-    'travel_reviewerrole.json',
-    'travel_role.json',
-    'travel_status.json',
-]
+fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fixtures')
+standard_fixtures = [file for file in os.listdir(fixtures_dir)]
 # This is used to simulate calling the as_veiw() function normally called in the urls.py
 # this will return a view that can then have it's internal methods tested
 
@@ -57,15 +46,15 @@ class CommonTest(TestCase):
 
     # use when a user needs to be logged in.
     def get_and_login_regular_user(self):
-        user = UserFactory(**UserFactory.get_fresh_data())
+        user = UserFactory()
         login_successful = self.client.login(username=user.username, password=UserFactory.get_test_password())
         self.assertEqual(login_successful, True)
         return user
 
     # use when a user needs to be logged in.
     def get_and_login_travel_admin_user(self):
-        user = UserFactory(**UserFactory.get_fresh_data())
-        travel_admin_group = Group(name="travel_admin")
+        user = UserFactory()
+        travel_admin_group = GroupFactory(name="travel_admin")
         user.groups.add(travel_admin_group)
         login_successful = self.client.login(username=user.username, password=UserFactory.get_test_password())
         self.assertEqual(login_successful, True)
@@ -73,8 +62,8 @@ class CommonTest(TestCase):
 
     # use when a user needs to be logged in.
     def get_and_login_travel_adm_admin_user(self):
-        user = UserFactory(**UserFactory.get_fresh_data())
-        travel_admin_adm_group = Group(name="travel_admin_adm")
+        user = UserFactory()
+        travel_admin_adm_group = GroupFactory(name="travel_admin_adm")
         user.groups.add(travel_admin_adm_group)
         login_successful = self.client.login(username=user.username, password=UserFactory.get_test_password())
         self.assertEqual(login_successful, True)
