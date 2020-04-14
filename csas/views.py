@@ -44,7 +44,6 @@ class CsasListCommon(shared_view.FilterCommon):
         context['details_url'] = self.details_url if self.details_url else "csas:details_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "csas:update_{}".format(self.key)
 
-
         return context
 
 
@@ -202,13 +201,16 @@ class RequestDetails(DetailsCommon):
 # the appropriate xxxCommon class, provide the few necessary fields                 #
 # ################################################################################# #
 class ContactsEntry(CsasCreateCommon):
-    template_name = 'csas/_entry_form_with_nav.html'
+    # template_name = 'csas/_entry_form_with_nav.html'
     # The title to use on the Creation form
     title = _("New Contact Entry")
     # The model Django uses to retrieve the object(s) used on the page
     model = models.ConContact
     # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.ContactForm
+
+    def get_success_url(self):
+        return reverse_lazy("csas:details_con", args=(self.object.pk,))
 
 
 class ContactsUpdate(CsasUpdateCommon):
