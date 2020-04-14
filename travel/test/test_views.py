@@ -15,18 +15,13 @@ class TestIndexView(CommonTest):
         super().setUp()
 
         self.test_url = reverse_lazy('travel:index')
-        self.test_expected_template = 'travel/index.html'
+        self.expected_template = 'travel/index.html'
 
     # Users should be able to view the travel index page corresponding to the travel/index.html template, in French
-    @tag("index", "slow")
+    @tag("index")
     def test_index_view(self):
         # only logged in users can access the landing
-        super().assert_view(lang='en', expected_code=302)
-        super().assert_view(lang='fr', expected_code=302)
-        reg_user = self.get_and_login_regular_user()
-        super().assert_view(lang='en', expected_code=200)
-        super().assert_view(lang='fr', expected_code=200)
-        self.client.logout()
+        super().assert_login_required_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # The index view should return a context to be used on the index.html template
     # this should consist of a "Sections" dictionary containing sub-sections
