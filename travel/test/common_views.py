@@ -5,6 +5,8 @@ from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactor
 
 fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fixtures')
 standard_fixtures = [file for file in os.listdir(fixtures_dir)]
+
+
 # This is used to simulate calling the as_veiw() function normally called in the urls.py
 # this will return a view that can then have it's internal methods tested
 
@@ -37,23 +39,22 @@ class CommonFormTest(TestCase):
 class CommonTest(TestCase):
     fixtures = standard_fixtures
 
-    test_url = None
-    test_expected_template = None
     login_url_base = '/accounts/login/?next='
     login_url_en = login_url_base + "/en/"
     login_url_fr = login_url_base + "/fr/"
 
-
     # use when a user needs to be logged in.
-    def get_and_login_regular_user(self):
-        user = UserFactory()
+    def get_and_login_regular_user(self, user=None):
+        if not user:
+            user = UserFactory()
         login_successful = self.client.login(username=user.username, password=UserFactory.get_test_password())
         self.assertEqual(login_successful, True)
         return user
 
     # use when a user needs to be logged in.
-    def get_and_login_travel_admin_user(self):
-        user = UserFactory()
+    def get_and_login_travel_admin_user(self, user=None):
+        if not user:
+            user = UserFactory()
         travel_admin_group = GroupFactory(name="travel_admin")
         user.groups.add(travel_admin_group)
         login_successful = self.client.login(username=user.username, password=UserFactory.get_test_password())
@@ -61,8 +62,9 @@ class CommonTest(TestCase):
         return user
 
     # use when a user needs to be logged in.
-    def get_and_login_travel_adm_admin_user(self):
-        user = UserFactory()
+    def get_and_login_travel_adm_admin_user(self, user=None):
+        if not user:
+            user = UserFactory()
         travel_admin_adm_group = GroupFactory(name="travel_admin_adm")
         user.groups.add(travel_admin_adm_group)
         login_successful = self.client.login(username=user.username, password=UserFactory.get_test_password())
@@ -76,54 +78,46 @@ class CommonTest(TestCase):
 
     # This is a standard view test most classes should run at some point to ensure
     # that a view is reachable and to check permissions/redirect if required
-    def assert_view(self, lang='en', test_url=None, expected_template=None, expected_code=200):
-        activate(lang)
-        response = self.client.get(self.test_url if not test_url else test_url)
+    # run through both languages to ensure they work
+    def assert_login_required_view(self, test_url, langs=('en', 'fr'), expected_template=None):
+        # perform this test for each locale
+        for lang in langs:
+            activate(lang)
+            response = self.client.get(test_url)
+            # with Anonymous User, a 302 response is expected
+            self.assertEquals(302, response.status_code)
+            # self.assertEqual(f"{self.login_url_base}{self.test_url}", response.url)
 
-        self.assertEquals(expected_code, response.status_code)
-        # if it's a 302 redirect and a redirect url is provided
-        template = self.test_expected_template if not expected_template else expected_template
-        if expected_code == 403:
-            pass
-            # not sure why the below would be run a second time
-            # self.assertEqual(expected_code, response.status_code)
-        elif expected_code == 302:
-            # self.assertEqual(expected_code, response.status_code)
-            self.assertEqual("{}{}".format(self.login_url_base, self.test_url), response.url)
-        else:
-            self.assertIn(template, response.template_name)
+            # login a random user
+            reg_user = self.get_and_login_regular_user()
+            # must get a new response
+            response = self.client.get(test_url)
+            # now a 200 response is expected
+            self.assertEquals(200, response.status_code)
 
-#
-# ###########################################################################################
-# # List Test contain tests used from common Test also adding tests specific for list/filter views
-# ###########################################################################################
-# class CommonListTest(CommonTest):
-#
-#     def setUp(self):
-#         super().setUp()
-#
-#         self.test_expected_template = 'shared_models/shared_filter.html'
-#
-#     # List context should return:
-#     #   - a title to display in the html template
-#     #   - a list of fields to display
-#     #   - a url to use for the create button
-#     #   - a url to use for the detail links
-#     def assert_list_view_context_fields(self):
-#         activate('en')
-#
-#         response = self.client.get(self.test_url)
-#
-#         super().assert_context_fields(response)
-#         self.assertIn("fields", response.context)
-#         self.assertIn("create_url", response.context)
-#         self.assertIn("details_url", response.context)
-#
-#         # determine if a user is logged in and has access to see "add" button
-#         self.assertIn("auth", response.context)
-#
-#         return response
-#
+            # if an expected template was provided, test it against the template_name in the response
+            if expected_template:
+                self.assertIn(expected_template, response.template_name)
+            self.client.logout()
+
+    def assert_public_view(self, test_url, langs=('en', 'fr'), expected_template=None):
+        # perform this test for each locale
+        for lang in langs:
+            activate(lang)
+            response = self.client.get(test_url)
+            # now a 200 response is expected
+            self.assertEquals(200, response.status_code)
+            # if an expected template was provided, test it against the template_name in the response
+            if expected_template:
+                self.assertIn(expected_template, response.template_name)
+            self.client.logout()
+
+    def assert_field_in_fields(self, response, name_of_field_list, fields_to_test):
+        for field in fields_to_test:
+            self.assertIn(field, response.context[name_of_field_list])
+
+
+
 #
 # ###########################################################################################
 # # Create Tests include tests from common tests also adding tests for views extending the Create View
