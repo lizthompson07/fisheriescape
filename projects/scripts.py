@@ -12,10 +12,10 @@ def export_fixtures():
     fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
     models_to_export = [
         models.Theme,
-        models.FunctionalGroup,
+        # models.FunctionalGroup,
         models.ActivityType,
         models.FundingSourceType,
-        models.FundingSource,
+        # models.FundingSource,
         models.Status,
         models.HelpText,
         models.EmployeeType,
