@@ -181,11 +181,16 @@ class Section(models.Model):
             return "{}".format(self.name)
 
     class Meta:
-        ordering = ['division__branch__region','division__branch','division','name', ]
+        ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
 
     @property
     def full_name(self):
-        my_str = "{} - {} - {} - {}".format(self.division.branch.region.tname, self.division.branch.tname, self.division.tname, self.tname)
+        try:
+
+            my_str = "{} - {} - {} - {}".format(self.division.branch.region.tname, self.division.branch.tname, self.division.tname,
+                                                self.tname)
+        except AttributeError:
+            my_str = self.tname
         return my_str
 
     @property
@@ -194,8 +199,11 @@ class Section(models.Model):
 
     @property
     def shortish_name(self):
-        my_str = "{} - {} - {} - {}".format(self.division.branch.region.abbrev, self.division.branch.abbrev, self.division.abbrev,
-                                            self.name)
+        try:
+            my_str = "{} - {} - {} - {}".format(self.division.branch.region.abbrev, self.division.branch.abbrev, self.division.abbrev,
+                                                self.name)
+        except AttributeError:
+            my_str = self.tname
         return my_str
 
 
