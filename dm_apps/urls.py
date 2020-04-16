@@ -105,27 +105,27 @@ if settings.INSTALLED_APPS.count("travel"):
 else:
     print("not connecting travel app")
 
-if settings.INSTALLED_APPS.count("sar_search"):
+if settings.INSTALLED_APPS.count("ios2"):
     urlpatterns += i18n_patterns(path('ios2/', include('ios2.urls')), prefix_default_language=True)
 else:
     print("not connecting spot")
 
-if settings.INSTALLED_APPS.count("sar_search"):
+if settings.INSTALLED_APPS.count("spot"):
     urlpatterns += i18n_patterns(path('grants-and-contributions/', include('spot.urls')), prefix_default_language=True)
 else:
     print("not connecting spot")
 
-if settings.INSTALLED_APPS.count("sar_search"):
+if settings.INSTALLED_APPS.count("publications"):
     urlpatterns += i18n_patterns(path('publications/', include('publications.urls')), prefix_default_language=True)
 else:
     print("not connecting publications app")
 
-if settings.INSTALLED_APPS.count("sar_search"):
+if settings.INSTALLED_APPS.count("staff"):
     urlpatterns += i18n_patterns(path('staff/', include('staff.urls')), prefix_default_language=True)
 else:
     print("not connecting staff app")
 
-if settings.INSTALLED_APPS.count("sar_search"):
+if settings.INSTALLED_APPS.count("whalesdb"):
     urlpatterns += i18n_patterns(path('whalesdb/', include('whalesdb.urls')), prefix_default_language=True)
 else:
     print("not connecting whalesdb app")
