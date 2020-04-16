@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db.models import Count, TextField
+from django.db.models import Count, TextField, F, Sum
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
@@ -91,6 +91,8 @@ class ItemDetailView(VaultAccessRequired, DetailView):
         ]
         return context
 
+
+
 class ItemUpdateView(VaultAccessRequired, UpdateView):
     model = models.Item
     form_class = forms.ItemForm
@@ -126,7 +128,7 @@ class QuantityListView(VaultAccessRequired, FilterView):
     template_name = "mmutools/quantity_list.html"
     filterset_class = filters.QuantityFilter
     queryset = models.Quantity.objects.annotate(
-        search_term=Concat('id', 'item', 'unique_id', 'serial_number', 'quantity_oh', 'quantity_lent', 'quantity_oo', 'last_audited', 'last_audited_by', 'location_stored', 'bin_id', output_field=TextField()))
+        search_term=Concat('id', 'item', 'unique_id', 'serial_number', 'quantity_oh', 'quantity_lent', 'quantity_avail', 'quantity_oo', 'last_audited', 'last_audited_by', 'location_stored', 'bin_id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -138,6 +140,7 @@ class QuantityListView(VaultAccessRequired, FilterView):
             'serial_number',
             'quantity_oh',
             'quantity_lent',
+            'quantity_avail',
             'quantity_oo',
             'last_audited',
             'last_audited_by',
@@ -158,13 +161,23 @@ class QuantityDetailView(VaultAccessRequired, DetailView):
             'serial_number',
             'quantity_oh',
             'quantity_lent',
+            'quantity_avail',
             'quantity_oo',
             'last_audited',
             'last_audited_by',
             'location_stored',
             'bin_id',
         ]
+
+        # for quantity in context['field_list']:
+        #     quantity.quantity_avail = models.Quantity.objects.all().annotate(sum_oh=Sum('quantity_oh')).annotate(
+        #         sum_lent=Sum('quantity_lent')).annotate(sum_diff=F('sum_oh') - F('sum_lent'))
+
         return context
+
+ # Trying to define it so that I can return the available number of items (needs to add all inv for an item and subtract all lent out items)
+
+
 
 class QuantityUpdateView(VaultAccessRequired, UpdateView):
     model = models.Quantity

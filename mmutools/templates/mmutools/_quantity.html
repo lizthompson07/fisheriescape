@@ -2,6 +2,11 @@
 {% load humanize %}
 {% load i18n %}
 
+<!--Trying to get it to add a box with the total quantity available, see views.py -->
+
+    {{ quantity.quantity_avail }}
+
+
 <div class="">
     <h3>
         {% trans "Quantity:" %}
@@ -20,9 +25,6 @@
                 {% trans "Quantity on Hand" %}
             </th>
             <th>
-                {% trans "Quantity Lent Out" %}
-            </th>
-            <th>
                 {% trans "Quantity on Order" %}
             </th>
             <th>
@@ -37,9 +39,6 @@
             <tr href="{% url 'mmutools:quantity_edit' obj.id %}" pop>
                 <td>
                     {{ obj.quantity_oh }}
-                </td>
-                <td>
-                    {{ obj.quantity_lent }}
                 </td>
                 <td>
                     {{ obj.quantity_oo }}

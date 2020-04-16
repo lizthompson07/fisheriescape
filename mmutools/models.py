@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
+
 class Category(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("English name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
@@ -99,11 +100,13 @@ class Quantity(models.Model):
     quantity_oh = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity on Hand"))
     quantity_lent = models.ForeignKey(Lending, on_delete=models.DO_NOTHING, related_name="quantities",
                                            verbose_name=_("Quantity Lent"))
+    quantity_avail = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity Available"))
     quantity_oo = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity on Order"))
     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Last Audited"))
     last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last Audited By"))
     location_stored = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Location Stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Bin Id"))
+
 
     def __str__(self):
         # check to see if a french value is given
@@ -116,6 +119,11 @@ class Quantity(models.Model):
 
     def get_absolute_url(self):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})
+
+
+    # @property
+    # def quantity_avail(self):
+    #     return self.quantity_oh - self.quantity_lent
 
 
 class Supplier(models.Model):
