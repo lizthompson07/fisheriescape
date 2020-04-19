@@ -3,13 +3,15 @@ from django.urls import reverse_lazy
 from django.utils.translation import activate
 
 from travel.test.TravelFactoryFloor import ReviewerFactory
-from travel.test.common_views import CommonTest
+from travel.test.common_tests import CommonTravelTest
 
 
 ###########################################################################################
 # Index View is a bit different from most views as it is basically just a landing page
 ###########################################################################################
-class TestIndexView(CommonTest):
+
+
+class TestIndexView(CommonTravelTest):
 
     def setUp(self):
         super().setUp()
@@ -19,7 +21,7 @@ class TestIndexView(CommonTest):
 
     # Users should be able to view the travel index page corresponding to the travel/index.html template, in French
     @tag("index")
-    def test_index_view(self):
+    def test_access(self):
         # only logged in users can access the landing
         super().assert_login_required_view(test_url=self.test_url, expected_template=self.expected_template)
 
@@ -27,9 +29,9 @@ class TestIndexView(CommonTest):
     # this should consist of a "Sections" dictionary containing sub-sections
 
     @tag("index", "context")
-    def test_index_view_context(self):
+    def test_context(self):
         activate('en')
-        reg_user = self.get_and_login_regular_user()
+        reg_user = self.get_and_login_user()
         response = self.client.get(self.test_url)
         # expected to determine if the user is authorized to add content
         self.assertIn("number_waiting", response.context)
@@ -52,6 +54,6 @@ class TestIndexView(CommonTest):
 
         # an admin user should be identified as such by the `is_admin` var in the template
         self.client.logout()
-        admin_user = self.get_and_login_travel_admin_user()
+        admin_user = self.get_and_login_user(in_group="travel_admin")
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["is_admin"], True)
