@@ -838,7 +838,7 @@ class Reviewer(models.Model):
             return "---"
 
     def save(self, *args, **kwargs):
-        # If the trip request is current under review but changes have been requested, add this reviewer directly in the queue
+        # If the trip request is currently under review but changes have been requested, add this reviewer directly in the queue
 
         if self.trip_request.status_id != 8 and self.status_id == 4:
             self.status_id = 20
