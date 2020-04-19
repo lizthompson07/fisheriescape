@@ -29,6 +29,18 @@ class IndividualTripRequestFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     is_group_request = False
 
+    @staticmethod
+    def get_valid_data():
+        trip = TripFactory(start_date=faker.future_datetime())
+        valid_data = {
+            'trip': trip,
+            "section": SectionFactory(),
+            "user": UserFactory(),
+            "is_group_request":False,
+            "start_date":trip.start_date,
+            "end_date":trip.end_date,
+        }
+        return valid_data
 
 class ParentTripRequestFactory(factory.django.DjangoModelFactory):
     class Meta:

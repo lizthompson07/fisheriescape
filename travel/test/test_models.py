@@ -4,10 +4,10 @@ from django.utils.translation import activate
 
 from travel.test import TravelFactoryFloor
 from travel.test.TravelFactoryFloor import ReviewerFactory, TripFactory
-from travel.test.common_views import CommonTest
+from travel.test.common_tests import CommonTravelTest
 
 
-class TestTravelModels(CommonTest):
+class TestTravelModels(CommonTravelTest):
 
     @tag('models', 'trip')
     def test_trip_model(self):
