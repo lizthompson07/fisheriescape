@@ -34,7 +34,7 @@ LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 # Django security keye
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
 # should debug mode be turned on or off? default = False
-DEBUG = config("DEBUG", cast=bool, default=False)
+DEBUG = config("DEBUG", cast=bool, default=True)
 # Where do you want to set the bar for logging? {DEBUG, INFO, WARNING, ERROR, CRITICAL}
 LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
 # What is the path to the log file?
