@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.test import tag, RequestFactory
 
 from whalesdb.test.common_views import CommonDetailsTest, setup_view
-from whalesdb.test import WhalesdbFactory as Factory
+from whalesdb.test import WhalesdbFactoryFloor as Factory
 from whalesdb import views, models
 
 
