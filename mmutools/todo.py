@@ -4,3 +4,4 @@
 # TODO get file upload function to work properly
 # TODO add additional search features (i.e. for item location)
 # TODO add edit button beside quantity
+# TODO get quantity_avail function to work

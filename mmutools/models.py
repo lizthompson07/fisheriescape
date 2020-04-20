@@ -120,7 +120,9 @@ class Quantity(models.Model):
     def get_absolute_url(self):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})
 
-
+    # @property
+    # def (self):
+    #     return
     # @property
     # def quantity_avail(self):
     #     return self.quantity_oh - self.quantity_lent
