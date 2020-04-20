@@ -31,16 +31,25 @@ class IndividualTripRequestFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-        trip = TripFactory(start_date=faker.future_datetime())
+        start_date = faker.future_datetime()
+        end_date = start_date + datetime.timedelta(days=faker.random_int(1, 10))
+        trip = TripFactory(
+            start_date=start_date,
+            end_date=end_date,
+        )
         valid_data = {
-            'trip': trip,
-            "section": SectionFactory(),
-            "user": UserFactory(),
-            "is_group_request":False,
-            "start_date":trip.start_date,
-            "end_date":trip.end_date,
+            'trip': trip.id,
+            "section": SectionFactory().id,
+            "user": UserFactory().id,
+            "is_group_request": False,
+            "is_public_servant": True,
+            "is_research_scientist": True,
+            "start_date": trip.start_date,
+            "end_date": trip.end_date,
         }
         return valid_data
+
+
 
 class ParentTripRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
