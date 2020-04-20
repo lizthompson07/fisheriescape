@@ -58,6 +58,8 @@ class CsasCreateCommon(shared_view.CreateCommon):
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
 
+    template_name = 'csas/csas_entry_form.html'
+
     # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
     def test_func(self):
         return utils.csas_authorized(self.request.user)
@@ -74,6 +76,8 @@ class CsasUpdateCommon(shared_view.UpdateCommon):
 
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
+
+    template_name = 'csas/csas_entry_form.html'
 
     def test_func(self):
         return utils.csas_authorized(self.request.user)
@@ -188,7 +192,7 @@ class RequestDetails(DetailsCommon):
     # fields = ['quarter', 'start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
     #           'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
     #           'csas_contact', ]
-    fields = ['title', 'in_year_request', 'region', 'client_sector', 'client_name', 'client_title', 'client_email',
+    fields = ['assigned_req_id', 'title', 'in_year_request', 'region', 'client_sector', 'client_name', 'client_title', 'client_email',
               'issue', 'priority', 'rationale', 'proposed_timing', 'rationale_for_timing', 'funding',
               'funding_notes', 'science_discussion', 'science_discussion_notes', 'adviser_submission',
               'rd_submission', 'decision_date', ]
@@ -212,6 +216,8 @@ class ContactsEntry(CsasCreateCommon):
     def get_success_url(self):
         return reverse_lazy("csas:details_con", args=(self.object.pk,))
 
+        # April 14, return reverse_lazy("csas:list_con")
+
 
 class ContactsUpdate(CsasUpdateCommon):
     # The title to use on the Update form
@@ -220,6 +226,13 @@ class ContactsUpdate(CsasUpdateCommon):
     model = models.ConContact
     # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.ContactForm
+
+    def get_success_url(self):
+
+        if "pop" in self.kwargs:
+            return reverse_lazy("shared_models:close_me")
+
+        return reverse_lazy("csas:details_con", args=(self.object.pk,))
 
 
 class ContactsList(CsasListCommon):

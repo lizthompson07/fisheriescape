@@ -19,6 +19,7 @@ class RequestForm(forms.ModelForm):
         if superusers is True:
             exclude = []
         else:
+            # exclude = []
             exclude = ["assigned_req_id", "adviser_submission", "rd_submission", "decision_date"]    # except listed fields
 
         # use some widgets

@@ -25,7 +25,7 @@
                 <div class="col-5">{% trans "<h4>Requests for Science Advice</h4>" %}</div>
                 <div class="col-1"><a class="btn btn-primary" href="{% url 'csas:list_req'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-primary" href="{% url 'csas:list_req'%}">{% trans "Maritimes" %}</a></div>
-                <div class="col-2"><a class="btn btn-primary" href="{% url 'csas:create_req'%}">{% trans "New Request" %}</a></div>
+                <div class="col-3"><a class="btn btn-primary" href="{% url 'csas:create_req'%}">{% trans "New Request" %}</a></div>
             </div>
             <hr/>
 
@@ -33,6 +33,7 @@
                 <div class="col-5">{% trans "<h4>Schedule of Meetings</h4>" %}</div>
                 <div class="col-1"><a class="btn btn-primary" href="{% url 'csas:list_met'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-primary" href="{% url 'csas:list_met'%}">{% trans "Maritimes" %}</a></div>
+                <div class="col-3"><a class="btn btn-primary" href="{% url 'csas:create_met'%}">{% trans "New Meeting" %}</a></div>
             </div>
             <hr/>
 
@@ -40,6 +41,7 @@
                 <div class="col-5">{% trans "<h4> Publications </h4>" %}</div>
                 <div class="col-1"><a class="btn btn-primary" href="{% url 'csas:list_pub'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-primary" href="{% url 'csas:list_pub'%}">{% trans "Maritimes" %}</a></div>
+                <div class="col-3"><a class="btn btn-primary" href="{% url 'csas:create_pub'%}">{% trans "New Publication" %}</a></div>
             </div>
             <hr/>
 
@@ -47,7 +49,7 @@
                 <div class="col-5">{% trans "<h4> Contacts </h4>" %}</div>
                 <div class="col-1"><a class="btn btn-primary" href="{% url 'csas:list_con'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-primary" href="{% url 'csas:list_con'%}">{% trans "Maritimes" %}</a></div>
-                <div class="col-2"><a class="btn btn-primary" href="{% url 'csas:create_con' %}">{% trans "New Contact" %}</a></div>
+                <div class="col-3"><a class="btn btn-primary" href="{% url 'csas:create_con' %}">{% trans "New Contact" %}</a></div>
             </div>
             <hr/>
         </div>
