@@ -106,27 +106,32 @@ except RuntimeError:
     print("not connecting travel app")
 
 try:
-    urlpatterns += i18n_patterns(path('ios2/', include('ios2.urls')), prefix_default_language=True)
+    if settings.INSTALLED_APPS.count("ios2"):
+        urlpatterns += i18n_patterns(path('ios2/', include('ios2.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting spot")
 
 try:
-    urlpatterns += i18n_patterns(path('grants-and-contributions/', include('spot.urls')), prefix_default_language=True)
+    if settings.INSTALLED_APPS.count("spot"):
+        urlpatterns += i18n_patterns(path('grants-and-contributions/', include('spot.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting spot")
 
 try:
-    urlpatterns += i18n_patterns(path('publications/', include('publications.urls')), prefix_default_language=True)
+    if settings.INSTALLED_APPS.count("publications"):
+        urlpatterns += i18n_patterns(path('publications/', include('publications.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting publications app")
 
 try:
-    urlpatterns += i18n_patterns(path('staff/', include('staff.urls')), prefix_default_language=True)
+    if settings.INSTALLED_APPS.count("staff"):
+        urlpatterns += i18n_patterns(path('staff/', include('staff.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting staff app")
 
 try:
-    urlpatterns += i18n_patterns(path('whalesdb/', include('whalesdb.urls')), prefix_default_language=True)
+    if settings.INSTALLED_APPS.count("whalesdb"):
+        urlpatterns += i18n_patterns(path('whalesdb/', include('whalesdb.urls')), prefix_default_language=True)
 except RuntimeError as e:
     print(e)
     print("not connecting whalesdb app")
@@ -150,6 +155,18 @@ try:
     urlpatterns += i18n_patterns(path('vault/', include('vault.urls')), prefix_default_language=True)
 except RuntimeError:
     print("not connecting vault app")
+
+
+if settings.INSTALLED_APPS.count("spring_cleanup"):
+    urlpatterns += i18n_patterns(path('spring-cleanup/', include('spring_cleanup.urls')), prefix_default_language=True)
+else:
+    print("not connecting spring_cleanup app")
+
+
+if settings.INSTALLED_APPS.count("shiny"):
+    urlpatterns += i18n_patterns(path('shiny-apps/', include('shiny.urls')), prefix_default_language=True)
+else:
+    print("not connecting shiny app repo")
 
 
 # if not settings.DEBUG:
