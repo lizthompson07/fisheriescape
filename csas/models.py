@@ -288,7 +288,7 @@ class ReqRequest(models.Model):
                                                             "to whom have you talked?"))
     # decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True)
     # decision = models.ForeignKey(CotType, on_delete=models.DO_NOTHING)    # CotType is borrowed from Contacts
-    # decision_explanation = models.TextField()
+    # decision_explanation = models.TextField(max_length=100, verbose_name=_("Decision Explanation"))
     adviser_submission = models.DateField(null=True, blank=True, verbose_name=_("Client Adviser Submission Date"))
     rd_submission = models.DateField(null=True, blank=True, verbose_name=_("Client RD Submission Date"))
     decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"))
