@@ -24,6 +24,7 @@ INT_YES_NO_CHOICES = (
     (0, _("No")),
 )
 
+
 class ReviewerApprovalForm(forms.ModelForm):
     approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
@@ -206,6 +207,50 @@ class TripRequestForm(forms.ModelForm):
         # if there is no instance of TR, remove the field for reset_reviewers.
         if not kwargs.get("instance"):
             del self.fields["reset_reviewers"]
+
+    def clean(self):
+        """ have to make sure that the request start date and the trip start date make sense with respect to each other and individually"""
+
+        cleaned_data = super().clean()
+        request_start_date = cleaned_data.get("start_date")
+        request_end_date = cleaned_data.get("end_date")
+        trip_start_date = cleaned_data.get("trip").start_date
+        trip_end_date = cleaned_data.get("trip").end_date
+
+        # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
+        # the length of the trip is not too long
+        if request_start_date and request_end_date:
+            if request_end_date < request_start_date:
+                msg = _('The start date of the trip must occur after the end date.')
+                self.add_error('start_date', msg)
+                self.add_error('end_date', msg)
+                raise forms.ValidationError(_('The start date of the trip must occur after the end date.'))
+            if abs((request_start_date - request_end_date).days) > 100:
+                msg = _('The length of this trip is unrealistic.')
+                self.add_error('start_date', msg)
+                self.add_error('end_date', msg)
+                raise forms.ValidationError(msg)
+            # is the start date of the travel request equal to or before the start date of the trip?
+            if trip_start_date:
+                delta = abs(request_start_date - trip_start_date)
+                if delta.days > 10:
+                    msg = _(
+                        f'The start date of this request ({request_start_date.strftime("%Y-%m-%d")}) has to be within 10 days of the'
+                        f' start date of the selected trip ({trip_start_date.strftime("%Y-%m-%d")})!')
+                    self.add_error('start_date', msg)
+                    # self.add_error('trip', msg)
+                    raise forms.ValidationError(msg)
+
+            # is the end_date of the travel request equal to or after the end date of the trip?
+            if trip_end_date:
+                delta = abs(request_end_date - trip_end_date)
+                if delta.days > 10:
+                    msg = _(
+                        f'The end date of this request ({request_end_date.strftime("%Y-%m-%d")}) must be within 10 days'
+                        f' of the end date of the selected trip ({trip_end_date.strftime("%Y-%m-%d")})!')
+                    self.add_error('end_date', msg)
+                    # self.add_error('trip', msg)
+                    raise forms.ValidationError(msg)
 
 
 class TripRequestAdminNotesForm(forms.ModelForm):

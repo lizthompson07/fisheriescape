@@ -44,6 +44,7 @@ Thumbs.db
 # project media dir #
 #####################
 /media/*
+/logs/*
 /staticfiles/*
 
 # local configuration #

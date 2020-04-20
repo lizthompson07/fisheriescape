@@ -16,8 +16,8 @@
     {% for user in user_dict %}
         {% with user_dict|lookup:user as dict %}
             {% with dict|lookup:"qs" as qs %}
-                {% with dict|lookup:"fte_approved" as fte_approved %}
-                    {% with dict|lookup:"fte_unapproved" as fte_unapproved %}
+                {% with dict|lookup:"fte_recommended" as fte_approved %}
+                    {% with dict|lookup:"fte_not_recommended" as fte_unapproved %}
                         {% with dict|lookup:"fte_unsubmitted" as fte_unsubmitted %}
                             {% with dict|lookup:"fte_total" as fte_total %}
                                 <div class="mb-3">
@@ -34,7 +34,7 @@
                                             {% trans "Submitted?" %}
                                         </th>
                                         <th>
-                                            {% trans "Approved?" %}
+                                            {% trans "Recommended?" %}
                                         </th>
 
                                         <th>
@@ -62,7 +62,7 @@
                                                     {{ staff.project.submitted|yesno }}
                                                 </td>
                                                 <td>
-                                                    {{ staff.project.approved|yesno }}
+                                                    {{ staff.project.recommended_for_funding|yesno }}
                                                 </td>
                                                 <td>
                                                     {{ staff.project.section }}
@@ -87,11 +87,11 @@
                                             </td>
                                         {% endfor %}
                                         <tr class="total">
-                                            <td>TOTAL Submitted & Approved:</td>
+                                            <td>TOTAL Recommended:</td>
                                             <td>{{ fte_approved|floatformat|nz:0 }} week{{ fte_approved|pluralize }}</td>
                                         </tr>
                                         <tr class="total">
-                                            <td>TOTAL Submitted & Unapproved:</td>
+                                            <td>TOTAL Not Recommended:</td>
                                             <td>{{ fte_unapproved|floatformat|nz:0 }} week{{ fte_approved|pluralize }}</td>
                                         </tr>
                                         <tr class="total">

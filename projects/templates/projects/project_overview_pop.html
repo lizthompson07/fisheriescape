@@ -32,7 +32,7 @@
 
                 {% if object.submitted %}
                     <a class="btn btn-sm btn-{% if object.approved %}danger{% else %}success{% endif %}"
-                       href="#" pop-href="{% url 'projects:project_approve' object.id %}">
+                       href="#" pop-href="{% url 'projects:project_recommend' object.id %}">
                         {% if object.approved %}{% trans "Unapprove" %}{% else %}{% trans "Approve" %}{% endif %}
                     </a>
                 {% endif %}

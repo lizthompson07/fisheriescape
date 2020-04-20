@@ -22,7 +22,8 @@ urlpatterns = [
     path('project/<int:pk>/submit/popout/<int:pop>/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
     path('project/<int:pk>/notes/', views.ProjectNotesUpdateView.as_view(), name="project_notes"),
     path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
-    path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
+    # path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
+    path('recommendation/project/<int:pk>/', views.ProjectRecommendationUpdateView.as_view(), name="project_recommend"),
 
     # From management views
     ################
@@ -194,6 +195,10 @@ urlpatterns = [
          views.PDFFundingReport.as_view(), name="pdf_funding"),
     path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.funding_spreadsheet, name="xls_funding"),
+    path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/omcatagory/<str:omcatagory>/',
+         views.funding_spreadsheet, name="xls_funding_by_om"),
+    path('reports/covid/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
+         views.covid_spreadsheet, name="xls_covid"),
     # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
 
     # INTERACTIVE WORKPLANS #

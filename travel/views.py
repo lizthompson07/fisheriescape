@@ -98,7 +98,7 @@ def can_modify_request(user, trip_request_id, trip_request_unsubmit=False):
                 (not my_trip_request.user or  # anybody can edit
                  my_trip_request.user == user or  # the user is the traveller and / or requester
                  user in my_trip_request.travellers or  # the user is a traveller on the trip
-                 my_trip_request.parent_request.user == user):  # the user is the requester
+                 (my_trip_request.parent_request and my_trip_request.parent_request.user == user)):  # the user is the requester
             return True
 
         if trip_request_unsubmit and user == my_trip_request.user:
@@ -1319,7 +1319,7 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
                 'fy': fy,
-                'user': user,
+                'region': region,
             }))
         elif report == 2:
             email = form.cleaned_data["traveller"]
@@ -1340,13 +1340,13 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("travel:report_search"))
 
 
-def export_cfts_list(request, fy):
-    file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy)
+def export_cfts_list(request, fy, region):
+    file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="custom master list export {}.xlsx"'.format(
+            response['Content-Disposition'] = 'inline; filename="CFTS export {}.xlsx"'.format(
                 timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404

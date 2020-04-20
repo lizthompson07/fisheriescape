@@ -1,0 +1,200 @@
+[
+  {
+    "model": "travel.status",
+    "pk": 4,
+    "fields": {
+      "used_for": 1,
+      "name": "Draft",
+      "nom": "",
+      "order": 1,
+      "color": "#fff396"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 20,
+    "fields": {
+      "used_for": 1,
+      "name": "Queued",
+      "nom": "",
+      "order": 2,
+      "color": "#d0dcf5"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 1,
+    "fields": {
+      "used_for": 1,
+      "name": "Pending",
+      "nom": "",
+      "order": 3,
+      "color": "#fcc1a2"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 2,
+    "fields": {
+      "used_for": 1,
+      "name": "Approved",
+      "nom": "",
+      "order": 4,
+      "color": "#a8ffb8"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 3,
+    "fields": {
+      "used_for": 1,
+      "name": "Denied",
+      "nom": "",
+      "order": 5,
+      "color": "#f79eb3"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 5,
+    "fields": {
+      "used_for": 1,
+      "name": "Cancelled",
+      "nom": "",
+      "order": 6,
+      "color": "#a6aba2"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 21,
+    "fields": {
+      "used_for": 1,
+      "name": "Skipped",
+      "nom": "",
+      "order": 7,
+      "color": "#f58c84"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 8,
+    "fields": {
+      "used_for": 2,
+      "name": "Draft",
+      "nom": "",
+      "order": 1,
+      "color": "#fff396"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 17,
+    "fields": {
+      "used_for": 2,
+      "name": "Pending Review",
+      "nom": null,
+      "order": 2,
+      "color": "#ffcce1"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 12,
+    "fields": {
+      "used_for": 2,
+      "name": "Pending Recommendation",
+      "nom": "",
+      "order": 3,
+      "color": "#e197f7"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 18,
+    "fields": {
+      "used_for": 2,
+      "name": "Pending NCR Review",
+      "nom": "",
+      "order": 4,
+      "color": "#e197f7"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 19,
+    "fields": {
+      "used_for": 2,
+      "name": "Pending NCR Recommendation",
+      "nom": "",
+      "order": 5,
+      "color": "#e197f7"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 14,
+    "fields": {
+      "used_for": 2,
+      "name": "Pending ADM Approval",
+      "nom": null,
+      "order": 6,
+      "color": "#99ccff"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 15,
+    "fields": {
+      "used_for": 2,
+      "name": "Pending RDG Approval",
+      "nom": null,
+      "order": 7,
+      "color": "#3399ff"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 16,
+    "fields": {
+      "used_for": 2,
+      "name": "Changes Requested",
+      "nom": "",
+      "order": 8,
+      "color": "#fcc1a2"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 11,
+    "fields": {
+      "used_for": 2,
+      "name": "Approved",
+      "nom": "approuv\u00e9e",
+      "order": 9,
+      "color": "#a8ffb8"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 10,
+    "fields": {
+      "used_for": 2,
+      "name": "Denied",
+      "nom": "refus\u00e9e",
+      "order": 10,
+      "color": "#f79eb3"
+    }
+  },
+  {
+    "model": "travel.status",
+    "pk": 22,
+    "fields": {
+      "used_for": 2,
+      "name": "Cancelled",
+      "nom": "annul\u00e9e",
+      "order": 11,
+      "color": "#a6aba2"
+    }
+  }
+]
