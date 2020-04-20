@@ -16,6 +16,9 @@ class UpdateCommonTest(cct.CommonTestCase):
 
         self.view = views.CsasUpdateCommon()
 
+    def test_update_template(self):
+        self.assertIn("csas/csas_entry_form.html", self.view.get_template_names())
+
     def test_update_extends(self):
         self.assertIsInstance(self.view, shared_views.UpdateCommon)
 

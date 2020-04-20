@@ -19,6 +19,9 @@ class CreateCommonTest(cct.CommonTestCase):
         self.view = CsasCreateCommon()
         self.view.title = 'EXAMPLE TITLE'
 
+    def test_ceate_template(self):
+        self.assertIn("csas/csas_entry_form.html", self.view.get_template_names())
+
     def test_create_extends(self):
         self.assertIsInstance(self.view, shared_views.CreateCommon)
 
