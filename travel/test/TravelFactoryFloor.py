@@ -16,7 +16,7 @@ class TripFactory(factory.django.DjangoModelFactory):
 
     name = faker.word()
     start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
-    end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 365)))
+    end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
 
 
 class IndividualTripRequestFactory(factory.django.DjangoModelFactory):
@@ -31,7 +31,7 @@ class IndividualTripRequestFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-        start_date = faker.future_datetime()
+        start_date = faker.future_datetime(tzinfo=timezone.get_current_timezone())
         end_date = start_date + datetime.timedelta(days=faker.random_int(1, 10))
         trip = TripFactory(
             start_date=start_date,
@@ -44,11 +44,10 @@ class IndividualTripRequestFactory(factory.django.DjangoModelFactory):
             "is_group_request": False,
             "is_public_servant": True,
             "is_research_scientist": True,
-            "start_date": trip.start_date,
-            "end_date": trip.end_date,
+            "start_date": trip.start_date.strftime("%Y-%m-%d %H:%M"),
+            "end_date": trip.end_date.strftime("%Y-%m-%d %H:%M"),
         }
         return valid_data
-
 
 
 class ParentTripRequestFactory(factory.django.DjangoModelFactory):

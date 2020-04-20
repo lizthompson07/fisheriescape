@@ -1,16 +1,9 @@
 import datetime
-
-from django.utils import timezone
-from django.utils.translation import activate
-from django.urls import reverse_lazy
 from django.test import tag
-
-from travel.test import TravelFactoryFloor as FactoryFloor
 from travel.test.TravelFactoryFloor import IndividualTripRequestFactory, TripFactory
 
 from travel.test.common_tests import CommonTravelTest
 from .. import forms
-from ..forms import TripRequestForm
 
 
 class TestTripRequestForm(CommonTravelTest):
@@ -25,12 +18,11 @@ class TestTripRequestForm(CommonTravelTest):
         self.assert_form_valid(self.Form, data=data)
 
         # test the form clean method
-        data["end_date"] = data["start_date"] - datetime.timedelta(days=1)
+        my_trip = self.Form(data).save().trip
+        data["end_date"] = (my_trip.start_date - datetime.timedelta(days=1)).strftime("%Y-%m-%d %H:%M")
         self.assert_form_invalid(self.Form, data=data)
-
-        # there are a few other scenarios to test... when the start/end dates of request are greater or less than 10 days from the start/end
-        # dates of trip
-
+        # TODO: test the other invalid scenarios... e.g., when the start/end dates of request are greater or
+        #  less than 10 days from the start/end dates of trip
 
     @tag("trip_request", 'form')
     def test_fields(self):

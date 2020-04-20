@@ -25,13 +25,13 @@ def get_section_choices(all=False, full_name=True):
                 "division",
                 "name"
             ) if s.trip_requests.count() > 0] if not all else [(s.id, getattr(s, my_attr)) for s in
-                                                          shared_models.Section.objects.filter(
-                                                              division__branch__name__icontains="science").order_by(
-                                                              "division__branch__region",
-                                                              "division__branch",
-                                                              "division",
-                                                              "name"
-                                                          )]
+                                                               shared_models.Section.objects.filter(
+                                                                   division__branch__name__icontains="science").order_by(
+                                                                   "division__branch__region",
+                                                                   "division__branch",
+                                                                   "division",
+                                                                   "name"
+                                                               )]
 
 
 def get_division_choices(all=False):
@@ -82,7 +82,8 @@ class TripRequestFilter(django_filters.FilterSet):
         self.filters['user'] = django_filters.ChoiceFilter(field_name='user', lookup_expr='exact', choices=user_choices,
                                                            widget=forms.Select(attrs=chosen_js), label=_('User'))
 
-        trip_choices = [(trip.id, f"{trip}") for trip in models.Conference.objects.all().order_by(_("name")) if trip.trip_requests.count() > 0]
+        trip_choices = [(trip.id, f"{trip}") for trip in models.Conference.objects.all().order_by(_("name")) if
+                        trip.trip_requests.count() > 0]
         self.filters['trip'] = django_filters.ChoiceFilter(field_name='trip', lookup_expr='exact', choices=trip_choices,
                                                            widget=forms.Select(attrs=chosen_js), label=_('Trip title'))
 
@@ -124,7 +125,7 @@ class TripRequestFilter(django_filters.FilterSet):
                                                                       lookup_expr='exact', choices=section_choices)
 
         except KeyError:
-            print('no data in filter')
+            pass
 
 
 class TripFilter(django_filters.FilterSet):
@@ -144,9 +145,10 @@ class TripFilter(django_filters.FilterSet):
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
                                                                   label=_("Fiscal year"))
         self.filters['name'] = django_filters.CharFilter(field_name='search_term', label=_("Trip Title"), lookup_expr='icontains',
-                                            widget=forms.TextInput())
+                                                         widget=forms.TextInput())
         self.filters['lead'].label = _("Regional lead")
         self.filters['is_adm_approval_required'].label = _("ADM approval required?")
+
 
 class TripRequestApprovalFilter(django_filters.FilterSet):
     class Meta:
