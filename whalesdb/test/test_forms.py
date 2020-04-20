@@ -5,7 +5,7 @@ from faker import Factory
 from whalesdb.test.common_views import CommonFormTest
 from whalesdb import forms, models
 
-import whalesdb.test.WhalesdbFactory as factory
+import whalesdb.test.WhalesdbFactoryFloor as factory
 
 # used to create fake data
 faker = Factory.create()

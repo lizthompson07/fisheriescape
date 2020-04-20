@@ -11,7 +11,7 @@ from whalesdb.test.common_views import CommonCreateTest
 from whalesdb import views, forms, models
 
 import os
-from whalesdb.test import WhalesdbFactory as Factory
+from whalesdb.test import WhalesdbFactoryFloor as Factory
 
 
 class TestDepCreate(CommonCreateTest):
