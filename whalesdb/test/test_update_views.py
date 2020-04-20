@@ -2,7 +2,7 @@ from django.test import tag, RequestFactory
 from django.urls import reverse_lazy
 
 from whalesdb.test.common_views import CommonUpdateTest, setup_view
-from whalesdb.test import WhalesdbFactory as Factory
+from whalesdb.test import WhalesdbFactoryFloor as Factory
 
 from whalesdb import views, forms, models
 
