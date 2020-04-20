@@ -50,14 +50,15 @@ class CommonTest(TestCase):
             response = self.client.get(test_url)
             # with Anonymous User, a 302 response is expected
             self.assertEquals(302, response.status_code)
-            # self.assertEqual(f"{self.login_url_base}{self.test_url}", response.url)
+            # we are expecting to see the login url
+            self.assertIn(f"{self.login_url_base}{test_url}", response.url)
 
             # login a random user
             reg_user = self.get_and_login_user()
-            # must get a new response
+            # must get a new response, but don't know which.
             response = self.client.get(test_url)
-            # now a 200 response is expected
-            self.assertEquals(200, response.status_code)
+            # all we know is that the login_url_base should not be in the response url string
+            self.assertNotIn(f"{self.login_url_base}{test_url}", response.url)
 
             # if an expected template was provided, test it against the template_name in the response
             if expected_template:
@@ -75,6 +76,20 @@ class CommonTest(TestCase):
             if expected_template:
                 self.assertIn(expected_template, response.template_name)
             self.client.logout()
+
+    def assert_not_broken(self, test_url, langs=('en', 'fr')):
+        """This will test check to see if the test url returns something bad like a 404 or a 500 response"""
+        # perform this test for each locale
+        for lang in langs:
+            activate(lang)
+            response = self.client.get(test_url)
+            self.assertNotIn(response.status_code, [404, 500, ])
+            self.client.logout()
+
+    def assert_inheritance(self, test_child_class, test_parent_class):
+        """This will test to see if the child is a subclass of the parent."""
+        # perform this test for each locale
+        self.assertTrue(issubclass(test_child_class, test_parent_class))
 
     def assert_field_in_fields(self, response, name_of_field_list, fields_to_test):
         for field in fields_to_test:
@@ -114,7 +129,7 @@ class CommonTest(TestCase):
             form = Form(data=data)
         self.assertTrue(form.is_valid())
 
-    def assert_form_not_valid(self, Form, data, instance=None):
+    def assert_form_invalid(self, Form, data, instance=None):
         if instance:
             form = Form(data, instance=instance)
         else:
@@ -126,14 +141,15 @@ class CommonTest(TestCase):
             form = Form(instance=instance)
         else:
             form = Form()
-        self.assertIn(field_name,  form.fields)
+        self.assertIn(field_name, form.fields)
 
     def assert_field_not_in_form(self, Form, field_name, instance=None):
-            if instance:
-                form = Form(instance=instance)
-            else:
-                form = Form()
-            self.assertNotIn(field_name,  form.fields)
+        if instance:
+            form = Form(instance=instance)
+        else:
+            form = Form()
+        self.assertNotIn(field_name, form.fields)
+
 
 #
 # ###########################################################################################

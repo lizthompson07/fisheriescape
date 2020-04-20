@@ -17,10 +17,11 @@ class IndividualTripRequestCreate(CommonTravelTest):
         self.test_url = reverse_lazy('travel:request_new')
         self.expected_template = 'travel/trip_request_form.html'
 
-    @tag("trip_request", 'create')
+    @tag("trip_request", 'create', 'response')
     def test_access(self):
         # only logged in users can access the landing
-        super().assert_login_required_view(test_url=self.test_url, expected_template=self.expected_template)
+        self.assert_not_broken(self.test_url)
+        self.assert_login_required_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
     @tag("trip_request", 'create', "context")
@@ -33,30 +34,14 @@ class IndividualTripRequestCreate(CommonTravelTest):
         self.assertIn("conf_json", response.context)
         self.assertIn("help_text_dict", response.context)
 
-
     @tag("trip_request", 'create', "submit")
-    def test_form_valid(self):
+    def test_submit(self):
         data = IndividualTripRequestFactory.get_valid_data()
         trip = TripFactory()
         data["trip"] = trip
         self.assert_success_url(data)
-    #
-    #
-    #
-    # @tag("trip_request", 'create', "submit")
-    # def test_submit(self):
-    #     data = IndividualTripRequestFactory.get_valid_data()
-    #     print(data)
-    #     self.assert_success_url(data)
 
         # once submitted, we will want to check out that the reviewers make sense
-
-    # @tag("trip_request", 'create', "form_valid")
-    # def test_form_valid(self):
-    #     data1 = IndividualTripRequestFactory()
-    #     self.assert_success_url()
-
-
 
         # ensure the user is deleted
         # self.assertEqual(User.objects.filter(pk=self.user.pk).count(), 0)
