@@ -27,6 +27,7 @@ WEB_APP_NAME = "DMApps"
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 
 # some simple settings that we import from the .env file or the environmental variables
 ####################################################
@@ -34,6 +35,10 @@ MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
 # should debug mode be turned on or off? default = False
 DEBUG = config("DEBUG", cast=bool, default=False)
+# Where do you want to set the bar for logging? {DEBUG, INFO, WARNING, ERROR, CRITICAL}
+LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
+# What is the path to the log file?
+LOG_FILE_PATH = config("LOG_FILE_PATH", cast=str, default=os.path.join(LOGS_DIR, 'error.log'))
 # this is used in email templates to link the recipient back to the site
 SITE_FULL_URL = config("SITE_FULL_URL", cast=str, default="http://dmapps")
 # the default 'from' email address used for system emails
@@ -96,6 +101,9 @@ ALLOWED_HOSTS = [
     'dmapps-dev.azurewebsites.net',
     'dmapps-test-web.azurewebsites.net',
     'dmapps-prod-web.azurewebsites.net',
+    'dmapps-prod-web-staging.azurewebsites.net',
+    'sci-zone.azure.cloud.dfo-mpo.gc.ca',
+    'sci-zone.dfo-mpo.gc.ca',
 ]
 ALLOWED_HOST_TO_ADD = config("ALLOWED_HOST_TO_ADD", cast=str, default="")
 if ALLOWED_HOST_TO_ADD != "":
@@ -136,7 +144,6 @@ INSTALLED_APPS = [
                      'tickets',
                  ] + local_conf.MY_INSTALLED_APPS
 
-
 # If the GEODJANGO setting is set to False, turn off any apps that require it
 GEODJANGO = config("GEODJANGO", cast=bool, default=False)
 if not GEODJANGO:
@@ -146,7 +153,6 @@ if not GEODJANGO:
         print("turning off spring cleanup app because geodjango is not enabled")
     except ValueError:
         pass
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -280,3 +286,27 @@ TRACK_SUPERUSERS = False
 
 if "win" in sys.platform.lower() and GEODJANGO:
     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
+
+if not DEBUG:
+    if not os.path.exists(LOG_FILE_PATH):
+        print(f"Cannot use file logs since the log filepath provided does not exist: {LOG_FILE_PATH}")
+    else:
+        print(f"All logs at the {LOGGING_LEVEL} level and above will be saved to the following location: {LOG_FILE_PATH}")
+        LOGGING = {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'handlers': {
+                'file': {
+                    'level': LOGGING_LEVEL,
+                    'class': 'logging.FileHandler',
+                    'filename': LOG_FILE_PATH,
+                },
+            },
+            'loggers': {
+                'django': {
+                    'handlers': ['file'],
+                    'level': LOGGING_LEVEL,
+                    'propagate': True,
+                },
+            },
+        }

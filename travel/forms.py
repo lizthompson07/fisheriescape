@@ -232,22 +232,24 @@ class TripRequestForm(forms.ModelForm):
                 raise forms.ValidationError(msg)
             # is the start date of the travel request equal to or before the start date of the trip?
             if trip_start_date:
-                if request_start_date > trip_start_date:
+                delta = abs(request_start_date - trip_start_date)
+                if delta.days > 10:
                     msg = _(
-                        f'The start date of this request ({request_start_date.strftime("%Y-%m-%d")}) cannot be after the start date of the '
-                        f'selected trip ({trip_start_date.strftime("%Y-%m-%d")})!')
+                        f'The start date of this request ({request_start_date.strftime("%Y-%m-%d")}) has to be within 10 days of the'
+                        f' start date of the selected trip ({trip_start_date.strftime("%Y-%m-%d")})!')
                     self.add_error('start_date', msg)
-                    self.add_error('trip', msg)
+                    # self.add_error('trip', msg)
                     raise forms.ValidationError(msg)
 
             # is the end_date of the travel request equal to or after the end date of the trip?
             if trip_end_date:
-                if request_end_date < trip_end_date:
+                delta = abs(request_end_date - trip_end_date)
+                if delta.days > 10:
                     msg = _(
-                        f'The end date of this request ({request_end_date.strftime("%Y-%m-%d")}) cannot be before the end date of the '
-                        f'selected trip ({trip_end_date.strftime("%Y-%m-%d")})!')
+                        f'The end date of this request ({request_end_date.strftime("%Y-%m-%d")}) must be within 10 days'
+                        f' of the end date of the selected trip ({trip_end_date.strftime("%Y-%m-%d")})!')
                     self.add_error('end_date', msg)
-                    self.add_error('trip', msg)
+                    # self.add_error('trip', msg)
                     raise forms.ValidationError(msg)
 
 
