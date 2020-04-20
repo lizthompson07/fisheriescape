@@ -76,6 +76,7 @@ class ProjectForm(forms.ModelForm):
             'approved',
             'meeting_notes',
             'programs',
+            "recommended_for_funding",
         ]
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
@@ -181,17 +182,19 @@ class NoteForm(forms.ModelForm):
         }
 
 
-class ProjectApprovalForm(forms.ModelForm):
+class ProjectRecommendationForm(forms.ModelForm):
     class Meta:
         model = models.Project
         fields = [
             'last_modified_by',
             'meeting_notes',
-            'approved',
+            # 'approved',
+            "recommended_for_funding",
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'approved': forms.HiddenInput(),
+            # 'approved': forms.HiddenInput(),
+            'recommended_for_funding': forms.HiddenInput(),
         }
 
 
@@ -228,7 +231,7 @@ class AdminStaffForm(forms.ModelForm):
 class AdminProjectProgramForm(forms.ModelForm):
     class Meta:
         model = models.Project
-        fields = ["project_title", "programs", "approved", "meeting_notes"]
+        fields = ["project_title", "programs", "recommended_for_funding", "approved", "meeting_notes"]
 
         widgets = {
             'programs': forms.SelectMultiple(attrs=chosen_js),
@@ -365,11 +368,13 @@ class ReportSearchForm(forms.Form):
         (1, "Master spreadsheet (MS Excel)"),
         (16, _("Feedback summary")),
         (17, _("Data management summary")),
+        (21, _("COVID Assessment")),
 
         (None, ""),
         (None, "----- Funding ------"),
         (18, _("Funding (PDF)")),
         (19, _("Funding (MS Excel)")),
+        (20, _("Summary Report by O&M Category (MS Excel)")),
 
         (None, ""),
         (None, "----- GULF ------"),
@@ -391,6 +396,7 @@ class ReportSearchForm(forms.Form):
     funding_src = forms.ChoiceField(required=False, label=_("Funding Source"))
     division = forms.MultipleChoiceField(required=False, label="Divisions (Leave blank to select all)")
     section = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
+    omcatagory = forms.MultipleChoiceField(required=False, label="O&M Catagories (Leave blank to select all)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -401,6 +407,7 @@ class ReportSearchForm(forms.Form):
         self.fields['region'].choices = views.get_region_choices()
         self.fields['division'].choices = views.get_division_choices()
         self.fields["section"].choices = views.get_section_choices()
+        self.fields["omcatagory"].choices = views.get_omcatagory_choices()
         self.fields["fiscal_year"].choices = fy_choices
 
 
@@ -663,8 +670,6 @@ class FileForm(forms.ModelForm):
         }
 
 
-
-
 class IWForm(forms.Form):
     fiscal_year = forms.ChoiceField(label=_("Fiscal year"), widget=forms.Select(attrs=chosen_js), required=True)
     region = forms.ChoiceField(label=_("Region"), widget=forms.Select(attrs=chosen_js), required=False)
@@ -674,17 +679,13 @@ class IWForm(forms.Form):
     def __init__(self, *args, **kwargs):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
 
-
         super().__init__(*args, **kwargs)
-
 
         region_choices = views.get_region_choices()
         region_choices.insert(0, tuple((None, "---")))
 
         division_choices = views.get_division_choices()
         section_choices = views.get_section_choices(full_name=False)
-
-
 
         # if there is a region, we should limit the divisions and sections
         if kwargs.get("initial"):

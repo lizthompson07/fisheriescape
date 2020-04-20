@@ -4,6 +4,11 @@
 {% load verbose_names %}
 {% load i18n %}
 {% load custom_filters %}
+
+{% block subtitle %}
+    - {{ object }}
+{% endblock %}
+
 {% block content %}
 
     <style>

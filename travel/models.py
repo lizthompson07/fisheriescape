@@ -446,15 +446,6 @@ class TripRequest(models.Model):
                                    null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True, blank=True)
     end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True, blank=True)
-
-    #############
-    # these two fields should be deleted eventually if the event planning peice happens through this app...
-    # has_event_template = models.NullBooleanField(default=False,
-    #                                              verbose_name=_(
-    #                                                  "Is there an event template being completed for this trip or meeting?"))
-    # event_lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Regional event lead"),
-    #                                related_name="trip_events", blank=True, null=True)
-    ################
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of traveller"))
 
     # purpose
@@ -512,10 +503,6 @@ class TripRequest(models.Model):
         return reverse('travel:request_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
-
-        if self.start_date:
-            self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
-
         # if the start and end dates are null, but there is a trip, use those.. to populate
         if self.trip and not self.start_date:
             # print("adding start date from trip")
@@ -523,6 +510,9 @@ class TripRequest(models.Model):
         if self.trip and not self.end_date:
             # print("adding end date from trip")
             self.end_date = self.trip.end_date
+
+        if self.start_date:
+            self.fiscal_year_id = fiscal_year(date=self.start_date, sap_style=True)
 
         # If this is a group request, the parent record should not have any costs
         if self.is_group_request:
@@ -582,11 +572,11 @@ class TripRequest(models.Model):
         my_str = ""
         for tr_cost in self.trip_request_costs.all():
             if tr_cost.rate_cad:
-                my_str += "<b>{}</b>: ${:,.2f} ({} x {:,.2f})<br>".format(
+                my_str += "<b>{}</b>: ${:,.2f}  ({} x {:,.2f})<br>".format(
                     tr_cost.cost,
-                    nz(tr_cost.rate_cad, 0),
-                    nz(tr_cost.number_of_days, 0),
                     nz(tr_cost.amount_cad, 0),
+                    nz(tr_cost.number_of_days, 0),
+                    nz(tr_cost.rate_cad, 0),
                 )
             else:
                 my_str += "<b>{}</b>: ${:,.2f}<br> ".format(tr_cost.cost, tr_cost.amount_cad)
@@ -717,7 +707,9 @@ class TripRequest(models.Model):
         """
         For CFTS report
         """
-        my_str = "{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
+        my_str = "{}: {}".format("ROLE OF PARTICIPANT", nz(self.role_of_participant, "No description provided"))
+
+        my_str += "\n\n{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
 
         my_str += "\n\n{}: {}".format("BENEFIT TO DFO", nz(self.benefit_to_dfo, "n/a"))
 

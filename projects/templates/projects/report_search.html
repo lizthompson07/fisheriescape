@@ -52,6 +52,10 @@
                     <div class="fiscal_year_div">
                         {% bootstrap_field field %}
                     </div>
+                {% elif field.name == "omcatagory" %}
+                    <div class="omcatagory_div">
+                        {% bootstrap_field field %}
+                    </div>
 
                 {% else %}
                     {% bootstrap_field field %}
@@ -68,18 +72,21 @@
 
         let divisionObj = {{ division_json|safe }};
         let sectionObj = {{ section_json|safe }};
+        let omcatagoryObj = {{ omcatagory_json|safe }};
 
         function hideAll() {
             $(".funding_src_div").addClass("gone");
             $(".region_div").addClass("gone");
             $(".division_div").addClass("gone");
             $(".section_div").addClass("gone");
+            $(".omcatagory_div").addClass("gone");
             $(".fiscal_year_div").addClass("gone");
 
             $("#id_region").prop('required', false);
             $("#id_funding_src").prop('required', false);
             $("#id_division").prop('required', false);
             $("#id_section").prop('required', false);
+            $("#id_omcatagory").prop('required', false);
             $("#id_fiscal_year").prop('required', false);
         }
 
@@ -92,7 +99,7 @@
                 $("#id_fiscal_year").prop('required', true);
                 $("#id_region").prop('required', true);
             }
-            else if ((reportChoice >= 1 && reportChoice < 4) || (reportChoice >= 10 && reportChoice <= 19)) {
+            else if ((reportChoice >= 1 && reportChoice < 4) || (reportChoice >= 10 && reportChoice <= 21)) {
                 $(".fiscal_year_div").removeClass("gone");
                 $(".region_div").removeClass("gone");
                 $(".division_div").removeClass("gone");
@@ -106,6 +113,10 @@
             if (reportChoice == 18 || reportChoice == 19) {
                 $(".funding_src_div").removeClass("gone");
                 $("#id_funding_src").prop('required', true);
+            }
+
+            if (reportChoice == 20) {
+                $(".omcatagory_div").removeClass("gone");
             }
         }
 

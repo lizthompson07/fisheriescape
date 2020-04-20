@@ -64,6 +64,9 @@ class Theme(models.Model):
         ordering = ['name', ]
 
 
+#
+##
+### Can this model be deleted?
 class Program(models.Model):
     is_core_choices = (
         # (None, _("Unknown")),
@@ -206,6 +209,7 @@ class FundingSource(models.Model):
 
     class Meta:
         ordering = ['funding_source_type', 'name', ]
+        unique_together = [('funding_source_type', 'name'), ]
 
 
 class Tag(models.Model):
@@ -369,6 +373,7 @@ class Project(models.Model):
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
     # approved = models.BooleanField(default=False, verbose_name=_("approved"))
     approved = models.BooleanField(default=False, verbose_name=_("approved"))
+    recommended_for_funding = models.BooleanField(default=False, verbose_name=_("recommended"))
     # section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
 
     # manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))
