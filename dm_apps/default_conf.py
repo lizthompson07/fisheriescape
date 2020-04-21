@@ -38,6 +38,7 @@ APP_DICT = {
     'trapnet': "TrapNet",
     'whalesdb': "Whale Equipment Deployment Inventory",
     'vault': "Marine Megafauna Media Vault",
+    'mmutools': "Marine Mammal Unit Tools and Necropsy Planner",
     'spring_cleanup': "Gulf Region Spring Cleanup",
     'shiny': "DM Apps Shiny App Collection",
 }

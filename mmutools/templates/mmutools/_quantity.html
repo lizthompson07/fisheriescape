@@ -1,0 +1,64 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+
+<!--Trying to get it to add a box with the total quantity available, see models.py -->
+
+
+
+
+<div class="">
+    <h3>
+        {% trans "Quantity:" %}
+    </h3>
+</div>
+
+{% if object.necropsy_quantity_related.count == 0 %}
+    <em>
+        {% trans "No quantities have been added to this entry" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th>
+                {% trans "Quantity" %}
+            </th>
+            <th>
+                {% trans "Status" %}
+            </th>
+            <th>
+                {% trans "Location Stored" %}
+            </th>
+            <th>
+                {% trans "Bin Id" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.necropsy_quantity_related.all %}
+            <tr href="{% url 'mmutools:quantity_edit' obj.id %}" pop>
+                <td>
+                    {{ obj.quantity }}
+                </td>
+                <td>
+                    {{ obj.status }}
+                </td>
+                <td>
+                    {{ obj.location_stored }}
+                </td>
+                <td>
+                    {{ obj.bin_id }}
+                </td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<a class="" href="#"
+   onclick="return popitup('{% url 'mmutools:quantity_new' %}','popoutWindow')">
+    {% trans "(Add Inventory)" %}
+</a>
+<br>
+<br>
+<br>

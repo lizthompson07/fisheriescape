@@ -1,0 +1,75 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+
+<div class="">
+    <h3>
+        {% trans "Invoice Files:" %}
+    </h3>
+</div>
+
+{% if object.necropsy_file_related.count == 0 %}
+    <em>
+        {% trans "No files have been added to this entry" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            <th>
+                {% trans "File" %}
+            </th>
+            <th>
+                {% trans "Caption" %}
+            </th>
+            <th>
+                {% trans "Date Uploaded" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.necropsy_file_related.all %}
+            <tr href="{% url 'mmutools:file_edit' object.id %}" pop>
+                <td>
+                    {{ obj.file }}
+                </td>
+                <td>
+                    {{ obj.caption}}
+                </td>
+                <td>
+                    {{ obj.date_uploaded }}
+                </td>
+                <td>
+                    <a href="{{ obj.file.url }}" >
+                        <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
+                    </a>
+                </td>
+                <td>
+                    <a href="#"
+                       onclick="return popitup('{% url 'mmutools:file_edit' object.id %}','popoutWindow')">
+                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                    </a>
+                </td>
+                    <td>
+                    <a class="file-delete-me" href="#" val="{{ obj.id }}">
+                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                    </a>
+                        <a id="file-secret-delete-btn-{{ obj.id }}" href="{% url 'mmutools:file_delete' object.id %}" class="hidden"></a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+<a class="" href="#"
+   onclick="return popitup('{% url 'mmutools:file_new' object.id %}','popoutWindow')">
+    {% trans "(Add File)" %}
+</a>
+
+<br>
+<br>
+<br>
+
+
+
+
