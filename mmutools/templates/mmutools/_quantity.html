@@ -2,9 +2,17 @@
 {% load humanize %}
 {% load i18n %}
 
-<!--Trying to get it to add a box with the total quantity available, see models.py -->
+<!--TODO Figure out how to use operators on fields with choices (ref "_quantity.html")-->
+<!--Trying to get it to add a box with the total quantity available, see models.py Quantity model-->
 
+<!--For a given item with X quantity entries of status = 'ON_HAND' and status = 'LENT_OUT', I want to:
 
+sum_oh = sum quantities with status = "ON_HAND"
+sum_lent = sum quantities with status = "LENT_OUT"
+
+And then get the quantity available still by:
+sum_avail = sum_oh - sum_lent
+-->
 
 
 <div class="">

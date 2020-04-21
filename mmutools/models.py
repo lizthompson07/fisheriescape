@@ -95,18 +95,18 @@ class Lending(models.Model):
 
 class Quantity(models.Model):
     #choices for status
-    ON_HAND = 1
-    ON_ORDER = 2
-    LENT_OUT = 3
-    STATUS_CHOICES = (
-        (ON_HAND, 'On hand'),
-        (ON_ORDER, 'On Order'),
-        (LENT_OUT, 'Lent Out'),
-    )
+    ON_HAND = 'on hand'
+    ON_ORDER = 'on order'
+    LENT_OUT = 'lent out'
+    STATUS_CHOICES = [
+        (ON_HAND, _('On Hand')),
+        (ON_ORDER, _('On Order')),
+        (LENT_OUT, _('Lent Out')),
+    ]
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="necropsy_quantity_related", related_query_name="necropsy_quantitys",
                                       verbose_name=_("Item"))
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity"))
-    status = models.CharField(max_length=255, choices=STATUS_CHOICES, default='None', verbose_name=_("Status"))
+    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default='ON_HAND', verbose_name=_("Status"))
     lent_id = models.ForeignKey(Lending, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="lendee",
                                            verbose_name=_("Lent To"))
     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Last Audited"))
@@ -116,6 +116,7 @@ class Quantity(models.Model):
 
 
     def __str__(self):
+
         # check to see if a french value is given
         if getattr(self, str(_("id"))):
 
