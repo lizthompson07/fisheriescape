@@ -27,16 +27,30 @@ class UtilityTests(TestCase):
 
         self.assertFalse(authorized)
 
-    # user in csas_admin should be authorized
+    # user in csas_admin or the csas_user group they should be authorized
     @tag('util', 'auth')
-    def test_auth_csasadmin_granted(self):
+    def test_auth_csas_user_granted(self):
         user = User.objects.create_user(username='Patrick', email="Patrick@dfo-mpo.gc.ca", password="secret")
 
-        whale_group = Group(name="csas_admin")
-        whale_group.save()
+        csas_group = Group(name="csas_user")
+        csas_group.save()
 
-        user.groups.add(whale_group)
+        user.groups.add(csas_group)
 
         authorized = utils.csas_authorized(user)
+
+        self.assertTrue(authorized)
+
+    # user in csas_admin or the csas_user group they should be authorized
+    @tag('util', 'auth')
+    def test_auth_csas_admin_granted(self):
+        user = User.objects.create_user(username='Patrick', email="Patrick@dfo-mpo.gc.ca", password="secret")
+
+        csas_group = Group(name="csas_admin")
+        csas_group.save()
+
+        user.groups.add(csas_group)
+
+        authorized = utils.csas_admin(user)
 
         self.assertTrue(authorized)
