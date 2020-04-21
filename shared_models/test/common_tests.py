@@ -172,6 +172,21 @@ class CommonTest(TestCase):
         for context_var in context_var_list:
             self.assertIn(context_var, response.context)
 
+    def assert_value_of_context_var(self, test_url, context_var, expected_value, user=None):
+        """
+        this test looks to ensure that a specific context var is present in the template context variable
+        :param test_url:
+        :param context_var: name of context var to search for
+        :param expected_value: expected value of context var
+        :param user: an optional user to use for producing the http response
+        """
+        activate('en')
+        reg_user = self.get_and_login_user(user=user)
+        response = self.client.get(test_url)
+
+        self.assertIn(context_var, response.context)
+        self.assertEqual(response.context.get("context_var"), expected_value)
+
     # Tests for forms (create, update, delete and form views)
     #################
 
