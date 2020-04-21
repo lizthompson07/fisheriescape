@@ -61,7 +61,7 @@ class ResourceFactory(factory.django.DjangoModelFactory):
     resource_type = factory.lazy_attribute(
         lambda o: models.ResourceType.objects.all()[faker.random_int(0, models.ResourceType.objects.count() - 1)])
     section = factory.SubFactory(SectionFactory)
-    title_eng = factory.lazy_attribute(lambda o: faker.phrase())
+    title_eng = factory.lazy_attribute(lambda o: faker.catch_phrase())
     status = factory.lazy_attribute(lambda o: models.Status.objects.all()[faker.random_int(0, models.Status.objects.count() - 1)])
     purpose_eng = factory.lazy_attribute(lambda o: faker.text())
     descr_eng = factory.lazy_attribute(lambda o: faker.text())
@@ -78,8 +78,8 @@ class DataResourceFactory(factory.django.DjangoModelFactory):
     url = factory.lazy_attribute(lambda o: faker.url())
     content_type = factory.lazy_attribute(
         lambda o: models.ContentType.objects.all()[faker.random_int(0, models.ContentType.objects.count() - 1)])
-    name_eng = factory.lazy_attribute(lambda o: faker.phrase())
-    name_fre = factory.lazy_attribute(lambda o: faker.phrase())
+    name_eng = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    name_fre = factory.lazy_attribute(lambda o: faker.catch_phrase())
     protocol = factory.lazy_attribute(lambda o: faker.word())
 
 
@@ -91,8 +91,8 @@ class WebServiceFactory(factory.django.DjangoModelFactory):
     url = factory.lazy_attribute(lambda o: faker.url())
     content_type = factory.lazy_attribute(
         lambda o: models.ContentType.objects.all()[faker.random_int(0, models.ContentType.objects.count() - 1)])
-    name_eng = factory.lazy_attribute(lambda o: faker.phrase())
-    name_fre = factory.lazy_attribute(lambda o: faker.phrase())
+    name_eng = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    name_fre = factory.lazy_attribute(lambda o: faker.catch_phrase())
     protocol = factory.lazy_attribute(lambda o: faker.word())
     service_language = factory.lazy_attribute(lambda o: faker.word())
 
@@ -113,7 +113,7 @@ class ResourceCertificationFactory(factory.django.DjangoModelFactory):
     resource = factory.SubFactory(ResourceFactory)
     certifying_user = factory.SubFactory(UserFactory)
     certification_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
-    notes = factory.lazy_attribute(lambda o: faker.phrase())
+    notes = factory.lazy_attribute(lambda o: faker.catch_phrase())
 
 
 

@@ -10,5 +10,5 @@ python manage.py test travel.test --keepdb
 :: run tests for whalesdb app
 python manage.py test whalesdb.test --keepdb
 
-:: run tests for whalesdb app
-python manage.py test iventory.test --keepdb
+:: run tests for inventory app
+python manage.py test inventory.test --keepdb
