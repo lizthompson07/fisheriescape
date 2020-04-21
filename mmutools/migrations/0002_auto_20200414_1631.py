@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='quantity',
             name='quantity_lent',
-            field=models.ForeignKey(default=0, on_delete=django.db.models.deletion.DO_NOTHING, related_name='quantities', to='mmutools.Lending', verbose_name='Quantity Lent'),
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.DO_NOTHING, related_name='quantities', to='mmutools.Lending', verbose_name='Quantity Lent'),
             preserve_default=False,
         ),
     ]
