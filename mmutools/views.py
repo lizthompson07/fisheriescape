@@ -94,6 +94,8 @@ class ItemDetailView(VaultAccessRequired, DetailView):
             'gear_type',
 
         ]
+        context['quantity_avail'] = models.Quantity.objects.filter(status='on hand').aggregate(dsum=Sum('quantity')).get('dsum')
+
         return context
 
 

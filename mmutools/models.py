@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
 from django.dispatch import receiver
@@ -114,7 +115,6 @@ class Quantity(models.Model):
     location_stored = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Location Stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Bin Id"))
 
-
     def __str__(self):
 
         # check to see if a french value is given
@@ -129,11 +129,12 @@ class Quantity(models.Model):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})
 
     # @property
-    # def (self):
-    #     return
-    # @property
     # def quantity_avail(self):
-    #     return self.quantity_oh - self.quantity_lent
+    #
+    #     Myobj = Quantity.objects.filter(status='on hand').aggregate(dsum=Sum('quantity'))
+    #     Myobj2 = Quantity.objects.filter(status='lent out').aggregate(dsum=Sum('quantity'))
+    #
+    #     return Myobj["dsum"]-Myobj2["dsum"]
 
 
 class Supplier(models.Model):

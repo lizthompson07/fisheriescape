@@ -4,4 +4,4 @@
 # TODO get file upload function to work properly
 # TODO add additional search features (i.e. for item location)
 # TODO add edit button beside quantity
-# TODO get quantity_avail function to work
+# TODO Figure out how to use operators on fields with choices (ref "_quantity.html")
