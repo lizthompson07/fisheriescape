@@ -22,6 +22,7 @@ class OrganizationFactory(factory.django.DjangoModelFactory):
 class PersonFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Person
+        django_get_or_create = ('user',) #needed because a Person is automatically created when a user is created (via signals)
 
     user = factory.SubFactory(UserFactory)
     organization = factory.SubFactory(OrganizationFactory)
@@ -69,6 +70,20 @@ class ResourceFactory(factory.django.DjangoModelFactory):
     time_start_month = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).month)
     time_start_year = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).year)
 
+    @staticmethod
+    def get_valid_data():
+        start_date = faker.future_datetime(tzinfo=timezone.get_current_timezone())
+        return {
+            "section": SectionFactory().id,
+            "title_eng": faker.catch_phrase(),
+            "descr_eng": faker.text(),
+            "purpose_eng": faker.text(),
+            "resource_type": models.ResourceType.objects.all()[faker.random_int(0, models.ResourceType.objects.count() - 1)].id,
+            "time_start_day": start_date.day,
+            "time_start_month": start_date.month,
+            "time_start_year": start_date.year,
+        }
+
 
 class DataResourceFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -106,6 +121,10 @@ class ResourcePersonFactory(factory.django.DjangoModelFactory):
     role = factory.lazy_attribute(lambda o: models.PersonRole.objects.all()[faker.random_int(0, models.PersonRole.objects.count() - 1)])
 
 
+class CustodianResourcePersonFactory(ResourcePersonFactory):
+    role = factory.lazy_attribute(lambda o: models.PersonRole.objects.get(pk=1))
+
+
 class ResourceCertificationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ResourceCertification
@@ -114,6 +133,3 @@ class ResourceCertificationFactory(factory.django.DjangoModelFactory):
     certifying_user = factory.SubFactory(UserFactory)
     certification_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     notes = factory.lazy_attribute(lambda o: faker.catch_phrase())
-
-
-

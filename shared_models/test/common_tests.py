@@ -145,6 +145,20 @@ class CommonTest(TestCase):
         for field in fields_to_test:
             self.assertIn(field, response.context[name_of_field_list])
 
+    def assert_field_not_in_field_list(self, test_url, name_of_field_list, fields_to_test, user=None):
+        """
+        this test looks for a field list in the context variable and checks to confirm a specific field name is not in there
+        :param test_url:
+        :param name_of_field_list: the name of the field list (e.g. `field_list`)
+        :param fields_to_test: list of fields to check for
+        :param user: an optional user to use for producing the http response
+        """
+        activate('en')
+        self.get_and_login_user(user=user)
+        response = self.client.get(test_url)
+        for field in fields_to_test:
+            self.assertNotIn(field, response.context[name_of_field_list])
+
     def assert_presence_of_context_vars(self, test_url, context_var_list, user=None):
         """
         this test looks to ensure that a specific context var is present in the template context variable
@@ -157,6 +171,21 @@ class CommonTest(TestCase):
         response = self.client.get(test_url)
         for context_var in context_var_list:
             self.assertIn(context_var, response.context)
+
+    def assert_value_of_context_var(self, test_url, context_var, expected_value, user=None):
+        """
+        this test looks to ensure that a specific context var is present in the template context variable
+        :param test_url:
+        :param context_var: name of context var to search for
+        :param expected_value: expected value of context var
+        :param user: an optional user to use for producing the http response
+        """
+        activate('en')
+        reg_user = self.get_and_login_user(user=user)
+        response = self.client.get(test_url)
+
+        self.assertIn(context_var, response.context)
+        self.assertEqual(response.context.get(context_var), expected_value)
 
     # Tests for forms (create, update, delete and form views)
     #################
