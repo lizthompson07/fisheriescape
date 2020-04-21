@@ -121,12 +121,21 @@ class DetailsCommon(DetailView):
 
 
 class CloserTemplateView(TemplateView):
-    template_name = 'whalesdb/close_me.html'
+    template_name = "shared_models/close_me.html"
 
 
 # Create your views here.
 class IndexTemplateView(TemplateView):
     template_name = 'csas/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context["auth"] = utils.csas_authorized(self.request.user)
+            context["csas_admin"] = utils.csas_admin(self.request.user)
+
+        return context
 
 
 # ----------------------------------------------------------------------------------------------------
