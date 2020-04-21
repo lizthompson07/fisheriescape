@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
-
+from lib.functions.custom_functions import nz
 
 class Category(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("English name"))
@@ -48,12 +48,13 @@ class Owner(models.Model):
             return "{}".format(self.name)
 
 class Item(models.Model):
-    unique_id = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("Unique ID"))
     item_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Name of Item"))
     description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Description"))
+    serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Serial Number"))
     owner = models.ForeignKey(Owner, on_delete=models.DO_NOTHING, related_name="owner",
                                                   verbose_name=_("Owner of Equipment"))
     size = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Size (if applicable)"))
+    container = models.BooleanField(default=False, verbose_name=_("Is this item a container with more items inside it?"))
     container_space = models.IntegerField(null=True, blank=True,
                                           verbose_name=_("Container Space Available (if applicable)"))
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name="category",
@@ -82,26 +83,32 @@ class Lending(models.Model):
 
     def __str__(self):
         # check to see if a french value is given
-        if getattr(self, str(_("quantity_lent"))):
+        if getattr(self, str(_("lent_to"))):
 
-            return "{}".format(getattr(self, str(_("quantity_lent"))))
+            return "{}".format(getattr(self, str(_("lent_to"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.quantity_lent)
+            return "{}".format(self.lent_to)
 
     def get_absolute_url(self):
         return reverse("mmutools:lending_detail", kwargs={"pk": self.id})
 
 class Quantity(models.Model):
+    #choices for status
+    ON_HAND = 1
+    ON_ORDER = 2
+    LENT_OUT = 3
+    STATUS_CHOICES = (
+        (ON_HAND, 'On hand'),
+        (ON_ORDER, 'On Order'),
+        (LENT_OUT, 'Lent Out'),
+    )
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="necropsy_quantity_related", related_query_name="necropsy_quantitys",
                                       verbose_name=_("Item"))
-    unique_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Unique Id"))
-    serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Serial Number"))
-    quantity_oh = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity on Hand"))
-    quantity_lent = models.ForeignKey(Lending, on_delete=models.DO_NOTHING, related_name="quantities",
-                                           verbose_name=_("Quantity Lent"))
-    quantity_avail = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity Available"))
-    quantity_oo = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity on Order"))
+    quantity = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity"))
+    status = models.CharField(max_length=255, choices=STATUS_CHOICES, default='None', verbose_name=_("Status"))
+    lent_id = models.ForeignKey(Lending, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="lendee",
+                                           verbose_name=_("Lent To"))
     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Last Audited"))
     last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last Audited By"))
     location_stored = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Location Stored"))
@@ -110,12 +117,12 @@ class Quantity(models.Model):
 
     def __str__(self):
         # check to see if a french value is given
-        if getattr(self, str(_("unique_id"))):
+        if getattr(self, str(_("id"))):
 
-            return "{}".format(getattr(self, str(_("unique_id"))))
+            return "{}".format(getattr(self, str(_("id"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.unique_id)
+            return "{}".format(self.id)
 
     def get_absolute_url(self):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})

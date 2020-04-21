@@ -2,9 +2,9 @@
 {% load humanize %}
 {% load i18n %}
 
-<!--Trying to get it to add a box with the total quantity available, see views.py -->
+<!--Trying to get it to add a box with the total quantity available, see models.py -->
 
-    {{ quantity.quantity_avail }}
+
 
 
 <div class="">
@@ -22,10 +22,10 @@
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             <th>
-                {% trans "Quantity on Hand" %}
+                {% trans "Quantity" %}
             </th>
             <th>
-                {% trans "Quantity on Order" %}
+                {% trans "Status" %}
             </th>
             <th>
                 {% trans "Location Stored" %}
@@ -38,10 +38,10 @@
         {% for obj in object.necropsy_quantity_related.all %}
             <tr href="{% url 'mmutools:quantity_edit' obj.id %}" pop>
                 <td>
-                    {{ obj.quantity_oh }}
+                    {{ obj.quantity }}
                 </td>
                 <td>
-                    {{ obj.quantity_oo }}
+                    {{ obj.status }}
                 </td>
                 <td>
                     {{ obj.location_stored }}

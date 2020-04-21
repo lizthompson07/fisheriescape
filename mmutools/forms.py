@@ -5,6 +5,9 @@ class ItemForm(forms.ModelForm):
     class Meta:
         model = models.Item
         fields = "__all__"
+        widgets = {
+            'container': forms.CheckboxInput,
+        }
 
 class QuantityForm(forms.ModelForm):
     class Meta:

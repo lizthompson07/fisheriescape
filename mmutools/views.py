@@ -54,18 +54,19 @@ class ItemListView(VaultAccessRequired, FilterView):
     template_name = "mmutools/item_list.html"
     filterset_class = filters.ItemFilter
     queryset = models.Item.objects.annotate(
-        search_term=Concat('id', 'unique_id', 'item_name', 'description', 'owner', 'size', 'container_space', 'category', 'gear_type', output_field=TextField()))
+        search_term=Concat('id', 'item_name', 'description', 'serial_number', 'owner', 'size', 'container', 'container_space', 'category', 'gear_type', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Item.objects.first()
         context["field_list"] = [
             'id',
-            'unique_id',
             'item_name',
             'description',
+            'serial_number',
             'owner',
             'size',
+            'container',
             'container_space',
             'category',
             'gear_type',
@@ -79,11 +80,12 @@ class ItemDetailView(VaultAccessRequired, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'id',
-            'unique_id',
             'item_name',
             'description',
+            'serial_number',
             'owner',
             'size',
+            'container',
             'container_space',
             'category',
             'gear_type',
@@ -128,7 +130,7 @@ class QuantityListView(VaultAccessRequired, FilterView):
     template_name = "mmutools/quantity_list.html"
     filterset_class = filters.QuantityFilter
     queryset = models.Quantity.objects.annotate(
-        search_term=Concat('id', 'item', 'unique_id', 'serial_number', 'quantity_oh', 'quantity_lent', 'quantity_avail', 'quantity_oo', 'last_audited', 'last_audited_by', 'location_stored', 'bin_id', output_field=TextField()))
+        search_term=Concat('id', 'item', 'quantity', 'status', 'lent_id', 'last_audited', 'last_audited_by', 'location_stored', 'bin_id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -136,12 +138,9 @@ class QuantityListView(VaultAccessRequired, FilterView):
         context["field_list"] = [
             'id',
             'item',
-            'unique_id',
-            'serial_number',
-            'quantity_oh',
-            'quantity_lent',
-            'quantity_avail',
-            'quantity_oo',
+            'quantity',
+            'status',
+            'lent_id',
             'last_audited',
             'last_audited_by',
             'location_stored',
@@ -157,25 +156,17 @@ class QuantityDetailView(VaultAccessRequired, DetailView):
         context["field_list"] = [
             'id',
             'item',
-            'unique_id',
-            'serial_number',
-            'quantity_oh',
-            'quantity_lent',
-            'quantity_avail',
-            'quantity_oo',
+            'quantity',
+            'status',
+            'lent_id',
             'last_audited',
             'last_audited_by',
             'location_stored',
             'bin_id',
         ]
 
-        # for quantity in context['field_list']:
-        #     quantity.quantity_avail = models.Quantity.objects.all().annotate(sum_oh=Sum('quantity_oh')).annotate(
-        #         sum_lent=Sum('quantity_lent')).annotate(sum_diff=F('sum_oh') - F('sum_lent'))
 
         return context
-
- # Trying to define it so that I can return the available number of items (needs to add all inv for an item and subtract all lent out items)
 
 
 
