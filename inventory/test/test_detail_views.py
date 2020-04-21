@@ -11,7 +11,7 @@ class TestResourceDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.resource = FactoryFloor.ResourceFactory()
-        self.test_url = reverse_lazy('inventory:resource_detail', kwargs={"pk":"self.resource.pk"})
+        self.test_url = reverse_lazy('inventory:resource_detail', kwargs={"pk":self.resource.pk})
         self.expected_template = 'inventory/resource_detail.html'
 
     @tag("inventory", 'detail', "view")
