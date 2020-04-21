@@ -32,6 +32,7 @@ class CsasListCommon(shared_view.FilterCommon):
     # if not set by the extending class the default popup height will be used
     creation_form_height = None
 
+    # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
     def test_func(self):
         return utils.csas_authorized(self.request.user)
 
@@ -79,6 +80,7 @@ class CsasUpdateCommon(shared_view.UpdateCommon):
 
     template_name = 'csas/csas_entry_form.html'
 
+    # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
     def test_func(self):
         return utils.csas_authorized(self.request.user)
 
@@ -127,6 +129,13 @@ class CloserTemplateView(TemplateView):
 # Create your views here.
 class IndexTemplateView(TemplateView):
     template_name = 'csas/index.html'
+
+    # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
+    def test_func(self):
+        return utils.csas_authorized(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
 
 # ----------------------------------------------------------------------------------------------------
