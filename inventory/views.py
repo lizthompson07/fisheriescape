@@ -59,7 +59,6 @@ def is_custodian_or_admin(user, resource_id):
 
 class CustodianRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
-
     def test_func(self):
         return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
 
@@ -72,7 +71,6 @@ class CustodianRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
 
     def test_func(self):
         return in_inventory_dm_group(self.request.user)
@@ -191,7 +189,6 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
     model = models.Resource
     form_class = forms.ResourceForm
 
-
     def get_initial(self):
         return {
             'last_modified_by': self.request.user,
@@ -215,7 +212,6 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = models.Resource
     form_class = forms.ResourceCreateForm
-
 
     def get_initial(self):
         return {
@@ -249,7 +245,6 @@ class ResourceDeleteView(CustodianRequiredMixin, DeleteView):
     model = models.Resource
     success_url = reverse_lazy('inventory:resource_list')
     success_message = 'The data resource was successfully deleted!'
-
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -1039,7 +1034,6 @@ class DataManagementHomeTemplateView(InventoryDMRequiredMixin, TemplateView):
 
 
 class DataManagementCustodianListView(InventoryDMRequiredMixin, TemplateView):
-
     template_name = 'inventory/dm_custodian_list.html'
 
     def get_context_data(self, **kwargs):
@@ -1066,7 +1060,6 @@ class DataManagementCustodianListView(InventoryDMRequiredMixin, TemplateView):
 
 
 class DataManagementCustodianDetailView(InventoryDMRequiredMixin, DetailView):
-
     template_name = 'inventory/dm_custodian_detail.html'
     model = models.Person
 
