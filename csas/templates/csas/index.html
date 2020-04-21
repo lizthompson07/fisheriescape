@@ -3,6 +3,10 @@
 {% load static %}
 {% block content %}
 
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% bootstrap_css %}
+
     <style>
         body {
             background-image: url("{% static 'img/csas/csas_background_1.png' %}");
@@ -41,7 +45,29 @@
                 <div class="col-5">{% trans "<h4> Publications </h4>" %}</div>
                 <div class="col-1"><a class="btn btn-primary" href="{% url 'csas:list_pub'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-primary" href="{% url 'csas:list_pub'%}">{% trans "Maritimes" %}</a></div>
-                <div class="col-3"><a class="btn btn-primary" href="{% url 'csas:create_pub'%}">{% trans "New Publication" %}</a></div>
+
+                <!-- the following part is for adding "New Publication" if the user is authenticated -->
+                <div>
+                <form class="form" action="." method="get" id="filter-form" style="width: 90%; font-size: small">
+                <div class="btn-group">
+                        <!--<input type="submit" value="Filter" class="btn btn-warning btn-sm">
+                        <a href="." class="btn btn-success btn-sm">Clear</a>-->
+                    &nbsp;
+                    {# if the user is authenticated and has permissions show the add button #}
+                    <h5> "aaaaa" </h5>
+                    {% if auth %}
+                    <h5> "inside" </h5>
+                    <div class="row">
+                        <div class="col-1">
+                            <div class="col-3"><a class="btn btn-primary" href="{% url 'csas:create_pub'%}">{% trans "New Publication" %}</a></div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <h5> "bbbbb" </h5>
+                </div>
+                </form>
+                </div>
+
             </div>
             <hr/>
 
