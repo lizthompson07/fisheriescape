@@ -94,7 +94,32 @@ class ItemDetailView(VaultAccessRequired, DetailView):
             'gear_type',
 
         ]
-        context['quantity_avail'] = models.Quantity.objects.filter(status='on hand').aggregate(dsum=Sum('quantity')).get('dsum')
+        context["random_qty"] = models.Quantity.objects.first()
+        context["qty_field_list"] = [
+            'quantity',
+            'status',
+            'location_stored',
+            'bin_id',
+        ]
+
+        # now when you create a new item you get this error:   context['quantity_avail'] = ohqty - lentqty
+        # TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType' -- have to add a case where there is
+        # no info yet in those fields? -- fixed it I think~!!! WOOOOH
+
+        ohqty = self.get_object().quantities.filter(status='on hand').aggregate(dsum=Sum('quantity')).get('dsum')
+        lentqty = self.get_object().quantities.filter(status='lent out').aggregate(dsum=Sum('quantity')).get('dsum')
+
+        if ohqty is None:
+            ohqty = 0
+        else:
+            ohqty = ohqty
+
+        if lentqty is None:
+            lentqty = 0
+        else:
+            lentqty = lentqty
+
+        context['quantity_avail'] = ohqty - lentqty
 
         return context
 

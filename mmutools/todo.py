@@ -4,4 +4,6 @@
 # TODO get file upload function to work properly
 # TODO add additional search features (i.e. for item location)
 # TODO add edit button beside quantity
-# TODO Figure out how to use operators on fields with choices (ref "_quantity.html")
+# TODO look into using ajax for popout close and refresh function -- talk to David
+# TODO Fix quantity calculation error in views.py -- see error message there, need to create case for when no values entered yet -- I think I fixed this!~! WOOO
+# TODO Figure out how to have Forms default fill in the field that is the PK with the pk of the current DetailView

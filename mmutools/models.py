@@ -104,7 +104,7 @@ class Quantity(models.Model):
         (ON_ORDER, _('On Order')),
         (LENT_OUT, _('Lent Out')),
     ]
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="necropsy_quantity_related", related_query_name="necropsy_quantitys",
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="quantities", related_query_name="necropsy_quantitys",
                                       verbose_name=_("Item"))
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity"))
     status = models.CharField(max_length=32, choices=STATUS_CHOICES, default='ON_HAND', verbose_name=_("Status"))
@@ -127,6 +127,7 @@ class Quantity(models.Model):
 
     def get_absolute_url(self):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})
+
 
     # @property
     # def quantity_avail(self):

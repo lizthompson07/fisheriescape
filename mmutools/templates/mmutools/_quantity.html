@@ -1,35 +1,8 @@
 {% load static %}
 {% load humanize %}
 {% load i18n %}
+{% load verbose_names %}
 
-
-<!--Trying to get it to add a box with the total quantity available, see models.py Quantity model-->
-
-<!--For a given item with X quantity entries of status = 'ON_HAND' and status = 'LENT_OUT', I want to:
-
-sum_oh = sum quantities with status = "ON_HAND"
-sum_lent = sum quantities with status = "LENT_OUT"
-
-And then get the quantity available still by:
-sum_avail = sum_oh - sum_lent
-
-Possibilities?
-
-oh_quantities = Quantity.objects.filter(status='on hand')
-sum_oh = Quantity.objects.filter(status='on hand').aggregate(Sum('quantity'))
-sum_lent = Quantity.objects.filter(status='lent out').aggregate(Sum('quantity'))
-
-quantity_avail = Quantity.objects.filter(status='on hand').aggregate(Sum('quantity')) - Quantity.objects.filter(status='lent out').aggregate(Sum('quantity')) --doesnt work
-
---extrapolated from David:
-Myobj = Quantity.objects.filter(status='on hand').aggregate(dsum=Sum('quantity'))
-Myobj["dsum"]
-
-Myobj2 = Quantity.objects.filter(status='lent out').aggregate(dsum=Sum('quantity'))
-Myobj2["dsum"]
-
-Myobj["dsum"]-Myobj2["dsum"]
--->
 
 <h3>
 <span class="badge badge-info">
@@ -46,7 +19,7 @@ Myobj["dsum"]-Myobj2["dsum"]
     </h3>
 </div>
 
-{% if object.necropsy_quantity_related.count == 0 %}
+{% if object.quantities.count == 0 %}
     <em>
         {% trans "No quantities have been added to this entry" %}
     </em><br>
@@ -54,42 +27,30 @@ Myobj["dsum"]-Myobj2["dsum"]
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
+
+            {% for field in qty_field_list %}
             <th>
-                {% trans "Quantity" %}
+
+            {% get_verbose_label random_qty field %}
             </th>
-            <th>
-                {% trans "Status" %}
-            </th>
-            <th>
-                {% trans "Location Stored" %}
-            </th>
-            <th>
-                {% trans "Bin Id" %}
-            </th>
+            {%endfor%}
         </tr>
         <tbody>
-        {% for obj in object.necropsy_quantity_related.all %}
+        {% for obj in object.quantities.all %}
             <tr href="{% url 'mmutools:quantity_edit' obj.id %}" pop>
-                <td>
-                    {{ obj.quantity }}
-                </td>
-                <td>
-                    {{ obj.status }}
-                </td>
-                <td>
-                    {{ obj.location_stored }}
-                </td>
-                <td>
-                    {{ obj.bin_id }}
-                </td>
+                {% for field in qty_field_list %}
+            <td>
+
+            {% get_field_value obj field %}
+            </td>
+            {%endfor%}
 
             </tr>
         {% endfor %}
         </tbody>
     </table>
 {% endif %}
-<a class="" href="#"
-   onclick="return popitup('{% url 'mmutools:quantity_new' %}','popoutWindow')">
+<a class="" href="#" pop-href="{% url 'mmutools:quantity_new' %}">
     {% trans "(Add Inventory)" %}
 </a>
 <br>
