@@ -123,7 +123,7 @@ class DetailsCommon(DetailView):
 
 
 class CloserTemplateView(TemplateView):
-    template_name = 'whalesdb/close_me.html'
+    template_name = "shared_models/close_me.html"
 
 
 # Create your views here.
@@ -131,11 +131,24 @@ class IndexTemplateView(TemplateView):
     template_name = 'csas/index.html'
 
     # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
-    def test_func(self):
-        return utils.csas_authorized(self.request.user)
+
+    # Hu (April 21): the following part is the only difference from Patrick's and it doesn't work, why?
+    #
+    # def test_func(self):
+    #     return utils.csas_authorized(self.request.user)
+    #
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     return context
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context["auth"] = utils.csas_authorized(self.request.user)
+            context["csas_admin"] = utils.csas_admin(self.request.user)
+
+        return context
 
 
 # ----------------------------------------------------------------------------------------------------
