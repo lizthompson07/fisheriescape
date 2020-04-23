@@ -47,9 +47,12 @@
                                     {% if object.thumbnail %}
                                         <img src="{{ object.thumbnail.url }}" alt="" width="200px">
                                     {% else %}
-                                        n/a
+                                        <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="200px">
                                     {% endif %}
-
+                                {% elif "github" in field %}
+                                    <a href="{{ object.github_url|safe }}">
+                                        <img src="{% static 'shiny/img/GitHub-Mark-32px.png' %}" alt="">
+                                    </a>
                                 {% else %}
                                     {% get_field_value object field %}
                                 {% endif %}
