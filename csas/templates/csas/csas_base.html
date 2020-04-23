@@ -2,6 +2,8 @@
 
 {% load static %}
 {% load bootstrap4 %}
+{% bootstrap_css %}
+
 {% block bug_create %}{% url 'tickets:bug_create' 'csas' %}{% endblock bug_create %}
 
 {% block title %}Canadian Science Advisory Secretariat{% endblock title %}
@@ -13,7 +15,7 @@
 {% block header %}
     <style>
         body {
-            background-image: url("{% static 'img/csas/csas_background_2.png' %}");
+            background-image: url("{% static 'img/csas/csas_background.webp' %}");
             background-repeat: no-repeat;
             background-size: cover;
             background-attachment: fixed;
