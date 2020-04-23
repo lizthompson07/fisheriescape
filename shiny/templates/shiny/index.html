@@ -7,13 +7,11 @@
 {% block body %}
 
     <div class="container-fluid">
-        <div class="mb-5 row">
-            <div class="col-2">
-                <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="100px">
-            </div>
-            <div class="">
+        <div class="mb-5 ">
+{#            <div class="col-2">#}
+{#                <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="100px">#}
+{#            </div>#}
                 <h1>{% trans "Shiny Apps Hosted on DM Apps" %}</h1>
-            </div>
         </div>
 
 
@@ -46,9 +44,9 @@
                             <td>
                                 {% if "thumbnail" in field %}
                                     {% if object.thumbnail %}
-                                        <img src="{{ object.thumbnail.url }}" alt="" width="150">
+                                        <img src="{{ object.thumbnail.url }}" alt="" width="100">
                                     {% else %}
-                                        <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="150">
+                                        <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="100">
                                     {% endif %}
                                 {% elif "github" in field %}
                                     {% if object.github_url %}
