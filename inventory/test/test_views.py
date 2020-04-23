@@ -23,6 +23,7 @@ class TestIndexTemplateView(CommonTest):
         self.assert_not_broken(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
+
 class TestOpenDataDashboardTemplateView(CommonTest):
     def setUp(self):
         super().setUp()
