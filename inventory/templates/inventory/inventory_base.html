@@ -14,6 +14,23 @@
 {% endblock title %}
 
 {% block body %}
+    <style>
+        body {
+            background-image: url("{% static 'inventory/kimberly-farmer-lUaaKCUANVI-unsplash.jpg' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+    .container-fluid, .container{
+        border-radius: 25px;
+        margin-top: 15px;
+        padding: 15px;
+        background-color: white;
+        background-color: rgba(255, 255, 255, 0.9);
+        font-size: small;
+
+    }
+    </style>
     {% block content %}{% endblock content %}
 {% endblock body %}
 
@@ -24,19 +41,9 @@
 {% endblock left_unauth %}
 
 {% block left_auth %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}">
-        {% trans "Full Inventory" %}
+    <li class="nav-item"><a class="nav-link" href="{% url 'inventory:index' %}">
+        {% trans "Home" %}
     </a></li>
-    <li class="nav-item"><a class="nav-link" href="{% url 'inventory:my_resource_list' %}">
-        {% trans "My Metadata" %}
-    </a></li>
-
-
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'inventory:my_section_detail' %}">
-            {% trans "My Section" %}
-        </a>
-    </li>
 
     {% for group in user.groups.all %}
         {% if group.name == "inventory_dm" %}
