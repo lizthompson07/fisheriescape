@@ -58,7 +58,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{% trans "Open Data Dashboard" %}</h5>
                         <p class="card-text">{% trans "Checkout the list of data resource that have been published to FGP and Open Data Portal" %}.</p>
-                        <a href="#" class="btn btn-primary under-dev">{% trans "Go" %}</a>
+                        <a href="{% url 'inventory:open_data_dashboard'  %}" class="btn btn-primary">{% trans "Go" %}</a>
                         <span class="px-3">
 
                         <img src="{% static 'img/icons/fgp.png' %}" alt="" width="25px">

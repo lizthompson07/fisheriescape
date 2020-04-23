@@ -1,0 +1,152 @@
+{% extends "inventory/inventory_base.html" %}
+{% load static %}
+{% load humanize %}
+{% load bootstrap4 %}
+{% load el_pagination_tags %}
+{% load i18n %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% block content %}
+
+
+    <style>
+        table {
+            width: auto;
+        }
+
+        table, td, th {
+            font-size: small;
+        }
+
+    </style>
+
+
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'inventory:index' %}">
+                        {% trans "Home" %}
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% trans "Open Data Dashboard" %}
+                </li>
+            </ol>
+        </nav>
+
+        <table class="table table-hover">
+            <thead>
+            <th>Region</th>
+            <th class="center-col">Total number of resources on DM Apps</th>
+            <th class="center-col">Published to FGP</th>
+            <th class="center-col">Published to Open Data</th>
+            <th class="center-col">Published to Open Data in {{ current_fy }}</th>
+            </thead>
+            <tbody>
+            {% for region in my_dict %}
+                {% if region != "TOTAL" %}
+                    {% with my_dict|lookup:region as dict %}
+                        <tr href="#" data-toggle="modal" data-target="#{{ region }}">
+                            <td>{{ region }}</td>
+                            <td class="center-col">{{ dict.qs_total.count }}</td>
+                            <td class="center-col">{{ dict.qs_fgp.count }}</td>
+                            <td class="center-col">{{ dict.qs_open_data.count }}</td>
+                            <td class="center-col">{{ dict.qs_open_data_current_fy.count }}</td>
+                        </tr>
+                    {% endwith %}
+                {% endif %}
+            {% endfor %}
+            {% with my_dict|lookup:"TOTAL" as dict %}
+                <tr>
+                    <th>TOTAL</th>
+                    <th class="center-col">{{ dict.qs_total }}</th>
+                    <th class="center-col">{{ dict.qs_fgp }}</th>
+                    <th class="center-col">{{ dict.qs_open_data }}</th>
+                    <th class="center-col">{{ dict.qs_open_data_current_fy }}</th>
+                </tr>
+            {% endwith %}
+            </tbody>
+        </table>
+
+    </div>
+
+    {% for region in my_dict %}
+        {% if region != "TOTAL" %}
+
+            {% with my_dict|lookup:region as dict %}
+
+                <a href="#" class=""> modal_label </a>
+
+                {#<!-- modal_label MODAL -->#}
+                <div class="modal fade" id="{{ region }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle"> {{ region }} {% trans "Open Data Resources" %}</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+
+                                <table class="table table-hover table-sm sortable">
+                                    <thead>
+                                    <th scope="col">#</th>
+                                    {% for field in field_list %}
+                                        <th class="{% if "open_data" in field or "completedness" in field or "external" in field %}center-col{% endif %}">
+                                            {% get_verbose_label object_list.first field %}
+                                        </th>
+                                    {% endfor %}
+                                    </thead>
+                                    <tbody>
+                                    {% for obj in dict.qs_open_data %}
+                                        <tr href="{% url 'inventory:resource_detail' obj.id %}">
+
+                                            <td>{{ forloop.counter }}</td>
+                                            {% for field in field_list %}
+
+                                                {% if "external" in field %}
+                                                    <td class="center-col">
+                                                        {% if obj.fgp_url %}
+                                                            <a class="stop-blank" href="{{ obj.fgp_url }}" data-toggle="tooltip"
+                                                               title="Open URL in the Federal Geospatial Platform">
+                                                                <img src="{% static 'img/icons/fgp.png' %}" alt="" width="25px">
+                                                            </a>
+                                                        {% endif %}
+                                                        {% if obj.public_url %}
+                                                            <a class="stop-blank" href="{{ obj.public_url }}" data-toggle="tooltip"
+                                                               title="Open URL in the Open Government Portal">
+                                                                <img src="{% static 'img/icons/canada.png' %}" alt="" width="25px">
+                                                            </a>
+                                                        {% endif %}
+                                                    </td>
+                                                {% else %}
+                                                    <td>
+                                                        {% get_field_value obj field %}
+                                                    </td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <a class="btn btn-warning" href="#" target="_blank">Edit</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+
+
+        {% endif %}
+    {% endfor %}
+
+
+{% endblock content %}

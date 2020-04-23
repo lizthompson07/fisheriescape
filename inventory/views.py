@@ -19,6 +19,8 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 
 ###
 from collections import OrderedDict
+
+from lib.functions.custom_functions import fiscal_year
 from . import models
 from . import forms
 from . import filters
@@ -92,6 +94,41 @@ class CloserTemplateView(TemplateView):
 
 class Index(TemplateView):
     template_name = 'inventory/index.html'
+
+
+class OpenDataDashboardTemplateView(TemplateView):
+    template_name = 'inventory/open_data_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_fy = shared_models.FiscalYear.objects.get(pk=fiscal_year(sap_style=True))
+        context["current_fy"] = current_fy
+        my_dict = dict()
+        qs = models.Resource.objects.all()
+        my_dict["TOTAL"] = dict()
+        my_dict["TOTAL"]["qs_total"] = qs.count()
+        my_dict["TOTAL"]["qs_fgp"] = qs.filter(fgp_publication_date__isnull=False).count()
+        my_dict["TOTAL"]["qs_open_data"] = qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False).count()
+        my_dict["TOTAL"]["qs_open_data_current_fy"] = qs.filter(fgp_publication_date__isnull=False,
+                                                                fgp_publication_date__year=current_fy.id, public_url__isnull=False).count()
+
+        for region in shared_models.Region.objects.all():
+            regional_qs = qs.filter(section__division__branch__region=region)
+            my_dict[region] = dict()
+            my_dict[region]["qs_total"] = regional_qs
+            my_dict[region]["qs_fgp"] = regional_qs.filter(fgp_publication_date__isnull=False)
+            my_dict[region]["qs_open_data"] = regional_qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False)
+            my_dict[region]["qs_open_data_current_fy"] = regional_qs.filter(fgp_publication_date__isnull=False,
+                                                                            fgp_publication_date__year=current_fy.id,
+                                                                            public_url__isnull=False)
+
+        context["my_dict"] = my_dict
+        context['field_list'] = [
+            "t_title|Title",
+            "fgp_publication_date|Published to Open Data",
+            "external_links|External links",
+        ]
+        return context
 
 
 class ResourceListView(FilterView):
