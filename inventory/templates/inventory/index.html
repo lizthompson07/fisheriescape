@@ -4,25 +4,27 @@
 {% load custom_filters %}
 {% block content %}
     <style>
-        body {
-            background-image: url("{% static 'inventory/kimberly-farmer-lUaaKCUANVI-unsplash.jpg' %}");
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-attachment: fixed;
-        }
 
         .card, .jumbotron {
             background-color: rgba(255, 255, 255, 0.7);
+            border: black solid 1px;
         }
-    .card{
-        border: black solid 1px;
-    }
+
+
+        .container-fluid, .container {
+            border-radius: 25px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: transparent;
+            font-size: small;
+
+        }
     </style>
     <div class="container">
     <br>
     <div class="container">
         <div class="jumbotron py-3">
-            <h1 class="three-em">
+            <h1 class="three-em center-col">
                 {% trans "DFO Science Metadata Inventory" %}
             </h1>
 
@@ -35,29 +37,34 @@
         <div class="row mb-4">
             <div class="col">
                 <div class="card" style="width: 18rem;">
-                  <div class="card-body">
-                    <h5 class="card-title">{% trans "Full Catalogue" %}</h5>
-                    <p class="card-text">{% trans "View the full DMApps metadata inventory across all regions" %}.</p>
-                    <a href="{% url 'inventory:resource_list'  %}" class="btn btn-primary">{% trans "Go" %}</a>
-                  </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans "Full Catalogue" %}</h5>
+                        <p class="card-text">{% trans "View the full DMApps metadata inventory across all regions" %}.</p>
+                        <a href="{% url 'inventory:resource_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+                    </div>
                 </div>
             </div>
             <div class="col">
                 <div class="card" style="width: 18rem;">
-                  <div class="card-body">
-                    <h5 class="card-title">{% trans "Your Resources" %}</h5>
-                    <p class="card-text">{% trans "View your personalized list of data resources" %}.</p>
-                    <a href="{% url 'inventory:my_resource_list'  %}" class="btn btn-primary">{% trans "Go" %}</a>
-                  </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans "Your Resources" %}</h5>
+                        <p class="card-text">{% trans "View your personalized list of data resources" %}.</p>
+                        <a href="{% url 'inventory:my_resource_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+                    </div>
                 </div>
             </div>
             <div class="col">
                 <div class="card" style="width: 18rem;">
-                  <div class="card-body">
-                    <h5 class="card-title">{% trans "Open Data Dashboard" %}</h5>
-                    <p class="card-text">{% trans "Checkout the list of data resource that have been published to FGP and Open Data Portal" %}.</p>
-                    <a href="#" class="btn btn-primary under-dev">{% trans "Go" %}</a>
-                  </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans "Open Data Dashboard" %}</h5>
+                        <p class="card-text">{% trans "Checkout the list of data resource that have been published to FGP and Open Data Portal" %}.</p>
+                        <a href="#" class="btn btn-primary under-dev">{% trans "Go" %}</a>
+                        <span class="px-3">
+
+                        <img src="{% static 'img/icons/fgp.png' %}" alt="" width="25px">
+                        <img src="{% static 'img/icons/canada.png' %}" alt="" width="25px">
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
