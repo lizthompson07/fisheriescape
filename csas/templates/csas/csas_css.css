@@ -1,7 +1,7 @@
 {% load static %}
 
 body {
-    background-image: url("{% static 'img/csas/csas_background_22.webp' %}");
+    background-image: url("{% static 'img/csas/csas_background.webp' %}");
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;

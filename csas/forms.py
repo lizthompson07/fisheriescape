@@ -13,14 +13,16 @@ class RequestForm(forms.ModelForm):
         # fields shown on screen
         # fields = ("assigned_request_ID", "title",)    # only show listed fields
         # fields = ["assigned_request_ID", "title"]     # [" "] is the same as (" ",)
-        superusers = User.objects.filter(is_superuser=True).values_list('username')
-        current_user = User.username
-        print(superusers, current_user, "-----------------")
-        if superusers is True:
-            exclude = []
-        else:
-            # exclude = []
-            exclude = ["assigned_req_id", "adviser_submission", "rd_submission", "decision_date"]    # except listed fields
+
+        # superusers = User.objects.filter(is_superuser=True).values_list('username')
+        # current_user = User.username
+        # print(superusers, current_user, "-----------------")
+        # if superusers is True:
+        #     exclude = []
+        # else:
+        #     exclude = []
+
+        exclude = ["assigned_req_id", "adviser_submission", "rd_submission", "decision_date"]    # except listed fields
 
         # use some widgets
         widgets = {

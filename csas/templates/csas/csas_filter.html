@@ -36,7 +36,7 @@
                         {% if auth %}
                         <div class="row">
                             <div class="col-1">
-                                <a class="btn btn-primary" href="#" onclick="return popitup('{% url ''|add:create_url %}','popoutWindow', {% if height %} height={{height}} {% endif %})" title="{% trans 'Add' %}">+</a>
+                                <a class="btn btn-secondary" href="#" onclick="return popitup('{% url ''|add:create_url %}','popoutWindow', {% if height %} height={{height}} {% endif %})" title="{% trans 'Add' %}">+</a>
                             </div>
                         </div>
                         {% endif %}
@@ -59,7 +59,7 @@
     {% endif %}
     -->
 
-    <div class="container mt-1 nl-n1">
+    <div class="container-fluid mt-1 nl-n1">
         <div class="row">
             <table class="table">
                 <thead>
@@ -74,11 +74,11 @@
                 <tbody>
                     {% for obj in filter.qs %}
                         <tr>
-                        {% for field in fields %}
-                        <td>{% get_field_value obj field %}</td>
-                        {% endfor %}
-                            <td><a class="btn btn-primary btn-sm" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a></td>
-                            <td><a class="btn btn-primary btn-sm" href="#" onclick="return popitup('{% url ''|add:update_url obj.pk %}','popoutWindow', {% if height %} height={{height}} {% endif %})" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
+                            {% for field in fields %}
+                            <td>{% get_field_value obj field %}</td>
+                            {% endfor %}
+                            <a class="btn btn-secondary btn-lg" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>
+                            <td><a class="btn btn-secondary btn-sm" href="#" onclick="return popitup('{% url ''|add:update_url obj.pk %}','popoutWindow', {% if height %} height={{height}} {% endif %})" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
                         </tr>
                     {% endfor %}
                 </tbody>
