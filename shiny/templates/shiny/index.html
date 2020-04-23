@@ -59,7 +59,7 @@
                                         :(
                                     {% endif %}
                                 {% elif "owner" in field %}
-                                    <a href="mailto:{{ object.owner.email }}?subject=your awesome shiny app...">
+                                    <a href="mailto:{{ object.owner.email }}?subject=your awesome shiny app... {{ object.ttitle }}">
                                         {% get_field_value object field %}
                                     </a>
                                 {% else %}
