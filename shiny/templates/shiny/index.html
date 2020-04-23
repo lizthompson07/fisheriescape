@@ -27,16 +27,17 @@
                     <em>{% trans 'displaying' %} {% trans "all" %} {{ object_list.count }} {% trans "records" %}</em>
                 </div>
                 <div class="col" style="text-align: right; padding-bottom: 10px">
-                    <a href="{% url 'shiny:create' %}" class="btn btn-sm btn-success">{% trans 'New' %}</a>
+                    <a href="{% url 'shiny:create' %}" class="btn btn-sm btn-success">{% trans 'Add an app' %}</a>
                 </div>
             </div>
-            <table class="table table-stripped sortable" >
+            <table class="table table-stripped sortable">
                 <thead>
                 {% for field in field_list %}
                     <th style="{% if "github" in field %}width:150px{% elif "descr" in field %}width:500px{% elif "last" in field %}width:150px{% endif %}">
                         {% get_verbose_label object_list.first field %}
                     </th>
                 {% endfor %}
+                <th></th>
                 </thead>
                 <tbody>
                 {% for object in object_list %}
@@ -45,27 +46,32 @@
                             <td>
                                 {% if "thumbnail" in field %}
                                     {% if object.thumbnail %}
-                                        <img src="{{ object.thumbnail.url }}" alt="" width="200px">
+                                        <img src="{{ object.thumbnail.url }}" alt="" width="150">
                                     {% else %}
-                                        <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="200px">
+                                        <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="150">
                                     {% endif %}
                                 {% elif "github" in field %}
                                     {% if object.github_url %}
-                                    <a href="{{ object.github_url|safe }}" target="_blank">
-                                        <img src="{% static 'shiny/img/GitHub-Mark-32px.png' %}" alt="">
-                                    </a>
+                                        <a href="{{ object.github_url|safe }}" target="_blank">
+                                            <img src="{% static 'shiny/img/GitHub-Mark-32px.png' %}" alt="">
+                                        </a>
                                     {% else %}
-                                        n/a <br>:(
+                                        :(
                                     {% endif %}
+                                {% elif "owner" in field %}
+                                    <a href="mailto:{{ object.owner.email }}?subject=your awesome shiny app...">
+                                        {% get_field_value object field %}
+                                    </a>
                                 {% else %}
                                     {% get_field_value object field %}
                                 {% endif %}
                             </td>
                         {% endfor %}
-                        <td style="width: 200px">
-                            <a href="{{ object.url|safe }}" class="btn btn-sm btn-primary" target="_blank">{% trans "Open App" %}</a>
+                        <td style="width: 150px">
+                            <a href="{{ object.url|safe }}" class="btn btn-sm btn-primary mb-2 py-0" target="_blank">{% trans "Open" %}</a>
                             {% if user == object.owner or user.is_superuser %}
-                                <a href="{% url 'shiny:update' object.id %}" class="btn btn-sm btn-warning">{% trans "Edit record" %}</a>
+                                <a href="{% url 'shiny:update' object.id %}"
+                                   class="btn btn-sm btn-warning py-0">{% trans "Edit record" %}</a>
                             {% endif %}
 
                         </td>
