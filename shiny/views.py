@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 
 # Create your views here.
@@ -16,6 +17,14 @@ class IndexTemplateView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            "thumbnail| ",
+            "ttitle|{}".format(_("title")),
+            "tdescription|{}".format(_("description")),
+            "github_url",
+            "owner",
+            "last_modified",
+        ]
         context['apps'] = [
             # Restigouche Salmon
             {
@@ -57,27 +66,31 @@ class IndexTemplateView(ListView):
                 "thumbnail": static("shiny/img/narw.jfif"),
             },
 
-
         ]
 
         return context
 
 
-class AppUpdateView(UpdateView):
+class AppUpdateView(LoginRequiredMixin, UpdateView):
     model = models.App
     form_class = forms.AppForm
     success_url = reverse_lazy('shiny:index')
     template_name = 'shiny/app_form.html'
 
 
-class AppCreateView(CreateView):
+class AppCreateView(LoginRequiredMixin, CreateView):
     model = models.App
     form_class = forms.AppForm
     success_url = reverse_lazy('shiny:index')
     template_name = 'shiny/app_form.html'
 
+    def get_initial(self):
+        return {
+            "owner": self.request.user
+        }
 
-class AppDeleteView(DeleteView):
+
+class AppDeleteView(LoginRequiredMixin, DeleteView):
     model = models.App
     success_url = reverse_lazy('shiny:index')
     success_message = 'The app record was successfully deleted!'

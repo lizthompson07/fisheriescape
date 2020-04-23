@@ -7,20 +7,20 @@ from django.dispatch import receiver
 
 
 def img_file_name(instance, filename):
-    img_name = 'shiny/{}'.format(instance.line.sample.id, filename)
+    img_name = 'shiny/{}_{}'.format(instance.id, filename)
     return img_name
 
 
 class App(models.Model):
-    title_en = models.CharField(max_length=255)
-    title_fr = models.CharField(max_length=255, blank=True, null=True)
-    description_en = models.CharField(max_length=255)
-    description_fr = models.CharField(max_length=255, blank=True, null=True)
-    github_url = models.URLField(blank=True, null=True)
-    url = models.URLField(blank=True, null=True)
-    thumbnail = models.ImageField(blank=True, null=True, upload_to=img_file_name)
-    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="shiny_apps")
-    last_modified = models.DateTimeField(auto_now=True)
+    title_en = models.CharField(max_length=255, verbose_name=_("title (EN)"))
+    title_fr = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("title (FR)"))
+    description_en = models.CharField(max_length=255, verbose_name=_("description (EN)"))
+    description_fr = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("description (FR)"))
+    github_url = models.URLField(blank=True, null=True, verbose_name=_("github URL"))
+    url = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("app URL"))
+    thumbnail = models.ImageField(blank=True, null=True, upload_to=img_file_name, verbose_name=_("thumbnail"))
+    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="shiny_apps", verbose_name=_("contact person"))
+    last_modified = models.DateTimeField(auto_now=True, verbose_name=_("last modified"))
 
     @property
     def ttitle(self):
@@ -76,6 +76,6 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         return False
 
     new_thumbnail = instance.thumbnail
-    if not old_thumbnail == new_thumbnail:
+    if old_thumbnail and not old_thumbnail == new_thumbnail:
         if os.path.isfile(old_thumbnail.path):
             os.remove(old_thumbnail.path)
