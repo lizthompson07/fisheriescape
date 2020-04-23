@@ -2,33 +2,12 @@
 
 {% load static %}
 {% load i18n %}
+{% load verbose_names %}
 
 {% block body %}
 
-    <style>
-        .card {
-            margin-left: 20px;
-            margin-right: 20px;
-        }
-
-        .card-img-top {
-            height: 200px;
-        }
-
-        .card-title {
-            height: 85px;
-        }
-
-        .card-img-containter {
-            text-align: center;
-        }
-
-        table, tr, th, td {
-            font-size: small;
-        }
-    </style>
-    <div class="container">
-        <div class="mb-2 row">
+    <div class="container-fluid">
+        <div class="mb-5 row">
             <div class="col-2">
                 <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="100px">
             </div>
@@ -36,113 +15,66 @@
                 <h1>{% trans "Shiny Apps Hosted on DM Apps" %}</h1>
             </div>
         </div>
-        <hr>
-
-        <div class="row mt-4">
-
-            {% for app in apps %}
 
 
-                <div class="card mb-3" style="width: 18rem;">
-                    <div class="card-img-containter mb-3">
-                        <img class="card-img-top" src="{{ app.thumbnail|safe }}" alt="Card image cap">
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">
-                            {{ app.title|safe }}
-                        </h5>
-                        <div class="card-text">
-                            <table class="table table-sm">
-                                <tr>
-                                    <th>{% trans "Author" %}</th>
-                                    <td>
-                                        {{ app.author|safe }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>{% trans "Description" %}</th>
-                                    <td>
-                                        {{ app.description|safe }}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>{% trans "Github URL" %}</th>
-                                    <td>
-                                        {{ app.github_url|safe }}
-                                    </td>
-                                </tr>
-                            </table>
+        {% if object_list.count %}
 
-                        </div>
-                        <a href="{{ app.url|safe }}" class="btn btn-primary" target="_blank">
-                            {% trans "Go!" %}
-                        </a>
-                    </div>
+            <div class="row">
+                <div class="col">
+                    {% trans "(click on a header to sort table)" %}
                 </div>
-            {% endfor %}
+                <div class="col" style="text-align: center">
+                    <em>{% trans 'displaying' %} {% trans "all" %} {{ object_list.count }} {% trans "records" %}</em>
+                </div>
+                <div class="col" style="text-align: right; padding-bottom: 10px">
+                    <a href="{% url 'shiny:create' %}" class="btn btn-sm btn-success">{% trans 'New' %}</a>
+                </div>
+            </div>
+            <table class="table table-stripped sortable">
+                <thead>
+                {% for field in field_list %}
+                    <th>
+                        {% get_verbose_label object_list.first field %}
+                    </th>
+                {% endfor %}
+                </thead>
+                <tbody>
+                {% for object in object_list %}
+                    <tr>
+                        {% for field in field_list %}
+                            <td>
+                                {% if "thumbnail" in field %}
+                                    {% if object.thumbnail %}
+                                        <img src="{{ object.thumbnail.url }}" alt="" width="200px">
+                                    {% else %}
+                                        n/a
+                                    {% endif %}
 
-            {##}
+                                {% else %}
+                                    {% get_field_value object field %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                        <td style="width: 200px">
+                            <a href="{{ object.url|safe }}" class="btn btn-sm btn-primary" target="_blank">{% trans "Open App" %}</a>
+                            {% if user == object.owner or user.is_superuser %}
+                                <a href="{% url 'shiny:update' object.id %}" class="btn btn-sm btn-warning">{% trans "Edit record" %}</a>
+                            {% endif %}
 
-            {##}
-            {#            <div class="card mb-3" style="width: 18rem;">#}
-            {#                <div class="card-img-containter mb-3">#}
-            {#                    <img class="card-img-top" src="{% static 'shiny/img/trawl.jpg' %}" alt="Card image cap">#}
-            {#                </div>#}
-            {#                <div class="card-body">#}
-            {#                    <h5 class="card-title mb-3">#}
-            {#                        {% trans "2018 Sustainability Survey Viewer" %}#}
-            {#                    </h5>#}
-            {##}
-            {#                    <div class="card-text">#}
-            {#                        <table class="table table-sm">#}
-            {#                            <tr>#}
-            {#                                <th>{% trans "Author" %}</th>#}
-            {#                                <td>n/a</td>#}
-            {#                            </tr>#}
-            {#                            <tr>#}
-            {#                                <th>{% trans "Description" %}</th>#}
-            {#                                <td>{% trans "n/a" %}</td>#}
-            {#                            </tr>#}
-            {#                        </table>#}
-            {##}
-            {#                    </div>#}
-            {#                    <a href="http://dmapps:3838/sustainability" class="btn btn-primary" target="_blank">#}
-            {#                        {% trans "Go!" %}#}
-            {#                    </a>#}
-            {#                </div>#}
-            {#            </div>#}
-            {##}
-            {#            <div class="card mb-3" style="width: 18rem;">#}
-            {#                <div class="card-img-containter mb-3">#}
-            {#                    <img class="card-img-top" src="{% static 'shiny/img/narw.jfif' %}" alt="Card image cap">#}
-            {#                </div>#}
-            {#                <div class="card-body">#}
-            {#                    <h5 class="card-title mb-3">#}
-            {#                        {% trans "DFO/TC Right Whale Sightings Trigger Analysis" %}#}
-            {#                    </h5>#}
-            {##}
-            {#                    <div class="card-text">#}
-            {#                        <table class="table table-sm">#}
-            {#                            <tr>#}
-            {#                                <th>{% trans "Author" %}</th>#}
-            {#                                <td><a href="https://github.com/leeyuhc/DFO_dyna">leeyuhc</a></td>#}
-            {#                            </tr>#}
-            {#                            <tr>#}
-            {#                                <th>{% trans "Description" %}</th>#}
-            {#                                <td>{% trans "n/a" %}</td>#}
-            {#                            </tr>#}
-            {#                        </table>#}
-            {##}
-            {#                    </div>#}
-            {#                    <a href="http://dmapps:3838/DFO_dyna" class="btn btn-primary" target="_blank">#}
-            {#                        {% trans "Go!" %}#}
-            {#                    </a>#}
-            {#                </div>#}
-            {#            </div>#}
-            {##}
-        </div>
+                        </td>
+                    </tr>
+                {% endfor %}
 
+                </tbody>
+            </table>
 
+        {% else %}
+            <em>No apps to display</em>
+            <br>
+            <br>
+            <a href="{% url 'shiny:create' %}" class="btn btn-sm btn-success">{% trans 'Add the first app' %}</a>
+
+        {% endif %}
     </div>
 
 {% endblock %}
