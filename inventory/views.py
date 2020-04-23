@@ -90,6 +90,10 @@ class CloserTemplateView(TemplateView):
 # RESOURCE #
 ############
 
+class Index(TemplateView):
+    template_name = 'inventory/index.html'
+
+
 class ResourceListView(FilterView):
     filterset_class = filters.ResourceFilter
 
@@ -104,13 +108,6 @@ class ResourceListView(FilterView):
                            Value(" "),
                            'uuid',
                            output_field=TextField()))
-
-    # def get_filterset_kwargs(self, filterset_class):
-    #     kwargs = super().get_filterset_kwargs(filterset_class)
-    #     # if kwargs["data"] is None:
-    #     #     kwargs["data"] = {"season": timezone.now().year }
-    #     print(kwargs['data'])
-    #     return kwargs
 
 
 class MyResourceListView(LoginRequiredMixin, ListView):
