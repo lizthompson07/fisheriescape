@@ -30,10 +30,10 @@
                     <a href="{% url 'shiny:create' %}" class="btn btn-sm btn-success">{% trans 'New' %}</a>
                 </div>
             </div>
-            <table class="table table-stripped sortable">
+            <table class="table table-stripped sortable" >
                 <thead>
                 {% for field in field_list %}
-                    <th>
+                    <th style="{% if "github" in field %}width:150px{% elif "descr" in field %}width:500px{% elif "last" in field %}width:150px{% endif %}">
                         {% get_verbose_label object_list.first field %}
                     </th>
                 {% endfor %}
@@ -47,9 +47,16 @@
                                     {% if object.thumbnail %}
                                         <img src="{{ object.thumbnail.url }}" alt="" width="200px">
                                     {% else %}
-                                        n/a
+                                        <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="200px">
                                     {% endif %}
-
+                                {% elif "github" in field %}
+                                    {% if object.github_url %}
+                                    <a href="{{ object.github_url|safe }}" target="_blank">
+                                        <img src="{% static 'shiny/img/GitHub-Mark-32px.png' %}" alt="">
+                                    </a>
+                                    {% else %}
+                                        n/a <br>:(
+                                    {% endif %}
                                 {% else %}
                                     {% get_field_value object field %}
                                 {% endif %}
