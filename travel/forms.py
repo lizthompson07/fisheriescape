@@ -201,7 +201,7 @@ class TripRequestForm(forms.ModelForm):
             try:
                 self.fields[field].group
             except AttributeError:
-                print(f'Adding label: "Unspecified" to field "{field}".')
+                # print(f'Adding label: "Unspecified" to field "{field}".')
                 self.fields[field].group = 0
 
         # if there is no instance of TR, remove the field for reset_reviewers.
@@ -358,7 +358,7 @@ class ChildTripRequestForm(forms.ModelForm):
             try:
                 self.fields[field].group
             except AttributeError:
-                print(f'Adding label: "Unspecified" to field "{field}".')
+                # print(f'Adding label: "Unspecified" to field "{field}".')
                 self.fields[field].group = 0
 
 
