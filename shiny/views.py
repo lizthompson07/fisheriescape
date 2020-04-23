@@ -1,13 +1,18 @@
+from django.contrib import messages
 from django.shortcuts import render
 
 # Create your views here.
 from django.templatetags.static import static
+from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView, DeleteView, CreateView, UpdateView
+from . import models
+from . import forms
 
 
-class IndexTemplateView(TemplateView):
+class IndexTemplateView(ListView):
     template_name = 'shiny/index.html'
+    model = models.App
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -25,10 +30,11 @@ class IndexTemplateView(TemplateView):
             # trawl sustainability
             {
                 "title": _("2018 Sustainability Survey Viewer"),
-                "author": "??",
-                "description": _("n/a"),
-                "github_url": "n/a",
-                "url": "http://dmapps:3838/sustainability",
+                "author": "Jason Ladell",
+                "description": _(
+                    "This application was designed to convert data included in the results of the 2018 Sustainability Survey into a more easily readable format that can be filtered by specific stocks, regions, and/or species groups."),
+                "github_url": "https://github.com/NCR-FPS/2018.SS.Viewer",
+                "url": "http://dmapps:3838/2018.SS.Viewer",
                 "thumbnail": static("shiny/img/trawl.jpg"),
             },
 
@@ -50,15 +56,33 @@ class IndexTemplateView(TemplateView):
                 "url": "http://dmapps:3838/DFO_IDapp",
                 "thumbnail": static("shiny/img/narw.jfif"),
             },
-            # TEMPLATE
-            # {
-            #     "title": _(""),
-            #     "author": "",
-            #     "description": _(""),
-            #     "url": "http://dmapps:3838/",
-            #     "thumbnail": static("shiny/img/"),
-            # },
+
 
         ]
 
         return context
+
+
+class AppUpdateView(UpdateView):
+    model = models.App
+    form_class = forms.AppForm
+    success_url = reverse_lazy('shiny:index')
+    template_name = 'shiny/app_form.html'
+
+
+class AppCreateView(CreateView):
+    model = models.App
+    form_class = forms.AppForm
+    success_url = reverse_lazy('shiny:index')
+    template_name = 'shiny/app_form.html'
+
+
+class AppDeleteView(DeleteView):
+    model = models.App
+    success_url = reverse_lazy('shiny:index')
+    success_message = 'The app record was successfully deleted!'
+    template_name = 'shiny/app_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
