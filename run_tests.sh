@@ -1,15 +1,15 @@
 #!/bin/bash
-echo "running testing for shared_models app"
+echo "\n\nRUNNING TESTS FOR: shared_models app"
 python manage.py test --keepdb shared_models.test
 
-echo "running testing for projects app"
+echo "\n\nRUNNING TESTS FOR: projects app"
 python manage.py test --keepdb projects.test
 
-echo "running testing for travel app"
+echo "\n\nRUNNING TESTS FOR: travel app"
 python manage.py test --keepdb travel.test
 
-echo "running tests for whalesdb"
+echo "\n\nRUNNING TESTS FOR: whalesdb"
 python manage.py test --keepdb whalesdb.test
 
-echo "running tests for inventory app"
-python manage.py test --keepdb inventory
+echo "\n\nRUNNING TESTS FOR: inventory"
+python manage.py test --keepdb inventory.test
