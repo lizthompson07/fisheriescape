@@ -20,6 +20,10 @@ urlpatterns = [
     path('<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name="resource_flag_delete"),
     path('<int:pk>/flag-for-publication/', views.ResourcePublicationFlagUpdateView.as_view(), name="resource_flag_publication"),
 
+    # Open Data
+    path('open-data-dashboard/', views.OpenDataDashboardTemplateView.as_view(), name="open_data_dashboard"),
+
+
     # RESOURCE PERSON #
     ###################
     path('<int:resource>/insert-person/', views.ResourcePersonFilterView.as_view(), name="resource_person_filter"),

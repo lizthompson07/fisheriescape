@@ -22,13 +22,6 @@ class TestAppUpdateView(CommonTest):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
-    @tag("shiny", 'update', "context")
-    def test_context(self):
-        context_vars = [
-            "field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars)
-
     @tag("shiny", 'update', "submit")
     def test_submit(self):
         data = FactoryFloor.AppFactory.get_valid_data()
