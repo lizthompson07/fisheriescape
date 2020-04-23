@@ -1,21 +1,18 @@
 import os
-import datetime
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.conf import settings
 
 from projects import reports
 
-from projects.test import ProjectsFactoryFloor as Factory
+from projects.test import ProjectsFactoryFloor as FactoryFloor
+from projects.test.common_tests import CommonProjectTest
 
 from shared_models import models as shared_models
 from shared_models.test.SharedModelsFactoryFloor import RegionFactory, BranchFactory, DivisionFactory, SectionFactory
 
-fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fixtures')
-standard_fixtures = [file for file in os.listdir(fixtures_dir)]
 
 
-class StdReportTest(TestCase):
-    fixtures = standard_fixtures
+class StdReportTest(CommonProjectTest):
 
     EXPECTED_TARGET_DIR = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
     EXPECTED_TARGET_FILE = "temp_export.xlsx"
@@ -68,8 +65,10 @@ class StdReportTest(TestCase):
         ]
 
     def setUp(self) -> None:
+        super().setUp()
         self.report = reports.StdReport()
 
+    @tag("projects", "reports")
     # assertion to run common comparison for section headings and sub sections
     def assert_section(self, offset, strings_array, string_table, section):
         section_heading = section["title"]
@@ -83,16 +82,18 @@ class StdReportTest(TestCase):
         else:
             self.assertFalse(hasattr(string_table[1][offset], "string"))
 
+    @tag("projects", "reports")
     def test_std_get_section_list_all(self):
-        sec_1 = Factory.SectionFactory(name="Sec 1")
-        sec_2 = Factory.SectionFactory(name="Sec 2")
-        sec_3 = Factory.SectionFactory(name="Sec 3")
+        sec_1 = FactoryFloor.SectionFactory(name="Sec 1")
+        sec_2 = FactoryFloor.SectionFactory(name="Sec 2")
+        sec_3 = FactoryFloor.SectionFactory(name="Sec 3")
 
         rpt = self.MockReport()
         lst = rpt.get_section_list()
 
         self.assertEqual(len(lst), 3)
 
+    @tag("projects", "reports")
     def test_std_mock_crate_headers(self):
         rpt = self.MockReport()
         rpt.create_headers()
@@ -120,32 +121,40 @@ class StdReportTest(TestCase):
         section_offset += 1
         self.assert_section(section_offset, strings_array, string_table, rpt.sections[2])
 
+    @tag("projects", "reports")
     def test_std_get_format(self):
         self.assertIsNotNone(self.report.get_format("section_header"))
         self.assertIsNotNone(self.report.get_format("col_header"))
         self.assertIsNotNone(self.report.get_format("normal_text"))
 
+    @tag("projects", "reports")
     def test_std_target_output_dir(self):
         self.assertEquals(self.report.target_dir, self.EXPECTED_TARGET_DIR)
 
+    @tag("projects", "reports")
     def test_std_target_file(self):
         self.assertEquals(self.report.target_file, self.EXPECTED_TARGET_FILE)
 
+    @tag("projects", "reports")
     def test_std_target_file_path(self):
         self.assertEquals(self.report.target_file_path, self.EXPECTED_TARGET_FILE_PATH)
 
+    @tag("projects", "reports")
     def test_std_target_url(self):
         self.assertEquals(self.report.target_url, self.EXPECTED_TARGET_URL)
 
     # I'm not going to test the styling of each format, but I will test that the expect formats exist
+    @tag("projects", "reports")
     def test_std_cel_formats(self):
         self.assertIn("section_header", self.report.formats)
         self.assertIn("col_header", self.report.formats)
         self.assertIn("normal_text", self.report.formats)
 
+    @tag("projects", "reports")
     def test_std_get_workbook(self):
         self.assertIsNotNone(self.report.get_workbook())
 
+    @tag("projects", "reports")
     def test_std_get_worksheet(self):
         # by default create and use "Sheet1" as the worksheet title
         sheet = self.report.get_worksheet()
@@ -164,6 +173,7 @@ class StdReportTest(TestCase):
         sheet2 = self.report.get_worksheet(title=expected_name)
         self.assertEquals(sheet, sheet2)
 
+    @tag("projects", "reports")
     def test_std_add_section_default_worksheet(self):
         section1 = {
             'title': "Test 1"
@@ -181,6 +191,7 @@ class StdReportTest(TestCase):
 
         self.assertEquals(self.report.__sheets__[0]["sub"][1], section2)
 
+    @tag("projects", "reports")
     def test_std_add_section_named_worksheet(self):
         section1 = {
             'title': "Test 1"
@@ -199,8 +210,7 @@ class StdReportTest(TestCase):
         self.assertEquals(self.report.__sheets__[1]["sub"][0], section2)
 
 
-class CovidReportTest(TestCase):
-    fixtures = standard_fixtures
+class CovidReportTest(CommonProjectTest):
 
     report = None
 
@@ -234,10 +244,12 @@ class CovidReportTest(TestCase):
 
     EXPECTED_WORKSHEETS = ["COVID Assessment"]
 
-    def setUp(self) -> None:
+    def setUp(self):
+        super().setUp()
         self.report = reports.CovidReport()
+        self.create_test_data()
 
-    def asesert_project_data(self, strings_array, string_table, row, prj):
+    def assert_project_data(self, strings_array, string_table, row, prj):
         val = strings_array._get_shared_string(string_table[row][0].string)
         self.assertEqual(prj.project_title, val)
 
@@ -278,24 +290,23 @@ class CovidReportTest(TestCase):
         self.fy_current = shared_models.FiscalYear.objects.get(pk=2020)
         self.fy_previous = shared_models.FiscalYear.objects.get(pk=2018)
 
-        self.prj_1 = Factory.ProjectFactory(project_title="Test Project", year=self.fy_current, section=self.sec_1)
-        self.prj_2 = Factory.ProjectFactory(project_title="Test Project 2", year=self.fy_previous, section=self.sec_2)
-
-        self.om_1 = Factory.OMCostTravelFactory(project=self.prj_1)
-        self.om_2 = Factory.OMCostEquipmentFacotry(project=self.prj_2)
-
+        self.prj_1 = FactoryFloor.ProjectFactory(project_title="Test Project", year=self.fy_current, section=self.sec_1)
+        self.prj_2 = FactoryFloor.ProjectFactory(project_title="Test Project 2", year=self.fy_previous, section=self.sec_2)
+        self.om_1 = FactoryFloor.OMCostTravelFactory(project=self.prj_1)
+        self.om_2 = FactoryFloor.OMCostEquipmentFactory(project=self.prj_2)
         # create two DFO and one non-DFO staff for columns 5 and 6
-        Factory.IndeterminateStaffFactory(project=self.prj_1, lead=True)
-        Factory.IndeterminateStaffFactory(project=self.prj_1)
-        Factory.StudentStaffFactory(project=self.prj_1)
+        FactoryFloor.IndeterminateStaffFactory(project=self.prj_1, lead=True)
+        FactoryFloor.IndeterminateStaffFactory(project=self.prj_1)
+        FactoryFloor.StudentStaffFactory(project=self.prj_1)
 
     # calling report.generate_spread_sheet() should create a spreadsheet with
     # section headings and populate it with all Project objects in a database
     #
     # This method tests filtering on region
+    @tag("projects", "reports")
     def test_covid_generate_by_region(self):
 
-        self.create_test_data()
+        # self.create_test_data()
 
         report = reports.CovidReport(regions=str(self.reg.pk))
 
@@ -311,16 +322,17 @@ class CovidReportTest(TestCase):
         string_table = sheet.table
 
         self.assertEqual(len(string_table), 4)
-        self.asesert_project_data(strings_array, string_table, 2, self.prj_1)
-        self.asesert_project_data(strings_array, string_table, 3, self.prj_2)
+        self.assert_project_data(strings_array, string_table, 2, self.prj_1)
+        self.assert_project_data(strings_array, string_table, 3, self.prj_2)
 
     # calling report.generate_spread_sheet() should create a spreadsheet with
     # section headings and populate it with all Project objects in a database
     #
     # This method tests filtering on division
+    @tag("projects", "reports")
     def test_covid_generate_by_division(self):
 
-        self.create_test_data()
+        # self.create_test_data()
 
         report = reports.CovidReport(divisions=str(self.div_2.pk))
 
@@ -336,15 +348,16 @@ class CovidReportTest(TestCase):
         string_table = sheet.table
 
         self.assertEqual(len(string_table), 3)
-        self.asesert_project_data(strings_array, string_table, 2, self.prj_2)
+        self.assert_project_data(strings_array, string_table, 2, self.prj_2)
 
     # calling report.generate_spread_sheet() should create a spreadsheet with
     # section headings and populate it with all Project objects in a database
     #
     # This method tests filtering on section
+    @tag("projects", "reports")
     def test_covid_generate_by_section(self):
 
-        self.create_test_data()
+        # self.create_test_data()
 
         report = reports.CovidReport(sections=str(self.sec_2.pk))
 
@@ -360,15 +373,16 @@ class CovidReportTest(TestCase):
         string_table = sheet.table
 
         self.assertEqual(len(string_table), 3)
-        self.asesert_project_data(strings_array, string_table, 2, self.prj_2)
+        self.assert_project_data(strings_array, string_table, 2, self.prj_2)
 
     # calling report.generate_spread_sheet() should create a spreadsheet with
     # section headings and populate it with all Project objects in a database
     #
     # This method tests filtering on fiscal years
+    @tag("projects", "reports")
     def test_covid_generate_by_fiscal_year(self):
 
-        self.create_test_data()
+        # self.create_test_data()
 
         report = reports.CovidReport(fiscal_year=self.fy_current.pk)
 
@@ -387,9 +401,10 @@ class CovidReportTest(TestCase):
 
     # calling report.generate_spread_sheet() should create a spreadsheet with
     # section headings and populate it with all Project objects in a database
+    @tag("projects", "reports")
     def test_covid_generate(self):
 
-        self.create_test_data()
+        # self.create_test_data()
 
         report = reports.CovidReport()
 
@@ -410,15 +425,17 @@ class CovidReportTest(TestCase):
         # Generate_spread_sheet function
         # strings_array._sort_string_data()
 
-        self.asesert_project_data(strings_array, string_table, 2, self.prj_1)
-        self.asesert_project_data(strings_array, string_table, 3, self.prj_2)
+        self.assert_project_data(strings_array, string_table, 2, self.prj_1)
+        self.assert_project_data(strings_array, string_table, 3, self.prj_2)
 
+    @tag("projects", "reports")
     def test_covid_get_worksheet(self):
         sheet = self.report.get_worksheet(title=self.EXPECTED_WORKSHEETS[0])
         self.assertIsNotNone(sheet)
         self.assertEquals(self.EXPECTED_WORKSHEETS[0], sheet.name)
 
     # create report sections for dividing up headings
+    @tag("projects", "reports")
     def test_covid_sections(self):
         sections = self.report.__sections__
 
