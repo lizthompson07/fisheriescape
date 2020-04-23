@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "running testing for shared_models app"
 python manage.py test --keepdb shared_models.test
 
