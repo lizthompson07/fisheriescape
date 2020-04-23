@@ -21,9 +21,9 @@ class IndexTemplateView(ListView):
             "thumbnail| ",
             "ttitle|{}".format(_("title")),
             "tdescription|{}".format(_("description")),
-            "github_url",
             "owner",
             "last_modified",
+            "github_url|{}".format("link to github"),
         ]
         context['apps'] = [
             # Restigouche Salmon
