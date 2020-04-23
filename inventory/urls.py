@@ -9,7 +9,8 @@ urlpatterns = [
 
     # RESOURCE #
     ############
-    path('', views.ResourceListView.as_view(), name="resource_list"),
+    path('', views.Index.as_view(), name="index"),
+    path('list/', views.ResourceListView.as_view(), name="resource_list"),
     path('my-list/', views.MyResourceListView.as_view(), name="my_resource_list"),
     path('<int:pk>/view/', views.ResourceDetailView.as_view(), name="resource_detail"),
     path('<int:pk>/full-view/', views.ResourceFullDetailView.as_view(), name="resource_full_detail"),
