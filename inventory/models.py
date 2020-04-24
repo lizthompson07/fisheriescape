@@ -191,8 +191,13 @@ class Keyword(models.Model):
             self.is_taxonomic = True
         super().save(*args, **kwargs)
 
-    # def get_absolute_url(self):
-    #     return reverse('resources:keyword_detail', kwargs={'pk':self.id})
+    @property
+    def non_hierarchical_name_en(self):
+        # if the keyword can be split by " > " then take the last item in the list
+        if len(self.text_value_eng.split(" > ")) > 1:
+            return self.text_value_eng.split(" > ")[-1]
+        else:
+            return self.text_value_eng
 
 
 class Publication(models.Model):
@@ -419,6 +424,7 @@ class Resource(models.Model):
                 (self.west_bounding, self.south_bounding),
                 (self.east_bounding, self.south_bounding),
             ]
+
 
 class ContentType(models.Model):
     title = models.CharField(max_length=255, verbose_name="Name (English)")

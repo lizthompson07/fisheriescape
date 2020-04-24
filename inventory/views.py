@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
+import json
+
 from dm_apps.utils import custom_send_mail
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
@@ -20,7 +22,7 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 ###
 from collections import OrderedDict
 
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 from . import models
 from . import forms
 from . import filters
@@ -128,6 +130,20 @@ class OpenDataDashboardTemplateView(TemplateView):
             "fgp_publication_date|Published to Open Data",
             "external_links|External links",
         ]
+
+        od_keywords = [kw.non_hierarchical_name_en for r in qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False) for kw
+                       in r.keywords.all()]
+        od_keywords_set = set(od_keywords)
+        frequency_list = list()
+        for kw in od_keywords_set:
+            frequency_list.append({
+                "text": kw,
+                "size": od_keywords.count(kw)*10,
+            })
+
+        context["frequency_list"] = json.dumps(frequency_list)
+        # context["words"] = listrify([kw for kw in od_keywords])
+
         return context
 
 
