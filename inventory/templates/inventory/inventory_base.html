@@ -21,29 +21,27 @@
             background-size: cover;
             background-attachment: fixed;
         }
-    .container-fluid, .container{
-        border-radius: 25px;
-        margin-top: 15px;
-        padding: 15px;
-        background-color: white;
-        background-color: rgba(255, 255, 255, 0.9);
-        font-size: small;
 
-    }
+        .container-fluid, .container {
+            border-radius: 25px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: small;
+
+        }
     </style>
     {% block content %}{% endblock content %}
 {% endblock body %}
-
-{% block left_unauth %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'inventory:resource_list' %}">
-        {% trans "Inventory" %}
-    </a></li>
-{% endblock left_unauth %}
-
-{% block left_auth %}
+{% block left_all %}
     <li class="nav-item"><a class="nav-link" href="{% url 'inventory:index' %}">
         {% trans "Home" %}
     </a></li>
+
+{% endblock %}
+
+{% block left_auth %}
 
     {% for group in user.groups.all %}
         {% if group.name == "inventory_dm" %}
