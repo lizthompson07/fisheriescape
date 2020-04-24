@@ -42,7 +42,7 @@ class TestTripCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('travel:trip_new')
-        self.expected_template = 'travel/trip_new.html'
+        self.expected_template = 'travel/trip_form.html'
 
     @tag("travel", 'create', "view")
     def test_view_class(self):
