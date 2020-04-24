@@ -2,20 +2,21 @@ from django.test import tag, TestCase
 from django.urls import reverse_lazy
 from django.utils.translation import activate
 
-from travel.test import TravelFactoryFloor
-from travel.test.TravelFactoryFloor import ReviewerFactory, TripFactory
-from travel.test.common_tests import CommonTravelTest
+from travel.test import FactoryFloor
+from travel.test.common_tests import CommonTravelTest as CommonTest
 
 
-class TestTravelModels(CommonTravelTest):
+class TestTravelModels(CommonTest):
+
+
 
     @tag('models', 'trip')
     def test_trip_model(self):
         # the requests associated with a trip can be accessed by the reverse name called `trips`
-        trip_request = TravelFactoryFloor.IndividualTripRequestFactory()
+        trip_request = FactoryFloor.IndividualTripRequestFactory()
         trip = trip_request.trip
         # create a group travel request
-        child_trip_request = TravelFactoryFloor.ChildTripRequestFactory(trip=trip)
+        child_trip_request = FactoryFloor.ChildTripRequestFactory(trip=trip)
 
         self.assertIn(trip_request, trip.trip_requests.all())
         self.assertIn(child_trip_request, trip.trip_requests.all())
@@ -34,31 +35,31 @@ class TestTravelModels(CommonTravelTest):
     @tag('models', 'trip_request')
     def test_trip_request_model(self):
         # a reviewer associated with a trip request can be accessed by the reverse name called `reviewers`
-        reviewer = TravelFactoryFloor.ReviewerFactory()
+        reviewer = FactoryFloor.ReviewerFactory()
         tr = reviewer.trip_request
         self.assertIn(reviewer, tr.reviewers.all())
 
         # a file associated with a trip request can be accessed by the reverse name called `files`
-        file = TravelFactoryFloor.FileFactory()
+        file = FactoryFloor.FileFactory()
         tr = file.trip_request
         self.assertIn(file, tr.files.all())
 
         # a file associated with a trip request can be accessed by the reverse name called `files`
-        tr_cost = TravelFactoryFloor.TripRequestCostTotalFactory()
+        tr_cost = FactoryFloor.TripRequestCostTotalFactory()
         tr = tr_cost.trip_request
         self.assertIn(tr_cost, tr.trip_request_costs.all())
 
     @tag('models', 'trip_request_cost')
     def test_trip_request_cost_model(self):
         # if you save a tr cost with a rate and days, it should provide a total equal to the product of the two
-        tr_cost_1 = TravelFactoryFloor.TripRequestCostDayXRateFactory()
+        tr_cost_1 = FactoryFloor.TripRequestCostDayXRateFactory()
         rate = tr_cost_1.rate_cad
         days = tr_cost_1.number_of_days
         tr_cost_1.save()
         self.assertEqual(rate*days, tr_cost_1.amount_cad)
 
         # if a tr_cost has only an amount, the save method should not override if there is a zero value in either rate or days
-        tr_cost_2 = TravelFactoryFloor.TripRequestCostTotalFactory()
+        tr_cost_2 = FactoryFloor.TripRequestCostTotalFactory()
         amount = tr_cost_2.amount_cad
         tr_cost_2.save()
         self.assertEqual(amount, tr_cost_2.amount_cad)
@@ -82,7 +83,7 @@ class TestTravelModels(CommonTravelTest):
     def test_reviewer_model(self):
         # if you save a reviewer while a request is in NON DRAFT (!=8) and the reviewer is in draft status (=4), there is a problem. the status should
         # be queued (=20)
-        reviewer = TravelFactoryFloor.ReviewerFactory()
+        reviewer = FactoryFloor.ReviewerFactory()
         tr = reviewer.trip_request
 
         reviewer.status_id = 4 # draft
