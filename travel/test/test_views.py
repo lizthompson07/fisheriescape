@@ -50,7 +50,7 @@ class TestIndexView(CommonTest):
         self.assertEqual(response.context["is_reviewer"], False)
 
         # if a regular user is also a reviewer, the 'is_reviewer' var should be true
-        ReviewerFactory(user=reg_user)
+        FactoryFloor.ReviewerFactory(user=reg_user)
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["is_reviewer"], True)
 
