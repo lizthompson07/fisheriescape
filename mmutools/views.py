@@ -13,6 +13,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
+from django.utils import timezone
 from . import models
 from . import forms
 from . import filters
@@ -94,6 +95,8 @@ class ItemDetailView(VaultAccessRequired, DetailView):
             'gear_type',
 
         ]
+
+        # contexts for _quantity.html file
         context["random_qty"] = models.Quantity.objects.first()
         context["qty_field_list"] = [
             'quantity',
@@ -102,7 +105,7 @@ class ItemDetailView(VaultAccessRequired, DetailView):
             'bin_id',
         ]
 
-        # now when you create a new item you get this error:   context['quantity_avail'] = ohqty - lentqty
+               # now when you create a new item you get this error:   context['quantity_avail'] = ohqty - lentqty
         # TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType' -- have to add a case where there is
         # no info yet in those fields? -- fixed it I think~!!! WOOOOH
 
@@ -120,6 +123,34 @@ class ItemDetailView(VaultAccessRequired, DetailView):
             lentqty = lentqty
 
         context['quantity_avail'] = ohqty - lentqty
+
+        # context for _supplier.html
+        context["random_sup"] = models.Supplier.objects.first()
+        context["sup_field_list"] = [
+            'supplier',
+            'contact_number',
+            'email',
+            'last_purchased',
+            'last_invoice',
+        ]
+
+        # context for _lending.html
+        context["random_lend"] = models.Lending.objects.first()
+        context["lend_field_list"] = [
+            'lent_to',
+            'quantity_lent',
+            'lent_date',
+            'return_date',
+        ]
+
+        # context for _files.html
+        context["random_file"] = models.File.objects.first()
+        context["file_field_list"] = [
+            'id',
+            'caption',
+            'file',
+            'date_uploaded',
+        ]
 
         return context
 
@@ -383,31 +414,27 @@ class SupplierDeleteView(VaultAccessRequired, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
-    ## SUPPLIER FILE UPLOAD ##
+    ## ITEM FILE UPLOAD ##
 
 
 class FileCreateView(VaultAccessRequired, CreateView):
     model = models.File
     template_name = 'mmutools/file_form_popout.html'
     form_class = forms.FileForm
-    success_url = reverse_lazy('mmutools:close_me')
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse("mmutools:close_me"))
+        return HttpResponseRedirect(reverse_lazy("mmutools:item_detail", kwargs={"pk": object.item.id}))
+
+    def get_initial(self):
+        item = models.Item.objects.get(pk=self.kwargs['item'])
+        return {'item': item}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["editable"] = True
-        supplier = models.Supplier.objects.get(pk=self.kwargs.get('supplier'))
-        context["supplier"] = supplier
+        context["item"] = models.Item.objects.get(pk=self.kwargs.get("item"))
         return context
-
-    def get_initial(self):
-        supplier = models.Supplier.objects.get(pk=self.kwargs['supplier'])
-        return {
-            'supplier': supplier,
-        }
 
 
 class FileUpdateView(VaultAccessRequired, UpdateView):
@@ -416,7 +443,14 @@ class FileUpdateView(VaultAccessRequired, UpdateView):
     form_class = forms.FileForm
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("mmutools:file_detail", kwargs={"pk": self.object.id})
+        return reverse_lazy("mmutools:item_detail", kwargs={"pk": self.object.item.id})
+
+    def get_initial(self):
+        item = self.get_object()
+        return {
+            'item': item,
+            'date_uploaded': timezone.now(),
+        }
 
     def get_context_data(self, **kwargs):
         # get context
@@ -426,14 +460,8 @@ class FileUpdateView(VaultAccessRequired, UpdateView):
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse_lazy("mmutools:supplier_detail", kwargs={"pk": object.supplier.id}))
+        return HttpResponseRedirect(reverse_lazy("mmutools:item_detail", kwargs={"pk": object.item.id}))
 
-    def get_initial(self):
-        supplier = models.Supplier.objects.get(pk=self.kwargs['supplier'])
-        return {
-            'supplier': supplier,
-            'date_uploaded': timezone.now(),
-        }
 
 
 class FileDetailView(FileUpdateView):
@@ -442,12 +470,13 @@ class FileDetailView(FileUpdateView):
         context["editable"] = False
         return context
 
+## Probably want to add some sort of confirmation step
 
 def file_delete(request, pk):
-    object = models.Supplier.objects.get(pk=pk)
+    object = models.File.objects.get(pk=pk)
     object.delete()
     messages.success(request, _("The file has been successfully deleted from the entry."))
-    return HttpResponseRedirect(reverse_lazy("mmutools:file_detail", kwargs={"pk": object.object.id}))
+    return HttpResponseRedirect(reverse_lazy("mmutools:item_detail", kwargs={"pk": object.item.id}))
 
     ## LENDING ##
 

@@ -1,6 +1,7 @@
 {% load static %}
 {% load humanize %}
 {% load i18n %}
+{% load verbose_names %}
 
 <div class="">
     <h3>
@@ -8,7 +9,7 @@
     </h3>
 </div>
 
-{% if object.necropsy_supplier_related.count == 0 %}
+{% if object.suppliers.count == 0 %}
     <em>
         {% trans "No suppliers have been added to this entry" %}
     </em><br>
@@ -16,48 +17,31 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
+
+            {% for field in sup_field_list %}
             <th>
-                {% trans "Supplier" %}
+
+            {% get_verbose_label random_sup field %}
             </th>
-            <th>
-                {% trans "Contact Number" %}
-            </th>
-            <th>
-                {% trans "Email" %}
-            </th>
-            <th>
-                {% trans "Last Purchased on" %}
-            </th>
-              <th>
-                {% trans "Last Invoice" %}
-            </th>
+            {% endfor %}
         </tr>
         <tbody>
-        {% for obj in object.necropsy_supplier_related.all %}
-        <tr href="{% url 'mmutools:supplier_edit' obj.id %}" pop>
+        {% for obj in object.suppliers.all %}
+            <tr href="{% url 'mmutools:supplier_edit' obj.id %}" pop>
+            {% for field in sup_field_list %}
             <td>
-                {{ obj.supplier }}
+
+            {% get_field_value obj field %}
             </td>
-            <td>
-                {{ obj.contact_number }}
-            </td>
-            <td>
-                {{ obj.email }}
-            </td>
-            <td>
-                {{ obj.last_purchased }}
-            </td>
-            <td>
-                {{ obj.last_invoice }}
-            </td>
-        </tr>
+            {% endfor %}
+
+            </tr>
         {% endfor %}
         </tbody>
     </table>
 {% endif %}
 
-<a class="" href="#"
-   onclick="return popitup('{% url 'mmutools:supplier_new' %}','popoutWindow')">
+<a class="" href="#" pop-href="{% url 'mmutools:supplier_new' %}">
     {% trans "(Add Supplier)" %}
 </a>
 

@@ -1,14 +1,15 @@
 {% load static %}
 {% load humanize %}
 {% load i18n %}
+{% load verbose_names %}
 
 <div class="">
     <h3>
-        {% trans "Invoice Files:" %}
+        {% trans "Files:" %}
     </h3>
 </div>
 
-{% if object.necropsy_file_related.count == 0 %}
+{% if object.files.count == 0 %}
     <em>
         {% trans "No files have been added to this entry" %}
     </em><br>
@@ -16,53 +17,54 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
+
+            {% for field in file_field_list %}
             <th>
-                {% trans "File" %}
+
+            {% get_verbose_label random_file field %}
             </th>
-            <th>
-                {% trans "Caption" %}
-            </th>
-            <th>
-                {% trans "Date Uploaded" %}
-            </th>
+            {% endfor %}
         </tr>
         <tbody>
-        {% for obj in object.necropsy_file_related.all %}
-            <tr href="{% url 'mmutools:file_edit' object.id %}" pop>
-                <td>
-                    {{ obj.file }}
-                </td>
-                <td>
-                    {{ obj.caption}}
-                </td>
-                <td>
-                    {{ obj.date_uploaded }}
-                </td>
-                <td>
-                    <a href="{{ obj.file.url }}" >
-                        <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
-                    </a>
-                </td>
-                <td>
-                    <a href="#"
-                       onclick="return popitup('{% url 'mmutools:file_edit' object.id %}','popoutWindow')">
-                        <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
-                    </a>
-                </td>
-                    <td>
-                    <a class="file-delete-me" href="#" val="{{ obj.id }}">
-                        <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
-                    </a>
-                        <a id="file-secret-delete-btn-{{ obj.id }}" href="{% url 'mmutools:file_delete' object.id %}" class="hidden"></a>
-                </td>
+         {% for obj in object.files.all %}
+            <tr href="{% url 'mmutools:file_edit' obj.id %}" pop>
+            {% for field in file_field_list %}
+            <td>
+
+            {% get_field_value obj field %}
+            </td>
+            {% endfor %}
+            <td>
+                <a href="{{ obj.file.url }}" >
+                    <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                   onclick="return popitup('{% url 'mmutools:file_edit' object.id %}','popoutWindow')">
+                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                   onclick="return popitup('{% url 'mmutools:file_delete' object.id %}','popoutWindow')">
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                </a>
+            </td>
+<!--            <td>-->
+<!--                <a class="file-delete-me" href="#" val="{{ obj.id }}">-->
+<!--                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">-->
+<!--                </a>-->
+<!--                    <a id="file-secret-delete-btn-{{ obj.id }}" href="{% url 'mmutools:file_delete' object.id %}" class="hidden"></a>-->
+<!--            </td>-->
+
             </tr>
         {% endfor %}
         </tbody>
     </table>
 {% endif %}
 
-<a class="" href="#"
-   onclick="return popitup('{% url 'mmutools:file_new' object.id %}','popoutWindow')">
+<a class="" href="#" pop-href="{% url 'mmutools:file_new' object.id %}">
     {% trans "(Add File)" %}
 </a>
 

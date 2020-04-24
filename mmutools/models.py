@@ -7,10 +7,11 @@ from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from lib.functions.custom_functions import nz
+import os
 
 class Category(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("English name"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -22,8 +23,8 @@ class Category(models.Model):
             return "{}".format(self.name)
 
 class GearType(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("English name"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -36,8 +37,8 @@ class GearType(models.Model):
 
 
 class Owner(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("English name"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -49,19 +50,19 @@ class Owner(models.Model):
             return "{}".format(self.name)
 
 class Item(models.Model):
-    item_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Name of Item"))
-    description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Description"))
-    serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Serial Number"))
-    owner = models.ForeignKey(Owner, on_delete=models.DO_NOTHING, related_name="owner",
-                                                  verbose_name=_("Owner of Equipment"))
-    size = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Size (if applicable)"))
-    container = models.BooleanField(default=False, verbose_name=_("Is this item a container with more items inside it?"))
+    item_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("name of item"))
+    description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
+    serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("serial number"))
+    owner = models.ForeignKey(Owner, on_delete=models.DO_NOTHING, related_name="owners",
+                                                  verbose_name=_("owner of equipment"))
+    size = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("size (if applicable)"))
+    container = models.BooleanField(default=False, verbose_name=_("is this item a container with more items inside it?"))
     container_space = models.IntegerField(null=True, blank=True,
-                                          verbose_name=_("Container Space Available (if applicable)"))
-    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name="category",
-                                                  verbose_name=_("Category of Equipment"))
-    gear_type = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="type",
-                                                  verbose_name=_("Type of Equipment"))
+                                          verbose_name=_("container Space Available (if applicable)"))
+    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name="categories",
+                                                  verbose_name=_("category of equipment"))
+    gear_type = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="types",
+                                                  verbose_name=_("type of equipment"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -76,11 +77,11 @@ class Item(models.Model):
         return reverse("mmutools:item_detail", kwargs={"pk": self.id})
 
 class Lending(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="necropsy_lending_related", related_query_name="necropsy_lendings",
-                                           verbose_name=_("Item"))
-    quantity_lent = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity Lent"))
-    lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Lent To"))
-    lent_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Lent Date"))
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="lendings", verbose_name=_("item"))
+    quantity_lent = models.IntegerField(null=True, blank=True, verbose_name=_("quantity lent"))
+    lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
+    lent_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("lent date"))
+    return_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("expected return date"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -104,16 +105,15 @@ class Quantity(models.Model):
         (ON_ORDER, _('On Order')),
         (LENT_OUT, _('Lent Out')),
     ]
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="quantities", related_query_name="necropsy_quantitys",
-                                      verbose_name=_("Item"))
-    quantity = models.IntegerField(null=True, blank=True, verbose_name=_("Quantity"))
-    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default='ON_HAND', verbose_name=_("Status"))
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("item"))
+    quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
+    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default='ON_HAND', verbose_name=_("status"))
     lent_id = models.ForeignKey(Lending, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="lendee",
-                                           verbose_name=_("Lent To"))
-    last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Last Audited"))
-    last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last Audited By"))
-    location_stored = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Location Stored"))
-    bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Bin Id"))
+                                           verbose_name=_("lent to"))
+    last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("last audited"))
+    last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
+    location_stored = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("location stored"))
+    bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
 
     def __str__(self):
 
@@ -129,24 +129,15 @@ class Quantity(models.Model):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})
 
 
-    # @property
-    # def quantity_avail(self):
-    #
-    #     Myobj = Quantity.objects.filter(status='on hand').aggregate(dsum=Sum('quantity'))
-    #     Myobj2 = Quantity.objects.filter(status='lent out').aggregate(dsum=Sum('quantity'))
-    #
-    #     return Myobj["dsum"]-Myobj2["dsum"]
-
 
 class Supplier(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="necropsy_supplier_related", related_query_name="necropsy_suppliers",
-                             verbose_name=_("Item"))
-    supplier = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Supplier"))
-    contact_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Contact Number"))
-    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Email"))
-    last_invoice = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last Invoice"))
-    last_purchased = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Last Purchased"))
-    last_purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last Purchased by"))
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="suppliers", verbose_name=_("item"))
+    supplier = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("supplier"))
+    contact_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("contact number"))
+    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("email"))
+    last_invoice = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last invoice"))
+    last_purchased = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("last purchased"))
+    last_purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last purchased by"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -162,13 +153,12 @@ class Supplier(models.Model):
 
 
 def file_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/supplier_<id>/<filename>
-    return 'mmutools/supplier_{0}/{1}'.format(instance.supplier.id, filename)
+    # file will be uploaded to MEDIA_ROOT/item_<id>/<filename>
+    return 'mmutools/item_{0}/{1}'.format(instance.item.id, filename)
 
 class File(models.Model):
     caption = models.CharField(max_length=255, verbose_name=_("caption"))
-    supplier = models.ForeignKey(Supplier, on_delete=models.DO_NOTHING, related_name="necropsy_file_related",
-                                 related_query_name="necropsy_files", verbose_name=_("Supplier"))
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="files", verbose_name=_("item"))
     file = models.FileField(upload_to=file_directory_path, verbose_name=_("file"))
     date_uploaded = models.DateTimeField(default=timezone.now, verbose_name=_("date uploaded"))
 
@@ -210,10 +200,10 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 
 
 class Organisation(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("English name"))
-    abbrev_name = models.CharField(max_length=255, verbose_name=_("English abbreviated name"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
-    abbrev_nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French abbreviated name"))
+    name = models.CharField(max_length=255, verbose_name=_("english name"))
+    abbrev_name = models.CharField(max_length=255, verbose_name=_("english abbreviated name"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french name"))
+    abbrev_nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french abbreviated name"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -246,9 +236,9 @@ class Experience(models.Model):
     )
     name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
     nom = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    description_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("English description"))
-    description_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French description"))
-    experience = models.CharField(max_length=255, choices=EXPERIENCE_LEVEL_CHOICES, default='None', verbose_name=_("Experience level"))
+    description_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("english description"))
+    description_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french description"))
+    experience = models.CharField(max_length=255, choices=EXPERIENCE_LEVEL_CHOICES, default='None', verbose_name=_("experience level"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -263,14 +253,14 @@ class Experience(models.Model):
         return reverse("mmutools:personnel_detail", kwargs={"pk": self.id})
 
 class Personnel(models.Model):
-    first_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("First name"))
-    last_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last name"))
-    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_("Organisation"), null=True, blank=True)
-    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Email address"))
-    phone = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Phone number"))
+    first_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last name"))
+    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_("organisation"), null=True, blank=True)
+    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("email address"))
+    phone = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("phone number"))
     exp_level = models.ForeignKey(Experience, help_text="Novice 1-2 necropsy, Intermediate 3-5, Advanced more than 5", on_delete=models.DO_NOTHING, related_name="xp",
-                                                  verbose_name=_("Experience level"))
-    training = models.ManyToManyField(Training, verbose_name=_("Training"))
+                                                  verbose_name=_("experience level"))
+    training = models.ManyToManyField(Training, verbose_name=_("training"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -314,25 +304,25 @@ INCIDENT_CHOICES = (
 )
 
 class Incident(models.Model):
-    species_count = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Species count"))
-    submitted = models.BooleanField(choices=BOOL_CHOICES, blank=True, null=True, verbose_name=_("Incident report submitted by Gulf?"))
-    first_report = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("Date and time first reported"))
-    lat = models.FloatField(blank=True, null=True, verbose_name=_("Latitude (DD)"))
-    long = models.FloatField(blank=True, null=True, verbose_name=_("Longitude (DD)"))
-    location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Location"))
-    region = models.CharField(max_length=255, null=True, blank=True, choices=REGION_CHOICES, verbose_name=_("Region"))
-    species = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Species"))
-    sex = models.CharField(max_length=255, blank=True, null=True, choices=SEX_CHOICES, verbose_name=_("Sex"))
-    age_group = models.CharField(max_length=255, blank=True, null=True, choices=AGE_CHOICES, verbose_name=_("Age group"))
-    incident_type = models.CharField(max_length=255, blank=True, null=True, choices=INCIDENT_CHOICES, verbose_name=_("Type of Incident"))
-    gear_presence = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("Gear Presence?"))
-    gear_desc = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("Gear description"))
-    exam = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("Examination conducted?"))
-    necropsy = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("Necropsy conducted?"))
-    results = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("Results"))
-    photos = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("Photos?"))
-    data_folder = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Data folder"))
-    comments = models.TextField(blank=True, null=True, verbose_name=_("Comments/Details"))
+    species_count = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species count"))
+    submitted = models.BooleanField(choices=BOOL_CHOICES, blank=True, null=True, verbose_name=_("incident report submitted by Gulf?"))
+    first_report = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("date and time first reported"))
+    lat = models.FloatField(blank=True, null=True, verbose_name=_("latitude (DD)"))
+    long = models.FloatField(blank=True, null=True, verbose_name=_("longitude (DD)"))
+    location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("location"))
+    region = models.CharField(max_length=255, null=True, blank=True, choices=REGION_CHOICES, verbose_name=_("region"))
+    species = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species"))
+    sex = models.CharField(max_length=255, blank=True, null=True, choices=SEX_CHOICES, verbose_name=_("sex"))
+    age_group = models.CharField(max_length=255, blank=True, null=True, choices=AGE_CHOICES, verbose_name=_("age group"))
+    incident_type = models.CharField(max_length=255, blank=True, null=True, choices=INCIDENT_CHOICES, verbose_name=_("type of Incident"))
+    gear_presence = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("gear Presence?"))
+    gear_desc = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("gear description"))
+    exam = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("examination conducted?"))
+    necropsy = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("necropsy conducted?"))
+    results = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("results"))
+    photos = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("photos?"))
+    data_folder = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("data folder"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments/Details"))
 
     def __str__(self):
         # check to see if a french value is given

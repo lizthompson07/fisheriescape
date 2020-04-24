@@ -1,6 +1,7 @@
 {% load static %}
 {% load humanize %}
 {% load i18n %}
+{% load verbose_names %}
 
 <div class="">
     <h3>
@@ -8,7 +9,7 @@
     </h3>
 </div>
 
-{% if object.necropsy_lending_related.count == 0 %}
+{% if object.lendings.count == 0 %}
     <em>
         {% trans "No lending agreements have been added to this entry" %}
     </em><br>
@@ -16,36 +17,30 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
+
+            {% for field in lend_field_list %}
             <th>
-                {% trans "Lent To" %}
+
+            {% get_verbose_label random_lend field %}
             </th>
-            <th>
-                {% trans "Quantity Lent" %}
-            </th>
-            <th>
-                {% trans "Lent Date" %}
-            </th>
+            {% endfor %}
         </tr>
         <tbody>
-        {% for obj in object.necropsy_lending_related.all %}
+         {% for obj in object.lendings.all %}
             <tr href="{% url 'mmutools:lending_edit' obj.id %}" pop>
-                <td>
-                    {{ obj.lent_to }}
-                </td>
-                <td>
-                    {{ obj.quantity_lent }}
-                </td>
-                <td>
-                    {{ obj.lent_date }}
-                </td>
+            {% for field in lend_field_list %}
+            <td>
+
+            {% get_field_value obj field %}
+            </td>
+            {% endfor %}
 
             </tr>
         {% endfor %}
         </tbody>
     </table>
 {% endif %}
-<a class="" href="#"
-   onclick="return popitup('{% url 'mmutools:lending_new' %}','popoutWindow')">
+<a class="" href="#" pop-href="{% url 'mmutools:lending_new' %}">
     {% trans "(Add Lending Agreement)" %}
 </a>
 <br>

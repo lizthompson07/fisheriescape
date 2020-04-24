@@ -33,17 +33,17 @@
 
             {% get_verbose_label random_qty field %}
             </th>
-            {%endfor%}
+            {% endfor %}
         </tr>
         <tbody>
         {% for obj in object.quantities.all %}
             <tr href="{% url 'mmutools:quantity_edit' obj.id %}" pop>
-                {% for field in qty_field_list %}
+            {% for field in qty_field_list %}
             <td>
 
             {% get_field_value obj field %}
             </td>
-            {%endfor%}
+            {% endfor %}
 
             </tr>
         {% endfor %}

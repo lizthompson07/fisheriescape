@@ -43,9 +43,9 @@ urlpatterns = [
     path('supplier/<int:pk>/edit/', views.SupplierUpdateView.as_view(), name="supplier_edit"),
     path('supplier/<int:pk>/delete/', views.SupplierDeleteView.as_view(), name="supplier_delete"),
 
-# SUPPLIER FILES #
+# ITEM FILES #
 
-    path('supplier/<int:supplier>/file/new/', views.FileCreateView.as_view(), name="file_new"),
+    path('item/<int:item>/file/new/', views.FileCreateView.as_view(), name="file_new"),
     path('file/<int:pk>/view/', views.FileDetailView.as_view(), name="file_detail"),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name="file_edit"),
     path('file/<int:pk>/delete/', views.file_delete, name="file_delete"),
