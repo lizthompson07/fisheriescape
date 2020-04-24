@@ -127,6 +127,7 @@ class OpenDataDashboardTemplateView(TemplateView):
         context["my_dict"] = my_dict
         context['field_list'] = [
             "t_title|Title",
+            "section|DFO Section",
             "fgp_publication_date|Published to Open Data",
             "external_links|External links",
         ]

@@ -24,6 +24,13 @@
             font-size: small;
         }
 
+        @media (min-width: 768px) {
+            .modal-xl {
+                width: 90%;
+                max-width: 1200px;
+            }
+        }
+
     </style>
 
 
@@ -40,7 +47,9 @@
                 </li>
             </ol>
         </nav>
-
+        <div class="mb-3 center-col">
+            <h3>{% trans "Click on a row in the table below to view published datasets" %}</h3>
+        </div>
         <table class="table table-hover">
             <thead>
             <th>Region</th>
@@ -91,7 +100,7 @@
                 {#<!-- modal_label MODAL -->#}
                 <div class="modal fade" id="{{ region }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
                      aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLongTitle"> {{ region }} {% trans "Open Data Resources" %}</h5>
@@ -131,6 +140,10 @@
                                                                 <img src="{% static 'img/icons/canada.png' %}" alt="" width="25px">
                                                             </a>
                                                         {% endif %}
+                                                    </td>
+                                                {% elif "section" in field %}
+                                                    <td>
+                                                        {{ obj.section.full_name }}
                                                     </td>
                                                 {% else %}
                                                     <td>
