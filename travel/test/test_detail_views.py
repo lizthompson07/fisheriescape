@@ -2,11 +2,14 @@ from django.utils import timezone
 from django.utils.translation import activate
 from django.urls import reverse_lazy
 from django.test import tag
-from travel.test import TravelFactoryFloor as FactoryFloor
-from travel.test.common_tests import CommonTravelTest
+from django.views.generic import DetailView
+
+from travel.test import FactoryFloor
+from travel.test.common_tests import CommonTravelTest as CommonTest
+from .. import views
 
 
-class TripRequestDetails(CommonTravelTest):
+class TripRequestDetails(CommonTest):
 
     def setUp(self):
         super().setUp()  # used to import fixutres
@@ -45,12 +48,10 @@ class TripRequestDetails(CommonTravelTest):
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
 
-
         activate('en')
         reg_user = self.get_and_login_user()
         response = self.client.get(self.test_url)
         # expected to determine if the user is authorized to add content
-
 
         # a random user should not be an admin, owner, current_reviewer, able-to-modify
         self.assertEqual(response.context["is_admin"], False)
@@ -89,3 +90,27 @@ class TripRequestDetails(CommonTravelTest):
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["report_mode"], True)
 
+
+class TestTripDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.TripFactory()
+        self.test_url = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk})
+        self.expected_template = 'travel/trip_detail.html'
+
+    @tag("travel", 'detail', "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.TripDetailView, DetailView)
+
+    @tag("travel", 'detail', "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
+
+    @tag("travel", 'detail', "context")
+    def test_context(self):
+        context_vars = [
+            "conf_field_list",
+            "trip",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars)
