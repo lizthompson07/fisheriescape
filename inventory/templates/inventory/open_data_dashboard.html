@@ -50,7 +50,7 @@
         <div class="mb-3 center-col">
             <h3>{% trans "Click on a row in the table below to view published datasets" %}</h3>
         </div>
-        <table class="table table-hover">
+        <table class="table table-hover sortable">
             <thead>
             <th>Region</th>
             <th class="center-col">Total number of resources on DM Apps</th>
@@ -72,6 +72,9 @@
                     {% endwith %}
                 {% endif %}
             {% endfor %}
+            </tbody>
+            <tfoot>
+
             {% with my_dict|lookup:"TOTAL" as dict %}
                 <tr>
                     <th>TOTAL</th>
@@ -81,7 +84,7 @@
                     <th class="center-col">{{ dict.qs_open_data_current_fy }}</th>
                 </tr>
             {% endwith %}
-            </tbody>
+            </tfoot>
         </table>
         <br>
         <br>
@@ -143,7 +146,7 @@
                                                     </td>
                                                 {% elif "section" in field %}
                                                     <td>
-                                                        {{ obj.section.full_name }}
+                                                        {{ obj.section.tname }}
                                                     </td>
                                                 {% else %}
                                                     <td>
