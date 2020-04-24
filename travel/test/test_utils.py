@@ -4,12 +4,12 @@ from django.utils import timezone
 from django.utils.translation import activate
 
 from shared_models.test.SharedModelsFactoryFloor import UserFactory
-from travel.test import TravelFactoryFloor as FactoryFloor
-from travel.test.common_tests import CommonTravelTest
+from travel.test import FactoryFloor
+from travel.test.common_tests import CommonTravelTest as CommonTest
 from travel.views import can_modify_request
 
 
-class UtilsTest(CommonTravelTest):
+class UtilsTest(CommonTest):
 
     def setUp(self):
         super().setUp()  # used to import fixutres

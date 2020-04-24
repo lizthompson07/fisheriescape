@@ -2,8 +2,8 @@ from django.test import tag
 from django.urls import reverse_lazy
 from django.utils.translation import activate
 
-from travel.test.TravelFactoryFloor import ReviewerFactory
-from travel.test.common_tests import CommonTravelTest
+from travel.test import FactoryFloor
+from travel.test.common_tests import CommonTravelTest as CommonTest
 
 
 ###########################################################################################
@@ -11,7 +11,7 @@ from travel.test.common_tests import CommonTravelTest
 ###########################################################################################
 
 
-class TestIndexView(CommonTravelTest):
+class TestIndexView(CommonTest):
 
     def setUp(self):
         super().setUp()
