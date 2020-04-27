@@ -315,3 +315,8 @@ class CommonTest(TestCase):
         else:
             form = Form()
         self.assertNotIn(field_name, form.fields)
+
+    # Tests for models
+    ##################
+        # nothing yet :(
+
