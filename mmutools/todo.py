@@ -2,11 +2,12 @@
 
 ### SMALLER ITEMS
 # TODO remake models with fields that make sense
-# TODO add additional search features (i.e. for item location)
+# TODO add additional search features (i.e. for item location, size) --- can you have 2 different search filters on a page? (see itm_list.html page)
 # TODO add edit button beside quantity
 # TODO look into using ajax for popout close and refresh function -- talk to David
-# TODO Figure out how to have Forms default fill in the field that is the PK with the pk of the current DetailView
+# TODO Figure out how to have Forms default fill in the field that is the PK with the pk of the current DetailView --in Views use def get_initial(self):
 # TODO Add confirmation step for deleting files and add admin classes etc
+# TODO If Item is marked container=TRUE, then container name is added to list of Locations
 
 ### LARGER ITEMS
 # TODO Add Historical model or some way to track history of inventory of each item (ie. track previous additions, subtractions, inventory control updates) --would need a description field for inveotry control comments (ie. "item missing")

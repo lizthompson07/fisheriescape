@@ -307,7 +307,7 @@ def get_app_dict(request):
         app_dict["mmutools"] = {
             "title": _("Marine Mammal Unit Tools and Necropsy Tracking"),
             "description": _("Tools for Marine Mammal Unit and necropsy organization suite"),
-            "status": "production",
+            "status": "dev",
             "access": "permission-required",
             "url": reverse('mmutools:index'),
             "icon_path": 'img/icons/mmutools.svg',

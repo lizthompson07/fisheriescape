@@ -54,7 +54,7 @@ def index(request):
 #
 class ItemListView(VaultAccessRequired, FilterView):
     template_name = "mmutools/item_list.html"
-    filterset_class = filters.ItemFilter
+    filterset_class = filters.SpecificItemFilter
     queryset = models.Item.objects.annotate(
         search_term=Concat('id', 'item_name', 'description', 'serial_number', 'owner', 'size', 'container', 'container_space', 'category',
                            'gear_type', output_field=TextField()))
@@ -428,7 +428,9 @@ class FileCreateView(VaultAccessRequired, CreateView):
 
     def get_initial(self):
         item = models.Item.objects.get(pk=self.kwargs['item'])
-        return {'item': item}
+        return {
+            'item': item,
+        }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
