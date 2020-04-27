@@ -9,7 +9,8 @@ urlpatterns = [
 
     # RESOURCE #
     ############
-    path('', views.ResourceListView.as_view(), name="resource_list"),
+    path('', views.Index.as_view(), name="index"),
+    path('list/', views.ResourceListView.as_view(), name="resource_list"),
     path('my-list/', views.MyResourceListView.as_view(), name="my_resource_list"),
     path('<int:pk>/view/', views.ResourceDetailView.as_view(), name="resource_detail"),
     path('<int:pk>/full-view/', views.ResourceFullDetailView.as_view(), name="resource_full_detail"),
@@ -18,6 +19,10 @@ urlpatterns = [
     path('new/', views.ResourceCreateView.as_view(), name="resource_new"),
     path('<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name="resource_flag_delete"),
     path('<int:pk>/flag-for-publication/', views.ResourcePublicationFlagUpdateView.as_view(), name="resource_flag_publication"),
+
+    # Open Data
+    path('open-data-dashboard/', views.OpenDataDashboardTemplateView.as_view(), name="open_data_dashboard"),
+
 
     # RESOURCE PERSON #
     ###################

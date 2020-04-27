@@ -3,7 +3,7 @@ import factory
 from django.utils import timezone
 from faker import Faker
 
-from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFactory
+from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFactory, RegionFactory
 from .. import models
 
 faker = Faker()
@@ -18,6 +18,19 @@ class TripFactory(factory.django.DjangoModelFactory):
     start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
 
+    @staticmethod
+    def get_valid_data():
+        start_date = faker.future_datetime(tzinfo=timezone.get_current_timezone())
+        end_date = start_date + datetime.timedelta(days=faker.random_int(1, 10))
+        valid_data = {
+            "is_adm_approval_required": False,
+            "location": faker.city(),
+            "lead": RegionFactory().id,
+            "name": faker.catch_phrase(),
+            "start_date": start_date.strftime("%Y-%m-%d %H:%M"),
+            "end_date": end_date.strftime("%Y-%m-%d %H:%M"),
+        }
+        return valid_data
 
 class IndividualTripRequestFactory(factory.django.DjangoModelFactory):
     class Meta:

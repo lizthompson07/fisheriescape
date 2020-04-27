@@ -279,7 +279,7 @@ class OrganizationDetailView(SiteLoginRequiredMixin, DetailView):
         ]
         context["field_list_2"] = [
             # 'legal_band_name',
-            # 'former_name',
+            'relationship_rating',
             'orgs',
             'nation',
             'website',
@@ -788,6 +788,7 @@ class OrganizationCueCard(PDFTemplateView):
             'population_on_reserve',
             'population_off_reserve',
             'population_other_reserve',
+            'relationship_rating',
         ]
         context["org_field_list_4"] = [
             'fin',
@@ -1230,6 +1231,37 @@ def manage_programs(request):
         'abbrev_fre',
     ]
     context['title'] = "Manage Funding Program List"
+    context['formset'] = formset
+    return render(request, 'ihub/manage_settings_small.html', context)
+
+def delete_rating(request, pk):
+    my_obj = ml_models.RelationshipRating.objects.get(pk=pk)
+    my_obj.delete()
+    return HttpResponseRedirect(reverse("ihub:manage_ratings"))
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_ihub_admin_group, login_url='/accounts/denied/')
+def manage_ratings(request):
+    qs = ml_models.RelationshipRating.objects.all()
+    if request.method == 'POST':
+        formset = forms.RelationshipRatingFormSet(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(request, "relationship rating list has been successfully updated")
+            return HttpResponseRedirect(reverse("ihub:manage_ratings"))
+    else:
+        formset = forms.RelationshipRatingFormSet(
+            queryset=qs)
+    context = {}
+    context["my_object"] = qs.first()
+    context["field_list"] = [
+        'level',
+        'name',
+        'nom',
+    ]
+    context['title'] = "Manage Relationship Rating List"
     context['formset'] = formset
     return render(request, 'ihub/manage_settings_small.html', context)
 

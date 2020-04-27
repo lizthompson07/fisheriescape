@@ -2,8 +2,8 @@ from django.test import tag
 from django.urls import reverse_lazy
 from django.utils.translation import activate
 
-from travel.test.TravelFactoryFloor import ReviewerFactory
-from travel.test.common_tests import CommonTravelTest
+from travel.test import FactoryFloor
+from travel.test.common_tests import CommonTravelTest as CommonTest
 
 
 ###########################################################################################
@@ -11,7 +11,7 @@ from travel.test.common_tests import CommonTravelTest
 ###########################################################################################
 
 
-class TestIndexView(CommonTravelTest):
+class TestIndexView(CommonTest):
 
     def setUp(self):
         super().setUp()
@@ -50,7 +50,7 @@ class TestIndexView(CommonTravelTest):
         self.assertEqual(response.context["is_reviewer"], False)
 
         # if a regular user is also a reviewer, the 'is_reviewer' var should be true
-        ReviewerFactory(user=reg_user)
+        FactoryFloor.ReviewerFactory(user=reg_user)
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["is_reviewer"], True)
 
