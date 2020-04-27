@@ -37,12 +37,6 @@ def pivot_data(request):
 
 # end Dashboard 1 test section
 
-
-def in_vault_admin_group(user):
-    if "vault_admin" in [g.name for g in user.groups.all()]:
-        return True
-
-
 class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
 
@@ -55,6 +49,9 @@ class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
 
+def in_vault_admin_group(user):
+    if "vault_admin" in [g.name for g in user.groups.all()]:
+        return True
 
 class VaultAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
     login_url = '/accounts/login_required/'
@@ -67,6 +64,25 @@ class VaultAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
+
+
+def in_vault_edit_group(user):
+    """this group includes the admin group so there is no need to add an admin to this group"""
+    if user:
+        if in_vault_admin_group(user) or user.groups.filter(name='vault_edit').count() != 0:
+            return True
+
+class VaultEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return in_vault_edit_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
 
 
 @login_required(login_url='/accounts/login_required/')
@@ -123,7 +139,7 @@ class SpeciesDetailView(VaultAccessRequired, DetailView):
 
 
 #
-class SpeciesUpdateView(VaultAccessRequired, UpdateView):
+class SpeciesUpdateView(VaultEditRequiredMixin, UpdateView):
     model = models.Species
     form_class = forms.SpeciesForm
 
@@ -133,7 +149,7 @@ class SpeciesUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class SpeciesCreateView(VaultAccessRequired, CreateView):
+class SpeciesCreateView(VaultEditRequiredMixin, CreateView):
     model = models.Species
     form_class = forms.SpeciesForm
 
@@ -143,7 +159,7 @@ class SpeciesCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class SpeciesDeleteView(VaultAccessRequired, DeleteView):
+class SpeciesDeleteView(VaultEditRequiredMixin, DeleteView):
     model = models.Species
     permission_required = "__all__"
     success_url = reverse_lazy('vault:species_list')
@@ -201,7 +217,7 @@ class ObservationPlatformDetailView(VaultAccessRequired, DetailView):
 
 
 #
-class ObservationPlatformUpdateView(VaultAccessRequired, UpdateView):
+class ObservationPlatformUpdateView(VaultEditRequiredMixin, UpdateView):
     model = models.ObservationPlatform
     form_class = forms.ObservationPlatformForm
 
@@ -211,7 +227,7 @@ class ObservationPlatformUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class ObservationPlatformCreateView(VaultAccessRequired, CreateView):
+class ObservationPlatformCreateView(VaultEditRequiredMixin, CreateView):
     model = models.ObservationPlatform
     form_class = forms.ObservationPlatformForm
 
@@ -221,7 +237,7 @@ class ObservationPlatformCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class ObservationPlatformDeleteView(VaultAccessRequired, DeleteView):
+class ObservationPlatformDeleteView(VaultEditRequiredMixin, DeleteView):
     model = models.ObservationPlatform
     permission_required = "__all__"
     success_url = reverse_lazy('vault:observationplatform_list')
@@ -276,7 +292,7 @@ class InstrumentDetailView(VaultAccessRequired, DetailView):
 
 
 #
-class InstrumentUpdateView(VaultAccessRequired, UpdateView):
+class InstrumentUpdateView(VaultEditRequiredMixin, UpdateView):
     model = models.Instrument
     form_class = forms.InstrumentForm
 
@@ -286,7 +302,7 @@ class InstrumentUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class InstrumentCreateView(VaultAccessRequired, CreateView):
+class InstrumentCreateView(VaultEditRequiredMixin, CreateView):
     model = models.Instrument
     form_class = forms.InstrumentForm
 
@@ -296,7 +312,7 @@ class InstrumentCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class InstrumentDeleteView(VaultAccessRequired, DeleteView):
+class InstrumentDeleteView(VaultEditRequiredMixin, DeleteView):
     model = models.Instrument
     permission_required = "__all__"
     success_url = reverse_lazy('vault:instrument_list')
@@ -360,7 +376,7 @@ class OutingDetailView(VaultAccessRequired, DetailView):
 
 
 #
-class OutingUpdateView(VaultAccessRequired, UpdateView):
+class OutingUpdateView(VaultEditRequiredMixin, UpdateView):
     model = models.Outing
     form_class = forms.OutingForm
 
@@ -370,7 +386,7 @@ class OutingUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class OutingCreateView(VaultAccessRequired, CreateView):
+class OutingCreateView(VaultEditRequiredMixin, CreateView):
     model = models.Outing
     form_class = forms.OutingForm
 
@@ -380,7 +396,7 @@ class OutingCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class OutingDeleteView(VaultAccessRequired, DeleteView):
+class OutingDeleteView(VaultEditRequiredMixin, DeleteView):
     model = models.Outing
     permission_required = "__all__"
     success_url = reverse_lazy('vault:outing_list')
@@ -397,7 +413,7 @@ class OutingDeleteView(VaultAccessRequired, DeleteView):
 # # ###########
 # #
 #
-class PersonListView(VaultAccessRequired, FilterView):
+class PersonListView(VaultAdminAccessRequired, FilterView):
     template_name = "vault/person_list.html"
     filterset_class = filters.PersonFilter
     queryset = models.Person.objects.annotate(
@@ -419,7 +435,7 @@ class PersonListView(VaultAccessRequired, FilterView):
         return context
 
 
-class PersonDetailView(VaultAccessRequired, DetailView):
+class PersonDetailView(VaultAdminAccessRequired, DetailView):
     model = models.Person
 
     def get_context_data(self, **kwargs):
@@ -436,7 +452,7 @@ class PersonDetailView(VaultAccessRequired, DetailView):
         return context
 
 
-class PersonUpdateView(VaultAccessRequired, UpdateView):
+class PersonUpdateView(VaultAdminAccessRequired, UpdateView):
     model = models.Person
     form_class = forms.PersonForm
 
@@ -446,7 +462,7 @@ class PersonUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class PersonCreateView(VaultAccessRequired, CreateView):
+class PersonCreateView(VaultAdminAccessRequired, CreateView):
     model = models.Person
     form_class = forms.PersonForm
 
@@ -456,7 +472,7 @@ class PersonCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class PersonDeleteView(VaultAccessRequired, DeleteView):
+class PersonDeleteView(VaultAdminAccessRequired, DeleteView):
     model = models.Person
     permission_required = "__all__"
     success_url = reverse_lazy('vault:person_list')
@@ -517,7 +533,7 @@ class ObservationDetailView(VaultAccessRequired, DetailView):
         return context
 
 
-class ObservationUpdateView(VaultAccessRequired, UpdateView):
+class ObservationUpdateView(VaultEditRequiredMixin, UpdateView):
     model = models.Observation
     form_class = forms.ObservationForm
 
@@ -527,7 +543,7 @@ class ObservationUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class ObservationCreateView(VaultAccessRequired, CreateView):
+class ObservationCreateView(VaultEditRequiredMixin, CreateView):
     model = models.Observation
     form_class = forms.ObservationForm
 
@@ -537,7 +553,7 @@ class ObservationCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class ObservationDeleteView(VaultAccessRequired, DeleteView):
+class ObservationDeleteView(VaultEditRequiredMixin, DeleteView):
     model = models.Observation
     permission_required = "__all__"
     success_url = reverse_lazy('vault:observation_list')
