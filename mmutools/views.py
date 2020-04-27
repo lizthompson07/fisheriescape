@@ -23,15 +23,29 @@ from . import reports
 class CloserTemplateView(TemplateView):
     template_name = 'mmutools/close_me.html'
 
+### Permissions ###
 
-def in_vault_group(user):
-    if user:
+class MmutoolsAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
         return True
 
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
 
-class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
+def in_mmutools_admin_group(user):
+    if "mmutools_admin" in [g.name for g in user.groups.all()]:
+        return True
+
+class MmutoolsAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
     def test_func(self):
-        return in_vault_group(self.request.user)
+        return in_mmutools_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -40,9 +54,25 @@ class VaultAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-# @login_required(login_url='/accounts/login_required/')
-@login_required()
-@user_passes_test(in_vault_group, login_url='/accounts/denied/')
+def in_mmutools_edit_group(user):
+    """this group includes the admin group so there is no need to add an admin to this group"""
+    if user:
+        if in_mmutools_admin_group(user) or user.groups.filter(name='mmutools_edit').count() != 0:
+            return True
+
+class MmutoolsEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return in_mmutools_edit_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+@login_required(login_url='/accounts/login_required/')
 def index(request):
     return render(request, 'mmutools/index.html')
 
@@ -52,7 +82,7 @@ def index(request):
 # # ###########
 # #
 #
-class ItemListView(VaultAccessRequired, FilterView):
+class ItemListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/item_list.html"
     filterset_class = filters.SpecificItemFilter
     queryset = models.Item.objects.annotate(
@@ -77,7 +107,7 @@ class ItemListView(VaultAccessRequired, FilterView):
         return context
 
 
-class ItemDetailView(VaultAccessRequired, DetailView):
+class ItemDetailView(MmutoolsAccessRequired, DetailView):
     model = models.Item
 
     def get_context_data(self, **kwargs):
@@ -155,7 +185,7 @@ class ItemDetailView(VaultAccessRequired, DetailView):
         return context
 
 
-class ItemUpdateView(VaultAccessRequired, UpdateView):
+class ItemUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     model = models.Item
     form_class = forms.ItemForm
 
@@ -165,7 +195,7 @@ class ItemUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class ItemCreateView(VaultAccessRequired, CreateView):
+class ItemCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Item
     form_class = forms.ItemForm
 
@@ -175,7 +205,7 @@ class ItemCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class ItemDeleteView(VaultAccessRequired, DeleteView):
+class ItemDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     model = models.Item
     permission_required = "__all__"
     success_url = reverse_lazy('mmutools:item_list')
@@ -188,7 +218,7 @@ class ItemDeleteView(VaultAccessRequired, DeleteView):
     ##Quantities
 
 
-class QuantityListView(VaultAccessRequired, FilterView):
+class QuantityListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/quantity_list.html"
     filterset_class = filters.QuantityFilter
     queryset = models.Quantity.objects.annotate(
@@ -212,7 +242,7 @@ class QuantityListView(VaultAccessRequired, FilterView):
         return context
 
 
-class QuantityDetailView(VaultAccessRequired, DetailView):
+class QuantityDetailView(MmutoolsAccessRequired, DetailView):
     model = models.Quantity
 
     def get_context_data(self, **kwargs):
@@ -232,7 +262,7 @@ class QuantityDetailView(VaultAccessRequired, DetailView):
         return context
 
 
-class QuantityUpdateView(VaultAccessRequired, UpdateView):
+class QuantityUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     model = models.Quantity
     form_class = forms.QuantityForm
 
@@ -242,7 +272,7 @@ class QuantityUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class QuantityCreateView(VaultAccessRequired, CreateView):
+class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Quantity
     form_class = forms.QuantityForm
 
@@ -252,7 +282,7 @@ class QuantityCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class QuantityDeleteView(VaultAccessRequired, DeleteView):
+class QuantityDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     model = models.Quantity
     permission_required = "__all__"
     success_url = reverse_lazy('mmutools:quantity_list')
@@ -265,7 +295,7 @@ class QuantityDeleteView(VaultAccessRequired, DeleteView):
     ## PERSONNEL ##
 
 
-class PersonnelListView(VaultAccessRequired, FilterView):
+class PersonnelListView(MmutoolsAdminAccessRequired, FilterView):
     template_name = "mmutools/personnel_list.html"
     filterset_class = filters.PersonnelFilter
     queryset = models.Personnel.objects.annotate(
@@ -289,7 +319,7 @@ class PersonnelListView(VaultAccessRequired, FilterView):
         return context
 
 
-class PersonnelDetailView(VaultAccessRequired, DetailView):
+class PersonnelDetailView(MmutoolsAdminAccessRequired, DetailView):
     model = models.Personnel
 
     def get_context_data(self, **kwargs):
@@ -308,7 +338,7 @@ class PersonnelDetailView(VaultAccessRequired, DetailView):
         return context
 
 
-class PersonnelUpdateView(VaultAccessRequired, UpdateView):
+class PersonnelUpdateView(MmutoolsAdminAccessRequired, UpdateView):
     model = models.Personnel
     form_class = forms.PersonnelForm
 
@@ -318,7 +348,7 @@ class PersonnelUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class PersonnelCreateView(VaultAccessRequired, CreateView):
+class PersonnelCreateView(MmutoolsAdminAccessRequired, CreateView):
     model = models.Personnel
     form_class = forms.PersonnelForm
 
@@ -328,7 +358,7 @@ class PersonnelCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class PersonnelDeleteView(VaultAccessRequired, DeleteView):
+class PersonnelDeleteView(MmutoolsAdminAccessRequired, DeleteView):
     model = models.Personnel
     permission_required = "__all__"
     success_url = reverse_lazy('mmutools:personnel_list')
@@ -341,7 +371,7 @@ class PersonnelDeleteView(VaultAccessRequired, DeleteView):
     ## SUPPLIER ##
 
 
-class SupplierListView(VaultAccessRequired, FilterView):
+class SupplierListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/supplier_list.html"
     filterset_class = filters.SupplierFilter
     queryset = models.Supplier.objects.annotate(
@@ -365,7 +395,7 @@ class SupplierListView(VaultAccessRequired, FilterView):
         return context
 
 
-class SupplierDetailView(VaultAccessRequired, DetailView):
+class SupplierDetailView(MmutoolsAccessRequired, DetailView):
     model = models.Supplier
 
     def get_context_data(self, **kwargs):
@@ -384,7 +414,7 @@ class SupplierDetailView(VaultAccessRequired, DetailView):
         return context
 
 
-class SupplierUpdateView(VaultAccessRequired, UpdateView):
+class SupplierUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     model = models.Supplier
     form_class = forms.SupplierForm
 
@@ -394,7 +424,7 @@ class SupplierUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class SupplierCreateView(VaultAccessRequired, CreateView):
+class SupplierCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Supplier
     form_class = forms.SupplierForm
 
@@ -404,7 +434,7 @@ class SupplierCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class SupplierDeleteView(VaultAccessRequired, DeleteView):
+class SupplierDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     model = models.Supplier
     permission_required = "__all__"
     success_url = reverse_lazy('mmutools:supplier_list')
@@ -417,7 +447,7 @@ class SupplierDeleteView(VaultAccessRequired, DeleteView):
     ## ITEM FILE UPLOAD ##
 
 
-class FileCreateView(VaultAccessRequired, CreateView):
+class FileCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.File
     template_name = 'mmutools/file_form_popout.html'
     form_class = forms.FileForm
@@ -439,7 +469,7 @@ class FileCreateView(VaultAccessRequired, CreateView):
         return context
 
 
-class FileUpdateView(VaultAccessRequired, UpdateView):
+class FileUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     model = models.File
     template_name = 'mmutools/file_form_popout.html'
     form_class = forms.FileForm
@@ -483,7 +513,7 @@ def file_delete(request, pk):
     ## LENDING ##
 
 
-class LendingListView(VaultAccessRequired, FilterView):
+class LendingListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/lending_list.html"
     filterset_class = filters.LendingFilter
     queryset = models.Lending.objects.annotate(
@@ -503,7 +533,7 @@ class LendingListView(VaultAccessRequired, FilterView):
         return context
 
 
-class LendingDetailView(VaultAccessRequired, DetailView):
+class LendingDetailView(MmutoolsAccessRequired, DetailView):
     model = models.Lending
 
     def get_context_data(self, **kwargs):
@@ -519,7 +549,7 @@ class LendingDetailView(VaultAccessRequired, DetailView):
         return context
 
 
-class LendingUpdateView(VaultAccessRequired, UpdateView):
+class LendingUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     model = models.Lending
     form_class = forms.LendingForm
 
@@ -529,7 +559,7 @@ class LendingUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class LendingCreateView(VaultAccessRequired, CreateView):
+class LendingCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Lending
     form_class = forms.LendingForm
 
@@ -539,7 +569,7 @@ class LendingCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class LendingDeleteView(VaultAccessRequired, DeleteView):
+class LendingDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     model = models.Lending
     permission_required = "__all__"
     success_url = reverse_lazy('mmutools:lending_list')
@@ -552,7 +582,7 @@ class LendingDeleteView(VaultAccessRequired, DeleteView):
     ## INCIDENT ##
 
 
-class IncidentListView(VaultAccessRequired, FilterView):
+class IncidentListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/incident_list.html"
     filterset_class = filters.IncidentFilter
     queryset = models.Incident.objects.annotate(
@@ -575,7 +605,7 @@ class IncidentListView(VaultAccessRequired, FilterView):
         return context
 
 
-class IncidentDetailView(VaultAccessRequired, DetailView):
+class IncidentDetailView(MmutoolsAccessRequired, DetailView):
     model = models.Incident
 
     def get_context_data(self, **kwargs):
@@ -606,7 +636,7 @@ class IncidentDetailView(VaultAccessRequired, DetailView):
         return context
 
 
-class IncidentUpdateView(VaultAccessRequired, UpdateView):
+class IncidentUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     model = models.Incident
     form_class = forms.IncidentForm
 
@@ -616,7 +646,7 @@ class IncidentUpdateView(VaultAccessRequired, UpdateView):
         return super().form_valid(form)
 
 
-class IncidentCreateView(VaultAccessRequired, CreateView):
+class IncidentCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Incident
     form_class = forms.IncidentForm
 
@@ -626,7 +656,7 @@ class IncidentCreateView(VaultAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class IncidentDeleteView(VaultAccessRequired, DeleteView):
+class IncidentDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     model = models.Incident
     permission_required = "__all__"
     success_url = reverse_lazy('mmutools:incident_list')

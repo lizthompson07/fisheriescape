@@ -1,0 +1,32 @@
+
+
+- app access limitations
+
+- vault admin can edit tables that users can't
+   ---admin tables for instrument types and organizations (need CRUD structure)
+
+- create an empty directory structure for image storage based on the database contents
+
+- populate tables as much as possible using scripts that fetch and summarise images' EZIF information, GPX tracks, etc.
+
+- how will new information be included once the initial data holdings are absorbed in the database?
+
+- Outing Tables -- how to do date/time pickers? DecimalField
+                -- how to do proper rounding to allow for quarter hour calculations?
+                -- how to have foreignKey display another field from the other table (i.e. instead of Observation platform id, display the name of the aircraft)
+                -- in outing_detail, if track is available add a map that shows what the track was?
+
+- dashboard(s) for showing stats and information most requested by management
+
+- reports section to export data to file
+
+Questions / Concerns
+1) If this:
+
+    "def __str__(self):
+        return self.identifier_string"
+
+    doesn't have a value in that column, it returns an error, so should this field be required to be set to not NULL?
+    (ran into this problem with the outing table)
+
+2) When using many to many model -- why does selecting multiple items in a field create duplicate records? How to stop this? (See person list for example under Admin-only tables)

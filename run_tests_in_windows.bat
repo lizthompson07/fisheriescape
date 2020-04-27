@@ -15,3 +15,7 @@ python manage.py test inventory.test --keepdb
 
 :: run tests for mmutools app
 python manage.py test mmutools.test --keepdb
+
+:: run tests for shiny
+python manage.py test shiny.test --keepdb
+

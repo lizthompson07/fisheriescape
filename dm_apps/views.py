@@ -25,16 +25,12 @@ def get_app_dict(request):
     app_dict = {}
 
     try:
-        if request.user.is_authenticated:
-            inventory_url = reverse('inventory:my_resource_list')
-        else:
-            inventory_url = reverse('inventory:resource_list')
         app_dict["inventory"] = {
             "title": _("Metadata Inventory"),
             "description": _("Tool for organizing and managing regional data resources."),
             "status": "production",
             "access": "open",
-            "url": inventory_url,
+            "url": reverse('inventory:index'),
             "icon_path": 'img/icons/research.svg',
             "region": "all",
 
