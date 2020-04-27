@@ -80,7 +80,6 @@ urlpatterns = [
     # XML GOODNESS #
     ################
     path('<int:resource>/xml/export/publish-<slug:publish>/', views.export_resource_xml, name="export_xml"),
-    path('<int:resource>/xml/export/', views.export_resource_xml, name="export_xml"),
 
     # DATA MANAGEMENT ADMIN #
     #########################
