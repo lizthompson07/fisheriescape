@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import xlsxwriter as xlsxwriter
 from django.conf import settings
 from django.template.defaultfilters import yesno
@@ -13,7 +15,7 @@ from shared_models import models as shared_models
 import os
 
 
-def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, trip=None):
+def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, trip=None, user=None, from_date=None, to_date=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
     target_file = "temp_export.xlsx"
@@ -37,10 +39,18 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
         fiscal_year = None
     if region == "None":
         region = None
+    if trip == "None":
+        trip = None
+    if user == "None":
+        user = None
+    if from_date == "None":
+        from_date = None
+    if to_date == "None":
+        to_date = None
 
     include_trip_request_status = False
     # get a request list
-    if fiscal_year or region:
+    if fiscal_year or region or user or from_date or to_date:
         include_trip_request_status = True
         # if this report is being called from the reports page...
         trip_request_list = models.TripRequest.objects.all()
@@ -48,6 +58,24 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             trip_request_list = trip_request_list.filter(fiscal_year_id=fiscal_year)
         if region:
             trip_request_list = trip_request_list.filter(section__division__branch__region_id=region)
+
+        if user:
+            trip_request_list = trip_request_list.filter(user_id=user)
+
+        if trip:
+            trip_request_list = trip_request_list.filter(trip_id=trip)
+
+        if from_date:
+            my_date = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+            trip_request_list = trip_request_list.filter(
+                start_date__gte=my_date,
+            )
+
+        if to_date:
+            my_date = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+            trip_request_list = trip_request_list.filter(
+                start_date__lt=my_date,
+            )
 
         # at this point, the trip will also include parent trips. We must exclude them
         trip_request_id_list = list()
@@ -58,6 +86,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 trip_request_id_list.append(tr.id)
 
         trip_request_list = models.TripRequest.objects.filter(id__in=trip_request_id_list)
+
+
 
     elif trip_request:
         my_trip_request = models.TripRequest.objects.get(pk=trip_request)
@@ -171,7 +201,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             else:
                 my_purpose = tr.purpose_long_text
 
-            my_role = "{}".format(nz(tr.role, "MISSING"),)
+            my_role = "{}".format(nz(tr.role, "MISSING"), )
 
             my_name = "{}, {}".format(tr.last_name, tr.first_name)
             if tr.is_research_scientist:
@@ -215,10 +245,11 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             ws.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
+    print(target_url)
     return target_url
 
 
-def generate_trip_list(fiscal_year, region, adm):
+def generate_trip_list(fiscal_year, region, adm, from_date, to_date):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -266,6 +297,20 @@ def generate_trip_list(fiscal_year, region, adm):
                         request_list.append(request)
                         break
         trip_list = trip_list.filter(trip_requests__in=request_list)
+
+    if from_date != "None":
+        my_date = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+        print(my_date)
+        trip_list = trip_list.filter(
+            start_date__gte=my_date,
+        )
+
+    if to_date != "None":
+        my_date = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+        print(my_date)
+        trip_list = trip_list.filter(
+            start_date__lt=my_date,
+        )
 
     field_list = [
         "fiscal_year",
