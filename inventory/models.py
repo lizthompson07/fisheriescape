@@ -384,7 +384,8 @@ class Resource(models.Model):
     completedness_report = models.TextField(blank=True, null=True, verbose_name=_("completedness report"))
     completedness_rating = models.FloatField(blank=True, null=True, verbose_name=_("completedness rating"))
     translation_needed = models.BooleanField(default=True, verbose_name=_("translation needed"))
-    publication_fy = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False)
+    publication_fy = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False,
+                                       verbose_name=_("FY of latest publication"))
 
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk': self.pk})
@@ -402,6 +403,11 @@ class Resource(models.Model):
     @property
     def last_certification(self):
         return self.certification_history.fisrt()
+
+    @property
+    def last_publication(self):
+        if self.fgp_publication_date:
+            return self.last_revision_date if self.last_revision_date else self.fgp_publication_date
 
     def truncated_title(self):
         if self.title_eng:
