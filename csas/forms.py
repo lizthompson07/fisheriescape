@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.context_processors import auth
+
 from . import models
 from . import custom_widgets
 
@@ -14,13 +16,16 @@ class RequestForm(forms.ModelForm):
         # fields = ("assigned_request_ID", "title",)    # only show listed fields
         # fields = ["assigned_request_ID", "title"]     # [" "] is the same as (" ",)
 
+        # ============================================================================================
         # superusers = User.objects.filter(is_superuser=True).values_list('username')
         # current_user = User.username
-        # print(superusers, current_user, "-----------------")
+        # print(superusers, "-----------------")
+        #
         # if superusers is True:
         #     exclude = []
         # else:
         #     exclude = []
+        # ============================================================================================
 
         exclude = ["assigned_req_id", "adviser_submission", "rd_submission", "decision_date"]    # except listed fields
 
@@ -33,7 +38,16 @@ class RequestForm(forms.ModelForm):
             # "region": forms.Select(attrs={"class": "chosen-select-contains"})
         }
 
-
+        # ========================================================================================
+        # def get_context_data(self, **kwargs):
+        #     context = super().get_context_data(**kwargs)
+        #
+        #     if self.request.user:
+        #         context["auth"] = utils.csas_authorized(self.request.user)
+        #         context["csas_admin"] = utils.csas_admin(self.request.user)
+        #
+        #    return context
+        # ========================================================================================
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -68,6 +82,11 @@ class MeetingForm(forms.ModelForm):
         model = models.MetMeeting
         exclude = []
         widgets = {
+            "chair_comments": Textarea(attrs={"rows": 1, "cols": 20}),
+            "status_notes": Textarea(attrs={"rows": 1, "cols": 20}),
+            "other_region": Textarea(attrs={"rows": 1, "cols": 20}),
+            "program_contact": Textarea(attrs={"rows": 1, "cols": 20}),
+            "csas_contact": Textarea(attrs={"rows": 1, "cols": 20}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -80,6 +99,7 @@ class PublicationForm(forms.ModelForm):
         model = models.PubPublication
         exclude = []
         widgets = {
+            "citation": Textarea(attrs={"rows": 1, "cols": 20}),
         }
 
 
