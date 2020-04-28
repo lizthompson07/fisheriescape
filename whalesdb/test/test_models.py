@@ -6,7 +6,7 @@ from django.conf import settings
 from PIL import Image
 
 from whalesdb import models
-from whalesdb.test import WhalesdbFactory as Factory
+from whalesdb.test import WhalesdbFactoryFloor as Factory
 
 import os
 
