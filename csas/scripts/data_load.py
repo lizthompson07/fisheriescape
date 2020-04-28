@@ -21,39 +21,44 @@ def load_lookup(model, options):
 
 
 # Load the (Request) priority model
-priorities = [['High ', ' High(fr)'], ['Medium ', ' Medium(fr)'], ['Low ', ' Low(fr)'],]
+priorities = [['High ', ' High(fr)'], ['Medium ', ' Medium(fr)'], ['Low ', ' Low(fr)'], ]
 load_lookup(models.RepPriority, priorities)
 
 
 # Load the (Request) proposed timing model
-timings = [['By quarter ', ' By quarter(fr)'], ['By month ', ' By month(fr)'],]
+timings = [['By quarter ', ' By quarter(fr)'], ['By month ', ' By month(fr)'], ]
 load_lookup(models.RetTiming, timings)
 
 
 # Load the honorific model
-honorifics = [['Mr. ', ' Mr.(fr)'], ['Mrs. ', ' Mrs.(fr)'], ['Ms. ', ' Ms.(fr)'], ['Dr. ', ' Dr.(fr)'], ['Chief ', ' Chief(fr)'], ['Capt. ', ' Capt.(fr)'],]
+honorifics = [['Mr. ', ' Mr.(fr)'], ['Mrs. ', ' Mrs.(fr)'], ['Ms. ', ' Ms.(fr)'], ['Dr. ', ' Dr.(fr)'],
+              ['Chief ', ' Chief(fr)'], ['Capt. ', ' Capt.(fr)'], ]
 load_lookup(CohHonorific, honorifics)
 
 # --> Ask Tana if languages can be represented with one letter. I know there is some indigenous languages to add as well
 # --> Till then language population is commented out
 # Load the language model
-languages = [['English ', ' Anglaise'], ['French ', ' Françis'],]
+languages = [['English ', ' Anglaise'], ['French ', ' Françis'], ]
 load_lookup(LanLanguage, languages)
 
 # Load the contact type model
-types = [['Government ', ' Government(fr)'], ['Industry ', ' Industry(fr)'], ['NGO ', ' NGO(fr)'], ['Indigenous ', ' Indigenous(fr)'], ['Consultant ', ' Consultant(fr)'], ['Contractor ', ' Contractor(fr)'],]
+types = [['Government ', ' Government(fr)'], ['Industry ', ' Industry(fr)'], ['NGO ', ' NGO(fr)'],
+         ['Indigenous ', ' Indigenous(fr)'], ['Consultant ', ' Consultant(fr)'], ['Contractor ', ' Contractor(fr)'], ]
 load_lookup(CotType, types)
 
 # Load the notification preferences model
-preferences = [['Phone ', ' Phone(fr)'], ['E-mail ', ' E-mail(fr)'], ['Fax ', ' Fax(fr)'],]
+preferences = [['Phone ', ' Phone(fr)'], ['E-mail ', ' E-mail(fr)'], ['Fax ', ' Fax(fr)'], ]
 load_lookup(NotNotificationPreference, preferences)
 
 # Load Sector model
-sectors = [['Science ', ' Science(fr)'], ['Oceans ', ' Oceans(fr)'], ['FFHPP ', ' FFHPP(fr)'], ['SARA ', ' SARA(fr)'], ['RM ', ' RM(fr)'], ['AMD ', ' AMD(fr)'],]
+sectors = [['Science ', ' Science(fr)'], ['Oceans ', ' Oceans(fr)'], ['FFHPP ', ' FFHPP(fr)'], ['SARA ', ' SARA(fr)'],
+           ['RM ', ' RM(fr)'], ['AMD ', ' AMD(fr)'], ]
 load_lookup(SecSector, sectors)
 
 # Load the role model
-roles = [['Regional Coordinator ', ' Regional Coordinator(fr)'], ['Regional Science Advisor ', ' Regional Science Advisor(fr)'], ['Regional Admin ', ' Regional Admin(fr)'], ['Director ', ' Director(fr)'],]
+roles = [['Regional Coordinator ', ' Regional Coordinator(fr)'],
+         ['Regional Science Advisor ', ' Regional Science Advisor(fr)'],
+         ['Regional Admin ', ' Regional Admin(fr)'], ['Director ', ' Director(fr)'], ]
 load_lookup(RolRole, roles)
 
 # Load the Scope Model
@@ -61,7 +66,8 @@ scopes = [['Regional ', ' Regional(fr)'], ['Zonal ', ' Zonal(fr)'], ['National '
 load_lookup(models.ScpScope, scopes)
 
 # Load the Status Model
-status = [['On ', ' On(fr)'], ['In Planning ', ' In Planning(fr)'], ['Internal ', ' Internal(fr)'], ['Off ', ' Off(fr)'], ['Cancelled ', ' Cancelled(fr)'], ]
+status = [['On ', ' On(fr)'], ['In Planning ', ' In Planning(fr)'], ['Internal ', ' Internal(fr)'],
+          ['Off ', ' Off(fr)'], ['Cancelled ', ' Cancelled(fr)'], ]
 load_lookup(models.SttStatus, status)
 
 # Load the Quarter Model
