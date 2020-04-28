@@ -56,26 +56,9 @@
 
                 {% csrf_token %}
                 {% for field in form %}
-
-                    {% if field.name == "fiscal_year" %}
-                        <div class="fiscal_year_div">
+                        <div class="{{ field.name }}_div">
                             {% bootstrap_field field %}
                         </div>
-                    {% elif field.name == "user" %}
-                        <div class="user_div">
-                            {% bootstrap_field field %}
-                        </div>
-                    {% elif field.name == "adm" %}
-                        <div class="adm_div">
-                            {% bootstrap_field field %}
-                        </div>
-                    {% elif field.name == "region" %}
-                        <div class="region_div">
-                            {% bootstrap_field field %}
-                        </div>
-                    {% else %}
-                        {% bootstrap_field field %}
-                    {% endif %}
                 {% endfor %}
                 <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
 
@@ -94,6 +77,9 @@
             $(".user_div").addClass("gone");
             $(".region_div").addClass("gone");
             $(".adm_div").addClass("gone");
+            $(".trip_div").addClass("gone");
+            $(".from_date_div").addClass("gone");
+            $(".to_date_div").addClass("gone");
 
             $("#id_fiscal_year").prop('required', true);
             $("#id_user").prop('required', false);
@@ -102,20 +88,28 @@
 
         function configureForm() {
             var reportChoice = $("#id_report")[0].value;
-            // species count report
+            // cfts report
             if (reportChoice == 1) {
                 $(".fiscal_year_div").removeClass("gone");
                 $(".region_div").removeClass("gone");
-            }
-            if (reportChoice == 2) {
-                $(".fiscal_year_div").removeClass("gone");
                 $(".user_div").removeClass("gone");
+                $(".trip_div").removeClass("gone");
+                $(".from_date_div").removeClass("gone");
+                $(".to_date_div").removeClass("gone");
+                $("label[for='id_from_date']").text("From (optional - filter on trip request start date)");
+                $("label[for='id_to_date']").text("To (optional - filter on trip request start date)");
 
             }
+            // trip list
             if (reportChoice == 3) {
                 $(".fiscal_year_div").removeClass("gone");
                 $(".region_div").removeClass("gone");
                 $(".adm_div").removeClass("gone");
+                $(".from_date_div").removeClass("gone");
+                $(".to_date_div").removeClass("gone");
+                $("label[for='id_from_date']").text("From (optional - filter on trip start date)");
+                $("label[for='id_to_date']").text("To (optional - filter on trip start date)");
+
             }
         }
 
