@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ObjectDoesNotExist
+import json
+
 from dm_apps.utils import custom_send_mail
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
@@ -19,6 +21,8 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 
 ###
 from collections import OrderedDict
+
+from lib.functions.custom_functions import fiscal_year, listrify
 from . import models
 from . import forms
 from . import filters
@@ -59,7 +63,6 @@ def is_custodian_or_admin(user, resource_id):
 
 class CustodianRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
-
     def test_func(self):
         return is_custodian_or_admin(self.request.user, self.kwargs["pk"])
 
@@ -72,7 +75,6 @@ class CustodianRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
 
     def test_func(self):
         return in_inventory_dm_group(self.request.user)
@@ -92,6 +94,60 @@ class CloserTemplateView(TemplateView):
 # RESOURCE #
 ############
 
+class Index(TemplateView):
+    template_name = 'inventory/index.html'
+
+
+class OpenDataDashboardTemplateView(TemplateView):
+    template_name = 'inventory/open_data_dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_fy = shared_models.FiscalYear.objects.get(pk=fiscal_year(sap_style=True))
+        context["current_fy"] = current_fy
+        my_dict = dict()
+        qs = models.Resource.objects.all()
+        my_dict["TOTAL"] = dict()
+        my_dict["TOTAL"]["qs_total"] = qs.count()
+        my_dict["TOTAL"]["qs_fgp"] = qs.filter(fgp_publication_date__isnull=False).count()
+        my_dict["TOTAL"]["qs_open_data"] = qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False).count()
+        my_dict["TOTAL"]["qs_open_data_current_fy"] = qs.filter(fgp_publication_date__isnull=False,
+                                                                fgp_publication_date__year=current_fy.id, public_url__isnull=False).count()
+
+        for region in shared_models.Region.objects.all():
+            regional_qs = qs.filter(section__division__branch__region=region)
+            my_dict[region] = dict()
+            my_dict[region]["qs_total"] = regional_qs
+            my_dict[region]["qs_fgp"] = regional_qs.filter(fgp_publication_date__isnull=False)
+            my_dict[region]["qs_open_data"] = regional_qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False)
+            my_dict[region]["qs_open_data_current_fy"] = regional_qs.filter(fgp_publication_date__isnull=False,
+                                                                            fgp_publication_date__year=current_fy.id,
+                                                                            public_url__isnull=False)
+
+        context["my_dict"] = my_dict
+        context['field_list'] = [
+            "t_title|Title",
+            "section|DFO Section",
+            "fgp_publication_date|Published to Open Data",
+            "external_links|External links",
+        ]
+
+        od_keywords = [kw.non_hierarchical_name_en for r in qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False) for kw
+                       in r.keywords.all()]
+        od_keywords_set = set(od_keywords)
+        frequency_list = list()
+        for kw in od_keywords_set:
+            frequency_list.append({
+                "text": kw,
+                "size": od_keywords.count(kw)*10,
+            })
+
+        context["frequency_list"] = json.dumps(frequency_list)
+        # context["words"] = listrify([kw for kw in od_keywords])
+
+        return context
+
+
 class ResourceListView(FilterView):
     filterset_class = filters.ResourceFilter
 
@@ -106,13 +162,6 @@ class ResourceListView(FilterView):
                            Value(" "),
                            'uuid',
                            output_field=TextField()))
-
-    # def get_filterset_kwargs(self, filterset_class):
-    #     kwargs = super().get_filterset_kwargs(filterset_class)
-    #     # if kwargs["data"] is None:
-    #     #     kwargs["data"] = {"season": timezone.now().year }
-    #     print(kwargs['data'])
-    #     return kwargs
 
 
 class MyResourceListView(LoginRequiredMixin, ListView):
@@ -191,7 +240,6 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
     model = models.Resource
     form_class = forms.ResourceForm
 
-
     def get_initial(self):
         return {
             'last_modified_by': self.request.user,
@@ -215,7 +263,6 @@ class ResourceUpdateView(CustodianRequiredMixin, UpdateView):
 class ResourceCreateView(LoginRequiredMixin, CreateView):
     model = models.Resource
     form_class = forms.ResourceCreateForm
-
 
     def get_initial(self):
         return {
@@ -249,7 +296,6 @@ class ResourceDeleteView(CustodianRequiredMixin, DeleteView):
     model = models.Resource
     success_url = reverse_lazy('inventory:resource_list')
     success_message = 'The data resource was successfully deleted!'
-
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -1039,7 +1085,6 @@ class DataManagementHomeTemplateView(InventoryDMRequiredMixin, TemplateView):
 
 
 class DataManagementCustodianListView(InventoryDMRequiredMixin, TemplateView):
-
     template_name = 'inventory/dm_custodian_list.html'
 
     def get_context_data(self, **kwargs):
@@ -1066,7 +1111,6 @@ class DataManagementCustodianListView(InventoryDMRequiredMixin, TemplateView):
 
 
 class DataManagementCustodianDetailView(InventoryDMRequiredMixin, DetailView):
-
     template_name = 'inventory/dm_custodian_detail.html'
     model = models.Person
 

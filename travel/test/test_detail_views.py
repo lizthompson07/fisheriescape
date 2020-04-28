@@ -2,9 +2,11 @@ from django.utils import timezone
 from django.utils.translation import activate
 from django.urls import reverse_lazy
 from django.test import tag
+from django.views.generic import DetailView
 
-from travel.test import TravelFactoryFloor as FactoryFloor
-from travel.test.common_views import CommonTest
+from travel.test import FactoryFloor
+from travel.test.common_tests import CommonTravelTest as CommonTest
+from .. import views
 
 
 class TripRequestDetails(CommonTest):
@@ -16,39 +18,40 @@ class TripRequestDetails(CommonTest):
         self.expected_template = 'travel/trip_request_detail.html'
 
     @tag("trip_request", 'detail')
-    def test_trip_request_details(self):
+    def test_access(self):
         # only logged in users can access the landing
-        super().assert_login_required_view(test_url=self.test_url, expected_template=self.expected_template)
+        super().assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     @tag("trip_request", 'detail', "field_list")
-    def test_trip_request_fields(self):
-        reg_user = self.get_and_login_regular_user()
-        response = self.client.get(self.test_url)
-        name_of_field_list = 'field_list'
+    def test_fields(self):
         fields_to_test = [
             "fiscal_year"
         ]
-        super().assert_field_in_fields(response, name_of_field_list, fields_to_test)
+        self.assert_field_in_field_list(self.test_url, "field_list", fields_to_test)
 
     # Test that the context contains the proper vars
     @tag("trip_request", 'detail', "context")
-    def test_context_fields_emm(self):
+    def test_context(self):
+        context_vars = [
+            "field_list",
+            "child_field_list",
+            "reviewer_field_list",
+            "conf_field_list",
+            "cost_field_list",
+            "help_text_dict",
+            "help_text_dict",
+            "fy",
+            "is_admin",
+            "is_owner",
+            "is_current_reviewer",
+            "can_modify",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars)
+
         activate('en')
-        reg_user = self.get_and_login_regular_user()
+        reg_user = self.get_and_login_user()
         response = self.client.get(self.test_url)
         # expected to determine if the user is authorized to add content
-        self.assertIn("field_list", response.context)
-        self.assertIn("child_field_list", response.context)
-        self.assertIn("reviewer_field_list", response.context)
-        self.assertIn("conf_field_list", response.context)
-        self.assertIn("cost_field_list", response.context)
-        self.assertIn("help_text_dict", response.context)
-        self.assertIn("help_text_dict", response.context)
-        self.assertIn("fy", response.context)
-        self.assertIn("is_admin", response.context)
-        self.assertIn("is_owner", response.context)
-        self.assertIn("is_current_reviewer", response.context)
-        self.assertIn("can_modify", response.context)
 
         # a random user should not be an admin, owner, current_reviewer, able-to-modify
         self.assertEqual(response.context["is_admin"], False)
@@ -66,7 +69,7 @@ class TripRequestDetails(CommonTest):
         self.assertIsNone(response.context["is_current_reviewer"], True)
 
         # if a user is an admin, they should be able to modify and are also always the current_reviewer
-        self.get_and_login_travel_admin_user()
+        self.get_and_login_user(in_group='travel_admin')
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["is_admin"], True)
         self.assertEqual(response.context["is_owner"], False)
@@ -74,7 +77,7 @@ class TripRequestDetails(CommonTest):
 
         # if a regular user is the current reviewer
         my_reviewer = FactoryFloor.ReviewerFactory(trip_request=self.trip_request, status_id=1)
-        self.get_and_login_regular_user(user=my_reviewer.user)
+        self.get_and_login_user(user=my_reviewer.user)
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["is_admin"], False)
         self.assertEqual(response.context["is_owner"], False)
@@ -83,7 +86,31 @@ class TripRequestDetails(CommonTest):
         # a submitted project being viewed by someone who is not admin or not current reviewer should have report_mode set to True
         self.trip_request.submitted = timezone.now()
         self.trip_request.save()
-        reg_user = self.get_and_login_regular_user()
+        reg_user = self.get_and_login_user()
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["report_mode"], True)
 
+
+class TestTripDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.TripFactory()
+        self.test_url = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk})
+        self.expected_template = 'travel/trip_detail.html'
+
+    @tag("travel", 'detail', "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.TripDetailView, DetailView)
+
+    @tag("travel", 'detail', "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
+
+    @tag("travel", 'detail', "context")
+    def test_context(self):
+        context_vars = [
+            "conf_field_list",
+            "trip",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars)
