@@ -32,7 +32,7 @@ class UtilityTests(TestCase):
     def test_auth_csas_user_granted(self):
         user = User.objects.create_user(username='Patrick', email="Patrick@dfo-mpo.gc.ca", password="secret")
 
-        csas_group = Group(name="Staff_Users")
+        csas_group = Group(name="csas_users")
         csas_group.save()
 
         user.groups.add(csas_group)
