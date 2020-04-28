@@ -32,7 +32,7 @@ def login_csas_user(test_case):
     if User.objects.filter(username=user_name):
         user = User.objects.get(username=user_name)
     else:
-        csas_group = Group(name="Staff_Users")
+        csas_group = Group(name="csas_user")
         csas_group.save()
 
         user = User.objects.create_user(username=user_name, first_name="Hump", last_name="Back",
