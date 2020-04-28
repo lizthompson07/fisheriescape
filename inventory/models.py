@@ -407,7 +407,8 @@ class Resource(models.Model):
     @property
     def last_publication(self):
         if self.fgp_publication_date:
-            return self.last_revision_date if self.last_revision_date else self.fgp_publication_date
+            my_date = self.last_revision_date if self.last_revision_date else self.fgp_publication_date
+            return my_date.strftime("%Y-%m-%d")
 
     def truncated_title(self):
         if self.title_eng:
