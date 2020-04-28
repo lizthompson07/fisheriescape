@@ -115,23 +115,23 @@ class MeqQuarter(Lookup):
 class MetMeeting(models.Model):
     met_id = models.AutoField(primary_key=True)
     quarter = models.ForeignKey(MeqQuarter, on_delete=models.DO_NOTHING)
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
-    title_en = models.CharField(max_length=255)
-    title_fr = models.CharField(max_length=255)
-    scope = models.ForeignKey(ScpScope, on_delete=models.DO_NOTHING)
-    status = models.ForeignKey(SttStatus, on_delete=models.DO_NOTHING)
-    chair_comments = models.TextField(null=True, blank=True)
-    status_notes = models.TextField(null=True, blank=True)
-    location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING)
-    lead_region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
-
-    other_region = models.ManyToManyField(shared_models.Region, related_name="other_regions")
-
-    process_type = models.ForeignKey(AptAdvisoryProcessType, on_delete=models.DO_NOTHING)
-
-    program_contact = models.ManyToManyField(ConContact, related_name="program_contacts")
-    csas_contact = models.ManyToManyField(ConContact, related_name="csas_contacts")
+    start_date = models.DateField(null=True, blank=True, verbose_name=_("Start Date"))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("End_Date"))
+    title_en = models.CharField(max_length=255, verbose_name=_("Title (English)"))
+    title_fr = models.CharField(max_length=255, verbose_name=_("Title (French)"))
+    scope = models.ForeignKey(ScpScope, on_delete=models.DO_NOTHING, verbose_name=_("Scope"))
+    status = models.ForeignKey(SttStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
+    chair_comments = models.TextField(null=True, blank=True, verbose_name=_("Chair Comments"))
+    status_notes = models.TextField(null=True, blank=True, verbose_name=_("Status Notes"))
+    location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING, verbose_name=_("Location"))
+    lead_region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Lead Region"))
+    other_region = models.ManyToManyField(shared_models.Region, related_name="other_regions",
+                                          verbose_name=_("Other Region"))
+    process_type = models.ForeignKey(AptAdvisoryProcessType, on_delete=models.DO_NOTHING,
+                                     verbose_name=_("Process Type"))
+    program_contact = models.ManyToManyField(ConContact, related_name="program_contacts",
+                                             verbose_name=_("Program Contact"))
+    csas_contact = models.ManyToManyField(ConContact, related_name="csas_contacts", verbose_name=_("CSAS Contact"))
 
     def __str__(self):
         return "{}/{}".format(self.title_en, self.title_fr)
@@ -171,22 +171,6 @@ class PsePublicationSeries(models.Model):
         return "{}".format(self.pse_id)
 
 
-class PubPublicationDetails(models.Model):
-    pub_id = models.AutoField(primary_key=True)
-    series = models.ForeignKey(PsePublicationSeries, on_delete=models.DO_NOTHING)
-    scope = models.ForeignKey(ScpScope, on_delete=models.DO_NOTHING)
-    lead_region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
-    lead_author = models.ForeignKey(ConContact, on_delete=models.DO_NOTHING)
-    pub_year = models.IntegerField()
-    pub_number = models.CharField(max_length=25)
-    pages = models.IntegerField()
-    citation = models.TextField()
-    location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return "{}".format(self.lead_author)
-
-
 # Is it wrong that file_en, file_fr point to the same foreign key?
 #
 # yes, and no. They can have the same ForeignKey, but you have to specify a 'related_name' (I've added)
@@ -223,23 +207,71 @@ class MomMeetingOmCost(models.Model):
         return "{}".format(self.mom_id)
 
 
+# ---------------------------------------------------------------------------------------
+# Create models for publications
+class PseSeries(Lookup):
+    pse_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50)
+
+
+class KeyKeywords(Lookup):
+    key_id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+
+
+class PubPublication(models.Model):
+    pub_id = models.AutoField(primary_key=True, verbose_name=_("ID"))
+    series = models.ForeignKey(PsePublicationSeries, null=True, blank=True, on_delete=models.DO_NOTHING,
+                               verbose_name=_("Series"))
+    scope = models.ForeignKey(ScpScope, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Scope"))
+    lead_region = models.ForeignKey(shared_models.Region, null=True, blank=True, on_delete=models.DO_NOTHING,
+                                    verbose_name=_("Lead Region"))
+    lead_author = models.ForeignKey(ConContact, null=True, blank=True, on_delete=models.DO_NOTHING,
+                                    verbose_name=_("Lead Author"))
+    pub_year = models.IntegerField(null=True, blank=True, verbose_name=_("Publication Year"))
+    pub_num = models.CharField(max_length=25, verbose_name=_("Publication Number"))
+    pages = models.IntegerField(null=True, blank=True, verbose_name=_("Pages"))
+    citation = models.TextField(null=True, blank=True, verbose_name=_("Citation"))
+    location = models.ForeignKey(LocLocation, null=True, blank=True, on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Documentation Location"))
+
+    def __str__(self):
+        return "{}".format(self.lead_author)
+
+
+# this class should be in Meeting section, but it uses ForeignKey of PubPublication, it has to be behind PubPublication
 class MepExpectedPublication(models.Model):
     mep_id = models.AutoField(primary_key=True)
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
-    publication = models.ForeignKey(PubPublicationDetails, on_delete=models.DO_NOTHING)
+    publication = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return "{}".format(self.publication)
 
 
-# ---------------------------------------------------------------------------------------
-# Create models for publications
-class PubPublication(models.Model):
-    put_id = models.AutoField(primary_key=True)
-    pub_num = models.CharField(max_length=25)
+class PurOtherRegion(models.Model):
+    pur_id = models.AutoField(primary_key=True)
+    pub_id = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
+    reg_id = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
 
-    def __str__(self):
-        return "{}".format(self.pub_num)
+
+class PuaOtherAuthor(models.Model):
+    pua_id = models.AutoField(primary_key=True)
+    pub_id = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
+    con_id = models.ForeignKey(ConContact, on_delete=models.DO_NOTHING)
+
+
+class PukPublicationKeyword(models.Model):
+    puk_id = models.AutoField(primary_key=True)
+    pub_id = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
+    key_id = models.ForeignKey(KeyKeywords, on_delete=models.DO_NOTHING)
+
+
+class PtiPublicationTitle(models.Model):
+    pst_title = models.AutoField(primary_key=True)
+    publication = models.IntegerField(null=True, blank=True)
+    title = models.CharField(max_length=100)
+    language = models.ForeignKey(LanLanguage, on_delete=models.DO_NOTHING, null=True, blank=True)
 
 
 # ---------------------------------------------------------------------------------------
