@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load i18n %}
+{% load bootstrap4 %}
+
+{% block body %}
+
+    <div class="container">
+        <div class="mb-3">
+            <h2>{{ object }}</h2>
+        </div>
+        <hr>
+        <div class="mb-3">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+
+                <div class="mb-3">
+                    <input type="submit" value="submit" class="btn btn-primary">
+                    <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">{% trans "Back" %}</a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+{% endblock %}
