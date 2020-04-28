@@ -14,7 +14,7 @@ class TripFactory(factory.django.DjangoModelFactory):
         model = models.Conference
         django_get_or_create = ('name',)
 
-    name = faker.word()
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
     start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
 
