@@ -106,7 +106,7 @@ class OpenDataDashboardTemplateView(TemplateView):
         current_fy = shared_models.FiscalYear.objects.get(pk=fiscal_year(sap_style=True))
         context["current_fy"] = current_fy
         my_dict = dict()
-        qs = models.Resource.objects.all()
+        qs = models.Resource.objects.all().order_by("last_revision_date", "fgp_publication_date")
         my_dict["TOTAL"] = dict()
         my_dict["TOTAL"]["qs_total"] = qs.count()
         my_dict["TOTAL"]["qs_fgp"] = qs.filter(fgp_publication_date__isnull=False).count()
@@ -128,8 +128,9 @@ class OpenDataDashboardTemplateView(TemplateView):
         context['field_list'] = [
             "t_title|Title",
             "section|DFO Section",
-            "fgp_publication_date|Published to Open Data",
-            "external_links|External links",
+            "last_publication|Published to Open Data",
+            "publication_fy",
+            # "external_links|External links",
         ]
 
         od_keywords = [kw.non_hierarchical_name_en for r in qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False) for kw
@@ -139,7 +140,7 @@ class OpenDataDashboardTemplateView(TemplateView):
         for kw in od_keywords_set:
             frequency_list.append({
                 "text": kw,
-                "size": od_keywords.count(kw)*10,
+                "size": od_keywords.count(kw) * 10,
             })
 
         context["frequency_list"] = json.dumps(frequency_list)
