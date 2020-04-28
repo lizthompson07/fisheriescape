@@ -50,7 +50,7 @@
         </tbody>
     </table>
 {% endif %}
-<a class="" href="#" pop-href="{% url 'mmutools:quantity_new' %}">
+<a class="" href="#" pop-href="{% url 'mmutools:quantity_new' object.id %}">
     {% trans "(Add Inventory)" %}
 </a>
 <br>

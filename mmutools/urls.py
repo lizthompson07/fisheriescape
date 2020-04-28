@@ -23,6 +23,7 @@ urlpatterns = [
 
     path('quantity_list/', views.QuantityListView.as_view(), name="quantity_list"),
     path('quantity_detail/<int:pk>/view/', views.QuantityDetailView.as_view(), name="quantity_detail"),
+    path('item/<int:pk>/quantity/new/', views.QuantityCreateView.as_view(), name="quantity_new"),
     path('quantity/new/', views.QuantityCreateView.as_view(), name="quantity_new"),
     path('quantity/<int:pk>/edit/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
     path('quantity/<int:pk>/delete/', views.QuantityDeleteView.as_view(), name="quantity_delete"),

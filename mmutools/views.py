@@ -94,11 +94,11 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
         context["my_object"] = models.Item.objects.first()
         context["field_list"] = [
             'id',
-            'item_name',
+            'tname|{}'.format(_("Item name (size)")),
             'description',
             'serial_number',
             'owner',
-            'size',
+            # 'size',
             'container',
             'container_space',
             'category',
@@ -276,10 +276,17 @@ class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Quantity
     form_class = forms.QuantityForm
 
+    def get_template_names(self):
+        # TODO create quantity popout html
+        return "mmutools/quantity_form_popout.html" if self.kwargs.get("pk") else "mmutools/quantity_form.html"
+
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Item record successfully created for : {my_object}"))
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else super().form_valid(form))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk')}
 
 
 class QuantityDeleteView(MmutoolsEditRequiredMixin, DeleteView):
@@ -476,13 +483,6 @@ class FileUpdateView(MmutoolsEditRequiredMixin, UpdateView):
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("mmutools:item_detail", kwargs={"pk": self.object.item.id})
-
-    def get_initial(self):
-        item = self.get_object()
-        return {
-            'item': item,
-            'date_uploaded': timezone.now(),
-        }
 
     def get_context_data(self, **kwargs):
         # get context
