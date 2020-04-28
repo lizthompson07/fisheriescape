@@ -29,11 +29,11 @@ class MeetingFilter(django_filters.FilterSet):
 
 
 class PublicationFilter(django_filters.FilterSet):
-    pub_num = django_filters.ChoiceFilter(field_name='pub_num', lookup_expr='exact')
+    series = django_filters.CharFilter(field_name='series', lookup_expr='icontains')
 
     class Meta:
         model = models.PubPublication
-        fields = ['pub_num']
+        fields = ['series', 'lead_region', 'lead_author', 'pub_year']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
