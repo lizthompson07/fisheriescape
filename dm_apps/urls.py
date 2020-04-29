@@ -157,6 +157,11 @@ if settings.INSTALLED_APPS.count("shiny"):
 else:
     print("not connecting shiny app repo")
 
+if settings.INSTALLED_APPS.count("csas"):
+    urlpatterns += i18n_patterns(path('csas/', include('csas.urls')), prefix_default_language=True)
+else:
+    print("not connecting shiny app repo")
+
 
 # if not settings.DEBUG:
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,
