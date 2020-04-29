@@ -4,8 +4,8 @@ from django.utils import timezone
 from django.utils.translation import activate
 
 from shared_models.test.SharedModelsFactoryFloor import UserFactory
-from travel.test.common_views import CommonTest
-from travel.test import TravelFactoryFloor as FactoryFloor
+from travel.test import FactoryFloor
+from travel.test.common_tests import CommonTravelTest as CommonTest
 from travel.views import can_modify_request
 
 
@@ -20,8 +20,8 @@ class UtilsTest(CommonTest):
 
         # actors
         trip_request = FactoryFloor.IndividualTripRequestFactory()
-        reg_user = self.get_and_login_regular_user()
-        admin_user = self.get_and_login_travel_admin_user()
+        reg_user = self.get_and_login_user()
+        admin_user = self.get_and_login_user(in_group="travel_admin")
 
         # RULE 1: travel admin = True
         self.assertEqual(can_modify_request(admin_user, trip_request.id), True)
@@ -67,8 +67,8 @@ class UtilsTest(CommonTest):
     #
     #     # actors
     #     trip_request = FactoryFloor.IndividualTripRequestFactory()
-    #     reg_user = self.get_and_login_regular_user()
-    #     admin_user = self.get_and_login_travel_admin_user()
+    #     reg_user = self.get_and_login_user()
+    #     admin_user = self.get_and_login_user(in_group="travel_admin")
     #
     #     # scenario 1: trip cost goes over 10K
 

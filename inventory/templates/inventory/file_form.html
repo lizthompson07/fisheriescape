@@ -3,11 +3,10 @@
 
 
 {% block content %}
-    {% if user.is_authenticated %}
-        {% url 'inventory:my_resource_list' as home_url %}
-    {% else %}
-        {% url 'inventory:resource_list' as home_url %}
-    {% endif %}
+        {% url 'inventory:index' as home_url %}
+
+
+    <div class="container">
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -21,10 +20,6 @@
             {% endif %}
         </ol>
     </nav>
-
-    <br><br>
-
-    <div class="container">
         {% if object.id %}
             <h1>{{ object.caption }}</h1>
         {% else %}
@@ -43,10 +38,10 @@
 
                 {% endif %}
                 {% if object.id %}
-                    <a href="{% url "inventory:resource_detail" object.resource.id %}"
+                    <a href="{{ request.META.HTTP_REFERER }}"
                        class="btn btn-secondary">Back</a>
                 {% else %}
-                    <a href="{% url "inventory:resource_detail" view.kwargs.resource %}"
+                    <a href="{{ request.META.HTTP_REFERER }}"
                        class="btn btn-secondary">Back</a>
                 {% endif %}
             </div>
