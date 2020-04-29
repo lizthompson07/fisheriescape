@@ -191,8 +191,13 @@ class Keyword(models.Model):
             self.is_taxonomic = True
         super().save(*args, **kwargs)
 
-    # def get_absolute_url(self):
-    #     return reverse('resources:keyword_detail', kwargs={'pk':self.id})
+    @property
+    def non_hierarchical_name_en(self):
+        # if the keyword can be split by " > " then take the last item in the list
+        if len(self.text_value_eng.split(" > ")) > 1:
+            return self.text_value_eng.split(" > ")[-1]
+        else:
+            return self.text_value_eng
 
 
 class Publication(models.Model):
@@ -299,7 +304,7 @@ class Resource(models.Model):
     uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
     resource_type = models.ForeignKey(ResourceType, on_delete=models.DO_NOTHING, blank=True, null=True)
     # section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="resources")
     title_eng = custom_widgets.OracleTextField(verbose_name="Title (English)")
     title_fre = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Title (French)")
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -419,6 +424,7 @@ class Resource(models.Model):
                 (self.west_bounding, self.south_bounding),
                 (self.east_bounding, self.south_bounding),
             ]
+
 
 class ContentType(models.Model):
     title = models.CharField(max_length=255, verbose_name="Name (English)")
