@@ -414,9 +414,9 @@ class ReportSearchForm(forms.Form):
     # report #1
     fiscal_year = forms.ChoiceField(required=False, label=_('Fiscal year'))
     # report #2
-    user = forms.ChoiceField(required=False, label=_('Traveller (leave blank for all)'), widget=forms.Select(attrs=chosen_js))
-    trip = forms.ChoiceField(required=False, label=_('Trip (leave blank for all)'), widget=forms.Select(attrs=chosen_js))
-    region = forms.ChoiceField(required=False, label=_('Region (optional)'))
+    user = forms.ChoiceField(required=False, label=_('Traveller'), widget=forms.Select(attrs=chosen_js))
+    trip = forms.ChoiceField(required=False, label=_('Trip'), widget=forms.Select(attrs=chosen_js))
+    region = forms.ChoiceField(required=False, label=_('Region'))
     adm = forms.ChoiceField(required=False, label=_('ADM approval required'), choices=INT_YES_NO_CHOICES)
     from_date = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
     to_date = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
