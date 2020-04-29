@@ -2,118 +2,167 @@
 {% load i18n %}
 {% load static %}
 {% load custom_filters %}
+{% load custom_tags %}
 {% block content %}
     <style>
-        body {
-            background-image: url("{% static 'img/ross-parmly-25230-unsplash.jpg' %}");
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+
+        .card, .jumbotron {
+            background-color: rgba(255, 255, 255, 0.7);
+            border: black solid 1px;
+            margin-left: 25px;
+            margin-right: 25px;
         }
 
+
+        .container-fluid, .container {
+            border-radius: 25px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: transparent;
+            font-size: small;
+
+        }
+
+        .subtitle {
+            font-size: 16px;
+            font-weight: bold;
+        }
     </style>
     <div class="container">
+        <div class="jumbotron py-3">
+            <h1 class="three-em center-col">
+                {% trans "Travel Management System" %}
+                {% trans "(Pre-approval to Travel)" %}
+            </h1>
+        </div>
+
         <br>
-        <div class="container">
-            <div class="jumbotron">
-                <h1 class="three-em">
-                    {% trans "Travel Management System" %}
-                </h1>
-                <h2>
-                    {% trans "(Pre-approval to Travel)" %}
-                </h2>
-                <hr>
-                {% url 'travel:request_list' as event_list_url %}
-                {% url 'travel:request_review_list' "awaiting" as event_approval_list_url %}
-                {% url 'travel:request_review_list' as event_assigned_list_url %}
-                {% url 'travel:request_new' as event_new_url %}
-                <br>
-                <h3>
-                    {% blocktrans %}
-                        <a href="{{ event_new_url }}">New</a> request.
-                    {% endblocktrans %}
-                    <br><br>
-                    {% if user.user_trip_requests.count > 0 %}
-                        {% with user.id as user_id %}
-                            {% blocktrans with event_list_url|add:"?user=" as your_url and user_id as user_id %}
-                                View <a href="{{ your_url }}{{ user_id }}">your</a> requests
-                            {% endblocktrans %} ({{ user.user_trip_requests.count }}).
-                            <br><br>
-                        {% endwith %}
-                    {% endif %}
+        <br>
 
 
-                    {% blocktrans %}
-                        <a href="{{ event_list_url }}">List</a> all requests.
-                    {% endblocktrans %}
-                    <br>
-                    <br>
-                    {% if is_reviewer or is_admin %}
-                        <hr>
-                        {% if is_reviewer %}
-                            {#                            <span class="{% if number_waiting > 0 %}highlight{% endif %}">#}
-                            {% blocktrans %}
-                                Trip requests awaiting your <a href="{{ event_approval_list_url }}">review</a>
-                            {% endblocktrans %}
-                            (<span class="{% if number_waiting > 0 %}red-font blink-me{% endif %}">{{ number_waiting }}</span>).
-                            {#                            </span>#}
-                            <br><br>
-                            {% blocktrans %}
-                                Trip requests <a href="{{ event_assigned_list_url }}">assigned</a> to you
-                            {% endblocktrans %}
-                            (<span>{{ user.reviewers.count }}</span>).
-                            <br><br>
-                        {% endif %}
-                        {# ADMIN ONLY STUFF #}
-                        {% if is_admin %}
-                            <hr>
+        {% url 'travel:request_list' as event_list_url %}
+        {% url 'travel:request_review_list' "awaiting" as event_approval_list_url %}
+        {% url 'travel:request_review_list' as event_assigned_list_url %}
+        {% url 'travel:request_new' as event_new_url %}
 
-                            {% if adm_number_waiting %}
-                                {% trans "Trip requests awaiting approval from ADM:" %}                            &nbsp;
-                                {% for tag in my_dict|lookup:"adm_tags" %}
-                                    {{ tag }}
-                                {% endfor %}
-                                <br><br>
-                            {% endif %}
-
-                            {% if rdg_number_waiting %}
-                                {% trans "Trip requests awaiting approval from RDG:" %}                            &nbsp;
-                                {% for tag in my_dict|lookup:"rdg_tags" %}
-                                    {{ tag }}
-                                {% endfor %}
-                                <br><br>
-                            {% endif %}
-                            {% if unverified_trips %}
-                                {% trans "Trips awaiting verification:" %}&nbsp;
-                                {% if adm_unverified_trips %}
-                                    <a href="{{ adm_trip_verification_list_url }}" class="btn btn-outline-dark">
-                                        {% trans "National" %} (<span
-                                            class="{% if adm_unverified_trips > 0 %}red-font blink-me{% endif %}">{{ adm_unverified_trips }}</span>)
-                                    </a>
-                                {% endif %}
-                                {% for tag in my_dict|lookup:"trip_tags" %}
-                                    {{ tag }}
-                                {% endfor %}
-                                <br><br>
-                            {% endif %}
-
-                        {% endif %}
-                    {% endif %}
+        <div class="row mb-4 justify-content-center">
 
 
-                </h3>
-                <br><br>
-                <div class="">
-
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">{% trans "Create a New Request" %}</h5>
+                    <p class="card-text">{% trans "Create a new individual or group request to travel" %}</p>
+                    <a href="{{ event_new_url }}" class="btn btn-primary">{% trans "Go" %}</a>
                 </div>
+            </div>
 
+            {% if user.user_trip_requests.count > 0 %}
+                {% echo event_list_url|add:"?user=" as your_url %}
+
+                <div class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans "View Your Requests" %} ({{ user.user_trip_requests.count }})</h5>
+                        <p class="card-text">{% trans "View any current or old trip requests that you have created in the past" %}</p>
+                        <a href="{{ your_url }}{{ user.id }}" class="btn btn-primary">{% trans "Go" %}</a>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">{% trans "View All Requests" %}</h5>
+                    <p class="card-text">{% trans "View a full list of trip requests in the system accross all DFO regions" %}</p>
+                    <a href="{{ event_list_url }}" class="btn btn-primary">{% trans "Go" %}</a>
+                    <span class="px-3">
+
+                        </span>
+                </div>
             </div>
         </div>
+        <br>
+        <br>
+        <br>
+
+        <div class="row mb-4 justify-content-center">
+
+
+            {% if is_reviewer %}
+                {% echo event_list_url|add:"?user=" as your_url %}
+
+                <div class="card special-card" style="width: 24rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans "Your Reviews" %}</h5>
+                        <p class="card-text">{% trans "View and manage trip requests for which you are a reviewers" %}</p>
+                        <div class="mb-3">
+                            <a href="{{ event_approval_list_url }}" class="btn btn-outline-dark">
+                                {% trans "Trip requests awaiting your review" %}
+                                (<span class="{% if number_waiting > 0 %}red-font blink-me{% endif %}">{{ number_waiting }}</span>)
+                            </a>
+                        </div>
+                        <div class="mb-3">
+                            <a href="{{ event_assigned_list_url }}" class="btn btn-outline-dark">
+                                {% trans "Trip requests assigned to you" %}
+                                (<span>{{ user.reviewers.count }}</span>).
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if is_admin %}
+                {% echo event_list_url|add:"?user=" as your_url %}
+
+                <div class="card special-card" style="width: 30rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans "Travel Admin Console" %}</h5>
+                        <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
+                        {% if adm_number_waiting %}
+                            <span class="subtitle">
+                                {% trans "Trip requests awaiting approval from ADM:" %} &nbsp;
+                            </span><br>
+                            {% for tag in my_dict|lookup:"adm_tags" %}
+                                {{ tag }}
+                            {% endfor %}
+                            <br><br>
+                        {% endif %}
+
+                        {% if rdg_number_waiting %}
+                            <span class="subtitle">
+                            {% trans "Trip requests awaiting approval from RDG:" %}
+                            </span><br>
+                            {% for tag in my_dict|lookup:"rdg_tags" %}
+                                {{ tag }}
+                            {% endfor %}
+                            <br><br>
+                        {% endif %}
+                        {% if unverified_trips %}
+                            <span class="subtitle">
+                            {% trans "Trips awaiting verification:" %}
+                            </span><br>
+                            {% if adm_unverified_trips %}
+                                <a href="{{ adm_trip_verification_list_url }}" class="btn btn-outline-dark">
+                                    {% trans "National" %} (<span
+                                        class="{% if adm_unverified_trips > 0 %}red-font blink-me{% endif %}">{{ adm_unverified_trips }}</span>)
+                                </a>
+                            {% endif %}
+                            {% for tag in my_dict|lookup:"trip_tags" %}
+                                {{ tag }}
+                            {% endfor %}
+                            <br><br>
+                        {% endif %}
+
+
+                    </div>
+                </div>
+            {% endif %}
+
+
+        </div>
+
+
     </div>
 
 
-
-
     <br>
     <br>
     <br>
@@ -125,16 +174,15 @@
     <br>
     <br>
     <br>
-    <footer>
-        <div class="container">
-            <a class=""
-               style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px"
-               href="#"
-               rel="noopener noreferrer"
-               title="Download free do whatever you want high-resolution photos from Ross Parmly on Unsplah"><span
-                    style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg"
-                                                                      style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white"
-                                                                      viewBox="0 0 32 32"><title>unsplash-logo</title><path
-                    d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"></path></svg></span><span style="display:inline-block;padding:2px 3px">Photo credit: Ross Parmly</span></a>
+    <footer class="center-col">
+        <a class=""
+           style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px"
+           href="#"
+           rel="noopener noreferrer"
+           title="Download free do whatever you want high-resolution photos from Ross Parmly on Unsplah"><span
+                style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg"
+                                                                  style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white"
+                                                                  viewBox="0 0 32 32"><title>unsplash-logo</title><path
+                d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"></path></svg></span><span style="display:inline-block;padding:2px 3px">Photo by Ross Parmly</span></a>
     </footer>
 {% endblock content %}
