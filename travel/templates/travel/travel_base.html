@@ -11,6 +11,24 @@
 {% endblock title %}
 
 {% block body %}
+     <style>
+        body {
+            background-image: url("{% static 'travel/ross-parmly-25230-unsplash.jpg' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        .container-fluid, .container {
+            border-radius: 25px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: small;
+
+        }
+    </style>
     {% block content %}{% endblock content %}
 {% endblock body %}
 
