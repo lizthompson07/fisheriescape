@@ -1348,7 +1348,7 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:report_search"))
 
-
+@login_required()
 def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
     file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region, trip=trip, user=user, from_date=from_date, to_date=to_date)
 
@@ -1360,7 +1360,7 @@ def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
             return response
     raise Http404
 
-
+@login_required()
 def export_trip_list(request, fy, region, adm, from_date, to_date):
     file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm, from_date=from_date, to_date=to_date)
 
@@ -1371,7 +1371,7 @@ def export_trip_list(request, fy, region, adm, from_date, to_date):
             return response
     raise Http404
 
-
+@login_required()
 def export_request_cfts(request, trip=None, trip_request=None):
     # print(trip)
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
