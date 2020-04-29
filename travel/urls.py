@@ -36,7 +36,8 @@ urlpatterns = [
 
     # ADMIN APPROVAL
     path('admin/approval/for/<str:type>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
-    path('admin/approval/for/<str:type>/region/<int:region>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
+    path('admin/approval/for/<str:type>/region/<int:region>/', views.TripRequestAdminApprovalListView.as_view(),
+         name="admin_approval_list"),
     # path('admin/<int:pk>/approve/', views.TripRequestAdminApproveUpdateView.as_view(), name="admin_approve"),
 
     # REVIEWERS #
@@ -55,7 +56,8 @@ urlpatterns = [
     path('trip/<int:pk>/edit/popout/<int:pop>', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
     # admin
-    path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.AdminTripVerificationListView.as_view(), name="admin_trip_verification_list"),
+    path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.AdminTripVerificationListView.as_view(),
+         name="admin_trip_verification_list"),
     path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
     path('trip/<int:pk>/delete/back-to-verify/<int:back_to_verify>/', views.TripDeleteView.as_view(), name="trip_delete"),
 
@@ -65,16 +67,6 @@ urlpatterns = [
     path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
-
-    # Reports #
-    ###########
-    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/export-cfts-list/year/<int:fy>/region/<int:region>/', views.export_cfts_list, name="export_cfts_list"),
-    path('reports/cfts/request/<int:trip_request>/', views.export_request_cfts, name="export_cfts_request"),
-    path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"),
-    # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
-
-    path('reports/trip-list/fiscal-year/<int:fy>/region/<str:region>/adm/<str:adm>/', views.export_trip_list, name="export_trip_list"),
 
     # SETTINGS #
     ############
@@ -97,5 +89,17 @@ urlpatterns = [
 
     path('trip-request/<int:trip_request>/clear-empty-costs/', views.tr_cost_clear, name="tr_cost_clear"),
     path('trip-request/<int:trip_request>/populate-all-costs/', views.tr_cost_populate, name="tr_cost_populate"),
+
+    # Reports #
+    ###########
+    path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
+    path('reports/export-cfts-list/year/<str:fy>/region/<str:region>/trip/<str:trip>/traveller/'
+         '<str:user>/from_date/<str:from_date>/to_date/<str:to_date>/', views.export_cfts_list, name="export_cfts_list"),
+    path('reports/cfts/request/<int:trip_request>/', views.export_request_cfts, name="export_cfts_request"),
+    path('reports/cfts/trip/<int:trip>/', views.export_request_cfts, name="export_cfts_trip"),
+    # path('event/<int:fy>/<str:email>/print/', views.TravelPlanPDF.as_view(), name="travel_plan"),
+
+    path('reports/trip-list/fiscal-year/<str:fy>/region/<str:region>/adm/<str:adm>/from_date/<str:from_date>/to_date/<str:to_date>/',
+         views.export_trip_list, name="export_trip_list"),
 
 ]

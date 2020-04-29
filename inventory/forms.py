@@ -9,6 +9,7 @@ from shared_models import models as shared_models
 
 chosen_js = {"class": "chosen-select-contains"}
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
+attr_fp_date = {"class": "fp-date", "placeholder": "Select a Date.."}
 
 
 class ResourceCreateForm(forms.ModelForm):
@@ -125,7 +126,8 @@ class ResourceForm(forms.ModelForm):
             "analytic_software": forms.Textarea(attrs={"rows": 5}),
             "notes": forms.Textarea(attrs={"rows": 5}),
             "parent": forms.NumberInput(),
-            "fgp_publication_date": forms.DateInput(attrs=attr_fp_date_time),
+            "fgp_publication_date": forms.DateInput(attrs=attr_fp_date),
+            "last_revision_date": forms.DateInput(attrs=attr_fp_date),
         }
         labels = {
             "section": "Section (Region / Branch / Division / Section)",

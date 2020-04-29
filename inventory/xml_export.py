@@ -11,6 +11,7 @@ from lib.templatetags.custom_filters import nz
 from . import models
 from django.urls import reverse
 
+
 def prettify(elem):
     """Return a pretty-printed XML string for the Element.
     """
@@ -128,12 +129,12 @@ def descriptive_keyword(keyword):
     })
     SubElement(root, 'gco:CharacterString', attrib={
         'xmlns:gco': "http://www.isotc211.org/2005/gco",
-    }).text = keyword.text_value_eng
+    }).text = keyword.non_hierarchical_name_en
     PT_FreeText = SubElement(root, 'gmd:PT_FreeText')
     textGroup = SubElement(PT_FreeText, 'gmd:textGroup')
     LocalisedCharacterString = SubElement(textGroup, 'gmd:LocalisedCharacterString', attrib={
         'locale': "#fra"
-    }).text = keyword.text_value_fre
+    }).text = keyword.non_hierarchical_name_fr
     return root
 
 
@@ -693,7 +694,7 @@ def construct(my_resource, pretty=True):
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_87", "RI_367",
                  "publication; publication")
 
-    else:  # publication AND revision dates are added
+    else:  # publication AND revision dates are added (if available)
 
         # publication date
         CI_Date = SubElement(SubElement(CI_Citation, 'gmd:date'), 'gmd:CI_Date')
@@ -703,12 +704,14 @@ def construct(my_resource, pretty=True):
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_87", "RI_367",
                  "publication; publication")
 
-        # revision date
-        CI_Date = SubElement(SubElement(CI_Citation, 'gmd:date'), 'gmd:CI_Date')
-        datestamp(CI_Date, 'gmd:date', timezone.now().year, timezone.now().month, timezone.now().day)
-        codelist(CI_Date, "gmd:dateType", "gmd:CI_DateTypeCode",
-                 "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_87", "RI_368",
-                 "revision; révision")
+        if my_resource.last_revision_date:
+            # revision date
+            CI_Date = SubElement(SubElement(CI_Citation, 'gmd:date'), 'gmd:CI_Date')
+            datestamp(CI_Date, 'gmd:date', my_resource.last_revision_date.year, my_resource.last_revision_date.month,
+                      my_resource.last_revision_date.day)
+            codelist(CI_Date, "gmd:dateType", "gmd:CI_DateTypeCode",
+                     "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_87", "RI_368",
+                     "revision; révision")
 
     # Custodians and other roles (not point of contact)
     # for each point of contact
@@ -1082,7 +1085,8 @@ def verify(resource):
             my_filter = field_list[1]
 
             if field == 'certification_history':
-                cert_now_html = mark_safe(f'<a href={reverse("inventory:resource_certify", kwargs={"pk": resource.id})}>{_("certify now")}</a>')
+                cert_now_html = mark_safe(
+                    f'<a href={reverse("inventory:resource_certify", kwargs={"pk": resource.id})}>{_("certify now")}</a>')
                 if resource.certification_history.count() == 0:
                     checklist.append(f'This record has not been certified ({cert_now_html})')
                     rating = rating - 1
