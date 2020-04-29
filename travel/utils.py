@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
+
 from dm_apps.utils import custom_send_mail
 from django.db import IntegrityError
 from django.utils import timezone
@@ -32,9 +34,9 @@ def get_reviewers(trip_request):
 
         # look to the section --> division and see who the reviewer is based on the above dict
         try:
-            models.Reviewer.objects.get_or_create(trip_request=trip_request,
-                                                  user_id=division_reviewer_dict[trip_request.section.division.id], role_id=1)
-        except (IntegrityError, KeyError):
+            my_user = User.objects.get(pk=division_reviewer_dict[trip_request.section.division.id])
+            models.Reviewer.objects.get_or_create(trip_request=trip_request, user=my_user, role_id=1)
+        except (IntegrityError, KeyError, User.DoesNotExist):
             # print("not adding a reviewer")
             pass
 
@@ -58,10 +60,11 @@ def get_reviewers(trip_request):
         try:
             if trip_request.user != trip_request.section.division.branch.head:
                 if trip_request.section.division.branch.region_id == 2:
-                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=1102, role_id=1, ) # MAR RDSO ADMIN user
+                    my_user = User.objects.get(pk=1102)
+                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user=my_user, role_id=1, ) # MAR RDSO ADMIN user
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.head,
                                                       role_id=2, )
-        except (IntegrityError, AttributeError):
+        except (IntegrityError, AttributeError, User.DoesNotExist):
             pass
             # print("not adding RDS")
 
