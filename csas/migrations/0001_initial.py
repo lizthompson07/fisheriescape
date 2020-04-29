@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('projects', '0007_auto_20200409_1718'),
+        ('projects', '0001_initial'),
         ('shared_models', '0001_initial'),
     ]
 
