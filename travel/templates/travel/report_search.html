@@ -56,9 +56,9 @@
 
                 {% csrf_token %}
                 {% for field in form %}
-                        <div class="{{ field.name }}_div">
-                            {% bootstrap_field field %}
-                        </div>
+                    <div class="{{ field.name }}_div">
+                        {% bootstrap_field field %}
+                    </div>
                 {% endfor %}
                 <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
 
@@ -81,8 +81,6 @@
             $(".from_date_div").addClass("gone");
             $(".to_date_div").addClass("gone");
 
-            $("#id_fiscal_year").prop('required', true);
-            $("#id_user").prop('required', false);
 
         }
 
@@ -118,6 +116,26 @@
             hideAll();
             configureForm();
         });
+
+        $("#id_from_date").change(function () {
+                if ($(this).val()) {
+                    $("#id_fiscal_year").val("");
+                }
+            }
+        );
+        $("#id_to_date").change(function () {
+                if ($(this).val()) {
+                    $("#id_fiscal_year").val("");
+                }
+            }
+        );
+        $("#id_fiscal_year").change(function () {
+                if ($(this).val()) {
+                    $("#id_from_date").val("");
+                    $("#id_to_date").val("");
+                }
+            }
+        );
 
         $("#id_report").change(function () {
             hideAll();
