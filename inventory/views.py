@@ -106,13 +106,13 @@ class OpenDataDashboardTemplateView(TemplateView):
         current_fy = shared_models.FiscalYear.objects.get(pk=fiscal_year(sap_style=True))
         context["current_fy"] = current_fy
         my_dict = dict()
-        qs = models.Resource.objects.all()
+        qs = models.Resource.objects.all().order_by("-last_revision_date", "-fgp_publication_date")
         my_dict["TOTAL"] = dict()
         my_dict["TOTAL"]["qs_total"] = qs.count()
         my_dict["TOTAL"]["qs_fgp"] = qs.filter(fgp_publication_date__isnull=False).count()
         my_dict["TOTAL"]["qs_open_data"] = qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False).count()
         my_dict["TOTAL"]["qs_open_data_current_fy"] = qs.filter(fgp_publication_date__isnull=False,
-                                                                fgp_publication_date__year=current_fy.id, public_url__isnull=False).count()
+                                                                publication_fy=current_fy, public_url__isnull=False).count()
 
         for region in shared_models.Region.objects.all():
             regional_qs = qs.filter(section__division__branch__region=region)
@@ -121,14 +121,15 @@ class OpenDataDashboardTemplateView(TemplateView):
             my_dict[region]["qs_fgp"] = regional_qs.filter(fgp_publication_date__isnull=False)
             my_dict[region]["qs_open_data"] = regional_qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False)
             my_dict[region]["qs_open_data_current_fy"] = regional_qs.filter(fgp_publication_date__isnull=False,
-                                                                            fgp_publication_date__year=current_fy.id,
+                                                                            publication_fy=current_fy,
                                                                             public_url__isnull=False)
 
         context["my_dict"] = my_dict
         context['field_list'] = [
             "t_title|Title",
             "section|DFO Section",
-            "fgp_publication_date|Published to Open Data",
+            "last_publication|Published to Open Data",
+            "publication_fy|FY of latest publication",
             "external_links|External links",
         ]
 
@@ -139,7 +140,7 @@ class OpenDataDashboardTemplateView(TemplateView):
         for kw in od_keywords_set:
             frequency_list.append({
                 "text": kw,
-                "size": od_keywords.count(kw)*10,
+                "size": od_keywords.count(kw) * 10,
             })
 
         context["frequency_list"] = json.dumps(frequency_list)
@@ -1042,7 +1043,7 @@ def export_resource_xml(request, resource, publish):
     if publish == "yes":
         # if there is already a publication date, let's not overwrite it.
         if my_resource.fgp_publication_date:
-            my_resource.date_last_modified = timezone.now()
+            my_resource.last_revision_date = timezone.now()
         else:
             my_resource.fgp_publication_date = timezone.now()
         my_resource.flagged_4_publication = False

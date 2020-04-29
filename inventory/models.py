@@ -8,7 +8,7 @@ import os
 import uuid
 from django.utils.translation import gettext as _
 
-from lib.functions.custom_functions import truncate
+from lib.functions.custom_functions import truncate, fiscal_year
 from shared_models import models as shared_models
 from dm_apps import custom_widgets
 
@@ -199,6 +199,14 @@ class Keyword(models.Model):
         else:
             return self.text_value_eng
 
+    @property
+    def non_hierarchical_name_fr(self):
+        # if the keyword can be split by " > " then take the last item in the list
+        if len(self.text_value_fre.split(" > ")) > 1:
+            return self.text_value_fre.split(" > ")[-1]
+        else:
+            return self.text_value_fre
+
 
 class Publication(models.Model):
     name = models.CharField(max_length=1000)
@@ -360,6 +368,7 @@ class Resource(models.Model):
     fgp_url = models.URLField(blank=True, null=True, verbose_name="Link to record on FGP")
     public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Data")
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
+    last_revision_date = models.DateTimeField(blank=True, null=True, verbose_name="Date of last published revision")
     open_data_notes = models.CharField(max_length=255, blank=True, null=True,
                                        verbose_name="Open data notes")
     notes = models.TextField(blank=True, null=True, verbose_name="General notes")
@@ -368,13 +377,15 @@ class Resource(models.Model):
     people = models.ManyToManyField(Person, through='ResourcePerson')
     parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children',
                                verbose_name="Parent resource")
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now)
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     flagged_4_deletion = models.BooleanField(default=False)
     flagged_4_publication = models.BooleanField(default=False)
     completedness_report = models.TextField(blank=True, null=True, verbose_name=_("completedness report"))
     completedness_rating = models.FloatField(blank=True, null=True, verbose_name=_("completedness rating"))
     translation_needed = models.BooleanField(default=True, verbose_name=_("translation needed"))
+    publication_fy = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False,
+                                       verbose_name=_("FY of latest publication"))
 
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk': self.pk})
@@ -393,6 +404,12 @@ class Resource(models.Model):
     def last_certification(self):
         return self.certification_history.fisrt()
 
+    @property
+    def last_publication(self):
+        if self.fgp_publication_date:
+            my_date = self.last_revision_date if self.last_revision_date else self.fgp_publication_date
+            return my_date.strftime("%Y-%m-%d")
+
     def truncated_title(self):
         if self.title_eng:
             my_str = truncate(self.title_eng, 50)
@@ -404,6 +421,12 @@ class Resource(models.Model):
     def save(self, *args, **kwargs):
         if self.uuid is None:
             self.uuid = uuid.uuid1()
+
+        if self.fgp_publication_date:
+            # if there is a revision date, use this, otherwise use fgp pub date
+            pub_date = self.last_revision_date if self.last_revision_date else self.fgp_publication_date
+            fy = shared_models.FiscalYear.objects.get(pk=fiscal_year(date=pub_date, sap_style=True))
+            self.publication_fy = fy
 
         # will handle this through the resource form. If not, each time the record is verified, this field will be updated
         # self.date_last_modified = timezone.now()

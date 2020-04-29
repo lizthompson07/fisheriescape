@@ -1311,15 +1311,22 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        fy = form.cleaned_data["fiscal_year"]
-        user = form.cleaned_data["user"]
+        fy = nz(form.cleaned_data["fiscal_year"],"None")
         region = nz(form.cleaned_data["region"], "None")
+        trip = nz(form.cleaned_data["trip"], "None")
+        user = nz(form.cleaned_data["user"], "None")
+        from_date = nz(form.cleaned_data["from_date"], "None")
+        to_date = nz(form.cleaned_data["to_date"], "None")
         adm = nz(form.cleaned_data["adm"], "None")
 
         if report == 1:
             return HttpResponseRedirect(reverse("travel:export_cfts_list", kwargs={
                 'fy': fy,
                 'region': region,
+                'trip': trip,
+                'user': user,
+                'from_date': from_date,
+                'to_date': to_date,
             }))
         elif report == 2:
             email = form.cleaned_data["traveller"]
@@ -1333,6 +1340,8 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
                 'fy': fy,
                 'region': region,
                 'adm': adm,
+                'from_date': from_date,
+                'to_date': to_date,
             }))
 
         else:
@@ -1340,8 +1349,8 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("travel:report_search"))
 
 
-def export_cfts_list(request, fy, region):
-    file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region)
+def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
+    file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region, trip=trip, user=user, from_date=from_date, to_date=to_date)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -1352,8 +1361,8 @@ def export_cfts_list(request, fy, region):
     raise Http404
 
 
-def export_trip_list(request, fy, region, adm):
-    file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm)
+def export_trip_list(request, fy, region, adm, from_date, to_date):
+    file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm, from_date=from_date, to_date=to_date)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:

@@ -12,9 +12,10 @@ faker = Faker()
 class TripFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Conference
-        django_get_or_create = ('name',)
+        # django_get_or_create = ('name',)
 
-    name = faker.word()
+    # name = faker.catch_phrase()
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
     start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
 
@@ -31,6 +32,7 @@ class TripFactory(factory.django.DjangoModelFactory):
             "end_date": end_date.strftime("%Y-%m-%d %H:%M"),
         }
         return valid_data
+
 
 class IndividualTripRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -78,6 +80,7 @@ class ChildTripRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.TripRequest
 
+    trip = None
     parent_request = factory.SubFactory(ParentTripRequestFactory)
     user = factory.SubFactory(UserFactory)
     is_group_request = False
