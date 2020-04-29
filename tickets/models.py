@@ -155,7 +155,7 @@ class Ticket(models.Model):
         APP_DICT["tickets"] = "Data Management Tickets"
         APP_DICT["general"] = "Data Management Tickets"
 
-        return APP_DICT[self.app]
+        return APP_DICT.get(self.app, "n/a")
 
 
 class FollowUp(models.Model):
