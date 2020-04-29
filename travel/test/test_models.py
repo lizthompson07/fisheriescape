@@ -16,20 +16,23 @@ class TestTravelModels(CommonTest):
         trip_request = FactoryFloor.IndividualTripRequestFactory()
         trip = trip_request.trip
         # create a group travel request
-        child_trip_request = FactoryFloor.ChildTripRequestFactory(trip=trip)
+        child_trip_request = FactoryFloor.ChildTripRequestFactory()
+        # now we have to set the parent tr to have the same trip
+        parent_trip_request = child_trip_request.parent_request
+        parent_trip_request.trip = trip
+        parent_trip_request.save()
 
         self.assertIn(trip_request, trip.trip_requests.all())
-        self.assertIn(child_trip_request, trip.trip_requests.all())
-        self.assertIn(child_trip_request.parent_request, trip.trip_requests.all())
+        self.assertIn(parent_trip_request, trip.trip_requests.all())
 
         # any traveller on a group or individual request should be listed in the trip.traveller_list prop
         self.assertIn(trip_request.user, trip.traveller_list)
         self.assertIn(child_trip_request.user, trip.traveller_list)
         # the owner of the group trip should NOT be on the list
-        self.assertNotIn(child_trip_request.parent_request.user, trip.traveller_list)
+        self.assertNotIn(parent_trip_request.user, trip.traveller_list)
         # there should be a total of 2 travellers at this point
 
-        self.assertEqual(trip.trip_requests.count(), 3)
+        self.assertEqual(trip.trip_requests.count(), 2)
         self.assertEqual(len(trip.traveller_list), 2)
 
     @tag('models', 'trip_request')
