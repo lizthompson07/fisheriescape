@@ -2,6 +2,7 @@ from datetime import datetime
 
 import xlsxwriter as xlsxwriter
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.template.defaultfilters import yesno
 from django.urls import reverse
 from django.utils import timezone
@@ -27,13 +28,11 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
     ws = workbook.add_worksheet(name="CFTS report")
 
     # create formatting
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
     header_format = workbook.add_format(
         {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#8C96A0', "align": 'normal',
          "text_wrap": True})
     normal_format = workbook.add_format({"align": 'left', "valign": 'top', "text_wrap": True, 'num_format': '[$$-409]#,##0.00'})
-
-    # spreadsheet: Project List #
-    #############################
 
     if fiscal_year == "None":
         fiscal_year = None
@@ -43,10 +42,16 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
         trip = None
     if user == "None":
         user = None
+
     if from_date == "None":
         from_date = None
+    else:
+        fiscal_year = None  # should not filter on both criteria
+
     if to_date == "None":
         to_date = None
+    else:
+        fiscal_year = None  # should not filter on both criteria
 
     include_trip_request_status = False
     # get a request list
@@ -86,8 +91,6 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 trip_request_id_list.append(tr.id)
 
         trip_request_list = models.TripRequest.objects.filter(id__in=trip_request_id_list)
-
-
 
     elif trip_request:
         my_trip_request = models.TripRequest.objects.get(pk=trip_request)
@@ -129,12 +132,30 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
     # should be a maximum column width to 100
     col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
 
-    ws.write_row(0, 0, header, header_format)
+    title = "CFTS-styled Report on DFO Science Trip Requests"
+    if fiscal_year:
+        title += f" for {shared_models.FiscalYear.objects.get(pk=fiscal_year)}"
+    elif from_date and not to_date:
+        title += f" from {from_date} Onwards"
+    elif to_date and not from_date:
+        title += f" up until {to_date}"
+    elif to_date and from_date:
+        title += f" ranging from {from_date} to {to_date}"
+
+    if region:
+        title += f" ({shared_models.Region.objects.get(pk=region)})"
+    if user:
+        title += f" ({User.objects.get(pk=user)})"
+    if trip:
+        title += f" ({models.Conference.objects.get(pk=trip).tname})"
+
+    ws.write(0, 0, title, title_format)
+    ws.write_row(2, 0, header, header_format)
 
     if trip_request_list:
-        i = 1
-        for tr in trip_request_list:
-
+        i = 3
+        for tr in trip_request_list.order_by("trip__start_date"):
+            print(123)
             # Build the Notes field
             notes = "TRAVELLER COST BREAKDOWN: " + tr.cost_breakdown
 
@@ -245,7 +266,6 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             ws.set_column(j, j, width=col_max[j] * 1.1)
 
     workbook.close()
-    print(target_url)
     return target_url
 
 
@@ -266,15 +286,34 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date):
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
     currency_format = workbook.add_format({'num_format': '#,##0.00'})
 
+    if fiscal_year == "None":
+        fiscal_year = None
+    if adm == "None":
+        adm = None
+    if region == "None":
+        region = None
+    if from_date == "None":
+        from_date = None
+    else:
+        fiscal_year = None  # should not filter on both criteria
+    if to_date == "None":
+        to_date = None
+    else:
+        fiscal_year = None  # should not filter on both criteria
+
     # get the trip list
-    trip_list = models.Conference.objects.filter(fiscal_year=fiscal_year)
+    trip_list = models.Conference.objects.all()
+
+    if fiscal_year:
+        trip_list = trip_list.filter(fiscal_year=fiscal_year)
 
     # optional filter on trips for adm_approval_required
-    if adm != "None":
-        trip_list = trip_list.filter(is_adm_approval_required=bool(int(adm)))
+    if adm:
+        adm = bool(int(adm))
+        trip_list = trip_list.filter(is_adm_approval_required=adm)
 
     # optional filter on trips for regional lead
-    if region != "None":
+    if region:
         # too dangerous to only filter by the lead field... we should look at each request / traveller and determine
         # if they are the correct region
         request_list = list()
@@ -298,14 +337,14 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date):
                         break
         trip_list = trip_list.filter(trip_requests__in=request_list)
 
-    if from_date != "None":
+    if from_date:
         my_date = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
         print(my_date)
         trip_list = trip_list.filter(
             start_date__gte=my_date,
         )
 
-    if to_date != "None":
+    if to_date:
         my_date = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
         print(my_date)
         trip_list = trip_list.filter(
@@ -330,10 +369,23 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date):
     # define the header
     header = [get_verbose_label(trip_list.first(), field) for field in field_list]
     # header.append('Number of projects tagged')
+    title = "DFO Science Trips"
+    if fiscal_year:
+        title += f" for {shared_models.FiscalYear.objects.get(pk=fiscal_year)}"
+    elif from_date and not to_date:
+        title += f" from {from_date} Onwards"
+    elif to_date and not from_date:
+        title += f" up until {to_date}"
+    elif to_date and from_date:
+        title += f" ranging from {from_date} to {to_date}"
 
-    title = f"Trip List for {shared_models.FiscalYear.objects.get(pk=fiscal_year)}"
-    if region != "None":
+    if region:
         title += f" ({shared_models.Region.objects.get(pk=region)})"
+    if adm is not None:
+        if adm:
+            title += " (Trip requiring ADM approval only)"
+        else:
+            title += " (Only trips NOT requiring ADM approval)"
 
     # define a worksheet
     my_ws = workbook.add_worksheet(name="trip list")
@@ -341,7 +393,7 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date):
     my_ws.write_row(2, 0, header, header_format)
 
     i = 3
-    for trip in trip_list:
+    for trip in trip_list.order_by("start_date"):
         # create the col_max column to store the length of each header
         # should be a maximum column width to 100
         col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]

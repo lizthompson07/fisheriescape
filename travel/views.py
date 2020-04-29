@@ -1311,8 +1311,7 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        fy = form.cleaned_data["fiscal_year"]
-        user = form.cleaned_data["user"]
+        fy = nz(form.cleaned_data["fiscal_year"],"None")
         region = nz(form.cleaned_data["region"], "None")
         trip = nz(form.cleaned_data["trip"], "None")
         user = nz(form.cleaned_data["user"], "None")
