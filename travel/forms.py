@@ -414,17 +414,23 @@ class ReportSearchForm(forms.Form):
     # report #1
     fiscal_year = forms.ChoiceField(required=False, label=_('Fiscal year'))
     # report #2
-    user = forms.ChoiceField(required=False, label=_('DFO traveller (leave blank for all)'))
-    region = forms.ChoiceField(required=False, label=_('Region (optional)'))
+    user = forms.ChoiceField(required=False, label=_('Traveller'), widget=forms.Select(attrs=chosen_js))
+    trip = forms.ChoiceField(required=False, label=_('Trip'), widget=forms.Select(attrs=chosen_js))
+    region = forms.ChoiceField(required=False, label=_('Region'))
     adm = forms.ChoiceField(required=False, label=_('ADM approval required'), choices=INT_YES_NO_CHOICES)
+    from_date = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
+    to_date = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
 
     def __init__(self, *args, **kwargs):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all().order_by("id") if fy.trip_requests.count() > 0]
+        fy_choices.insert(0, tuple((None, "---")))
         # TRAVELLER_CHOICES = [(e['email'], "{}, {}".format(e['last_name'], e['first_name'])) for e in
         #                      models.Trip.objects.values("email", "first_name", "last_name").order_by("last_name", "first_name").distinct()]
         user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
                         AuthUser.objects.all().order_by("last_name", "first_name") if u.user_trip_requests.count() > 0]
         user_choices.insert(0, tuple((None, "---")))
+        trip_choices = [(trip.id, f"{trip}") for trip in models.Conference.objects.all()]
+        trip_choices.insert(0, tuple((None, "---")))
 
         region_choices = get_region_choices()
         region_choices.insert(0, tuple((None, "---")))
@@ -433,6 +439,7 @@ class ReportSearchForm(forms.Form):
         self.fields['fiscal_year'].choices = fy_choices
         self.fields['user'].choices = user_choices
         self.fields['region'].choices = region_choices
+        self.fields['trip'].choices = trip_choices
 
 
 class StatusForm(forms.ModelForm):
