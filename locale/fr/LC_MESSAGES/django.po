@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-30 08:51-0300\n"
+"POT-Creation-Date: 2020-04-30 09:50-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -347,8 +347,8 @@ msgstr "de"
 #: .\ihub\templates\ihub\person_form.html:25 .\projects\models.py:581
 #: .\projects\templates\projects\functionalgroup_list.html:45
 #: .\projects\templates\projects\project_list.html:74
-#: .\travel\templates\travel\trip_form.html:30
-#: .\travel\templates\travel\trip_request_form.html:46
+#: .\travel\templates\travel\trip_form.html:32
+#: .\travel\templates\travel\trip_request_form.html:48
 msgid "New"
 msgstr "Nouveau"
 
@@ -1759,9 +1759,9 @@ msgstr "Détails de l'entrée"
 #: .\spot\templates\spot\payment_form_popout.html:61
 #: .\spot\templates\spot\project_year_detail.html:42
 #: .\spot\templates\spot\site_form_popout.html:56
-#: .\travel\templates\travel\trip_confirm_delete.html:17
+#: .\travel\templates\travel\trip_confirm_delete.html:19
 #: .\travel\templates\travel\trip_request_confirm_delete.html:6
-#: .\travel\templates\travel\trip_request_confirm_delete.html:19
+#: .\travel\templates\travel\trip_request_confirm_delete.html:21
 #: .\travel\templates\travel\trip_request_confirm_delete_popout.html:19
 #: .\travel\templates\travel\trip_request_detail.html:149
 #: .\travel\templates\travel\trip_request_form_popout.html:53
@@ -1826,22 +1826,22 @@ msgstr ""
 #: .\spring_cleanup\templates\spring_cleanup\spring_cleanup_base.html:31
 #: .\travel\templates\travel\generic_base.html:22
 #: .\travel\templates\travel\manage_settings_small.html:28
-#: .\travel\templates\travel\reviewer_approval_form.html:31
-#: .\travel\templates\travel\reviewer_formset.html:28
+#: .\travel\templates\travel\reviewer_approval_form.html:33
+#: .\travel\templates\travel\reviewer_formset.html:30
 #: .\travel\templates\travel\travel_base.html:40
-#: .\travel\templates\travel\trip_confirm_delete.html:11
-#: .\travel\templates\travel\trip_detail.html:27
-#: .\travel\templates\travel\trip_form.html:18
-#: .\travel\templates\travel\trip_list.html:30
-#: .\travel\templates\travel\trip_request_cancel_form.html:40
-#: .\travel\templates\travel\trip_request_confirm_delete.html:13
-#: .\travel\templates\travel\trip_request_detail.html:31
-#: .\travel\templates\travel\trip_request_form.html:34
-#: .\travel\templates\travel\trip_request_list.html:25
-#: .\travel\templates\travel\trip_request_review_list.html:18
-#: .\travel\templates\travel\trip_request_submission_form.html:32
-#: .\travel\templates\travel\trip_verification_form.html:26
-#: .\travel\templates\travel\trip_verification_list.html:27
+#: .\travel\templates\travel\trip_confirm_delete.html:13
+#: .\travel\templates\travel\trip_detail.html:29
+#: .\travel\templates\travel\trip_form.html:20
+#: .\travel\templates\travel\trip_list.html:32
+#: .\travel\templates\travel\trip_request_cancel_form.html:42
+#: .\travel\templates\travel\trip_request_confirm_delete.html:15
+#: .\travel\templates\travel\trip_request_detail.html:33
+#: .\travel\templates\travel\trip_request_form.html:36
+#: .\travel\templates\travel\trip_request_list.html:27
+#: .\travel\templates\travel\trip_request_review_list.html:20
+#: .\travel\templates\travel\trip_request_submission_form.html:34
+#: .\travel\templates\travel\trip_verification_form.html:28
+#: .\travel\templates\travel\trip_verification_list.html:29
 msgid "Home"
 msgstr "Accueil"
 
@@ -1866,9 +1866,9 @@ msgstr "Accueil"
 #: .\spot\templates\spot\organization_detail.html:33
 #: .\travel\templates\travel\generic_base.html:48
 #: .\travel\templates\travel\trip_detail.html:47
-#: .\travel\templates\travel\trip_form.html:26
+#: .\travel\templates\travel\trip_form.html:28
 #: .\travel\templates\travel\trip_request_detail.html:137
-#: .\travel\templates\travel\trip_request_form.html:42
+#: .\travel\templates\travel\trip_request_form.html:44
 msgid "Edit"
 msgstr "Modifier"
 
@@ -2507,9 +2507,9 @@ msgstr ""
 #: .\inventory\templates\inventory\index.html:43
 #: .\inventory\templates\inventory\index.html:52
 #: .\inventory\templates\inventory\index.html:61
-#: .\travel\templates\travel\index.html:66
-#: .\travel\templates\travel\index.html:79
-#: .\travel\templates\travel\index.html:90
+#: .\travel\templates\travel\index.html:73
+#: .\travel\templates\travel\index.html:86
+#: .\travel\templates\travel\index.html:97
 msgid "Go"
 msgstr ""
 
@@ -4019,7 +4019,7 @@ msgstr "fra_text"
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: .\projects\models.py:283 .\travel\templates\travel\index.html:158
+#: .\projects\models.py:283 .\travel\templates\travel\index.html:171
 msgid "National"
 msgstr "National"
 
@@ -8540,10 +8540,10 @@ msgstr "DEMANDE ACTUELLE"
 
 #: .\travel\templates\travel\generic_base.html:29
 #: .\travel\templates\travel\travel_base.html:85
-#: .\travel\templates\travel\trip_confirm_delete.html:14
-#: .\travel\templates\travel\trip_detail.html:30
-#: .\travel\templates\travel\trip_form.html:21
-#: .\travel\templates\travel\trip_list.html:32
+#: .\travel\templates\travel\trip_confirm_delete.html:16
+#: .\travel\templates\travel\trip_detail.html:32
+#: .\travel\templates\travel\trip_form.html:23
+#: .\travel\templates\travel\trip_list.html:34
 #: .\travel\templates\travel\trip_list.html:38
 msgid "Trips"
 msgstr "Voyages"
@@ -8570,100 +8570,110 @@ msgstr ""
 msgid "Attendence to Conferences and International Trips"
 msgstr "Participation à des conférences et voyages internationaux"
 
-#: .\travel\templates\travel\index.html:40
-#, fuzzy
-#| msgid "Travel Management System"
+#: .\travel\templates\travel\index.html:48
 msgid "DFO Science Travel Management System"
-msgstr "Système de gestion de voyage"
+msgstr "Système de gestion de voyage de Science de MPO"
 
-#: .\travel\templates\travel\index.html:44
+#: .\travel\templates\travel\index.html:52
 #, fuzzy
 #| msgid "(Pre-approval to Travel)"
 msgid "\"Get Your Pre-approval to Travel Today!!\""
-msgstr "(Pré-approbation pour voyager)"
+msgstr "Obtenez votre pré-approbation pour voyager aujourd'hui !!"
 
-#: .\travel\templates\travel\index.html:63
+#: .\travel\templates\travel\index.html:70
 msgid "Create a New Request"
 msgstr "Créer une nouvelle demande"
 
-#: .\travel\templates\travel\index.html:64
+#: .\travel\templates\travel\index.html:71
 msgid "Create a new individual or group request to travel"
 msgstr "Créer une nouvelle demande de voyage individuelle ou de groupe"
 
-#: .\travel\templates\travel\index.html:76
+#: .\travel\templates\travel\index.html:83
 msgid "View Your Requests"
 msgstr "Afficher vos demandes"
 
-#: .\travel\templates\travel\index.html:77
+#: .\travel\templates\travel\index.html:84
 msgid "View any current or old trip requests that you have created in the past"
 msgstr ""
 "Afficher toutes les demandes de voyage actuelles ou anciennes que vous avez "
 "créées dans le passé"
 
-#: .\travel\templates\travel\index.html:87
+#: .\travel\templates\travel\index.html:94
 msgid "View All Requests"
 msgstr "Afficher toutes les demandes"
 
-#: .\travel\templates\travel\index.html:88
+#: .\travel\templates\travel\index.html:95
 msgid "View a full list of trip requests in the system accross all DFO regions"
 msgstr ""
 "Afficher une liste complète des demandes de déplacement dans le système dans "
 "toutes les régions du MPO"
 
-#: .\travel\templates\travel\index.html:108
+#: .\travel\templates\travel\index.html:112
 msgid "Your Reviews"
 msgstr "Vos avis"
 
-#: .\travel\templates\travel\index.html:109
+#: .\travel\templates\travel\index.html:113
 msgid "View and manage trip requests for which you are a reviewers"
 msgstr ""
 "Affichez et gérez les demandes de voyage pour lesquelles vous êtes des "
 "réviseurs"
 
-#: .\travel\templates\travel\index.html:112
+#: .\travel\templates\travel\index.html:116
 msgid "Trip requests awaiting your review"
 msgstr "Demandes de voyage en attente de votre avis"
 
-#: .\travel\templates\travel\index.html:118
+#: .\travel\templates\travel\index.html:122
 msgid "Trip requests assigned to you"
 msgstr "Demandes de voyage qui vous sont attribuées"
 
-#: .\travel\templates\travel\index.html:131
+#: .\travel\templates\travel\index.html:135
 msgid "Travel Admin Console"
 msgstr ""
 
-#: .\travel\templates\travel\index.html:132
+#: .\travel\templates\travel\index.html:136
 msgid "Perform tasks reserved for travel app administrators"
 msgstr ""
 "Effectuer des tâches réservées aux administrateurs d'applications de voyage"
 
-#: .\travel\templates\travel\index.html:135
+#: .\travel\templates\travel\index.html:139
 msgid "Trip requests awaiting approval from ADM:"
 msgstr "Demandes de voyage en attente de l'approbation du SMA :"
 
-#: .\travel\templates\travel\index.html:145
+#: .\travel\templates\travel\index.html:147
+msgid "There are no requests currently awaiting ADM approval"
+msgstr "Il n'y a aucune demande en attente d'approbation par le SMA"
+
+#: .\travel\templates\travel\index.html:153
 msgid "Trip requests awaiting approval from RDG:"
 msgstr "Demandes de voyage en attente de l'approbation du DGR :"
 
-#: .\travel\templates\travel\index.html:154
+#: .\travel\templates\travel\index.html:161
+msgid "There are no requests currently awaiting RDG approval"
+msgstr "Il n'y a aucune demande en attente d'approbation par le DGR"
+
+#: .\travel\templates\travel\index.html:167
 msgid "Trips awaiting verification:"
 msgstr "Voyages en attente de vérification :"
+
+#: .\travel\templates\travel\index.html:181
+msgid "There are no trips currently awaiting verification"
+msgstr "Il n'y a aucun voyage en attente de vérification"
 
 #: .\travel\templates\travel\report_search.html:55
 msgid "Please select the report"
 msgstr "Veuillez sélectionner le rapport"
 
-#: .\travel\templates\travel\reviewer_approval_form.html:35
+#: .\travel\templates\travel\reviewer_approval_form.html:37
 #: .\travel\templates\travel\trip_request_review_list.html:38
 msgid "Admin Request Approval List"
 msgstr "Liste d'approbation des demandes administratives"
 
-#: .\travel\templates\travel\reviewer_approval_form.html:40
+#: .\travel\templates\travel\reviewer_approval_form.html:42
 #: .\travel\templates\travel\trip_request_review_list.html:36
 msgid "Requests Awaiting Your Review"
 msgstr "Demandes en attente de votre révision"
 
-#: .\travel\templates\travel\reviewer_approval_form.html:44
+#: .\travel\templates\travel\reviewer_approval_form.html:46
 msgid "Reviewer Approval"
 msgstr "Approbation du réviseur"
 
@@ -8697,20 +8707,20 @@ msgstr "Apportez vous-même des changements"
 
 #: .\travel\templates\travel\reviewer_approval_form.html:106
 msgid "Back to top"
-msgstr ""
+msgstr "Retour au sommet"
 
-#: .\travel\templates\travel\reviewer_formset.html:31
-#: .\travel\templates\travel\trip_request_cancel_form.html:43
-#: .\travel\templates\travel\trip_request_confirm_delete.html:16
-#: .\travel\templates\travel\trip_request_detail.html:34
-#: .\travel\templates\travel\trip_request_form.html:37
-#: .\travel\templates\travel\trip_request_list.html:28
+#: .\travel\templates\travel\reviewer_formset.html:33
+#: .\travel\templates\travel\trip_request_cancel_form.html:45
+#: .\travel\templates\travel\trip_request_confirm_delete.html:18
+#: .\travel\templates\travel\trip_request_detail.html:36
+#: .\travel\templates\travel\trip_request_form.html:39
+#: .\travel\templates\travel\trip_request_list.html:30
 #: .\travel\templates\travel\trip_request_list.html:36
-#: .\travel\templates\travel\trip_request_submission_form.html:35
+#: .\travel\templates\travel\trip_request_submission_form.html:37
 msgid "Trip Requests"
 msgstr "Demandes de voyage"
 
-#: .\travel\templates\travel\reviewer_formset.html:35
+#: .\travel\templates\travel\reviewer_formset.html:37
 msgid "Manage Reviewers"
 msgstr "Gérer les réviseurs"
 
@@ -9033,12 +9043,12 @@ msgid "view requests awaiting my approval"
 msgstr "voir les demandes en attente de mon approbation"
 
 #: .\travel\templates\travel\trip_request_submission_form.html:11
-#: .\travel\templates\travel\trip_request_submission_form.html:40
+#: .\travel\templates\travel\trip_request_submission_form.html:42
 msgid "Un-submit Request"
 msgstr "Annuler la soumission"
 
 #: .\travel\templates\travel\trip_request_submission_form.html:13
-#: .\travel\templates\travel\trip_request_submission_form.html:42
+#: .\travel\templates\travel\trip_request_submission_form.html:44
 msgid "Submit Request"
 msgstr "Soumettre la demande"
 
@@ -9053,7 +9063,7 @@ msgstr ""
 msgid "Verify Trip"
 msgstr "Vérification du voyage"
 
-#: .\travel\templates\travel\trip_verification_form.html:29
+#: .\travel\templates\travel\trip_verification_form.html:31
 #: .\travel\templates\travel\trip_verification_list.html:23
 msgid "Trips Awaiting Verfication"
 msgstr "Voyages en attente de vérification"
