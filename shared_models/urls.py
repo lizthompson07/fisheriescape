@@ -10,6 +10,7 @@ urlpatterns = [
 
     # SECTION #
     ###########
+    path('sections/', views.SectionUpdateView.as_view(), name="section_list"),
     path('section/<int:pk>/update/', views.SectionUpdateView.as_view(), name="section_edit"),
     path('section/<int:pk>/delete/', views.SectionDeleteView.as_view(), name="section_delete"),
     path('section/new/', views.SectionCreateView.as_view(), name="section_new"),
