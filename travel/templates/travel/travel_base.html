@@ -4,14 +4,15 @@
 {% load bootstrap4 %}
 {% block bug_create %}{% url 'tickets:bug_create' 'travel' %}{% endblock bug_create %}
 
-{% block jquery_import %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
+{% block jquery_import %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
 
 {% block title %}
     {% trans "Travel Plans" %} {% block subtitle %}{% endblock %}
 {% endblock title %}
 
 {% block body %}
-     <style>
+    <style>
         body {
             background-image: url("{% static 'travel/ross-parmly-25230-unsplash.jpg' %}");
             background-repeat: no-repeat;
@@ -113,7 +114,9 @@
                     <a class="dropdown-item" href="{% url 'travel:manage_costs' %}">
                         {% trans "Manage Costs" %}
                     </a>
-
+                    <a class="dropdown-item" href="{% url 'travel:default_reviewer_list' %}">
+                        {% trans "Set Default Reviewers" %}
+                    </a>
                 </div>
             </li>
 
