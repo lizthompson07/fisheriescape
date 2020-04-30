@@ -8572,7 +8572,7 @@ msgstr "Participation à des conférences et voyages internationaux"
 
 #: .\travel\templates\travel\index.html:48
 msgid "DFO Science Travel Management System"
-msgstr "Système de gestion de voyage de Science de MPO"
+msgstr "Système de gestion de voyage de Science du MPO"
 
 #: .\travel\templates\travel\index.html:52
 #, fuzzy
