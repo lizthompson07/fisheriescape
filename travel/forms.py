@@ -578,3 +578,21 @@ class TripRequestCostForm(forms.ModelForm):
             'amount_cad': forms.NumberInput(attrs={"class": "by-amount"}),
             # 'cost': forms.Select(attrs=chosen_js),
         }
+
+
+
+class DefaultReviewerForm(forms.ModelForm):
+    class Meta:
+        model = models.DefaultReviewer
+        fields = "__all__"
+        widgets = {
+            "user": forms.Select(attrs=chosen_js),
+            "sections": forms.SelectMultiple(attrs=chosen_js),
+            "branches": forms.SelectMultiple(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        section_choices = [(s.id, s.full_name) for s in shared_models.Section.objects.all()]
+        branch_choices = [(b.id, f"{b} ({b.region})") for b in shared_models.Branch.objects.all()]
+        self.fields["sections"].choices = section_choices

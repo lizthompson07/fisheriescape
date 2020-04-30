@@ -1605,6 +1605,50 @@ def manage_njc_rates(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
+
+# Default Reviewer Settings
+
+class DefaultReviewerListView(TravelAdminRequiredMixin, ListView):
+    model = models.DefaultReviewer
+    template_name = 'travel/default_reviewer_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'user',
+            'sections',
+            'branches',
+        ]
+        context["random_object"] = self.object_list.first()
+        return context
+
+
+class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.DefaultReviewer
+    form_class = forms.DefaultReviewerForm
+    success_url = reverse_lazy('travel:default_reviewer_list')
+    template_name = 'travel/default_reviewer_form.html'
+
+
+class DefaultReviewerCreateView(TravelAdminRequiredMixin, CreateView):
+    model = models.DefaultReviewer
+    form_class = forms.DefaultReviewerForm
+    success_url = reverse_lazy('travel:default_reviewer_list')
+    template_name = 'travel/default_reviewer_form.html'
+
+
+class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
+    model = models.DefaultReviewer
+    success_url = reverse_lazy('travel:default_reviewer_list')
+    success_message = 'The default reviewer was successfully deleted!'
+    template_name = 'travel/default_reviewer_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+
 # FILES #
 #########
 
