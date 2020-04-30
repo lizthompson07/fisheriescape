@@ -81,6 +81,13 @@ urlpatterns = [
     path('settings/njc-rates/', views.manage_njc_rates, name="manage_njc_rates"),
     path('settings/njc-rate/<int:pk>/delete/', views.delete_njc_rate, name="delete_njc_rate"),
 
+    # default reviewer settings
+    path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),
+    path('default-reviewer/new/', views.DefaultReviewerCreateView.as_view(), name="default_reviewer_new"),
+    path('default-reviewer/<int:pk>/edit/', views.DefaultReviewerUpdateView.as_view(), name="default_reviewer_edit"),
+    path('default-reviewer/<int:pk>/delete/', views.DefaultReviewerDeleteView.as_view(), name="default_reviewer_delete"),
+
+
     # TRIP REQUEST COST #
     #####################
     path('trip-request/<int:trip_request>/cost/new/', views.TRCostCreateView.as_view(), name="tr_cost_new"),

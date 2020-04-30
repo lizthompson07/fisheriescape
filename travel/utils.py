@@ -13,34 +13,35 @@ from . import emails
 from shared_models import models as shared_models
 
 # eventually this should turn into a table in the DB!!
-division_reviewer_dict = {
-    # MAR
-    11: 1095,  # CESD --> Mar - CESD - Admin
-    15: 1102,  # RDSO --> Mar - RDSO - Admin
-    16: 530,  # SPAD --> Christina Maclean
-    17: 1101,  # PED --> Mar - PED - Admin
-    18: 1100,  # OESD --> Mar - OESD - Admin
-    19: 1103,  # CHS --> Ashley Macdonald
+# division_reviewer_dict = {
+#     # MAR
+#     11: 1095,  # CESD --> Mar - CESD - Admin
+#     15: 1102,  # RDSO --> Mar - RDSO - Admin
+#     16: 530,  # SPAD --> Christina Maclean
+#     17: 1101,  # PED --> Mar - PED - Admin
+#     18: 1100,  # OESD --> Mar - OESD - Admin
+#     19: 1103,  # CHS --> Ashley Macdonald
+#
+#     # GULF
+#     1: 385,  # Aquatic health --> Amelie Robichaud
+#     2: 385,  # Fisheries and Ecosystems --> Amelie Robichaud
+#     3: 385,  # RDSO --> Amelie Robichaud
+# }
 
-    # GULF
-    1: 385,  # Aquatic health --> Amelie Robichaud
-    2: 385,  # Fisheries and Ecosystems --> Amelie Robichaud
-    3: 385,  # RDSO --> Amelie Robichaud
-}
 
 def get_reviewers(trip_request):
     # assuming there is a section, assign amelie and section management
     if trip_request.section:
 
-        # look to the section --> division and see who the reviewer is based on the above dict
+        # section level reviewer
         try:
-            my_user = User.objects.get(pk=division_reviewer_dict[trip_request.section.division.id])
-            models.Reviewer.objects.get_or_create(trip_request=trip_request, user=my_user, role_id=1)
-        except (IntegrityError, KeyError, User.DoesNotExist):
-            # print("not adding a reviewer")
+            # add each default reviewer to the queue
+            for default_reviewer in trip_request.section.travel_default_reviewers.all():
+                models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role_id=1)
+        except (IntegrityError, KeyError):
             pass
 
-        # try adding section head, division manager and rds
+        # section level recommender  - only applies if this is not the section head
         try:
             # if the division head is the one creating the request, the section head should be skipped as a recommender AND
             # if the section head is the one creating the request, they should be skipped as a recommender
@@ -49,6 +50,8 @@ def get_reviewers(trip_request):
         except (IntegrityError, AttributeError):
             pass
             # print("not adding section head")
+
+        # division level recommender  - only applies if this is not the division manager
         try:
             # if the division head is the one creating the request, they should be skipped as a recommender
             if trip_request.user != trip_request.section.division.head:
@@ -57,11 +60,24 @@ def get_reviewers(trip_request):
             pass
             # print("not adding division manager")
 
+        # Branch level reviewer - only applies if this is not the RDS
         try:
             if trip_request.user != trip_request.section.division.branch.head:
+                # TODO: DOES THE BRANCH HAVE A DEFAULT REVIEWER?
+                # add each default reviewer to the queue
+                for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.all():
+                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role_id=1)
+
+
                 if trip_request.section.division.branch.region_id == 2:
                     my_user = User.objects.get(pk=1102)
-                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user=my_user, role_id=1, ) # MAR RDSO ADMIN user
+                    models.Reviewer.objects.get_or_create(trip_request=trip_request, user=my_user, role_id=1, )  # MAR RDSO ADMIN user
+        except (IntegrityError, AttributeError, User.DoesNotExist):
+            pass
+
+        # Branch level recommender  - only applies if this is not the RDS
+        try:
+            if trip_request.user != trip_request.section.division.branch.head:
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user=trip_request.section.division.branch.head,
                                                       role_id=2, )
         except (IntegrityError, AttributeError, User.DoesNotExist):
