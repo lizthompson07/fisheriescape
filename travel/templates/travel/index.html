@@ -11,9 +11,15 @@
             border: black solid 1px;
             margin-left: 25px;
             margin-right: 25px;
+            border-radius: 25px;
         }
-
-
+        .card{
+            background-color: rgba(255, 255, 255, 1);
+        }
+        .btn-primary{
+            background-color: #79aec8;
+            border: grey;
+        }
         .container-fluid, .container {
             border-radius: 25px;
             margin-top: 15px;
@@ -31,10 +37,14 @@
     <div class="container">
         <div class="jumbotron py-3">
             <h1 class="three-em center-col">
-                {% trans "Travel Management System" %}
-                {% trans "(Pre-approval to Travel)" %}
+                {% trans "DFO Science Travel Management System" %}
             </h1>
-        </div>
+        <h4 class="center-col">
+            <em>
+                {% trans '"Get Your Pre-approval to Travel Today!!"' %}
+            </em>
+        </h4>
+{#        </div>#}
 
         <br>
         <br>
@@ -52,7 +62,9 @@
                 <div class="card-body">
                     <h5 class="card-title">{% trans "Create a New Request" %}</h5>
                     <p class="card-text">{% trans "Create a new individual or group request to travel" %}</p>
+                    <div class="center-col">
                     <a href="{{ event_new_url }}" class="btn btn-primary">{% trans "Go" %}</a>
+                    </div>
                 </div>
             </div>
 
@@ -63,7 +75,9 @@
                     <div class="card-body">
                         <h5 class="card-title">{% trans "View Your Requests" %} ({{ user.user_trip_requests.count }})</h5>
                         <p class="card-text">{% trans "View any current or old trip requests that you have created in the past" %}</p>
+                        <div class="center-col">
                         <a href="{{ your_url }}{{ user.id }}" class="btn btn-primary">{% trans "Go" %}</a>
+                        </div>
                     </div>
                 </div>
             {% endif %}
@@ -72,15 +86,15 @@
                 <div class="card-body">
                     <h5 class="card-title">{% trans "View All Requests" %}</h5>
                     <p class="card-text">{% trans "View a full list of trip requests in the system accross all DFO regions" %}</p>
+                    <div class="center-col">
                     <a href="{{ event_list_url }}" class="btn btn-primary">{% trans "Go" %}</a>
-                    <span class="px-3">
-
-                        </span>
+                    </div>
+{#                    <span class="px-3">#}
+{##}
+{#                        </span>#}
                 </div>
             </div>
         </div>
-        <br>
-        <br>
         <br>
 
         <div class="row mb-4 justify-content-center">
