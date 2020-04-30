@@ -81,13 +81,13 @@ class TestTripUpdateView(CommonTest):
         self.test_url = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk})
         self.expected_template = 'travel/trip_form.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
+
     @tag("travel", 'update', "view")
     def test_view_class(self):
         self.assert_inheritance(views.TripUpdateView, UpdateView)
 
     @tag("travel", 'update', "access")
     def test_view(self):
-
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
@@ -167,3 +167,27 @@ class TestTripVerifyUpdateViewPopout(CommonTest):
     def test_submit(self):
         data = FactoryFloor.TripFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.admin_user)
+
+
+class TestDefaultReviewerUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.DefaultReviewerFactory()
+        self.test_url = reverse_lazy('travel:default_reviewer_edit', kwargs={"pk": self.instance.user.pk})
+        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.expected_template = 'travel/default_reviewer_form.html'
+
+    @tag("default_reviewer_edit", 'update', "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.DefaultReviewerUpdateView, UpdateView)
+
+    @tag("default_reviewer_edit", 'update', "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
+
+    @tag("default_reviewer_edit", 'update', "submit")
+    def test_submit(self):
+        data = FactoryFloor.DefaultReviewerFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.admin_user)
+
