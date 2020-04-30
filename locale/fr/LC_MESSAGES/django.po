@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-29 12:03-0300\n"
+"POT-Creation-Date: 2020-04-30 08:51-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1057,7 +1057,7 @@ msgstr "Système de billetterie de gestion de données"
 msgid "Submit and track data management service requests."
 msgstr "Soumettez et suivez les demandes de service de gestion de données."
 
-#: .\dm_apps\views.py:57 .\travel\templates\travel\index.html:34
+#: .\dm_apps\views.py:57
 msgid "Travel Management System"
 msgstr "Système de gestion de voyage"
 
@@ -2507,9 +2507,9 @@ msgstr ""
 #: .\inventory\templates\inventory\index.html:43
 #: .\inventory\templates\inventory\index.html:52
 #: .\inventory\templates\inventory\index.html:61
-#: .\travel\templates\travel\index.html:55
 #: .\travel\templates\travel\index.html:66
-#: .\travel\templates\travel\index.html:75
+#: .\travel\templates\travel\index.html:79
+#: .\travel\templates\travel\index.html:90
 msgid "Go"
 msgstr ""
 
@@ -4019,7 +4019,7 @@ msgstr "fra_text"
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: .\projects\models.py:283 .\travel\templates\travel\index.html:144
+#: .\projects\models.py:283 .\travel\templates\travel\index.html:158
 msgid "National"
 msgstr "National"
 
@@ -7894,7 +7894,9 @@ msgstr "Voulez-vous réinitialiser la liste des examinateurs?"
 msgid ""
 "Other attendees covered under BTA (i.e., they will not need to have a travel "
 "plan)"
-msgstr "Autres participants couverts par la AGV (c'est-à-dire qu'ils n'auront pas besoin d'avoir un plan de voyage)"
+msgstr ""
+"Autres participants couverts par la AGV (c'est-à-dire qu'ils n'auront pas "
+"besoin d'avoir un plan de voyage)"
 
 #: .\travel\forms.py:224 .\travel\forms.py:227 .\travel\forms.py:385
 #: .\travel\forms.py:388
@@ -7921,13 +7923,17 @@ msgstr ""
 msgid ""
 "The abstract deadline of the trip (if present) must occur before the start "
 "date."
-msgstr "La date limite pour le résumé (s'il est présent) doit être antérieure à la date de début."
+msgstr ""
+"La date limite pour le résumé (s'il est présent) doit être antérieure à la "
+"date de début."
 
 #: .\travel\forms.py:401
 msgid ""
 "The registration deadline of the trip (if present) must occur before or on "
 "the start date."
-msgstr "La date limite d'inscription du voyage (le cas échéant) doit avoir lieu avant ou à la date de début."
+msgstr ""
+"La date limite d'inscription du voyage (le cas échéant) doit avoir lieu "
+"avant ou à la date de début."
 
 #: .\travel\forms.py:417 .\travel\templates\travel\_trip_detail.html:153
 #: .\travel\templates\travel\trip_detail.html:181
@@ -8391,9 +8397,13 @@ msgid "Skip"
 msgstr "Sauter"
 
 #: .\travel\templates\travel\_reviewers.html:99
+#, fuzzy
+#| msgid ""
+#| "No reviewers, recommenders or approvers have been added to this project."
 msgid ""
-"No reviewers, recommenders or approvers have been added to this project."
-msgstr "Aucun critique, recommandateur ou approbateur n'a été ajouté à ce projet."
+"No reviewers, recommenders or approvers have been added to this request."
+msgstr ""
+"Aucun critique, recommandateur ou approbateur n'a été ajouté à ce projet."
 
 #: .\travel\templates\travel\_trip_detail.html:13
 msgid "Trip Detail"
@@ -8560,67 +8570,82 @@ msgstr ""
 msgid "Attendence to Conferences and International Trips"
 msgstr "Participation à des conférences et voyages internationaux"
 
-#: .\travel\templates\travel\index.html:35
-msgid "(Pre-approval to Travel)"
+#: .\travel\templates\travel\index.html:40
+#, fuzzy
+#| msgid "Travel Management System"
+msgid "DFO Science Travel Management System"
+msgstr "Système de gestion de voyage"
+
+#: .\travel\templates\travel\index.html:44
+#, fuzzy
+#| msgid "(Pre-approval to Travel)"
+msgid "\"Get Your Pre-approval to Travel Today!!\""
 msgstr "(Pré-approbation pour voyager)"
 
-#: .\travel\templates\travel\index.html:53
+#: .\travel\templates\travel\index.html:63
 msgid "Create a New Request"
 msgstr "Créer une nouvelle demande"
 
-#: .\travel\templates\travel\index.html:54
+#: .\travel\templates\travel\index.html:64
 msgid "Create a new individual or group request to travel"
 msgstr "Créer une nouvelle demande de voyage individuelle ou de groupe"
 
-#: .\travel\templates\travel\index.html:64
+#: .\travel\templates\travel\index.html:76
 msgid "View Your Requests"
 msgstr "Afficher vos demandes"
 
-#: .\travel\templates\travel\index.html:65
+#: .\travel\templates\travel\index.html:77
 msgid "View any current or old trip requests that you have created in the past"
-msgstr "Afficher toutes les demandes de voyage actuelles ou anciennes que vous avez créées dans le passé"
+msgstr ""
+"Afficher toutes les demandes de voyage actuelles ou anciennes que vous avez "
+"créées dans le passé"
 
-#: .\travel\templates\travel\index.html:73
+#: .\travel\templates\travel\index.html:87
 msgid "View All Requests"
 msgstr "Afficher toutes les demandes"
 
-#: .\travel\templates\travel\index.html:74
+#: .\travel\templates\travel\index.html:88
 msgid "View a full list of trip requests in the system accross all DFO regions"
-msgstr "Afficher une liste complète des demandes de déplacement dans le système dans toutes les régions du MPO"
+msgstr ""
+"Afficher une liste complète des demandes de déplacement dans le système dans "
+"toutes les régions du MPO"
 
-#: .\travel\templates\travel\index.html:94
+#: .\travel\templates\travel\index.html:108
 msgid "Your Reviews"
 msgstr "Vos avis"
 
-#: .\travel\templates\travel\index.html:95
+#: .\travel\templates\travel\index.html:109
 msgid "View and manage trip requests for which you are a reviewers"
-msgstr "Affichez et gérez les demandes de voyage pour lesquelles vous êtes des réviseurs"
+msgstr ""
+"Affichez et gérez les demandes de voyage pour lesquelles vous êtes des "
+"réviseurs"
 
-#: .\travel\templates\travel\index.html:98
+#: .\travel\templates\travel\index.html:112
 msgid "Trip requests awaiting your review"
 msgstr "Demandes de voyage en attente de votre avis"
 
-#: .\travel\templates\travel\index.html:104
+#: .\travel\templates\travel\index.html:118
 msgid "Trip requests assigned to you"
 msgstr "Demandes de voyage qui vous sont attribuées"
 
-#: .\travel\templates\travel\index.html:117
+#: .\travel\templates\travel\index.html:131
 msgid "Travel Admin Console"
 msgstr ""
 
-#: .\travel\templates\travel\index.html:118
+#: .\travel\templates\travel\index.html:132
 msgid "Perform tasks reserved for travel app administrators"
-msgstr "Effectuer des tâches réservées aux administrateurs d'applications de voyage"
+msgstr ""
+"Effectuer des tâches réservées aux administrateurs d'applications de voyage"
 
-#: .\travel\templates\travel\index.html:121
+#: .\travel\templates\travel\index.html:135
 msgid "Trip requests awaiting approval from ADM:"
 msgstr "Demandes de voyage en attente de l'approbation du SMA :"
 
-#: .\travel\templates\travel\index.html:131
+#: .\travel\templates\travel\index.html:145
 msgid "Trip requests awaiting approval from RDG:"
 msgstr "Demandes de voyage en attente de l'approbation du DGR :"
 
-#: .\travel\templates\travel\index.html:140
+#: .\travel\templates\travel\index.html:154
 msgid "Trips awaiting verification:"
 msgstr "Voyages en attente de vérification :"
 

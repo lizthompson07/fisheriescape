@@ -21,16 +21,16 @@
 
     </style>
     {% trans "Trips Awaiting Verfication" as my_title %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ my_title }}</li>
-        </ol>
-    </nav>
 
     <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                    {% trans "Home" %}
+                </a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ my_title }}</li>
+            </ol>
+        </nav>
 
         <div class="mb-3">
             <h1 class="big-header">{{ my_title }}</h1>

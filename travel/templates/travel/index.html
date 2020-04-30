@@ -13,13 +13,16 @@
             margin-right: 25px;
             border-radius: 25px;
         }
-        .card{
+
+        .card {
             background-color: rgba(255, 255, 255, 1);
         }
-        .btn-primary{
+
+        .btn-primary {
             background-color: #79aec8;
             border: grey;
         }
+
         .container-fluid, .container {
             border-radius: 25px;
             margin-top: 15px;
@@ -29,22 +32,26 @@
 
         }
 
-        .subtitle {
+        .subtitle, .subtitle-success {
             font-size: 16px;
             font-weight: bold;
         }
+
+        .subtitle-success {
+            color: green;
+        }
+
     </style>
     <div class="container">
-        <div class="jumbotron py-3">
-            <h1 class="three-em center-col">
-                {% trans "DFO Science Travel Management System" %}
-            </h1>
+    <div class="jumbotron py-3">
+        <h1 class="three-em center-col">
+            {% trans "DFO Science Travel Management System" %}
+        </h1>
         <h4 class="center-col">
             <em>
                 {% trans '"Get Your Pre-approval to Travel Today!!"' %}
             </em>
         </h4>
-{#        </div>#}
 
         <br>
         <br>
@@ -63,7 +70,7 @@
                     <h5 class="card-title">{% trans "Create a New Request" %}</h5>
                     <p class="card-text">{% trans "Create a new individual or group request to travel" %}</p>
                     <div class="center-col">
-                    <a href="{{ event_new_url }}" class="btn btn-primary">{% trans "Go" %}</a>
+                        <a href="{{ event_new_url }}" class="btn btn-primary">{% trans "Go" %}</a>
                     </div>
                 </div>
             </div>
@@ -76,7 +83,7 @@
                         <h5 class="card-title">{% trans "View Your Requests" %} ({{ user.user_trip_requests.count }})</h5>
                         <p class="card-text">{% trans "View any current or old trip requests that you have created in the past" %}</p>
                         <div class="center-col">
-                        <a href="{{ your_url }}{{ user.id }}" class="btn btn-primary">{% trans "Go" %}</a>
+                            <a href="{{ your_url }}{{ user.id }}" class="btn btn-primary">{% trans "Go" %}</a>
                         </div>
                     </div>
                 </div>
@@ -87,11 +94,8 @@
                     <h5 class="card-title">{% trans "View All Requests" %}</h5>
                     <p class="card-text">{% trans "View a full list of trip requests in the system accross all DFO regions" %}</p>
                     <div class="center-col">
-                    <a href="{{ event_list_url }}" class="btn btn-primary">{% trans "Go" %}</a>
+                        <a href="{{ event_list_url }}" class="btn btn-primary">{% trans "Go" %}</a>
                     </div>
-{#                    <span class="px-3">#}
-{##}
-{#                        </span>#}
                 </div>
             </div>
         </div>
@@ -138,6 +142,10 @@
                                 {{ tag }}
                             {% endfor %}
                             <br><br>
+                        {% else %}
+                            <span class="subtitle-success">
+                            {% trans "There are no requests currently awaiting ADM approval" %}
+                            </span><br>
                         {% endif %}
 
                         {% if rdg_number_waiting %}
@@ -148,7 +156,12 @@
                                 {{ tag }}
                             {% endfor %}
                             <br><br>
+                        {% else %}
+                            <span class="subtitle-success">
+                            {% trans "There are no requests currently awaiting RDG approval" %}
+                            </span><br>
                         {% endif %}
+
                         {% if unverified_trips %}
                             <span class="subtitle">
                             {% trans "Trips awaiting verification:" %}
@@ -163,6 +176,10 @@
                                 {{ tag }}
                             {% endfor %}
                             <br><br>
+                        {% else %}
+                            <span class="subtitle-success">
+                            {% trans "There are no trips currently awaiting verification" %}
+                            </span><br>
                         {% endif %}
 
 
