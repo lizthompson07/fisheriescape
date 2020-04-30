@@ -5,21 +5,21 @@
 
 {% block content %}
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">
-                {% trans "Trips" %}
-            </a></li>
-            <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Delete" %}
-            </li>
-        </ol>
-    </nav>
 
     <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                    {% trans "Home" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">
+                    {% trans "Trips" %}
+                </a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% trans "Delete" %}
+                </li>
+            </ol>
+        </nav>
         <h1>Are you sure you want to delete <em>{{ object }}</em> from the database?</h1>
         <p>(You will not be able to delete this object if is attached to another record.)</p>
 

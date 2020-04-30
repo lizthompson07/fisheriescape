@@ -25,19 +25,19 @@
 
 
     </style>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
-                {% trans "Trip Requests" %}
-            </a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
-        </ol>
-    </nav>
 
     <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                    {% trans "Home" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
+                    {% trans "Trip Requests" %}
+                </a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
+            </ol>
+        </nav>
         <h1>{{ object }}</h1>
         {% if is_current_reviewer and object.submitted %}
             <h3 class="red-font">{% trans "You are able to edit this record because you are " %}
