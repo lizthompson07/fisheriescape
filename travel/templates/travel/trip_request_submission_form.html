@@ -26,26 +26,26 @@
         }
     </style>
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
-                {% trans "Trip Requests" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">
-                {% if object.submitted %}
-                    {% trans "Un-submit Request" %}
-                {% else %}
-                    {% trans "Submit Request" %}
-                {% endif %}
-            </li>
-        </ol>
-    </nav>
 
     <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                    {% trans "Home" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
+                    {% trans "Trip Requests" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% if object.submitted %}
+                        {% trans "Un-submit Request" %}
+                    {% else %}
+                        {% trans "Submit Request" %}
+                    {% endif %}
+                </li>
+            </ol>
+        </nav>
         {% if object.submitted %}
             <h2 class="red-font">
             {% trans "WARNING: Un-submitting this request will reset the status of any exisitng recommendations and/or approvals." %}

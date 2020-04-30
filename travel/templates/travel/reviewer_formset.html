@@ -22,22 +22,22 @@
 
     </style>
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
-                {% trans "Trip Requests" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' triprequest.id %}">{{ triprequest }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Manage Reviewers" %}
-            </li>
-        </ol>
-    </nav>
 
     <div class="container-fluid">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                    {% trans "Home" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
+                    {% trans "Trip Requests" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' triprequest.id %}">{{ triprequest }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {% trans "Manage Reviewers" %}
+                </li>
+            </ol>
+        </nav>
         <h1>
             {% trans "Managing Reviewers:" %}
         </h1>
