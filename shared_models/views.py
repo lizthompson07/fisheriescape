@@ -23,6 +23,27 @@ class CloserNoRefreshTemplateView(TemplateView):
 # SECTION #
 ###########
 
+class SectionListView(LoginRequiredMixin, FilterView):
+    model = models.Section
+    template_name = 'shared_models/section_form.html'
+    form_class = forms.SectionForm
+
+    def get_initial(self):
+        return {
+            "last_modified_by": self.request.user,
+        }
+
+    def form_valid(self, form):
+        object = form.save()
+
+        # finally close the form
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
 class SectionUpdateView(LoginRequiredMixin, UpdateView):
     model = models.Section
     template_name = 'shared_models/section_form.html'
@@ -42,6 +63,7 @@ class SectionUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
 
 
 class SectionCreateView(LoginRequiredMixin, CreateView):
