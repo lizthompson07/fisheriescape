@@ -1,0 +1,53 @@
+{% extends 'pop_base.html' %}
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_tags %}
+{% load custom_filters %}
+{% block body %}
+
+    <div class="container">
+
+        {% load static %}
+        {# Load js file to allow for popout window #}
+        <h1>
+            {{ title }}{% if object %} {{ object }}{% endif %}
+        </h1>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            {% for field in form %}
+                {% bootstrap_field field %}
+            {% endfor %}
+
+            <p>
+                <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
+                {% if object %}
+                    {% echo "shared_models:"|add:model_name|add:"_delete" as my_var %}
+                    <a class="btn btn-danger" href="{% url my_var object.id %}">{% trans "Delete" %}</a>
+                {% endif %}
+                <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
+            </p>
+        </form>
+
+
+        {% if object %}
+            <div class="mb-4">
+                <div class="mb-3">
+                    <h3 style="font-weight: bold">This {{ model_name }} is related to the following items in the DM Apps database</h3>
+                </div>
+                {% for name in related_names %}
+                    <h4>{{ name }}</h4>
+                    <ul>
+                        {% for item in related_names|lookup:name %}
+                            <li>{{ item }}</li>
+                        {% empty %}
+                            <em>none :)</em>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+{% endblock %}
