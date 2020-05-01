@@ -37,6 +37,14 @@ class RegionFactory(factory.django.DjangoModelFactory):
 
     name = factory.LazyAttribute(lambda o: faker.word())
 
+    @staticmethod
+    def get_valid_data():
+        return {
+            'head': UserFactory().id,
+            'name': faker.word(),
+            'abbrev': faker.word()[:6],
+        }
+
 
 class BranchFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -44,6 +52,15 @@ class BranchFactory(factory.django.DjangoModelFactory):
 
     region = factory.SubFactory(RegionFactory)
     name = factory.LazyAttribute(lambda o: faker.word())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'region': RegionFactory().id,
+            'head': UserFactory().id,
+            'name': faker.word(),
+            'abbrev': faker.word()[:6],
+        }
 
 
 class DivisionFactory(factory.django.DjangoModelFactory):
@@ -53,6 +70,15 @@ class DivisionFactory(factory.django.DjangoModelFactory):
     branch = factory.SubFactory(BranchFactory)
     name = factory.LazyAttribute(lambda o: faker.word())
 
+    @staticmethod
+    def get_valid_data():
+        return {
+            'branch': BranchFactory().id,
+            'head': UserFactory().id,
+            'name': faker.word(),
+            'abbrev': faker.word()[:6],
+        }
+
 
 class SectionFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -61,3 +87,12 @@ class SectionFactory(factory.django.DjangoModelFactory):
     division = factory.SubFactory(DivisionFactory)
     head = factory.SubFactory(UserFactory)
     name = factory.LazyAttribute(lambda o: faker.word())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'division': DivisionFactory().id,
+            'head': UserFactory().id,
+            'name': faker.word(),
+            'abbrev': faker.word()[:6],
+        }
