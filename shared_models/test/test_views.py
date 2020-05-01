@@ -1,10 +1,11 @@
-from django.test import TestCase, tag,  RequestFactory
+from django.test import TestCase, tag, RequestFactory
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.views.generic import CreateView, UpdateView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView, TemplateView
 from django_filters.views import FilterView
 
 from shared_models import views, models
-
+from .common_tests import CommonTest
 
 EXPECTED_LOGIN_URL = '/accounts/login_required/'
 EXPECTED_FORM_TEMPLATE_NAME = 'shared_models/shared_entry_form.html'
@@ -16,7 +17,6 @@ EXPECTED_MOCK_TITLE = "Mock Title"
 # This is used to simulate calling the as_veiw() function normally called in the urls.py
 # this will return a view that can then have it's internal methods tested
 def setup_view(view, request, *args, **kwargs):
-
     view.request = request
     view.args = args
     view.kwargs = kwargs
@@ -29,7 +29,6 @@ def setup_view(view, request, *args, **kwargs):
 #
 # #################################################################################
 class TestCommonCommon(TestCase):
-
     view = None
 
     def setUp(self) -> None:
@@ -140,7 +139,6 @@ class TestCommonCommon(TestCase):
 
 # mock example of extending the create common view used in testing
 class MockCreateCommon(views.CreateCommon):
-
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
@@ -234,7 +232,6 @@ class TestCreateCommon(TestCase):
 
 # mock example of extending the update common view used in testing, virtually the same as CreateCommon
 class MockUpdateCommonView(views.UpdateCommon):
-
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
@@ -324,7 +321,6 @@ class TestUpdateCommon(TestCase):
 # #################################################################################
 
 class MockFilterCommonView(views.FilterCommon):
-
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
@@ -360,3 +356,24 @@ class TestFilterCommon(TestCase):
 
         view.auth = False
         self.assertFalse(view.get_context_data()['auth'])
+
+
+class TestIndexTemplateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('shared_models:index')
+        self.expected_template = 'shared_models/pop_index.html'
+        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+        self.admin_user1 = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("index", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.IndexTemplateView, TemplateView)
+        self.assert_inheritance(views.IndexTemplateView, views.AdminRequiredMixin)
+
+    @tag("index", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user1)
+
