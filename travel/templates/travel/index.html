@@ -74,30 +74,38 @@
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#traveller">{% trans "Traveller" %}</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#reviewer">
-                            {% trans "Reviewer" %}
-                            {% if number_waiting %} (<span class="red-font blink-me">{{ number_waiting }}</span>) {% endif %}
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#adm">
-                            {% trans "ADM" %}
-                            {% if adm_number_waiting %} (<span class="red-font blink-me">{{ adm_number_waiting }}</span>) {% endif %}
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#rdg">
-                            {% trans "RDG" %}
-                            {% if rdg_number_waiting %} (<span class="red-font blink-me">{{ rdg_number_waiting }}</span>) {% endif %}
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-toggle="tab" href="#verification">
-                            {% trans "Trip Verifications" %}
-                            {% if unverified_trips %} (<span class="red-font blink-me">{{ unverified_trips }}</span>) {% endif %}
-                        </a>
-                    </li>
+                    {% if is_reviewer %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#reviewer">
+                                {% trans "Reviewer" %}
+                                {% if number_waiting %} (<span class="red-font blink-me">{{ number_waiting }}</span>) {% endif %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#adm">
+                                {% trans "ADM" %}
+                                {% if adm_number_waiting %} (<span class="red-font blink-me">{{ adm_number_waiting }}</span>) {% endif %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#rdg">
+                                {% trans "RDG" %}
+                                {% if rdg_number_waiting %} (<span class="red-font blink-me">{{ rdg_number_waiting }}</span>) {% endif %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% if is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#verification">
+                                {% trans "Trip Verifications" %}
+                                {% if unverified_trips %} (<span class="red-font blink-me">{{ unverified_trips }}</span>) {% endif %}
+                            </a>
+                        </li>
+                    {% endif %}
                 </ul>
 
                 <!-- Tab panes -->
@@ -139,100 +147,111 @@
                             </div>
                         </div>
                     </div>
+                    {% if is_reviewer %}
 
-                    <div id="reviewer" class="container tab-pane fade"><br>
-                        {% echo event_list_url|add:"?user=" as your_url %}
+                        <div id="reviewer" class="container tab-pane fade"><br>
+                            {% echo event_list_url|add:"?user=" as your_url %}
 
-                        <h5 class="">{% trans "Your Reviews" %}</h5>
-                        <p class="card-text">{% trans "View and manage trip requests for which you are a reviewer" %}</p>
-                        <div class="mb-3">
-                            {% if number_waiting > 0 %}
-                                <a href="{{ event_approval_list_url }}" class="btn btn-outline-dark">
-                                    {% trans "Trip requests awaiting your review" %}
-                                    (<span class="red-font blink-me">{{ number_waiting }}</span>)
-                                </a>
-                            {% else %}
-                                <span class="subtitle-success">
+                            <h5 class="">{% trans "Your Reviews" %}</h5>
+                            <p class="card-text">{% trans "View and manage trip requests for which you are a reviewer" %}</p>
+                            <div class="mb-3">
+                                {% if number_waiting > 0 %}
+                                    <a href="{{ event_approval_list_url }}" class="btn btn-outline-dark">
+                                        {% trans "Trip requests awaiting your review" %}
+                                        (<span class="red-font blink-me">{{ number_waiting }}</span>)
+                                    </a>
+                                {% else %}
+                                    <span class="subtitle-success">
                                     {% trans "There are no requests currently awaiting your review" %}
                                 </span><br>
-                            {% endif %}
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                <a href="{{ event_assigned_list_url }}" class="btn btn-outline-dark">
+                                    {% trans "Trip requests assigned to you" %}
+                                    (<span>{{ user.reviewers.count }}</span>)
+                                </a>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <a href="{{ event_assigned_list_url }}" class="btn btn-outline-dark">
-                                {% trans "Trip requests assigned to you" %}
-                                (<span>{{ user.reviewers.count }}</span>)
-                            </a>
-                        </div>
-                    </div>
-                    <div id="adm" class="container tab-pane fade"><br>
-                        {% echo event_list_url|add:"?user=" as your_url %}
+                    {% endif %}
+                    {% if is_admin %}
 
-                        <h5 class="card-title">{% trans "ADM Menu" %}</h5>
-                        <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
-                        {% if adm_number_waiting %}
-                            <span class="subtitle">
+                        <div id="adm" class="container tab-pane fade"><br>
+                            {% echo event_list_url|add:"?user=" as your_url %}
+
+                            <h5 class="card-title">{% trans "ADM Menu" %}</h5>
+                            <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
+                            {% if adm_number_waiting %}
+                                <span class="subtitle">
                                 {% trans "Trip requests awaiting approval from ADM:" %} &nbsp;
                             </span><br>
-                            {% for tag in my_dict|lookup:"adm_tags" %}
-                                {{ tag }}
-                            {% endfor %}
-                            <br><br>
-                        {% else %}
-                            <span class="subtitle-success">
+                                {% for tag in my_dict|lookup:"adm_tags" %}
+                                    {{ tag }}
+                                {% endfor %}
+                                <br><br>
+                            {% else %}
+                                <span class="subtitle-success">
                             {% trans "There are no requests currently awaiting ADM approval" %}
                             </span><br>
-                        {% endif %}
+                            {% endif %}
 
 
-                    </div>
-                    <div id="rdg" class="container tab-pane fade"><br>
-                        {% echo event_list_url|add:"?user=" as your_url %}
+                        </div>
+                    {% endif %}
+                    {% if is_admin %}
 
-                        <h5 class="card-title">{% trans "RDG Menu" %}</h5>
-                        <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
-                        {% if rdg_number_waiting %}
-                            <span class="subtitle">
+                        <div id="rdg" class="container tab-pane fade"><br>
+                            {% echo event_list_url|add:"?user=" as your_url %}
+
+                            <h5 class="card-title">{% trans "RDG Menu" %}</h5>
+                            <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
+                            {% if rdg_number_waiting %}
+                                <span class="subtitle">
                             {% trans "Trip requests awaiting approval from RDG:" %}
                             </span><br>
-                            {% for tag in my_dict|lookup:"rdg_tags" %}
-                                {{ tag }}
-                            {% endfor %}
-                            <br><br>
-                        {% else %}
-                            <span class="subtitle-success">
+                                {% for tag in my_dict|lookup:"rdg_tags" %}
+                                    {{ tag }}
+                                {% endfor %}
+                                <br><br>
+                            {% else %}
+                                <span class="subtitle-success">
                             {% trans "There are no requests currently awaiting RDG approval" %}
                             </span><br>
-                        {% endif %}
+                            {% endif %}
 
 
-                    </div>
-                    <div id="verification" class="container tab-pane fade"><br>
-                        {% echo event_list_url|add:"?user=" as your_url %}
+                        </div>
+                    {% endif %}
+                    {% if is_admin %}
 
-                        <h5 class="card-title">{% trans "Trip Verification Menu" %}</h5>
-                        <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
+                        <div id="verification" class="container tab-pane fade"><br>
+                            {% echo event_list_url|add:"?user=" as your_url %}
 
-                        {% if unverified_trips %}
-                            <span class="subtitle">
+                            <h5 class="card-title">{% trans "Trip Verification Menu" %}</h5>
+                            <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
+
+                            {% if unverified_trips %}
+                                <span class="subtitle">
                             {% trans "Trips awaiting verification:" %}
                             </span><br>
-                            {% if adm_unverified_trips %}
-                                <a href="{{ adm_trip_verification_list_url }}" class="btn btn-outline-dark">
-                                    {% trans "National" %} (<span
-                                        class="{% if adm_unverified_trips > 0 %}red-font blink-me{% endif %}">{{ adm_unverified_trips }}</span>)
-                                </a>
-                            {% endif %}
-                            {% for tag in my_dict|lookup:"trip_tags" %}
-                                {{ tag }}
-                            {% endfor %}
-                            <br><br>
-                        {% else %}
-                            <span class="subtitle-success">
+                                {% if adm_unverified_trips %}
+                                    <a href="{{ adm_trip_verification_list_url }}" class="btn btn-outline-dark">
+                                        {% trans "National" %} (<span
+                                            class="{% if adm_unverified_trips > 0 %}red-font blink-me{% endif %}">{{ adm_unverified_trips }}</span>)
+                                    </a>
+                                {% endif %}
+                                {% for tag in my_dict|lookup:"trip_tags" %}
+                                    {{ tag }}
+                                {% endfor %}
+                                <br><br>
+                            {% else %}
+                                <span class="subtitle-success">
                             {% trans "There are no trips currently awaiting verification" %}
                             </span><br>
-                        {% endif %}
+                            {% endif %}
 
-                    </div>
+                        </div>
+                    {% endif %}
                 </div>
 
             </div>
@@ -240,19 +259,6 @@
 
         <br>
 
-        <div class="row mb-4 justify-content-center">
-
-
-            {% if is_reviewer %}
-
-            {% endif %}
-
-            {% if is_admin %}
-
-            {% endif %}
-
-
-        </div>
 
 
     </div>
