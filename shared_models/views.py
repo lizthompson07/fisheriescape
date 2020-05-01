@@ -49,18 +49,18 @@ class IndexTemplateView(AdminRequiredMixin, TemplateView):
 ###########
 
 class SectionListView(AdminRequiredMixin, ListView):
-    model = models.Section
+    queryset = models.Section.objects.order_by("division__branch__region", "division__branch", "division", "name")
     template_name = 'shared_models/generic_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Sections")
         context["field_list"] = [
-            "tname|{}".format(_("name")),
-            "abbrev",
             "region",
-            "division",
             "branch",
+            "division",
+            "tname|{}".format(_("section")),
+            "abbrev",
             "head",
             "date_last_modified",
             "last_modified_by",
@@ -146,10 +146,10 @@ class DivisionListView(AdminRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Divisions")
         context["field_list"] = [
-            "tname|{}".format(_("name")),
-            "abbrev",
-            "division",
             "region",
+            "branch",
+            "tname|{}".format(_("division")),
+            "abbrev",
             "head",
             "date_last_modified",
             "last_modified_by",
@@ -225,9 +225,9 @@ class BranchListView(AdminRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Branches")
         context["field_list"] = [
-            "tname|{}".format(_("name")),
-            "abbrev",
             "region",
+            "tname|{}".format(_("branch")),
+            "abbrev",
             "head",
             "date_last_modified",
             "last_modified_by",
@@ -304,7 +304,7 @@ class RegionListView(AdminRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Regions")
         context["field_list"] = [
-            "tname|{}".format(_("name")),
+            "tname|{}".format(_("region")),
             "abbrev",
             "head",
             "date_last_modified",
