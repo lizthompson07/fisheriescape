@@ -49,7 +49,26 @@
                 <tr href="{% url my_var2 object.id %}">
                     {% for field in field_list %}
                         <td>
-                            {% get_field_value object field %}
+                            {% if field == 'region' and model_name == "section" %}
+                                {{ object.division.branch.region.tname }}
+                            {% elif field == 'region' and model_name == "division" %}
+                                {{ object.branch.region.tname }}
+                            {% elif field == 'region' and model_name == "branch" %}
+                                {{ object.region.tname }}
+
+                            {% elif field == 'branch' and model_name == "section" %}
+                                {{ object.division.branch.tname }}
+                            {% elif field == 'branch' and model_name == "division" %}
+                                {{ object.branch.tname }}
+
+                            {% elif field == 'division' and model_name == "section" %}
+                                {{ object.division.tname }}
+
+
+                            {% else %}
+
+                                {% get_field_value object field %}
+                            {% endif %}
                         </td>
                     {% endfor %}
                 </tr>
