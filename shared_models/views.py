@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView
+from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView, ListView
 from django_filters.views import FilterView
 
 ###
@@ -21,14 +21,34 @@ class CloserNoRefreshTemplateView(TemplateView):
     template_name = 'shared_models/close_me_no_refresh.html'
 
 
-class IndexTemplateView(TemplateView):
+def in_admin_group(user):
+    """give a list of groups that would be allowed to access this form"""
+    if user.id:
+        if user.groups.filter(name='travel_admin').count() != 0 or \
+                user.groups.filter(name='travel_adm_admin').count():
+            return True
+
+
+class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return in_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class IndexTemplateView(AdminRequiredMixin, TemplateView):
     template_name = 'shared_models/pop_index.html'
 
 
 # SECTION #
 ###########
 
-class SectionListView(LoginRequiredMixin, FilterView):
+class SectionListView(AdminRequiredMixin, ListView):
     model = models.Section
     template_name = 'shared_models/generic_list.html'
 
@@ -50,7 +70,7 @@ class SectionListView(LoginRequiredMixin, FilterView):
         return context
 
 
-class SectionUpdateView(LoginRequiredMixin, UpdateView):
+class SectionUpdateView(AdminRequiredMixin, UpdateView):
     model = models.Section
     template_name = 'shared_models/generic_form.html'
     form_class = forms.SectionForm
@@ -66,10 +86,18 @@ class SectionUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Edit Section:")
         context["model_name"] = "section"
+        context["related_names"] = {
+            "project planning projects": getattr(self.get_object(), "projects").all(),
+            "project planning functional groups": getattr(self.get_object(), "functional_groups").all(),
+            "metadata resources": getattr(self.get_object(), "resources").all(),
+            "travel trip requests": getattr(self.get_object(), "trip_requests").all(),
+            "DM tickets": getattr(self.get_object(), "ticket_set").all(),
+            "user profiles": getattr(self.get_object(), "profile_set").all(),
+        }
         return context
 
 
-class SectionCreateView(LoginRequiredMixin, CreateView):
+class SectionCreateView(AdminRequiredMixin, CreateView):
     model = models.Section
     template_name = 'shared_models/generic_form.html'
     form_class = forms.SectionForm
@@ -88,7 +116,7 @@ class SectionCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class SectionDeleteView(LoginRequiredMixin, DeleteView):
+class SectionDeleteView(AdminRequiredMixin, DeleteView):
     model = models.Section
     success_url = reverse_lazy('shared_models:section_list')
     template_name = 'shared_models/generic_confirm_delete.html'
@@ -110,7 +138,7 @@ class SectionDeleteView(LoginRequiredMixin, DeleteView):
 
 # DIVISION #
 ############
-class DivisionListView(LoginRequiredMixin, FilterView):
+class DivisionListView(AdminRequiredMixin, ListView):
     model = models.Division
     template_name = 'shared_models/generic_list.html'
 
@@ -131,7 +159,7 @@ class DivisionListView(LoginRequiredMixin, FilterView):
         return context
 
 
-class DivisionUpdateView(LoginRequiredMixin, UpdateView):
+class DivisionUpdateView(AdminRequiredMixin, UpdateView):
     model = models.Division
     template_name = 'shared_models/generic_form.html'
     form_class = forms.DivisionForm
@@ -147,10 +175,13 @@ class DivisionUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Division:")
         context["model_name"] = "division"
+        context["related_names"] = {
+            "sections": getattr(self.get_object(), "sections").all(),
+        }
         return context
 
 
-class DivisionCreateView(LoginRequiredMixin, CreateView):
+class DivisionCreateView(AdminRequiredMixin, CreateView):
     model = models.Division
     template_name = 'shared_models/generic_form.html'
     form_class = forms.DivisionForm
@@ -162,8 +193,14 @@ class DivisionCreateView(LoginRequiredMixin, CreateView):
         form.save()
         return HttpResponseRedirect(reverse_lazy('shared_models:division_list'))
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = _("New Division")
+        context["model_name"] = "division"
+        return context
 
-class DivisionDeleteView(LoginRequiredMixin, DeleteView):
+
+class DivisionDeleteView(AdminRequiredMixin, DeleteView):
     model = models.Division
     success_url = reverse_lazy('shared_models:division_list')
     template_name = 'shared_models/generic_confirm_delete.html'
@@ -180,7 +217,7 @@ class DivisionDeleteView(LoginRequiredMixin, DeleteView):
 
 # BRANCH #
 ##########
-class BranchListView(LoginRequiredMixin, FilterView):
+class BranchListView(AdminRequiredMixin, ListView):
     model = models.Branch
     template_name = 'shared_models/generic_list.html'
 
@@ -200,7 +237,7 @@ class BranchListView(LoginRequiredMixin, FilterView):
         return context
 
 
-class BranchUpdateView(LoginRequiredMixin, UpdateView):
+class BranchUpdateView(AdminRequiredMixin, UpdateView):
     model = models.Branch
     template_name = 'shared_models/generic_form.html'
     form_class = forms.BranchForm
@@ -216,10 +253,13 @@ class BranchUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Branch:")
         context["model_name"] = "branch"
+        context["related_names"] = {
+            "divisions": getattr(self.get_object(), "divisions").all(),
+        }
         return context
 
 
-class BranchCreateView(LoginRequiredMixin, CreateView):
+class BranchCreateView(AdminRequiredMixin, CreateView):
     model = models.Branch
     template_name = 'shared_models/generic_form.html'
     form_class = forms.BranchForm
@@ -238,7 +278,7 @@ class BranchCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class BranchDeleteView(LoginRequiredMixin, DeleteView):
+class BranchDeleteView(AdminRequiredMixin, DeleteView):
     model = models.Branch
     success_url = reverse_lazy('shared_models:branch_list')
     template_name = 'shared_models/generic_confirm_delete.html'
@@ -252,10 +292,11 @@ class BranchDeleteView(LoginRequiredMixin, DeleteView):
         }
         return context
 
+
 # REGION #
 ###########
 
-class RegionListView(LoginRequiredMixin, FilterView):
+class RegionListView(AdminRequiredMixin, ListView):
     model = models.Region
     template_name = 'shared_models/generic_list.html'
 
@@ -274,7 +315,7 @@ class RegionListView(LoginRequiredMixin, FilterView):
         return context
 
 
-class RegionUpdateView(LoginRequiredMixin, UpdateView):
+class RegionUpdateView(AdminRequiredMixin, UpdateView):
     model = models.Region
     template_name = 'shared_models/generic_form.html'
     form_class = forms.RegionForm
@@ -290,10 +331,16 @@ class RegionUpdateView(LoginRequiredMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context["title"] = _("Region:")
         context["model_name"] = "region"
+        context["related_names"] = {
+            "branches": getattr(self.get_object(), "branches").all(),
+            "cosignee codes": getattr(self.get_object(), "cosigneecode_set").all(),
+            "trip meeting leads": getattr(self.get_object(), "meeting_leads").all(),
+            "trip requests": getattr(self.get_object(), "trip_requests").all(),
+        }
         return context
 
 
-class RegionCreateView(LoginRequiredMixin, CreateView):
+class RegionCreateView(AdminRequiredMixin, CreateView):
     model = models.Region
     template_name = 'shared_models/generic_form.html'
     form_class = forms.RegionForm
@@ -312,7 +359,7 @@ class RegionCreateView(LoginRequiredMixin, CreateView):
         return context
 
 
-class RegionDeleteView(LoginRequiredMixin, DeleteView):
+class RegionDeleteView(AdminRequiredMixin, DeleteView):
     model = models.Region
     success_url = reverse_lazy('shared_models:section_list')
     template_name = 'shared_models/generic_confirm_delete.html'
@@ -328,6 +375,7 @@ class RegionDeleteView(LoginRequiredMixin, DeleteView):
             "trip requests": getattr(self.get_object(), "trip_requests").all(),
         }
         return context
+
 
 class CommonCommon():
     # key is used to construct commonly formatted strings, such as used in the get_success_url
