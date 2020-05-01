@@ -114,8 +114,12 @@
                     <a class="dropdown-item" href="{% url 'travel:manage_costs' %}">
                         {% trans "Manage Costs" %}
                     </a>
+
                     <a class="dropdown-item" href="{% url 'travel:default_reviewer_list' %}">
                         {% trans "Set Default Reviewers" %}
+                    </a>
+                    <a class="dropdown-item" href="#" pop-href="{% url 'shared_models:index' %}">
+                        {% trans "Manage DFO Organizations" %}
                     </a>
                 </div>
             </li>
