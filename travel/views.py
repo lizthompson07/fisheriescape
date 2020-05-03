@@ -154,8 +154,62 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["number_waiting"] = self.request.user.reviewers.filter(status_id=1).filter(
+
+        # show the number of reviews awaiting for the logged in user
+        context["reviews_waiting"] = self.request.user.reviewers.filter(status_id=1).filter(
             ~Q(trip_request__status_id=16)).count()  # number of requests where review is pending
+
+        # this will be the dict to populate the tabs on the index page
+        tab_dict = dict()
+        for region in shared_models.Region.objects.all():
+            tab_dict[region] = dict()
+            # this will be the counter for any of the things that need dealing with
+            tab_dict["things_to_deal_with"] = 0
+
+            # RDG
+            rdg_number_waiting = models.Reviewer.objects.filter(
+                status_id=1,
+                role_id=6,
+                trip_request__section__division__branch__region=region,
+            ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
+
+            rdg_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'rdg', "region": region.id})
+
+            rdg_class = "red-font blink-me" if rdg_number_waiting else ""
+
+            rdg_tag = mark_safe(
+                f'<a href="{rdg_approval_list_url}" class="btn btn-outline-dark">{region}'
+                f' (<span class="{rdg_class}">{rdg_number_waiting}</span>)</a>'
+            )
+
+            # ADM
+            adm_number_waiting = models.Reviewer.objects.filter(
+                status_id=1,
+                role_id=5,
+                trip_request__section__division__branch__region=region,
+            ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
+            adm_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'adm', "region": region.id})
+            adm_class = "red-font blink-me" if adm_number_waiting else ""
+            adm_tag = mark_safe(
+                f'<a href="{adm_approval_list_url}" class="btn btn-outline-dark">{item[0]}'
+                f' (<span class="{adm_class}">{adm_number_waiting}</span>)</a>'
+            )
+
+            # unverified trips
+            unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=False, lead=region).count()
+            trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 0, "region": region.id})
+            unverified_class = "red-font blink-me" if unverified_trips else ""
+            unverified_tag = mark_safe(
+                f'<a href="{trip_verification_list_url}" class="btn btn-outline-dark">{region}'
+                f' (<span class="{unverified_class}">{unverified_trips}</span>)</a>'
+            )
+
+            if adm_number_waiting > 0:
+                tab_dict[region]["adm_tags"].append(adm_tag)
+            if rdg_number_waiting > 0:
+                tab_dict[region]["rdg_tags"].append(rdg_tag)
+            if unverified_trips > 0:
+                tab_dict[region]["trip_tags"].append(unverified_tag)
 
         context["rdg_number_waiting"] = models.Reviewer.objects.filter(
             status_id=1,
@@ -1312,7 +1366,7 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        fy = nz(form.cleaned_data["fiscal_year"],"None")
+        fy = nz(form.cleaned_data["fiscal_year"], "None")
         region = nz(form.cleaned_data["region"], "None")
         trip = nz(form.cleaned_data["trip"], "None")
         user = nz(form.cleaned_data["user"], "None")
@@ -1349,6 +1403,7 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:report_search"))
 
+
 @login_required()
 def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
     file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region, trip=trip, user=user, from_date=from_date, to_date=to_date)
@@ -1361,6 +1416,7 @@ def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
             return response
     raise Http404
 
+
 @login_required()
 def export_trip_list(request, fy, region, adm, from_date, to_date):
     file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm, from_date=from_date, to_date=to_date)
@@ -1371,6 +1427,7 @@ def export_trip_list(request, fy, region, adm, from_date, to_date):
             response['Content-Disposition'] = f'inline; filename="export of trips {timezone.now().strftime("%Y-%m-%d")}.xlsx"'
             return response
     raise Http404
+
 
 @login_required()
 def export_request_cfts(request, trip=None, trip_request=None):
@@ -1606,7 +1663,6 @@ def manage_njc_rates(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
-
 # Default Reviewer Settings
 
 class DefaultReviewerListView(TravelAdminRequiredMixin, ListView):
@@ -1647,7 +1703,6 @@ class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
-
 
 
 # FILES #
