@@ -1,6 +1,6 @@
 import os
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from . import models
 from . import utils
@@ -23,6 +23,12 @@ def export_fixtures():
         models.ReviewerRole,
         models.HelpText,
         shared_models.FiscalYear,
+        # shared_models.Region,
+        # shared_models.Branch,
+        # shared_models.Division,
+        # shared_models.Section,
+        User,
+        Group,
     ]
     for model in models_to_export:
         data = serializers.serialize("json", model.objects.all())
