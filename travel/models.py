@@ -142,10 +142,14 @@ class Purpose(models.Model):
 
 class Status(models.Model):
     # choices for used_for
-    APPROVAL = 1
-    TRIPS = 2
+    TR_REVIEWERS = 1
+    TRIP_REVIEWERS = 3
+    TRIP_REQUESTS = 2
+    TRIPS = 4
     USED_FOR_CHOICES = (
-        (APPROVAL, "Reviewer status"),
+        (TR_REVIEWERS, "Request Reviewer status"),
+        (TRIP_REQUESTS, "Trip Request status"),
+        (TRIP_REVIEWERS, "Trip Reviewer status"),
         (TRIPS, "Trip status"),
     )
 
@@ -191,6 +195,8 @@ class Conference(models.Model):
     verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by",
                                     verbose_name=_("verified by"))
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
+                               limit_choices_to={"used_for": 4}, verbose_name=_("trip status"), default=30)
 
     def __str__(self):
         # check to see if a french value is given
@@ -844,6 +850,56 @@ class Reviewer(models.Model):
     class Meta:
         unique_together = ['trip_request', 'user', 'role', ]
         ordering = ['trip_request', 'order', ]
+
+    @property
+    def comments_html(self):
+        if self.comments:
+            return textile.textile(self.comments)
+        else:
+            return "---"
+
+    def save(self, *args, **kwargs):
+        # If the trip request is currently under review but changes have been requested, add this reviewer directly in the queue
+
+        if self.trip_request.status_id != 8 and self.status_id == 4:
+            self.status_id = 20
+        return super().save(*args, **kwargs)
+
+    @property
+    def status_string(self):
+
+        if self.status.id in [1, 4, 5]:
+            status = "{}".format(
+                self.status
+            )
+        else:
+            status = "{} {} {}".format(
+                self.status,
+                _("on"),
+                self.status_date.strftime("%Y-%m-%d"),
+            )
+
+        my_str = "<span style='background-color:{}'>{} ({})</span>".format(
+            self.status.color,
+            self.user,
+            status,
+        )
+        return mark_safe(my_str)
+
+
+class TripReviewer(models.Model):
+    trip = models.ForeignKey(Conference, on_delete=models.CASCADE, related_name="reviewers")
+    order = models.IntegerField(null=True, verbose_name=_("process order"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers", verbose_name=_("DM Apps user"))
+    role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3},
+                               verbose_name=_("review status"), default=23)
+    status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
+    comments = models.TextField(null=True, verbose_name=_("Comments"))
+
+    class Meta:
+        unique_together = ['trip', 'user', 'role', ]
+        ordering = ['trip', 'order', ]
 
     @property
     def comments_html(self):
