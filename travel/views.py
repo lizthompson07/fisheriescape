@@ -166,7 +166,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
             role_id=5,
         ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
         context["unverified_trips"] = models.Conference.objects.filter(
-            is_verified=False, is_adm_approval_required=False).count()
+            status_id=30).count()
 
         region_list = [
             [_("Gulf"), 1],
@@ -210,7 +210,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
             )
 
             # unverified trips
-            unverified_trips = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=False, lead_id=item[1]).count()
+            unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=False, lead_id=item[1]).count()
             trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 0, "region": item[1]})
             unverified_class = "red-font blink-me" if unverified_trips else ""
             unverified_tag = mark_safe(
@@ -335,6 +335,7 @@ conf_field_list = [
     'registration_deadline',
     'is_adm_approval_required',
     'notes',
+    'status',
     'total_cost|{}'.format("Total DFO cost (excluding BTA)"),
     'non_res_total_cost|{}'.format("Total DFO cost from non-RES travellers (excluding BTA)"),
 ]
@@ -1108,6 +1109,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
         context["my_object"] = models.Conference.objects.first()
         context["field_list"] = [
             'fiscal_year',
+            'status',
             'tname|{}'.format(_("Trip title")),
             'location|{}'.format(_("location")),
             'dates|{}'.format(_("dates")),
@@ -1115,7 +1117,6 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             'is_adm_approval_required|{}'.format(_("ADM approval required?")),
             'total_travellers|{}'.format(_("Total travellers")),
             'connected_requests|{}'.format(_("Connected requests")),
-            'is_verified',
             'verified_by',
         ]
         context["is_admin"] = in_travel_admin_group(self.request.user)
@@ -1217,10 +1218,10 @@ class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
 
     def get_queryset(self):
         if self.kwargs.get("adm") == 1:
-            queryset = models.Conference.objects.filter(is_verified=False, is_adm_approval_required=True)
+            queryset = models.Conference.objects.filter(status_id=30, is_adm_approval_required=True)
         else:
             queryset = models.Conference.objects.filter(
-                is_verified=False, lead_id=self.kwargs.get("region"), is_adm_approval_required=False
+                status_id=30, lead_id=self.kwargs.get("region"), is_adm_approval_required=False
             )
         return queryset
 
@@ -1285,7 +1286,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
 
     def form_valid(self, form):
         my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
-        my_trip.is_verified = True
+        my_trip.status_id = 41
         my_trip.verified_by = self.request.user
         my_trip.save()
         return HttpResponseRedirect(reverse("travel:admin_trip_verification_list",
