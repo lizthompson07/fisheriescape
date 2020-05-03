@@ -105,6 +105,9 @@
                             <td class="center-col">{{ object.total_traveller_list|length|zero2val:"---" }}</td>
                         {% elif "connected_request" in field %}
                             <td class="center-col">{{ object.trip_requests.count|zero2val:"---" }}</td>
+                        {% elif "status" in field %}
+                            <td style="background-color: {{ object.status.color }}">{% get_field_value object field %}</td>
+
                         {% else %}
                             <td>{% get_field_value object field safe=True %}</td>
                         {% endif %}
