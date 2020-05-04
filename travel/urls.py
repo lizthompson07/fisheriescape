@@ -55,6 +55,8 @@ urlpatterns = [
     path('trip/<int:pk>/edit/popout/<int:pop>', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
     # admin
+    path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
+    path('trip/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
     path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.AdminTripVerificationListView.as_view(),
          name="admin_trip_verification_list"),
     path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),

@@ -1,0 +1,30 @@
+{% extends "travel/generic_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% load custom_tags %}
+
+{% block subcontent %}
+        {% crash_if_none "back_url" back_url %}
+
+        <form method="post" class="form">
+            {% csrf_token %}
+            {% for field in form %}
+                {% bootstrap_field field placeholder="" %}
+
+            {% endfor %}
+
+            <div class="">
+
+                <input type="submit" class="btn btn-lg btn-warning" value="Yes">
+
+                <a class="btn btn-lg btn-secondary" href="{{back_url}}">
+                    {% trans "Cancel" %}
+                </a>
+            </div>
+        </form>
+
+        {% block post_form_p %}{% endblock %}
+{% endblock %}

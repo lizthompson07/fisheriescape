@@ -136,7 +136,7 @@ class TripFilter(django_filters.FilterSet):
             'fiscal_year': ['exact'],
             'lead': ['exact'],
             'is_adm_approval_required': ['exact'],
-            'is_verified': ['exact'],
+            'status': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
