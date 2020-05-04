@@ -176,9 +176,7 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
         # context for _files.html
         context["random_file"] = models.File.objects.first()
         context["file_field_list"] = [
-            'id',
             'caption',
-            'file',
             'date_uploaded',
         ]
 
@@ -261,28 +259,32 @@ class QuantityDetailView(MmutoolsAccessRequired, DetailView):
 
         return context
 
-
+#TODO fix update view to work with popouts in both item_detail and directly
 class QuantityUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     model = models.Quantity
     form_class = forms.QuantityForm
 
-    def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Item record successfully updated for : {my_object}"))
-        return super().form_valid(form)
+    def get_template_names(self):
+       return "mmutools/quantity_form_popout.html" if self.kwargs.get("pk") else "mmutools/quantity_form.html"
 
+    # def form_valid(self, form):
+    #     my_object = form.save()
+    #     messages.success(self.request, _(f"Quantity record successfully updated for : {my_object}"))
+    #     return HttpResponseRedirect(reverse('shared_models:close_me') if self.kwargs.get("pk") else super().form_valid(form))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk')}
 
 class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Quantity
     form_class = forms.QuantityForm
 
     def get_template_names(self):
-        # TODO create quantity popout html
-        return "mmutools/quantity_form_popout.html" if self.kwargs.get("pk") else "mmutools/quantity_form.html"
+       return "mmutools/quantity_form_popout.html" if self.kwargs.get("pk") else "mmutools/quantity_form.html"
 
     def form_valid(self, form):
         my_object = form.save()
-        messages.success(self.request, _(f"Item record successfully created for : {my_object}"))
+        messages.success(self.request, _(f"Quantity record successfully created for : {my_object}"))
         return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else super().form_valid(form))
 
     def get_initial(self):
@@ -292,8 +294,8 @@ class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
 class QuantityDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     model = models.Quantity
     permission_required = "__all__"
-    success_url = reverse_lazy('mmutools:quantity_list')
-    success_message = 'The item was successfully deleted!'
+    success_url = reverse_lazy('shared_models:close_me')
+    success_message = 'The quantity was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -435,11 +437,16 @@ class SupplierCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Supplier
     form_class = forms.SupplierForm
 
+    def get_template_names(self):
+       return "mmutools/supplier_form_popout.html" if self.kwargs.get("pk") else "mmutools/supplier_form.html"
+
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Supplier record successfully created for : {my_object}"))
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else super().form_valid(form))
 
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk')}
 
 class SupplierDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     model = models.Supplier

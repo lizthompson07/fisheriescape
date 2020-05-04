@@ -3,8 +3,9 @@
 ### SMALLER ITEMS
 # TODO add edit button beside quantity
 # TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
-# TODO Add confirmation step for deleting files and add admin classes etc
+# TODO Add confirmation step for deleting files
 # TODO If Item is marked container=TRUE, then container name is added to list of Locations
+# TODO file Model - return 'mmutools/{0}_{1}/{2}'.format(instance.item.item_name, instance.item.size, filename) === when size = N/A it reads the / as separator -- write a test for this
 
 ### LARGER ITEMS - PRIORITY
 # TODO Testing Units so Dev version can be deployed

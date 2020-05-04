@@ -37,15 +37,27 @@
         </tr>
         <tbody>
         {% for obj in object.quantities.all %}
-            <tr href="{% url 'mmutools:quantity_edit' obj.id %}" pop>
+            <tr>
             {% for field in qty_field_list %}
             <td>
 
             {% get_field_value obj field %}
             </td>
             {% endfor %}
-
+            <td>
+                <a href="#"
+                   onclick="return popitup('{% url 'mmutools:quantity_edit' obj.id %}','popoutWindow')">
+                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                   onclick="return popitup('{% url 'mmutools:quantity_delete' obj.id %}','popoutWindow')">
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                </a>
+            </td>
             </tr>
+
         {% endfor %}
         </tbody>
     </table>

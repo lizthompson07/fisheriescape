@@ -29,6 +29,11 @@ class SupplierForm(forms.ModelForm):
         model = models.Supplier
         fields = "__all__"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if kwargs.get('initial') and kwargs.get('initial').get('item'):
+            self.fields.get('item').widget = forms.HiddenInput()
+
 class FileForm(forms.ModelForm):
     class Meta:
         model = models.File

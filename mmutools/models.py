@@ -138,12 +138,15 @@ class Quantity(models.Model):
     def __str__(self):
 
         # check to see if a french value is given
-        if getattr(self, str(_("id"))):
+        if getattr(self, str(_("item"))):
 
-            return "{}".format(getattr(self, str(_("id"))))
+            my_str = "{}".format(getattr(self, str(_("item"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.id)
+            my_str = "{}".format(self.item)
+
+        if self.quantity:
+          return '{} - {}'.format(self.quantity, my_str) #TODO figure out why it doesn't like this in regular quantity add view
 
     def get_absolute_url(self):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})
@@ -169,12 +172,12 @@ class Supplier(models.Model):
             return "{}".format(self.supplier)
 
     def get_absolute_url(self):
-        return reverse("mmutools:supplier_detail", kwargs={"pk": self.pk})
+        return reverse("mmutools:supplier_detail", kwargs={"pk": self.id})
 
 
 def file_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/item_<id>/<filename>
-    return 'mmutools/item_{0}/{1}'.format(instance.item.id, filename)
+    # file will be uploaded to MEDIA_ROOT/<item_name>_<size>/<filename>
+    return 'mmutools/{0}_{1}/{2}'.format(instance.item.item_name, instance.item.size, filename)
 
 
 class File(models.Model):

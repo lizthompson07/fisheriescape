@@ -26,6 +26,7 @@ urlpatterns = [
     path('item/<int:pk>/quantity/new/', views.QuantityCreateView.as_view(), name="quantity_new"),
     path('quantity/new/', views.QuantityCreateView.as_view(), name="quantity_new"),
     path('quantity/<int:pk>/edit/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
+    path('item/<int:pk>/quantity/edit/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
     path('quantity/<int:pk>/delete/', views.QuantityDeleteView.as_view(), name="quantity_delete"),
 
 # PERSONNEL #
@@ -41,6 +42,7 @@ urlpatterns = [
     path('supplier_list/', views.SupplierListView.as_view(), name="supplier_list"),
     path('supplier_detail/<int:pk>/view/', views.SupplierDetailView.as_view(), name="supplier_detail"),
     path('supplier/new/', views.SupplierCreateView.as_view(), name="supplier_new"),
+    path('item/<int:pk>/supplier/new/', views.SupplierCreateView.as_view(), name="supplier_new"),
     path('supplier/<int:pk>/edit/', views.SupplierUpdateView.as_view(), name="supplier_edit"),
     path('supplier/<int:pk>/delete/', views.SupplierDeleteView.as_view(), name="supplier_delete"),
 

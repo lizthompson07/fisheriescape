@@ -15,9 +15,11 @@
     </em><br>
 {% else %}
 
-    <table class="table table-hover table-sm" style="width: auto">
+    <table class="table table-bordered table-sm" style="width: auto">
         <tr>
-
+            <th>
+            {% trans "Link" %}
+            </th>
             {% for field in file_field_list %}
             <th>
 
@@ -27,18 +29,18 @@
         </tr>
         <tbody>
          {% for obj in object.files.all %}
-            <tr href="{% url 'mmutools:file_edit' obj.id %}" pop>
+        <tr>
+            <td>
+                <a href="{{ obj.file.url }}" >
+                    <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
+                </a>
+            </td>
             {% for field in file_field_list %}
             <td>
 
             {% get_field_value obj field %}
             </td>
             {% endfor %}
-            <td>
-                <a href="{{ obj.file.url }}" >
-                    <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
-                </a>
-            </td>
             <td>
                 <a href="#"
                    onclick="return popitup('{% url 'mmutools:file_edit' obj.id %}','popoutWindow')">

@@ -7,7 +7,7 @@ from .. import views
 
 from inventory.test.common_tests import CommonInventoryTest as CommonTest
 from inventory.test import FactoryFloor
-from ..views import VaultAccessRequired
+from ..views import MmutoolsAccessRequired
 
 
 class TestItemListView(CommonTest):
@@ -19,7 +19,7 @@ class TestItemListView(CommonTest):
     @tag("mmutools", 'list', "view")
     def test_view_class(self):
         self.assert_inheritance(views.ItemListView, FilterView)
-        self.assert_inheritance(views.ItemListView, VaultAccessRequired)
+        self.assert_inheritance(views.ItemListView, MmutoolsAccessRequired)
 
     @tag("mmutools", 'list', "access")
     def test_view(self):
