@@ -1,48 +1,60 @@
-{% extends "travel/travel_base.html" %}
+{% extends "travel/generic_base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load i18n %}
 {% load custom_filters %}
+{% load custom_tags %}
+{% block subcontent %}
 
-{% block subtitle %}
-    - {{ object }}
-{% endblock %}
-
-{% block content %}
+    {% crash_if_none "is_adm_admin" is_adm_admin %}
 
     <style>
-        .label {
-            font-weight: bold;
+        .plainjane {
+            background-color: #f5efe6;
+            border: black solid 1px;
         }
 
-        table, td {
-            font-size: small;
+        .admin_notes {
+            padding: 10px;
+            background-color: #efee7e;
+            font-weight: bold;
         }
     </style>
 
 
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                    {% trans "Home" %}
-                </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">
-                    {% trans "Trips" %}
-                </a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
-            </ol>
-        </nav>
+    <div class="mb-5">
 
-        <h1>{{ object }}</h1>
+        <div class="btns">
 
-        <div class="float-right">
-            <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts_trip' trip.id %}">
-                CFTS Report &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
-            </a>
-        </div>
-        <div class="btn-group">
+            {# ADM Admin stuff #}
+            {% if is_adm_admin %}
+                <a class="btn btn-dark" href="#" pop-href="{% url 'travel:trip_admin_notes_edit' object.id %}">
+                    {% trans "Administrative Notes" %}
+                </a>
+
+
+                {# Review BUTTON #}
+                {% if object.status.id == 30 %} {# disabled for everyone #}
+                    {% echo "disabled" as review_disabled_var %}
+                    {% trans "This trip must be verified before a review can be started." as review_tip_text %}
+                {% endif %}
+
+                {% if object.status.id == 30 or object.status.id == 41 %}
+                    {% echo "success" as review_btn_color %}
+                    {% trans "Start a Review" as review_btn_text %}
+                {% else %}
+                    {% echo "danger" as review_btn_color %}
+                    {% trans "End this review" as review_btn_text %}
+                {% endif %}
+
+
+                <span data-toggle="tooltip" title="{{ review_tip_text }}">
+                <a class="btn btn-{{ review_btn_color }} {{ review_disabled_var }}"
+                   href="{% url 'travel:trip_review_toggle' object.id %}">{{ review_btn_text }}</a>
+                </span>
+            {% endif %}
+
             <a class="btn btn-warning" href="{% url 'travel:trip_edit' object.id %}">
                 {% trans "Edit" %}
             </a>
@@ -52,196 +64,31 @@
             {% endif %}
             <a class="btn btn-danger {% if object.trip_requests.count %}disabled{% endif %}"
                href="{% url 'travel:trip_delete' object.id %}">
-                Delete
+                {% trans "Delete" %}
             </a>
             {% if object.trip_requests.count %}
                 </span>
             {% endif %}
         </div>
-
-        <br><br>
-
-        <div class="row">
-            <div class="col">
-                <h3>
-                    {% trans "Trip" %}
-                </h3>
-
-                <table class="table table-sm">
-                    {% for field in conf_field_list %}
-                        {% if "total" in field %}
-                            {% verbose_td_display object field th_width="30%" format="currency" %}
-                        {% else %}
-                            {% verbose_td_display object field th_width="30%" %}
-                        {% endif %}
-                    {% endfor %}
-
-                </table>
-                <br>
-                <br>
-                <h3>
-                    {% trans "Connected Travel Requests:" %}
-                </h3>
-                <ul>
-                    {% for triprequest in object.trip_requests.all %}
-                        <li>
-                            <a href="{% url 'travel:request_detail' triprequest.id %}">{{ triprequest }}</a> by {{ triprequest.user }}
-                            (STATUS: <span style="background-color: {{ triprequest.status.color }}">{{ triprequest.status }}</span>)
-
-                        </li>
-                    {% empty %}
-                        <em>
-                            {% trans "There are no requests connected to this trip." %}
-                        </em>
-                    {% endfor %}
-                </ul>
-
-                <br>
-                <br>
-
-
-                <h3>
-                    {% trans "List of Travellers (across all trip requests and including BTA)" %}
-                </h3>
-                <table class="table table-sm table-bordered" style="width: 75%;">
-                    <tr>
-                        <th rowspan="2">{% trans "Name" %}</th>
-                        <th colspan="2" class="center-col">{% trans "Attendence to Conferences and International Trips" %}</th>
-                    </tr>
-                    <tr>
-                        <th class="center-col">{{ trip.fiscal_year }}</th>
-                        <th class="center-col">Total</th>
-                    </tr>
-                    {% for traveller in trip.total_traveller_list %}
-                        {% with trip.get_summary_dict|lookup:traveller as d %}
-                            <tr>
-                                <td>
-                                    {{ traveller }}
-                                    {% if traveller in trip.bta_traveller_list %}{% trans "(BTA)" %}{% endif %}
-                                </td>
-                                <td class="center-col">
-                                    {% if traveller.id %}
-                                        {{ d.fy_list|length }}
-                                        {% if d.fy_list|length %}
-                                            &nbsp;
-                                            {% with d.fy_list as my_list %}
-                                                <button class="badge" data-toggle="popover"
-                                                        title="{{ traveller.first_name }}'s Total Requests for {{ trip.fiscal_year }}"
-                                                        data-content="{% include "travel/_user_trip_request_list.html" %}">
-                                                    {% trans "show" %}
-                                                </button>
-                                            {% endwith %}
-                                        {% endif %}
-                                    {% else %}
-                                        <em>
-                                            ----
-                                        </em>
-                                    {% endif %}
-                                </td>
-
-                                <td class="center-col">
-                                    {% if traveller.id %}
-                                        {{ d.total_list|length }}
-                                        {% if d.total_list|length %}
-                                            &nbsp;
-                                            {% with d.total_list as my_list %}
-                                                <button class="badge" data-toggle="popover"
-                                                        title="{{ user.first_name }}'s Total Requests"
-                                                        data-content="{% include "travel/_user_trip_request_list.html" %}">
-                                                    {% trans "show" %}
-                                                </button>
-                                            {% endwith %}
-                                        {% endif %}
-                                    {% else %}
-                                        <em>
-                                            {{ d.total_list }}
-                                        </em>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endwith %}
-                    {% endfor %}
-                    <tr>
-                        <th colspan="3">{% trans "TOTAL NUMBER OF TRAVELLERS" %}
-                            = {{ trip.total_traveller_list|length }}</th>
-                    </tr>
-                </table>
-                <br>
-
-
-                <h3>
-                    {% trans "Comparision of Travellers' Costs (across all trip requests)" %}
-                </h3>
-                {% with trip.get_cost_comparison_dict as cc_dict %}
-                    {% with cc_dict|lookup:"costs" as cost_dict %}
-                        {% with cc_dict|lookup:"trip_requests" as trip_requests_dict %}
-                            <table class="table table-sm table-striped" style="width: 95%;">
-                                <thead>
-                                <tr>
-                                    <th rowspan="2" style="width: 120px">{% trans "Traveller" %}</th>
-                                    <th class="center-col" colspan="{{ cost_dict|length }}">
-                                        {% trans "Costs (CAD)" %}
-                                    </th>
-                                </tr>
-                                <tr>
-                                    {% for cost in cost_dict %}
-                                        {% if cost != "total" %}
-                                            <th class="center-col">{{ cost }}</th>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <th class="center-col">{% trans "TOTAL" %}</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {% for tr in trip_requests_dict %}
-                                    <tr>
-                                        <td>{{ tr.requester_name }}</td>
-                                        {% for cost in cost_dict %}
-                                            {% if cost != "total" %}
-                                                <td class="center-col">
-                                                    {% if trip_requests_dict|lookup:tr|lookup:cost %}
-                                                        {{ trip_requests_dict|lookup:tr|lookup:cost|currency }}
-                                                    {% else %}
-                                                        ---
-                                                    {% endif %}
-                                                </td>
-                                            {% endif %}
-                                        {% endfor %}
-                                        <td class="center-col">
-                                            {{ trip_requests_dict|lookup:tr|lookup:"total"|currency }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                                <tr>
-                                    <th>{% trans "TOTAL" %} ({{ trip_requests_dict|length }})</th>
-                                    {% for cost in cost_dict %}
-                                        {% if cost != "total" %}
-                                            <th class="center-col">
-                                                {{ cost_dict|lookup:cost|currency }}
-                                            </th>
-                                        {% endif %}
-                                    {% endfor %}
-                                    <th class="center-col">
-                                        {{ cost_dict|lookup:"total"|currency }}
-                                    </th>
-                                </tr>
-                                </tbody>
-                            </table>
-
-                        {% endwith %}
-                    {% endwith %}
-                {% endwith %}
-
-
-                <br>
-                <br>
-                <br>
-
-            {% include "travel/_trip_reviewers.html" %}
-
-
-            </div>
-        </div>
     </div>
 
-{% endblock content %}
+    {# Trip detail #}
+
+    {% if object.admin_notes %}
+        <strong>
+            {% trans "ADMINISTRATIVE NOTES" %}
+        </strong>
+        <div class="mb-3 card admin_notes">
+            {{ object.admin_notes_html|safe }}
+        </div>
+
+    {% endif %}
+
+    {% include "travel/_trip_detail.html" %}
+
+    {% if is_adm_admin %}
+        {% include "travel/_trip_reviewers.html" %}
+    {% endif %}
+
+
+{% endblock %}

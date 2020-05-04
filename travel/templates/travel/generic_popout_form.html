@@ -1,20 +1,21 @@
 {% extends 'pop_base.html' %}
 {% load bootstrap4 %}
 {% load i18n %}
-
+{% load custom_tags %}
+{% load custom_filters %}
 {% block body %}
 
+    {% crash_if_none "title" title %}
 
     <div class="container">
         <div class="mb-3">
             <h1>
-                Administrative Notes
+                {{ h1 }}
             </h1>
         </div>
 
         <form method="post" class="form">
             {% csrf_token %}
-
 
             <div id="fields">
                 {% for field in form %}
@@ -39,11 +40,8 @@
 {% block body_js %}
     {# A script to refresh the parent window; to be called in when the buttons are pushed #}
     <script>
-        var $amountCAD = $("#id_amount_cad");
-        var $rates = $("#id_rate_cad");
-        var $days = $("#id_number_of_days");
 
-        window.resizeTo(width = 900, height = 500);
+        window.resizeTo(width = {{width|nz:900}}, height = {{height|nz:500}});
 
         window.onunload = refreshParent;
 
@@ -53,7 +51,7 @@
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready
-            $("#admin_notes")[0].focus();
+            $("input").first().select();
         });
 
     </script>

@@ -117,6 +117,18 @@ class TravelAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+class TravelADMAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return in_adm_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
 class CanModifyMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
@@ -341,19 +353,28 @@ class TripRequestListView(TravelAccessRequiredMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.TripRequest.objects.first()
+        context["subtitle"] = _("Trip Requests")
+        context["h1"] = _("Trip Requests")
+        context["crumbs"] = [
+            {"title": _("Home"), "url": reverse("travel:index")},
+            {"title": context["h1"]}
+        ]
+
+        context["paginate_by"] = 25
+        context["container_class"] = "container-fluid"
+        context["new_url_name"] = "travel:request_new"
+        context["row_url_name"] = "travel:request_detail"
+        context["random_object"] = models.TripRequest.objects.first()
         context["field_list"] = [
-            'fiscal_year',
-            'is_group_request',
-            'status',
-            'section|{}'.format(_("DFO section")),
-            'requester_name|{}'.format(_("Requester name")),
-            'trip.tname',
-            'destination|{}'.format(_("Destination")),
-            'start_date|{}'.format(_("Departure date")),
-            # f'end_date|{_("End")}',
-            # 'total_request_cost|{}'.format(_("Total request cost (DFO)")),
-            'processing_time|{}'.format(_("Processing time")),
+            {"name": 'fiscal_year', "width": "75px"},
+            {"name": 'is_group_request|Type', },
+            {"name": 'status', "width": "150px"},
+            {"name": 'section|{}'.format(_("DFO section")), },
+            {"name": 'requester_name|{}'.format(_("Requester name")), },
+            {"name": 'trip.tname', "width": "400px"},
+            {"name": 'destination|{}'.format(_("Destination")), },
+            {"name": 'start_date|{}'.format(_("Departure date")), },
+            {"name": 'processing_time|{}'.format(_("Processing time")), },
         ]
         return context
 
@@ -643,7 +664,32 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
+
+        if my_object.submitted:
+            active_crumb = _("Un-submit request")
+            h1 = _("Do you wish to un-submit the following request?")
+            h2 = '<span class="red-font">WARNING: Un-submitting this request will reset the' \
+                 ' status of any exisitng recommendations and/or approvals.</span>'
+        else:
+            active_crumb = _("Re-submit request") if my_object.status_id == "16" else _("Submit request")
+            h1 = _("Do you wish to re-submit the following request?") if my_object.status_id == "16" else _(
+                "Do you wish to submit the following request?")
+            h2 = None
+
+        context["h1"] = h1
+        context["h2"] = h2
+
+        context["subtitle"] = active_crumb
+        context["back_url"] = reverse("travel:request_detail", kwargs={"pk": my_object.id})
+        context["crumbs"] = [
+            {"title": _("Home"), "url": reverse("travel:index")},
+            {"title": _("Trip Requests"), "url": reverse("travel:request_list")},
+            {"title": str(my_object), "url": context["back_url"]},
+            {"title": active_crumb}
+        ]
+
         context["object"] = my_object
         context["triprequest"] = my_object
         context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
@@ -749,10 +795,11 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
 class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, UpdateView):
     model = models.TripRequest
     form_class = forms.TripRequestAdminNotesForm
-    template_name = 'travel/trip_request_admin_notes_form.html'
+    template_name = 'travel/generic_popout_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["h1"] = _("Administrative Notes (Public)")
         return context
 
     def form_valid(self, form):
@@ -1138,26 +1185,29 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             'location',
             output_field=TextField()))
 
-    # def get_filterset_kwargs(self, filterset_class):
-    #     kwargs = super().get_filterset_kwargs(filterset_class)
-    #     if kwargs["data"] is None:
-    #         kwargs["data"] = {"fiscal_year": fiscal_year(next=False, sap_style=True)}
-    #     return kwargs
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Conference.objects.first()
+        context["h1"] = _("Trips")
+        context["subtitle"] = _("Trips")
+        context["crumbs"] = [
+            {"title": _("Home"), "url": reverse("travel:index")},
+            {"title": context["h1"]}
+        ]
+        context["paginate_by"] = 50
+        context["new_url_name"] = "travel:trip_new"
+        context["row_url_name"] = "travel:trip_detail"
+        context["random_object"] = models.Conference.objects.first()
         context["field_list"] = [
-            'fiscal_year',
-            'status',
-            'tname|{}'.format(_("Trip title")),
-            'location|{}'.format(_("location")),
-            'dates|{}'.format(_("dates")),
-            'number_of_days|{}'.format(_("length (days)")),
-            'is_adm_approval_required|{}'.format(_("ADM approval required?")),
-            'total_travellers|{}'.format(_("Total travellers")),
-            'connected_requests|{}'.format(_("Connected requests")),
-            'verified_by',
+            {"name": 'fiscal_year', "class": "", "width": "75px"},
+            {"name": 'status', "class": "", },
+            {"name": 'tname|{}'.format(_("Trip title")), "class": "", },
+            {"name": 'location|{}'.format(_("location")), "class": "", },
+            {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
+            {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", },
+            {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
+            {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
+            {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
+            {"name": 'verified_by', "class": "", },
         ]
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
@@ -1172,7 +1222,31 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         context["conf_field_list"] = conf_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["trip"] = self.get_object()
+
+        context["h1"] = str(self.get_object())
+        context["subtitle"] = context["h1"]
+        context["crumbs"] = [
+            {"title": _("Home"), "url": reverse("travel:index")},
+            {"title": _("Trips"), "url": reverse("travel:trip_list")},
+            {"title": context["h1"]}
+        ]
+        context["is_adm_admin"] = in_adm_admin_group(self.request.user)
         return context
+
+
+class TripAdminNotesUpdateView(TravelADMAdminRequiredMixin, UpdateView):
+    model = models.Conference
+    form_class = forms.TripAdminNotesForm
+    template_name = 'travel/generic_popout_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["h1"] = _("Administrative Notes (Public)")
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
 class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
@@ -1264,6 +1338,64 @@ class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
+    model = models.Conference
+    form_class = forms.TripRequestApprovalForm
+    template_name = 'travel/trip_review_process_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_object = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+
+        if my_object.status_id in [30, 41]:
+            active_crumb = _("Start a Review")
+            h1 = _("Do you wish to start a review on the following trip?")
+            h2 = None
+        else:
+            active_crumb = _("End a Review")
+            h1 = _("Do you wish to end a review on the following trip?")
+            h2 = '<span class="red-font">WARNING: stopping the review on this trip will reset the' \
+                 ' status of any exisitng recommendations and/or approvals.</span>'
+
+        context["h1"] = h1
+        context["h2"] = h2
+
+        context["subtitle"] = active_crumb
+        context["back_url"] = reverse("travel:trip_detail", kwargs={"pk": my_object.id})
+        context["crumbs"] = [
+            {"title": _("Home"), "url": reverse("travel:index")},
+            {"title": _("Trips"), "url": reverse("travel:trip_list")},
+            {"title": str(my_object), "url": context["back_url"]},
+            {"title": active_crumb}
+        ]
+
+        context["trip"] = my_object
+        context["conf_field_list"] = conf_field_list
+        context['help_text_dict'] = get_help_text_dict()
+        context["report_mode"] = True
+
+        return context
+
+    def form_valid(self, form):
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        # figure out the current state of the request
+        is_under_review = False if my_trip.status_id in [30,41] else True
+
+        if is_under_review:
+            utils.end_trip_review_process(my_trip)
+        else:
+            my_trip.review_start_date = timezone.now()
+            utils.start_review_process(my_trip)
+            # go and get approvals!!
+
+        # No matter what business what done, we will call this function to sort through reviewer and request statuses
+            utils.trip_approval_seeker(my_trip)
+            my_trip.save()
+
+
+        return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
 
 
 class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
