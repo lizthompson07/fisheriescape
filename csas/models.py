@@ -28,23 +28,28 @@ class CohHonorific(Lookup):
 
 
 class CotType(Lookup):
-    cot_id = models.AutoField(primary_key=True)
+    # cot_id = models.AutoField(primary_key=True)
+    pass
 
 
 class LanLanguage(Lookup):
-    lan_id = models.AutoField(primary_key=True)    # should this be AutoField or fixed? <- Good question, I don't know - Patrick
+    # lan_id = models.AutoField(primary_key=True)    # should this be AutoField or fixed? <- Good question, I don't know - Patrick
+    pass
 
 
 class NotNotificationPreference(Lookup):
-    not_id = models.AutoField(primary_key=True)
+    # not_id = models.AutoField(primary_key=True)
+    pass
 
 
 class RolRole(Lookup):
-    role_id = models.AutoField(primary_key=True)
+    # role_id = models.AutoField(primary_key=True)
+    pass
 
 
 class SecSector(Lookup):
-    sec_id = models.AutoField(primary_key=True)
+    # sec_id = models.AutoField(primary_key=True)
+    pass
 
 
 class ConContact(models.Model):
