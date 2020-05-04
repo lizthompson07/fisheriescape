@@ -24,7 +24,8 @@ class Lookup(models.Model):
 # ---------------------------------------------------------------------------------------
 # Create models for contacts
 class CohHonorific(Lookup):
-    coh_id = models.AutoField(primary_key=True)
+    # coh_id = models.AutoField(primary_key=True)
+    pass
 
 
 class CotType(Lookup):
@@ -83,7 +84,7 @@ class ConContact(models.Model):
 # ---------------------------------------------------------------------------------------
 # Create models for meetings
 class FilFile(models.Model):
-    fil_id = models.AutoField(primary_key=True)
+    # fil_id = models.AutoField(primary_key=True)
     file = models.BooleanField()
 
     def __str__(self):
@@ -91,7 +92,7 @@ class FilFile(models.Model):
 
 
 class MftMeetingFileType(models.Model):
-    mft_id = models.AutoField(primary_key=True)
+    # mft_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=45)
 
     def __str__(self):
@@ -99,23 +100,28 @@ class MftMeetingFileType(models.Model):
 
 
 class SttStatus(Lookup):
-    stt_id = models.AutoField(primary_key=True)
+    # stt_id = models.AutoField(primary_key=True)
+    pass
 
 
 class ScpScope(Lookup):
-    scp_id = models.AutoField(primary_key=True)
+    # scp_id = models.AutoField(primary_key=True)
+    pass
 
 
 class AptAdvisoryProcessType(Lookup):
-    apt_id = models.AutoField(primary_key=True)
+    # apt_id = models.AutoField(primary_key=True)
+    pass
 
 
 class LocLocation(Lookup):
-    loc_id = models.AutoField(primary_key=True)
+    # loc_id = models.AutoField(primary_key=True)
+    pass
 
 
 class MeqQuarter(Lookup):
-    meq_id = models.AutoField(primary_key=True)
+    # meq_id = models.AutoField(primary_key=True)
+    pass
 
 
 class MetMeeting(models.Model):
@@ -144,7 +150,7 @@ class MetMeeting(models.Model):
 
 
 class MecMeetingContact(models.Model):
-    mec_id = models.CharField(max_length=45)
+    # mec_id = models.CharField(max_length=45)
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
     contact = models.ForeignKey(ConContact, on_delete=models.DO_NOTHING)
     confirmed = models.BooleanField(default=False)
