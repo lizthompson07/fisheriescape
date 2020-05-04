@@ -234,15 +234,6 @@ class RequestList(CsasListCommon):
     # fields used in the table on the filter (list) page.
     fields = ['id', 'title', 'region', 'client_sector', 'client_name', 'funding']
 
-    # ======================================================================
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["req_id1"] = self.kwargs.get('pk')
-        # context["req_id2"] = self.id
-        # context['req_id2'] = models.ReqRequest.filter(pk=self.object.pk)
-        return context
-    # =======================================================================
-
 
 class RequestDetails(DetailsCommon):
 
@@ -314,7 +305,7 @@ class ContactList(CsasListCommon):
     # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.ContactFilter
     # fields used in the table on the filter (list) page.
-    fields = ['con_id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'email', 'phone']
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'email', 'phone']
 
 
 class ContactDetails(DetailsCommon):
@@ -377,7 +368,7 @@ class MeetingList(CsasListCommon):
     # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.MeetingFilter
     # fields used in the table on the filter (list) page.
-    fields = ['met_id', 'start_date', 'title_en', 'title_fr', 'location', 'process_type']
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location', 'process_type']
 
 
 class MeetingDetails(DetailsCommon):
@@ -440,7 +431,7 @@ class PublicationList(CsasListCommon):
     # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.PublicationFilter
     # fields used in the table on the filter (list) page.
-    fields = ['pub_id', 'series', 'scope', 'lead_region', 'lead_author', 'pub_year']
+    fields = ['id', 'series', 'scope', 'lead_region', 'lead_author', 'pub_year']
 
 
 class PublicationDetails(DetailsCommon):
