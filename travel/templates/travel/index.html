@@ -46,7 +46,7 @@
         }
     </style>
     <div class="container">
-    <div class="jumbotron py-3">
+    <div class="jumbotron py-3 mx-0">
         <h1 class="three-em center-col">
             {% trans "DFO Science Travel Management System" %}
         </h1>
@@ -69,11 +69,14 @@
 
 
             <div class="container mt-3">
+
+
                 <!-- Nav tabs -->
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#traveller">{% trans "Traveller" %}</a>
                     </li>
+
                     {% if is_reviewer %}
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#reviewer">
@@ -82,34 +85,28 @@
                             </a>
                         </li>
                     {% endif %}
+
                     {% if is_admin %}
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#adm">
-                                {% trans "ADM" %}
-                                {% if adm_number_waiting %} (<span class="red-font blink-me">{{ adm_number_waiting }}</span>) {% endif %}
-                            </a>
-                        </li>
+                        {% for region in tab_dict %}
+                            {% with tab_dict|lookup:region as dict %}
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab"
+                                       href="#region_{{ region.id }}">
+                                        {{ region }} {% if dict.things_to_deal_with %}
+                                        (<span class="red-font blink-me">{{ dict.things_to_deal_with }}</span>){% endif %}
+                                    </a>
+                                </li>
+                            {% endwith %}
+                        {% endfor %}
                     {% endif %}
-                    {% if is_admin %}
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#rdg">
-                                {% trans "RDG" %}
-                                {% if rdg_number_waiting %} (<span class="red-font blink-me">{{ rdg_number_waiting }}</span>) {% endif %}
-                            </a>
-                        </li>
-                    {% endif %}
-                    {% if is_admin %}
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#verification">
-                                {% trans "Trip Verifications" %}
-                                {% if unverified_trips %} (<span class="red-font blink-me">{{ unverified_trips }}</span>) {% endif %}
-                            </a>
-                        </li>
-                    {% endif %}
+
+
                 </ul>
 
                 <!-- Tab panes -->
                 <div class="tab-content">
+
+                    {# Traveller Pane #}
                     <div id="traveller" class="container tab-pane active"><br>
                         <div class="row">
                             <div class="card" style="width: 17rem;">
@@ -127,7 +124,8 @@
 
                                 <div class="card" style="width: 17rem;">
                                     <div class="card-body">
-                                        <h5 class="card-title">{% trans "View Your Requests" %} ({{ user.user_trip_requests.count }})</h5>
+                                        <h5 class="card-title">{% trans "View Your Requests" %}
+                                            ({{ user.user_trip_requests.count }})</h5>
                                         <p class="card-text">{% trans "View any current or old trip requests that you have created in the past" %}</p>
                                         <div class="center-col">
                                             <a href="{{ your_url }}{{ user.id }}" class="btn btn-primary">{% trans "Go" %}</a>
@@ -147,6 +145,8 @@
                             </div>
                         </div>
                     </div>
+
+                    {# Reviewer Pane #}
                     {% if is_reviewer %}
 
                         <div id="reviewer" class="container tab-pane fade"><br>
@@ -162,8 +162,8 @@
                                     </a>
                                 {% else %}
                                     <span class="subtitle-success">
-                                    {% trans "There are no requests currently awaiting your review" %}
-                                </span><br>
+                                                        {% trans "There are no requests currently awaiting your review" %}
+                                                    </span><br>
                                 {% endif %}
                             </div>
                             <div class="mb-3">
@@ -174,91 +174,63 @@
                             </div>
                         </div>
                     {% endif %}
-                    {% if is_admin %}
 
-                        <div id="adm" class="container tab-pane fade"><br>
-                            {% echo event_list_url|add:"?user=" as your_url %}
+                    {% for region in tab_dict %}
+                        {% with tab_dict|lookup:region as dict %}
+                            <div id="region_{{ region.id }}" class="container tab-pane fade"><br>
 
-                            <h5 class="card-title">{% trans "ADM Menu" %}</h5>
-                            <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
-                            {% if adm_number_waiting %}
-                                <span class="subtitle">
-                                {% trans "Trip requests awaiting approval from ADM:" %} &nbsp;
-                            </span><br>
-                                {% for tag in my_dict|lookup:"adm_tags" %}
-                                    {{ tag }}
-                                {% endfor %}
-                                <br><br>
-                            {% else %}
-                                <span class="subtitle-success">
-                            {% trans "There are no requests currently awaiting ADM approval" %}
-                            </span><br>
-                            {% endif %}
+                                <h2 class="card-title">{{ region }}</h2>
+                                <h4 class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</h4>
 
+                                {% if not region == "NCR" %}
 
-                        </div>
-                    {% endif %}
-                    {% if is_admin %}
+                                    {# ADM stuff #}
+                                    <div class="mb-3">
+                                        {% if dict.adm_number_waiting %}
+                                            <a href="{{ dict.adm_approval_list_url }}" class="btn btn-outline-dark">
+                                                {% trans "Trip requests awaiting approval from ADM" %}
+                                                (<span class="red-font blink-me">{{ dict.adm_number_waiting }}</span>)
+                                            </a>
+                                        {% else %}
+                                            <span class="subtitle-success">{% trans "There are currently no requests awaiting ADM approval" %}</span>
+                                        {% endif %}
+                                    </div>
 
-                        <div id="rdg" class="container tab-pane fade"><br>
-                            {% echo event_list_url|add:"?user=" as your_url %}
-
-                            <h5 class="card-title">{% trans "RDG Menu" %}</h5>
-                            <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
-                            {% if rdg_number_waiting %}
-                                <span class="subtitle">
-                            {% trans "Trip requests awaiting approval from RDG:" %}
-                            </span><br>
-                                {% for tag in my_dict|lookup:"rdg_tags" %}
-                                    {{ tag }}
-                                {% endfor %}
-                                <br><br>
-                            {% else %}
-                                <span class="subtitle-success">
-                            {% trans "There are no requests currently awaiting RDG approval" %}
-                            </span><br>
-                            {% endif %}
-
-
-                        </div>
-                    {% endif %}
-                    {% if is_admin %}
-
-                        <div id="verification" class="container tab-pane fade"><br>
-                            {% echo event_list_url|add:"?user=" as your_url %}
-
-                            <h5 class="card-title">{% trans "Trip Verification Menu" %}</h5>
-                            <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
-
-                            {% if unverified_trips %}
-                                <span class="subtitle">
-                            {% trans "Trips awaiting verification:" %}
-                            </span><br>
-                                {% if adm_unverified_trips %}
-                                    <a href="{{ adm_trip_verification_list_url }}" class="btn btn-outline-dark">
-                                        {% trans "National" %} (<span
-                                            class="{% if adm_unverified_trips > 0 %}red-font blink-me{% endif %}">{{ adm_unverified_trips }}</span>)
-                                    </a>
+                                    {# RDG stuff #}
+                                    <div class="mb-3">
+                                        {% if dict.rdg_number_waiting %}
+                                            <a href="{{ dict.rdg_approval_list_url }}" class="btn btn-outline-dark">
+                                                {% trans "Trip requests awaiting approval from RDG" %}
+                                                (<span class="red-font blink-me">{{ dict.rdg_number_waiting }}</span>)
+                                            </a>
+                                        {% else %}
+                                            <span class="subtitle-success">{% trans "There are currently no requests awaiting RDG approval" %}</span>
+                                        {% endif %}
+                                    </div>
                                 {% endif %}
-                                {% for tag in my_dict|lookup:"trip_tags" %}
-                                    {{ tag }}
-                                {% endfor %}
-                                <br><br>
-                            {% else %}
-                                <span class="subtitle-success">
-                            {% trans "There are no trips currently awaiting verification" %}
-                            </span><br>
-                            {% endif %}
 
-                        </div>
-                    {% endif %}
+                                {# Verification #}
+                                <div class="mb-3">
+                                    {% if dict.unverified_trips %}
+                                        <a href="{{ dict.trip_verification_list_url }}" class="btn btn-outline-dark">
+                                            {% trans "Trips awaiting verification" %}
+                                            (<span class="red-font blink-me">{{ dict.unverified_trips }}</span>)
+                                        </a>
+                                    {% else %}
+                                        <span class="subtitle-success">{% trans "There are no trips currently awaiting verification" %}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                        {% endwith %}
+                    {% endfor %}
+
                 </div>
 
             </div>
         </div>
 
         <br>
-
 
 
     </div>

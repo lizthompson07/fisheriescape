@@ -167,6 +167,8 @@ class TestTripVerifyUpdateViewPopout(CommonTest):
     def test_submit(self):
         data = FactoryFloor.TripFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.admin_user)
+        # check the trip status!! should be equal to 41 after form.save()
+        self.assertIs(self.instance.status_id, 41)
 
 
 class TestDefaultReviewerUpdateView(CommonTest):
