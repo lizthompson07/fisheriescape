@@ -1394,7 +1394,6 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
             utils.trip_approval_seeker(my_trip)
             my_trip.save()
 
-
         return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
 
 
