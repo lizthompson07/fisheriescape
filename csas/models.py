@@ -48,7 +48,7 @@ class SecSector(Lookup):
 
 
 class ConContact(models.Model):
-    con_id = models.AutoField(primary_key=True, verbose_name=_("ID"))
+    # con_id = models.AutoField(primary_key=True, verbose_name=_("ID"))
     honorific = models.ForeignKey(CohHonorific, on_delete=models.DO_NOTHING, verbose_name=_("Honorific"))
     first_name = models.CharField(max_length=100, verbose_name=_("First Name"))
     last_name = models.CharField(max_length=100, verbose_name=_("Last Name"))
@@ -114,7 +114,7 @@ class MeqQuarter(Lookup):
 
 
 class MetMeeting(models.Model):
-    met_id = models.AutoField(primary_key=True)
+    # met_id = models.AutoField(primary_key=True)
     quarter = models.ForeignKey(MeqQuarter, on_delete=models.DO_NOTHING)
     start_date = models.DateField(null=True, blank=True, verbose_name=_("Start Date"))
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End_Date"))
@@ -221,7 +221,7 @@ class KeyKeywords(Lookup):
 
 
 class PubPublication(models.Model):
-    pub_id = models.AutoField(primary_key=True, verbose_name=_("ID"))
+    # pub_id = models.AutoField(primary_key=True, verbose_name=_("ID"))
     series = models.ForeignKey(PsePublicationSeries, null=True, blank=True, on_delete=models.DO_NOTHING,
                                verbose_name=_("Series"))
     scope = models.ForeignKey(ScpScope, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Scope"))
