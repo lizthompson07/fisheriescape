@@ -1,7 +1,7 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
-# TODO add edit button beside quantity
+# TODO fix Quantity UpdateView to work with popouts in both item_detail and directly
 # TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
 # TODO Add confirmation step for deleting files
 # TODO If Item is marked container=TRUE, then container name is added to list of Locations
@@ -22,3 +22,4 @@
 # TODO get file upload function to work properly -- I think I mostly solved this -- UpdateView not getting current "item"
 # TODO add additional search features (i.e. for item location, size) --- can you have 2 different search filters on a page? (see itm_list.html page)
 # TODO Figure out how to have Forms default fill in the field that is the PK with the pk of the current DetailView --in Views use def get_initial(self):
+# TODO add edit button beside quantity

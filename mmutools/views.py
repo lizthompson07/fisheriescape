@@ -259,7 +259,7 @@ class QuantityDetailView(MmutoolsAccessRequired, DetailView):
 
         return context
 
-#TODO fix update view to work with popouts in both item_detail and directly
+
 class QuantityUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     model = models.Quantity
     form_class = forms.QuantityForm
