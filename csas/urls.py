@@ -17,12 +17,14 @@ urlpatterns = [
     # for Meetings
     path('meeting/',                            views.MeetingList.as_view(),        name="list_met"),
     path('meeting/new/',                        views.MeetingEntry.as_view(),       name="create_met"),
+    path('meeting/update/<int:pk>/<str:pop>/', views.MeetingUpdate.as_view(),     name="update_met"),
     path('meeting/update/<int:pk>/',            views.MeetingUpdate.as_view(),      name="update_met"),
     path('meeting/details/<int:pk>/',           views.MeetingDetails.as_view(),     name="details_met"),
 
     # for Publications
     path('publication/',                        views.PublicationList.as_view(),    name="list_pub"),
     path('publication/new/',                    views.PublicationEntry.as_view(),   name="create_pub"),
+    path('publication/update/<int:pk>/<str:pop>/', views.PublicationUpdate.as_view(),     name="update_pub"),
     path('publication/update/<int:pk>/',        views.PublicationUpdate.as_view(),  name="update_pub"),
     path('publication/details/<int:pk>/',       views.PublicationDetails.as_view(), name="details_pub"),
 

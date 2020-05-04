@@ -22,7 +22,7 @@
         <h2>{{ object.prj_name }}</h2>
         {% for field in fields %}
         <div class="row" >
-                <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field%}</span></div>
+            <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field%}</span></div>
         </div>
         {% endfor %}
     {% endblock field_override %}
