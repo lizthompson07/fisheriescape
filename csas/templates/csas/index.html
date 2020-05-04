@@ -22,7 +22,7 @@
                 <div class="col-1"><a class="btn btn-secondary btn-lg" href="{% url 'csas:list_req'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-secondary btn-lg" href="{% url 'csas:list_req'%}">{% trans "Maritimes" %}</a></div>
 
-                {# if the user is in Staff-Users group and has permissions to input New Requests #}
+                {# if the user is in csas-users group and has permissions to input New Requests #}
                 {% if auth %}
                     <div class="col-3"><a class="btn btn-secondary btn-lg" href="{% url 'csas:create_req'%}">{% trans "New Request" %}</a></div>
                 {% endif %}
@@ -61,7 +61,7 @@
                 <div class="col-1"><a class="btn btn-secondary btn-lg" href="{% url 'csas:list_con'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-secondary btn-lg" href="{% url 'csas:list_con'%}">{% trans "Maritimes" %}</a></div>
 
-                {# if the user is in Staff-Users group and has permissions to input New Contact #}
+                {# if the user is in csas-users group and has permissions to input New Contact #}
                 {% if auth %}
                     <div class="col-3"><a class="btn btn-secondary btn-lg" href="{% url 'csas:create_con' %}">{% trans "New Contact" %}</a></div>
                 {% endif %}

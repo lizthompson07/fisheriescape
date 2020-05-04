@@ -232,7 +232,16 @@ class RequestList(CsasListCommon):
     # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.RequestFilter
     # fields used in the table on the filter (list) page.
-    fields = ['req_id', 'title', 'region', 'client_sector', 'client_name', 'funding']
+    fields = ['id', 'title', 'region', 'client_sector', 'client_name', 'funding']
+
+    # ======================================================================
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["req_id1"] = self.kwargs.get('pk')
+        # context["req_id2"] = self.id
+        # context['req_id2'] = models.ReqRequest.filter(pk=self.object.pk)
+        return context
+    # =======================================================================
 
 
 class RequestDetails(DetailsCommon):
