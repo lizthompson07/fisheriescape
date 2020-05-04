@@ -199,6 +199,8 @@ class Conference(models.Model):
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
                                limit_choices_to={"used_for": 4}, verbose_name=_("trip status"), default=30)
+    admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
+    review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -209,6 +211,10 @@ class Conference(models.Model):
             my_str = "{}".format(self.name)
         return "{}, {} ({} {} {})".format(my_str, self.location, self.start_date.strftime("%d-%b-%Y"), _("to"),
                                           self.end_date.strftime("%d-%b-%Y"))
+
+    @property
+    def admin_notes_html(self):
+        return textile.textile(self.admin_notes)
 
     @property
     def html_block(self):

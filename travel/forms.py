@@ -260,6 +260,13 @@ class TripRequestAdminNotesForm(forms.ModelForm):
             "admin_notes",
         ]
 
+class TripAdminNotesForm(forms.ModelForm):
+    class Meta:
+        model = models.Conference
+        fields = [
+            "admin_notes",
+        ]
+
 
 class ChildTripRequestForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
@@ -365,7 +372,7 @@ class ChildTripRequestForm(forms.ModelForm):
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
-        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status"]
+        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status", "admin_notes"]
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -502,7 +509,6 @@ ReviewerFormSet = modelformset_factory(
 )
 
 
-
 class TripReviewerForm(forms.ModelForm):
     class Meta:
         model = models.TripReviewer
@@ -548,8 +554,6 @@ TripReviewerFormSet = modelformset_factory(
     form=TripReviewerForm,
     extra=1,
 )
-
-
 
 
 class FileForm(forms.ModelForm):
@@ -628,7 +632,6 @@ class TripRequestCostForm(forms.ModelForm):
             'amount_cad': forms.NumberInput(attrs={"class": "by-amount"}),
             # 'cost': forms.Select(attrs=chosen_js),
         }
-
 
 
 class DefaultReviewerForm(forms.ModelForm):
