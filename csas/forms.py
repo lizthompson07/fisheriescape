@@ -102,6 +102,10 @@ class PublicationForm(forms.ModelForm):
             "citation": Textarea(attrs={"rows": 1, "cols": 20}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['citation'].wigets = forms.Select(choices=models.PubPublication.objects.all())
+
 
 # class RequestForm(forms.ModelForm):
 #    class Meta:

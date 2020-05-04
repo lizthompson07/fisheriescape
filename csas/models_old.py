@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import AutoField
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
@@ -125,14 +124,13 @@ class MetMeeting(models.Model):
     chair_comments = models.TextField(null=True, blank=True, verbose_name=_("Chair Comments"))
     status_notes = models.TextField(null=True, blank=True, verbose_name=_("Status Notes"))
     location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING, verbose_name=_("Location"))
-    lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Lead Region"))
-    other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
-                                          verbose_name=_("Other Region"))
-    process_type = models.ForeignKey(AptAdvisoryProcessType, on_delete=models.DO_NOTHING,
+    lead_region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                    verbose_name=_("Lead Region"))
+    other_region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, verbose_name=_("Other Region"))
+    process_type = models.ForeignKey(AptAdvisoryProcessType, null=True, blank=True, on_delete=models.DO_NOTHING,
                                      verbose_name=_("Process Type"))
-    program_contact = models.ManyToManyField(ConContact, blank=True, related_name="program_contacts",
-                                             verbose_name=_("Program Contact"))
-    csas_contact = models.ManyToManyField(ConContact, blank=True, related_name="csas_contacts", verbose_name=_("CSAS Contact"))
+    program_contact = models.ForeignKey(ConContact, on_delete=models.DO_NOTHING, blank=True, verbose_name=_("Program Contact"))
+    csas_contact = models.ForeignKey(ConContact, on_delete=models.DO_NOTHING, blank=True, verbose_name=_("CSAS Contact"))
 
     def __str__(self):
         return "{}/{}".format(self.title_en, self.title_fr)
@@ -278,7 +276,6 @@ class PtiPublicationTitle(models.Model):
 # ---------------------------------------------------------------------------------------
 # Create models for requests
 class RepPriority(Lookup):
-    # pass
     rep_id = models.AutoField(primary_key=True)
 
 
@@ -292,7 +289,7 @@ class RedDecision(models.Model):
 
 
 class ReqRequest(models.Model):
-    # req_id: AutoField = models.AutoField(primary_key=True, verbose_name=_("ID"))
+    req_id = models.AutoField(primary_key=True, verbose_name=_("ID"))
     assigned_req_id = models.CharField(max_length=45, verbose_name=_("Assigned Request Number"))
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     in_year_request = models.BooleanField(verbose_name=_("In-Year Request"))
