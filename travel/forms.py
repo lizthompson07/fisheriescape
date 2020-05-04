@@ -502,6 +502,56 @@ ReviewerFormSet = modelformset_factory(
 )
 
 
+
+class TripReviewerForm(forms.ModelForm):
+    class Meta:
+        model = models.TripReviewer
+        fields = [
+            'trip',
+            'order',
+            'user',
+            'role',
+        ]
+        widgets = {
+            'trip': forms.HiddenInput(),
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+    def clean(self):
+        """
+        The order, user, or role cannot be changed if the reviewer status is approved or queued
+        :return:
+        """
+        my_object = self.instance
+        cleaned_data = super().clean()
+        order = cleaned_data.get("order")
+        user = cleaned_data.get("user")
+        role = cleaned_data.get("role")
+
+        # Check the role
+        if my_object.status and my_object.status.id not in [23, 24]:
+            # need to determine if there have been any changes
+            if my_object.role != role:
+                raise forms.ValidationError(_(f'Sorry, the role of a reviewer whose status is set to {my_object.status} cannot be changed'))
+
+            if my_object.user != user:
+                raise forms.ValidationError(
+                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.status}'))
+
+            if my_object.order != order:
+                raise forms.ValidationError(
+                    _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
+
+
+TripReviewerFormSet = modelformset_factory(
+    model=models.TripReviewer,
+    form=TripReviewerForm,
+    extra=1,
+)
+
+
+
+
 class FileForm(forms.ModelForm):
     class Meta:
         model = models.File
@@ -589,6 +639,7 @@ class DefaultReviewerForm(forms.ModelForm):
             "user": forms.Select(attrs=chosen_js),
             "sections": forms.SelectMultiple(attrs=chosen_js),
             "branches": forms.SelectMultiple(attrs=chosen_js),
+            "reviewer_roles": forms.SelectMultiple(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):

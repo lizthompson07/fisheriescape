@@ -12,25 +12,42 @@ from . import models
 from . import emails
 from shared_models import models as shared_models
 
-# eventually this should turn into a table in the DB!!
-# division_reviewer_dict = {
-#     # MAR
-#     11: 1095,  # CESD --> Mar - CESD - Admin
-#     15: 1102,  # RDSO --> Mar - RDSO - Admin
-#     16: 530,  # SPAD --> Christina Maclean
-#     17: 1101,  # PED --> Mar - PED - Admin
-#     18: 1100,  # OESD --> Mar - OESD - Admin
-#     19: 1103,  # CHS --> Ashley Macdonald
-#
-#     # GULF
-#     1: 385,  # Aquatic health --> Amelie Robichaud
-#     2: 385,  # Fisheries and Ecosystems --> Amelie Robichaud
-#     3: 385,  # RDSO --> Amelie Robichaud
-# }
+
+def get_trip_reviewers(trip):
+    """add reviewers to a trip is adm approval is required. If it isn't, it will remove all reviewers from the trip (if present)"""
+    # This section only matters for ADM trips
+
+    if trip.is_adm_approval_required:
+
+        # NCR travel coordinator
+        try:
+            # add each default NCR coordinator to the queue
+            for default_reviewer in models.ReviewerRole.objects.get(pk=3).travel_default_reviewers.order_by("id"):
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role_id=3)
+        except (IntegrityError, KeyError):
+            pass
+
+        # ADM Approver
+        try:
+            # add each default ADM approver to the queue
+            for default_reviewer in models.ReviewerRole.objects.get(pk=4).travel_default_reviewers.order_by("id"):
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role_id=4)
+        except (IntegrityError, KeyError):
+            pass
+
+        # ADM Approver
+        try:
+            # add ADM to the queue
+            for default_reviewer in models.ReviewerRole.objects.get(pk=5).travel_default_reviewers.all():
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role_id=5)
+        except (IntegrityError, KeyError):
+            pass
+    else:
+        trip.reviewers.all().delete()
+    trip.save()
 
 
-def get_reviewers(trip_request):
-    # assuming there is a section, assign amelie and section management
+def get_tr_reviewers(trip_request):
     if trip_request.section:
 
         # section level reviewer
@@ -68,7 +85,6 @@ def get_reviewers(trip_request):
                 for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.all():
                     models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role_id=1)
 
-
                 if trip_request.section.division.branch.region_id == 2:
                     my_user = User.objects.get(pk=1102)
                     models.Reviewer.objects.get_or_create(trip_request=trip_request, user=my_user, role_id=1, )  # MAR RDSO ADMIN user
@@ -88,22 +104,6 @@ def get_reviewers(trip_request):
     if trip_request.trip:
         if trip_request.trip.is_adm_approval_required:
             # add the ADMs office staff
-            # try:
-            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=749, role_id=3, )  # Kim Cotton
-            # except IntegrityError:
-            #     print("not adding NCR reviewer")
-            # try:
-            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=736, role_id=4, )  # Andy White
-            # except IntegrityError:
-            #     print("not adding NCR recommender")
-            # try:
-            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=758, role_id=4, )  # Stephen Virc
-            # except IntegrityError:
-            #     print("not adding NCR recommender")
-            # try:
-            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=740, role_id=4, )  # Wayne Moore
-            # except IntegrityError:
-            #     print("not adding NCR recommender")
             try:
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=626, role_id=5, )  # Arran McPherson
             except IntegrityError:

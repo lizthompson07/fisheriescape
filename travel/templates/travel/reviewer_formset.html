@@ -29,10 +29,30 @@
                 <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
                     {% trans "Home" %}
                 </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
-                    {% trans "Trip Requests" %}
-                </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' triprequest.id %}">{{ triprequest }}</a></li>
+                <li class="breadcrumb-item">
+                    {% if trip %}
+                        <a href="{% url 'travel:trip_list' %}">
+                            {% trans "Trips" %}
+                        </a>
+                    {% else %}
+                        <a href="{% url 'travel:request_list' %}">
+                            {% trans "Trip Requests" %}
+                        </a>
+                    {% endif %}
+                </li>
+                <li class="breadcrumb-item">
+
+                    {% if trip %}
+                        <a href="{% url 'travel:trip_detail' trip.id %}">
+                            {{ trip }}
+                        </a>
+                    {% else %}
+                        <a href="{% url 'travel:request_detail' triprequest.id %}">
+                            {{ triprequest }}
+                        </a>
+                    {% endif %}
+
+                </li>
                 <li class="breadcrumb-item active" aria-current="page">
                     {% trans "Manage Reviewers" %}
                 </li>
@@ -42,7 +62,7 @@
             {% trans "Managing Reviewers:" %}
         </h1>
         <h2>
-            {{ triprequest }}
+            {{ triprequest }}{{ trip }}
         </h2>
         {% if triprequest.reviewer_order_message %}
             <h2 class="red-font blink-me">
@@ -60,10 +80,19 @@
                 <button class="btn btn-primary submit">
                     {% trans "Save" %}
                 </button>
-                <a class="btn btn-warning" href="{% url 'travel:reset_reviewers' triprequest.id %}">
+
+                {% if trip %}
+                    {% url 'travel:reset_trip_reviewers' trip.id as reset_url %}
+                    {% url 'travel:trip_detail' trip.id as back_url %}
+                {% else %}
+                    {% url 'travel:reset_tr_reviewers' triprequest.id as reset_url %}
+                    {% url 'travel:request_detail' triprequest.id as back_url %}
+                {% endif %}
+
+                <a class="btn btn-warning" href="{{ reset_url }}">
                     {% trans "Reset" %}
                 </a>
-                <a class="btn btn-secondary" href="{% url 'travel:request_detail' triprequest.id %}">
+                <a class="btn btn-secondary" href="{{ back_url }}">
                     {% trans "Back" %}
                 </a>
             </div>
@@ -92,7 +121,7 @@
                         {% endfor %}
                         {% for field in form %}
                             {% if not field.is_hidden %}
-                                {% if form.instance.id and not form.instance.status.id == 4 and not form.instance.status.id == 20 %}
+                                {% if form.instance.id and not form.instance.status.id == 4 and not form.instance.status.id == 20 and triprequest %}
                                     <td>
                                         {{ form.instance|getattribute:field.name }}
                                         <span class="gone">{{ field }}</span>
@@ -109,12 +138,15 @@
                             {{ form.instance.status|nz:"---" }}
                         </td>
                         {% if form.instance.id %}
-                            {% if not form.instance.status.id == 4 and not form.instance.status.id == 20 %}
+                            {% if not form.instance.status.id == 4 and not form.instance.status.id == 20 and triprequest %}
                                 {# NO delete button #}
                             {% else %}
                                 <td>
-
-                                    {% url 'travel:delete_reviewer' form.instance.id as my_delete_url %}
+                                    {% if triprequest %}
+                                        {% url 'travel:delete_tr_reviewer' form.instance.id as my_delete_url %}
+                                    {% else %}
+                                        {% url 'travel:delete_trip_reviewer' form.instance.id as my_delete_url %}
+                                    {% endif %}
                                     <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
                                         <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
                                     </a>
@@ -133,10 +165,10 @@
                 <button class="btn btn-primary submit">
                     {% trans "Save" %}
                 </button>
-                <a class="btn btn-warning" href="{% url 'travel:reset_reviewers' triprequest.id %}">
+                <a class="btn btn-warning" href="{{ reset_url }}">
                     {% trans "Reset" %}
                 </a>
-                <a class="btn btn-secondary" href="{% url 'travel:request_detail' triprequest.id %}">
+                <a class="btn btn-secondary" href="{{ back_url }}">
                     {% trans "Back" %}
                 </a>
             </div>
