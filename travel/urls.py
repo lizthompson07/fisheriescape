@@ -40,11 +40,10 @@ urlpatterns = [
          name="admin_approval_list"),
     # path('admin/<int:pk>/approve/', views.TripRequestAdminApproveUpdateView.as_view(), name="admin_approve"),
 
-    # REVIEWERS #
-    #############
-    path('request/<int:pk>/reset-reviewers/', views.reset_reviewers, name="reset_reviewers"),
-    path('request/<int:trip_request>/manage-reviewers/', views.manage_reviewers, name="manage_reviewers"),
-    path('reviewer/<int:pk>/delete/', views.delete_reviewer, name="delete_reviewer"),
+    # TRIP REQUEST REVIEWERS
+    path('request/<int:triprequest>/reset-reviewers/', views.reset_reviewers, name="reset_tr_reviewers"),
+    path('request/<int:triprequest>/manage-reviewers/', views.manage_reviewers, name="manage_tr_reviewers"),
+    path('trip-request-reviewer/<int:triprequest>/delete/', views.delete_reviewer, name="delete_tr_reviewer"),
 
     # TRIP #
     ########
@@ -60,6 +59,11 @@ urlpatterns = [
          name="admin_trip_verification_list"),
     path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
     path('trip/<int:pk>/delete/back-to-verify/<int:back_to_verify>/', views.TripDeleteView.as_view(), name="trip_delete"),
+
+    # TRIP REVIEWERS
+    path('trip/<int:trip>/reset-reviewers/', views.reset_reviewers, name="reset_trip_reviewers"),
+    path('trip/<int:trip>/manage-reviewers/', views.manage_reviewers, name="manage_trip_reviewers"),
+    path('trip-reviewer/<int:trip>/delete/', views.delete_reviewer, name="delete_trip_reviewer"),
 
     # FILES #
     #########

@@ -31,6 +31,8 @@ class DefaultReviewer(models.Model):
                                       related_name="travel_default_reviewers")
     branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"), blank=True,
                                       related_name="travel_default_reviewers")
+    reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"), blank=True,
+                                            related_name="travel_default_reviewers", limit_choices_to={"id__in": [3, 4, 5]})
 
     def __str__(self):
         return "{}".format(self.user)
@@ -345,6 +347,12 @@ class Conference(models.Model):
 
     def save(self, *args, **kwargs):
         self.fiscal_year = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
+        # ensure the process order makes sense
+        count = 1
+        for reviewer in self.reviewers.all():  # use the default sorting
+            reviewer.order = count
+            reviewer.save()
+            count += 1
         super().save(*args, **kwargs)
 
     def get_connected_requests(self):
@@ -907,13 +915,6 @@ class TripReviewer(models.Model):
             return textile.textile(self.comments)
         else:
             return "---"
-
-    def save(self, *args, **kwargs):
-        # If the trip request is currently under review but changes have been requested, add this reviewer directly in the queue
-
-        if self.trip_request.status_id != 8 and self.status_id == 4:
-            self.status_id = 20
-        return super().save(*args, **kwargs)
 
     @property
     def status_string(self):

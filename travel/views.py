@@ -14,7 +14,7 @@ from django.db.models import Sum, Q, Value, TextField
 from django.shortcuts import render
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse, HttpResponseForbidden
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView, FormView
 ###
@@ -161,10 +161,9 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
 
         # this will be the dict to populate the tabs on the index page
         tab_dict = dict()
-        for region in shared_models.Region.objects.all():
+        for region in shared_models.Region.objects.filter(~Q(id=6)):
             tab_dict[region] = dict()
             # this will be the counter for any of the things that need dealing with
-            tab_dict["things_to_deal_with"] = 0
 
             # RDG
             rdg_number_waiting = models.Reviewer.objects.filter(
@@ -172,15 +171,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
                 role_id=6,
                 trip_request__section__division__branch__region=region,
             ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
-
             rdg_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'rdg', "region": region.id})
-
-            rdg_class = "red-font blink-me" if rdg_number_waiting else ""
-
-            rdg_tag = mark_safe(
-                f'<a href="{rdg_approval_list_url}" class="btn btn-outline-dark">{region}'
-                f' (<span class="{rdg_class}">{rdg_number_waiting}</span>)</a>'
-            )
 
             # ADM
             adm_number_waiting = models.Reviewer.objects.filter(
@@ -189,102 +180,33 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
                 trip_request__section__division__branch__region=region,
             ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
             adm_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'adm', "region": region.id})
-            adm_class = "red-font blink-me" if adm_number_waiting else ""
-            adm_tag = mark_safe(
-                f'<a href="{adm_approval_list_url}" class="btn btn-outline-dark">{item[0]}'
-                f' (<span class="{adm_class}">{adm_number_waiting}</span>)</a>'
-            )
 
             # unverified trips
             unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=False, lead=region).count()
             trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 0, "region": region.id})
-            unverified_class = "red-font blink-me" if unverified_trips else ""
-            unverified_tag = mark_safe(
-                f'<a href="{trip_verification_list_url}" class="btn btn-outline-dark">{region}'
-                f' (<span class="{unverified_class}">{unverified_trips}</span>)</a>'
-            )
 
-            if adm_number_waiting > 0:
-                tab_dict[region]["adm_tags"].append(adm_tag)
-            if rdg_number_waiting > 0:
-                tab_dict[region]["rdg_tags"].append(rdg_tag)
-            if unverified_trips > 0:
-                tab_dict[region]["trip_tags"].append(unverified_tag)
+            tab_dict[region]["rdg_number_waiting"] = rdg_number_waiting
+            tab_dict[region]["rdg_approval_list_url"] = rdg_approval_list_url
+            tab_dict[region]["adm_number_waiting"] = adm_number_waiting
+            tab_dict[region]["adm_approval_list_url"] = adm_approval_list_url
+            tab_dict[region]["unverified_trips"] = unverified_trips
+            tab_dict[region]["trip_verification_list_url"] = trip_verification_list_url
+            tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + adm_number_waiting + unverified_trips
 
-        context["rdg_number_waiting"] = models.Reviewer.objects.filter(
-            status_id=1,
-            role_id=6,
-        ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
-        context["adm_number_waiting"] = models.Reviewer.objects.filter(
-            status_id=1,
-            role_id=5,
-        ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
-        context["unverified_trips"] = models.Conference.objects.filter(
-            status_id=30).count()
+        # Now for NCR
+        tab_dict["NCR"] = dict()
 
-        region_list = [
-            [_("Gulf"), 1],
-            [_("Maritime"), 2],
-            [_("C&A"), 19],
-            [_("Quebec"), 29],
-            [_("Pacific"), 39],
-            [_("NL"), 49],
-        ]
-
-        my_dict = dict()
-        my_dict["adm_tags"] = list()
-        my_dict["rdg_tags"] = list()
-        my_dict["trip_tags"] = list()
-
-        for item in region_list:
-            # RDG
-            rdg_number_waiting = models.Reviewer.objects.filter(
-                status_id=1,
-                role_id=6,
-                trip_request__section__division__branch__region_id=item[1],
-            ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
-            rdg_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'rdg', "region": item[1]})
-            rdg_class = "red-font blink-me" if rdg_number_waiting else ""
-            rdg_tag = mark_safe(
-                f'<a href="{rdg_approval_list_url}" class="btn btn-outline-dark">{item[0]}'
-                f' (<span class="{rdg_class}">{rdg_number_waiting}</span>)</a>'
-            )
-
-            # ADM
-            adm_number_waiting = models.Reviewer.objects.filter(
-                status_id=1,
-                role_id=5,
-                trip_request__section__division__branch__region_id=item[1],
-            ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
-            adm_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'adm', "region": item[1]})
-            adm_class = "red-font blink-me" if adm_number_waiting else ""
-            adm_tag = mark_safe(
-                f'<a href="{adm_approval_list_url}" class="btn btn-outline-dark">{item[0]}'
-                f' (<span class="{adm_class}">{adm_number_waiting}</span>)</a>'
-            )
-
-            # unverified trips
-            unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=False, lead_id=item[1]).count()
-            trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 0, "region": item[1]})
-            unverified_class = "red-font blink-me" if unverified_trips else ""
-            unverified_tag = mark_safe(
-                f'<a href="{trip_verification_list_url}" class="btn btn-outline-dark">{item[0]}'
-                f' (<span class="{unverified_class}">{unverified_trips}</span>)</a>'
-            )
-            if adm_number_waiting > 0:
-                my_dict["adm_tags"].append(adm_tag)
-            if rdg_number_waiting > 0:
-                my_dict["rdg_tags"].append(rdg_tag)
-            if unverified_trips > 0:
-                my_dict["trip_tags"].append(unverified_tag)
-
-        context['adm_unverified_trips'] = models.Conference.objects.filter(
-            is_verified=False, is_adm_approval_required=True).count()
-        context['adm_trip_verification_list_url'] = reverse('travel:admin_trip_verification_list', kwargs={"adm": 1, "region": 0})
+        # unverified trips
+        unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=True).count()
+        trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 1, "region": 0})
+        tab_dict["NCR"]["unverified_trips"] = unverified_trips
+        tab_dict["NCR"]["trip_verification_list_url"] = trip_verification_list_url
+        tab_dict["NCR"]["things_to_deal_with"] = unverified_trips  # placeholder :)
 
         context["is_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
-        context["my_dict"] = my_dict
+        context["is_adm_admin"] = in_adm_admin_group(self.request.user)
+        context["tab_dict"] = tab_dict
 
         return context
 
@@ -881,7 +803,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
             utils.populate_trip_request_costs(self.request, my_object)
 
         # add reviewers
-        utils.get_reviewers(my_object)
+        utils.get_tr_reviewers(my_object)
 
         # if this is not a child record
         if not my_object.parent_request:
@@ -987,7 +909,7 @@ class TripRequestCloneUpdateView(TripRequestUpdateView):
         new_obj.save()
 
         # add the reviewers based on the new request info
-        utils.get_reviewers(new_obj)
+        utils.get_tr_reviewers(new_obj)
         utils.approval_seeker(new_obj)
 
         if new_obj.is_group_request:
@@ -1055,85 +977,149 @@ class ChildTripRequestCloneUpdateView(TripRequestUpdateView):
 
 @login_required(login_url='/accounts/login/')
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def reset_reviewers(request, pk):
-    my_obj = models.TripRequest.objects.get(pk=pk)
-    if can_modify_request(request.user, pk):
-        # This function should only ever be run if the TR is a draft
-        if my_obj.status.id == 8:
-            # first remove any existing reviewers
-            my_obj.reviewers.all().delete()
-            # next, re-add the defaults...
-            utils.get_reviewers(my_obj)
+def reset_reviewers(request, triprequest=None, trip=None):
+    """this function will reset the reviewers on either a trip request or trip
+    """
+    if triprequest:
+        my_obj = models.TripRequest.objects.get(pk=triprequest)
+        if can_modify_request(request.user, triprequest):
+            # This function should only ever be run if the TR is a draft
+            if my_obj.status.id == 8:
+                # first remove any existing reviewers
+                my_obj.reviewers.all().delete()
+                # next, re-add the defaults...
+                utils.get_tr_reviewers(my_obj)
+            else:
+                messages.error(request, _("This function can only be used when the trip request is still a draft"))
         else:
-            messages.error(request, _("This function can only be used when the trip request is still a draft"))
-    else:
-        messages.error(request, _("You do not have the permissions to reset the reviewer list"))
-    return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.id}))
+            messages.error(request, _("You do not have the permissions to reset the reviewer list"))
+        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.id}))
+
+    elif trip:
+        # first, this should only ever be an ADM admin group
+        if not in_adm_admin_group(request.user):
+            return HttpResponseForbidden()
+        else:
+            my_obj = models.Conference.objects.get(pk=trip)
+            # This function should only ever be run if the trip is unreviewed (30 = unverified, unreviewer; 41 = verified, reviewed)
+            if my_obj.status.id in [30, 41]:
+                # first remove any existing reviewers
+                my_obj.reviewers.all().delete()
+                # next, re-add the defaults...
+                utils.get_trip_reviewers(my_obj)
+            else:
+                messages.error(request, _("This function can only with an unreviewed trip."))
+            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_obj.id}))
 
 
 # REVIEWER #
 ############
 @login_required(login_url='/accounts/login/')
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def delete_reviewer(request, pk):
-    my_obj = models.Reviewer.objects.get(pk=pk)
-    if can_modify_request(request.user, my_obj.trip_request.id):
-        # This function should only ever be run if the TR is in draft or changes have been requested
-        # if not my_obj.trip_request.status_id in [8, 16]:
-        #     messages.error(request, _("Sorry, you will have to unsubmit the trip in order to make this change"))
-        #     return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
-        # else:
-        # now, the status of the reviewer matters.. under no circumstances should a reviewer that is not in "draft" or "queue" mode be modified / deleted
-        if my_obj.status_id not in [4, 20]:
-            messages.error(request, _(f"Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"))
+def delete_reviewer(request, triprequest=None, trip=None):
+    if triprequest:
+        my_obj = models.Reviewer.objects.get(pk=triprequest)
+        if can_modify_request(request.user, my_obj.trip_request.id):
+            # This function should only ever be run if the TR is in draft or changes have been requested
+            # if not my_obj.trip_request.status_id in [8, 16]:
+            #     messages.error(request, _("Sorry, you will have to unsubmit the trip in order to make this change"))
+            #     return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
+            # else:
+            # now, the status of the reviewer matters.. under no circumstances should a reviewer that is not in "draft" or "queue" mode be modified / deleted
+            if my_obj.status_id not in [4, 20]:
+                messages.error(request, _(f"Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"))
+            else:
+                # it is ok to delete the reviewer
+                my_obj.delete()
+                my_obj.trip_request.save()
+            return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_obj.trip_request.id}))
         else:
-            # it is ok to delete the reviewer
-            my_obj.delete()
-            my_obj.trip_request.save()
-        return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_obj.trip_request.id}))
+            messages.error(request, _("You do not have the permissions to delete a reviewer"))
+            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
     else:
-        messages.error(request, _("You do not have the permissions to delete a reviewer"))
-        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
+        if not in_adm_admin_group(request.user):
+            return HttpResponseForbidden()
+        else:
+            my_obj = models.TripReviewer.objects.get(pk=trip)
+            if my_obj.status_id not in [23, 24]:
+                messages.error(request, _(f"Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"))
+            else:
+                # it is ok to delete the reviewer
+                my_obj.delete()
+                my_obj.trip.save()
+            return HttpResponseRedirect(reverse("travel:manage_trip_reviewers", kwargs={"trip": my_obj.trip.id}))
 
 
 @login_required(login_url='/accounts/login/')
 # @user_passes_test(is_superuser, login_url='/accounts/denied/')
-def manage_reviewers(request, trip_request):
-    my_trip_request = models.TripRequest.objects.get(pk=trip_request)
-    if can_modify_request(request.user, my_trip_request.id):
-        # if not my_trip_request.status_id in [8, 16]:
-        #     messages.error(request, _("Sorry, you will have to unsubmit the trip in order to make this change"))
-        #     return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
-        # else:
-        qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
-        if request.method == 'POST':
-            formset = forms.ReviewerFormSet(request.POST)
-            if formset.is_valid():
-                formset.save()
+def manage_reviewers(request, triprequest=None, trip=None):
+    if triprequest:
+        my_trip_request = models.TripRequest.objects.get(pk=triprequest)
+        if can_modify_request(request.user, my_trip_request.id):
+            # if not my_trip_request.status_id in [8, 16]:
+            #     messages.error(request, _("Sorry, you will have to unsubmit the trip in order to make this change"))
+            #     return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+            # else:
+            qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
+            if request.method == 'POST':
+                formset = forms.ReviewerFormSet(request.POST)
+                if formset.is_valid():
+                    formset.save()
 
-                my_trip_request.save()
-                # do something with the formset.cleaned_data
-                messages.success(request, _("The reviewer list has been successfully updated"))
-                return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_trip_request.id}))
+                    my_trip_request.save()
+                    # do something with the formset.cleaned_data
+                    messages.success(request, _("The reviewer list has been successfully updated"))
+                    return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_trip_request.id}))
+            else:
+                formset = forms.ReviewerFormSet(
+                    queryset=qs,
+                    initial=[{"trip_request": my_trip_request}],
+                )
+
+            context = dict()
+            context['triprequest'] = my_trip_request
+            context['formset'] = formset
+            context["my_object"] = models.Reviewer.objects.first()
+            context["field_list"] = [
+                'order',
+                'user',
+                'role',
+            ]
+            return render(request, 'travel/reviewer_formset.html', context)
         else:
-            formset = forms.ReviewerFormSet(
-                queryset=qs,
-                initial=[{"trip_request": my_trip_request}],
-            )
+            messages.error(request, _("You do not have the permissions to modify the reviewer list"))
+            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+    elif trip:
+        my_trip = models.Conference.objects.get(pk=trip)
+        if not in_adm_admin_group(request.user):
+            return HttpResponseForbidden()
+        else:
+            qs = models.TripReviewer.objects.filter(trip=trip)
+            if request.method == 'POST':
+                formset = forms.TripReviewerFormSet(request.POST)
+                if formset.is_valid():
+                    formset.save()
 
-        context = {}
-        context['triprequest'] = my_trip_request
-        context['formset'] = formset
-        context["my_object"] = models.Reviewer.objects.first()
-        context["field_list"] = [
-            'order',
-            'user',
-            'role',
-        ]
-        return render(request, 'travel/reviewer_formset.html', context)
-    else:
-        messages.error(request, _("You do not have the permissions to modify the reviewer list"))
-        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+                    my_trip.save()
+                    # do something with the formset.cleaned_data
+                    messages.success(request, _("The reviewer list has been successfully updated"))
+                    return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip": my_trip.id}))
+            else:
+                formset = forms.TripReviewerFormSet(
+                    queryset=qs,
+                    initial=[{"trip": my_trip}],
+                )
+
+            context = dict()
+            context['trip'] = my_trip
+            context['formset'] = formset
+            context["my_object"] = models.TripReviewer.objects.first()
+            context["field_list"] = [
+                'order',
+                'user',
+                'role',
+            ]
+            return render(request, 'travel/reviewer_formset.html', context)
 
 
 # TRIP #
@@ -1184,6 +1170,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["conf_field_list"] = conf_field_list
+        context["reviewer_field_list"] = reviewer_field_list
         context["trip"] = self.get_object()
         return context
 
@@ -1197,6 +1184,14 @@ class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
+
+        # This is a bit tricky here. Right now will work with the assumption that we do not ever want to reset the reviewers unless
+        # the trip was ADM approval required, and now is not, OR if it wasn't and now it is.
+        if my_object.is_adm_approval_required and my_object.reviewers.count() == 0 or not my_object.is_adm_approval_required:
+            # Add any trip reviewers to the trip, if adm approval is required.
+            # This function will also delete any reviewers if adm approval is not required
+            utils.get_trip_reviewers(my_object)
+
         if self.kwargs.get("pop"):
             return HttpResponseRedirect(reverse("shared_models:close_me"))
         else:
@@ -1233,6 +1228,10 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
 
     def form_valid(self, form):
         my_object = form.save()
+
+        # Add any trip reviewers to the trip, if adm approval is required
+        utils.get_trip_reviewers(my_object)
+
         if self.kwargs.get("pop"):
             # create a new email object
             email = emails.NewTripEmail(my_object)
@@ -1675,6 +1674,7 @@ class DefaultReviewerListView(TravelAdminRequiredMixin, ListView):
             'user',
             'sections',
             'branches',
+            'reviewer_roles',
         ]
         context["random_object"] = self.object_list.first()
         return context

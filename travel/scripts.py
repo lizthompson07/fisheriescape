@@ -27,6 +27,7 @@ def export_fixtures():
         # shared_models.Branch,
         # shared_models.Division,
         # shared_models.Section,
+        # models.DefaultReviewer,
         User,
         Group,
     ]
