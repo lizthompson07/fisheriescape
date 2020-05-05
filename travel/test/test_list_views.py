@@ -37,6 +37,7 @@ class TripRequestListView(CommonTest):
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
 
+
 class TestTripListView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -60,13 +61,13 @@ class TestTripListView(CommonTest):
             "is_admin",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
-    
+
 
 class TestAdminTripVerificationListView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.TripFactory()
-        self.test_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"region":0, "adm":0})
+        self.test_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"region": 0, "adm": 0})
         self.expected_template = 'travel/trip_verification_list.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
@@ -88,4 +89,29 @@ class TestAdminTripVerificationListView(CommonTest):
             "my_object",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
-    
+
+
+class TestDefaultReviewerListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('travel:default_reviewer_list')
+        self.expected_template = 'travel/default_reviewer_list.html'
+        self.admin_user = self.get_and_login_user(in_group="travel_admin")
+
+    @tag("default_reviewer_list", 'list', "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.DefaultReviewerListView, ListView)
+
+    @tag("default_reviewer_list", 'list', "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
+
+    @tag("default_reviewer_list", 'list', "context")
+    def test_context(self):
+
+        context_vars = [
+            "field_list",
+            "random_object",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, self.admin_user)

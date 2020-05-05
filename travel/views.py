@@ -1348,7 +1348,7 @@ class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("travel:report_search"))
 
-
+@login_required()
 def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
     file_url = reports.generate_cfts_spreadsheet(fiscal_year=fy, region=region, trip=trip, user=user, from_date=from_date, to_date=to_date)
 
@@ -1360,7 +1360,7 @@ def export_cfts_list(request, fy, region, trip, user, from_date, to_date):
             return response
     raise Http404
 
-
+@login_required()
 def export_trip_list(request, fy, region, adm, from_date, to_date):
     file_url = reports.generate_trip_list(fiscal_year=fy, region=region, adm=adm, from_date=from_date, to_date=to_date)
 
@@ -1371,7 +1371,7 @@ def export_trip_list(request, fy, region, adm, from_date, to_date):
             return response
     raise Http404
 
-
+@login_required()
 def export_request_cfts(request, trip=None, trip_request=None):
     # print(trip)
     file_url = reports.generate_cfts_spreadsheet(trip_request=trip_request, trip=trip)
@@ -1603,6 +1603,50 @@ def manage_njc_rates(request):
     context['title'] = "Manage NJC Rates"
     context['formset'] = formset
     return render(request, 'travel/manage_settings_small.html', context)
+
+
+
+# Default Reviewer Settings
+
+class DefaultReviewerListView(TravelAdminRequiredMixin, ListView):
+    model = models.DefaultReviewer
+    template_name = 'travel/default_reviewer_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'user',
+            'sections',
+            'branches',
+        ]
+        context["random_object"] = self.object_list.first()
+        return context
+
+
+class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.DefaultReviewer
+    form_class = forms.DefaultReviewerForm
+    success_url = reverse_lazy('travel:default_reviewer_list')
+    template_name = 'travel/default_reviewer_form.html'
+
+
+class DefaultReviewerCreateView(TravelAdminRequiredMixin, CreateView):
+    model = models.DefaultReviewer
+    form_class = forms.DefaultReviewerForm
+    success_url = reverse_lazy('travel:default_reviewer_list')
+    template_name = 'travel/default_reviewer_form.html'
+
+
+class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
+    model = models.DefaultReviewer
+    success_url = reverse_lazy('travel:default_reviewer_list')
+    success_message = 'The default reviewer was successfully deleted!'
+    template_name = 'travel/default_reviewer_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
 
 
 # FILES #

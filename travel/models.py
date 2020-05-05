@@ -24,6 +24,21 @@ YES_NO_CHOICES = (
 )
 
 
+class DefaultReviewer(models.Model):
+    user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
+                                verbose_name=_("DM Apps user"))
+    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which DFO section(s)"), blank=True,
+                                      related_name="travel_default_reviewers")
+    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"), blank=True,
+                                      related_name="travel_default_reviewers")
+
+    def __str__(self):
+        return "{}".format(self.user)
+
+    class Meta:
+        ordering = ["user", ]
+
+
 class NJCRates(models.Model):
     name = models.CharField(max_length=255)
     amount = models.FloatField()
