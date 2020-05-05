@@ -177,17 +177,17 @@ class MorFactory(factory.django.DjangoModelFactory):
 class PrjFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.PrjProject
-        django_get_or_create = ('prj_name',)
+        django_get_or_create = ('name',)
 
-    prj_name = factory.lazy_attribute(lambda o: faker.name())
-    prj_description = factory.lazy_attribute(lambda o: faker.text())
+    name = factory.lazy_attribute(lambda o: faker.name())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
     prj_url = factory.lazy_attribute(lambda o: faker.url())
 
     @staticmethod
     def get_valid_data():
         valid_data = {
-            "prj_name": faker.name(),
-            "prj_description": faker.text(),
+            "name": faker.name(),
+            "description_en": faker.text(),
             "prj_url": faker.url()
         }
 
