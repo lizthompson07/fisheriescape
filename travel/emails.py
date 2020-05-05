@@ -39,6 +39,7 @@ class NewTripEmail:
         else:
             adm_admins = [user.id for user in User.objects.filter(groups__name="travel_adm_admin")]
             self.to_list = [user.email for user in User.objects.filter(groups__name="travel_admin").filter(~Q(id__in=adm_admins))]
+
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
@@ -88,6 +89,25 @@ class ReviewAwaitingEmail:
         field_list = request_field_list
 
         context = {'reviewer': reviewer_object, 'triprequest': trip_request_object, 'field_list': field_list}
+        context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
+        rendered = t.render(context)
+        return rendered
+
+
+class TripReviewAwaitingEmail:
+    def __init__(self, trip_object, reviewer_object):
+        self.subject = 'A trip is awaiting your review - un voyage attend votre avis'
+        self.message = self.load_html_template(trip_object, reviewer_object)
+        self.from_email = from_email
+        self.to_list = [reviewer_object.user.email, ]
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
+    def load_html_template(self, trip_object, reviewer_object):
+        t = loader.get_template('travel/email_awaiting_trip_review.html')
+        field_list = trip_field_list
+        context = {'reviewer': reviewer_object, 'trip': trip_object, 'field_list': field_list}
         context.update({"SITE_FULL_URL": settings.SITE_FULL_URL})
         rendered = t.render(context)
         return rendered
