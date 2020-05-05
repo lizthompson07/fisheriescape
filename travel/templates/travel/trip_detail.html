@@ -87,7 +87,9 @@
     {% include "travel/_trip_detail.html" %}
 
     {% if is_adm_admin %}
-        {% include "travel/_trip_reviewers.html" %}
+        {% if trip.is_adm_approval_required %}
+            {% include "travel/_trip_reviewers.html" %}
+        {% endif %}
     {% endif %}
 
 
