@@ -7,28 +7,6 @@ from shared_models import models as shared_models
 import os
 
 
-class Lookup(models.Model):
-
-    class Meta:
-        abstract = True
-
-    name = models.CharField(unique=True, max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-
-    @property
-    def tname(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            my_str = "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            my_str = "{}".format(self.name)
-        return my_str
-
-    def __str__(self):
-        return "{}".format(self.tname)
-
-
 class DepDeployment(models.Model):
     dep_year = models.BigIntegerField(verbose_name=_("Year"))
     dep_month = models.BigIntegerField(verbose_name=_("Month"))
@@ -116,11 +94,11 @@ class EprEquipmentParameter(models.Model):
         unique_together = (('emm', 'prm'),)
 
 
-class ErtRecorderType(Lookup):
+class ErtRecorderType(shared_models.Lookup):
     name = models.CharField(unique=True, max_length=50, verbose_name=_("Recorder Type"))
 
 
-class EqaAdcBitsCode(Lookup):
+class EqaAdcBitsCode(shared_models.Lookup):
     name = models.CharField(unique=True, max_length=50, verbose_name=_("ADC Bit Name"))
 
 
@@ -134,11 +112,8 @@ class EqhHydrophoneProperty(models.Model):
         return "{}".format(self.emm)
 
 
-class EqoOwner(models.Model):
-    eqo_institute = models.CharField(max_length=100, verbose_name=_("Institute"))
-
-    def __str__(self):
-        return "{}".format(self.eqo_institute)
+class EqoOwner(shared_models.Lookup):
+    name = models.CharField(max_length=100, verbose_name=_("Institute"))
 
 
 class EqpEquipment(models.Model):
@@ -165,7 +140,7 @@ class EqrRecorderProperties(models.Model):
         return "{}".format(self.emm)
 
 
-class EqtEquipmentTypeCode(Lookup):
+class EqtEquipmentTypeCode(shared_models.Lookup):
     name = models.CharField(unique=True, max_length=50, verbose_name=_("Equipment Type"))
 
 
@@ -177,7 +152,7 @@ class EtrTechnicalRepairEvent(models.Model):
     etr_repaired_by = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Repaired By"))
 
 
-class PrmParameterCode(models.Model):
+class PrmParameterCode(shared_models.Lookup):
     name = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Parameter Code"))
 
 
@@ -233,21 +208,16 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
             os.remove(old_file.path)
 
 
-class PrjProject(models.Model):
-    prj_name = models.CharField(unique=True, max_length=255, verbose_name=_("Name"))
-    prj_description = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Description"))
+class PrjProject(shared_models.Lookup):
+    name = models.CharField(unique=True, max_length=255, verbose_name=_("Name"))
     prj_url = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("URL"))
 
-    def __str__(self):
-        return "{}".format(self.prj_name)
 
-
-class SetStationEventCode(models.Model):
-    set_name = models.CharField(unique=True, max_length=50, verbose_name=_("Type"))
-    set_description = models.CharField(max_length=400, verbose_name=_("Description"))
+class SetStationEventCode(shared_models.Lookup):
+    name = models.CharField(unique=True, max_length=50, verbose_name=_("Type"))
 
     def __str__(self):
-        return "{} - {}".format(self.set_name, self.set_description)
+        return "{} - {}".format(self.tname, self.tdescription)
 
 
 class SteStationEvent(models.Model):
