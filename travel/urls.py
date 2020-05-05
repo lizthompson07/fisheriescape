@@ -67,6 +67,13 @@ urlpatterns = [
     path('trip/<int:trip>/manage-reviewers/', views.manage_reviewers, name="manage_trip_reviewers"),
     path('trip-reviewer/<int:trip>/delete/', views.delete_reviewer, name="delete_trip_reviewer"),
 
+
+    # REVIEWER APPROVAL
+    path('trips-for-your-review/', views.TripReviewListView.as_view(), name="trip_review_list"),
+    path('trip/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_review_update"),
+    path('trip/<int:pk>/skip/', views.SkipTripReviewerUpdateView.as_view(), name="trip_skip"),
+
+
     # FILES #
     #########
     path('request/<int:trip_request>/file/new/', views.FileCreateView.as_view(), name='file_new'),

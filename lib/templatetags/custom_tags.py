@@ -41,7 +41,8 @@ def echo(value):
 
 @register.simple_tag
 def crash_if_none(var_name, value):
-    if not nz(value, None):
+
+    if nz(value, None) is None:
         raise Exception(f'the expected template variable: "{var_name}" is missing in the context')
     else:
         return ""

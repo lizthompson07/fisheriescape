@@ -168,8 +168,10 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         # show the number of reviews awaiting for the logged in user
-        context["reviews_waiting"] = self.request.user.reviewers.filter(status_id=1).filter(
+        reviews_waiting = self.request.user.reviewers.filter(status_id=1).filter(
             ~Q(trip_request__status_id=16)).count()  # number of requests where review is pending
+        reviews_waiting =+ self.request.user.trip_reviewers.filter(status_id=25).count()  # number of trips where review is pending
+        context["reviews_waiting"] = reviews_waiting
 
         # this will be the dict to populate the tabs on the index page
         tab_dict = dict()
@@ -1159,7 +1161,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
                     my_trip.save()
                     # do something with the formset.cleaned_data
                     messages.success(request, _("The reviewer list has been successfully updated"))
-                    return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip": my_trip.id}))
+                    return HttpResponseRedirect(reverse("travel:manage_trip_reviewers", kwargs={"trip": my_trip.id}))
             else:
                 formset = forms.TripReviewerFormSet(
                     queryset=qs,
@@ -1362,7 +1364,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
             active_crumb = _("Start a Review")
             h1 = _("Do you wish to start a review on the following trip?")
             h2 = '<span class="blue-font">WARNING: starting a review on this trip will prevent any additional' \
-                     ' travellers from adding themselves to it.</span>'
+                 ' travellers from adding themselves to it.</span>'
         else:
             active_crumb = _("End a Review")
             h1 = _("Do you wish to end a review on the following trip?")
@@ -1391,7 +1393,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
     def form_valid(self, form):
         my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
         # figure out the current state of the request
-        is_under_review = False if my_trip.status_id in [30,41] else True
+        is_under_review = False if my_trip.status_id in [30, 41] else True
 
         if is_under_review:
             utils.end_trip_review_process(my_trip)
@@ -1485,6 +1487,156 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
         return HttpResponseRedirect(reverse("travel:admin_trip_verification_list",
                                             kwargs={"region": self.kwargs.get("region"),
                                                     "adm": self.kwargs.get("adm")}))
+
+
+class TripReviewListView(TravelADMAdminRequiredMixin, ListView):
+    model = models.Conference
+    template_name = 'travel/generic_list.html'
+
+    def get_queryset(self):
+        qs = models.Conference.objects.filter(
+            pk__in=[reviewer.trip_id for reviewer in self.request.user.trip_reviewers.filter(status_id=25)])
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["h1"] = _("Requests Awaiting Your Review")
+        context["subtitle"] = context["h1"]
+        context["crumbs"] = [
+            {"title": _("Home"), "url": reverse("travel:index")},
+            {"title": context["h1"]}
+        ]
+
+        context["paginate_by"] = False
+        context["new_url_name"] = False
+        context["row_url_name"] = "travel:trip_review_approve"
+
+        context["random_object"] = models.Conference.objects.first()
+        context["field_list"] = [
+            {"name": 'status', "class": "", },
+            {"name": 'tname|{}'.format(_("Trip title")), "class": "", },
+            {"name": 'location|{}'.format(_("location")), "class": "", },
+            {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
+            {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", },
+            {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
+            {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
+            {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
+            {"name": 'verified_by', "class": "", },
+        ]
+        return context
+
+
+class TripReviewerUpdateView(TravelADMAdminRequiredMixin, UpdateView):
+    model = models.TripReviewer
+    form_class = forms.ReviewerApprovalForm
+    template_name = 'travel/reviewer_approval_form.html'
+
+    def test_func(self):
+        my_trip_request = self.get_object().trip_request
+        my_user = self.request.user
+        # print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
+        if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
+            return True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_object = self.get_object()
+        context["field_list"] = request_field_list if not my_object.trip_request.is_group_request else request_group_field_list
+        context["child_field_list"] = request_child_field_list
+        context["reviewer_field_list"] = reviewer_field_list
+        context["conf_field_list"] = conf_field_list
+        context["cost_field_list"] = cost_field_list
+        context['help_text_dict'] = get_help_text_dict()
+
+        context["triprequest"] = my_object.trip_request
+        context["report_mode"] = True
+        if my_object.role_id in [5, 6, ]:
+            context["admin"] = True
+            context["type_bilingual"] = _(self.kwargs.get("type")).upper()
+        return context
+
+    def form_valid(self, form):
+        # don't save the reviewer yet because there are still changes to make
+        my_reviewer = form.save(commit=True)
+
+        approved = form.cleaned_data.get("approved")
+        stay_on_page = form.cleaned_data.get("stay_on_page")
+        changes_requested = form.cleaned_data.get("changes_requested")
+        # first scenario: changes were requested for the request
+        # in this case, the reviewer status does not change but the request status will
+        if not stay_on_page:
+            if changes_requested:
+                my_reviewer.trip_request.status_id = 16
+                my_reviewer.trip_request.submitted = None
+                my_reviewer.trip_request.save()
+                # send an email to the request owner
+                email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
+                # send the email object
+                custom_send_mail(
+                    subject=email.subject,
+                    html_message=email.message,
+                    from_email=email.from_email,
+                    recipient_list=email.to_list
+                )
+                messages.success(self.request, _("Success! An email has been sent to the trip request owner."))
+
+            # if it was approved, then we change the reviewer status to 'approved'
+            elif approved:
+                my_reviewer.status_id = 2
+                my_reviewer.status_date = timezone.now()
+                my_reviewer.save()
+            # if it was approved, then we change the reviewer status to 'approved'
+            else:
+                my_reviewer.status_id = 3
+                my_reviewer.status_date = timezone.now()
+                my_reviewer.save()
+
+        # update any statuses if necessary
+        utils.approval_seeker(my_reviewer.trip_request)
+
+        if stay_on_page:
+            my_kwargs = {"pk": my_reviewer.id}
+            # if this is an adm or rdg review, we have to pass the type into the url.
+            if my_reviewer.role_id in [5, 6, ]:
+                my_kwargs.update({"type": self.kwargs.get("type")})
+            return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
+        else:
+            # This means that they have approved or did not approve...
+            return HttpResponseRedirect(reverse("travel:request_review_list", kwargs={"which_ones": "awaiting"}))
+
+
+class SkipTripReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
+    model = models.TripReviewer
+    form_class = forms.ReviewerSkipForm
+    template_name = 'travel/reviewer_skip_form.html'
+
+    def test_func(self):
+        my_trip_request = self.get_object().trip_request
+        my_user = self.request.user
+        # print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
+        if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
+            return True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_object = self.get_object()
+        return context
+
+    def form_valid(self, form):
+        # if the form is submitted, that means the admin user has decided to go ahead with the manual skip
+        my_reviewer = form.save(commit=False)
+        my_reviewer.status_id = 21
+        my_reviewer.status_date = timezone.now()
+        my_reviewer.comments = "This step was manually overridden by {} with the following rationale: \n\n {}".format(self.request.user,
+                                                                                                                      my_reviewer.comments)
+
+        # now we save the reviewer for real
+        my_reviewer.save()
+
+        # update any statuses if necessary
+        utils.approval_seeker(my_reviewer.trip_request)
+
+        return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
 # REPORTS #
