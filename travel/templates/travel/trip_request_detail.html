@@ -39,7 +39,7 @@
             </ol>
         </nav>
 
-        {% if triprequest.trip.status.id != 30 and triprequest.trip.status.id != 41 %}
+        {% if triprequest.trip.status.id != 30 and triprequest.trip.status.id != 41 and not triprequest.submitted %}
             <div class="alert alert-danger" role="alert">
                 <h4 class="alert-heading">
                     {% trans "WARNING" %}

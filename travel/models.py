@@ -446,6 +446,11 @@ class Conference(models.Model):
 
         return my_dict
 
+    @property
+    def current_reviewer(self):
+        """Send back the first reviewer whose status is 'pending' """
+        return self.reviewers.filter(status_id=25).first()
+
 
 class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
@@ -533,7 +538,7 @@ class TripRequest(models.Model):
 
     class Meta:
         ordering = ["-start_date", "last_name"]
-        unique_together = [("user", "parent_request"), ("user", "trip"),]
+        unique_together = [("user", "parent_request"), ("user", "trip"), ]
 
     def get_absolute_url(self):
         return reverse('travel:request_detail', kwargs={'pk': self.id})

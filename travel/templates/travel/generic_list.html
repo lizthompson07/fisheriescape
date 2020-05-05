@@ -84,16 +84,18 @@
         <tbody>
 
         {% for object in list %}
-            {% url row_url_name object.id as my_url %}
-            <tr href="{{ my_url }}">
-                {% for field in field_list %}
-                    <td class="{{ field.class }}">
-                        {% block field_td %}
-                            {% get_field_value object field.name safe=True %}
-                        {% endblock %}
-                    </td>
-                {% endfor %}
-            </tr>
+            {% block row %}
+                {% url row_url_name object.id as my_url %}
+                <tr href="{{ my_url }}">
+                    {% for field in field_list %}
+                        <td class="{{ field.class }}">
+                            {% block field_td %}
+                                {% get_field_value object field.name safe=True %}
+                            {% endblock %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endblock %}
         {% endfor %}
         </tbody>
     </table>
