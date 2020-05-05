@@ -97,13 +97,18 @@
                 </a>
             </div>
             <br><br>
-            <table class="table" style="width: auto">
+            <table class="table" style="width: 70%">
                 <thead>
                 <tr>
                     <th></th>
                     <th></th>
                     {% for field in field_list %}
-                        <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% if field == "order" %}
+                            <th style="width:150px">{% get_verbose_label my_object field %}</th>
+
+                        {% else %}
+                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% endif %}
                     {% endfor %}
                     <th style="align-content: center" colspan="2">{% trans "Status" %}</th>
                 </tr>
@@ -187,6 +192,7 @@
             // if everything is blank, the user is not trying to add a new record
             if (newOrder == "" && newUser == "" && newRole == "") {
                 $("#id_form-" + newFormNumber + "-trip_request").val(null);
+                $("#id_form-" + newFormNumber + "-trip").val(null);
             }
         });
 

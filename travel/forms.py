@@ -2,7 +2,7 @@ from django import forms
 from django.forms import modelformset_factory
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.contrib.auth.models import User as AuthUser
+from django.contrib.auth.models import User as AuthUser, User
 from shared_models import models as shared_models
 from travel.filters import get_region_choices
 
@@ -208,7 +208,6 @@ class TripRequestForm(forms.ModelForm):
         if not kwargs.get("instance"):
             del self.fields["reset_reviewers"]
 
-
     def clean(self):
         """
         form validation:
@@ -222,7 +221,6 @@ class TripRequestForm(forms.ModelForm):
         trip = cleaned_data.get("trip")
         trip_start_date = trip.start_date
         trip_end_date = trip.end_date
-
 
         if trip.status_id not in [30, 41]:
             if trip.status_id == 31:
@@ -385,7 +383,6 @@ class ChildTripRequestForm(forms.ModelForm):
             except AttributeError:
                 # print(f'Adding label: "Unspecified" to field "{field}".')
                 self.fields[field].group = 0
-
 
     def clean(self):
         """
@@ -591,6 +588,15 @@ class TripReviewerForm(forms.ModelForm):
             'trip': forms.HiddenInput(),
             'user': forms.Select(attrs=chosen_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user_choices = [(u.id, str(u)) for u in User.objects.filter(groups__name__icontains="travel_adm_admin")]
+        # add any users with special roles
+        user_choices.extend([(df.user.id, str(df.user)) for df in models.DefaultReviewer.objects.filter(reviewer_roles__id__in=[3, 4, 5])])
+        user_choices = list(set(user_choices))
+        user_choices.insert(0, (None, "-----"))
+        self.fields["user"].choices = user_choices
 
     def clean(self):
         """
