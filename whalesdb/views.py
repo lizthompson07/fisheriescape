@@ -84,7 +84,7 @@ class DepCreate(CommonCreate):
         context = super().get_context_data(**kwargs)
 
         station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in
-                        models.StnStation.objects.all().order_by('stn_id').values_list()]
+                        models.StnStation.objects.all().order_by('pk').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
         context['java_script'] = 'whalesdb/_entry_dep_js.html'
@@ -283,7 +283,7 @@ class DepUpdate(CommonUpdate):
         context = super().get_context_data(**kwargs)
 
         station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in
-                        models.StnStation.objects.all().order_by('stn_id').values_list()]
+                        models.StnStation.objects.all().order_by('pk').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
         context['java_script'] = 'whalesdb/_entry_dep_js.html'
