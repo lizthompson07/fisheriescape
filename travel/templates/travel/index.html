@@ -63,6 +63,7 @@
         {% url 'travel:request_list' as event_list_url %}
         {% url 'travel:request_review_list' "awaiting" as event_approval_list_url %}
         {% url 'travel:request_review_list' as event_assigned_list_url %}
+        {% url 'travel:trip_review_list'  as trip_approval_list_url %}
         {% url 'travel:request_new' as event_new_url %}
 
         <div class="row mb-4 justify-content-center">
@@ -81,7 +82,7 @@
                         <li class="nav-item">
                             <a class="nav-link" data-toggle="tab" href="#reviewer">
                                 {% trans "Reviewer" %}
-                                {% if number_waiting %} (<span class="red-font blink-me">{{ number_waiting }}</span>) {% endif %}
+                                {% if reviews_waiting %} (<span class="red-font blink-me">{{ reviews_waiting }}</span>) {% endif %}
                             </a>
                         </li>
                     {% endif %}
@@ -154,24 +155,43 @@
 
                             <h5 class="">{% trans "Your Reviews" %}</h5>
                             <p class="card-text">{% trans "View and manage trip requests for which you are a reviewer" %}</p>
-                            <div class="mb-3">
-                                {% if number_waiting > 0 %}
-                                    <a href="{{ event_approval_list_url }}" class="btn btn-outline-dark">
-                                        {% trans "Trip requests awaiting your review" %}
-                                        (<span class="red-font blink-me">{{ number_waiting }}</span>)
+
+                            {% if is_trip_reviewer %}
+                                <div class="mb-3">
+                                    {% if trip_reviews_waiting > 0 %}
+                                        <a href="{{ trip_approval_list_url }}" class="subtitle">
+                                            {% trans "Trips awaiting your review" %}
+                                            (<span class="red-font blink-me">{{ trip_reviews_waiting }}</span>)
+                                        </a>
+                                    {% else %}
+                                        <span class="subtitle-success">
+                                        {% trans "There are no trips currently awaiting your review" %}
+                                    </span><br>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+
+                            {% if is_tr_reviewer %}
+                                <div class="mb-3">
+                                    {% if tr_reviews_waiting > 0 %}
+                                        <a href="{{ event_approval_list_url }}" class="subtitle">
+                                            {% trans "Trip requests awaiting your review" %}
+                                            (<span class="red-font blink-me">{{ tr_reviews_waiting }}</span>)
+                                        </a>
+                                    {% else %}
+                                        <span class="subtitle-success">
+                                        {% trans "There are no requests currently awaiting your review" %}
+                                    </span><br>
+                                    {% endif %}
+                                </div>
+                                <div class="mb-3">
+                                    <a href="{{ event_assigned_list_url }}" class="subtitle">
+                                        {% trans "Trip requests assigned to you" %}
+                                        (<span>{{ user.reviewers.count }}</span>)
                                     </a>
-                                {% else %}
-                                    <span class="subtitle-success">
-                                                        {% trans "There are no requests currently awaiting your review" %}
-                                                    </span><br>
-                                {% endif %}
-                            </div>
-                            <div class="mb-3">
-                                <a href="{{ event_assigned_list_url }}" class="btn btn-outline-dark">
-                                    {% trans "Trip requests assigned to you" %}
-                                    (<span>{{ user.reviewers.count }}</span>)
-                                </a>
-                            </div>
+                                </div>
+                            {% endif %}
+
                         </div>
                     {% endif %}
 
@@ -187,7 +207,7 @@
                                     {# ADM stuff #}
                                     <div class="mb-3">
                                         {% if dict.adm_number_waiting %}
-                                            <a href="{{ dict.adm_approval_list_url }}" class="btn btn-outline-dark">
+                                            <a href="{{ dict.adm_approval_list_url }}" class="subtitle">
                                                 {% trans "Trip requests awaiting approval from ADM" %}
                                                 (<span class="red-font blink-me">{{ dict.adm_number_waiting }}</span>)
                                             </a>
@@ -199,7 +219,7 @@
                                     {# RDG stuff #}
                                     <div class="mb-3">
                                         {% if dict.rdg_number_waiting %}
-                                            <a href="{{ dict.rdg_approval_list_url }}" class="btn btn-outline-dark">
+                                            <a href="{{ dict.rdg_approval_list_url }}" class="subtitle">
                                                 {% trans "Trip requests awaiting approval from RDG" %}
                                                 (<span class="red-font blink-me">{{ dict.rdg_number_waiting }}</span>)
                                             </a>
@@ -212,7 +232,7 @@
                                 {# Verification #}
                                 <div class="mb-3">
                                     {% if dict.unverified_trips %}
-                                        <a href="{{ dict.trip_verification_list_url }}" class="btn btn-outline-dark">
+                                        <a href="{{ dict.trip_verification_list_url }}" class="subtitle">
                                             {% trans "Trips awaiting verification" %}
                                             (<span class="red-font blink-me">{{ dict.unverified_trips }}</span>)
                                         </a>

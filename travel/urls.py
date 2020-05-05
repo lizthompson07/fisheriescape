@@ -70,7 +70,7 @@ urlpatterns = [
 
     # REVIEWER APPROVAL
     path('trips-for-your-review/', views.TripReviewListView.as_view(), name="trip_review_list"),
-    path('trip/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_review_update"),
+    path('reviewer/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_review_update"),
     path('trip/<int:pk>/skip/', views.SkipTripReviewerUpdateView.as_view(), name="trip_skip"),
 
 
