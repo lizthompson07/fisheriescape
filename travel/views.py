@@ -1352,7 +1352,8 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
         if my_object.status_id in [30, 41]:
             active_crumb = _("Start a Review")
             h1 = _("Do you wish to start a review on the following trip?")
-            h2 = None
+            h2 = '<span class="blue-font">WARNING: starting a review on this trip will prevent any additional' \
+                     ' travellers from adding themselves to it.</span>'
         else:
             active_crumb = _("End a Review")
             h1 = _("Do you wish to end a review on the following trip?")
@@ -1386,13 +1387,12 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
         if is_under_review:
             utils.end_trip_review_process(my_trip)
         else:
-            my_trip.review_start_date = timezone.now()
-            utils.start_review_process(my_trip)
+            utils.start_trip_review_process(my_trip)
             # go and get approvals!!
 
         # No matter what business what done, we will call this function to sort through reviewer and request statuses
-            utils.trip_approval_seeker(my_trip)
-            my_trip.save()
+        utils.trip_approval_seeker(my_trip)
+        my_trip.save()
 
         return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
 

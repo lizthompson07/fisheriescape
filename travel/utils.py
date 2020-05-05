@@ -121,21 +121,11 @@ def get_tr_reviewers(trip_request):
 
 
 def start_review_process(trip_request):
-    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""
+    """this should be used when a trip is submitted. It will change over all reviewers' statuses to Pending"""
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip_request.reviewers.all():
         # set everyone to being queued
         reviewer.status_id = 20
-        reviewer.status_date = None
-        reviewer.save()
-
-
-def start_trip_review_process(trip):
-    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""
-    # focus only on reviewers that are status = Not Submitted
-    for reviewer in trip.reviewers.all():
-        # set everyone to being queued
-        reviewer.status_id = 24
         reviewer.status_date = None
         reviewer.save()
 
@@ -150,9 +140,29 @@ def end_review_process(trip_request):
         reviewer.save()
 
 
+def start_trip_review_process(trip):
+    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""
+    # focus only on reviewers that are status = Not Submitted
+
+    trip.review_start_date = timezone.now()
+    trip.status_id = 31
+    trip.save()
+
+    for reviewer in trip.reviewers.all():
+        # set everyone to being queued
+        reviewer.status_id = 24
+        reviewer.status_date = None
+        reviewer.save()
+
+
 def end_trip_review_process(trip):
     """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
     # focus only on reviewers that are status = Not Submitted
+
+    # trip.review_start_date = None NEVER reset the review start date!
+    trip.status_id = 41
+    trip.save()
+
     for reviewer in trip.reviewers.all():
         reviewer.status_id = 23
         reviewer.status_date = None
@@ -387,87 +397,13 @@ def manage_trip_warning(trip):
                 trip.save()
 
 
-def set_trip_status(trip):
+def __set_trip_status__(trip):
     """
     IF POSSIBLE, THIS SHOULD ONLY BE CALLED BY THE approval_seeker() function.
     This will look at the reviewers and decide on  what the project status should be. Will return False if trip_request is denied or if trip_request is not submitted
+    Will return False if there are no reviewers left to seek
     """
-
-    # Next: if the trip_request is unsubmitted, it is in 'draft' status
-    if not trip_request.submitted:
-        trip_request.status_id = 8
-        # don't stick around any longer. save the trip_request and leave exit the function
-        trip_request.save()
-        return False
-
-    else:
-        # if someone denied it at any point, the trip_request is 'denied' and all subsequent reviewers are set to "cancelled"
-        is_denied = False
-        for reviewer in trip.reviewers.all():
-            # if reviewer status is denied, set the is_denied var to true
-            if reviewer.status_id == 27:
-                is_denied = True
-            # if is_denied, all subsequent reviewer statuses should be set to "cancelled"
-            if is_denied:
-                reviewer.status_id = 5
-                reviewer.save()
-        if is_denied:
-            trip.status_id = 10
-            trip.save()
-            # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(trip_request)
-            # # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
-
-            # don't stick around any longer. save the trip_request and leave exit the function
-            return False
-
-        # The trip_request should be approved if everyone has approved it. HOWEVER, some reviewers might have been skipped
-        # The total number of reviewers should equal the number of reviewer who approved [id=2] and / or were skipped [id=21].
-        elif trip_request.reviewers.all().count() == trip_request.reviewers.filter(status_id__in=[2, 21]).count():
-            trip_request.status_id = 11
-            trip_request.save()
-            # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(trip_request)
-            # # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list
-            )
-            # don't stick around any longer. save the trip_request and leave exit the function
-            return False
-        else:
-            for reviewer in trip_request.reviewers.all():
-                # if a reviewer's status is 'pending', we are waiting on them and the project status should be set accordingly.
-                if reviewer.status_id == 1:
-                    # if role is 'reviewer'
-                    if reviewer.role_id == 1:
-                        trip_request.status_id = 17
-                    # if role is 'recommender'
-                    elif reviewer.role_id == 2:
-                        trip_request.status_id = 12
-                    # if role is 'ncr reviewer'
-                    elif reviewer.role_id == 3:
-                        trip_request.status_id = 18
-                    # if role is 'ncr recommender'
-                    elif reviewer.role_id == 4:
-                        trip_request.status_id = 19
-                    # if role is 'adm'
-                    elif reviewer.role_id == 5:
-                        trip_request.status_id = 14
-                    # if role is 'rdg'
-                    elif reviewer.role_id == 6:
-                        trip_request.status_id = 15
-
-    trip_request.save()
-    return True
+    pass
 
 
 def trip_approval_seeker(trip):
@@ -476,37 +412,48 @@ def trip_approval_seeker(trip):
     It will also set the trip_request status vis a vis set_request_status()
     """
 
-    # start by setting the trip_request status... if the trip_request is "denied" OR "draft" or "approved", do not continue
-    if set_trip_status(trip):
+    # start by setting the trip status... if the trip_request is "denied" OR "draft" or "approved", do not continue
+    # Next: if the trip_request is un submitted, it is in 'draft' status
+
+    # only look for a next reviewer if we are still in a review [id=31]
+    if trip.status_id == 31:
+
         next_reviewer = None
         email = None
+
+        # look through all the reviewers... see if we can decide on who the next reviewer should be...
         for reviewer in trip.reviewers.all():
             # if the reviewer's status is set to 'queued', they will be our next selection
             # we should then exit the loop and set the next_reviewer var
-
-            # if this is a resubmission, there might still be a reviewer whose status is 'pending'. This should be the reviewer
+            # CAVEAT: if this is a resubmission, there might still be a reviewer whose status is 'pending'. This should be the reviewer
             if reviewer.status_id == 24 or reviewer.status_id == 25:
                 next_reviewer = reviewer
                 break
 
-        # if there is a next reviewer, set their status to pending
+        # if there is a next reviewer, set their status to pending and send them an email
         if next_reviewer:
             next_reviewer.status_id = 25
             next_reviewer.status_date = timezone.now()
             next_reviewer.save()
 
-            # now, depending on the role of this reviewer, perhaps we want to send an email.
-            # if they are a recommender, rev...
             email = emails.TripReviewAwaitingEmail(trip, next_reviewer)
 
-            if email:
-                # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list
-                )
+            # send the email object
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
 
-            # Then, lets set the trip_request status again to account for the fact that something happened
-            set_trip_status(trip)
+
+        # if no next reviewer was found, the trip's review is complete...
+        else:
+            # THIS IS PROBABLY NOT NECESSARY.
+
+            # The trip review is complete if all the reviewers' status are set to complete [id=26]
+            # HOWEVER, some reviewers might have been skipped
+            # The total number of reviewers should equal the number of reviewer who completed [id=26] and / or were skipped [id=42].
+            if trip.reviewers.all().count() == trip.reviewers.filter(status_id__in=[26, 42]).count():
+                trip.status_id = 32
+                trip.save()
