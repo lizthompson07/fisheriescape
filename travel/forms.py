@@ -387,6 +387,57 @@ class ChildTripRequestForm(forms.ModelForm):
                 self.fields[field].group = 0
 
 
+    def clean(self):
+        """
+        form validation:
+        1) make sure that the request start date and the trip start date make sense with respect to each other and individually
+        """
+
+        cleaned_data = super().clean()
+        request_start_date = cleaned_data.get("start_date")
+        request_end_date = cleaned_data.get("end_date")
+        trip = cleaned_data.get("parent_request").trip
+        trip_start_date = trip.start_date
+        trip_end_date = trip.end_date
+        user = cleaned_data.get("user")
+
+        # we have to make sure there is not already a trip request in the system for this user and this trip
+        if user.user_trip_requests.filter(trip=trip, is_group_request=False).count():
+            msg = _('There is already a trip request in the system for this user and this trip.')
+            self.add_error('user', msg)
+
+        # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
+        # the length of the trip is not too long
+        if request_start_date and request_end_date:
+            if request_end_date < request_start_date:
+                msg = _('The start date of the trip must occur after the end date.')
+                self.add_error('start_date', msg)
+                self.add_error('end_date', msg)
+            if abs((request_start_date - request_end_date).days) > 100:
+                msg = _('The length of this trip is unrealistic.')
+                self.add_error('start_date', msg)
+                self.add_error('end_date', msg)
+            # is the start date of the travel request equal to or before the start date of the trip?
+            if trip_start_date:
+                delta = abs(request_start_date - trip_start_date)
+                if delta.days > 10:
+                    msg = _(
+                        f'The start date of this request ({request_start_date.strftime("%Y-%m-%d")}) has to be within 10 days of the'
+                        f' start date of the selected trip ({trip_start_date.strftime("%Y-%m-%d")})!')
+                    self.add_error('start_date', msg)
+                    # self.add_error('trip', msg)
+
+            # is the end_date of the travel request equal to or after the end date of the trip?
+            if trip_end_date:
+                delta = abs(request_end_date - trip_end_date)
+                if delta.days > 10:
+                    msg = _(
+                        f'The end date of this request ({request_end_date.strftime("%Y-%m-%d")}) must be within 10 days'
+                        f' of the end date of the selected trip ({trip_end_date.strftime("%Y-%m-%d")})!')
+                    self.add_error('end_date', msg)
+                    # self.add_error('trip', msg)
+
+
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
