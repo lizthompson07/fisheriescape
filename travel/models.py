@@ -248,41 +248,25 @@ class Conference(models.Model):
     def bta_traveller_list(self):
         # create a list of all TMS users going
         legit_traveller_list = self.traveller_list
-        travellers = []
-        for trip_request in self.trip_requests.filter(~Q(status_id__in=[10, 22])):
+        bta_travellers = []
+        # exclude reqeusts that are denied (id=10), cancelled (id=22), draft (id=8)
+        for trip_request in self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])):
             # lets look at the list of BTA travels and add them all
             for bta_user in trip_request.bta_attendees.all():
                 # if this user for some reason turns up to be a real traveller on this trip
                 # (i.e. the assertion that they are a BTA traveller is wrong, they should not be added)
                 if bta_user not in legit_traveller_list:
-                    travellers.append(bta_user)
-
+                    bta_travellers.append(bta_user)
         # return a set of all users
-        return list(set(travellers))
+        return list(set(bta_travellers))
 
     @property
     def traveller_list(self):
-        # from travel.models import Event
-        # must factor in group and non-group...
-
-        # start simple... non-group
-        my_list = [trip_request.user for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False) if
-                   trip_request.user]
+        trip_requests = self.get_connected_active_requests()  # a list of individual and child requests connected to this trip
+        my_list = [tr.user for tr in trip_requests if tr.user]
         # now those without names...
-        my_list.extend(
-            ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-             self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False) if not trip_request.user])
-
-        # group travellers
-        my_list.extend(
-            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))
-             if
-             trip_request.user])
-        my_list.extend(
-            ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22])) if not trip_request.user])
-
+        blurb = _("no DM Apps user connected")
+        my_list.extend([f"{tr.requester_name} ({blurb})" for tr in trip_requests if not tr.user])
         return set(my_list)
 
     @property
@@ -317,12 +301,13 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
+        # exclude reqeusts that are denied (id=10), cancelled (id=22), draft (id=8)
         my_list = [trip_request.total_dfo_funding for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_dfo_funding for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22, 8]))])
 
         return sum(my_list)
 
@@ -333,11 +318,12 @@ class Conference(models.Model):
 
         # start simple... non-group
         my_list = [trip_request.total_dfo_funding for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False, is_research_scientist=False)]
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False, is_research_scientist=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_dfo_funding for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22])).filter(is_research_scientist=False)])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22, 8])).filter(
+                 is_research_scientist=False)])
 
         return sum(my_list)
 
@@ -368,11 +354,26 @@ class Conference(models.Model):
         # from travel.models import Event
         # must factor in group and non-group...
 
-        my_id_list = [trip_request.id for trip_request in
-                      self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
+        my_id_list = [trip_request.id for trip_request in self.trip_requests.all().filter(is_group_request=False)]
+        # self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
         # group requests
         my_id_list.extend(
-            [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))])
+            [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).all()])
+        return TripRequest.objects.filter(id__in=my_id_list)
+
+    def get_connected_active_requests(self):
+        """
+        gets a qs of all connected trip request, excluding any parent requests (for group travel only)
+        """
+        # from travel.models import Event
+        # must factor in group and non-group...
+
+        my_id_list = [trip_request.id for trip_request in
+                      self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False)]
+        # group requests
+        my_id_list.extend(
+            [trip_request.id for trip_request in
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(parent_request__status_id__in=[10, 22, 8]))])
         return TripRequest.objects.filter(id__in=my_id_list)
 
     @property
@@ -424,7 +425,7 @@ class Conference(models.Model):
         This method is used to return a dictionary of trip requests and will compare cost across all of them.
         """
         my_dict = dict()
-        trip_requests = self.get_connected_requests()
+        trip_requests = self.get_connected_active_requests()
         tr_costs = TripRequestCost.objects.filter(trip_request_id__in=[tr.id for tr in trip_requests], amount_cad__gt=0)
         costs = Cost.objects.filter(id__in=[tr_cost.cost_id for tr_cost in tr_costs])
         my_dict["trip_requests"] = dict()
@@ -532,7 +533,7 @@ class TripRequest(models.Model):
 
     class Meta:
         ordering = ["-start_date", "last_name"]
-        unique_together = [("user", "parent_request"), ]
+        unique_together = [("user", "parent_request"), ("user", "trip"),]
 
     def get_absolute_url(self):
         return reverse('travel:request_detail', kwargs={'pk': self.id})

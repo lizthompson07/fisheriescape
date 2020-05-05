@@ -719,21 +719,25 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
             else:
                 messages.error(self.request, "sorry, only admins or owners can unsubmit requests")
         else:
-            #  SUBMIT REQUEST
-            my_trip_request.submitted = timezone.now()
-            # if there is not an original submission date, add one
-            if not my_trip_request.original_submission_date:
-                my_trip_request.original_submission_date = timezone.now()
-            # if the request is being resubmitted, this is a special case...
-            if my_trip_request.status_id == 16:
-                my_trip_request.status_id = 8
-                my_trip_request.save()
+            if my_trip_request.trip.status_id != 30 and my_trip_request.trip.status_id != 41:
+                messages.error(self.request, "sorry, the trip you are requesting to attend is not accepting additional requests.")
             else:
-                # set all the reviewer statuses to 'queued'
-                utils.start_review_process(my_trip_request)
-                # go and get approvals!!
 
-        # No matter what business what done, we will call this function to sort through reviewer and request statuses
+                #  SUBMIT REQUEST
+                my_trip_request.submitted = timezone.now()
+                # if there is not an original submission date, add one
+                if not my_trip_request.original_submission_date:
+                    my_trip_request.original_submission_date = timezone.now()
+                # if the request is being resubmitted, this is a special case...
+                if my_trip_request.status_id == 16:
+                    my_trip_request.status_id = 8
+                    my_trip_request.save()
+                else:
+                    # set all the reviewer statuses to 'queued'
+                    utils.start_review_process(my_trip_request)
+                    # go and get approvals!!
+
+        # No matter what business was done, we will call this function to sort through reviewer and request statuses
         utils.approval_seeker(my_trip_request)
         my_trip_request.save()
 
@@ -825,7 +829,12 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
     def get_initial(self):
         if self.kwargs.get("parent_request"):
             my_object = models.TripRequest.objects.get(pk=self.kwargs.get("parent_request"))
-            my_dict = {"parent_request": my_object, "stay_on_page": True}
+            my_dict = {
+                "parent_request": my_object,
+                "stay_on_page": True,
+                "start_date": my_object.trip.start_date,
+                "end_date": my_object.trip.end_date,
+            }
         else:
             # if this is a new parent trip
             my_dict = {"user": self.request.user}

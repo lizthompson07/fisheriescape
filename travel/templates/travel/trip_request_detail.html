@@ -39,7 +39,23 @@
             </ol>
         </nav>
 
-
+        {% if triprequest.trip.status.id != 30 and triprequest.trip.status.id != 41 %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">
+                    {% trans "WARNING" %}
+                </h4>
+                <p>
+                    {% if triprequest.trip.status.id == 31 %}
+                        {% trans "This trip is currently under review from NCR and is closed to additional requests." %}
+                    {% elif triprequest.trip.status.id == 32 %}
+                        {% trans "This trip has already been reviewed by NCR and is closed to additional requests." %}
+                    {% else %}
+                        {% trans "This trip is closed to additional requests." %}
+                    {% endif %}
+                    {% trans "You will not be able to submit this request." %}
+                </p>
+            </div>
+        {% endif %}
 
         <h1>{{ object }}</h1>
         {% if is_current_reviewer and object.submitted %}
@@ -103,10 +119,17 @@
                 {% if object.status.id == 11 or object.status.id == 22 %} {# disabled for everyone #}
                     {% echo "disabled" as submit_disabled_var %}
                     {% trans "Approved or cancelled requests cannot by unsubmitted." as submit_tip_text %}
-{#                {% elif object.submitted and not is_admin and not is_owner %}#}
+                    {#                {% elif object.submitted and not is_admin and not is_owner %}#}
                 {% elif not can_modify and not is_owner %} {# owners can always unsubmit #}
                     {% echo "disabled" as submit_disabled_var %}
                     {% trans "You do not have permissions to submit / un-submit this request" as submit_tip_text %}
+
+                    {# Unsubmitted only: if the trip is closed for further registration #}
+                {% elif not object.submitted %}
+                    {% if triprequest.trip.status.id != 30 and  triprequest.trip.status.id != 41 %}
+                        {% echo "disabled" as submit_disabled_var %}
+                        {% trans "This trip is closed to further requests." as submit_tip_text %}
+                    {% endif %}
                 {% endif %}
 
                 {% if object.submitted %}
@@ -126,7 +149,8 @@
                 {% endif %}
 
                 <span data-toggle="tooltip" title="{{ submit_tip_text }}">
-                <a class="btn btn-{{ submit_btn_color }} {{ submit_disabled_var }}" href="{% url 'travel:request_submit' object.id %}">{{ submit_btn_text }}</a>
+                <a class="btn btn-{{ submit_btn_color }} {{ submit_disabled_var }}"
+                   href="{% url 'travel:request_submit' object.id %}">{{ submit_btn_text }}</a>
                 </span>
 
                 {# EDIT BUTTON #}
@@ -136,7 +160,7 @@
                 {% endif %}
 
                 <span data-toggle="tooltip" title="{{ edit_tip_text }}">
-                <a class="btn btn-warning {{ edit_disabled_var  }}" href="{% url 'travel:request_edit' object.id %}">
+                <a class="btn btn-warning {{ edit_disabled_var }}" href="{% url 'travel:request_edit' object.id %}">
                     {% trans "Edit" %}
                 </a>
                 </span>
@@ -187,3 +211,23 @@
 
 
 {% endblock content %}
+
+{% block body_js %}
+    <script type="application/javascript">
+        function refreshCosts() {
+            $("#id_cost").load("# #id_cost>*", costReloaded);
+        }
+
+        function load_js() {
+            var head = document.getElementsByTagName('head')[0];
+            var script = document.createElement('script');
+            script.src = '{% static "js/clickableTableRows.js" %}';
+            head.appendChild(script);
+        }
+
+        function costReloaded() {
+            console.log("cost reloaded");
+            load_js();
+        }
+    </script>
+{% endblock %}

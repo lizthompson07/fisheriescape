@@ -4,3 +4,5 @@
 # TODO: make sure that the correct permissions are enforced with respect to editing a trip (both for adm and non-adm)
 
 # TODO: test to see if the correct views are inheriting from the correct mixin classes. I do not know the best way to do this.
+# TODO: can never have two requests for the same trip with the same traveller; taking into account both the individual and group requests
+# TODO: should never be able to submit a trip request for a trip that is not "opened"

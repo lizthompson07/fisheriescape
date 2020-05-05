@@ -44,9 +44,9 @@
                             {% url 'travel:request_detail' obj.id as my_url %}
                             <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}">{{ obj }}</a>
                             by {{ obj.user }}
-                            (STATUS: <span style="background-color: {{ triprequest.status.color }}">{{ obj.status }}</span>)
+                            (STATUS: <span style="background-color: {{ obj.status.color }}">{{ obj.status }}</span>)
                             {% if obj.id == triprequest.id %}
-                                <span class="purple-font">({% trans "CURRENT TRIP REQUEST" %})</span>
+                                <span class="purple-font text-uppercase font-weight-bold">({% trans "CURRENT TRIP REQUEST" %})</span>
                             {% endif %}
                             <br>
                         {% endfor %}
@@ -56,7 +56,10 @@
                 {# traveller history #}
                 <tr>
                     <th>
-                        {% trans "Total list of travellers (all trip requests and BTA included)" %}
+                        {% trans "Complete list of travellers" %}
+                        <br>
+                        {% trans "(across all submitted requests; includes BTA travellers)" %}
+
                     </th>
                     <td>
                         <br>
@@ -69,7 +72,7 @@
                     <th>
                         {% trans "Comparision of costs" %}
                         <br>
-                        {% trans "(across all trip requests)" %}
+                        {% trans "(across all submitted requests)" %}
                     </th>
                     <td>
                         <br>
