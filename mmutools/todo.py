@@ -1,11 +1,12 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
-# TODO fix Quantity UpdateView to work with popouts in both item_detail and directly
 # TODO Add confirmation step for deleting files
-# TODO If Item is marked container=TRUE, then container name is added to list of Locations
-# TODO file Model - return 'mmutools/{0}_{1}/{2}'.format(instance.item.item_name, instance.item.size, filename) === when size = N/A it reads the / as separator -- write a test for this
+# TODO Add lending table to quantity, JS for having lent_to and other fields appear if "lent out" is selected as status
+# TODO Create Location Table (with containers as locations)
+# TODO Lend button beside quantities on item_detail --- form could ask how many, calculate difference etc
 # TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
+# TODO Be able to click on "Location" in _quantity and take to location_detail page to see address
 
 ### LARGER ITEMS - PRIORITY
 # TODO Testing Units so Dev version can be deployed
@@ -23,3 +24,5 @@
 # TODO add additional search features (i.e. for item location, size) --- can you have 2 different search filters on a page? (see itm_list.html page)
 # TODO Figure out how to have Forms default fill in the field that is the PK with the pk of the current DetailView --in Views use def get_initial(self):
 # TODO add edit button beside quantity
+# TODO fix Quantity UpdateView to work with popouts in both item_detail and directly
+# TODO file Model - return 'mmutools/{0}_{1}/{2}'.format(instance.item.item_name, instance.item.size, filename) === when size = N/A it reads the / as separator -- write a test for this

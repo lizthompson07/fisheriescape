@@ -46,16 +46,23 @@
             {% endfor %}
             <td>
                 <a href="#"
-                   onclick="return popitup('{% url 'mmutools:quantity_edit' obj.id %}','popoutWindow')">
+                   pop-href="{% url 'mmutools:quantity_edit' obj.id 1 %}">
                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
                 </a>
             </td>
             <td>
                 <a href="#"
-                   onclick="return popitup('{% url 'mmutools:quantity_delete' obj.id %}','popoutWindow')">
+                   pop-href="{% url 'mmutools:quantity_delete' obj.id %}">
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
                 </a>
             </td>
+            <td>
+                <a href="#"
+                   pop-href="{% url 'mmutools:location_detail' obj.id %}">
+                    <img src="{% static "/admin/img/icon-viewlink.svg" %}" data-toggle="tooltip" title="Location">
+                </a>
+            </td>
+
             </tr>
 
         {% endfor %}

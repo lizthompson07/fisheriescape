@@ -59,10 +59,6 @@ class Item(models.Model):
     owner = models.ForeignKey(Owner, on_delete=models.DO_NOTHING, related_name="owners",
                               verbose_name=_("owner of equipment"))
     size = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("size (if applicable)"))
-    container = models.BooleanField(default=False,
-                                    verbose_name=_("is this item a container with more items inside it?"))
-    container_space = models.IntegerField(null=True, blank=True,
-                                          verbose_name=_("container Space Available (if applicable)"))
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name="categories",
                                  verbose_name=_("category of equipment"))
     gear_type = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="types",
@@ -91,6 +87,25 @@ class Item(models.Model):
     def get_absolute_url(self):
         return reverse("mmutools:item_detail", kwargs={"pk": self.id})
 
+class Location(models.Model):
+    location = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("location"))
+    address = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("address"))
+    container = models.BooleanField(default=False,
+                                    verbose_name=_("is this item a container with more items inside it?"))
+    container_space = models.IntegerField(null=True, blank=True,
+                                          verbose_name=_("container Space Available (if applicable)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("location"))):
+
+            return "{}".format(getattr(self, str(_("location"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.location)
+
+    def get_absolute_url(self):
+        return reverse("mmutools:location_detail", kwargs={"pk": self.id})
 
 class Lending(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="lendings", verbose_name=_("item"))
@@ -132,7 +147,8 @@ class Quantity(models.Model):
     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                         verbose_name=_("last audited"))
     last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
-    location_stored = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("location stored"))
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="locations",
+                                 verbose_name=_("location stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
 
     def __str__(self):
@@ -146,7 +162,7 @@ class Quantity(models.Model):
             my_str = "{}".format(self.item)
 
         if self.quantity:
-          return '{} - {}'.format(self.quantity, my_str) #TODO figure out why it doesn't like this in regular quantity add view
+            return '{} - {}'.format(self.quantity, my_str)
 
     def get_absolute_url(self):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})
@@ -176,8 +192,8 @@ class Supplier(models.Model):
 
 
 def file_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/<item_name>_<size>/<filename>
-    return 'mmutools/{0}_{1}/{2}'.format(instance.item.item_name, instance.item.size, filename)
+    # file will be uploaded to MEDIA_ROOT/item_<id>/<filename>
+    return f'mmutools/item_{instance.item.id}/{filename}'
 
 
 class File(models.Model):

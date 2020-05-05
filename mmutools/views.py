@@ -86,7 +86,7 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/item_list.html"
     filterset_class = filters.SpecificItemFilter
     queryset = models.Item.objects.annotate(
-        search_term=Concat('id', 'item_name', 'description', 'serial_number', 'owner', 'size', 'container', 'container_space', 'category',
+        search_term=Concat('id', 'item_name', 'description', 'serial_number', 'owner', 'size', 'category',
                            'gear_type', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
@@ -99,8 +99,6 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
             'serial_number',
             'owner',
             # 'size',
-            'container',
-            'container_space',
             'category',
             'gear_type',
         ]
@@ -119,8 +117,6 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
             'serial_number',
             'owner',
             'size',
-            'container',
-            'container_space',
             'category',
             'gear_type',
 
@@ -131,7 +127,7 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
         context["qty_field_list"] = [
             'quantity',
             'status',
-            'location_stored',
+            'location',
             'bin_id',
         ]
 
@@ -213,6 +209,71 @@ class ItemDeleteView(MmutoolsEditRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+        ## LOCATION ##
+
+class LocationListView(MmutoolsAdminAccessRequired, FilterView):
+    template_name = "mmutools/location_list.html"
+    filterset_class = filters.LocationFilter
+    queryset = models.Location.objects.annotate(
+        search_term=Concat('id', 'location', 'address', 'container', 'container_space',
+                           output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Location.objects.first()
+        context["field_list"] = [
+            'id',
+            'location',
+            'address',
+            'container',
+            'container_space',
+
+        ]
+        return context
+
+class LocationDetailView(MmutoolsAdminAccessRequired, DetailView):
+    model = models.Location
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'id',
+            'location',
+            'address',
+            'container',
+            'container_space',
+
+        ]
+        return context
+
+class LocationUpdateView(MmutoolsAdminAccessRequired, UpdateView):
+    model = models.Location
+    form_class = forms.LocationForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Location record successfully updated for : {my_object}"))
+        return super().form_valid(form)
+
+class LocationCreateView(MmutoolsAdminAccessRequired, CreateView):
+    model = models.Location
+    form_class = forms.LocationForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Location record successfully created for : {my_object}"))
+        return super().form_valid(form)
+
+class LocationDeleteView(MmutoolsAdminAccessRequired, DeleteView):
+    model = models.Location
+    permission_required = "__all__"
+    success_url = reverse_lazy('mmutools:location_list')
+    success_message = 'The location file was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
     ##Quantities
 
 
@@ -220,7 +281,7 @@ class QuantityListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/quantity_list.html"
     filterset_class = filters.QuantityFilter
     queryset = models.Quantity.objects.annotate(
-        search_term=Concat('id', 'item', 'quantity', 'status', 'lent_id', 'last_audited', 'last_audited_by', 'location_stored', 'bin_id',
+        search_term=Concat('id', 'item', 'quantity', 'status', 'lent_id', 'last_audited', 'last_audited_by', 'location', 'bin_id',
                            output_field=TextField()))
 
     def get_context_data(self, **kwargs):
@@ -234,7 +295,7 @@ class QuantityListView(MmutoolsAccessRequired, FilterView):
             'lent_id',
             'last_audited',
             'last_audited_by',
-            'location_stored',
+            'location',
             'bin_id',
         ]
         return context
@@ -253,7 +314,7 @@ class QuantityDetailView(MmutoolsAccessRequired, DetailView):
             'lent_id',
             'last_audited',
             'last_audited_by',
-            'location_stored',
+            'location',
             'bin_id',
         ]
 
@@ -265,15 +326,17 @@ class QuantityUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     form_class = forms.QuantityForm
 
     def get_template_names(self):
-       return "mmutools/quantity_form_popout.html" if self.kwargs.get("pk") else "mmutools/quantity_form.html"
+       return "mmutools/quantity_form_popout.html" if self.kwargs.get("pop") else "mmutools/quantity_form.html"
 
-    # def form_valid(self, form):
-    #     my_object = form.save()
-    #     messages.success(self.request, _(f"Quantity record successfully updated for : {my_object}"))
-    #     return HttpResponseRedirect(reverse('shared_models:close_me') if self.kwargs.get("pk") else super().form_valid(form))
+    def get_form_class(self):
+        return forms.QuantityForm1 if self.kwargs.get("pop") else forms.QuantityForm
 
-    def get_initial(self):
-        return {'item': self.kwargs.get('pk')}
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Quantity record successfully updated for : {my_object}"))
+        success_url = reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('mmutools:quantity_detail', kwargs={"pk": my_object.id})
+        return HttpResponseRedirect(success_url)
+
 
 class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Quantity
@@ -281,6 +344,9 @@ class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
 
     def get_template_names(self):
        return "mmutools/quantity_form_popout.html" if self.kwargs.get("pk") else "mmutools/quantity_form.html"
+
+    def get_form_class(self):
+        return forms.QuantityForm1 if self.kwargs.get("pk") else forms.QuantityForm
 
     def form_valid(self, form):
         my_object = form.save()

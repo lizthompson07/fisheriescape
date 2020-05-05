@@ -26,8 +26,16 @@ urlpatterns = [
     path('item/<int:pk>/quantity/new/', views.QuantityCreateView.as_view(), name="quantity_new"),
     path('quantity/new/', views.QuantityCreateView.as_view(), name="quantity_new"),
     path('quantity/<int:pk>/edit/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
-    path('item/<int:pk>/quantity/edit/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
+    path('quantity/<int:pk>/edit/pop/<int:pop>/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
     path('quantity/<int:pk>/delete/', views.QuantityDeleteView.as_view(), name="quantity_delete"),
+
+# LOCATION #
+
+    path('location_list/', views.LocationListView.as_view(), name="location_list"),
+    path('location_detail/<int:pk>/view/', views.LocationDetailView.as_view(), name="location_detail"),
+    path('location/new/', views.LocationCreateView.as_view(), name="location_new"),
+    path('location/<int:pk>/edit/', views.LocationUpdateView.as_view(), name="location_edit"),
+    path('location/<int:pk>/delete/', views.LocationDeleteView.as_view(), name="location_delete"),
 
 # PERSONNEL #
 

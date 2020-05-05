@@ -14,10 +14,20 @@ class QuantityForm(forms.ModelForm):
         model = models.Quantity
         fields = "__all__"
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if kwargs.get('initial') and kwargs.get('initial').get('item'):
-            self.fields.get('item').widget = forms.HiddenInput()
+
+class QuantityForm1(forms.ModelForm):
+    class Meta:
+        model = models.Quantity
+        fields = "__all__"
+        widgets = {
+            'item': forms.HiddenInput(),
+        }
+
+class LocationForm(forms.ModelForm):
+    class Meta:
+        model = models.Location
+        fields = "__all__"
+
 
 class PersonnelForm(forms.ModelForm):
     class Meta:

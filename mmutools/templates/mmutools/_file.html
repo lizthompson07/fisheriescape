@@ -43,13 +43,13 @@
             {% endfor %}
             <td>
                 <a href="#"
-                   onclick="return popitup('{% url 'mmutools:file_edit' obj.id %}','popoutWindow')">
+                   pop-href="{% url 'mmutools:file_edit' obj.id %}">
                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
                 </a>
             </td>
             <td>
                 <a href="#"
-                   onclick="return popitup('{% url 'mmutools:file_delete' obj.id %}','popoutWindow')">
+                   pop-href="{% url 'mmutools:file_delete' obj.id %}">
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
                 </a>
             </td>
