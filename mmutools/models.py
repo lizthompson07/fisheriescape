@@ -52,6 +52,27 @@ class Owner(models.Model):
             return "{}".format(self.name)
 
 
+class Supplier(models.Model):
+    supplier_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("supplier"))
+    contact_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("contact number"))
+    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("email"))
+    last_invoice = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last invoice"))
+    last_purchased = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+                                          verbose_name=_("last purchased"))
+    last_purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last purchased by"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("supplier_name"))):
+
+            return "{}".format(getattr(self, str(_("supplier_name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.supplier_name)
+
+    def get_absolute_url(self):
+        return reverse("mmutools:supplier_detail", kwargs={"pk": self.id})
+
 class Item(models.Model):
     item_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("name of item"))
     description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
@@ -63,6 +84,7 @@ class Item(models.Model):
                                  verbose_name=_("category of equipment"))
     gear_type = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="types",
                                   verbose_name=_("type of equipment"))
+    supplier = models.ManyToManyField(Supplier, verbose_name=_("supplier"))
 
     class Meta:
         unique_together = (('item_name', 'size'),)
@@ -166,29 +188,6 @@ class Quantity(models.Model):
 
     def get_absolute_url(self):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})
-
-
-class Supplier(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="suppliers", verbose_name=_("item"))
-    supplier = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("supplier"))
-    contact_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("contact number"))
-    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("email"))
-    last_invoice = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last invoice"))
-    last_purchased = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                          verbose_name=_("last purchased"))
-    last_purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last purchased by"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("supplier"))):
-
-            return "{}".format(getattr(self, str(_("supplier"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.supplier)
-
-    def get_absolute_url(self):
-        return reverse("mmutools:supplier_detail", kwargs={"pk": self.id})
 
 
 def file_directory_path(instance, filename):

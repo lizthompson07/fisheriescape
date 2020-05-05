@@ -87,7 +87,7 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
     filterset_class = filters.SpecificItemFilter
     queryset = models.Item.objects.annotate(
         search_term=Concat('id', 'item_name', 'description', 'serial_number', 'owner', 'size', 'category',
-                           'gear_type', output_field=TextField()))
+                           'gear_type', 'supplier', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -101,6 +101,7 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
             # 'size',
             'category',
             'gear_type',
+            'supplier',
         ]
         return context
 
@@ -119,6 +120,7 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
             'size',
             'category',
             'gear_type',
+            'supplier',
 
         ]
 
@@ -153,7 +155,7 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
         # context for _supplier.html
         context["random_sup"] = models.Supplier.objects.first()
         context["sup_field_list"] = [
-            'supplier',
+            'supplier_name',
             'contact_number',
             'email',
             'last_purchased',
@@ -450,7 +452,7 @@ class SupplierListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/supplier_list.html"
     filterset_class = filters.SupplierFilter
     queryset = models.Supplier.objects.annotate(
-        search_term=Concat('id', 'item', 'supplier', 'contact_number', 'email', 'last_invoice', 'last_purchased', 'last_purchased_by',
+        search_term=Concat('id', 'supplier_name', 'contact_number', 'email', 'last_invoice', 'last_purchased', 'last_purchased_by',
                            output_field=TextField()))
 
     def get_context_data(self, **kwargs):
@@ -458,8 +460,7 @@ class SupplierListView(MmutoolsAccessRequired, FilterView):
         context["my_object"] = models.Supplier.objects.first()
         context["field_list"] = [
             'id',
-            'item',
-            'supplier',
+            'supplier_name',
             'contact_number',
             'email',
             'last_invoice',
@@ -477,8 +478,7 @@ class SupplierDetailView(MmutoolsAccessRequired, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'id',
-            'item',
-            'supplier',
+            'supplier_name',
             'contact_number',
             'email',
             'last_invoice',
