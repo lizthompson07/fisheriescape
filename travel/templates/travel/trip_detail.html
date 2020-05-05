@@ -25,6 +25,15 @@
 
     <div class="mb-5">
 
+{#        <div class="float-right">#}
+{#            {% if object.current_reviewer.user == user %}#}
+{#                <a href="{% url 'travel:trip_review_update' object.current_reviewer.id %}" class="btn btn-lg btn-primary">#}
+{#                    {% trans "Back to Approver Panel" %}#}
+{#                </a>#}
+{##}
+{#            {% endif %}#}
+{#        </div>#}
+
         <div class="btns">
 
             {# ADM Admin stuff #}
@@ -42,10 +51,10 @@
 
                 {% if object.status.id == 30 or object.status.id == 41 %}
                     {% echo "success" as review_btn_color %}
-                    {% trans "Start a Review" as review_btn_text %}
+                    {% trans "Start a Review for this trip" as review_btn_text %}
                 {% else %}
                     {% echo "danger" as review_btn_color %}
-                    {% trans "End this review" as review_btn_text %}
+                    {% trans "Terminate the review process" as review_btn_text %}
                 {% endif %}
 
 
