@@ -43,6 +43,24 @@ class ReviewerApprovalForm(forms.ModelForm):
         }
 
 
+
+class TripReviewerApprovalForm(forms.ModelForm):
+    # approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = models.TripReviewer
+        fields = [
+            "comments",
+        ]
+        labels = {
+            "comments": _("Please provide your comments here...")
+        }
+        widgets = {
+            "comments": forms.Textarea(attrs=attr_row3)
+        }
+
+
 class ReviewerSkipForm(forms.ModelForm):
     class Meta:
         model = models.Reviewer
