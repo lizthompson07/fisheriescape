@@ -131,7 +131,7 @@ class TripRequestForm(forms.ModelForm):
                                                                                                               "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
-        trip_choices = [(t.id, str(t)) for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
+        trip_choices = [(t.id, f'{t} ({t.status})') for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
         trip_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -208,14 +208,31 @@ class TripRequestForm(forms.ModelForm):
         if not kwargs.get("instance"):
             del self.fields["reset_reviewers"]
 
+
     def clean(self):
-        """ have to make sure that the request start date and the trip start date make sense with respect to each other and individually"""
+        """
+        form validation:
+        1) make sure the trip is opened for business
+        2) make sure that the request start date and the trip start date make sense with respect to each other and individually
+        """
 
         cleaned_data = super().clean()
         request_start_date = cleaned_data.get("start_date")
         request_end_date = cleaned_data.get("end_date")
-        trip_start_date = cleaned_data.get("trip").start_date
-        trip_end_date = cleaned_data.get("trip").end_date
+        trip = cleaned_data.get("trip")
+        trip_start_date = trip.start_date
+        trip_end_date = trip.end_date
+
+
+        if trip.status_id not in [30, 41]:
+            if trip.status_id == 31:
+                message = _("This trip is currently under review from NCR and is closed to additional requests.")
+            elif trip.status_id == 32:
+                message = _("This trip has already been reviewed by NCR and is closed to additional requests.")
+            else:
+                message = _("This trip is closed to additional requests.")
+            self.add_error('trip', message)
+            # raise forms.ValidationError(message)
 
         # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
         # the length of the trip is not too long
@@ -259,6 +276,7 @@ class TripRequestAdminNotesForm(forms.ModelForm):
         fields = [
             "admin_notes",
         ]
+
 
 class TripAdminNotesForm(forms.ModelForm):
     class Meta:
