@@ -2,16 +2,16 @@
 
 ### SMALLER ITEMS
 # TODO fix Quantity UpdateView to work with popouts in both item_detail and directly
-# TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
 # TODO Add confirmation step for deleting files
 # TODO If Item is marked container=TRUE, then container name is added to list of Locations
 # TODO file Model - return 'mmutools/{0}_{1}/{2}'.format(instance.item.item_name, instance.item.size, filename) === when size = N/A it reads the / as separator -- write a test for this
+# TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
 
 ### LARGER ITEMS - PRIORITY
 # TODO Testing Units so Dev version can be deployed
 
 ### OTHER LARGER ITEMS
-# TODO remake models with fields that make sense for lending
+# TODO remake models with fields that make sense for lending and make items--supplier relation M2M
 # TODO Add Historical model or some way to track history of inventory of each item (ie. track previous additions, subtractions, inventory control updates) --would need a description field for inveotry control comments (ie. "item missing")
 # TODO Add Bulk Lending View to checkout (change to "lent out") status multiple items of various quantities all on one page -- how to sort so you can find all items you want also?
 # TODO Bulk Check In View to check back in items -- should be easy enough to sort on a person's name and then bulk check back in items you have out
