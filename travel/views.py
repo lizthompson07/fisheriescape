@@ -334,7 +334,7 @@ conf_field_list = [
     'registration_deadline',
     'is_adm_approval_required',
     'notes',
-    'status',
+    'status_string|{}'.format("status"),
     'total_cost|{}'.format("Total DFO cost (excluding BTA)"),
     'non_res_total_cost|{}'.format("Total DFO cost from non-RES travellers (excluding BTA)"),
 ]
@@ -1216,10 +1216,11 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
         context["paginate_by"] = 50
         context["new_url_name"] = "travel:trip_new"
         context["row_url_name"] = "travel:trip_detail"
+        context["container_class"] = "container-fluid"
         context["random_object"] = models.Conference.objects.first()
         context["field_list"] = [
             {"name": 'fiscal_year', "class": "", "width": "75px"},
-            {"name": 'status', "class": "", },
+            {"name": 'status_string|{}'.format("status"), "width": "200px", },
             {"name": 'tname|{}'.format(_("Trip title")), "class": "", },
             {"name": 'location|{}'.format(_("location")), "class": "", },
             {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
@@ -1522,7 +1523,7 @@ class TripReviewListView(TravelADMAdminRequiredMixin, ListView):
 
         context["random_object"] = models.Conference.objects.first()
         context["field_list"] = [
-            {"name": 'status', "class": "", },
+            {"name": 'status_string|{}'.format(_("status")), "class": "", },
             {"name": 'tname|{}'.format(_("Trip title")), "class": "", },
             {"name": 'location|{}'.format(_("location")), "class": "", },
             {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
@@ -1558,6 +1559,9 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, UpdateView):
         ]
         context["back_url"] = reverse("travel:trip_review_list")
         context["submit_text"] = _("Submit your review")
+        context["trip"] = self.get_object().trip
+        context["reviewer_field_list"] = reviewer_field_list
+        context["report_mode"] = True
         return context
 
     def form_valid(self, form):

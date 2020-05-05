@@ -451,6 +451,15 @@ class Conference(models.Model):
         """Send back the first reviewer whose status is 'pending' """
         return self.reviewers.filter(status_id=25).first()
 
+    @property
+    def status_string(self):
+        my_status = self.status
+        #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
+        status_str = "{}".format(my_status)
+        if my_status.id == 31 and self.current_reviewer:
+            status_str += " {} {}".format(_("by"), self.current_reviewer.user)
+        return status_str
+
 
 class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
