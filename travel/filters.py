@@ -72,7 +72,7 @@ class TripRequestFilter(django_filters.FilterSet):
             'fiscal_year': ['exact'],
             'trip': ['exact'],
             'status': ['exact'],
-            'user': ['exact'],
+            # 'user': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
