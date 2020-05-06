@@ -94,6 +94,7 @@ class TripRequestForm(forms.ModelForm):
             "exclude_from_travel_plan",
             "admin_notes",
             "original_submission_date",
+            "created_by",
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
@@ -456,7 +457,7 @@ class ChildTripRequestForm(forms.ModelForm):
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
-        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status", "admin_notes"]
+        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status", "admin_notes", "review_start_date"]
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
