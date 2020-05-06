@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models.functions import Concat
+from django.template.defaultfilters import pluralize
 from django.utils.safestring import mark_safe
 
 from dm_apps.utils import custom_send_mail
@@ -181,7 +182,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
         context["reviews_waiting"] = trip_reviews_waiting + tr_reviews_waiting
         # this will be the dict to populate the tabs on the index page
         tab_dict = dict()
-        for region in shared_models.Region.objects.filter(~Q(id=6)):
+        for region in shared_models.Region.objects.all():
             tab_dict[region] = dict()
             # this will be the counter for any of the things that need dealing with
 
@@ -205,6 +206,9 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
             unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=False, lead=region).count()
             trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 0, "region": region.id})
 
+            if unverified_trips > 0 and in_travel_admin_group(self.request.user):
+                messages.warning(self.request, mark_safe(f"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
+
             tab_dict[region]["rdg_number_waiting"] = rdg_number_waiting
             tab_dict[region]["rdg_approval_list_url"] = rdg_approval_list_url
             tab_dict[region]["adm_number_waiting"] = adm_number_waiting
@@ -214,14 +218,14 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
             tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + adm_number_waiting + unverified_trips
 
         # Now for NCR
-        tab_dict["NCR"] = dict()
+        tab_dict["ADMO"] = dict()
 
         # unverified trips
         unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=True).count()
         trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 1, "region": 0})
-        tab_dict["NCR"]["unverified_trips"] = unverified_trips
-        tab_dict["NCR"]["trip_verification_list_url"] = trip_verification_list_url
-        tab_dict["NCR"]["things_to_deal_with"] = unverified_trips  # placeholder :)
+        tab_dict["ADMO"]["unverified_trips"] = unverified_trips
+        tab_dict["ADMO"]["trip_verification_list_url"] = trip_verification_list_url
+        tab_dict["ADMO"]["things_to_deal_with"] = unverified_trips  # placeholder :)
 
         number_of_reviews = self.request.user.reviewers.all().count() + self.request.user.trip_reviewers.all().count()
         context["is_reviewer"] = True if number_of_reviews > 0 else False
@@ -271,6 +275,7 @@ request_field_list = [
     'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
     'original_submission_date',
     'processing_time|{}'.format(_("Processing time")),
+    'created_by',
 ]
 
 request_group_field_list = [
@@ -358,14 +363,23 @@ def get_help_text_dict():
 # TRIP REQUEST #
 ################
 class TripRequestListView(TravelAccessRequiredMixin, FilterView):
-    queryset = models.TripRequest.objects.filter(parent_request__isnull=True)
     filterset_class = filters.TripRequestFilter
     template_name = 'travel/trip_request_list.html'
+
+    def get_queryset(self):
+        if self.kwargs.get("region"):
+            queryset = models.TripRequest.objects.filter(section__division__branch__region_id=self.kwargs.get("region"))
+        else:
+            queryset = utils.get_related_trips(self.request.user)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["subtitle"] = _("Trip Requests")
-        context["h1"] = _("Trip Requests")
+        if self.kwargs.get("region"):
+            context["h1"] = "{} - {}".format(_("Trip Requests"), shared_models.Region.objects.get(pk=self.kwargs.get("region")))
+        else:
+            context["h1"] = "{} - {}".format(_("Trip Requests"), self.request.user)
         context["crumbs"] = [
             {"title": _("Home"), "url": reverse("travel:index")},
             {"title": context["h1"]}
@@ -386,6 +400,7 @@ class TripRequestListView(TravelAccessRequiredMixin, FilterView):
             {"name": 'destination|{}'.format(_("Destination")), },
             {"name": 'start_date|{}'.format(_("Departure date")), },
             {"name": 'processing_time|{}'.format(_("Processing time")), },
+            {"name": 'created_by', },
         ]
         return context
 
@@ -459,9 +474,17 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
     model = models.TripRequest
     template_name = 'travel/trip_request_detail.html'
 
+
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
         my_object = self.get_object()
+        context = super().get_context_data(**kwargs)
+        context["h1"] = my_object
+        context["subtitle"] = f' - { my_object }'
+        context["crumbs"] = [
+            {"title": _("Home"), "url": reverse("travel:index")},
+            {"title": context["h1"]}
+        ]
+
         context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
         my_request_child_field_list = deepcopy(request_child_field_list)
         context["child_field_list"] = my_request_child_field_list
@@ -689,6 +712,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
                 "Do you wish to submit the following request?")
             h2 = None
 
+        context["submit_text"] = _("Submit")
         context["h1"] = h1
         context["h2"] = h2
 
@@ -852,7 +876,9 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
         return my_dict
 
     def form_valid(self, form):
-        my_object = form.save()
+        my_object = form.save(commit=False)
+        my_object.created_by = self.request.user
+        my_object.save()
 
         # if it is a group request, add the main user as a traveller
         if my_object.is_group_request:
@@ -1099,7 +1125,7 @@ def delete_reviewer(request, triprequest=None, trip=None):
                 # it is ok to delete the reviewer
                 my_obj.delete()
                 my_obj.trip_request.save()
-            return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_obj.trip_request.id}))
+            return HttpResponseRedirect(reverse("travel:manage_tr_reviewers", kwargs={"triprequest": my_obj.trip_request.id}))
         else:
             messages.error(request, _("You do not have the permissions to delete a reviewer"))
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
@@ -1136,7 +1162,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
                     my_trip_request.save()
                     # do something with the formset.cleaned_data
                     messages.success(request, _("The reviewer list has been successfully updated"))
-                    return HttpResponseRedirect(reverse("travel:manage_reviewers", kwargs={"trip_request": my_trip_request.id}))
+                    return HttpResponseRedirect(reverse("travel:manage_tr_reviewers", kwargs={"triprequest": my_trip_request.id}))
             else:
                 formset = forms.ReviewerFormSet(
                     queryset=qs,
@@ -1196,14 +1222,17 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
     model = models.Conference
     filterset_class = filters.TripFilter
     template_name = 'travel/trip_list.html'
-    queryset = models.Conference.objects.annotate(
-        search_term=Concat(
-            'name',
-            Value(" "),
-            'nom',
-            Value(" "),
-            'location',
-            output_field=TextField()))
+
+    def get_queryset(self):
+        queryset = models.Conference.objects.annotate(
+            search_term=Concat(
+                'name',
+                Value(" "),
+                'nom',
+                Value(" "),
+                'location',
+                output_field=TextField()))
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1504,13 +1533,21 @@ class TripReviewListView(TravelADMAdminRequiredMixin, ListView):
     template_name = 'travel/trip_review_list.html'
 
     def get_queryset(self):
-        qs = models.Conference.objects.filter(
-            pk__in=[reviewer.trip_id for reviewer in self.request.user.trip_reviewers.filter(status_id=25)])
+
+        if self.kwargs.get("which_ones") == "awaiting":
+            qs = models.Conference.objects.filter(
+                pk__in=[reviewer.trip_id for reviewer in self.request.user.trip_reviewers.filter(status_id=25)])
+        else:
+            qs = models.Conference.objects.filter(pk__in=[reviewer.trip_id for reviewer in self.request.user.trip_reviewers.all()])
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["h1"] = _("Trips Awaiting Your Review")
+        if self.kwargs.get("which_ones") == "awaiting":
+            context["h1"] = _("Trips Awaiting Your Review")
+        else:
+            context["h1"] = _("Tagged Trips")
+
         context["subtitle"] = context["h1"]
         context["crumbs"] = [
             {"title": _("Home"), "url": reverse("travel:index")},
@@ -1519,7 +1556,11 @@ class TripReviewListView(TravelADMAdminRequiredMixin, ListView):
 
         context["paginate_by"] = False
         context["new_url_name"] = False
-        context["row_url_name"] = "travel:trip_review_update"
+
+        if self.kwargs.get("which_ones") == "awaiting":
+            context["row_url_name"] = "travel:trip_review_update"
+        else:
+            context["row_url_name"] = "travel:trip_detail"
 
         context["random_object"] = models.Conference.objects.first()
         context["field_list"] = [

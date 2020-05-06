@@ -518,10 +518,13 @@ class TripRequest(models.Model):
     submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
     original_submission_date = models.DateTimeField(verbose_name=_("original submission date"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trip_requests",
-                               limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
+                               limit_choices_to={"used_for": 2}, verbose_name=_("trip request status"), default=8)
     parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     exclude_from_travel_plan = models.BooleanField(default=False, verbose_name=_("Exclude this traveller from the travel plan?"))
+
+    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="trip_requests_created_by",
+                             verbose_name=_("created by"))
 
     @property
     def admin_notes_html(self):

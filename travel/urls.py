@@ -10,6 +10,9 @@ urlpatterns = [
     # TRIP REQUEST #
     ################
     path('requests/', views.TripRequestListView.as_view(), name="request_list"),
+    path('requests/region/<int:region>/', views.TripRequestListView.as_view(), name="request_list"),
+
+    # path('your-requests/', views.TripRequestListView.as_view(), name="request_list"),
     path('request/new/', views.TripRequestCreateView.as_view(), name="request_new"),
     path('request/<int:pk>/view/', views.TripRequestDetailView.as_view(), name="request_detail"),
     path('request/<int:pk>/print/', views.TravelPlanPDF.as_view(), name="request_print"),
@@ -69,8 +72,9 @@ urlpatterns = [
 
 
     # REVIEWER APPROVAL
-    path('trips-for-your-review/', views.TripReviewListView.as_view(), name="trip_review_list"),
-    path('reviewer/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_review_update"),
+    path('trips-for-your-review/<str:which_ones>/', views.TripReviewListView.as_view(), name="trip_review_list"),
+    path('tagged-trips/', views.TripReviewListView.as_view(), name="trip_review_list"),
+    path('trip-reviewer/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_review_update"),
     path('trip/<int:pk>/skip/', views.SkipTripReviewerUpdateView.as_view(), name="trip_skip"),
 
 
