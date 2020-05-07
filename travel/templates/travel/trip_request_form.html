@@ -184,9 +184,9 @@
             myId = $("#id_user").val();
             // no ID provided
             if (myId == "") {
-                $("#id_first_name").val("").prop("required", true);
-                $("#id_last_name").val("").prop("required", true);
-                $("#id_email").val("").prop("required", true);
+                $("#id_first_name").prop("required", true);
+                $("#id_last_name").prop("required", true);
+                $("#id_email").prop("required", true);
                 $(".disappear-if-user").removeClass("gone");
             } else {
                 $(".disappear-if-user").addClass("gone");
