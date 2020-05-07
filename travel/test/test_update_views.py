@@ -44,7 +44,7 @@ class TestTripRequestUpdateView(CommonTest):
 class TestTripRequestUpdateViewPopup(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.IndividualTripRequestFactory()
+        self.instance = FactoryFloor.ChildTripRequestFactory()
         self.test_url = reverse_lazy('travel:request_edit', kwargs={"pk": self.instance.pk, "pop": 1})
         self.expected_template = 'travel/trip_request_form_popout.html'
 
@@ -70,7 +70,7 @@ class TestTripRequestUpdateViewPopup(CommonTest):
 
     @tag("travel", 'update', "submit")
     def test_submit(self):
-        data = FactoryFloor.IndividualTripRequestFactory.get_valid_data()
+        data = FactoryFloor.ChildTripRequestFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.instance.user)
 
 
@@ -168,6 +168,7 @@ class TestTripVerifyUpdateViewPopout(CommonTest):
         data = FactoryFloor.TripFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.admin_user)
         # check the trip status!! should be equal to 41 after form.save()
+        self.instance = models.Conference.objects.get(id=self.instance.id)
         self.assertIs(self.instance.status_id, 41)
 
 
@@ -175,7 +176,7 @@ class TestDefaultReviewerUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.DefaultReviewerFactory()
-        self.test_url = reverse_lazy('travel:default_reviewer_edit', kwargs={"pk": self.instance.user.pk})
+        self.test_url = reverse_lazy('travel:default_reviewer_edit', kwargs={"pk": self.instance.pk})
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
         self.expected_template = 'travel/default_reviewer_form.html'
 
