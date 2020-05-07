@@ -402,6 +402,7 @@ class Conference(models.Model):
     def get_connected_active_requests(self):
         """
         gets a qs of all connected trip request, excluding any parent requests (for group travel only)
+        and excluding trips that have been denied=10, cancelled=22 or that are in draft=8
         """
         # from travel.models import Event
         # must factor in group and non-group...

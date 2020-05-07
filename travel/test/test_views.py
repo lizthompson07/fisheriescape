@@ -31,14 +31,17 @@ class TestIndexView(CommonTest):
     @tag("index", "context")
     def test_context(self):
         context_vars = [
-            "number_waiting",
-            "rdg_number_waiting",
-            "adm_number_waiting",
-            "unverified_trips",
-            "adm_unverified_trips",
+            "user_trip_requests",
+
+            "tr_reviews_waiting",
+            "trip_reviews_waiting",
+            "reviews_waiting",
             "is_reviewer",
+            "is_tr_reviewer",
+            "is_trip_reviewer",
             "is_admin",
-            "my_dict",
+            "is_adm_admin",
+            "tab_dict",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
 
@@ -59,3 +62,9 @@ class TestIndexView(CommonTest):
         admin_user = self.get_and_login_user(in_group="travel_admin")
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["is_admin"], True)
+
+        # an adm admin user should be identified as such by the `is_adm_admin` var in the template
+        self.client.logout()
+        admin_user = self.get_and_login_user(in_group="travel_adm_admin")
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.context["is_adm_admin"], True)

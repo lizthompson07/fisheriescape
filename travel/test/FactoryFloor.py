@@ -85,6 +85,25 @@ class ChildTripRequestFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     is_group_request = False
 
+    @staticmethod
+    def get_valid_data():
+        start_date = faker.future_datetime(tzinfo=timezone.get_current_timezone())
+        end_date = start_date + datetime.timedelta(days=faker.random_int(1, 10))
+        trip = TripFactory(
+            start_date=start_date,
+            end_date=end_date,
+        )
+        parent_trip = ParentTripRequestFactory(trip=trip)
+        parent_trip.save()
+        valid_data = {
+            'parent_request': parent_trip.id,
+            "user": UserFactory().id,
+            "is_public_servant": True,
+            "is_research_scientist": True,
+            "start_date": trip.start_date.strftime("%Y-%m-%d %H:%M"),
+            "end_date": trip.end_date.strftime("%Y-%m-%d %H:%M"),
+        }
+        return valid_data
 
 class ReviewerFactory(factory.django.DjangoModelFactory):
     class Meta:
