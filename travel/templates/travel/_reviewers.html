@@ -27,12 +27,12 @@
                     {% endif %}
 
                     <span data-toggle="tooltip" title="{{ help_text_1 }}">
-                    <a href="{% url 'travel:reset_reviewers' triprequest.id %}"
+                    <a href="{% url 'travel:reset_tr_reviewers' triprequest.id %}"
                        class="btn btn-sm btn-warning {{ my_disbaled_var }}" id="reset-btn">
                         {% trans "Reset" %}
                     </a>
                     </span>
-                    <a href="{% url 'travel:manage_reviewers' triprequest.id %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'travel:manage_tr_reviewers' triprequest.id %}" class="btn btn-sm btn-primary">
                         {% trans "Modify" %}
                     </a>
                 </div>
@@ -96,7 +96,7 @@
             {% else %}
                 <br>
                 <em>
-                    {% trans "No reviewers, recommenders or approvers have been added to this project." %}
+                    {% trans "No reviewers, recommenders or approvers have been added to this request." %}
                 </em>
             {% endif %}
 
