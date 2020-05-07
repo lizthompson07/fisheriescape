@@ -2,214 +2,88 @@
 {% load static %}
 {% load verbose_names %}
 {% load custom_filters %}
-{#  TRIP DETAIL  #}
-{% if triprequest.trip %}
 
 
+<div class="card mb-2">
+    <h3 class="card-header bg-outline-dark">
 
-    <div class="card mb-2">
-        <h3 class="card-header bg-outline-dark">
-
-            {% trans "Trip Detail" %}
-            <div class="neighbours">
-                {% with help_text_dict|lookup:"trip_header" as help_text %}
-                    <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
-                         data-trigger="hover"
-                         title="{% trans "Trip Summary" %}"
-                         data-content="{{ help_text }}">
-                {% endwith %}
-            </div>
-            <div class="float-right">
-                <a class="btn btn-sm btn-outline-dark" href="{% url 'travel:export_cfts_trip' triprequest.trip.id %}">
-                    {% trans "CFTS Report for Trip" %} &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
-                </a>
-            </div>
-
-
-        </h3>
-        <div class="card-body">
-            <div class="card-text">
+        {% trans "Trip Detail" %}
+        <div class="neighbours">
+            {% with help_text_dict|lookup:"trip_header" as help_text %}
+                <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
+                     data-trigger="hover"
+                     title="{% trans "Trip Summary" %}"
+                     data-content="{{ help_text }}">
+            {% endwith %}
+        </div>
+        <div class="float-right">
+            <a class="btn btn-sm btn-outline-dark" href="{% url 'travel:export_cfts_trip' trip.id %}">
+                {% trans "CFTS Report for Trip" %} &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
+            </a>
+        </div>
+    </h3>
 
 
-                {% if not triprequest.trip %}
-                    <em class="red-font blink-me">{% trans "It was indicated above that this trip request is a conference/meeting however no conference or meeting was selected." %}</em>
-                {% else %}
+    <div class="card-body">
+        <div class="card-text">
+            <table class="table table-sm table-striped">
+                {% for field in conf_field_list %}
+                    {% if "has_event_template" in field %}
+                        {% trans "Unsure" as not_sure %}
+                        {% verbose_td_display trip field format="currency" th_width="30%" nullmark=not_sure date_format="%B %d, %Y" %}
+                    {% elif "eligible" in field %}
+                        {% verbose_td_display trip field th_width="30%" date_format="%B %d, %Y" %}
+                    {% else %}
+                        {% verbose_td_display trip field format="currency" th_width="30%" date_format="%B %d, %Y" %}
+                    {% endif %}
+                {% endfor %}
 
-
-                    <table class="table table-sm table-striped">
-                        {% for field in conf_field_list %}
-                            {% if "has_event_template" in field %}
-                                {% trans "Unsure" as not_sure %}
-                                {% verbose_td_display triprequest.trip field format="currency" th_width="30%" nullmark=not_sure date_format="%B %d, %Y" %}
-                            {% else %}
-                                {% verbose_td_display triprequest.trip field format="currency" th_width="30%" date_format="%B %d, %Y" %}
+                {# connected trip requests #}
+                <tr>
+                    <th>{% trans "Connected requests" %}</th>
+                    <td>
+                        {% for obj in trip.trip_requests.all %}
+                            {% url 'travel:request_detail' obj.id as my_url %}
+                            <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}">{{ obj }}</a>
+                            by {{ obj.user }}
+                            (STATUS: <span style="background-color: {{ obj.status.color }}">{{ obj.status }}</span>)
+                            {% if obj.id == triprequest.id %}
+                                <span class="purple-font text-uppercase font-weight-bold">({% trans "CURRENT TRIP REQUEST" %})</span>
                             {% endif %}
-
+                            <br>
                         {% endfor %}
-                        <tr>
-                            <th>{% trans "Connected requests" %}</th>
-                            <td>
-                                <ul>
-                                    {% for obj in triprequest.trip.trip_requests.all %}
-                                        {% url 'travel:request_detail' obj.id as my_url %}
-                                        <li>
-                                            <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}">{{ obj }}</a>
-                                            by {{ obj.user }}
-                                            (STATUS: <span style="background-color: {{ triprequest.status.color }}">{{ obj.status }}</span>)
-                                            {% if obj.id == triprequest.id %}
-                                                <span class="purple-font">({% trans "CURRENT TRIP REQUEST" %})</span>
-                                            {% endif %}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                {% trans "Total list of travellers (all trip requests and BTA included)" %}
-                            </th>
-                            <td>
-                                <table class="plainjane" style="width: 75%;">
-                                    <tr class="plainjane">
-                                        <th rowspan="2" class="plainjane">{% trans "Name" %}</th>
-                                        <th colspan="2"
-                                            class="plainjane center-col">{% trans "Trips requiring the approval of ADM" %}</th>
-                                    </tr>
-                                    <tr class="plainjane">
-                                        <th class="plainjane center-col">{{ triprequest.trip.fiscal_year }}</th>
-                                        <th class="plainjane center-col">Total</th>
-                                    </tr>
-                                    {% for traveller in triprequest.trip.total_traveller_list %}
-                                        {% with triprequest.trip.get_summary_dict|lookup:traveller as d %}
-                                            <tr class="plainjane">
-                                                <td class="plainjane">
-                                                    {{ traveller }}
-                                                    {% if traveller in triprequest.trip.bta_traveller_list %}{% trans "(BTA)" %}{% endif %}
-                                                </td>
-                                                <td class="plainjane center-col">
-                                                    {% if traveller.id %}
-                                                        {{ d.fy_list|length }}
-                                                        {% if d.fy_list|length %}
-                                                            &nbsp;
-                                                            {% with d.fy_list as my_list %}
-                                                                <button class="badge" data-toggle="popover"
-                                                                        title="{{ traveller.first_name }}'s Total Requests for {{ triprequest.trip.fiscal_year }}"
-                                                                        data-content="{% include "travel/_user_trip_request_list.html" %}">
-                                                                    {% trans "show" %}
-                                                                </button>
-                                                            {% endwith %}
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <em>
-                                                            ----
-                                                        </em>
-                                                    {% endif %}
-                                                </td>
+                    </td>
+                </tr>
 
-                                                <td class="plainjane center-col">
-                                                    {% if traveller.id %}
-                                                        {{ d.total_list|length }}
-                                                        {% if d.total_list|length %}
-                                                            &nbsp;
-                                                            {% with d.total_list as my_list %}
-                                                                <button class="badge" data-toggle="popover"
-                                                                        title="{{ user.first_name }}'s Total Requests"
-                                                                        data-content="{% include "travel/_user_trip_request_list.html" %}">
-                                                                    {% trans "show" %}
-                                                                </button>
-                                                            {% endwith %}
-                                                        {% endif %}
-                                                    {% else %}
-                                                        <em>
-                                                            {{ d.total_list }}
-                                                        </em>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                        {% endwith %}
-                                    {% endfor %}
-                                    <tr>
-                                        <th colspan="3">{% trans "TOTAL NUMBER OF TRAVELLERS" %}
-                                            = {{ triprequest.trip.total_traveller_list|length }}</th>
-                                    </tr>
+                {# traveller history #}
+                <tr>
+                    <th>
+                        {% trans "Complete list of travellers" %}
+                        <br>
+                        {% trans "(across all submitted requests; includes BTA travellers)" %}
 
+                    </th>
+                    <td>
+                        <br>
+                        {% include "travel/_trip_traveller_history.html" %}
+                    </td>
+                </tr>
 
-                                </table>
+                {#  cost comparison #}
+                <tr>
+                    <th>
+                        {% trans "Comparision of costs" %}
+                        <br>
+                        {% trans "(across all submitted requests)" %}
+                    </th>
+                    <td>
+                        <br>
+                        {% include "travel/_trip_traveller_cost_comparison.html" %}
+                    </td>
+                </tr>
+            </table>
 
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>
-                                {% trans "Comparision of Travellers' Costs (across all trip requests)" %}
-                            </th>
-                            <td>
-
-                                {% with triprequest.trip.get_cost_comparison_dict as cc_dict %}
-                                    {% with cc_dict|lookup:"costs" as cost_dict %}
-                                        {% with cc_dict|lookup:"trip_requests" as trip_requests_dict %}
-                                            <table class="plainjane" style="width: 95%;">
-                                                <tr class="plainjane">
-                                                    <th class="plainjane" rowspan="2" style="width: 120px">{% trans "Traveller" %}</th>
-                                                    <th class="center-col plainjane" colspan="{{ cost_dict|length }}">
-                                                        {% trans "Costs (CAD)" %}
-                                                    </th>
-                                                </tr>
-                                                <tr class="plainjane">
-                                                    {% for cost in cost_dict %}
-                                                        {% if cost != "total" %}
-                                                            <th class="center-col plainjane">{{ cost }}</th>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    <th class="center-col plainjane">{% trans "TOTAL" %}</th>
-                                                </tr>
-                                                {% for tr in trip_requests_dict %}
-                                                    <tr class="plainjane">
-                                                        <td>{{ tr.requester_name }}</td>
-                                                        {% for cost in cost_dict %}
-                                                            {% if cost != "total" %}
-                                                                <td class="center-col">
-                                                                    {% if trip_requests_dict|lookup:tr|lookup:cost %}
-                                                                        {{ trip_requests_dict|lookup:tr|lookup:cost|currency }}
-                                                                    {% else %}
-                                                                        ---
-                                                                    {% endif %}
-                                                                </td>
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                        <td class="center-col">
-                                                            {{ trip_requests_dict|lookup:tr|lookup:"total"|currency }}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                <tr class="plainjane">
-                                                    <th>{% trans "TOTAL" %} ({{ trip_requests_dict|length }})</th>
-                                                    {% for cost in cost_dict %}
-                                                        {% if cost != "total" %}
-                                                            <th class="center-col">
-                                                                {{ cost_dict|lookup:cost|currency }}
-                                                            </th>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                    <th class="center-col">
-                                                        {{ cost_dict|lookup:"total"|currency }}
-                                                    </th>
-                                                </tr>
-                                            </table>
-
-                                        {% endwith %}
-                                    {% endwith %}
-                                {% endwith %}
-                            </td>
-
-                        </tr>
-
-
-                    </table>
-                {% endif %}
-
-            </div>
         </div>
     </div>
-    <br><br>
-{% endif %}
+</div>
+<br><br>
