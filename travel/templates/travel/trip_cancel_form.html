@@ -1,0 +1,20 @@
+{% extends "travel/generic_form.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+
+
+{% block post_form_p %}
+
+    <hr>
+    <div class="mb-3 mt-5">
+        {% include "travel/_trip_detail.html" %}
+    </div>
+
+{% endblock %}
+{% block submit_btn_class %}
+btn-danger
+{% endblock %}

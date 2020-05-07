@@ -25,21 +25,22 @@
                     {% if "status" in field %}
                         <tr>
                             <th>{% get_verbose_label triprequest field %}</th>
-                            <td style="background-color: {{ triprequest.status.color }};">{% get_field_value triprequest field %}</td>
+                            <td>
+                                <span style="background-color: {{ triprequest.status.color }}">{% get_field_value triprequest field %}</span>
+                            </td>
                         </tr>
-
                     {% elif "section" in field %}
                         <tr>
                             <th>{% get_verbose_label triprequest field %}</th>
                             <td>{{ triprequest.section.full_name }}</td>
                         </tr>
                         {#            {% verbose_td_display trip field format="currency" th_width="20%" nullmark=not_sure date_format="%B %d, %Y" %}#}
-{#                    {% elif "phone" in field %}#}
-{#                        {% verbose_td_display triprequest field th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}#}
+                        {#                    {% elif "phone" in field %}#}
+                        {#                        {% verbose_td_display triprequest field th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}#}
                     {% elif "original_submission" in field %}
-                        {% verbose_td_display triprequest field th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y %H:%M" %}
+                        {% verbose_td_display triprequest field th_width="20%" nullmark="<span class='red-font'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y %H:%M" %}
                     {% else %}
-                        {% verbose_td_display triprequest field format="currency" th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}
+                        {% verbose_td_display triprequest field format="currency" th_width="20%" nullmark="<span class='red-font'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}
                     {% endif %}
                 {% endfor %}
 

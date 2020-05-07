@@ -41,7 +41,17 @@
                                 {{ val|date }} ({{ val|naturaltime }})
                             </td>
                         </tr>
+                    {% elif "status" in field %}
+                        <tr>
+                            <th>
+                                {% get_verbose_label trip field %}
+                            </th>
+                            <td>
+                                <span style="background-color: {{ object.status.color }}">{% get_field_value trip field %}</span>
+                            </td>
+                        </tr>
                     {% else %}
+
                         {% verbose_td_display trip field format="currency" th_width="30%" date_format="%B %d, %Y" %}
                     {% endif %}
                 {% endfor %}
