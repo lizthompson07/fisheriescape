@@ -1333,6 +1333,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             {"name": 'location|{}'.format(_("location")), "class": "", },
             {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
             {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", },
+            {"name": 'lead|{}'.format(_("Regional lead")), "class": "center-col", },
             {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
             {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
             {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
