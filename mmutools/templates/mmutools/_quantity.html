@@ -27,7 +27,6 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-
             {% for field in qty_field_list %}
             <th>
 
@@ -39,10 +38,15 @@
         {% for obj in object.quantities.all %}
             <tr>
             {% for field in qty_field_list %}
-            <td>
-
-            {% get_field_value obj field %}
-            </td>
+                {% if field == "location" %}
+                    <td>
+                        <a href="{% url 'mmutools:location_detail' obj.location.id %}">{{obj.location}}</a>
+                     </td>
+                {% else %}
+                    <td>
+                    {% get_field_value obj field %}
+                    </td>
+                {% endif %}
             {% endfor %}
             <td>
                 <a href="#"
@@ -56,16 +60,16 @@
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
                 </a>
             </td>
-            <td>
-                <a href="#"
-                   pop-href="{% url 'mmutools:location_detail' obj.id %}">
-                    <img src="{% static "/admin/img/icon-viewlink.svg" %}" data-toggle="tooltip" title="Location">
-                </a>
-            </td>
+<!--            <td>-->
+<!--                <a href="#"-->
+<!--                   pop-href="{% url 'mmutools:location_detail' obj.location.id %}">-->
+<!--                    <img src="{% static "/admin/img/icon-viewlink.svg" %}" data-toggle="tooltip" title="Location">-->
+<!--                </a>-->
+<!--            </td>-->
 
             </tr>
-
         {% endfor %}
+
         </tbody>
     </table>
 {% endif %}

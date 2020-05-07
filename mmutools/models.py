@@ -84,7 +84,11 @@ class Item(models.Model):
                                  verbose_name=_("category of equipment"))
     gear_type = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="types",
                                   verbose_name=_("type of equipment"))
-    supplier = models.ManyToManyField(Supplier, verbose_name=_("supplier"))
+    supplier = models.ManyToManyField(Supplier, blank=True, verbose_name=_("supplier"))
+
+    # def save(self, *args, **kwargs):
+    #     self.size = self.size.lower()
+    #     return super(Item, self).save(*args, **kwargs)
 
     class Meta:
         unique_together = (('item_name', 'size'),)

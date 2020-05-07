@@ -5,7 +5,7 @@
 # TODO Add lending table to quantity, JS for having lent_to and other fields appear if "lent out" is selected as status
 # TODO Lend button beside quantities on item_detail --- form could ask how many, calculate difference etc
 # TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
-# TODO Fix Location view in _quantity.html to go to location_stored detail page != pk
+# TODO how to make unique_together = (('item_name', 'size'),) case insensitive? --- see my attempt to save size as lower, but returns error if it's duplicate
 
 ### LARGER ITEMS - PRIORITY
 # TODO Fix all Supplier Views with new M2M model in place -- no longer linked to item --
@@ -28,3 +28,4 @@
 # TODO file Model - return 'mmutools/{0}_{1}/{2}'.format(instance.item.item_name, instance.item.size, filename) === when size = N/A it reads the / as separator -- write a test for this
 # TODO Be able to click on "Location" in _quantity and take to location_detail page to see address
 # TODO Create Location Table (with containers as locations)
+# TODO Fix Location view in _quantity.html to go to location_stored detail page != pk
