@@ -33,9 +33,9 @@
 {% include "travel/_basic_detail.html" %}
 {% include "travel/_group_travellers.html" %}
 {% include "travel/_costs.html" %}
-{% with triprequest.trip as trip %}
+{% if trip %}
     {% include "travel/_trip_detail.html" %}
-{% endwith %}
+{% endif %}
 {% include "travel/_reviewers.html" %}
 {% include "travel/_files.html" %}
 

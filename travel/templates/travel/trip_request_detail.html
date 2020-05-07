@@ -5,7 +5,7 @@
 {% load custom_filters %}
 {% load custom_tags %}
 {% load i18n %}
-
+{% load humanize %}
 
 {% block subcontent %}
 
@@ -24,21 +24,52 @@
 
 
     </style>
+    {# This is an indicator for how long before the trip can close off for registration   #}
 
-    {% if triprequest.trip.status.id != 30 and triprequest.trip.status.id != 41 and not triprequest.submitted %}
+
+    {% if trip and trip.status.id != 30 and trip.status.id != 41 and not submitted %}
         <div class="alert alert-danger" role="alert">
             <h4 class="alert-heading">
                 {% trans "WARNING" %}
             </h4>
             <p>
-                {% if triprequest.trip.status.id == 31 %}
+                {% if trip.status.id == 31 %}
                     {% trans "This trip is currently under review from NCR and is closed to additional requests." %}
-                {% elif triprequest.trip.status.id == 32 %}
+                {% elif trip.status.id == 32 %}
                     {% trans "This trip has already been reviewed by NCR and is closed to additional requests." %}
                 {% else %}
                     {% trans "This trip is closed to additional requests." %}
                 {% endif %}
                 {% trans "You will not be able to submit this request." %}
+            </p>
+        </div>
+
+    {% elif trip.is_adm_approval_required and not triprequest.submitted %}
+
+        {% if trip.days_until_eligible_for_adm_review > 45 %}
+            {% echo "success" as btn_color %}
+        {% elif trip.days_until_eligible_for_adm_review >= 15 %}
+            {% echo "warning" as btn_color %}
+        {% else %}
+            {% echo "danger" as btn_color %}
+        {% endif %}
+
+        <div class="alert alert-{{ btn_color }}" role="alert">
+            <h5 class="alert-heading">
+                {% trans "Just a heads up..." %}
+            </h5>
+            <p>
+                {% if trip.days_until_eligible_for_adm_review < 0 %}
+                    {% blocktrans with trip.date_eligible_for_adm_review|naturaltime as time %}
+                        This trip was eligible for review by the ADM office {{ time }}.
+                    {% endblocktrans %}
+                {% else %}
+                    {% blocktrans with trip.date_eligible_for_adm_review|naturaltime as time %}
+                        This trip will be eligible for review by the ADM office in {{ time }}.
+                    {% endblocktrans %}
+
+                {% endif %}
+                {% trans "Once under review, it will be closed to additional requests." %}
             </p>
         </div>
     {% endif %}
@@ -110,7 +141,7 @@
                 {% trans "You do not have permissions to submit / un-submit this request" as submit_tip_text %}
 
                 {# Unsubmitted only: if the trip is closed for further registration #}
-            {% elif not object.submitted %}
+            {% elif not object.submitted and trip%}
                 {% if triprequest.trip.status.id != 30 and  triprequest.trip.status.id != 41 %}
                     {% echo "disabled" as submit_disabled_var %}
                     {% trans "This trip is closed to further requests." as submit_tip_text %}
@@ -190,7 +221,6 @@
     </div>
     <br><br>
     {% include "travel/_trip_request_detail.html" %}
-
 
 
 {% endblock %}
