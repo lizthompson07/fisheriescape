@@ -174,6 +174,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context["user_trip_requests"] = utils.get_related_trips(self.request.user).count()
         # show the number of reviews awaiting for the logged in user
         tr_reviews_waiting = self.request.user.reviewers.filter(status_id=1).filter(
             ~Q(trip_request__status_id=16)).count()  # number of requests where review is pending

@@ -473,11 +473,10 @@ def get_related_trips(user):
     return models.TripRequest.objects.filter(id__in=tr_ids)
 
 
-
 def get_adm_ready_trips():
     """returns a qs of trips that are ready for adm review"""
     six_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 6)
-    #start with trips that need adm approval that have not already been reviewed
+    # start with trips that need adm approval that have not already been reviewed
     trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id=32))
     t_ids = list()
     for t in trips:
