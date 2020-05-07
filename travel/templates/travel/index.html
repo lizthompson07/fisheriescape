@@ -276,14 +276,17 @@
                                             <div class="card" style="width: {{ width1 }};">
                                                 <div class="card-body">
                                                     <h5 class="card-title">
-                                                        {% trans "Regional Trip Requests" %}
+                                                        {% trans "Trips and Requests" %}
                                                     </h5>
                                                     <p class="card-text">
-                                                        {% trans "View all trips requests that are linked to this region." %}
+                                                        {% trans "View all trips and trip requests that are linked to this region." %}
                                                     </p>
                                                     <div class="center-col">
+                                                        <a href="{% url 'travel:trip_list' region.id %}"
+                                                           class="btn btn-primary">{% trans "Trips" %}
+                                                        </a>
                                                         <a href="{% url 'travel:request_list' region.id %}"
-                                                           class="btn btn-primary">{% trans "Go" %}
+                                                           class="btn btn-primary">{% trans "Requests" %}
                                                         </a>
                                                     </div>
                                                 </div>
@@ -356,7 +359,7 @@
                                                 <div class="card" style="width: {{ width1 }};">
                                                     <div class="card-body">
                                                         <h5 class="card-title">
-                                                            {% trans "Eligible for ADM Review" %}
+                                                            {% trans "Eligible for Review" %}
                                                             (<span class="red-font blink-me">{{ dict.adm_trips_ready }}</span>)
                                                         </h5>
                                                         <p class="card-text">{% trans "A list of trips eligible for the ADM review process to begin'." %}</p>
@@ -374,7 +377,7 @@
                                                     <h5 class="card-title">{% trans "Browse all Trips" %}</h5>
                                                     <p class="card-text">{% trans "View a full list of current and historical trips in the systems." %}</p>
                                                     <div class="center-col">
-                                                        <a href="{% url 'travel:trip_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+                                                        <a href="{% url 'travel:trip_list' 'adm-hit-list' %}" class="btn btn-primary">{% trans "Go" %}</a>
                                                     </div>
                                                 </div>
                                             </div>
