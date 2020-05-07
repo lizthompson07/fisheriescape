@@ -351,7 +351,8 @@ conf_field_list = [
     'is_adm_approval_required',
     'notes',
     'status_string|{}'.format("status"),
-    # 'days_until_eligible_for_adm_review|{}'.format(_("days until eligible for ADM review")),
+    'date_eligible_for_adm_review|{}'.format(_("Date when eligible for ADM Office review")),
+    'adm_review_deadline|{}'.format(_("ADM Office review deadline")),
     'total_cost|{}'.format("Total DFO cost (excluding BTA)"),
     'non_res_total_cost|{}'.format("Total DFO cost from non-RES travellers (excluding BTA)"),
 ]
