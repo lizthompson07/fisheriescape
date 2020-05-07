@@ -145,7 +145,7 @@
                                     <div class="card" style="width: {{ width1 }};">
                                         <div class="card-body">
                                             <h5 class="card-title">{% trans "View Your Requests" %}
-                                                ({{ user.user_trip_requests.count }})</h5>
+                                                ({{ user_trip_requests }})</h5>
                                             <p class="card-text">{% trans "View trips requests that you have created or on which you are a traveller." %}</p>
                                             <div class="center-col">
                                                 <a href="{{ request_list_url }}" class="btn btn-primary">{% trans "Go" %}</a>
