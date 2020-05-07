@@ -122,21 +122,12 @@
                 </a>
 
 
-                {# ADMIN CANCEL BUTTON #}
-                {% if object.status.id  == 22 or  object.status.id  == 11 %}
-                    {% echo True as is_eligible %}
-                {% endif %}
-
-                {% if is_eligible %}
-                    {% if object.status.id == 22 %}
-                        {% echo "warning" as cancel_btn_color %}
-                        {% trans "Un-cancel Request" as cancel_btn_text %}
-                    {% else %}
+                {# ADMIN CANCEL BUTTON - only show this option for approved requests #}
+                {% if object.status.id  != 22 and object.status.id  != 10 %}
                         {% echo "danger" as cancel_btn_color %}
                         {% trans "Cancel Request" as cancel_btn_text %}
-                    {% endif %}
 
-                    <span data-toggle="tooltip" title="{% trans "This is only an option to you as a system admin" %}">
+                        <span data-toggle="tooltip" title="{% trans "This is only an option to you as a system admin" %}">
                         <a class="btn btn-{{ cancel_btn_color }}" href="{% url 'travel:request_cancel' object.id %}">
                         {{ cancel_btn_text }}
                         </a>
