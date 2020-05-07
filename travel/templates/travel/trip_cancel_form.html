@@ -18,3 +18,11 @@
 {% block submit_btn_class %}
 btn-danger
 {% endblock %}
+
+
+{# if you are calling from this template, the admin notes field should be required #}
+{% block body_js %}
+    <script type="application/javascript">
+        $("#id_admin_notes").prop("required", true);
+    </script>
+{% endblock %}

@@ -59,26 +59,29 @@
                 </a>
 
 
-                {# Review BUTTON #}
-                {% if object.status.id != 32 %}
-                    {% if object.status.id == 30 %} {# disabled for everyone #}
-                        {% echo "disabled" as review_disabled_var %}
-                        {% trans "This trip must be verified before a review can be started." as review_tip_text %}
+                {% if object.status.id != 43 and object.status.id != 32 %}
+
+                    {# Review BUTTON #}
+                    {% if object.status.id != 32 %}
+                        {% if object.status.id == 30 %} {# disabled for everyone #}
+                            {% echo "disabled" as review_disabled_var %}
+                            {% trans "This trip must be verified before a review can be started." as review_tip_text %}
+                        {% endif %}
+
+                        {% if object.status.id == 30 or object.status.id == 41 %}
+                            {% echo "success" as review_btn_color %}
+                            {% trans "Start a Review for this trip" as review_btn_text %}
+                        {% else %}
+                            {% echo "danger" as review_btn_color %}
+                            {% trans "Terminate the review process" as review_btn_text %}
+                        {% endif %}
+
+
+                        <span data-toggle="tooltip" title="{{ review_tip_text }}">
+                        <a class="btn btn-{{ review_btn_color }} {{ review_disabled_var }}"
+                           href="{% url 'travel:trip_review_toggle' object.id %}">{{ review_btn_text }}</a>
+                        </span>
                     {% endif %}
-
-                    {% if object.status.id == 30 or object.status.id == 41 %}
-                        {% echo "success" as review_btn_color %}
-                        {% trans "Start a Review for this trip" as review_btn_text %}
-                    {% else %}
-                        {% echo "danger" as review_btn_color %}
-                        {% trans "Terminate the review process" as review_btn_text %}
-                    {% endif %}
-
-
-                    <span data-toggle="tooltip" title="{{ review_tip_text }}">
-                <a class="btn btn-{{ review_btn_color }} {{ review_disabled_var }}"
-                   href="{% url 'travel:trip_review_toggle' object.id %}">{{ review_btn_text }}</a>
-                </span>
                 {% endif %}
 
             {% endif %}
