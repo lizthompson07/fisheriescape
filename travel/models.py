@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import textile
@@ -22,6 +23,23 @@ YES_NO_CHOICES = (
     (True, _("Yes")),
     (False, _("No")),
 )
+
+
+class DefaultReviewer(models.Model):
+    user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
+                                verbose_name=_("DM Apps user"))
+    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which DFO section(s)"), blank=True,
+                                      related_name="travel_default_reviewers")
+    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"), blank=True,
+                                      related_name="travel_default_reviewers")
+    reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"), blank=True,
+                                            related_name="travel_default_reviewers", limit_choices_to={"id__in": [3, 4, 5]})
+
+    def __str__(self):
+        return "{}".format(self.user)
+
+    class Meta:
+        ordering = ["user", ]
 
 
 class NJCRates(models.Model):
@@ -127,10 +145,14 @@ class Purpose(models.Model):
 
 class Status(models.Model):
     # choices for used_for
-    APPROVAL = 1
-    TRIPS = 2
+    TR_REVIEWERS = 1
+    TRIP_REVIEWERS = 3
+    TRIP_REQUESTS = 2
+    TRIPS = 4
     USED_FOR_CHOICES = (
-        (APPROVAL, "Reviewer status"),
+        (TR_REVIEWERS, "Request Reviewer status"),
+        (TRIP_REQUESTS, "Trip Request status"),
+        (TRIP_REVIEWERS, "Trip Reviewer status"),
         (TRIPS, "Trip status"),
     )
 
@@ -176,6 +198,10 @@ class Conference(models.Model):
     verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by",
                                     verbose_name=_("verified by"))
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
+                               limit_choices_to={"used_for": 4}, verbose_name=_("trip status"), default=30)
+    admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
+    review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -186,6 +212,47 @@ class Conference(models.Model):
             my_str = "{}".format(self.name)
         return "{}, {} ({} {} {})".format(my_str, self.location, self.start_date.strftime("%d-%b-%Y"), _("to"),
                                           self.end_date.strftime("%d-%b-%Y"))
+
+    @property
+    def closest_date(self):
+        """determine the nearest date: abstract, registration, start_date"""
+        abs_date = nz(self.abstract_deadline, self.start_date)
+        reg_date = nz(self.registration_deadline, self.start_date)
+        start_date = self.start_date
+        return min([abs_date, reg_date, start_date])
+
+    @property
+    def date_eligible_for_adm_review(self):
+        if self.is_adm_approval_required:
+            return self.closest_date - datetime.timedelta(days=(365 / 12) * 6)
+
+    @property
+    def days_until_eligible_for_adm_review(self):
+        if self.is_adm_approval_required:
+            # when was the deadline?
+            deadline = self.date_eligible_for_adm_review
+            # how many days until the deadline?
+            return (deadline - timezone.now()).days
+
+    @property
+    def adm_review_deadline(self):
+        if self.is_adm_approval_required:
+            # when was the deadline?
+            return self.closest_date - datetime.timedelta(days=21) # 14 business days -- > 21 calendar days?
+
+    @property
+    def days_until_adm_review_deadline(self):
+        if self.is_adm_approval_required:
+            # when was the deadline?
+            deadline = self.adm_review_deadline
+            # how many days until the deadline?
+            return (deadline - timezone.now()).days
+
+
+
+    @property
+    def admin_notes_html(self):
+        return textile.textile(self.admin_notes)
 
     @property
     def html_block(self):
@@ -219,41 +286,25 @@ class Conference(models.Model):
     def bta_traveller_list(self):
         # create a list of all TMS users going
         legit_traveller_list = self.traveller_list
-        travellers = []
-        for trip_request in self.trip_requests.filter(~Q(status_id__in=[10, 22])):
+        bta_travellers = []
+        # exclude reqeusts that are denied (id=10), cancelled (id=22), draft (id=8)
+        for trip_request in self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])):
             # lets look at the list of BTA travels and add them all
             for bta_user in trip_request.bta_attendees.all():
                 # if this user for some reason turns up to be a real traveller on this trip
                 # (i.e. the assertion that they are a BTA traveller is wrong, they should not be added)
                 if bta_user not in legit_traveller_list:
-                    travellers.append(bta_user)
-
+                    bta_travellers.append(bta_user)
         # return a set of all users
-        return list(set(travellers))
+        return list(set(bta_travellers))
 
     @property
     def traveller_list(self):
-        # from travel.models import Event
-        # must factor in group and non-group...
-
-        # start simple... non-group
-        my_list = [trip_request.user for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False) if
-                   trip_request.user]
+        trip_requests = self.get_connected_active_requests()  # a list of individual and child requests connected to this trip
+        my_list = [tr.user for tr in trip_requests if tr.user]
         # now those without names...
-        my_list.extend(
-            ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-             self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False) if not trip_request.user])
-
-        # group travellers
-        my_list.extend(
-            [trip_request.user for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))
-             if
-             trip_request.user])
-        my_list.extend(
-            ["{} {} ({})".format(trip_request.first_name, trip_request.last_name, _("no DM Apps user connected")) for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22])) if not trip_request.user])
-
+        blurb = _("no DM Apps user connected")
+        my_list.extend([f"{tr.requester_name} ({blurb})" for tr in trip_requests if not tr.user])
         return set(my_list)
 
     @property
@@ -288,12 +339,13 @@ class Conference(models.Model):
         # must factor in group and non-group...
 
         # start simple... non-group
+        # exclude reqeusts that are denied (id=10), cancelled (id=22), draft (id=8)
         my_list = [trip_request.total_dfo_funding for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_dfo_funding for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22, 8]))])
 
         return sum(my_list)
 
@@ -304,11 +356,12 @@ class Conference(models.Model):
 
         # start simple... non-group
         my_list = [trip_request.total_dfo_funding for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False, is_research_scientist=False)]
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False, is_research_scientist=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_dfo_funding for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22])).filter(is_research_scientist=False)])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22, 8])).filter(
+                 is_research_scientist=False)])
 
         return sum(my_list)
 
@@ -324,6 +377,12 @@ class Conference(models.Model):
 
     def save(self, *args, **kwargs):
         self.fiscal_year = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
+        # ensure the process order makes sense
+        count = 1
+        for reviewer in self.reviewers.all():  # use the default sorting
+            reviewer.order = count
+            reviewer.save()
+            count += 1
         super().save(*args, **kwargs)
 
     def get_connected_requests(self):
@@ -333,11 +392,26 @@ class Conference(models.Model):
         # from travel.models import Event
         # must factor in group and non-group...
 
-        my_id_list = [trip_request.id for trip_request in
-                      self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
+        my_id_list = [trip_request.id for trip_request in self.trip_requests.all().filter(is_group_request=False)]
+        # self.trip_requests.filter(~Q(status_id__in=[10, 22])).filter(is_group_request=False)]
         # group requests
         my_id_list.extend(
-            [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).filter(~Q(status_id__in=[10, 22]))])
+            [trip_request.id for trip_request in TripRequest.objects.filter(parent_request__trip=self).all()])
+        return TripRequest.objects.filter(id__in=my_id_list)
+
+    def get_connected_active_requests(self):
+        """
+        gets a qs of all connected trip request, excluding any parent requests (for group travel only)
+        """
+        # from travel.models import Event
+        # must factor in group and non-group...
+
+        my_id_list = [trip_request.id for trip_request in
+                      self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False)]
+        # group requests
+        my_id_list.extend(
+            [trip_request.id for trip_request in
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(parent_request__status_id__in=[10, 22, 8]))])
         return TripRequest.objects.filter(id__in=my_id_list)
 
     @property
@@ -389,7 +463,7 @@ class Conference(models.Model):
         This method is used to return a dictionary of trip requests and will compare cost across all of them.
         """
         my_dict = dict()
-        trip_requests = self.get_connected_requests()
+        trip_requests = self.get_connected_active_requests()
         tr_costs = TripRequestCost.objects.filter(trip_request_id__in=[tr.id for tr in trip_requests], amount_cad__gt=0)
         costs = Cost.objects.filter(id__in=[tr_cost.cost_id for tr_cost in tr_costs])
         my_dict["trip_requests"] = dict()
@@ -409,6 +483,20 @@ class Conference(models.Model):
                     my_dict["costs"]["total"] += my_dict["trip_requests"][tr][cost]
 
         return my_dict
+
+    @property
+    def current_reviewer(self):
+        """Send back the first reviewer whose status is 'pending' """
+        return self.reviewers.filter(status_id=25).first()
+
+    @property
+    def status_string(self):
+        my_status = self.status
+        #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
+        status_str = "{}".format(my_status)
+        if my_status.id == 31 and self.current_reviewer:
+            status_str += " {} {}".format(_("by"), self.current_reviewer.user)
+        return status_str
 
 
 class TripRequest(models.Model):
@@ -468,10 +556,13 @@ class TripRequest(models.Model):
     submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
     original_submission_date = models.DateTimeField(verbose_name=_("original submission date"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trip_requests",
-                               limit_choices_to={"used_for": 2}, verbose_name=_("trip status"), default=8)
+                               limit_choices_to={"used_for": 2}, verbose_name=_("trip request status"), default=8)
     parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     exclude_from_travel_plan = models.BooleanField(default=False, verbose_name=_("Exclude this traveller from the travel plan?"))
+
+    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="trip_requests_created_by",
+                                   verbose_name=_("created by"))
 
     @property
     def admin_notes_html(self):
@@ -497,7 +588,7 @@ class TripRequest(models.Model):
 
     class Meta:
         ordering = ["-start_date", "last_name"]
-        unique_together = [("user", "parent_request"), ]
+        unique_together = [("user", "parent_request"), ("user", "trip"), ]
 
     def get_absolute_url(self):
         return reverse('travel:request_detail', kwargs={'pk': self.id})
@@ -843,6 +934,49 @@ class Reviewer(models.Model):
         if self.trip_request.status_id != 8 and self.status_id == 4:
             self.status_id = 20
         return super().save(*args, **kwargs)
+
+    @property
+    def status_string(self):
+
+        if self.status.id in [1, 4, 5]:
+            status = "{}".format(
+                self.status
+            )
+        else:
+            status = "{} {} {}".format(
+                self.status,
+                _("on"),
+                self.status_date.strftime("%Y-%m-%d"),
+            )
+
+        my_str = "<span style='background-color:{}'>{} ({})</span>".format(
+            self.status.color,
+            self.user,
+            status,
+        )
+        return mark_safe(my_str)
+
+
+class TripReviewer(models.Model):
+    trip = models.ForeignKey(Conference, on_delete=models.CASCADE, related_name="reviewers")
+    order = models.IntegerField(null=True, verbose_name=_("process order"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers", verbose_name=_("DM Apps user"))
+    role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3},
+                               verbose_name=_("review status"), default=23)
+    status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
+    comments = models.TextField(null=True, verbose_name=_("Comments"))
+
+    class Meta:
+        unique_together = ['trip', 'user', 'role', ]
+        ordering = ['trip', 'order', ]
+
+    @property
+    def comments_html(self):
+        if self.comments:
+            return textile.textile(self.comments)
+        else:
+            return "---"
 
     @property
     def status_string(self):

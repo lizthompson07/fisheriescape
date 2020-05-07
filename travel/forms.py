@@ -2,7 +2,7 @@ from django import forms
 from django.forms import modelformset_factory
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.contrib.auth.models import User as AuthUser
+from django.contrib.auth.models import User as AuthUser, User
 from shared_models import models as shared_models
 from travel.filters import get_region_choices
 
@@ -32,6 +32,24 @@ class ReviewerApprovalForm(forms.ModelForm):
 
     class Meta:
         model = models.Reviewer
+        fields = [
+            "comments",
+        ]
+        labels = {
+            "comments": _("Please provide your comments here...")
+        }
+        widgets = {
+            "comments": forms.Textarea(attrs=attr_row3)
+        }
+
+
+
+class TripReviewerApprovalForm(forms.ModelForm):
+    # approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = models.TripReviewer
         fields = [
             "comments",
         ]
@@ -76,6 +94,7 @@ class TripRequestForm(forms.ModelForm):
             "exclude_from_travel_plan",
             "admin_notes",
             "original_submission_date",
+            "created_by",
         ]
         labels = {
             'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
@@ -131,7 +150,7 @@ class TripRequestForm(forms.ModelForm):
                                                                                                               "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
-        trip_choices = [(t.id, str(t)) for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
+        trip_choices = [(t.id, f'{t} ({t.status})') for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
         trip_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -209,13 +228,28 @@ class TripRequestForm(forms.ModelForm):
             del self.fields["reset_reviewers"]
 
     def clean(self):
-        """ have to make sure that the request start date and the trip start date make sense with respect to each other and individually"""
+        """
+        form validation:
+        1) make sure the trip is opened for business
+        2) make sure that the request start date and the trip start date make sense with respect to each other and individually
+        """
 
         cleaned_data = super().clean()
         request_start_date = cleaned_data.get("start_date")
         request_end_date = cleaned_data.get("end_date")
-        trip_start_date = cleaned_data.get("trip").start_date
-        trip_end_date = cleaned_data.get("trip").end_date
+        trip = cleaned_data.get("trip")
+        trip_start_date = trip.start_date
+        trip_end_date = trip.end_date
+
+        if trip.status_id not in [30, 41]:
+            if trip.status_id == 31:
+                message = _("This trip is currently under review from NCR and is closed to additional requests.")
+            elif trip.status_id == 32:
+                message = _("This trip has already been reviewed by NCR and is closed to additional requests.")
+            else:
+                message = _("This trip is closed to additional requests.")
+            self.add_error('trip', message)
+            # raise forms.ValidationError(message)
 
         # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
         # the length of the trip is not too long
@@ -256,6 +290,14 @@ class TripRequestForm(forms.ModelForm):
 class TripRequestAdminNotesForm(forms.ModelForm):
     class Meta:
         model = models.TripRequest
+        fields = [
+            "admin_notes",
+        ]
+
+
+class TripAdminNotesForm(forms.ModelForm):
+    class Meta:
+        model = models.Conference
         fields = [
             "admin_notes",
         ]
@@ -361,11 +403,61 @@ class ChildTripRequestForm(forms.ModelForm):
                 # print(f'Adding label: "Unspecified" to field "{field}".')
                 self.fields[field].group = 0
 
+    def clean(self):
+        """
+        form validation:
+        1) make sure that the request start date and the trip start date make sense with respect to each other and individually
+        """
+
+        cleaned_data = super().clean()
+        request_start_date = cleaned_data.get("start_date")
+        request_end_date = cleaned_data.get("end_date")
+        trip = cleaned_data.get("parent_request").trip
+        trip_start_date = trip.start_date
+        trip_end_date = trip.end_date
+        user = cleaned_data.get("user")
+
+        # we have to make sure there is not already a trip request in the system for this user and this trip
+        if user.user_trip_requests.filter(trip=trip, is_group_request=False).count():
+            msg = _('There is already a trip request in the system for this user and this trip.')
+            self.add_error('user', msg)
+
+        # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
+        # the length of the trip is not too long
+        if request_start_date and request_end_date:
+            if request_end_date < request_start_date:
+                msg = _('The start date of the trip must occur after the end date.')
+                self.add_error('start_date', msg)
+                self.add_error('end_date', msg)
+            if abs((request_start_date - request_end_date).days) > 100:
+                msg = _('The length of this trip is unrealistic.')
+                self.add_error('start_date', msg)
+                self.add_error('end_date', msg)
+            # is the start date of the travel request equal to or before the start date of the trip?
+            if trip_start_date:
+                delta = abs(request_start_date - trip_start_date)
+                if delta.days > 10:
+                    msg = _(
+                        f'The start date of this request ({request_start_date.strftime("%Y-%m-%d")}) has to be within 10 days of the'
+                        f' start date of the selected trip ({trip_start_date.strftime("%Y-%m-%d")})!')
+                    self.add_error('start_date', msg)
+                    # self.add_error('trip', msg)
+
+            # is the end_date of the travel request equal to or after the end date of the trip?
+            if trip_end_date:
+                delta = abs(request_end_date - trip_end_date)
+                if delta.days > 10:
+                    msg = _(
+                        f'The end date of this request ({request_end_date.strftime("%Y-%m-%d")}) must be within 10 days'
+                        f' of the end date of the selected trip ({trip_end_date.strftime("%Y-%m-%d")})!')
+                    self.add_error('end_date', msg)
+                    # self.add_error('trip', msg)
+
 
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
-        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent"]
+        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status", "admin_notes", "review_start_date"]
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -502,6 +594,62 @@ ReviewerFormSet = modelformset_factory(
 )
 
 
+class TripReviewerForm(forms.ModelForm):
+    class Meta:
+        model = models.TripReviewer
+        fields = [
+            'trip',
+            'order',
+            'user',
+            'role',
+        ]
+        widgets = {
+            'trip': forms.HiddenInput(),
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        user_choices = [(u.id, str(u)) for u in User.objects.filter(groups__name__icontains="travel_adm_admin")]
+        # add any users with special roles
+        user_choices.extend([(df.user.id, str(df.user)) for df in models.DefaultReviewer.objects.filter(reviewer_roles__id__in=[3, 4, 5])])
+        user_choices = list(set(user_choices))
+        user_choices.insert(0, (None, "-----"))
+        self.fields["user"].choices = user_choices
+
+    def clean(self):
+        """
+        The order, user, or role cannot be changed if the reviewer status is approved or queued
+        :return:
+        """
+        my_object = self.instance
+        cleaned_data = super().clean()
+        order = cleaned_data.get("order")
+        user = cleaned_data.get("user")
+        role = cleaned_data.get("role")
+
+        # Check the role
+        if my_object.status and my_object.status.id not in [23, 24]:
+            # need to determine if there have been any changes
+            if my_object.role != role:
+                raise forms.ValidationError(_(f'Sorry, the role of a reviewer whose status is set to {my_object.status} cannot be changed'))
+
+            if my_object.user != user:
+                raise forms.ValidationError(
+                    _(f'Sorry, you cannot change the associated DM Apps user of a reviewer whose status is set to {my_object.status}'))
+
+            if my_object.order != order:
+                raise forms.ValidationError(
+                    _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
+
+
+TripReviewerFormSet = modelformset_factory(
+    model=models.TripReviewer,
+    form=TripReviewerForm,
+    extra=1,
+)
+
+
 class FileForm(forms.ModelForm):
     class Meta:
         model = models.File
@@ -578,3 +726,21 @@ class TripRequestCostForm(forms.ModelForm):
             'amount_cad': forms.NumberInput(attrs={"class": "by-amount"}),
             # 'cost': forms.Select(attrs=chosen_js),
         }
+
+
+class DefaultReviewerForm(forms.ModelForm):
+    class Meta:
+        model = models.DefaultReviewer
+        fields = "__all__"
+        widgets = {
+            "user": forms.Select(attrs=chosen_js),
+            "sections": forms.SelectMultiple(attrs=chosen_js),
+            "branches": forms.SelectMultiple(attrs=chosen_js),
+            "reviewer_roles": forms.SelectMultiple(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        section_choices = [(s.id, s.full_name) for s in shared_models.Section.objects.all()]
+        branch_choices = [(b.id, f"{b} ({b.region})") for b in shared_models.Branch.objects.all()]
+        self.fields["sections"].choices = section_choices
