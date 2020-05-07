@@ -1282,21 +1282,24 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
                 'location',
                 output_field=TextField()))
 
-        if not self.kwargs.get("type") and not (in_adm_admin_group(self.request.user) or in_travel_admin_group(self.request.user)):
-            # as a security measure, a regular user should not be able to see all the trips...
-            queryset = None
+        if self.kwargs.get("region"):
+            queryset = queryset.filter(lead_id=self.kwargs.get("region") )
+        else:
+            if not self.kwargs.get("type") and not (in_adm_admin_group(self.request.user) or in_travel_admin_group(self.request.user)):
+                # as a security measure, a regular user should not be able to see all the trips...
+                queryset = None
 
-        elif self.kwargs.get("type") == "adm-hit-list":
-            queryset = utils.get_adm_ready_trips().annotate(
-                search_term=Concat(
-                    'name',
-                    Value(" "),
-                    'nom',
-                    Value(" "),
-                    'location',
-                    output_field=TextField()))
-        elif self.kwargs.get("type") == "upcoming":
-            queryset = queryset.filter(start_date__gte=timezone.now())
+            elif self.kwargs.get("type") == "adm-hit-list":
+                queryset = utils.get_adm_ready_trips().annotate(
+                    search_term=Concat(
+                        'name',
+                        Value(" "),
+                        'nom',
+                        Value(" "),
+                        'location',
+                        output_field=TextField()))
+            elif self.kwargs.get("type") == "upcoming":
+                queryset = queryset.filter(start_date__gte=timezone.now())
 
         return queryset
 
