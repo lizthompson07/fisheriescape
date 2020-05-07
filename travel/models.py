@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import textile
@@ -211,6 +212,43 @@ class Conference(models.Model):
             my_str = "{}".format(self.name)
         return "{}, {} ({} {} {})".format(my_str, self.location, self.start_date.strftime("%d-%b-%Y"), _("to"),
                                           self.end_date.strftime("%d-%b-%Y"))
+
+    @property
+    def closest_date(self):
+        """determine the nearest date: abstract, registration, start_date"""
+        abs_date = nz(self.abstract_deadline, self.start_date)
+        reg_date = nz(self.registration_deadline, self.start_date)
+        start_date = self.start_date
+        return min([abs_date, reg_date, start_date])
+
+    @property
+    def date_eligible_for_adm_review(self):
+        if self.is_adm_approval_required:
+            return self.closest_date - datetime.timedelta(days=(365 / 12) * 6)
+
+    @property
+    def days_until_eligible_for_adm_review(self):
+        if self.is_adm_approval_required:
+            # when was the deadline?
+            deadline = self.date_eligible_for_adm_review
+            # how many days until the deadline?
+            return (deadline - timezone.now()).days
+
+    @property
+    def adm_review_deadline(self):
+        if self.is_adm_approval_required:
+            # when was the deadline?
+            return self.closest_date - datetime.timedelta(days=21) # 14 business days -- > 21 calendar days?
+
+    @property
+    def days_until_adm_review_deadline(self):
+        if self.is_adm_approval_required:
+            # when was the deadline?
+            deadline = self.adm_review_deadline
+            # how many days until the deadline?
+            return (deadline - timezone.now()).days
+
+
 
     @property
     def admin_notes_html(self):
@@ -524,7 +562,7 @@ class TripRequest(models.Model):
     exclude_from_travel_plan = models.BooleanField(default=False, verbose_name=_("Exclude this traveller from the travel plan?"))
 
     created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="trip_requests_created_by",
-                             verbose_name=_("created by"))
+                                   verbose_name=_("created by"))
 
     @property
     def admin_notes_html(self):
