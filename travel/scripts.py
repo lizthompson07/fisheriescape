@@ -14,23 +14,23 @@ def export_fixtures():
     """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
     fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
     models_to_export = [
-        models.NJCRates,
-        models.CostCategory,
-        models.Cost,
-        models.Role,
-        models.Reason,
-        models.Purpose,
+        # models.NJCRates,
+        # models.CostCategory,
+        # models.Cost,
+        # models.Role,
+        # models.Reason,
+        # models.Purpose,
         models.Status,
         models.ReviewerRole,
-        models.HelpText,
-        shared_models.FiscalYear,
+        # models.HelpText,
+        # shared_models.FiscalYear,
         # shared_models.Region,
         # shared_models.Branch,
         # shared_models.Division,
         # shared_models.Section,
         # models.DefaultReviewer,
-        User,
-        Group,
+        # User,
+        # Group,
     ]
     for model in models_to_export:
         data = serializers.serialize("json", model.objects.all())
