@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 from copy import deepcopy
@@ -207,7 +208,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
             trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 0, "region": region.id})
 
             if unverified_trips > 0 and in_travel_admin_group(self.request.user):
-                messages.warning(self.request, mark_safe(f"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
+                messages.warning(self.request, mark_safe(
+                    f"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
 
             tab_dict[region]["rdg_number_waiting"] = rdg_number_waiting
             tab_dict[region]["rdg_approval_list_url"] = rdg_approval_list_url
@@ -218,14 +220,23 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
             tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + adm_number_waiting + unverified_trips
 
         # Now for NCR
-        tab_dict["ADMO"] = dict()
+        admo_name = "ADM Office"
+        tab_dict[admo_name] = dict()
 
         # unverified trips
         unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=True).count()
         trip_verification_list_url = reverse('travel:admin_trip_verification_list', kwargs={"adm": 1, "region": 0})
-        tab_dict["ADMO"]["unverified_trips"] = unverified_trips
-        tab_dict["ADMO"]["trip_verification_list_url"] = trip_verification_list_url
-        tab_dict["ADMO"]["things_to_deal_with"] = unverified_trips  # placeholder :)
+
+        if unverified_trips > 0 and in_adm_admin_group(self.request.user):
+            messages.warning(self.request, mark_safe(
+                f"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
+
+        adm_ready_trips = utils.get_adm_ready_trips().count()
+
+        tab_dict[admo_name]["unverified_trips"] = unverified_trips
+        tab_dict[admo_name]["trip_verification_list_url"] = trip_verification_list_url
+        tab_dict[admo_name]["adm_trips_ready"] = adm_ready_trips
+        tab_dict[admo_name]["things_to_deal_with"] = unverified_trips + adm_ready_trips  # placeholder :)
 
         number_of_reviews = self.request.user.reviewers.all().count() + self.request.user.trip_reviewers.all().count()
         context["is_reviewer"] = True if number_of_reviews > 0 else False
@@ -340,6 +351,7 @@ conf_field_list = [
     'is_adm_approval_required',
     'notes',
     'status_string|{}'.format("status"),
+    # 'days_until_eligible_for_adm_review|{}'.format(_("days until eligible for ADM review")),
     'total_cost|{}'.format("Total DFO cost (excluding BTA)"),
     'non_res_total_cost|{}'.format("Total DFO cost from non-RES travellers (excluding BTA)"),
 ]
@@ -474,12 +486,11 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
     model = models.TripRequest
     template_name = 'travel/trip_request_detail.html'
 
-
     def get_context_data(self, **kwargs):
         my_object = self.get_object()
         context = super().get_context_data(**kwargs)
         context["h1"] = my_object
-        context["subtitle"] = f' - { my_object }'
+        context["subtitle"] = f' - {my_object}'
         context["crumbs"] = [
             {"title": _("Home"), "url": reverse("travel:index")},
             {"title": context["h1"]}
@@ -495,6 +506,8 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
         context["fy"] = fiscal_year()
         context["is_admin"] = "travel_admin" in [group.name for group in self.request.user.groups.all()]
         context["is_owner"] = my_object.user == self.request.user
+        context["now"] = timezone.now()
+        context["trip"] = my_object.trip
 
         # Admins should be given the same permissions as a current reviewer; the two are synonymous
         if context["is_admin"]:
@@ -1232,11 +1245,38 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
                 Value(" "),
                 'location',
                 output_field=TextField()))
+
+        if not self.kwargs.get("type") and not (in_adm_admin_group(self.request.user) or in_travel_admin_group(self.request.user)):
+            # as a security measure, a regular user should not be able to see all the trips...
+            queryset = None
+
+        elif self.kwargs.get("type") == "adm-hit-list":
+            queryset = utils.get_adm_ready_trips().annotate(
+                search_term=Concat(
+                    'name',
+                    Value(" "),
+                    'nom',
+                    Value(" "),
+                    'location',
+                    output_field=TextField()))
+        elif self.kwargs.get("type") == "upcoming":
+            queryset = queryset.filter(start_date__gte=timezone.now())
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["h1"] = _("Trips")
+        if self.kwargs.get("type") == "adm-hit-list":
+            six_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 6)
+            context["h1"] = _("Trips Eligible for ADM Review")
+            context["h3"] = "{} {}".format(
+                _("Trips whose registration date, abstract date or start date (whichever is earliest) is on or before"),
+                six_months_away.strftime("%B %d, %Y"))
+        elif self.kwargs.get("type") == "upcoming":
+            context["h1"] = _("Upcoming Trips")
+        else:
+            context["h1"] = _("Trips")
+
         context["subtitle"] = _("Trips")
         context["crumbs"] = [
             {"title": _("Home"), "url": reverse("travel:index")},
@@ -1259,6 +1299,12 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
             {"name": 'verified_by', "class": "", },
         ]
+        if self.kwargs.get("type") == "adm-hit-list":
+            context["field_list"].append(
+                {"name": 'adm_review_deadline|{}'.format(_("ADM review deadline")), "class": "", }
+            )
+
+
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
 
@@ -1275,9 +1321,19 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
 
         context["h1"] = str(self.get_object())
         context["subtitle"] = context["h1"]
+        if self.kwargs.get("type") == "upcoming":
+            trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
+            trips_title = _("Upcoming Trips")
+        elif self.kwargs.get("type") == "adm-hit-list":
+            trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
+            trips_title = _("Trips Eligible for ADM Review")
+        else:
+            trips_url = reverse("travel:trip_list")
+            trips_title = _("Trips")
+
         context["crumbs"] = [
             {"title": _("Home"), "url": reverse("travel:index")},
-            {"title": _("Trips"), "url": reverse("travel:trip_list")},
+            {"title": trips_title, "url": trips_url},
             {"title": context["h1"]}
         ]
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
@@ -1444,7 +1500,12 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
         utils.trip_approval_seeker(my_trip)
         my_trip.save()
 
-        return HttpResponseRedirect(reverse("travel:index"))
+        # decide where to go. If the request user is the same as the active reviewer for the trip, go right to the review page.
+        # otherwise go to the index
+        if my_trip.current_reviewer and self.request.user == my_trip.current_reviewer.user:
+            return HttpResponseRedirect(reverse("travel:trip_review_update", kwargs={"pk": my_trip.current_reviewer.id}))
+        else:
+            return HttpResponseRedirect(reverse("travel:index"))
 
 
 class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):

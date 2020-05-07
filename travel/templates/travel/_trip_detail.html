@@ -31,6 +31,8 @@
                     {% if "has_event_template" in field %}
                         {% trans "Unsure" as not_sure %}
                         {% verbose_td_display trip field format="currency" th_width="30%" nullmark=not_sure date_format="%B %d, %Y" %}
+                    {% elif "eligible" in field %}
+                        {% verbose_td_display trip field th_width="30%" date_format="%B %d, %Y" %}
                     {% else %}
                         {% verbose_td_display trip field format="currency" th_width="30%" date_format="%B %d, %Y" %}
                     {% endif %}

@@ -1,6 +1,9 @@
+import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from dm_apps.utils import custom_send_mail
 from django.db import IntegrityError
@@ -8,6 +11,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from Levenshtein import distance
 
+from lib.templatetags.custom_filters import nz
 from . import models
 from . import emails
 from shared_models import models as shared_models
@@ -467,3 +471,16 @@ def get_related_trips(user):
     tr_ids.extend([tr.id for tr in models.TripRequest.objects.filter(parent_request__isnull=True, created_by=user)])
     tr_ids.extend([tr.parent_request.id for tr in models.TripRequest.objects.filter(parent_request__isnull=False, user=user)])
     return models.TripRequest.objects.filter(id__in=tr_ids)
+
+
+
+def get_adm_ready_trips():
+    """returns a qs of trips that are ready for adm review"""
+    six_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 6)
+    #start with trips that need adm approval that have not already been reviewed
+    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id=32))
+    t_ids = list()
+    for t in trips:
+        if t.closest_date <= six_months_away:
+            t_ids.append(t.id)
+    return models.Conference.objects.filter(id__in=t_ids)

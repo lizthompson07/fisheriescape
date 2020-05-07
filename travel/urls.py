@@ -51,9 +51,11 @@ urlpatterns = [
     # TRIP #
     ########
     path('trips/', views.TripListView.as_view(), name="trip_list"),
+    path('trips/<str:type>/', views.TripListView.as_view(), name="trip_list"),
     path('trip/new/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/new/pop/<int:pop>/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
+    path('trip/<int:pk>/view/<str:type>/', views.TripDetailView.as_view(), name="trip_detail"),
     path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/edit/popout/<int:pop>', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
