@@ -31,10 +31,16 @@
 
         <div class="row">
             <div class="col-3">
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
-            </div>
+                <table class="table table-sm table-striped">
+                    {% for field in field_list %}
+                        {% if field == "location" %}
+                            {% url 'mmutools:location_detail' object.location.id as my_url %}
+                            {% verbose_td_display object field url=my_url %}
+                        {% else %}
+                            {% verbose_td_display object field %}
+                        {% endif %}
+                    {% endfor %}
+                </table>
         </div>
     </div>
 

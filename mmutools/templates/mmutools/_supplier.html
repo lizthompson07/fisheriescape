@@ -9,7 +9,7 @@
     </h3>
 </div>
 
-{% if object.suppliers.count == 0 %}
+{% if item.supplier.all.count == 0 %}
     <em>
         {% trans "No suppliers have been added to this entry" %}
     </em><br>
@@ -17,22 +17,25 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-
             {% for field in sup_field_list %}
             <th>
-
-            {% get_verbose_label random_sup field %}
+                {% get_verbose_label random_sup field %}
             </th>
             {% endfor %}
         </tr>
         <tbody>
-        {% for obj in object.suppliers.all %}
+        {% for obj in object.supplier.all %}
             <tr>
             {% for field in sup_field_list %}
-            <td>
-
-            {% get_field_value obj field %}
-            </td>
+                {% if field == "supplier_name" %}
+                    <td>
+                        <a href="{% url 'mmutools:supplier_detail' obj.id %}">{{obj.supplier_name}}</a>
+                     </td>
+                {% else %}
+                    <td>
+                    {% get_field_value obj field %}
+                    </td>
+                {% endif %}
             {% endfor %}
             <td>
                 <a href="#"

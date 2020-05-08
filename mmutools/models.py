@@ -56,10 +56,9 @@ class Supplier(models.Model):
     supplier_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("supplier"))
     contact_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("contact number"))
     email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("email"))
-    last_invoice = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last invoice"))
-    last_purchased = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                          verbose_name=_("last purchased"))
-    last_purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last purchased by"))
+    website = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("website"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
+
 
     def __str__(self):
         # check to see if a french value is given
@@ -85,6 +84,9 @@ class Item(models.Model):
     gear_type = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="types",
                                   verbose_name=_("type of equipment"))
     supplier = models.ManyToManyField(Supplier, blank=True, verbose_name=_("supplier"))
+    last_purchased = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+                                          verbose_name=_("last purchased"))
+    last_purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last purchased by"))
 
     # def save(self, *args, **kwargs):
     #     self.size = self.size.lower()
@@ -112,6 +114,21 @@ class Item(models.Model):
 
     def get_absolute_url(self):
         return reverse("mmutools:item_detail", kwargs={"pk": self.id})
+
+# class SupplyInfo(models.Model):
+#     supplier = models.ForeignKey(Supplier, on_delete=models.DO_NOTHING, related_name="suppliers", verbose_name=_("supplier"))
+#     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, verbose_name=_("item"))
+#     last_invoice = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+#                                           verbose_name=_("last invoice date"))
+#
+#     def __str__(self):
+#         # check to see if a french value is given
+#         if getattr(self, str(_("supplier"))):
+#
+#             return "{}".format(getattr(self, str(_("supplier"))))
+#         # if there is no translated term, just pull from the english field
+#         else:
+#             return "{}".format(self.supplier)
 
 class Location(models.Model):
     location = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("location"))
@@ -378,7 +395,7 @@ class Incident(models.Model):
     results = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("results"))
     photos = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("photos?"))
     data_folder = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("data folder"))
-    comments = models.TextField(blank=True, null=True, verbose_name=_("comments/Details"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
 
     def __str__(self):
         # check to see if a french value is given

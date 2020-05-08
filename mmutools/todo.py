@@ -4,8 +4,11 @@
 # TODO Add confirmation step for deleting files
 # TODO Add lending table to quantity, JS for having lent_to and other fields appear if "lent out" is selected as status
 # TODO Lend button beside quantities on item_detail --- form could ask how many, calculate difference etc
-# TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
+# TODO Figure out how to use generic_popout_form
 # TODO how to make unique_together = (('item_name', 'size'),) case insensitive? --- see my attempt to save size as lower, but returns error if it's duplicate
+# TODO If M2M is blank have it show the "---" or None like other fields
+# TODO Have "Back" button go to previous URL rather than a static page (because you can get there from multiple places now)
+# TODO When adding a Supplier from item_detail, have it automatically also add it to the item.supplier field
 
 ### LARGER ITEMS - PRIORITY
 # TODO Fix all Supplier Views with new M2M model in place -- no longer linked to item --
@@ -16,7 +19,7 @@
 # TODO Add Historical model or some way to track history of inventory of each item (ie. track previous additions, subtractions, inventory control updates) --would need a description field for inveotry control comments (ie. "item missing")
 # TODO Add Bulk Lending View to checkout (change to "lent out") status multiple items of various quantities all on one page -- how to sort so you can find all items you want also?
 # TODO Bulk Check In View to check back in items -- should be easy enough to sort on a person's name and then bulk check back in items you have out
-
+# TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
 
 ### SOLVED - I THINK
 # TODO Fix quantity calculation error in views.py -- see error message there, need to create case for when no values entered yet -- I think I fixed this!~! WOOO

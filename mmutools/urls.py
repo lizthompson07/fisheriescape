@@ -52,6 +52,7 @@ urlpatterns = [
     path('supplier/new/', views.SupplierCreateView.as_view(), name="supplier_new"),
     path('item/<int:pk>/supplier/new/', views.SupplierCreateView.as_view(), name="supplier_new"),
     path('supplier/<int:pk>/edit/', views.SupplierUpdateView.as_view(), name="supplier_edit"),
+    path('supplier/<int:pk>/edit/pop/<int:pop>/', views.SupplierUpdateView.as_view(), name="supplier_edit"),
     path('supplier/<int:pk>/delete/', views.SupplierDeleteView.as_view(), name="supplier_delete"),
 
 # ITEM FILES #

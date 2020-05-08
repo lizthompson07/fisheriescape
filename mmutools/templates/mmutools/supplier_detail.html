@@ -31,9 +31,11 @@
 
         <div class="row">
             <div class="col-3">
-                {% for field in field_list %}
-                    {% verbose_field_display object field %}
-                {% endfor %}
+                <table class="table table-sm table-striped">
+                    {% for field in field_list %}
+                        {% verbose_td_display object field %}
+                    {% endfor %}
+                </table>
             </div>
         </div>
     </div>

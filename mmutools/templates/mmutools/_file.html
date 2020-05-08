@@ -22,8 +22,7 @@
             </th>
             {% for field in file_field_list %}
             <th>
-
-            {% get_verbose_label random_file field %}
+                {% get_verbose_label random_file field %}
             </th>
             {% endfor %}
         </tr>
@@ -37,8 +36,7 @@
             </td>
             {% for field in file_field_list %}
             <td>
-
-            {% get_field_value obj field %}
+                {% get_field_value obj field %}
             </td>
             {% endfor %}
             <td>

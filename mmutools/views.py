@@ -87,7 +87,7 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
     filterset_class = filters.SpecificItemFilter
     queryset = models.Item.objects.annotate(
         search_term=Concat('id', 'item_name', 'description', 'serial_number', 'owner', 'size', 'category',
-                           'gear_type', 'supplier', output_field=TextField()))
+                           'gear_type', 'supplier', 'last_purchased', 'last_purchased_by', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -102,6 +102,8 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
             'category',
             'gear_type',
             'supplier',
+            'last_purchased',
+            'last_purchased_by',
         ]
         return context
 
@@ -121,6 +123,8 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
             'category',
             'gear_type',
             'supplier',
+            'last_purchased',
+            'last_purchased_by',
 
         ]
 
@@ -158,9 +162,9 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
             'supplier_name',
             'contact_number',
             'email',
-            'last_purchased',
-            'last_invoice',
+
         ]
+
 
         # context for _lending.html
         context["random_lend"] = models.Lending.objects.first()
@@ -452,7 +456,7 @@ class SupplierListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/supplier_list.html"
     filterset_class = filters.SupplierFilter
     queryset = models.Supplier.objects.annotate(
-        search_term=Concat('id', 'supplier_name', 'contact_number', 'email', 'last_invoice', 'last_purchased', 'last_purchased_by',
+        search_term=Concat('id', 'supplier_name', 'contact_number', 'email', 'website', 'comments',
                            output_field=TextField()))
 
     def get_context_data(self, **kwargs):
@@ -463,9 +467,8 @@ class SupplierListView(MmutoolsAccessRequired, FilterView):
             'supplier_name',
             'contact_number',
             'email',
-            'last_invoice',
-            'last_purchased',
-            'last_purchased_by',
+            'website',
+            'comments',
 
         ]
         return context
@@ -481,10 +484,8 @@ class SupplierDetailView(MmutoolsAccessRequired, DetailView):
             'supplier_name',
             'contact_number',
             'email',
-            'last_invoice',
-            'last_purchased',
-            'last_purchased_by',
-
+            'website',
+            'comments',
         ]
         return context
 
@@ -493,10 +494,17 @@ class SupplierUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     model = models.Supplier
     form_class = forms.SupplierForm
 
+    def get_template_names(self):
+       return "mmutools/supplier_form_popout.html" if self.kwargs.get("pop") else "mmutools/supplier_form.html"
+
+    def get_form_class(self):
+        return forms.SupplierForm1 if self.kwargs.get("pop") else forms.SupplierForm
+
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Supplier record successfully updated for : {my_object}"))
-        return super().form_valid(form)
+        success_url = reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('mmutools:supplier_detail', kwargs={"pk": my_object.id})
+        return HttpResponseRedirect(success_url)
 
 
 class SupplierCreateView(MmutoolsEditRequiredMixin, CreateView):
@@ -505,6 +513,9 @@ class SupplierCreateView(MmutoolsEditRequiredMixin, CreateView):
 
     def get_template_names(self):
        return "mmutools/supplier_form_popout.html" if self.kwargs.get("pk") else "mmutools/supplier_form.html"
+
+    def get_form_class(self):
+        return forms.SupplierForm1 if self.kwargs.get("pk") else forms.SupplierForm
 
     def form_valid(self, form):
         my_object = form.save()
