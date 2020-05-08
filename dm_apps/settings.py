@@ -255,9 +255,9 @@ STATICFILES_DIRS = [
 ]
 
 AZURE_STORAGE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", cast=str, default="")
-AZURE_STORAGE_ACCESS_KEY = config("AZURE_STORAGE_ACCESS_KEY", cast=str, default="")
+# AZURE_STORAGE_ACCESS_KEY = config("AZURE_STORAGE_ACCESS_KEY", cast=str, default="")
 # if no account name was provided, serve static and media files with whitenoise
-if AZURE_STORAGE_ACCOUNT_NAME == "" or AZURE_STORAGE_ACCESS_KEY == "":
+if AZURE_STORAGE_ACCOUNT_NAME == "":
     print('Serving static and media files from local staticfiles directory using Whitenoise.')
     MEDIA_ROOT = MEDIA_DIR
     MEDIA_URL = '/media/'

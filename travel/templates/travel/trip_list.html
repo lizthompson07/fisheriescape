@@ -1,123 +1,44 @@
-{% extends "travel/travel_base.html" %}
-{% load static %}
-{% load bootstrap4 %}
-{% load i18n %}
+{% extends "travel/generic_list.html" %}
+
 {% load verbose_names %}
 {% load custom_filters %}
-{% load el_pagination_tags %}
+{% load humanize %}
+{% load custom_tags %}
 
-{% block subtitle %}
-    - {% trans "Trip List" %}
+{% block row %}
+    {% if view.kwargs.type %}
+        {% url row_url_name object.id view.kwargs.type as my_url %}
+    {% else %}
+        {% url row_url_name object.id as my_url %}
+    {% endif %}
+
+    <tr href="{{ my_url }}">
+        {% for field in field_list %}
+            <td class="{{ field.class }}">
+                {% if "adm_approval" in field.name %}
+                    <span class="{% if object.is_adm_approval_required %}red-font{% endif %}">{% get_field_value object field.name safe=True %}</span>
+                {% elif "deadline" in field.name %}
+                    {% if object.days_until_adm_review_deadline > 45 %}
+                        {% echo "success" as btn_color %}
+                    {% elif object.days_until_adm_review_deadline >= 15 %}
+                        {% echo "warning" as btn_color %}
+                    {% else %}
+                        {% echo "danger" as btn_color %}
+                    {% endif %}
+
+                    <span class="btn-{{ btn_color }}">{{ object.adm_review_deadline|naturaltime }}</span>
+                {% elif "total_travellers" in field.name %}
+                    {{ object.total_traveller_list|length|zero2val:"---" }}
+                {% elif "connected_request" in field.name %}
+                    {{ object.trip_requests.count|zero2val:"---" }}
+                {% elif "status" in field.name %}
+                    <span style="background-color: {{ object.status.color }}">{% get_field_value object field.name %}</span>
+                {% else %}
+                    {% get_field_value object field.name safe=True %}
+                {% endif %}
+            </td>
+        {% endfor %}
+    </tr>
 {% endblock %}
 
-{% block content %}
 
-    <style>
-        .indent-lg {
-            margin-left: 5em;
-            margin-right: 5em;
-        }
-
-        table {
-            font-size: small;
-        }
-
-    </style>
-
-
-    <div class="container-fluid">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                    {% trans "Home" %}
-                </a></li>
-                <li class="breadcrumb-item active" aria-current="page">{% trans "Trips" %}</li>
-            </ol>
-        </nav>
-
-        <h1 class="big-header">{% trans "Trips" %}</h1>
-
-        <form class="form" action="." method="get" id="filter-form">
-            <div class="row">
-                {% for field in filter.form %}
-                    <div class="col">
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    </div>
-                {% endfor %}
-                <div class="col">
-                    <br>
-                    <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
-
-                </div>
-            </div>
-        </form>
-        <br>
-
-        {% paginate 50 filter.qs as filter_list %}
-
-        <div class="row">
-            <div class="col">
-                {% trans "(click on a header to sort table)" %}
-            </div>
-            <div class="col" style="text-align: center">
-                {% show_pages %}
-                <em>{% trans 'displaying' %} {{ filter_list.count }} {% trans 'of' %} {{ filter.qs.count }}</em>
-            </div>
-            <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'travel:trip_new' %}" class="btn btn-sm btn-primary">{% trans 'New Trip' %}</a>
-            </div>
-        </div>
-
-
-        <table class="table table-sm table-hover sortable">
-            <thead>
-            <tr>
-                {% for field in field_list %}
-                    {% if field == "fiscal_year" %}
-                        <th style="width: 6%">{% get_verbose_label my_object field %}</th>
-                    {% elif "dates" in field %}
-                        <th style="width: 12%">{% get_verbose_label my_object field %}</th>
-                    {% elif "number" in field or "adm" in field %}
-                        <th class="center-col">{% get_verbose_label my_object field %}</th>
-                    {% else %}
-                        <th scope="col">{% get_verbose_label my_object field %}</th>
-                    {% endif %}
-                {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-            {% for object in filter_list %}
-                {% url 'travel:trip_detail' object.id as my_url %}
-                <tr href="{{ my_url }}">
-                    {% for field in field_list %}
-                        {% if "number" in field or "adm" in field %}
-                            <td class="center-col">
-                                {% if "adm" in field %}
-                                    <span class="{% if object.is_adm_approval_required %}red-font{% endif %}">
-
-                                        {% get_field_value object field safe=True %}
-                                        </span>
-                                {% else %}
-                                    {% get_field_value object field safe=True %}
-                                {% endif %}
-                            </td>
-                        {% elif "total_travellers" in field %}
-                            <td class="center-col">{{ object.total_traveller_list|length|zero2val:"---" }}</td>
-                        {% elif "connected_request" in field %}
-                            <td class="center-col">{{ object.trip_requests.count|zero2val:"---" }}</td>
-                        {% else %}
-                            <td>{% get_field_value object field safe=True %}</td>
-                        {% endif %}
-                    {% endfor %}
-                    {#                            <td class="center-col">{{ object.traveller_list|length|zero2val:"---" }}</td>#}
-                    {#                            <td class="center-col">{{ object.bta_traveller_list|length|zero2val:"---" }}</td>#}
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    </div>
-    </div>
-
-
-{% endblock content %}

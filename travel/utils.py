@@ -1,6 +1,9 @@
+import datetime
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from dm_apps.utils import custom_send_mail
 from django.db import IntegrityError
@@ -8,29 +11,47 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from Levenshtein import distance
 
+from lib.templatetags.custom_filters import nz
 from . import models
 from . import emails
 from shared_models import models as shared_models
 
-# eventually this should turn into a table in the DB!!
-# division_reviewer_dict = {
-#     # MAR
-#     11: 1095,  # CESD --> Mar - CESD - Admin
-#     15: 1102,  # RDSO --> Mar - RDSO - Admin
-#     16: 530,  # SPAD --> Christina Maclean
-#     17: 1101,  # PED --> Mar - PED - Admin
-#     18: 1100,  # OESD --> Mar - OESD - Admin
-#     19: 1103,  # CHS --> Ashley Macdonald
-#
-#     # GULF
-#     1: 385,  # Aquatic health --> Amelie Robichaud
-#     2: 385,  # Fisheries and Ecosystems --> Amelie Robichaud
-#     3: 385,  # RDSO --> Amelie Robichaud
-# }
+
+def get_trip_reviewers(trip):
+    """add reviewers to a trip is adm approval is required. If it isn't, it will remove all reviewers from the trip (if present)"""
+    # This section only matters for ADM trips
+
+    if trip.is_adm_approval_required:
+
+        # NCR travel coordinator
+        try:
+            # add each default NCR coordinator to the queue
+            for default_reviewer in models.ReviewerRole.objects.get(pk=3).travel_default_reviewers.order_by("id"):
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role_id=3)
+        except (IntegrityError, KeyError):
+            pass
+
+        # ADM Approver
+        try:
+            # add each default ADM approver to the queue
+            for default_reviewer in models.ReviewerRole.objects.get(pk=4).travel_default_reviewers.order_by("id"):
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role_id=4)
+        except (IntegrityError, KeyError):
+            pass
+
+        # ADM Approver
+        try:
+            # add ADM to the queue
+            for default_reviewer in models.ReviewerRole.objects.get(pk=5).travel_default_reviewers.all():
+                models.TripReviewer.objects.get_or_create(trip=trip, user=default_reviewer.user, role_id=5)
+        except (IntegrityError, KeyError):
+            pass
+    else:
+        trip.reviewers.all().delete()
+    trip.save()
 
 
-def get_reviewers(trip_request):
-    # assuming there is a section, assign amelie and section management
+def get_tr_reviewers(trip_request):
     if trip_request.section:
 
         # section level reviewer
@@ -68,7 +89,6 @@ def get_reviewers(trip_request):
                 for default_reviewer in trip_request.section.division.branch.travel_default_reviewers.all():
                     models.Reviewer.objects.get_or_create(trip_request=trip_request, user=default_reviewer.user, role_id=1)
 
-
                 if trip_request.section.division.branch.region_id == 2:
                     my_user = User.objects.get(pk=1102)
                     models.Reviewer.objects.get_or_create(trip_request=trip_request, user=my_user, role_id=1, )  # MAR RDSO ADMIN user
@@ -88,22 +108,6 @@ def get_reviewers(trip_request):
     if trip_request.trip:
         if trip_request.trip.is_adm_approval_required:
             # add the ADMs office staff
-            # try:
-            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=749, role_id=3, )  # Kim Cotton
-            # except IntegrityError:
-            #     print("not adding NCR reviewer")
-            # try:
-            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=736, role_id=4, )  # Andy White
-            # except IntegrityError:
-            #     print("not adding NCR recommender")
-            # try:
-            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=758, role_id=4, )  # Stephen Virc
-            # except IntegrityError:
-            #     print("not adding NCR recommender")
-            # try:
-            #     models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=740, role_id=4, )  # Wayne Moore
-            # except IntegrityError:
-            #     print("not adding NCR recommender")
             try:
                 models.Reviewer.objects.get_or_create(trip_request=trip_request, user_id=626, role_id=5, )  # Arran McPherson
             except IntegrityError:
@@ -121,7 +125,7 @@ def get_reviewers(trip_request):
 
 
 def start_review_process(trip_request):
-    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""
+    """this should be used when a trip is submitted. It will change over all reviewers' statuses to Pending"""
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip_request.reviewers.all():
         # set everyone to being queued
@@ -135,6 +139,36 @@ def end_review_process(trip_request):
     # focus only on reviewers that are status = Not Submitted
     for reviewer in trip_request.reviewers.all():
         reviewer.status_id = 4
+        reviewer.status_date = None
+        reviewer.comments = None
+        reviewer.save()
+
+
+def start_trip_review_process(trip):
+    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""
+    # focus only on reviewers that are status = Not Submitted
+
+    trip.review_start_date = timezone.now()
+    trip.status_id = 31
+    trip.save()
+
+    for reviewer in trip.reviewers.all():
+        # set everyone to being queued
+        reviewer.status_id = 24
+        reviewer.status_date = None
+        reviewer.save()
+
+
+def end_trip_review_process(trip):
+    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
+    # focus only on reviewers that are status = Not Submitted
+
+    # trip.review_start_date = None NEVER reset the review start date!
+    trip.status_id = 41
+    trip.save()
+
+    for reviewer in trip.reviewers.all():
+        reviewer.status_id = 23
         reviewer.status_date = None
         reviewer.comments = None
         reviewer.save()
@@ -365,3 +399,88 @@ def manage_trip_warning(trip):
                 )
                 trip.cost_warning_sent = timezone.now()
                 trip.save()
+
+
+def __set_trip_status__(trip):
+    """
+    IF POSSIBLE, THIS SHOULD ONLY BE CALLED BY THE approval_seeker() function.
+    This will look at the reviewers and decide on  what the project status should be. Will return False if trip_request is denied or if trip_request is not submitted
+    Will return False if there are no reviewers left to seek
+    """
+    pass
+
+
+def trip_approval_seeker(trip):
+    """
+    This method is meant to seek approvals via email + set reveiwer statuses.
+    It will also set the trip_request status vis a vis set_request_status()
+    """
+
+    # start by setting the trip status... if the trip_request is "denied" OR "draft" or "approved", do not continue
+    # Next: if the trip_request is un submitted, it is in 'draft' status
+
+    # only look for a next reviewer if we are still in a review [id=31]
+    if trip.status_id == 31:
+
+        next_reviewer = None
+        email = None
+
+        # look through all the reviewers... see if we can decide on who the next reviewer should be...
+        for reviewer in trip.reviewers.all():
+            # if the reviewer's status is set to 'queued', they will be our next selection
+            # we should then exit the loop and set the next_reviewer var
+            # CAVEAT: if this is a resubmission, there might still be a reviewer whose status is 'pending'. This should be the reviewer
+            if reviewer.status_id == 24 or reviewer.status_id == 25:
+                next_reviewer = reviewer
+                break
+
+        # if there is a next reviewer, set their status to pending and send them an email
+        if next_reviewer:
+            next_reviewer.status_id = 25
+            next_reviewer.status_date = timezone.now()
+            next_reviewer.save()
+
+            email = emails.TripReviewAwaitingEmail(trip, next_reviewer)
+
+            # send the email object
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
+
+
+        # if no next reviewer was found, the trip's review is complete...
+        else:
+            # THIS IS PROBABLY NOT NECESSARY.
+
+            # The trip review is complete if all the reviewers' status are set to complete [id=26]
+            # HOWEVER, some reviewers might have been skipped
+            # The total number of reviewers should equal the number of reviewer who completed [id=26] and / or were skipped [id=42].
+            if trip.reviewers.all().count() == trip.reviewers.filter(status_id__in=[26, 42]).count():
+                trip.status_id = 32
+                trip.save()
+
+
+def get_related_trips(user):
+    """give me a user and I'll send back a queryset with all related trips, i.e.
+     they are the request.user | they are the request.created_by | they are a traveller on a child trip"""
+
+    tr_ids = [tr.id for tr in models.TripRequest.objects.filter(is_group_request=False, user=user)]
+    tr_ids.extend([tr.id for tr in models.TripRequest.objects.filter(parent_request__isnull=True, created_by=user)])
+    tr_ids.extend([tr.parent_request.id for tr in models.TripRequest.objects.filter(parent_request__isnull=False, user=user)])
+    return models.TripRequest.objects.filter(id__in=tr_ids)
+
+
+
+def get_adm_ready_trips():
+    """returns a qs of trips that are ready for adm review"""
+    six_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 6)
+    #start with trips that need adm approval that have not already been reviewed
+    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id=32))
+    t_ids = list()
+    for t in trips:
+        if t.closest_date <= six_months_away:
+            t_ids.append(t.id)
+    return models.Conference.objects.filter(id__in=t_ids)

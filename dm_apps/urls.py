@@ -32,6 +32,7 @@ urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
     path('accounts/', include('accounts.urls')),
     path('shared/', include('shared_models.urls')),
+    path('stream-test-file/', views.stream_file, name='stream_file'),
 
     # Password reset views. Views are part of accounts app #
     ########################################################

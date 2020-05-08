@@ -1,95 +1,11 @@
-{% extends "travel/travel_base.html" %}
+{% extends "travel/generic_form.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load custom_filters %}
 {% load i18n %}
 
-{% block subtitle %}
-    -
-    {% if object.submitted %}
-        {% trans "Un-submit Request" %}
-    {% else %}
-        {% trans "Submit Request" %}
-    {% endif %}
-{% endblock %}
-
-{% block content %}
-
-    <style>
-        .label {
-            font-weight: bold;
-        }
-
-        table, td {
-            font-size: small;
-        }
-    </style>
-
-
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                    {% trans "Home" %}
-                </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
-                    {% trans "Trip Requests" %}
-                </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    {% if object.submitted %}
-                        {% trans "Un-submit Request" %}
-                    {% else %}
-                        {% trans "Submit Request" %}
-                    {% endif %}
-                </li>
-            </ol>
-        </nav>
-        {% if object.submitted %}
-            <h2 class="red-font">
-            {% trans "WARNING: Un-submitting this request will reset the status of any exisitng recommendations and/or approvals." %}
-            </h2>
-        {% endif %}
-        <h1>
-            <b>
-                Do you wish to {% if object.submitted %} un-submit {% else %} {% if object.status.id == 16 %} re-submit {% else %} submit
-            {% endif %} {% endif %} the following request?
-            </b>
-        </h1>
-        <br>
-        <form method="post" class="form">
-            {% csrf_token %}
-            {% for field in form %}
-                {% bootstrap_field field placeholder="" %}
-
-            {% endfor %}
-
-            <div class="">
-
-
-                <input type="submit" class="btn btn-lg btn-warning" value="Yes">
-
-                <a class="btn btn-lg btn-secondary" href="{% url 'travel:request_detail' object.id %}">
-                    {% trans "Cancel" %}
-                </a>
-            </div>
-        </form>
-
-        <br>
+{% block post_form_p %}
         <hr>
         {% include "travel/_trip_request_detail.html" %}
-
-
-    </div>
-
-
-    <br><br><br>
-{% endblock content %}
-{% block body_js %}
-
-    <script type="application/javascript">
-
-    </script>
-
-{% endblock %}
+{% endblock  %}

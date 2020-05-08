@@ -1,5 +1,6 @@
 from django.urls import reverse_lazy
 from django.test import tag
+from django.utils import timezone
 from django.views.generic import CreateView
 
 from shared_models.test.SharedModelsFactoryFloor import SectionFactory, BranchFactory
@@ -7,6 +8,7 @@ from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 from .. import views
 from .. import utils
+from .. import models
 
 
 class IndividualTripRequestCreate(CommonTest):
@@ -93,8 +95,12 @@ class TestTripCreateViewPopup(CommonTest):
     @tag("travel", 'create', "submit")
     def test_submit(self):
         data = FactoryFloor.TripFactory.get_valid_data()
+        data["name"] = f"A very specific test name {timezone.now()}"
         self.assert_success_url(self.test_url, data=data)
-
+        my_new_trip = models.Conference.objects.get(name=data["name"])
+        # A new trip should have a status id of 30; unreviewed, unverified,     
+        self.assertIs(my_new_trip.status_id, 30)
+        # TODO: after a trip has been created, there should be reviewers... should have NCR travel coordinator, ADM reviewer and ADM
 
 class TestDefaultReviewerCreateView(CommonTest):
     def setUp(self):
@@ -122,7 +128,7 @@ class TestDefaultReviewerCreateView(CommonTest):
         my_reviewer = FactoryFloor.DefaultReviewerFactory()
         my_reviewer.sections.add(my_section)
         my_tr = FactoryFloor.IndividualTripRequestFactory(section=my_section)
-        utils.get_reviewers(my_tr)
+        utils.get_tr_reviewers(my_tr)
         self.assertIn(my_reviewer.user, [r.user for r in my_tr.reviewers.all()])
 
         # check if a branch reviewer is added correctly to a trip request
@@ -130,5 +136,5 @@ class TestDefaultReviewerCreateView(CommonTest):
         my_reviewer = FactoryFloor.DefaultReviewerFactory()
         my_reviewer.branches.add(my_branch)
         my_tr = FactoryFloor.IndividualTripRequestFactory(section=my_section)
-        utils.get_reviewers(my_tr)
+        utils.get_tr_reviewers(my_tr)
         self.assertIn(my_reviewer.user, [r.user for r in my_tr.reviewers.all()])
