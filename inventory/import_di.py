@@ -10,7 +10,7 @@ from django.conf import settings
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-
+from . import xml_export
 
 def get_create_user(email):
     try:
@@ -133,21 +133,37 @@ def import_file():
         for row in my_csv:
             # only start on row #2
             if i >= 1:
+
+
                 # most important thing is to establish a uuid. I have verified that the On OGP field is a reliable way to get the uuid
                 # i also verified that the best field to get the url / uuid would be row["Location (if yes):"]
+
+
                 uuid_found = "https://open.canada.ca" in row["Location (if yes):"]
 
                 if uuid_found:
                     uuid = row["Location (if yes):"].split("/")[-1]
                     # we will use the uuid as the basis for grabbing / creating a record
-                    r, created = models.Resource.objects.get_or_create(uuid=uuid)
+                    if models.Resource.objects.filter(uuid=uuid).count() > 1:
+                        r, created = models.Resource.objects.get_or_create(uuid=uuid, notes="WARNING: Duplicate uuid in system.")
+                    else:
+                        r, created = models.Resource.objects.get_or_create(uuid=uuid)
                     if not created:
+                        print("found matching uuid")
                         existing_records += 1
-                    if not r.odi_id:
-                        r.odi_id = row["\ufeffID"]
+
                 # otherwise, using the odi_id is not a bad idea.
                 else:
-                    r, created = models.Resource.objects.get_or_create(odi_id=row["\ufeffID"])
+
+                    if models.Resource.objects.filter(title_eng__iexact=row["Dataset title English:"]).count() > 1:
+                        r = models.Resource.objects.filter(title_eng__iexact=row["Dataset title English:"]).first()
+                    else:
+                        r, created = models.Resource.objects.get_or_create(title_eng__iexact=row["Dataset title English:"])
+                    if not created:
+                        print("found matching title")
+                        existing_records += 1
+
+                r.odi_id = row["\ufeffID"]
 
                 # ok, now we have our full dataset nucleated in the db
                 # let's tackle each row.
@@ -322,7 +338,7 @@ def import_file():
 
 
                 r.save()
-
+                xml_export.verify(r)
                 # How does the dataset link to DFO's Program Alignment Architecture (PAA)? --> need to create a new FK
                 field = "How does the dataset link to DFO's Program Alignment Architecture (PAA)?"
                 list1 = row[field].replace(";", ",").split(",")
@@ -335,3 +351,4 @@ def import_file():
             i += 1
 
     print(f"there were {existing_records} records already in the system")
+    print(f"there were a total of {i} records processed")
