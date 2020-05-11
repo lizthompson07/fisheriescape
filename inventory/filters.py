@@ -26,7 +26,7 @@ class ResourceFilter(django_filters.FilterSet):
                                                         exclude=True, # this will reverse the logic
                                                         )
     odi_id = django_filters.BooleanFilter(field_name="odi_id",
-                                                        lookup_expr='isnull', label=_("ODI?"),
+                                                        lookup_expr='isnull', label=_("ODI Published?"),
                                                         exclude=True,  # this will reverse the logic
                                                         )
 

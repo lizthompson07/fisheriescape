@@ -74,15 +74,17 @@ target_dir = os.path.join(settings.BASE_DIR, 'inventory', 'temp')
 
 
 def import_paas():
-    with open(os.path.join(target_dir, "paa.csv"), 'r') as csv_read_file:
+    with open(os.path.join(target_dir, "paa.csv"), 'r', encoding="utf8") as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
         for row in my_csv:
-            shared_models.PAAItem.objects.get_or_create(
-                code=row["code"],
-                name=row["english"],
-                nom=row["french"],
+            item, created = shared_models.PAAItem.objects.get_or_create(
+                code=row["\ufeffcode"],
+                # name=row["english"],
+                # nom=row["french"],
             )
-
+            item.name = row["english"]
+            item.nom = row["french"]
+            item.save()
 
 """﻿
 ID --> this will be a new field
@@ -411,4 +413,32 @@ def get_custodians():
                                 role=my_role
                             )
                         print(f"Adding {first_name} {last_name} as custodian to {r}.")
+            i += 1
+
+
+
+
+def attach_paa():
+    with open(os.path.join(target_dir, "annette_open_data.csv"), 'r', encoding="utf8") as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        i = 0
+        existing_records = 0
+
+        for row in my_csv:
+            # only start on row #2
+            if i >= 1:
+
+                # most important thing is to establish a uuid. I have verified that the On OGP field is a reliable way to get the uuid
+                # i also verified that the best field to get the url / uuid would be row["Location (if yes):"]
+
+                r = models.Resource.objects.get(odi_id=row["\ufeffID"])
+
+                field = "How does the dataset link to DFO's Program Alignment Architecture (PAA)?"
+                list1 = row[field].replace(";", ",").split(",")
+                paa_code_list = [paa.code for paa in shared_models.PAAItem.objects.all()]
+                for paa in list1:
+                    my_code = paa.lstrip().split(" ")[0]
+                    if my_code in paa_code_list:
+                        r.paa_items.add(shared_models.PAAItem.objects.get(code=my_code))
+
             i += 1

@@ -162,6 +162,8 @@ class ResourceListView(FilterView):
                            'purpose_eng',
                            Value(" "),
                            'uuid',
+                           Value(" "),
+                           'odi_id',
                            output_field=TextField()))
 
 

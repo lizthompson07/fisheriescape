@@ -1,6 +1,16 @@
 {% extends "inventory/inventory_base.html" %}
 
 {% load bootstrap4 %}
+{% load i18n %}
+
+{% block subtitle %}
+    -
+    {% if object %}
+        {% trans "Edit resource" %}
+    {% else %}
+        {% trans "Create resource metadata" %}
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 
