@@ -10,7 +10,8 @@ from django.conf import settings
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-from . import xml_export
+from inventory import xml_export
+
 
 def get_create_user(email):
     try:
@@ -134,10 +135,8 @@ def import_file():
             # only start on row #2
             if i >= 1:
 
-
                 # most important thing is to establish a uuid. I have verified that the On OGP field is a reliable way to get the uuid
                 # i also verified that the best field to get the url / uuid would be row["Location (if yes):"]
-
 
                 uuid_found = "https://open.canada.ca" in row["Location (if yes):"]
 
@@ -336,7 +335,6 @@ def import_file():
                 if not field in r.open_data_notes:
                     r.open_data_notes += "\n{}: {}".format(field, row[field])
 
-
                 r.save()
                 xml_export.verify(r)
                 # How does the dataset link to DFO's Program Alignment Architecture (PAA)? --> need to create a new FK
@@ -352,3 +350,65 @@ def import_file():
 
     print(f"there were {existing_records} records already in the system")
     print(f"there were a total of {i} records processed")
+
+
+def get_custodians():
+    with open(os.path.join(target_dir, "annette_open_data.csv"), 'r', encoding="utf8") as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        i = 0
+        matches = 0
+        non_matches = 0
+        for row in my_csv:
+            # only start on row #2
+            if i >= 1:
+
+                # most important thing is to establish a uuid. I have verified that the On OGP field is a reliable way to get the uuid
+                # i also verified that the best field to get the url / uuid would be row["Location (if yes):"]
+
+                r = models.Resource.objects.get(odi_id=row["\ufeffID"])
+
+                # see if we can make a connection with the data custodian from annette's list
+                raw_name = row["Your name:"]
+                # print(raw_name)
+
+                # if there is a comma, there are two people involved.
+                custodians = raw_name.split(",")
+
+                for c in custodians:
+                    # there is one name that is a generic inbox. this should be excluded.
+                    if "DFO" not in c and len(c.split(" ")) > 1:
+                        # lets see if we can find a match
+                        first_name = c.split(" ")[0].lstrip().replace("é","e").replace("É","E").replace("è","e").replace("î","i").lower()
+                        last_name = c.split(" ")[1].lstrip().replace("é","e").replace("É","E").replace("è","e").replace("î","i").lower()
+                        qs = User.objects.filter(
+                            first_name__icontains=first_name,
+                            last_name__icontains=last_name
+                        )
+                        if qs.count() == 1:
+                            matches += 1
+
+                            my_user = User.objects.get(
+                                first_name__icontains=first_name,
+                                last_name__icontains=last_name
+                            )
+                            my_role = models.PersonRole.objects.get(id=1)  # owner
+                            models.Person.objects.get_or_create(user=my_user)
+                            models.ResourcePerson.objects.get_or_create(
+                                resource=r,
+                                person_id=my_user.id,
+                                role=my_role
+                            )
+
+                        else:
+                            non_matches += 1
+                            email = f'{first_name}.{last_name}@dfo-mpo.gc.ca'
+                            my_user = get_create_user(email)
+                            my_role = models.PersonRole.objects.get(id=1)  # owner
+                            models.Person.objects.get_or_create(user=my_user)
+                            models.ResourcePerson.objects.get_or_create(
+                                resource=r,
+                                person_id=my_user.id,
+                                role=my_role
+                            )
+                        print(f"Adding {first_name} {last_name} as custodian to {r}.")
+            i += 1
