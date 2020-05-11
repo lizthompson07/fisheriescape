@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.db.models.functions import Concat
 from django.template.defaultfilters import pluralize
 from django.utils.safestring import mark_safe
@@ -1355,7 +1356,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         context["reviewer_field_list"] = reviewer_field_list
         context["trip"] = self.get_object()
         context["can_cancel"] = (self.get_object().is_adm_approval_required and in_adm_admin_group(self.request.user)) or (
-                    not self.get_object().is_adm_approval_required and in_travel_admin_group(self.request.user))
+                not self.get_object().is_adm_approval_required and in_travel_admin_group(self.request.user))
 
         context["h1"] = str(self.get_object())
         context["subtitle"] = context["h1"]
@@ -1589,7 +1590,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
-                "message": _("Sorry, only ADMO administrators can verify projects that require ADM approval.")}))
+                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}))
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1626,6 +1627,86 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
         return HttpResponseRedirect(reverse("travel:admin_trip_verification_list",
                                             kwargs={"region": self.kwargs.get("region"),
                                                     "adm": self.kwargs.get("adm")}))
+
+
+class TripSelectFormView(TravelAdminRequiredMixin, FormView):
+    template_name = 'travel/generic_popout_form.html'
+    form_class = forms.TripSelectForm
+
+    def test_func(self):
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        if my_trip.is_adm_approval_required:
+            return in_adm_admin_group(self.request.user)
+        else:
+            return in_travel_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
+                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        context["object"] = my_trip
+        context["h1"] = _("Please select a trip to re-assign:")
+        context["h3"] = _("(You will have a chance to review this action before it is carried out.)")
+        context["submit_text"] = _("Proceed")
+        context["conf_field_list"] = conf_field_list
+        return context
+
+    def form_valid(self, form):
+        trip_a = self.kwargs.get("pk")
+        trip_b = form.cleaned_data["trip"]
+        return HttpResponseRedirect(reverse("travel:trip_reassign_confirm", kwargs={"trip_a": trip_a, "trip_b": trip_b, }))
+
+
+class TripReassignConfirmView(TravelAdminRequiredMixin, TemplateView):
+    template_name = 'travel/trip_reassign_form.html'
+    # just import the crsf token from the django Form class
+    form_class = forms.forms.Form
+
+    def test_func(self):
+        my_trip = models.Conference.objects.get(pk=self.kwargs.get("trip_a"))
+        if my_trip.is_adm_approval_required:
+            return in_adm_admin_group(self.request.user)
+        else:
+            return in_travel_admin_group(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse("accounts:denied_access", kwargs={
+                "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        trip_a = models.Conference.objects.get(pk=self.kwargs.get("trip_a"))
+        trip_b = models.Conference.objects.get(pk=self.kwargs.get("trip_b"))
+        context["trip_a"] = trip_a
+        context["trip_b"] = trip_b
+        context["h1"] = _("Please confirm the following:")
+        context["submit_text"] = _("Confirm")
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            trip_a = models.Conference.objects.get(pk=self.kwargs.get("trip_a"))
+            trip_b = models.Conference.objects.get(pk=self.kwargs.get("trip_b"))
+
+            try:
+                for tr in trip_a.trip_requests.all():
+                    tr.trip = trip_b
+                    tr.save()
+            except IntegrityError:
+                pass
+
+            # trip_a.delete()
+            return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
 class TripReviewListView(TravelADMAdminRequiredMixin, ListView):

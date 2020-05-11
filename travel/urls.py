@@ -69,6 +69,11 @@ urlpatterns = [
          name="admin_trip_verification_list"),
     path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
     path('trip/<int:pk>/delete/back-to-verify/<int:back_to_verify>/', views.TripDeleteView.as_view(), name="trip_delete"),
+    path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
+    path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(), name="trip_reassign_confirm"),
+
+
+
 
     # TRIP REVIEWERS
     path('trip/<int:trip>/reset-reviewers/', views.reset_reviewers, name="reset_trip_reviewers"),

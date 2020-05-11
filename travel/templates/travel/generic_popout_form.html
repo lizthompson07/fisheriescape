@@ -13,6 +13,24 @@
                 {{ h1 }}
             </h1>
         </div>
+        {% if h2 %}
+            <div class="mb-3">
+                <h2>
+                    {{ h2 }}
+                </h2>
+            </div>
+        {% endif %}
+        {% if h3 %}
+            <div class="mb-3">
+                <h3>
+                    {{ h3 }}
+                </h3>
+            </div>
+        {% endif %}
+
+        <div class="mb-3">
+                {% block pre_form_div %}{% endblock %}
+        </div>
 
         <form method="post" class="form">
             {% csrf_token %}
@@ -22,8 +40,9 @@
                     {% bootstrap_field field placeholder="" show_label=False %}
                 {% endfor %}
                 <div class="btn-group">
-                    <button type="submit" class="btn btn-success" onclick="refreshParent()">
-                        {% trans "Save" %}
+                    <button type="submit" class="btn {% block submit_btn_class %}btn-success{% endblock %}" onclick="refreshParent()">
+                        {% trans "Save" as submit_btn_text %}
+                        {{ submit_text|nz:submit_btn_text }}
                     </button>
                     <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
                         {% trans "Close" %}
@@ -32,6 +51,10 @@
             </div>
 
         </form>
+        <div class="mb-3">
+                {% block post_form_div %}{% endblock %}
+        </div>
+
     </div>
 
 

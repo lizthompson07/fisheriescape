@@ -1,0 +1,62 @@
+{% extends 'travel/generic_popout_form.html' %}
+
+{% load i18n %}
+{% block pre_form_div %}
+    <div class="mb-3">
+        <div class="">
+            {% blocktrans with trip_a as trip_a %}
+                The following trip requests currently listed under:
+            {% endblocktrans %}
+        </div>
+        <h5 class="">{{ trip_a }}</h5>
+    </div>
+    <div class="">
+        <ul>
+            {% for tr in trip_a.trip_requests.all %}
+                <li>
+                    {{ tr }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="mb-5">
+        <div class="">
+            {% blocktrans %}
+                Will be re-assigned to the following trip:
+            {% endblocktrans %}
+        </div>
+        <div class="mb-3">
+            <h5>
+                <span class="font-weight-bold green-font">{{ trip_b }}</span>
+            </h5>
+        </div>
+        <div class="mb-3">
+            <p>{% trans "Here is who is currently going:" %}</p>
+            <ul>
+            {{ trip_b.traveller_list }}
+                {% for traveller in trip_b.total_traveller_list %}
+                <li>{{ traveller  }}</li>
+                {% endfor %}
+
+            </ul>
+        </div>
+
+    </div>
+
+    {#    <div class="mb-3">#}
+    {#        <h3>#}
+    {#        <span class="red-font">#}
+    {#            {% blocktrans with trip_a as trip_a %}#}
+    {#                Confirming this action will also result in the deletion of {{ trip_a }}#}
+    {#            {% endblocktrans %}#}
+    {#        </span>#}
+    {##}
+    {#        </h3>#}
+    {#    </div>#}
+
+
+{% endblock %}
+
+{% block submit_btn_class %}
+    btn-danger
+{% endblock %}

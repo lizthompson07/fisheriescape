@@ -43,7 +43,6 @@ class ReviewerApprovalForm(forms.ModelForm):
         }
 
 
-
 class TripReviewerApprovalForm(forms.ModelForm):
     # approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
@@ -744,3 +743,14 @@ class DefaultReviewerForm(forms.ModelForm):
         section_choices = [(s.id, s.full_name) for s in shared_models.Section.objects.all()]
         branch_choices = [(b.id, f"{b} ({b.region})") for b in shared_models.Branch.objects.all()]
         self.fields["sections"].choices = section_choices
+
+
+class TripSelectForm(forms.Form):
+    trip = forms.ChoiceField(widget=forms.Select(attrs=chosen_js), required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        trip_choices = [(t.id, f'{t} ({t.status})') for t in models.Conference.objects.all()]
+        trip_choices.insert(0, tuple((None, "---")))
+
+        self.fields["trip"].choices = trip_choices
