@@ -59,7 +59,7 @@
                 </a>
 
 
-                {% if object.status.id != 43 and object.status.id != 32 %}
+                {% if object.status.id != 43 and object.status.id != 32 and object.is_adm_approval_required%}
 
                     {# Review BUTTON #}
                     {% if object.status.id != 32 %}
