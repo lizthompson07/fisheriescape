@@ -124,6 +124,16 @@ class OpenDataDashboardTemplateView(TemplateView):
                                                                             publication_fy=current_fy,
                                                                             public_url__isnull=False)
 
+        # unsorted
+        regional_qs = qs.filter(section__isnull=True)
+        my_dict["unsorted"] = dict()
+        my_dict["unsorted"]["qs_total"] = regional_qs
+        my_dict["unsorted"]["qs_fgp"] = regional_qs.filter(fgp_publication_date__isnull=False)
+        my_dict["unsorted"]["qs_open_data"] = regional_qs.filter(public_url__isnull=False)
+        my_dict["unsorted"]["qs_open_data_current_fy"] = regional_qs.filter(fgp_publication_date__isnull=False,
+                                                                        publication_fy=current_fy,
+                                                                        public_url__isnull=False)
+
         context["my_dict"] = my_dict
         context['field_list'] = [
             "t_title|Title",
