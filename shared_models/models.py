@@ -6,6 +6,41 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 
+class Lookup(models.Model):
+
+    class Meta:
+        abstract = True
+
+    name = models.CharField(unique=True, max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            my_str = "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = "{}".format(self.name)
+        return my_str
+
+    @property
+    def tdescription(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("description_en"))):
+            my_str = "{}".format(getattr(self, str(_("description_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = "{}".format(self.description_en)
+        return my_str
+
+    def __str__(self):
+        return "{}".format(self.tname)
+
+
 # CONNECTED APPS: tickets, travel, projects, sci_fi
 class FiscalYear(models.Model):
     full = models.TextField(blank=True, null=True)

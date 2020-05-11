@@ -16,10 +16,10 @@ def load_prj(file_name):
             continue
 
         data = line.strip().split(',')
-        if not model.objects.filter(prj_name=data[0]):
+        if not model.objects.filter(name=data[0]):
             try:
-                model(prj_name=data[0],
-                      prj_description=(None if data[1] == '' else data[1]),
+                model(name=data[0],
+                      description_en=(None if data[1] == '' else data[1]),
                       prj_url=(None if data[2] == '' else data[2])).save()
             except:
                 print("Could not load project: " + str(data))
@@ -58,9 +58,9 @@ def load_set(file_name):
             continue
 
         data = line.strip().split(',')
-        if not model.objects.filter(set_name=data[0]):
-            model(set_name=data[0],
-                  set_description=(None if data[1] == '' else data[1])).save()
+        if not model.objects.filter(name=data[0]):
+            model(name=data[0],
+                  description_en=(None if data[1] == '' else data[1])).save()
 
 
 def load_stn(file_name):
