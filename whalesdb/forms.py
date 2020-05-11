@@ -33,7 +33,7 @@ class EdaForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # exclude hydrophones from the equipment selection list
-        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__eqt_id=4)
+        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__pk=4)
 
 
 class EmmForm(forms.ModelForm):

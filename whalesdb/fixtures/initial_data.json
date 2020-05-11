@@ -3,93 +3,93 @@
     "model": "whalesdb.eqtequipmenttypecode",
     "pk": 1,
     "fields": {
-      "eqt_name": "Acoustic recorder"
+      "name": "Acoustic recorder"
     }
 },
 {
     "model": "whalesdb.eqtequipmenttypecode",
     "pk": 2,
     "fields": {
-      "eqt_name": "Environmental sensor"
+      "name": "Environmental sensor"
     }
 },
 {
     "model": "whalesdb.eqtequipmenttypecode",
     "pk": 3,
     "fields": {
-      "eqt_name": "OTN reciever"
+      "name": "OTN reciever"
     }
 },
 {
     "model": "whalesdb.eqtequipmenttypecode",
     "pk": 4,
     "fields": {
-      "eqt_name": "Hydrophone"
+      "name": "Hydrophone"
     }
 },
 {
     "model": "whalesdb.setstationeventcode",
     "pk": 1,
     "fields": {
-    "set_name": "Deployment",
-      "set_description": "Equipment is placed in the water. Note: the time associated with an AMAR deployment event should be DROP TIME."
+    "name": "Deployment",
+      "description_en": "Equipment is placed in the water. Note: the time associated with an AMAR deployment event should be DROP TIME."
     }
 },
 {
     "model": "whalesdb.setstationeventcode",
     "pk": 2,
     "fields": {
-    "set_name": "Recovery ",
-      "set_description": "Equipment is recovered from the water. Note: the time associated with an AMAR recovery event should be RELEASE TIME."
+    "name": "Recovery ",
+      "description_en": "Equipment is recovered from the water. Note: the time associated with an AMAR recovery event should be RELEASE TIME."
     }
 },
 {
     "model": "whalesdb.ertrecordertype",
     "pk": 1,
     "fields": {
-      "ert_name": "Guardbuoy"
+      "name": "Guardbuoy"
     }
 },
 {
     "model": "whalesdb.ertrecordertype",
     "pk": 2,
     "fields": {
-      "ert_name": "AURAL"
+      "name": "AURAL"
     }
 },
 {
     "model": "whalesdb.ertrecordertype",
     "pk": 3,
     "fields": {
-      "ert_name": "MARU"
+      "name": "MARU"
     }
 },
 {
     "model": "whalesdb.ertrecordertype",
     "pk": 4,
     "fields": {
-      "ert_name": "AMAR"
+      "name": "AMAR"
     }
 },
 {
     "model": "whalesdb.eqaadcbitscode",
     "pk": 1,
     "fields": {
-        "eqa_name": "12-bit"
+        "name": "12-bit"
     }
 },
 {
     "model": "whalesdb.eqaadcbitscode",
     "pk": 2,
     "fields": {
-        "eqa_name": "16-bit"
+        "name": "16-bit"
     }
 },
 {
     "model": "whalesdb.eqaadcbitscode",
     "pk": 3,
     "fields": {
-        "eqa_name": "24-bit"
+        "name": "24-bit"
     }
 },
 {
