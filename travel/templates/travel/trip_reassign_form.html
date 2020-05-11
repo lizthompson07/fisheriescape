@@ -1,62 +1,109 @@
 {% extends 'travel/generic_popout_form.html' %}
 
 {% load i18n %}
+{% load verbose_names %}
+{% load custom_filters %}
+
 {% block pre_form_div %}
-    <div class="mb-3">
-        <div class="">
-            {% blocktrans with trip_a as trip_a %}
-                The following trip requests currently listed under:
-            {% endblocktrans %}
-        </div>
-        <h5 class="">{{ trip_a }}</h5>
+
+
+
+    <div class="row">
+
+        {% for trip in trip_list %}
+
+
+            <div class="col">
+                <div class="mb-3">
+                    <h3>
+                        {% if trip is trip_a %}
+                            <span class="btn-warning">{% trans "Original Trip" %}</span>
+                        {% else %}
+                            <span class="btn-success">{% trans "Re-assigned Trip" %}</span>
+                        {% endif %}
+                    </h3>
+
+                    <table class="table table-bordered table-sm">
+                        {% for field in field_list %}
+                            {% if "traveller" in field %}
+                                <tr>
+                                    <th>{% get_verbose_label trip field %}</th>
+                                    <td>
+                                        <ul>
+                                            {% for t in trip.traveller_list %}
+                                                <li>{{ t }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            {% elif "requests" in field %}
+                                <tr>
+                                    <th>{% get_verbose_label trip field %}</th>
+                                    <td>
+                                        <ul>
+                                            {% for tr in trip.trip_requests.all %}
+                                                <li>{{ tr }} (STATUS: <span
+                                                        style="background-color: {{ tr.status.color }}">{{ tr.status }}</span>)
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                {% verbose_td_display trip field %}
+                            {% endif %}
+
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+
     </div>
-    <div class="">
+
+    {##}
+    {#    <div class="mb-3">#}
+    {#        <div class="">#}
+    {#            {% blocktrans with trip_a as trip_a %}#}
+    {#                The following trip requests currently listed under:#}
+    {#            {% endblocktrans %}#}
+    {#        </div>#}
+    <h4 class="">
+        {% trans "Yes, I want to re-assign all linked trip requests from the original trip to the re-assigned trip!!" %}
+    </h4>
+    <ul>
+        {% for tr in trip_a.trip_requests.all %}
+            <li>{{ tr }}</li>
+        {% endfor %}
+    </ul>
+    {% if duplicate_ppl|length > 0 %}
+        <h4>
+        <span class="red-font">
+            {% trans "WARNING: you cannot make this re-assignment because there is an overlap of travellers and/or request owners: " %}<br>
         <ul>
-            {% for tr in trip_a.trip_requests.all %}
-                <li>
-                    {{ tr }}
-                </li>
+            {% for p in duplicate_ppl %}
+                <li>{{ p }}</li>
             {% endfor %}
         </ul>
-    </div>
-    <div class="mb-5">
-        <div class="">
-            {% blocktrans %}
-                Will be re-assigned to the following trip:
-            {% endblocktrans %}
-        </div>
-        <div class="mb-3">
-            <h5>
-                <span class="font-weight-bold green-font">{{ trip_b }}</span>
-            </h5>
-        </div>
-        <div class="mb-3">
-            <p>{% trans "Here is who is currently going:" %}</p>
-            <ul>
-            {{ trip_b.traveller_list }}
-                {% for traveller in trip_b.total_traveller_list %}
-                <li>{{ traveller  }}</li>
-                {% endfor %}
 
-            </ul>
-        </div>
+        </span>
+        </h4>
+    {% endif %}
 
-    </div>
-
-    {#    <div class="mb-3">#}
-    {#        <h3>#}
-    {#        <span class="red-font">#}
-    {#            {% blocktrans with trip_a as trip_a %}#}
-    {#                Confirming this action will also result in the deletion of {{ trip_a }}#}
-    {#            {% endblocktrans %}#}
-    {#        </span>#}
-    {##}
-    {#        </h3>#}
-    {#    </div>#}
 
 
 {% endblock %}
 
-{% block submit_btn_class %}
-    btn-danger
+
+{% block form_buttons %}
+    <div class="btns">
+        {% trans "Save" as submit_btn_text %}
+        {% if duplicate_ppl|length == 0 %}
+            <input type="submit" class="btn {% block submit_btn_class %}btn-success{% endblock %}" onclick="refreshParent()"
+                   value="{{ submit_text|nz:submit_btn_text }}" \>
+        {% endif %}
+        <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+            {% trans "Close" %}
+        </a>
+    </div>
 {% endblock %}
