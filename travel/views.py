@@ -174,6 +174,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context["user_trip_requests"] = utils.get_related_trips(self.request.user).count()
         # show the number of reviews awaiting for the logged in user
         tr_reviews_waiting = self.request.user.reviewers.filter(status_id=1).filter(
             ~Q(trip_request__status_id=16)).count()  # number of requests where review is pending
@@ -351,7 +352,8 @@ conf_field_list = [
     'is_adm_approval_required',
     'notes',
     'status_string|{}'.format("status"),
-    # 'days_until_eligible_for_adm_review|{}'.format(_("days until eligible for ADM review")),
+    'date_eligible_for_adm_review|{}'.format(_("Date when eligible for ADM Office review")),
+    'adm_review_deadline|{}'.format(_("ADM Office review deadline")),
     'total_cost|{}'.format("Total DFO cost (excluding BTA)"),
     'non_res_total_cost|{}'.format("Total DFO cost from non-RES travellers (excluding BTA)"),
 ]
@@ -726,6 +728,8 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
             h2 = None
 
         context["submit_text"] = _("Submit")
+        context["cancel_text"] = _("Cancel")
+
         context["h1"] = h1
         context["h2"] = h2
 
@@ -803,8 +807,30 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
     template_name = 'travel/trip_request_cancel_form.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
         my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
+
+        # figure out the current state of the request
+        is_cancelled = True if my_object.status.id == 22 else False
+
+        context = super().get_context_data(**kwargs)
+        if is_cancelled:
+            context["h1"] = _("Do you wish to un-cancel the following trip request?")
+            active_crumb = _("Un-cancel request")
+        else:
+            context["h1"] = _("Do you wish to cancel the following trip request?")
+            context["h2"] = "<span class='red-font blink-me'>" + \
+                            _("Please note that this action cannot be undone!!") + \
+                            "</span>"
+            active_crumb = _("Cancel request")
+
+        context["subtitle"] = active_crumb
+        context["back_url"] = reverse("travel:request_detail", kwargs={"pk": my_object.id})
+        context["crumbs"] = [
+            {"title": _("Home"), "url": reverse("travel:index")},
+            {"title": my_object, "url": context["back_url"]},
+            {"title": active_crumb}
+        ]
+
         context["object"] = my_object
         context["triprequest"] = my_object
         context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
@@ -814,7 +840,8 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
         context["cost_field_list"] = cost_field_list
         context['help_text_dict'] = get_help_text_dict()
         context["report_mode"] = True
-
+        context["submit_text"] = _("Cancel the trip request")
+        context["cancel_text"] = _("Back")
         return context
 
     def form_valid(self, form):
@@ -824,24 +851,33 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
         is_cancelled = True if my_trip_request.status.id == 22 else False
 
         if is_cancelled:
-            #  UN-CANCEL THE REQUEST
-            my_trip_request.status_id = 11
+            messages.warning(self.request, _("sorry, un-cancelling a trip is current not an option"))
+            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+
+            # UN-CANCEL THE REQUEST
+            # my_trip_request.status_id = 11
         else:
             #  CANCEL THE REQUEST
             my_trip_request.status_id = 22
+            my_trip_request.save()
 
-        my_trip_request.save()
-        # send an email to the trip_request owner
-        email = emails.StatusUpdateEmail(my_trip_request)
-        # # send the email object
-        custom_send_mail(
-            subject=email.subject,
-            html_message=email.message,
-            from_email=email.from_email,
-            recipient_list=email.to_list
-        )
+            # cancel any outstanding reviews:
+            # but only those with the following statuses: PENDING = 1; QUEUED = 20;
+            tr_reviewer_statuses_of_interest = [1, 20, ]
+            for r in my_trip_request.reviewers.filter(status_id__in=tr_reviewer_statuses_of_interest):
+                r.status_id = 5
+                r.save()
 
-        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+            # send an email to the trip_request owner
+            email = emails.StatusUpdateEmail(my_trip_request)
+            # # send the email object
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
+            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
 
 
 class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, UpdateView):
@@ -1246,22 +1282,22 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
                 'location',
                 output_field=TextField()))
 
-        if not self.kwargs.get("type") and not (in_adm_admin_group(self.request.user) or in_travel_admin_group(self.request.user)):
-            # as a security measure, a regular user should not be able to see all the trips...
-            queryset = None
-
-        elif self.kwargs.get("type") == "adm-hit-list":
-            queryset = utils.get_adm_ready_trips().annotate(
-                search_term=Concat(
-                    'name',
-                    Value(" "),
-                    'nom',
-                    Value(" "),
-                    'location',
-                    output_field=TextField()))
-        elif self.kwargs.get("type") == "upcoming":
-            queryset = queryset.filter(start_date__gte=timezone.now())
-
+        if self.kwargs.get("region"):
+            queryset = queryset.filter(lead_id=self.kwargs.get("region"))
+        else:
+            if self.kwargs.get("type") == "adm-hit-list":
+                queryset = utils.get_adm_ready_trips().annotate(
+                    search_term=Concat(
+                        'name',
+                        Value(" "),
+                        'nom',
+                        Value(" "),
+                        'location',
+                        output_field=TextField()))
+            elif self.kwargs.get("type") == "upcoming":
+                queryset = queryset.filter(start_date__gte=timezone.now())
+            else:
+                queryset = None
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1294,6 +1330,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             {"name": 'location|{}'.format(_("location")), "class": "", },
             {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
             {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", },
+            {"name": 'lead|{}'.format(_("Regional lead")), "class": "center-col", },
             {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
             {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
             {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
@@ -1303,7 +1340,6 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             context["field_list"].append(
                 {"name": 'adm_review_deadline|{}'.format(_("ADM review deadline")), "class": "", }
             )
-
 
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
@@ -1318,6 +1354,8 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         context["conf_field_list"] = conf_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["trip"] = self.get_object()
+        context["can_cancel"] = (self.get_object().is_adm_approval_required and in_adm_admin_group(self.request.user)) or (
+                    not self.get_object().is_adm_approval_required and in_travel_admin_group(self.request.user))
 
         context["h1"] = str(self.get_object())
         context["subtitle"] = context["h1"]
@@ -1482,6 +1520,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
         context["conf_field_list"] = conf_field_list
         context['help_text_dict'] = get_help_text_dict()
         context["submit_text"] = _("Yes")
+        context["cancel_text"] = _("Cancel")
 
         return context
 
@@ -1661,6 +1700,8 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, UpdateView):
         ]
         context["back_url"] = reverse("travel:trip_review_list")
         context["submit_text"] = _("Submit your review")
+        context["cancel_text"] = _("Cancel")
+
         context["trip"] = self.get_object().trip
         context["reviewer_field_list"] = reviewer_field_list
         context["report_mode"] = True
@@ -1717,6 +1758,105 @@ class SkipTripReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
         utils.approval_seeker(my_reviewer.trip_request)
 
         return HttpResponseRedirect(reverse("shared_models:close_me"))
+
+
+class TripCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
+    # TODO: check permissions
+    # TODO: cancel related trip requests and email clients
+    # TODO: email travellers the change in their statuses
+
+    model = models.Conference
+    form_class = forms.TripAdminNotesForm
+    template_name = 'travel/trip_cancel_form.html'
+
+    def get_context_data(self, **kwargs):
+        my_object = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+
+        # figure out the current state of the request
+        is_cancelled = True if my_object.status.id == 43 else False
+
+        context = super().get_context_data(**kwargs)
+        if is_cancelled:
+            context["h1"] = _("Do you wish to un-cancel the following trip?")
+            active_crumb = _("Un-cancel Trip")
+        else:
+            context["h1"] = _("Do you wish to cancel the following trip?")
+            context["h2"] = "<span class='red-font'>" + \
+                            _("Cancelling this trip will result in all linked requests to be 'cancelled'. "
+                              "This list of associated trip requests can be viewed below in the trip detail.") + \
+                            "</span><br><br>" + \
+                            "<span class='red-font blink-me'>" + \
+                            _("This action cannot be undone.") + \
+                            "</span>"
+            active_crumb = _("Cancel Trip")
+
+        context["subtitle"] = active_crumb
+        context["back_url"] = reverse("travel:trip_detail", kwargs={"pk": my_object.id})
+        context["crumbs"] = [
+            {"title": _("Home"), "url": reverse("travel:index")},
+            {"title": my_object, "url": context["back_url"]},
+            {"title": active_crumb}
+        ]
+
+        context["conf_field_list"] = conf_field_list
+        context["trip"] = my_object
+        context['help_text_dict'] = get_help_text_dict()
+        context["report_mode"] = True
+        context["submit_text"] = _("Cancel the trip")
+        context["cancel_text"] = _("Back")
+
+        return context
+
+    def form_valid(self, form):
+        my_trip = form.save()
+        can_cancel = (my_trip.is_adm_approval_required and in_adm_admin_group(self.request.user)) or \
+                     (not my_trip.is_adm_approval_required and in_travel_admin_group(self.request.user))
+
+        # if user is allowed to cancel this request, proceed to do so.
+        if can_cancel:
+            # cancel any outstanding reviews:
+            # but only those with the following statuses: PENDING = 1; QUEUED = 20;
+            trip_reviewer_statuses_of_interest = [24, 25, ]
+            for r in my_trip.reviewers.filter(status_id__in=trip_reviewer_statuses_of_interest):
+                r.status_id = 44
+                r.save()
+
+            #  CANCEL THE TRIP
+            my_trip.status_id = 43
+            my_trip.save()
+
+            # cycle through every trip request associated with this trip and cancel it
+            # denied = 10; cancelled = 22; draft = 8;
+            tr_statuses_to_skip = [10, 22, 8]
+            for tr in my_trip.trip_requests.filter(~Q(status_id__in=tr_statuses_to_skip)):
+                # set status to cancelled = 22
+                tr.status_id = 22
+                # update the admin notes
+                tr.admin_notes = f'{timezone.now().strftime("%Y-%m-%d")}: This trip request was automatically cancelled by a system ' \
+                                 f'administrator since the attached trip was cancelled. \n\n{tr.admin_notes}'
+                tr.save()
+
+                # cancel any outstanding reviews:
+                # but only those with the following statuses: PENDING = 1; QUEUED = 20;
+                tr_reviewer_statuses_of_interest = [1, 20, ]
+                for r in tr.reviewers.filter(status_id__in=tr_reviewer_statuses_of_interest):
+                    r.status_id = 5
+                    r.save()
+
+                # send an email to the trip_request owner, if the user has an email address.
+                if tr.user:
+                    email = emails.StatusUpdateEmail(tr)
+                    # # send the email object
+                    custom_send_mail(
+                        subject=email.subject,
+                        html_message=email.message,
+                        from_email=email.from_email,
+                        recipient_list=email.to_list
+                    )
+
+            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
+        else:
+            return HttpResponseForbidden()
 
 
 # REPORTS #

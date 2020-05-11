@@ -52,6 +52,7 @@ urlpatterns = [
     ########
     path('trips/', views.TripListView.as_view(), name="trip_list"),
     path('trips/<str:type>/', views.TripListView.as_view(), name="trip_list"),
+    path('trips/region/<int:region>/', views.TripListView.as_view(), name="trip_list"),
     path('trip/new/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/new/pop/<int:pop>/', views.TripCreateView.as_view(), name="trip_new"),
     path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
@@ -59,6 +60,8 @@ urlpatterns = [
     path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/edit/popout/<int:pop>', views.TripUpdateView.as_view(), name="trip_edit"),
     path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
+    path('trip/<int:pk>/cancel/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
+
     # admin
     path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
     path('trip/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),

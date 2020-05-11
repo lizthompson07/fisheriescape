@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth.models import User, Group
+from django.utils import timezone
 
 from . import models
 from . import utils
@@ -13,23 +14,23 @@ def export_fixtures():
     """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
     fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
     models_to_export = [
-        models.NJCRates,
-        models.CostCategory,
-        models.Cost,
-        models.Role,
-        models.Reason,
-        models.Purpose,
+        # models.NJCRates,
+        # models.CostCategory,
+        # models.Cost,
+        # models.Role,
+        # models.Reason,
+        # models.Purpose,
         models.Status,
         models.ReviewerRole,
-        models.HelpText,
-        shared_models.FiscalYear,
+        # models.HelpText,
+        # shared_models.FiscalYear,
         # shared_models.Region,
         # shared_models.Branch,
         # shared_models.Division,
         # shared_models.Section,
         # models.DefaultReviewer,
-        User,
-        Group,
+        # User,
+        # Group,
     ]
     for model in models_to_export:
         data = serializers.serialize("json", model.objects.all())
@@ -39,6 +40,26 @@ def export_fixtures():
         myfile.write(data)
         myfile.close()
 
+
+
+def update_conf_status():
+    conf_list = models.Conference.objects.all()
+    for obj in conf_list:
+        if obj.is_verified:
+            obj.status_id = 41
+        else:
+            obj.status_id = 30
+
+        obj.save()
+
+
+
+def set_old_trips_to_reviewed():
+    conf_list = models.Conference.objects.filter(is_adm_approval_required=True)
+    for obj in conf_list:
+        if obj.start_date <= timezone.now():
+            obj.status_id = 32
+            obj.save()
 
 
 

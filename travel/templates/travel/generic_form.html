@@ -9,6 +9,7 @@
 {% block subcontent %}
     {% crash_if_none "back_url" back_url %}
     {% crash_if_none "submit_text" submit_text %}
+    {% crash_if_none "cancel_text" cancel_text %}
 
     <form method="post" class="form">
         {% csrf_token %}
@@ -20,10 +21,10 @@
 
         {% block form_buttons %}
             <div class="mt-3 mb-3">
-                <input type="submit" class="btn btn-lg btn-warning" value="{{ submit_text }}">
+                <input type="submit" class="btn btn-lg {% block submit_btn_class %}btn-warning{% endblock %}" value="{{ submit_text }}">
 
                 <a class="btn btn-lg btn-secondary" href="{{ back_url }}">
-                    {% trans "Cancel" %}
+                    {{ cancel_text }}
                 </a>
             </div>
         {% endblock %}

@@ -21,7 +21,7 @@ LANGUAGE_CHOICES = (
 )
 
 
-# Create your models here.
+
 
 class Location(models.Model):
     # Choices for surface_type
@@ -352,9 +352,9 @@ class Resource(models.Model):
                                             null=True, verbose_name="Spatial representation type")
     spat_ref_system = models.ForeignKey(SpatialReferenceSystem, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name="Spatial reference system")
-    geo_descr_eng = models.CharField(max_length=255, blank=True, null=True,
+    geo_descr_eng = models.CharField(max_length=1000, blank=True, null=True,
                                      verbose_name="Geographic description (English)")
-    geo_descr_fre = models.CharField(max_length=255, blank=True, null=True,
+    geo_descr_fre = models.CharField(max_length=1000, blank=True, null=True,
                                      verbose_name="Geographic description (French)")
     west_bounding = models.FloatField(blank=True, null=True, verbose_name="West bounding coordinate")
     south_bounding = models.FloatField(blank=True, null=True, verbose_name="South bounding coordinate")
@@ -365,18 +365,24 @@ class Resource(models.Model):
     additional_credit = models.TextField(blank=True, null=True)
     analytic_software = models.TextField(blank=True, null=True, verbose_name="Analytic software notes")
     date_verified = models.DateTimeField(blank=True, null=True)
+
     fgp_url = models.URLField(blank=True, null=True, verbose_name="Link to record on FGP")
     public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Data")
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
+    od_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to Open Data")
+    odi_id = models.CharField(max_length=20, blank=True, null=True, verbose_name=_("ODIP Identifier"), unique=True)
+
     last_revision_date = models.DateTimeField(blank=True, null=True, verbose_name="Date of last published revision")
-    open_data_notes = models.CharField(max_length=255, blank=True, null=True,
+    open_data_notes = models.TextField(blank=True, null=True,
                                        verbose_name="Open data notes")
     notes = models.TextField(blank=True, null=True, verbose_name="General notes")
     citations = models.ManyToManyField(Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
     people = models.ManyToManyField(Person, through='ResourcePerson')
+    paa_items = models.ManyToManyField(shared_models.PAAItem, blank=True, verbose_name=_("Program Alignment Architecture (PAA) references"))
     parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children',
                                verbose_name="Parent resource")
+
     date_last_modified = models.DateTimeField(auto_now=True, editable=False)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
     flagged_4_deletion = models.BooleanField(default=False)

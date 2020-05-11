@@ -592,3 +592,22 @@ class River(models.Model):
 
     class Meta:
         ordering = ['name']
+
+
+
+class PAAItem(models.Model):
+    code = models.CharField(max_length=255, verbose_name=_("code"), unique=True)
+    name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (en)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (fr)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            my_str= "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str= "{}".format(self.name)
+        return f"{self.code } - {my_str}"
+
+    class Meta:
+        ordering = ['code', ]

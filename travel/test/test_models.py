@@ -25,7 +25,23 @@ class TestTravelModels(CommonTest):
         self.assertIn(trip_request, trip.trip_requests.all())
         self.assertIn(parent_trip_request, trip.trip_requests.all())
 
+        # get_connected_active_request prop should get a qs of all connected trip request, excluding any parent requests (for group travel only)
+        self.assertNotIn(trip_request, trip.get_connected_active_requests())
+        self.assertNotIn(child_trip_request, trip.get_connected_active_requests())
+        self.assertNotIn(parent_trip_request, trip.get_connected_active_requests())
+
+        trip_request.status_id = 11
+        trip_request.save()
+
+        parent_trip_request.status_id = 11
+        parent_trip_request.save()
+
+        self.assertIn(trip_request, trip.get_connected_active_requests())
+        self.assertIn(child_trip_request, trip.get_connected_active_requests())
+        self.assertNotIn(parent_trip_request, trip.get_connected_active_requests()) # parent should not turn up
+
         # any traveller on a group or individual request should be listed in the trip.traveller_list prop
+        # ONLY IF THE STATUS IS NOT EQUAL TO draft, denied or cancelled
         self.assertIn(trip_request.user, trip.traveller_list)
         self.assertIn(child_trip_request.user, trip.traveller_list)
         # the owner of the group trip should NOT be on the list

@@ -467,17 +467,16 @@ def get_related_trips(user):
     """give me a user and I'll send back a queryset with all related trips, i.e.
      they are the request.user | they are the request.created_by | they are a traveller on a child trip"""
 
-    tr_ids = [tr.id for tr in models.TripRequest.objects.filter(is_group_request=False, user=user)]
+    tr_ids = [tr.id for tr in models.TripRequest.objects.filter(user=user)]
     tr_ids.extend([tr.id for tr in models.TripRequest.objects.filter(parent_request__isnull=True, created_by=user)])
     tr_ids.extend([tr.parent_request.id for tr in models.TripRequest.objects.filter(parent_request__isnull=False, user=user)])
     return models.TripRequest.objects.filter(id__in=tr_ids)
 
 
-
 def get_adm_ready_trips():
     """returns a qs of trips that are ready for adm review"""
     six_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 6)
-    #start with trips that need adm approval that have not already been reviewed
+    # start with trips that need adm approval that have not already been reviewed
     trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id=32))
     t_ids = list()
     for t in trips:
