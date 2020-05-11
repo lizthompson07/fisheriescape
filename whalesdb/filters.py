@@ -36,8 +36,8 @@ class MorFilter(django_filters.FilterSet):
 
 
 class PrjFilter(django_filters.FilterSet):
-    prj_name = django_filters.CharFilter(field_name='prj_name', lookup_expr='icontains')
-    prj_description = django_filters.CharFilter(field_name='prj_description', lookup_expr='icontains')
+    prj_name = django_filters.CharFilter(field_name='tname', lookup_expr='icontains')
+    prj_description = django_filters.CharFilter(field_name='tdescription', lookup_expr='icontains')
 
     class Meta:
         model = models.PrjProject
