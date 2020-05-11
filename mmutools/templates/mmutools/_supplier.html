@@ -39,13 +39,13 @@
             {% endfor %}
             <td>
                 <a href="#"
-                   pop-href="{% url 'mmutools:supplier_edit' obj.id %}">
+                   pop-href="{% url 'mmutools:supplier_edit' obj.id 1 %}">
                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
                 </a>
             </td>
             <td>
                 <a href="#"
-                  pop-href="{% url 'mmutools:supplier_delete' obj.id %}">
+                  pop-href="{% url 'mmutools:supplier_delete' obj.id 1 %}">
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
                 </a>
             </td>
@@ -56,7 +56,7 @@
 {% endif %}
 
 <a class="" href="#" pop-href="{% url 'mmutools:supplier_new' object.id %}">
-    {% trans "(Add Supplier)" %}
+    {% trans "(Add Supplier for this Item)" %}
 </a>
 
 <br>

@@ -51,6 +51,9 @@ class FileForm(forms.ModelForm):
     class Meta:
         model = models.File
         fields = "__all__"
+        widgets = {
+            'item': forms.HiddenInput(),
+        }
 
 class LendingForm(forms.ModelForm):
     class Meta:

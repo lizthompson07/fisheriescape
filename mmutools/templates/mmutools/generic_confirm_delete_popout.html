@@ -1,0 +1,45 @@
+{% extends "mmutools/mmutools_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block content %}
+
+    <div class="container">
+
+        <h1>Are you sure you want to delete <em>{{ object }}</em> from the database?</h1>
+        <p>(You will not be able to delete this object if is attached to another record.)</p>
+
+        <br><br>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">Cancel</a>
+        </form>
+
+    </div>
+
+
+{% endblock content %}
+
+
+{% block body_js %}
+
+{# A script to refresh the parent window; to be called in when the buttons are pushed #}
+  <script>
+        window.resizeTo(width = 500, height = 500);
+
+        window.onunload = refreshParent;
+
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            $("#id_quantity").select()
+        });
+    </script>
+
+
+{% endblock %}

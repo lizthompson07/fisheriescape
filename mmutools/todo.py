@@ -1,7 +1,7 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
-# TODO Add confirmation step for deleting files
+# TODO why does it add multiple lines in M2M win ListView when multiple things selected
 # TODO Add lending table to quantity, JS for having lent_to and other fields appear if "lent out" is selected as status
 # TODO Lend button beside quantities on item_detail --- form could ask how many, calculate difference etc
 # TODO Figure out how to use generic_popout_form
@@ -11,7 +11,6 @@
 # TODO When adding a Supplier from item_detail, have it automatically also add it to the item.supplier field
 
 ### LARGER ITEMS - PRIORITY
-# TODO Fix all Supplier Views with new M2M model in place -- no longer linked to item --
 # TODO Testing Units so Dev version can be deployed
 
 ### OTHER LARGER ITEMS
@@ -20,6 +19,7 @@
 # TODO Add Bulk Lending View to checkout (change to "lent out") status multiple items of various quantities all on one page -- how to sort so you can find all items you want also?
 # TODO Bulk Check In View to check back in items -- should be easy enough to sort on a person's name and then bulk check back in items you have out
 # TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
+# TODO Change name of app, can't call us MMU (had to change signature blocks also)
 
 ### SOLVED - I THINK
 # TODO Fix quantity calculation error in views.py -- see error message there, need to create case for when no values entered yet -- I think I fixed this!~! WOOO
@@ -32,3 +32,6 @@
 # TODO Be able to click on "Location" in _quantity and take to location_detail page to see address
 # TODO Create Location Table (with containers as locations)
 # TODO Fix Location view in _quantity.html to go to location_stored detail page != pk
+# TODO Add confirmation step for deleting files
+# TODO Create and use generic confirm_delete_popout
+# TODO Fix all Supplier Views with new M2M model in place -- no longer linked to item --

@@ -27,6 +27,7 @@ urlpatterns = [
     path('quantity/new/', views.QuantityCreateView.as_view(), name="quantity_new"),
     path('quantity/<int:pk>/edit/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
     path('quantity/<int:pk>/edit/pop/<int:pop>/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
+    path('quantity/<int:pk>/delete/pop/<int:pop>/', views.QuantityDeleteView.as_view(), name="quantity_delete"),
     path('quantity/<int:pk>/delete/', views.QuantityDeleteView.as_view(), name="quantity_delete"),
 
 # LOCATION #
@@ -53,6 +54,7 @@ urlpatterns = [
     path('item/<int:pk>/supplier/new/', views.SupplierCreateView.as_view(), name="supplier_new"),
     path('supplier/<int:pk>/edit/', views.SupplierUpdateView.as_view(), name="supplier_edit"),
     path('supplier/<int:pk>/edit/pop/<int:pop>/', views.SupplierUpdateView.as_view(), name="supplier_edit"),
+    path('supplier/<int:pk>/delete/pop/<int:pop>/', views.SupplierDeleteView.as_view(), name="supplier_delete"),
     path('supplier/<int:pk>/delete/', views.SupplierDeleteView.as_view(), name="supplier_delete"),
 
 # ITEM FILES #
@@ -60,7 +62,7 @@ urlpatterns = [
     path('item/<int:item>/file/new/', views.FileCreateView.as_view(), name="file_new"),
     path('file/<int:pk>/view/', views.FileDetailView.as_view(), name="file_detail"),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name="file_edit"),
-    path('file/<int:pk>/delete/', views.file_delete, name="file_delete"),
+    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name="file_delete"),
 
 # LENDING #
 

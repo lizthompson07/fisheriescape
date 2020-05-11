@@ -179,6 +179,7 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
         context["random_file"] = models.File.objects.first()
         context["file_field_list"] = [
             'caption',
+            'file',
             'date_uploaded',
         ]
 
@@ -357,7 +358,8 @@ class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Quantity record successfully created for : {my_object}"))
-        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else super().form_valid(form))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy('mmutools:quantity_list'))
+                                    # else super().form_valid(form)) --- changed this to make it work, is this ok?
 
     def get_initial(self):
         return {'item': self.kwargs.get('pk')}
@@ -366,12 +368,17 @@ class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
 class QuantityDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     model = models.Quantity
     permission_required = "__all__"
-    success_url = reverse_lazy('shared_models:close_me')
     success_message = 'The quantity was successfully deleted!'
 
+    def get_template_names(self):
+        return "mmutools/generic_confirm_delete_popout.html" if self.kwargs.get("pop") else "mmutools/quantity_confirm_delete.html"
+
     def delete(self, request, *args, **kwargs):
+        my_object = self.get_object()
+        my_object.delete()
         messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('mmutools:quantity_list'))
+        # return super().delete(request, *args, **kwargs)   --changed this to make it work, is this ok?
 
     ## PERSONNEL ##
 
@@ -506,7 +513,6 @@ class SupplierUpdateView(MmutoolsEditRequiredMixin, UpdateView):
         success_url = reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('mmutools:supplier_detail', kwargs={"pk": my_object.id})
         return HttpResponseRedirect(success_url)
 
-
 class SupplierCreateView(MmutoolsEditRequiredMixin, CreateView):
     model = models.Supplier
     form_class = forms.SupplierForm
@@ -520,7 +526,7 @@ class SupplierCreateView(MmutoolsEditRequiredMixin, CreateView):
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Supplier record successfully created for : {my_object}"))
-        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else super().form_valid(form))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy('mmutools:supplier_list'))
 
     def get_initial(self):
         return {'item': self.kwargs.get('pk')}
@@ -528,12 +534,16 @@ class SupplierCreateView(MmutoolsEditRequiredMixin, CreateView):
 class SupplierDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     model = models.Supplier
     permission_required = "__all__"
-    success_url = reverse_lazy('mmutools:supplier_list')
     success_message = 'The supplier file was successfully deleted!'
 
+    def get_template_names(self):
+        return "mmutools/generic_confirm_delete_popout.html" if self.kwargs.get("pop") else "mmutools/supplier_confirm_delete.html"
+
     def delete(self, request, *args, **kwargs):
+        my_object = self.get_object()
+        my_object.delete()
         messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('mmutools:supplier_list'))
 
     ## ITEM FILE UPLOAD ##
 
@@ -544,8 +554,9 @@ class FileCreateView(MmutoolsEditRequiredMixin, CreateView):
     form_class = forms.FileForm
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("mmutools:item_detail", kwargs={"pk": object.item.id}))
+        my_object = form.save()
+        messages.success(self.request, _(f"File successfully added for : {my_object}"))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
     def get_initial(self):
         item = models.Item.objects.get(pk=self.kwargs['item'])
@@ -565,9 +576,6 @@ class FileUpdateView(MmutoolsEditRequiredMixin, UpdateView):
     template_name = 'mmutools/file_form_popout.html'
     form_class = forms.FileForm
 
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("mmutools:item_detail", kwargs={"pk": self.object.item.id})
-
     def get_context_data(self, **kwargs):
         # get context
         context = super().get_context_data(**kwargs)
@@ -575,9 +583,10 @@ class FileUpdateView(MmutoolsEditRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("mmutools:item_detail", kwargs={"pk": object.item.id}))
-
+        my_object = form.save()
+        messages.success(self.request, _(f"File record successfully updated for : {my_object}"))
+        success_url = reverse_lazy('shared_models:close_me')
+        return HttpResponseRedirect(success_url)
 
 
 class FileDetailView(FileUpdateView):
@@ -586,13 +595,20 @@ class FileDetailView(FileUpdateView):
         context["editable"] = False
         return context
 
-## Probably want to add some sort of confirmation step
+class FileDeleteView(MmutoolsEditRequiredMixin, DeleteView):
+    model = models.File
+    permission_required = "__all__"
+    success_message = 'The file was successfully deleted!'
 
-def file_delete(request, pk):
-    object = models.File.objects.get(pk=pk)
-    object.delete()
-    messages.success(request, _("The file has been successfully deleted from the entry."))
-    return HttpResponseRedirect(reverse_lazy("mmutools:item_detail", kwargs={"pk": object.item.id}))
+    def get_template_names(self):
+        return "mmutools/generic_confirm_delete_popout.html"
+
+    def delete(self, request, *args, **kwargs):
+        my_object = self.get_object()
+        my_object.delete()
+        messages.success(self.request, self.success_message)
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
 
     ## LENDING ##
 
