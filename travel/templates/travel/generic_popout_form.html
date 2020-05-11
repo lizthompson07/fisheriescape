@@ -29,30 +29,36 @@
         {% endif %}
 
         <div class="mb-3">
-                {% block pre_form_div %}{% endblock %}
+            {% block pre_form_div %}{% endblock %}
         </div>
+
 
         <form method="post" class="form">
             {% csrf_token %}
 
             <div id="fields">
-                {% for field in form %}
-                    {% bootstrap_field field placeholder="" show_label=False %}
-                {% endfor %}
-                <div class="btn-group">
-                    <button type="submit" class="btn {% block submit_btn_class %}btn-success{% endblock %}" onclick="refreshParent()">
+
+                {% block form_fields %}
+                    {% for field in form %}
+                        {% bootstrap_field field placeholder="" %}
+                    {% endfor %}
+                {% endblock %}
+
+                {% block form_buttons %}
+                    <div class="btns">
                         {% trans "Save" as submit_btn_text %}
-                        {{ submit_text|nz:submit_btn_text }}
-                    </button>
-                    <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
-                        {% trans "Close" %}
-                    </a>
-                </div>
+                        <input type="submit" class="btn {% block submit_btn_class %}btn-success{% endblock %}" onclick="refreshParent()"
+                               value="{{ submit_text|nz:submit_btn_text }}" \>
+                        <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                            {% trans "Close" %}
+                        </a>
+                    </div>
+                {% endblock %}
             </div>
 
         </form>
         <div class="mb-3">
-                {% block post_form_div %}{% endblock %}
+            {% block post_form_div %}{% endblock %}
         </div>
 
     </div>
