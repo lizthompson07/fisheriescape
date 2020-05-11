@@ -69,8 +69,8 @@ class TestEdaForm(CommonFormTest):
     # filter out hydrophones
     @tag('eda', 'form', 'field')
     def test_eda_field_filter(self):
-        recorder = factory.EmmFactory(eqt_id=1)
-        hydrophone = factory.EmmFactory(eqt_id=4)
+        recorder = factory.EmmFactory(pk=1)
+        hydrophone = factory.EmmFactory(pk=4)
 
         rec_1 = factory.EqpFactory.create(emm=recorder)
         rec_2 = factory.EqpFactory.create(emm=recorder)
