@@ -13,20 +13,6 @@ class RequestForm(forms.ModelForm):
         model = models.ReqRequest
 
         # fields shown on screen
-        # fields = ("assigned_request_ID", "title",)    # only show listed fields
-        # fields = ["assigned_request_ID", "title"]     # [" "] is the same as (" ",)
-
-        # ============================================================================================
-        # superusers = User.objects.filter(is_superuser=True).values_list('username')
-        # current_user = User.username
-        # print(superusers, "-----------------")
-        #
-        # if superusers is True:
-        #     exclude = []
-        # else:
-        #     exclude = []
-        # ============================================================================================
-
         exclude = ["assigned_req_id", "adviser_submission", "rd_submission", "decision_date"]    # except listed fields
 
         # use some widgets
@@ -37,17 +23,6 @@ class RequestForm(forms.ModelForm):
             "funding_notes": Textarea(attrs={"rows": 1, "cols": 20}),
             # "region": forms.Select(attrs={"class": "chosen-select-contains"})
         }
-
-        # ========================================================================================
-        # def get_context_data(self, **kwargs):
-        #     context = super().get_context_data(**kwargs)
-        #
-        #     if self.request.user:
-        #         context["auth"] = utils.csas_authorized(self.request.user)
-        #         context["csas_admin"] = utils.csas_admin(self.request.user)
-        #
-        #    return context
-        # ========================================================================================
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -106,20 +81,6 @@ class PublicationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['citation'].wigets = forms.Select(choices=models.PubPublication.objects.all())
 
-
-# class RequestForm(forms.ModelForm):
-#    class Meta:
-#        model = models.ReqRequest
-#        exclude = []
-#        widgets = {
-#        }
-
-
-# class OtherForm(forms.ModelForm):
-#    class Meta:
-#        model = models.OthOther
-#        exclude = []
-#        widgets = {
-#        }
-
-
+# End of forms.py
+# ----------------------------------------------------------------------------------------------------
+# 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
