@@ -15,7 +15,7 @@ class EmmFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EmmMakeModel
 
-    eqt = factory.lazy_attribute(lambda o: models.EqtEquipmentTypeCode.objects.get(eqt_id=faker.random_int(1, 4)))
+    eqt = factory.lazy_attribute(lambda o: models.EqtEquipmentTypeCode.objects.get(pk=faker.random_int(1, 4)))
     emm_make = factory.lazy_attribute(lambda o: faker.word())
     emm_model = factory.lazy_attribute(lambda o: faker.word())
     emm_depth_rating = factory.lazy_attribute(lambda o: faker.random_int(10, 10000))
@@ -26,7 +26,7 @@ class EmmFactory(factory.django.DjangoModelFactory):
     def get_valid_data(eqt_id=None):
 
         eqt_id = eqt_id if eqt_id else faker.random_int(1, 4)
-        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=eqt_id)
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=eqt_id)
 
         valid_data = {
             'eqt': eqt.pk,
@@ -43,14 +43,14 @@ class EqhFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqhHydrophoneProperty
 
-    emm = factory.lazy_attribute(lambda o: EmmFactory(eqt_id=4))
+    emm = factory.lazy_attribute(lambda o: EmmFactory(pk=4))
     eqh_range_min = factory.lazy_attribute(lambda o: faker.random_int(0, 100))
     eqh_range_max = factory.lazy_attribute(lambda o: faker.random_int(100, 1000))
 
     @staticmethod
     def get_valid_data():
         # specifically testing when an equipment is a Hydrophone
-        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=4)
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
         emm = EmmFactory(eqt=eqt)
 
         valid_data = {
@@ -66,14 +66,14 @@ class EqrFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqrRecorderProperties
 
-    emm = factory.lazy_attribute(lambda o: EmmFactory(eqt_id=1))
-    ert = factory.lazy_attribute(lambda o: models.ErtRecorderType.objects.get(ert_id=faker.random_int(1, 4)))
+    emm = factory.lazy_attribute(lambda o: EmmFactory(pk=1))
+    ert = factory.lazy_attribute(lambda o: models.ErtRecorderType.objects.get(pk=faker.random_int(1, 4)))
     eqr_internal_hydro = factory.lazy_attribute(lambda o: faker.boolean())
 
     @staticmethod
     def get_valid_data():
         # specifically testing when an equipment is an Acoustic Recorder
-        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=1)
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=1)
         emm = EmmFactory(eqt=eqt)
 
         valid_data = {
@@ -91,7 +91,7 @@ class EcpFactory(factory.django.DjangoModelFactory):
 
     eqr = factory.SubFactory(EqrFactory)
     ecp_channel_no = factory.lazy_attribute(lambda o: faker.random_int(1, 9))
-    eqa_adc_bits = factory.lazy_attribute(lambda o: models.EqaAdcBitsCode.objects.get(eqa_id=faker.random_int(1, 3)))
+    eqa_adc_bits = factory.lazy_attribute(lambda o: models.EqaAdcBitsCode.objects.get(pk=faker.random_int(1, 3)))
     ecp_voltage_range_min = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
     ecp_voltage_range_max = factory.lazy_attribute(lambda o: o.ecp_voltage_range_min + faker.random_int(1, 1000))
 
@@ -103,7 +103,7 @@ class EcpFactory(factory.django.DjangoModelFactory):
         valid_data = {
             'eqr':  eqr.pk,
             'ecp_channel_no':  faker.random_int(1, 9),
-            'eqa_adc_bits':  models.EqaAdcBitsCode.objects.get(eqa_id=faker.random_int(1, 3)),
+            'eqa_adc_bits':  models.EqaAdcBitsCode.objects.get(pk=faker.random_int(1, 3)),
             'ecp_voltage_range_min':  min_volt,
             'ecp_voltage_range_max':  min_volt + faker.random_int(1, 1000),
         }
@@ -177,17 +177,17 @@ class MorFactory(factory.django.DjangoModelFactory):
 class PrjFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.PrjProject
-        django_get_or_create = ('prj_name',)
+        django_get_or_create = ('name',)
 
-    prj_name = factory.lazy_attribute(lambda o: faker.name())
-    prj_description = factory.lazy_attribute(lambda o: faker.text())
+    name = factory.lazy_attribute(lambda o: faker.name())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
     prj_url = factory.lazy_attribute(lambda o: faker.url())
 
     @staticmethod
     def get_valid_data():
         valid_data = {
-            "prj_name": faker.name(),
-            "prj_description": faker.text(),
+            "name": faker.name(),
+            "description_en": faker.text(),
             "prj_url": faker.url()
         }
 
@@ -305,7 +305,7 @@ class EdaFactory(factory.django.DjangoModelFactory):
         dep = DepFactory()
 
         # Eda will only show recorders, so no hydrophones here
-        emm = EmmFactory(eqt_id=1)
+        emm = EmmFactory(pk=1)
         eqp = EqpFactory(emm=emm)
 
         valid_data = {

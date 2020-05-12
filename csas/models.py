@@ -25,27 +25,27 @@ class Lookup(models.Model):
 # ----------------------------------------------------------------------------------------------------
 # Create models for contacts
 #
-class CohHonorific(Lookup):
+class CohHonorific(shared_models.Lookup):
     pass
 
 
-class CotType(Lookup):
+class CotType(shared_models.Lookup):
     pass
 
 
-class LanLanguage(Lookup):
+class LanLanguage(shared_models.Lookup):
     pass
 
 
-class NotNotificationPreference(Lookup):
+class NotNotificationPreference(shared_models.Lookup):
     pass
 
 
-class RolRole(Lookup):
+class RolRole(shared_models.Lookup):
     pass
 
 
-class SecSector(Lookup):
+class SecSector(shared_models.Lookup):
     pass
 
 
@@ -93,23 +93,23 @@ class MftMeetingFileType(models.Model):
         return "{}".format(self.name)
 
 
-class SttStatus(Lookup):
+class SttStatus(shared_models.Lookup):
     pass
 
 
-class ScpScope(Lookup):
+class ScpScope(shared_models.Lookup):
     pass
 
 
-class AptAdvisoryProcessType(Lookup):
+class AptAdvisoryProcessType(shared_models.Lookup):
     pass
 
 
-class LocLocation(Lookup):
+class LocLocation(shared_models.Lookup):
     pass
 
 
-class MeqQuarter(Lookup):
+class MeqQuarter(shared_models.Lookup):
     pass
 
 
@@ -197,11 +197,11 @@ class MomMeetingOmCost(models.Model):
 # ----------------------------------------------------------------------------------------------------
 # Create models for publications
 #
-class PseSeries(Lookup):
+class PseSeries(shared_models.Lookup):
     name = models.CharField(max_length=50)
 
 
-class KeyKeywords(Lookup):
+class KeyKeywords(shared_models.Lookup):
     name = models.CharField(max_length=100)
 
 
@@ -257,11 +257,11 @@ class PtiPublicationTitle(models.Model):
 # ----------------------------------------------------------------------------------------------------
 # Create models for requests
 #
-class RepPriority(Lookup):
+class RepPriority(shared_models.Lookup):
     pass
 
 
-class RetTiming(Lookup):
+class RetTiming(shared_models.Lookup):
     pass
 
 
@@ -277,8 +277,7 @@ class ReqRequest(models.Model):
     client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
     client_name = models.CharField(max_length=100, verbose_name=_("Client Name"))
     client_title = models.CharField(max_length=100, verbose_name=_("Client Title"))
-    # client_email = models.CharField(max_length=255, verbose_name=_("Client E-mail"))
-    client_email = models.EmailField(verbose_name=_("Client E-mail"))
+    client_email = models.CharField(max_length=255, verbose_name=_("Client E-mail"))
     issue = models.TextField(verbose_name=_("Issue"),
                              help_text=_("Issue requiring science information and/or advice. Posted as a question "
                                          "to be answered by Science."))

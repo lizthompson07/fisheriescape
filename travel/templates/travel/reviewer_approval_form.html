@@ -25,28 +25,28 @@
         {% url 'travel:admin_approval_list' view.kwargs.type as list_url %}
     {% endif %}
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            {% if admin %}
-                <li class="breadcrumb-item"><a href="{{ list_url }}">
-                    {% trans "Admin Request Approval List" %} ({{ type_bilingual }})</a>
-                </li>
-
-            {% else %}
-                <li class="breadcrumb-item"><a href="{% url 'travel:request_review_list' 'awaiting' %}">
-                    {% trans "Requests Awaiting Your Review" %}
-                </a>
-                </li>
-            {% endif %}
-            <li class="breadcrumb-item active" aria-current="page">{{ triprequest }} {% trans "Reviewer Approval" %}</li>
-        </ol>
-    </nav>
 
     <div class="container">
-    <span id="the-top"></span>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                    {% trans "Home" %}
+                </a></li>
+                {% if admin %}
+                    <li class="breadcrumb-item"><a href="{{ list_url }}">
+                        {% trans "Admin Request Approval List" %} ({{ type_bilingual }})</a>
+                    </li>
+
+                {% else %}
+                    <li class="breadcrumb-item"><a href="{% url 'travel:request_review_list' 'awaiting' %}">
+                        {% trans "Requests Awaiting Your Review" %}
+                    </a>
+                    </li>
+                {% endif %}
+                <li class="breadcrumb-item active" aria-current="page">{{ triprequest }} {% trans "Reviewer Approval" %}</li>
+            </ol>
+        </nav>
+        <span id="the-top"></span>
         {% if admin %}
             <h1>Do you wish to approve on behalf of the {{ triprequest.current_reviewer.user }}
                 ({{ triprequest.current_reviewer.role }})?</h1>
@@ -89,9 +89,9 @@
                     {% trans "Make changes yourself" %}
                 </a>
 
-{#                <a class="btn btn-lg btn-secondary" href="{% url 'travel:request_review_list' %}">#}
-{#                    {% trans "Cancel" %}#}
-{#                </a>#}
+                {#                <a class="btn btn-lg btn-secondary" href="{% url 'travel:request_review_list' %}">#}
+                {#                    {% trans "Cancel" %}#}
+                {#                </a>#}
                 <input type="submit" class="hidden">
             </div>
 

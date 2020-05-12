@@ -9,8 +9,6 @@ from django.utils.translation import gettext_lazy as _
 
 from shared_models import views as shared_view
 
-from django.contrib.auth.models import User
-
 
 class FilterCommon(shared_view.FilterView, shared_view.CommonCommon):
     auth = True
@@ -178,45 +176,18 @@ class RequestUpdate(CsasUpdateCommon):
     model = models.ReqRequest
     form_class = forms.RequestForm
 
-    # ====================================================================================
-    abc = User.is_authenticated
-    superusers = User.objects.filter(is_superuser=True)
-    superusers_emails = User.objects.filter(is_superuser=True).values_list('email')
-    users = User.objects.all()
-    print("-----------")
-    if User.is_authenticated is False:
-        print(" **************abc")
-
-    print(abc)
-    print(superusers)
-    print(superusers_emails)
-    print(users)
-    print("===========")
-    # =====================================================================================
-
     # Go to Request Details page after Update a request
     def get_success_url(self):
-        # ==============================================================
-        # for key in kwargs:
-        #    print(self)
-        # ==============================================================
         if "pop" in self.kwargs:
             return reverse_lazy("shared_models:close_me")
-
         return reverse_lazy("csas:details_req", args=(self.object.pk,))
 
     def get_context_data(self, **kwargs):
-        print(kwargs)
         context = super().get_context_data(**kwargs)
 
         if self.request.user:
             context["auth"] = utils.csas_authorized(self.request.user)
             context["csas_admin"] = utils.csas_admin(self.request.user)
-
-        # ==============================================================
-        for key in kwargs:
-            print("The key {} holds {} value".format(key, kwargs[key]))
-        # ==============================================================
 
         return context
 
