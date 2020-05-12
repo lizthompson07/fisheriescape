@@ -147,7 +147,7 @@
                         {{ obj.fgp_publication_date|yesno:"yes,no,no" }}
                     </td>
                     <td>
-                        {{ obj.odi_id }}
+                        {{ obj.odi_id|nz:"---" }}
                     </td>
                     <td>
                         {% if obj.fgp_url %}
