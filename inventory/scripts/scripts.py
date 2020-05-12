@@ -4,15 +4,15 @@ import os
 from django.core import serializers
 from django.core.files import File
 
-from . import models
-from . import xml_export
+from inventory import models
+from inventory import xml_export
 from shared_models import models as shared_models
 
 
 
 def export_fixtures():
     """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
-    fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
+    fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../fixtures')
     models_to_export = [
         models.Location,
         models.Status,

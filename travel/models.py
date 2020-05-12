@@ -262,6 +262,7 @@ class Conference(models.Model):
                  "<b>Start date (yyyy-mm-dd):</b> {}<br>" \
                  "<b>End date (yyyy-mm-dd):</b> {}<br>" \
                  "<b>Meeting URL:</b> {}<br>" \
+                 "<b>ADM approval required:</b> {}<br>" \
                  "<b>Verified:</b> {}<br>" \
                  "<b>Verified By:</b> {}<br>" \
                  "<br><a href='{}' target='_blank' class='btn btn-primary btn-sm'>Go!</a>".format(
@@ -269,6 +270,7 @@ class Conference(models.Model):
             self.start_date.strftime("%Y-%m-%d"),
             self.end_date.strftime("%Y-%m-%d"),
             "<a href='(click here)' target='_blank'>{}</a>".format(self.meeting_url) if self.meeting_url else "n/a",
+            "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
             reverse("travel:trip_detail", kwargs={"pk": self.id}),

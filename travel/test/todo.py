@@ -7,3 +7,6 @@
 # TODO: and adm reviewer should have the reviewer tab show up on the main page if a trip is awaiting their approval
 
 # TODO: when a trip is cancelled, associated trips should also be cancelled
+# TODO: when a trip is being re-assigned, if should only be able to be reassigned by an adm admin if adm-approval-required
+# TODO: ... all trip requests under the trip should be successfully moved.
+# TODO: ... should not be able to merge the trips if there is an overlap of travellers.

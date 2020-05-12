@@ -110,7 +110,7 @@ class OpenDataDashboardTemplateView(TemplateView):
         my_dict["TOTAL"] = dict()
         my_dict["TOTAL"]["qs_total"] = qs.count()
         my_dict["TOTAL"]["qs_fgp"] = qs.filter(fgp_publication_date__isnull=False).count()
-        my_dict["TOTAL"]["qs_open_data"] = qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False).count()
+        my_dict["TOTAL"]["qs_open_data"] = qs.filter(public_url__isnull=False).count()
         my_dict["TOTAL"]["qs_open_data_current_fy"] = qs.filter(fgp_publication_date__isnull=False,
                                                                 publication_fy=current_fy, public_url__isnull=False).count()
 
@@ -119,10 +119,20 @@ class OpenDataDashboardTemplateView(TemplateView):
             my_dict[region] = dict()
             my_dict[region]["qs_total"] = regional_qs
             my_dict[region]["qs_fgp"] = regional_qs.filter(fgp_publication_date__isnull=False)
-            my_dict[region]["qs_open_data"] = regional_qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False)
+            my_dict[region]["qs_open_data"] = regional_qs.filter(public_url__isnull=False)
             my_dict[region]["qs_open_data_current_fy"] = regional_qs.filter(fgp_publication_date__isnull=False,
                                                                             publication_fy=current_fy,
                                                                             public_url__isnull=False)
+
+        # unsorted
+        regional_qs = qs.filter(section__isnull=True)
+        my_dict["unsorted"] = dict()
+        my_dict["unsorted"]["qs_total"] = regional_qs
+        my_dict["unsorted"]["qs_fgp"] = regional_qs.filter(fgp_publication_date__isnull=False)
+        my_dict["unsorted"]["qs_open_data"] = regional_qs.filter(public_url__isnull=False)
+        my_dict["unsorted"]["qs_open_data_current_fy"] = regional_qs.filter(fgp_publication_date__isnull=False,
+                                                                        publication_fy=current_fy,
+                                                                        public_url__isnull=False)
 
         context["my_dict"] = my_dict
         context['field_list'] = [
@@ -162,6 +172,8 @@ class ResourceListView(FilterView):
                            'purpose_eng',
                            Value(" "),
                            'uuid',
+                           Value(" "),
+                           'odi_id',
                            output_field=TextField()))
 
 

@@ -309,7 +309,7 @@ class Resource(models.Model):
     from . import data_distribution_formats
     DISTRIBUTION_FORMAT_CHOICES = data_distribution_formats.DISTRIBUTION_FORMAT_CHOICES
 
-    uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
+    uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID", unique=True)
     resource_type = models.ForeignKey(ResourceType, on_delete=models.DO_NOTHING, blank=True, null=True)
     # section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="resources")
@@ -367,9 +367,10 @@ class Resource(models.Model):
     date_verified = models.DateTimeField(blank=True, null=True)
 
     fgp_url = models.URLField(blank=True, null=True, verbose_name="Link to record on FGP")
-    public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Data")
+    public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Gov't Portal")
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
-    od_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to Open Data")
+    od_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to Open Gov't Portal")
+    od_release_date = models.DateTimeField(blank=True, null=True, verbose_name="Date released to Open Gov't Portal")
     odi_id = models.CharField(max_length=20, blank=True, null=True, verbose_name=_("ODIP Identifier"), unique=True)
 
     last_revision_date = models.DateTimeField(blank=True, null=True, verbose_name="Date of last published revision")
