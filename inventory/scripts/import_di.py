@@ -1,6 +1,7 @@
 import csv
 import datetime
 import os
+import uuid
 import xml.etree.ElementTree as ET
 
 from django.contrib.auth.models import User
@@ -49,27 +50,6 @@ def get_create_user(email):
 
 def restart():
     models.Resource.objects.filter(section_id=61).delete()
-
-
-def check_uuids():
-    target_dir = os.path.join(settings.BASE_DIR, 'inventory', 'temp')
-    # with open(os.path.join(target_dir, "QuiderE_v2b.xml"), 'r', encoding="utf8") as xml_file:
-    # with open(os.path.join(target_dir, "JacobsK_v2b.xml"), 'r') as xml_file:
-    # with open(os.path.join(target_dir, "PED_Records_Output_v3.xml"), 'r') as xml_file:
-    with open(os.path.join(target_dir, "BondSRecords_Output.xml"), 'r') as xml_file:
-
-        tree = ET.parse(xml_file)
-        recordset = tree.getroot()
-        my_dict = {}
-        for record in recordset:
-            uuid = record.find("record_uuid").text
-            if not my_dict.get(uuid):
-                my_dict[uuid] = 0
-            my_dict[uuid] += 1
-
-        for uuid in my_dict:
-            if my_dict[uuid] > 1:
-                print(uuid, my_dict[uuid])
 
 
 target_dir = os.path.join(settings.BASE_DIR, 'inventory', 'temp')
@@ -456,47 +436,48 @@ def update_odi_dates():
             if i >= 1:
                 # most important thing is to establish a uuid. I have verified that the On OGP field is a reliable way to get the uuid
                 # i also verified that the best field to get the url / uuid would be row["Location (if yes):"]
-                r, created = models.Resource.objects.get_or_create(odi_id=row["ref_number"])
+                try:
+                    r = models.Resource.objects.get(odi_id=row["ref_number"])
 
-                if created:
-                    print("bad one:", row["title_en"], row["ref_number"], row["portal_url_en"])
+                # if created:
+                #     print("bad one:", row["title_en"], row["ref_number"], row["portal_url_en"])
+                #
+                #     r.notes = f'{timezone.now().strftime("%B %d, %Y")}: This record was present on the ODIP winter report but was not in the main OD inventory spreadsheet. ' \
+                #               f'I (DJF) am adding Annette Anthony as custodian until proper metadata contacts are identified.'
+                #
+                #     r.title_eng = row["title_en"]
+                #     r.title_fre = row["title_fr"]
+                #     r.descr_eng = row["description_en"]
+                #     r.descr_fre = row["description_fr"]
+                #     r.public_url = row["portal_url_en"]
+                #     if len(row["portal_url_en"].split("/")) > 1:
+                #         r.uuid = row["portal_url_en"].split("/")[-1]
+                #
+                #     if row["date_published"]:
+                #         r.od_publication_date = make_aware(datetime.datetime.strptime(row["date_published"].lstrip(), "%Y-%m-%d"))
+                #     if row["date_released"]:
+                #         r.od_release_date = make_aware(datetime.datetime.strptime(row["date_released"].lstrip(), "%Y-%m-%d"))
+                #
+                #     r.save()
+                #
+                #     my_user = get_create_user("Annette.Anthony@dfo-mpo.gc.ca")
+                #     my_role = models.PersonRole.objects.get(id=1)  # steward
+                #     models.ResourcePerson.objects.get_or_create(
+                #         resource=r,
+                #         person_id=my_user.id,
+                #         role=my_role
+                #     )
+                #
+                #     field = "program_alignment_architecture_en"
+                #     list1 = row[field].replace(";", ",").split(",")
+                #     paa_code_list = [paa.code for paa in shared_models.PAAItem.objects.all()]
+                #     for paa in list1:
+                #         my_code = paa.lstrip().split(" ")[0]
+                #         if my_code in paa_code_list:
+                #             r.paa_items.add(shared_models.PAAItem.objects.get(code=my_code))
+                #
 
-                    r.notes = f'{timezone.now().strftime("%B %d, %Y")}: This record was present on the ODIP winter report but was not in the main OD inventory spreadsheet. ' \
-                              f'I (DJF) am adding Annette Anthony as custodian until proper metadata contacts are identified.'
-
-                    r.title_eng = row["title_en"]
-                    r.title_fre = row["title_fr"]
-                    r.descr_eng = row["description_en"]
-                    r.descr_fre = row["description_fr"]
-                    r.public_url = row["portal_url_en"]
-                    if len(row["portal_url_en"].split("/")) > 1:
-                        r.uuid = row["portal_url_en"].split("/")[-1]
-
-                    if row["date_published"]:
-                        r.od_publication_date = make_aware(datetime.datetime.strptime(row["date_published"].lstrip(), "%Y-%m-%d"))
-                    if row["date_released"]:
-                        r.od_release_date = make_aware(datetime.datetime.strptime(row["date_released"].lstrip(), "%Y-%m-%d"))
-
-                    r.save()
-
-                    my_user = get_create_user("Annette.Anthony@dfo-mpo.gc.ca")
-                    my_role = models.PersonRole.objects.get(id=1)  # steward
-                    models.ResourcePerson.objects.get_or_create(
-                        resource=r,
-                        person_id=my_user.id,
-                        role=my_role
-                    )
-
-                    field = "program_alignment_architecture_en"
-                    list1 = row[field].replace(";", ",").split(",")
-                    paa_code_list = [paa.code for paa in shared_models.PAAItem.objects.all()]
-                    for paa in list1:
-                        my_code = paa.lstrip().split(" ")[0]
-                        if my_code in paa_code_list:
-                            r.paa_items.add(shared_models.PAAItem.objects.get(code=my_code))
-
-
-                else:
+                except models.Resource.DoesNotExist:
                     # simply add dates
                     save_me = False
                     if not r.od_publication_date and row["date_published"]:
@@ -509,3 +490,115 @@ def update_odi_dates():
                         r.save()
             i += 1
         print(i)
+
+
+def check_urls():
+    for r in models.Resource.objects.filter(odi_id__isnull=False):
+        # if r.public_url and "open.canada.ca/" not in r.public_url:
+        #     print(r.id, r.public_url, "accessible: " f'http://dmapps/en/inventory/{r.id}/edit/')
+
+        # check if fgp url to be found in notes
+        if not r.fgp_url and "https://gcgeo.gc.ca/geone" in r.notes:
+            print(r.id, "accessible: " f'http://dmapps/en/inventory/{r.id}/edit/#id_fgp_url')
+
+
+def check_uuids():
+    uuid_problem_list = list()
+    resource_problem_list = list()
+    for r in models.Resource.objects.all():
+        if models.Resource.objects.filter(uuid=r.uuid).count() > 1:
+            resource_problem_list.append(r.id)
+            uuid_problem_list.append(r.uuid)
+    print(set(uuid_problem_list))
+
+
+def regen_uuids():
+    my_list = ['f9b277a390534818aa305f772dc97a16',
+               '9fe3af482fa0922c41465ef6422a66b5',
+               'b8945c0bcb16dc6ed1e58c19749a44cc',
+               '8624ad73d65c374d966d9e85d44350bd',
+               'c13a752be81b67735193e174db4a4105',
+               'c4de6d6cc31e4cfa81fa37c169e27bdc',
+               'a839b7e4ad4604fb9948cd18617a76ef',
+               '933917e4c64e99618aed08e6a8875641',
+               '73ab9c2c3e11c672231b8837bb6eb1ab',
+               '0664fca6b457e2a52316e87f3664828e',
+               'b07f55f137754029bda2e725da8be5d1',
+               '4b6cb7165b5c29e4e2f99e94d17b4668',
+               '86dcabf576a368c868397ad65428395d',
+               'af74b18a6ef141b99dc89b18197b6bec',
+               '8ea7a1bb7235c18bc5fcaed62eca6032',
+               '83eefd6cf43a05a2246854c566d6ba6e',
+               'dc320263fd9b240ccc578c8335958691',
+               '98913402688c16159895ec96b214be5a',
+               '682abd8e392346faae3b9d4c6ef9de81',
+               'c44745173d9be581a6e2e95273f2058e']
+    for target_uuid in my_list:
+        # go through once and see if there is a problem
+
+        for r in models.Resource.objects.filter(uuid=target_uuid):
+            if r.fgp_url or r.public_url:
+                pass
+            else:
+                r.uuid = uuid.uuid1()
+                r.save()
+
+
+def give_new_uuids():
+    r = models.Resource.objects.get(id=445)
+    r.uuid = uuid.uuid1()
+    r.save()
+
+
+# def check_uuid_and_urls():
+#     for r in models.Resource.objects.all():
+#         if models.Resource.objects.filter(uuid=r.uuid).count() > 1:
+#             resource_problem_list.append(r.id)
+#             uuid_problem_list.append(r.uuid)
+#     print(set(uuid_problem_list))
+
+def check_regions():
+    for r in models.Resource.objects.filter(odi_id__isnull=False):
+
+        # check if fgp url to be found in notes
+        if not r.section:
+
+            if "region: Centr" in r.notes:
+                r.section_id = 52
+                r.save()
+            elif "region: Gulf" in r.notes:
+                r.section_id = 26
+                r.save()
+            elif "region: Mari" in r.notes:
+                r.section_id = 106
+                r.save()
+            elif "region: Que" in r.notes:
+                r.section_id = 105
+                r.save()
+            elif "region: NCR" in r.notes:
+                r.section_id = 107
+                r.save()
+            elif "region: Newfoundland" in r.notes:
+                r.section_id = 103
+                r.save()
+            else:
+                print(r.notes)
+
+
+def check_url_and_uuid():
+    for r in models.Resource.objects.all():
+        # look for mismatch between uuid and url
+        if r.fgp_url or r.public_url:
+            if r.fgp_url and str(r.uuid) not in r.fgp_url:
+                # print(r.uuid, r.fgp_url)
+                # print(r.id, "accessible: " f'http://dmapps/en/inventory/{r.id}/edit/#id_fgp_url')
+                print(r.fgp_url.split("/")[-1])
+                r.uuid = r.fgp_url.split("/")[-1]
+                r.save()
+
+            if r.public_url and str(r.uuid) not in r.public_url:
+                print(r.uuid, r.public_url)
+                print(r.id, "accessible: " f'http://dmapps/en/inventory/{r.id}/edit/#id_fgp_url')
+                # print(r.fgp_url.split("/")[-1])
+                # r.uuid = r.fgp_url.split("/")[-1]
+                # r.save()
