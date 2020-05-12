@@ -9,11 +9,11 @@ from django.utils.translation import gettext_lazy as _
 
 from shared_models import views as shared_view
 
+from django.contrib.auth.models import User
+
 
 class FilterCommon(shared_view.FilterView, shared_view.CommonCommon):
-
     auth = True
-
     template_name = 'csas/csas_filter.html'
 
     # override this if there are authorization requirements
@@ -29,16 +29,12 @@ class FilterCommon(shared_view.FilterView, shared_view.CommonCommon):
         # Data, but not to create or modify it.
         context['auth'] = self.test_func()
         context['editable'] = context['auth']
-
         context.update(super().get_common_context())
-
         return context
 
 
 # Extend this class to add a new list view
-# class CsasListCommon(shared_view.FilterCommon):
 class CsasListCommon(FilterCommon):
-
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
 
@@ -64,13 +60,10 @@ class CsasListCommon(FilterCommon):
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
-
         context['fields'] = self.fields
-
         context['create_url'] = self.create_url if self.create_url else "csas:create_{}".format(self.key)
         context['details_url'] = self.details_url if self.details_url else "csas:details_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "csas:update_{}".format(self.key)
-
         return context
 
 
@@ -81,10 +74,8 @@ class CsasListCommon(FilterCommon):
 #
 # class CreateCommon(UserPassesTestMixin, CreateView):
 class CsasCreateCommon(shared_view.CreateCommon):
-
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
-
     template_name = 'csas/csas_entry_form.html'
 
     # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
@@ -100,10 +91,8 @@ class CsasCreateCommon(shared_view.CreateCommon):
 #
 # class UpdateCommon(UserPassesTestMixin, UpdateView):
 class CsasUpdateCommon(shared_view.UpdateCommon):
-
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
-
     template_name = 'csas/csas_entry_form.html'
 
     # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
@@ -152,20 +141,11 @@ class CloserTemplateView(TemplateView):
     template_name = "shared_models/close_me.html"
 
 
-# Create your views here.
+# ----------------------------------------------------------------------------------------------------
+# Create index view
+#
 class IndexTemplateView(TemplateView):
     template_name = 'csas/index.html'
-
-    # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
-
-    # Hu (April 21): the following part is the only difference from Patrick's and it doesn't work, why?
-    #
-    # def test_func(self):
-    #     return utils.csas_authorized(self.request.user)
-    #
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     return context
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -178,11 +158,10 @@ class IndexTemplateView(TemplateView):
 
 
 # ----------------------------------------------------------------------------------------------------
-# Create "Request" forms
+# Create "Request" views
 #
 class RequestEntry(CsasCreateCommon):
-
-    # The title to use on the Creation form
+    # The title to use on the Request form
     title = _("New Request Entry")
     # The model Django uses to retrieve the object(s) used on the page
     model = models.ReqRequest
@@ -191,59 +170,69 @@ class RequestEntry(CsasCreateCommon):
 
     # Go to Request List or Request Details page after Submit a new request
     def get_success_url(self):
-        # return reverse_lazy("csas:list_req")
         return reverse_lazy("csas:details_req", args=(self.object.pk,))
 
 
 class RequestUpdate(CsasUpdateCommon):
-
-    # The title to use on the Update form
     title = _("Update Request")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.ReqRequest
-    # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.RequestForm
+
+    # ====================================================================================
+    abc = User.is_authenticated
+    superusers = User.objects.filter(is_superuser=True)
+    superusers_emails = User.objects.filter(is_superuser=True).values_list('email')
+    users = User.objects.all()
+    print("-----------")
+    if User.is_authenticated is False:
+        print(" **************abc")
+
+    print(abc)
+    print(superusers)
+    print(superusers_emails)
+    print(users)
+    print("===========")
+    # =====================================================================================
 
     # Go to Request Details page after Update a request
     def get_success_url(self):
+        # ==============================================================
+        # for key in kwargs:
+        #    print(self)
+        # ==============================================================
         if "pop" in self.kwargs:
             return reverse_lazy("shared_models:close_me")
+
         return reverse_lazy("csas:details_req", args=(self.object.pk,))
 
     def get_context_data(self, **kwargs):
+        print(kwargs)
         context = super().get_context_data(**kwargs)
 
         if self.request.user:
             context["auth"] = utils.csas_authorized(self.request.user)
             context["csas_admin"] = utils.csas_admin(self.request.user)
 
+        # ==============================================================
+        for key in kwargs:
+            print("The key {} holds {} value".format(key, kwargs[key]))
+        # ==============================================================
+
         return context
 
 
 class RequestList(CsasListCommon):
-
-    # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
     key = 'req'
-    # title to display on the Filter page
     title = _("Request List")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.ReqRequest
-    # filter class used to filter the table. This is where you make changes to specify what fields to filter
-    # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.RequestFilter
-    # fields used in the table on the filter (list) page.
     fields = ['id', 'title', 'region', 'client_sector', 'client_name', 'funding']
 
 
 class RequestDetails(DetailsCommon):
-
-    # key used to create default urls. Without it you'll need to specify a list_url and update_url
     key = "req"
-    # title to be displayed on the details page
     title = _("Request Details")
-    # model Django uses to get the object being displayed on the details page
     model = models.ReqRequest
-    # fields to be displayed on the details page
     fields = ['assigned_req_id', 'title', 'in_year_request', 'region', 'client_sector', 'client_name',
               'client_title', 'client_email', 'issue', 'priority', 'rationale', 'proposed_timing',
               'rationale_for_timing', 'funding', 'funding_notes', 'science_discussion', 'science_discussion_notes',
@@ -254,30 +243,19 @@ class RequestDetails(DetailsCommon):
 # Create "Contact" forms
 #
 class ContactEntry(CsasCreateCommon):
-
-    # The title to use on the Creation form
     title = _("New Contact Entry")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.ConContact
-    # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.ContactForm
 
-    # Go to Contact List or Contact Details page after Submit a new contact
     def get_success_url(self):
-        # return reverse_lazy("csas:list_con")
         return reverse_lazy("csas:details_con", args=(self.object.pk,))
 
 
 class ContactUpdate(CsasUpdateCommon):
-
-    # The title to use on the Update form
     title = _("Update Contact")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.ConContact
-    # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.ContactForm
 
-    # Go to Contact Details page after Update a contact
     def get_success_url(self):
         if "pop" in self.kwargs:
             return reverse_lazy("shared_models:close_me")
@@ -294,29 +272,17 @@ class ContactUpdate(CsasUpdateCommon):
 
 
 class ContactList(CsasListCommon):
-
-    # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
     key = 'con'
-    # title to display on the Filter page
     title = _("Contact List")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.ConContact
-    # filter class used to filter the table. This is where you make changes to specify what fields to filter
-    # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.ContactFilter
-    # fields used in the table on the filter (list) page.
     fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'email', 'phone']
 
 
 class ContactDetails(DetailsCommon):
-
-    # key used to create default urls. Without it you'll need to specify a list_url and update_url
     key = "con"
-    # title to be displayed on the details page
     title = _("Contact Details")
-    # model Django uses to get the object being displayed on the details page
     model = models.ConContact
-    # fields to be displayed on the details page
     fields = ['honorific', 'first_name', 'last_name', 'affiliation', 'job_title', 'language', 'contact_type',
               'notification_preference', 'phone', 'email', 'region', 'sector', 'role', 'expertise', 'cc_grad',
               'notes']
@@ -326,30 +292,19 @@ class ContactDetails(DetailsCommon):
 # Create "Meeting" forms
 #
 class MeetingEntry(CsasCreateCommon):
-
-    # The title to use on the Creation form
     title = _("New Meeting Entry")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.MetMeeting
-    # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.MeetingForm
 
-    # Go to Meeting List or Meeting Details page after Submit a new meeting
     def get_success_url(self):
-        # return reverse_lazy("csas:list_met")
         return reverse_lazy("csas:details_met", args=(self.object.pk,))
 
 
 class MeetingUpdate(CsasUpdateCommon):
-
-    # The title to use on the Update form
     title = _("Update Meeting")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.MetMeeting
-    # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.MeetingForm
 
-    # Go to Meeting Details page after Update a meeting
     def get_success_url(self):
         if "pop" in self.kwargs:
             return reverse_lazy("shared_models:close_me")
@@ -357,29 +312,17 @@ class MeetingUpdate(CsasUpdateCommon):
 
 
 class MeetingList(CsasListCommon):
-
-    # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
     key = 'met'
-    # title to display on the Filter page
     title = _("Meeting List")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.MetMeeting
-    # filter class used to filter the table. This is where you make changes to specify what fields to filter
-    # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.MeetingFilter
-    # fields used in the table on the filter (list) page.
     fields = ['id', 'start_date', 'title_en', 'title_fr', 'location', 'process_type']
 
 
 class MeetingDetails(DetailsCommon):
-
-    # key used to create default urls. Without it you'll need to specify a list_url and update_url
     key = "met"
-    # title to be displayed on the details page
     title = _("Meeting Details")
-    # model Django uses to get the object being displayed on the details page
     model = models.MetMeeting
-    # fields to be displayed on the details page
     fields = ['start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
               'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
               'csas_contact', ]
@@ -389,30 +332,19 @@ class MeetingDetails(DetailsCommon):
 # Create "Meeting" forms
 #
 class PublicationEntry(CsasCreateCommon):
-
-    # The title to use on the Creation form
     title = _("New Publication Entry")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.PubPublication
-    # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.PublicationForm
 
-    # Go to Publication List or Publication Details page after Submit a new publication
     def get_success_url(self):
-        # return reverse_lazy("csas:list_pub")
         return reverse_lazy("csas:details_pub", args=(self.object.pk,))
 
 
 class PublicationUpdate(CsasUpdateCommon):
-
-    # The title to use on the Update form
     title = _("Update Publication")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.PubPublication
-    # This is what controls what fields and what widgets for what fields should be used on the entry form
     form_class = forms.PublicationForm
 
-    # Go to Publication Details page after Update a publication
     def get_success_url(self):
         if "pop" in self.kwargs:
             return reverse_lazy("shared_models:close_me")
@@ -420,29 +352,17 @@ class PublicationUpdate(CsasUpdateCommon):
 
 
 class PublicationList(CsasListCommon):
-
-    # key used to create default urls. Without it you'll need to specify a create_url, details_url and update_url
     key = 'pub'
-    # title to display on the Filter page
     title = _("Publication List")
-    # The model Django uses to retrieve the object(s) used on the page
     model = models.PubPublication
-    # filter class used to filter the table. This is where you make changes to specify what fields to filter
-    # on and how those fields should be laid out or work, like inclusive vs. partial text searching
     filterset_class = filters.PublicationFilter
-    # fields used in the table on the filter (list) page.
     fields = ['id', 'series', 'scope', 'lead_region', 'lead_author', 'pub_year']
 
 
 class PublicationDetails(DetailsCommon):
-
-    # key used to create default urls. Without it you'll need to specify a list_url and update_url
     key = "pub"
-    # title to be displayed on the details page
     title = _("Publication Details")
-    # model Django uses to get the object being displayed on the details page
     model = models.PubPublication
-    # fields to be displayed on the details page
     fields = ['pub_id', 'series', 'scope', 'lead_region', 'lead_author', 'pub_year', 'pub_num', 'pages',
               'citation', 'location']
 
@@ -451,19 +371,16 @@ class PublicationDetails(DetailsCommon):
 
 
 class CommonLookup(CreateView):
-
     template_name = 'csas/_lookup_entry_form.html'
     fields = ['name']
     success_url = reverse_lazy("csas:close_me")
 
 
 class HonorificView(CommonLookup):
-
     model = models.CohHonorific
 
 
 class LanguageView(CommonLookup):
-
     model = models.LanLanguage
 
 # End of views.py
