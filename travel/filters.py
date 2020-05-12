@@ -72,7 +72,7 @@ class TripRequestFilter(django_filters.FilterSet):
             'fiscal_year': ['exact'],
             'trip': ['exact'],
             'status': ['exact'],
-            'user': ['exact'],
+            # 'user': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
@@ -136,7 +136,7 @@ class TripFilter(django_filters.FilterSet):
             'fiscal_year': ['exact'],
             'lead': ['exact'],
             'is_adm_approval_required': ['exact'],
-            'is_verified': ['exact'],
+            'status': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):

@@ -1,0 +1,76 @@
+{% extends "travel/travel_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block content %}
+
+
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">{% trans "Home" %}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{% trans "Default Reviewers" %}</li>
+            </ol>
+        </nav>
+        <div class="mb-3">
+            <h1 class="big-header">{% trans "Default Reviewers" %}</h1>
+        </div>
+        <div class="mb-3">
+            <h4>
+                {% trans "Use this module to set the default reviewers that get added to a trip request." %}
+            </h4>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col">
+                {% trans "(click on a header to sort table)" %}
+            </div>
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{% url 'travel:default_reviewer_new' %}" class="btn btn-sm btn-primary">{% trans "New" %}</a>
+            </div>
+        </div>
+        <table class="table table-sm table-hover table-bordered sortable">
+            <thead>
+            {% for field in field_list %}
+                <th>
+                    {% get_verbose_label random_object field %}
+                </th>
+            {% endfor %}
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+                <tr href="{% url 'travel:default_reviewer_edit' object.id %}">
+                    {% for field in field_list %}
+                        <td>
+                            {% if field == "sections" %}
+                                <ul>
+                                    {% for obj in object.sections.all %}
+                                        <li>
+                                            {{ obj.full_name }}<br>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                            {% elif field == "branches" %}
+                                <ul>
+                                    {% for obj in object.branches.all %}
+                                        <li>
+                                            {{ obj }}<br>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                {% get_field_value object field %}
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+{% endblock content %}
