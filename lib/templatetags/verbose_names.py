@@ -3,6 +3,8 @@ from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 from django.template.defaultfilters import yesno
 from django.utils.safestring import SafeString, mark_safe
+from django.utils.translation import gettext_lazy as _
+
 import markdown
 
 from lib.templatetags.custom_filters import tohtml
@@ -47,7 +49,7 @@ def get_verbose_label(instance, field_name):
 
     # at the end of the day, if the user is sending in a custom label, our work is done.
     elif len(field_name.split("|")) > 1:
-        verbose_name = field_name.split("|")[1]
+        verbose_name = _(str(field_name.split("|")[1]))
 
     # check to see if there were any arguments passed in with the field name
     # this means the field is a foreign key so we will need to separate the first part preceding the "."
