@@ -1295,6 +1295,8 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
                         Value(" "),
                         'location',
                         output_field=TextField()))
+            elif self.kwargs.get("type") == "adm-all":
+                    queryset = queryset.filter(is_adm_approval_required=True)
             elif self.kwargs.get("type") == "upcoming":
                 queryset = queryset.filter(start_date__gte=timezone.now())
             else:
@@ -1309,6 +1311,8 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             context["h3"] = "{} {}".format(
                 _("Trips whose registration date, abstract date or start date (whichever is earliest) is on or before"),
                 six_months_away.strftime("%B %d, %Y"))
+        elif self.kwargs.get("type") == "adm-all":
+            context["h1"] = _("All Trips Requiring ADM Approval")
         elif self.kwargs.get("type") == "upcoming":
             context["h1"] = _("Upcoming Trips")
         else:
@@ -1337,7 +1341,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
             {"name": 'verified_by', "class": "", },
         ]
-        if self.kwargs.get("type") == "adm-hit-list":
+        if self.kwargs.get("type") == "adm-hit-list" or self.kwargs.get("type") == "adm-all":
             context["field_list"].append(
                 {"name": 'adm_review_deadline|{}'.format(_("ADM review deadline")), "class": "", }
             )
