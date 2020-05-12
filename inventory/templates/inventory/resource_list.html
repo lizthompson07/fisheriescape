@@ -72,7 +72,7 @@
                 {% show_pages %}
                 <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
             </div>
-            <div class="col" style="text-align: right">
+            <div class="col mb-2" style="text-align: right">
                 <a href="{% url 'inventory:resource_new' %}" class="btn btn-sm btn-primary">New Resource</a>
             </div>
         </div>
