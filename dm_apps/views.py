@@ -3,7 +3,7 @@ import io
 
 import requests
 import datetime
-from azure.storage.blob import BlockBlobService, ContainerPermissions
+from azure.storage.blob import BlockBlobService
 from msrestazure.azure_active_directory import MSIAuthentication
 
 from django.conf import settings
@@ -411,13 +411,38 @@ class IndexView(TemplateView):
 #
 
 def stream_file(request, blob_name=None):
+
     AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
     token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
     blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
     stream = io.BytesIO()
     blob_file = blobService.get_blob_to_stream("media", "shiny/1_salmon.jpg", stream=stream)
+    #
+    # file_name = request.POST['tmtype']
+    # fp = open(file_name, 'wb')
+    # generator = block_blob_service.list_blobs(container_name)
+    # for blob in generator:
+    #     print(blob.name)
+    #     if blob.name == file_name:
+    #         blob = block_blob_service.get_blob_to_stream(container_name, blob.name, fp, max_connections=2)
+    #     response = HttpResponse(blob, content_type="image/png")
+    #     response['Content-Disposition'] = "attachment; filename=" + file_name
+    #     return response
+    #
+    # io.open(file_path, 'wb') as file:
+    #     blob = block_blob_service.get_blob_to_stream(container_name=container_name, blob_name=blob_name, stream=file, max_connections=2)
+    #
+    # r = blob_file
 
-    r = blob_file
-    resp = StreamingHttpResponse(streaming_content=r)
-    resp['Content-Disposition'] = f'attachment; filename="{blob_name}"'
-    return resp
+    # bb = BlockBlobService(account_name='', account_key='')
+    # container_name = ""
+    # blob_name_to_download = "test.txt"
+    # file_path ="/home/Adam/Downloaded_test.txt"
+    #
+    # bb.get_blob_to_path(container_name, blob_name_to_download, file_path, open_mode='wb', snapshot=None, start_range=None, end_range=None, validate_content=False, progress_callback=None, max_connections=2, lease_id=None, if_modified_since=None, if_unmodified_since=None, if_match=None, if_none_match=None, timeout=None)
+
+
+
+    response = StreamingHttpResponse(streaming_content=blob_file.content)
+    response['Content-Disposition'] = f'attachment; filename="test123"'
+    return response
