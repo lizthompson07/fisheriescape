@@ -4,13 +4,32 @@
 {% load bootstrap4 %}
 {% block bug_create %}{% url 'tickets:bug_create' 'travel' %}{% endblock bug_create %}
 
-{% block jquery_import %}<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
+{% block jquery_import %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
 
 {% block title %}
     {% trans "Travel Plans" %} {% block subtitle %}{% endblock %}
 {% endblock title %}
 
 {% block body %}
+    <style>
+        body {
+            background-image: url("{% static 'travel/ross-parmly-25230-unsplash.jpg' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        .container-fluid, .container {
+            border-radius: 25px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: small;
+
+        }
+    </style>
     {% block content %}{% endblock content %}
 {% endblock body %}
 
@@ -63,9 +82,9 @@
     {#        </div>#}
     {#    </li>#}
 
-    <li class="nav-item"><a class="nav-link" href="{% url 'travel:trip_list' %}">
-        {% trans "Trips" %}
-    </a></li>
+{#    <li class="nav-item"><a class="nav-link" href="{% url 'travel:trip_list' %}">#}
+{#        {% trans "Trips" %}#}
+{#    </a></li>#}
 
     <li class="nav-item"><a class="nav-link" href="{% url 'travel:report_search' %}">
         {% trans "Reports" %}
@@ -96,6 +115,12 @@
                         {% trans "Manage Costs" %}
                     </a>
 
+                    <a class="dropdown-item" href="{% url 'travel:default_reviewer_list' %}">
+                        {% trans "Set Default Reviewers" %}
+                    </a>
+                    <a class="dropdown-item" href="#" pop-href="{% url 'shared_models:index' %}">
+                        {% trans "Manage DFO Organizations" %}
+                    </a>
                 </div>
             </li>
 

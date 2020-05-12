@@ -508,7 +508,7 @@ class CloserTemplateView(TemplateView):
     template_name = 'projects/close_me.html'
 
 
-class IndexTemplateView(TemplateView):
+class IndexTemplateView(TemplateView, LoginRequiredMixin):
     template_name = 'projects/index.html'
 
     def get_context_data(self, **kwargs):
@@ -3149,7 +3149,7 @@ class PDFCostSummaryReport(PDFReportTemplate):
 
 # EXTRAS #
 ##########
-class IWGroupList(ManagerOrAdminRequiredMixin, FormView):
+class IWGroupList(LoginRequiredMixin, FormView):
     template_name = 'projects/iw_group_list.html'
     form_class = forms.IWForm
 

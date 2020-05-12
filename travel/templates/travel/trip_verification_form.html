@@ -20,21 +20,21 @@
     </style>
 
     {% trans "Verify Trip" as my_title %}
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:admin_trip_verification_list' view.kwargs.region view.kwargs.adm %}">
-                {% trans "Trips Awaiting Verfication" %}
-            </a></li>
-            <li class="breadcrumb-item active" aria-current="page">
-                {{ my_title }}
-            </li>
-        </ol>
-    </nav>
 
     <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                    {% trans "Home" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:admin_trip_verification_list' view.kwargs.region view.kwargs.adm %}">
+                    {% trans "Trips Awaiting Verfication" %}
+                </a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ my_title }}
+                </li>
+            </ol>
+        </nav>
         <div class="mb-5">
             <h1>
                 {{ my_title }}
