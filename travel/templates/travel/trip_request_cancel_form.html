@@ -34,22 +34,22 @@
         }
     </style>
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
-                {% trans "Trip Requests" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">
-                {{ my_text }}
-            </li>
-        </ol>
-    </nav>
 
     <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                    {% trans "Home" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
+                    {% trans "Trip Requests" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{ my_text }}
+                </li>
+            </ol>
+        </nav>
 
         <h1>
             <b>

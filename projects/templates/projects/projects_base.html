@@ -13,7 +13,27 @@
 
 
 {% block body %}
+    <style>
+        body {
+            background-image: url("{% static 'projects/img/alexander-andrews-4JdvOwrVzfY-unsplash.jpg' %}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        .container-fluid, .container {
+            border-radius: 25px;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: white;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: small;
+
+        }
+    </style>
     {% block content %}{% endblock content %}
+
+
 {% endblock body %}
 
 {% block left_unauth %}
@@ -24,35 +44,35 @@
         {% trans "Home" %}
     </a></li>
 
-{#    <li class="nav-item dropdown">#}
-{#        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"#}
-{#           aria-haspopup="true" aria-expanded="false">#}
-{#            {% trans "Projects" %}#}
-{#        </a>#}
-{#        <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
-            {#            <a class="dropdown-item" href="{% url 'projects:manage_programs' %}">#}
-            {#                {% trans "Manage Programs" %}#}
-            {#            </a>#}
-{#            <a class="dropdown-item" href="{% url 'projects:project_new' %}">#}
-{#                {% trans "New" %}#}
-{#            </a>#}
-{#            <a class="dropdown-item" href="{% url 'projects:my_project_list' %}">#}
-{#                {% trans "Your Projects" %}#}
-{#            </a>#}
-            {#            <a class="dropdown-item" href="{% url 'projects:my_section_list' %}">#}
-            {#                {% trans "My Section" %}#}
-            {#            </a>#}
-            {#            <a class="dropdown-item" href="{% url 'projects:my_division_list' %}">#}
-            {#                {% trans "My Division" %}#}
-            {#            </a>#}
-{#            <a class="dropdown-item" href="{% url 'projects:project_list' %}">#}
-{#                {% trans "Explore Projects" %}#}
-{#            </a>#}
-            {#            <a class="dropdown-item" href="{% url 'projects:my_branch_list' %}">#}
-            {#                {% trans "My Branch" %}#}
-            {#            </a>#}
-{#        </div>#}
-{#    </li>#}
+    {#    <li class="nav-item dropdown">#}
+    {#        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"#}
+    {#           aria-haspopup="true" aria-expanded="false">#}
+    {#            {% trans "Projects" %}#}
+    {#        </a>#}
+    {#        <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
+    {#            <a class="dropdown-item" href="{% url 'projects:manage_programs' %}">#}
+    {#                {% trans "Manage Programs" %}#}
+    {#            </a>#}
+    {#            <a class="dropdown-item" href="{% url 'projects:project_new' %}">#}
+    {#                {% trans "New" %}#}
+    {#            </a>#}
+    {#            <a class="dropdown-item" href="{% url 'projects:my_project_list' %}">#}
+    {#                {% trans "Your Projects" %}#}
+    {#            </a>#}
+    {#            <a class="dropdown-item" href="{% url 'projects:my_section_list' %}">#}
+    {#                {% trans "My Section" %}#}
+    {#            </a>#}
+    {#            <a class="dropdown-item" href="{% url 'projects:my_division_list' %}">#}
+    {#                {% trans "My Division" %}#}
+    {#            </a>#}
+    {#            <a class="dropdown-item" href="{% url 'projects:project_list' %}">#}
+    {#                {% trans "Explore Projects" %}#}
+    {#            </a>#}
+    {#            <a class="dropdown-item" href="{% url 'projects:my_branch_list' %}">#}
+    {#                {% trans "My Branch" %}#}
+    {#            </a>#}
+    {#        </div>#}
+    {#    </li>#}
 
 
 
@@ -95,7 +115,7 @@
                     <a class="dropdown-item" href="{% url 'projects:manage_levels' %}">
                         {% trans "Manage Staff Levels" %}
                     </a>
-                     <a class="dropdown-item" href="{% url 'projects:manage_activity_types' %}">
+                    <a class="dropdown-item" href="{% url 'projects:manage_activity_types' %}">
                         {% trans "Manage Activity Types" %}
                     </a>
                     <a class="dropdown-item" href="{% url 'projects:manage_themes' %}">
@@ -132,3 +152,4 @@
 {% endblock left_auth %}
 {% block left_admin %}
 {% endblock left_admin %}
+
