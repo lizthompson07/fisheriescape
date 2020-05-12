@@ -1,13 +1,14 @@
 import csv
 import datetime
+import http.client
 import os
 import uuid
 import xml.etree.ElementTree as ET
 
+import requests
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.timezone import make_aware
-
 from inventory import models
 from django.conf import settings
 
@@ -602,3 +603,29 @@ def check_url_and_uuid():
                 # print(r.fgp_url.split("/")[-1])
                 # r.uuid = r.fgp_url.split("/")[-1]
                 # r.save()
+
+
+
+def test_fgp_urls():
+    for r in models.Resource.objects.all():
+        if r.public_url:
+            try:
+                r1 = requests.get(r.public_url)
+            except (requests.exceptions.MissingSchema, requests.exceptions.InvalidSchema):
+                print("PROBLEM WITH OD URL: " f'http://dmapps/en/inventory/{r.id}/edit/#id_fgp_url', "public_url = ", r.public_url)
+            except requests.exceptions.ConnectionError:
+                print("PROBLEM CONNECTING TO: ", r.public_url, ". We should try again...")
+            else:
+                if not r1.status_code == 200:
+                    print("PROBLEM WITH OD STATUS CODE: " f'http://dmapps/en/inventory/{r.id}/edit/#id_fgp_url', "status code = ", r1.status_code, "public_url = ", r.public_url)
+
+        if r.fgp_url:
+            try:
+                r1 = requests.get(r.fgp_url)
+            except (requests.exceptions.MissingSchema, requests.exceptions.InvalidSchema):
+                print("PROBLEM WITH FGP URL: " f'http://dmapps/en/inventory/{r.id}/edit/#id_fgp_url', "fgp_url = ", r.fgp_url)
+            except requests.exceptions.ConnectionError:
+                print("PROBLEM CONNECTING TO: ", r.public_url, ". We should try again...")
+            else:
+                if not r1.status_code == 200:
+                    print("PROBLEM WITH FGP STATUS CODE: " f'http://dmapps/en/inventory/{r.id}/edit/#id_fgp_url', "status code = ", r1.status_code, "fgp_url = ", r.fgp_url)
