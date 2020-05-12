@@ -66,7 +66,7 @@ class EqrFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqrRecorderProperties
 
-    emm = factory.lazy_attribute(lambda o: EmmFactory(pk=1))
+    emm = factory.SubFactory(EmmFactory)
     ert = factory.lazy_attribute(lambda o: models.ErtRecorderType.objects.get(pk=faker.random_int(1, 4)))
     eqr_internal_hydro = factory.lazy_attribute(lambda o: faker.boolean())
 

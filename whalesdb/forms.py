@@ -110,9 +110,10 @@ class PrjForm(forms.ModelForm):
 
     class Meta:
         model = models.PrjProject
-        exclude = []
+        fields = ["name", "nom", "description_en", "description_fr", "prj_url"]
         widgets = {
-            'prj_description': forms.Textarea(attrs={"rows": 2}),
+            'description_en': forms.Textarea(attrs={"rows": 2}),
+            'description_fr': forms.Textarea(attrs={"rows": 2}),
         }
 
 
