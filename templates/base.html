@@ -107,9 +107,11 @@
 {% endif %}
 {% endblock navigation %}
 
+{% block alerts %}
 {% autoescape off %}
     {% bootstrap_messages size='small' %}
 {% endautoescape %}
+{% endblock %}
 
 {% block body %}{% endblock body %}
 

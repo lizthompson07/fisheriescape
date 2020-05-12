@@ -28,28 +28,28 @@
         }
     </style>
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
-                {% trans "Trip Requests" %}
-            </a></li>
-            {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Edit" %}
-                </li>
-            {% else %}
-                <li class="breadcrumb-item active" aria-current="page">
-                {% trans "New" %}
-                </li>
-            {% endif %}
-        </ol>
-    </nav>
 
     <div class="container mb-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
+                    {% trans "Home" %}
+                </a></li>
+                <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
+                    {% trans "Trip Requests" %}
+                </a></li>
+                {% if object %}
+                    <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {% trans "Edit" %}
+                    </li>
+                {% else %}
+                    <li class="breadcrumb-item active" aria-current="page">
+                        {% trans "New" %}
+                    </li>
+                {% endif %}
+            </ol>
+        </nav>
 
         <h1>
             {% if object %}

@@ -62,7 +62,7 @@
             {% for region in my_dict %}
                 {% if region != "TOTAL" %}
                     {% with my_dict|lookup:region as dict %}
-                        <tr href="#" data-toggle="modal" data-target="#{{ region }}">
+                        <tr href="#" data-toggle="modal" data-target="#region_{{ region.id }}">
                             <td>{{ region }}</td>
                             <td class="center-col">{{ dict.qs_total.count }}</td>
                             <td class="center-col">{{ dict.qs_fgp.count }}</td>
@@ -89,6 +89,9 @@
         <br>
         <br>
         <br>
+        <div class="mb-3">
+            <h4 class="center-col">{% trans "Keyword Wordle" %}</h4>
+        </div>
         <div class="mb-5">
             <div class="" id="vis" style="height: 700px"></div>
         </div>
@@ -101,7 +104,7 @@
             {% with my_dict|lookup:region as dict %}
 
                 {#<!-- modal_label MODAL -->#}
-                <div class="modal fade" id="{{ region }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+                <div class="modal fade" id="region_{{ region.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
                      aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
                         <div class="modal-content">

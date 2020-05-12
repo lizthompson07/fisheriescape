@@ -111,6 +111,8 @@ class TestTripDetailView(CommonTest):
     def test_context(self):
         context_vars = [
             "conf_field_list",
+            "reviewer_field_list",
+            "is_adm_admin",
             "trip",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
