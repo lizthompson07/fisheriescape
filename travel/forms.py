@@ -609,10 +609,11 @@ class TripReviewerForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        user_choices = [(u.id, str(u)) for u in User.objects.filter(groups__name__icontains="travel_adm_admin")]
-        # add any users with special roles
-        user_choices.extend([(df.user.id, str(df.user)) for df in models.DefaultReviewer.objects.filter(reviewer_roles__id__in=[3, 4, 5])])
-        user_choices = list(set(user_choices))
+        user_choices = [(u.id, str(u)) for u in User.objects.all()]
+        # user_choices = [(u.id, str(u)) for u in User.objects.filter(groups__name__icontains="travel_adm_admin")]
+        # # add any users with special roles
+        # user_choices.extend([(df.user.id, str(df.user)) for df in models.DefaultReviewer.objects.filter(reviewer_roles__id__in=[3, 4, 5])])
+        # user_choices = list(set(user_choices))
         user_choices.insert(0, (None, "-----"))
         self.fields["user"].choices = user_choices
 
