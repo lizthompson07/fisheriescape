@@ -51,6 +51,18 @@ class Owner(models.Model):
         else:
             return "{}".format(self.name)
 
+class Size(models.Model):
+    name = models.CharField(max_length=255, verbose_name=_("size"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("taille"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
 class Supplier(models.Model):
     supplier_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("supplier"))
@@ -76,24 +88,20 @@ class Item(models.Model):
     item_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("name of item"))
     description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
     serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("serial number"))
-    owner = models.ForeignKey(Owner, on_delete=models.DO_NOTHING, related_name="owners",
+    owners = models.ForeignKey(Owner, on_delete=models.DO_NOTHING, related_name="items",
                               verbose_name=_("owner of equipment"))
-    size = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("size (if applicable)"))
-    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name="categories",
+    sizes = models.ForeignKey(Size, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="items", verbose_name=_("size (if applicable)"))
+    categories = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name="items",
                                  verbose_name=_("category of equipment"))
-    gear_type = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="types",
+    gear_types = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="items",
                                   verbose_name=_("type of equipment"))
-    supplier = models.ManyToManyField(Supplier, blank=True, verbose_name=_("supplier"))
+    suppliers = models.ManyToManyField(Supplier, blank=True, verbose_name=_("suppliers"))
     last_purchased = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                           verbose_name=_("last purchased"))
     last_purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last purchased by"))
 
-    # def save(self, *args, **kwargs):
-    #     self.size = self.size.lower()
-    #     return super(Item, self).save(*args, **kwargs)
-
     class Meta:
-        unique_together = (('item_name', 'size'),)
+        unique_together = (('item_name', 'sizes'),)
 
     def __str__(self):
         # check to see if a french value is given
@@ -104,8 +112,8 @@ class Item(models.Model):
         else:
             my_str = "{}".format(self.item_name)
 
-        if self.size:
-            my_str += f' ({self.size})'
+        if self.sizes:
+            my_str += f' ({self.sizes})'
         return my_str
 
     @property
@@ -114,21 +122,6 @@ class Item(models.Model):
 
     def get_absolute_url(self):
         return reverse("mmutools:item_detail", kwargs={"pk": self.id})
-
-# class SupplyInfo(models.Model):
-#     supplier = models.ForeignKey(Supplier, on_delete=models.DO_NOTHING, related_name="suppliers", verbose_name=_("supplier"))
-#     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, verbose_name=_("item"))
-#     last_invoice = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-#                                           verbose_name=_("last invoice date"))
-#
-#     def __str__(self):
-#         # check to see if a french value is given
-#         if getattr(self, str(_("supplier"))):
-#
-#             return "{}".format(getattr(self, str(_("supplier"))))
-#         # if there is no translated term, just pull from the english field
-#         else:
-#             return "{}".format(self.supplier)
 
 class Location(models.Model):
     location = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("location"))
@@ -150,62 +143,74 @@ class Location(models.Model):
     def get_absolute_url(self):
         return reverse("mmutools:location_detail", kwargs={"pk": self.id})
 
-class Lending(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="lendings", verbose_name=_("item"))
-    quantity_lent = models.IntegerField(null=True, blank=True, verbose_name=_("quantity lent"))
+# class Lending(models.Model):
+#     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="lendings", verbose_name=_("item"))
+#     quantity_lent = models.IntegerField(null=True, blank=True, verbose_name=_("quantity lent"))
+#     lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
+#     lent_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+#                                      verbose_name=_("lent date"))
+#     return_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+#                                        verbose_name=_("expected return date"))
+#
+#     def __str__(self):
+#         # check to see if a french value is given
+#         if getattr(self, str(_("lent_to"))):
+#
+#             return "{}".format(getattr(self, str(_("lent_to"))))
+#         # if there is no translated term, just pull from the english field
+#         else:
+#             return "{}".format(self.lent_to)
+#
+#     def get_absolute_url(self):
+#         return reverse("mmutools:lending_detail", kwargs={"pk": self.id})
+
+class Status(models.Model):
+    name = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("status"))
+    nom = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("status"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+class Quantity(models.Model):
+    items = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("item"))
+    quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
+    statuses = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("status"))
     lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
     lent_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                      verbose_name=_("lent date"))
     return_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                        verbose_name=_("expected return date"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("lent_to"))):
-
-            return "{}".format(getattr(self, str(_("lent_to"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.lent_to)
-
-    def get_absolute_url(self):
-        return reverse("mmutools:lending_detail", kwargs={"pk": self.id})
-
-
-class Quantity(models.Model):
-    # choices for status
-    ON_HAND = 'on hand'
-    ON_ORDER = 'on order'
-    LENT_OUT = 'lent out'
-    STATUS_CHOICES = [
-        (ON_HAND, _('On Hand')),
-        (ON_ORDER, _('On Order')),
-        (LENT_OUT, _('Lent Out')),
-    ]
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("item"))
-    quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
-    status = models.CharField(max_length=32, choices=STATUS_CHOICES, default='ON_HAND', verbose_name=_("status"))
-    lent_id = models.ForeignKey(Lending, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="lendee",
-                                verbose_name=_("lent to"))
     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                         verbose_name=_("last audited"))
     last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
-    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="locations",
+    locations = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="locations",
                                  verbose_name=_("location stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
 
     def __str__(self):
 
         # check to see if a french value is given
-        if getattr(self, str(_("item"))):
+        if getattr(self, str(_("items"))):
 
-            my_str = "{}".format(getattr(self, str(_("item"))))
+            my_str = "{}".format(getattr(self, str(_("items"))))
         # if there is no translated term, just pull from the english field
         else:
-            my_str = "{}".format(self.item)
+            my_str = "{}".format(self.items)
 
         if self.quantity:
             return '{} - {}'.format(self.quantity, my_str)
+
+    @property
+    def lent_out_item(self):
+        """find all status=3 (lent out) quantities"""
+        return self.quantities.filter(statuses=3)
+
 
     def get_absolute_url(self):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})

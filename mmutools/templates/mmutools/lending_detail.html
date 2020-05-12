@@ -24,7 +24,7 @@
         <p>
             <a class="btn btn-warning" href="{% url 'mmutools:lending_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'mmutools:lending_delete' object.id %}">Delete</a>
-            <a class="btn btn-dark" href="{% url 'mmutools:lending_list' %}" >Back</a>
+            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
         </p>
 
         <br><br>

@@ -38,9 +38,9 @@
         {% for obj in object.quantities.all %}
             <tr>
             {% for field in qty_field_list %}
-                {% if field == "location" %}
+                {% if field == "locations" %}
                     <td>
-                        <a href="{% url 'mmutools:location_detail' obj.location.id %}">{{obj.location}}</a>
+                        <a href="{% url 'mmutools:location_detail' obj.locations.id %}">{{obj.locations}}</a>
                      </td>
                 {% else %}
                     <td>
@@ -62,7 +62,7 @@
             </td>
 <!--            <td>-->
 <!--                <a href="#"-->
-<!--                   pop-href="{% url 'mmutools:location_detail' obj.location.id %}">-->
+<!--                   pop-href="{% url 'mmutools:location_detail' obj.locations.id %}">-->
 <!--                    <img src="{% static "/admin/img/icon-viewlink.svg" %}" data-toggle="tooltip" title="Location">-->
 <!--                </a>-->
 <!--            </td>-->

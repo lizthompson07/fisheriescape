@@ -9,15 +9,15 @@
     </h3>
 </div>
 
-{% if object.lendings.count == 0 %}
+{% if object.lent_out_item.count == 0 %}
     <em>
-        {% trans "No lending agreements have been added to this entry" %}
+        {% trans "None of this item is currently lent out" %}
     </em><br>
 {% else %}
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-
+<!--            if status = lent out then display table of information-->
             {% for field in lend_field_list %}
             <th>
 
@@ -26,8 +26,8 @@
             {% endfor %}
         </tr>
         <tbody>
-         {% for obj in object.lendings.all %}
-            <tr href="{% url 'mmutools:lending_edit' obj.id %}" pop>
+         {% for obj in object.lent_out_item.all %}
+            <tr href="{% url 'mmutools:quantity_edit' obj.id %}" pop>
             {% for field in lend_field_list %}
             <td>
 
@@ -40,8 +40,8 @@
         </tbody>
     </table>
 {% endif %}
-<a class="" href="#" pop-href="{% url 'mmutools:lending_new' %}">
-    {% trans "(Add Lending Agreement)" %}
+<a class="" href="#" pop-href="{% url 'mmutools:quantity_new' %}">
+    {% trans "(Lend out item)" %}
 </a>
 <br>
 <br>

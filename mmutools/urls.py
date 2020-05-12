@@ -66,11 +66,11 @@ urlpatterns = [
 
 # LENDING #
 
-    path('lending_list/', views.LendingListView.as_view(), name="lending_list"),
-    path('lending_detail/<int:pk>/view/', views.LendingDetailView.as_view(), name="lending_detail"),
-    path('lending/new/', views.LendingCreateView.as_view(), name="lending_new"),
-    path('lending/<int:pk>/edit/', views.LendingUpdateView.as_view(), name="lending_edit"),
-    path('lending/<int:pk>/delete/', views.LendingDeleteView.as_view(), name="lending_delete"),
+    # path('lending_list/', views.LendingListView.as_view(), name="lending_list"),
+    # path('lending_detail/<int:pk>/view/', views.LendingDetailView.as_view(), name="lending_detail"),
+    # path('lending/new/', views.LendingCreateView.as_view(), name="lending_new"),
+    # path('lending/<int:pk>/edit/', views.LendingUpdateView.as_view(), name="lending_edit"),
+    # path('lending/<int:pk>/delete/', views.LendingDeleteView.as_view(), name="lending_delete"),
 
 # INCIDENT #
 

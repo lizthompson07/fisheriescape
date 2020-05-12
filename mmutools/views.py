@@ -86,8 +86,8 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/item_list.html"
     filterset_class = filters.SpecificItemFilter
     queryset = models.Item.objects.annotate(
-        search_term=Concat('id', 'item_name', 'description', 'serial_number', 'owner', 'size', 'category',
-                           'gear_type', 'supplier', 'last_purchased', 'last_purchased_by', output_field=TextField()))
+        search_term=Concat('id', 'item_name', 'description', 'serial_number', 'owners', 'sizes', 'categories',
+                           'gear_types', 'last_purchased', 'last_purchased_by', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -97,11 +97,11 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
             'tname|{}'.format(_("Item name (size)")),
             'description',
             'serial_number',
-            'owner',
-            # 'size',
-            'category',
-            'gear_type',
-            'supplier',
+            'owners',
+            # 'sizes',
+            'categories',
+            'gear_types',
+            'suppliers',
             'last_purchased',
             'last_purchased_by',
         ]
@@ -118,11 +118,11 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
             'item_name',
             'description',
             'serial_number',
-            'owner',
-            'size',
-            'category',
-            'gear_type',
-            'supplier',
+            'owners',
+            'sizes',
+            'categories',
+            'gear_types',
+            'suppliers',
             'last_purchased',
             'last_purchased_by',
 
@@ -132,8 +132,8 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
         context["random_qty"] = models.Quantity.objects.first()
         context["qty_field_list"] = [
             'quantity',
-            'status',
-            'location',
+            'statuses',
+            'locations',
             'bin_id',
         ]
 
@@ -141,8 +141,8 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
         # TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType' -- have to add a case where there is
         # no info yet in those fields? -- fixed it I think~!!! WOOOOH
 
-        ohqty = self.get_object().quantities.filter(status='on hand').aggregate(dsum=Sum('quantity')).get('dsum')
-        lentqty = self.get_object().quantities.filter(status='lent out').aggregate(dsum=Sum('quantity')).get('dsum')
+        ohqty = self.get_object().quantities.filter(statuses=1).aggregate(dsum=Sum('quantity')).get('dsum')
+        lentqty = self.get_object().quantities.filter(statuses=3).aggregate(dsum=Sum('quantity')).get('dsum')
 
         if ohqty is None:
             ohqty = 0
@@ -167,10 +167,10 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
 
 
         # context for _lending.html
-        context["random_lend"] = models.Lending.objects.first()
+        context["random_lend"] = models.Quantity.objects.first()
         context["lend_field_list"] = [
             'lent_to',
-            'quantity_lent',
+            'quantity',
             'lent_date',
             'return_date',
         ]
@@ -288,7 +288,7 @@ class QuantityListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/quantity_list.html"
     filterset_class = filters.QuantityFilter
     queryset = models.Quantity.objects.annotate(
-        search_term=Concat('id', 'item', 'quantity', 'status', 'lent_id', 'last_audited', 'last_audited_by', 'location', 'bin_id',
+        search_term=Concat('id', 'items', 'quantity', 'statuses', 'lent_to', 'lent_date', 'return_date', 'last_audited', 'last_audited_by', 'locations', 'bin_id',
                            output_field=TextField()))
 
     def get_context_data(self, **kwargs):
@@ -296,13 +296,15 @@ class QuantityListView(MmutoolsAccessRequired, FilterView):
         context["my_object"] = models.Quantity.objects.first()
         context["field_list"] = [
             'id',
-            'item',
+            'items',
             'quantity',
-            'status',
-            'lent_id',
+            'statuses',
+            'lent_to',
+            'lent_date',
+            'return_date',
             'last_audited',
             'last_audited_by',
-            'location',
+            'locations',
             'bin_id',
         ]
         return context
@@ -315,13 +317,15 @@ class QuantityDetailView(MmutoolsAccessRequired, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'id',
-            'item',
+            'items',
             'quantity',
-            'status',
-            'lent_id',
+            'statuses',
+            'lent_to',
+            'lent_date',
+            'return_date',
             'last_audited',
             'last_audited_by',
-            'location',
+            'locations',
             'bin_id',
         ]
 
@@ -359,10 +363,10 @@ class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
         my_object = form.save()
         messages.success(self.request, _(f"Quantity record successfully created for : {my_object}"))
         return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy('mmutools:quantity_list'))
-                                    # else super().form_valid(form)) --- changed this to make it work, is this ok?
+
 
     def get_initial(self):
-        return {'item': self.kwargs.get('pk')}
+        return {'items': self.kwargs.get('pk')}
 
 
 class QuantityDeleteView(MmutoolsEditRequiredMixin, DeleteView):
@@ -378,7 +382,7 @@ class QuantityDeleteView(MmutoolsEditRequiredMixin, DeleteView):
         my_object.delete()
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('mmutools:quantity_list'))
-        # return super().delete(request, *args, **kwargs)   --changed this to make it work, is this ok?
+
 
     ## PERSONNEL ##
 
@@ -526,7 +530,14 @@ class SupplierCreateView(MmutoolsEditRequiredMixin, CreateView):
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Supplier record successfully created for : {my_object}"))
-        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy('mmutools:supplier_list'))
+        #if there's a pk argumentm this means user is calling from item_detail page and
+
+        if self.kwargs.get("pk"):
+            my_item = models.Item.objects.get(pk=self.kwargs.get("pk"))
+            my_item.suppliers.add(my_object)
+            return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('mmutools:supplier_list'))
 
     def get_initial(self):
         return {'item': self.kwargs.get('pk')}
@@ -613,71 +624,71 @@ class FileDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     ## LENDING ##
 
 
-class LendingListView(MmutoolsAccessRequired, FilterView):
-    template_name = "mmutools/lending_list.html"
-    filterset_class = filters.LendingFilter
-    queryset = models.Lending.objects.annotate(
-        search_term=Concat('id', 'item', 'quantity_lent', 'lent_to', 'lent_date', output_field=TextField()))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Lending.objects.first()
-        context["field_list"] = [
-            'id',
-            'item',
-            'quantity_lent',
-            'lent_to',
-            'lent_date',
-
-        ]
-        return context
-
-
-class LendingDetailView(MmutoolsAccessRequired, DetailView):
-    model = models.Lending
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'id',
-            'item',
-            'quantity_lent',
-            'lent_to',
-            'lent_date',
-
-        ]
-        return context
-
-
-class LendingUpdateView(MmutoolsEditRequiredMixin, UpdateView):
-    model = models.Lending
-    form_class = forms.LendingForm
-
-    def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Lending record successfully updated for : {my_object}"))
-        return super().form_valid(form)
-
-
-class LendingCreateView(MmutoolsEditRequiredMixin, CreateView):
-    model = models.Lending
-    form_class = forms.LendingForm
-
-    def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Lending record successfully created for : {my_object}"))
-        return super().form_valid(form)
-
-
-class LendingDeleteView(MmutoolsEditRequiredMixin, DeleteView):
-    model = models.Lending
-    permission_required = "__all__"
-    success_url = reverse_lazy('mmutools:lending_list')
-    success_message = 'The lending agreement was successfully deleted!'
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+# class LendingListView(MmutoolsAccessRequired, FilterView):
+#     template_name = "mmutools/lending_list.html"
+#     filterset_class = filters.LendingFilter
+#     queryset = models.Lending.objects.annotate(
+#         search_term=Concat('id', 'item', 'quantity_lent', 'lent_to', 'lent_date', output_field=TextField()))
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["my_object"] = models.Lending.objects.first()
+#         context["field_list"] = [
+#             'id',
+#             'item',
+#             'quantity_lent',
+#             'lent_to',
+#             'lent_date',
+#
+#         ]
+#         return context
+#
+#
+# class LendingDetailView(MmutoolsAccessRequired, DetailView):
+#     model = models.Lending
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["field_list"] = [
+#             'id',
+#             'item',
+#             'quantity_lent',
+#             'lent_to',
+#             'lent_date',
+#
+#         ]
+#         return context
+#
+#
+# class LendingUpdateView(MmutoolsEditRequiredMixin, UpdateView):
+#     model = models.Lending
+#     form_class = forms.LendingForm
+#
+#     def form_valid(self, form):
+#         my_object = form.save()
+#         messages.success(self.request, _(f"Lending record successfully updated for : {my_object}"))
+#         return super().form_valid(form)
+#
+#
+# class LendingCreateView(MmutoolsEditRequiredMixin, CreateView):
+#     model = models.Lending
+#     form_class = forms.LendingForm
+#
+#     def form_valid(self, form):
+#         my_object = form.save()
+#         messages.success(self.request, _(f"Lending record successfully created for : {my_object}"))
+#         return super().form_valid(form)
+#
+#
+# class LendingDeleteView(MmutoolsEditRequiredMixin, DeleteView):
+#     model = models.Lending
+#     permission_required = "__all__"
+#     success_url = reverse_lazy('mmutools:lending_list')
+#     success_message = 'The lending agreement was successfully deleted!'
+#
+#     def delete(self, request, *args, **kwargs):
+#         messages.success(self.request, self.success_message)
+#         return super().delete(request, *args, **kwargs)
 
     ## INCIDENT ##
 

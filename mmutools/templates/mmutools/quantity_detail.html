@@ -33,8 +33,8 @@
             <div class="col-3">
                 <table class="table table-sm table-striped">
                     {% for field in field_list %}
-                        {% if field == "location" %}
-                            {% url 'mmutools:location_detail' object.location.id as my_url %}
+                        {% if field == "locations" %}
+                            {% url 'mmutools:location_detail' object.locations.id as my_url %}
                             {% verbose_td_display object field url=my_url %}
                         {% else %}
                             {% verbose_td_display object field %}

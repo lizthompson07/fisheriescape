@@ -9,7 +9,7 @@
     </h3>
 </div>
 
-{% if item.supplier.all.count == 0 %}
+{% if item.suppliers.all.count == 0 %}
     <em>
         {% trans "No suppliers have been added to this entry" %}
     </em><br>
@@ -24,7 +24,7 @@
             {% endfor %}
         </tr>
         <tbody>
-        {% for obj in object.supplier.all %}
+        {% for obj in object.suppliers.all %}
             <tr>
             {% for field in sup_field_list %}
                 {% if field == "supplier_name" %}
@@ -55,8 +55,12 @@
     </table>
 {% endif %}
 
+<a class="" href="#" pop-href="{% url 'mmutools:supplier_list' %}">
+     {% trans "(Add Supplier from Existing Suppliers)" %}
+</a>
+<br>
 <a class="" href="#" pop-href="{% url 'mmutools:supplier_new' object.id %}">
-    {% trans "(Add Supplier for this Item)" %}
+    {% trans "(Add New Supplier Record and Attach to this Item)" %}
 </a>
 
 <br>

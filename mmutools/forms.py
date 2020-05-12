@@ -1,12 +1,17 @@
 from django import forms
 from . import models
 
+chosen_js = {"class": "chosen-select-contains"}
+multi_select_js = {"class": "multi-select"}
+
 class ItemForm(forms.ModelForm):
     class Meta:
         model = models.Item
         fields = "__all__"
         widgets = {
-            'container': forms.CheckboxInput,
+            'container': forms.CheckboxInput(),
+            'suppliers': forms.SelectMultiple(attrs=chosen_js),
+            # 'suppliers': forms.SelectMultiple(attrs=multi_select_js),
         }
 
 class QuantityForm(forms.ModelForm):
@@ -20,7 +25,7 @@ class QuantityForm1(forms.ModelForm):
         model = models.Quantity
         fields = "__all__"
         widgets = {
-            'item': forms.HiddenInput(),
+            'items': forms.HiddenInput(),
         }
 
 class LocationForm(forms.ModelForm):
@@ -55,10 +60,10 @@ class FileForm(forms.ModelForm):
             'item': forms.HiddenInput(),
         }
 
-class LendingForm(forms.ModelForm):
-    class Meta:
-        model = models.Lending
-        fields = "__all__"
+# class LendingForm(forms.ModelForm):
+#     class Meta:
+#         model = models.Lending
+#         fields = "__all__"
 
 class IncidentForm(forms.ModelForm):
     class Meta:
