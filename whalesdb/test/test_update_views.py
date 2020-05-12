@@ -267,8 +267,7 @@ class TestEqrUpdate(CommonUpdateTest):
 
         self.data = Factory.EqrFactory.get_valid_data()
 
-        emm = Factory.EmmFactory(pk=1)
-        obj = Factory.EqrFactory(emm=emm)
+        obj = Factory.EqrFactory()
 
         self.test_url = reverse_lazy('whalesdb:update_eqr', args=(obj.pk, 'pop',))
 
