@@ -1,12 +1,13 @@
 from django.db import models
-from django.db.models import AutoField
+# from django.db.models import AutoField
 from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
 from projects import models as project_models
 
 
-# ---------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
+#
 class Lookup(models.Model):
     name_en = models.CharField(max_length=255, unique=True)
     name_fr = models.CharField(max_length=255, unique=True)
@@ -21,40 +22,34 @@ class Lookup(models.Model):
         abstract = True
 
 
-# ---------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
 # Create models for contacts
+#
 class CohHonorific(Lookup):
-    # coh_id = models.AutoField(primary_key=True)
     pass
 
 
 class CotType(Lookup):
-    # cot_id = models.AutoField(primary_key=True)
     pass
 
 
 class LanLanguage(Lookup):
-    # lan_id = models.AutoField(primary_key=True)    # should this be AutoField or fixed? <- Good question, I don't know - Patrick
     pass
 
 
 class NotNotificationPreference(Lookup):
-    # not_id = models.AutoField(primary_key=True)
     pass
 
 
 class RolRole(Lookup):
-    # role_id = models.AutoField(primary_key=True)
     pass
 
 
 class SecSector(Lookup):
-    # sec_id = models.AutoField(primary_key=True)
     pass
 
 
 class ConContact(models.Model):
-    # con_id = models.AutoField(primary_key=True, verbose_name=_("ID"))
     honorific = models.ForeignKey(CohHonorific, on_delete=models.DO_NOTHING, verbose_name=_("Honorific"))
     first_name = models.CharField(max_length=100, verbose_name=_("First Name"))
     last_name = models.CharField(max_length=100, verbose_name=_("Last Name"))
@@ -81,10 +76,10 @@ class ConContact(models.Model):
         return "{}, {}".format(self.last_name, self.first_name)
 
 
-# ---------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
 # Create models for meetings
+#
 class FilFile(models.Model):
-    # fil_id = models.AutoField(primary_key=True)
     file = models.BooleanField()
 
     def __str__(self):
@@ -92,7 +87,6 @@ class FilFile(models.Model):
 
 
 class MftMeetingFileType(models.Model):
-    # mft_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=45)
 
     def __str__(self):
@@ -100,32 +94,26 @@ class MftMeetingFileType(models.Model):
 
 
 class SttStatus(Lookup):
-    # stt_id = models.AutoField(primary_key=True)
     pass
 
 
 class ScpScope(Lookup):
-    # scp_id = models.AutoField(primary_key=True)
     pass
 
 
 class AptAdvisoryProcessType(Lookup):
-    # apt_id = models.AutoField(primary_key=True)
     pass
 
 
 class LocLocation(Lookup):
-    # loc_id = models.AutoField(primary_key=True)
     pass
 
 
 class MeqQuarter(Lookup):
-    # meq_id = models.AutoField(primary_key=True)
     pass
 
 
 class MetMeeting(models.Model):
-    # met_id = models.AutoField(primary_key=True)
     quarter = models.ForeignKey(MeqQuarter, on_delete=models.DO_NOTHING)
     start_date = models.DateField(null=True, blank=True, verbose_name=_("Start Date"))
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End_Date"))
@@ -136,21 +124,22 @@ class MetMeeting(models.Model):
     chair_comments = models.TextField(null=True, blank=True, verbose_name=_("Chair Comments"))
     status_notes = models.TextField(null=True, blank=True, verbose_name=_("Status Notes"))
     location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING, verbose_name=_("Location"))
-    lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Lead Region"))
+    lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING,
+                                    verbose_name=_("Lead Region"))
     other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
                                           verbose_name=_("Other Region"))
     process_type = models.ForeignKey(AptAdvisoryProcessType, on_delete=models.DO_NOTHING,
                                      verbose_name=_("Process Type"))
     program_contact = models.ManyToManyField(ConContact, blank=True, related_name="program_contacts",
                                              verbose_name=_("Program Contact"))
-    csas_contact = models.ManyToManyField(ConContact, blank=True, related_name="csas_contacts", verbose_name=_("CSAS Contact"))
+    csas_contact = models.ManyToManyField(ConContact, blank=True, related_name="csas_contacts",
+                                          verbose_name=_("CSAS Contact"))
 
     def __str__(self):
         return "{}/{}".format(self.title_en, self.title_fr)
 
 
 class MecMeetingContact(models.Model):
-    # mec_id = models.CharField(max_length=45)
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
     contact = models.ForeignKey(ConContact, on_delete=models.DO_NOTHING)
     confirmed = models.BooleanField(default=False)
@@ -159,12 +148,7 @@ class MecMeetingContact(models.Model):
         return "{}".format(self.meeting)
 
 
-# Yongcun: Delete this comment when you've read it.
-# 1) I removed the FundingSource and OmCategory classes.
-# 2) I imported the projects application model as project_models
-# 3) I updated OmCost so that it's linking to the project_modes.FundingSource and OmCategory
 class OmCost(models.Model):
-    om_id = models.AutoField(primary_key=True)
     amount = models.DecimalField(decimal_places=10, max_digits=20)
     funding_source = models.ForeignKey(project_models.FundingSource, on_delete=models.DO_NOTHING)
     category = models.ForeignKey(project_models.OMCategory, on_delete=models.DO_NOTHING)
@@ -172,24 +156,17 @@ class OmCost(models.Model):
     description = models.TextField()
 
     def __str__(self):
-        return "{}".format(self.om_id)
+        return "{}".format(self.pk)
 
 
 class PsePublicationSeries(models.Model):
-    pse_id = models.AutoField(primary_key=True)
-    # name = models.CharField(max_length=50)
+    pass
 
     def __str__(self):
-        return "{}".format(self.pse_id)
+        return "{}".format(self.pk)
 
 
-# Is it wrong that file_en, file_fr point to the same foreign key?
-#
-# yes, and no. They can have the same ForeignKey, but you have to specify a 'related_name' (I've added)
-# so python won't complain - Patrick
-#
 class MefMeetingFile(models.Model):
-    mef_id = models.AutoField(primary_key=True)
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
     file_en = models.ForeignKey(FilFile, on_delete=models.DO_NOTHING, related_name="file_en")
     file_fr = models.ForeignKey(FilFile, on_delete=models.DO_NOTHING, related_name="file_fr")
@@ -202,7 +179,6 @@ class MefMeetingFile(models.Model):
 
 
 class MerOtherRegion(models.Model):
-    mer_id = models.AutoField(primary_key=True)
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
 
@@ -211,28 +187,25 @@ class MerOtherRegion(models.Model):
 
 
 class MomMeetingOmCost(models.Model):
-    mom_id = models.AutoField(primary_key=True)
     met_id = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
     om_id = models.ForeignKey(OmCost, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return "{}".format(self.mom_id)
+        return "{}".format(self.pk)
 
 
-# ---------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
 # Create models for publications
+#
 class PseSeries(Lookup):
-    pse_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
 
 
 class KeyKeywords(Lookup):
-    key_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
 
 
 class PubPublication(models.Model):
-    # pub_id = models.AutoField(primary_key=True, verbose_name=_("ID"))
     series = models.ForeignKey(PsePublicationSeries, null=True, blank=True, on_delete=models.DO_NOTHING,
                                verbose_name=_("Series"))
     scope = models.ForeignKey(ScpScope, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Scope"))
@@ -251,9 +224,7 @@ class PubPublication(models.Model):
         return "{}".format(self.lead_author)
 
 
-# this class should be in Meeting section, but it uses ForeignKey of PubPublication, it has to be behind PubPublication
 class MepExpectedPublication(models.Model):
-    mep_id = models.AutoField(primary_key=True)
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
     publication = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
 
@@ -262,19 +233,16 @@ class MepExpectedPublication(models.Model):
 
 
 class PurOtherRegion(models.Model):
-    pur_id = models.AutoField(primary_key=True)
     pub_id = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
     reg_id = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
 
 
 class PuaOtherAuthor(models.Model):
-    pua_id = models.AutoField(primary_key=True)
     pub_id = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
     con_id = models.ForeignKey(ConContact, on_delete=models.DO_NOTHING)
 
 
 class PukPublicationKeyword(models.Model):
-    puk_id = models.AutoField(primary_key=True)
     pub_id = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
     key_id = models.ForeignKey(KeyKeywords, on_delete=models.DO_NOTHING)
 
@@ -286,24 +254,22 @@ class PtiPublicationTitle(models.Model):
     language = models.ForeignKey(LanLanguage, on_delete=models.DO_NOTHING, null=True, blank=True)
 
 
-# ---------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------
 # Create models for requests
+#
 class RepPriority(Lookup):
-    # pass
-    rep_id = models.AutoField(primary_key=True)
+    pass
 
 
 class RetTiming(Lookup):
-    ret_id = models.AutoField(primary_key=True)
+    pass
 
 
 class RedDecision(models.Model):
-    red_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
 
 
 class ReqRequest(models.Model):
-    # req_id: AutoField = models.AutoField(primary_key=True, verbose_name=_("ID"))
     assigned_req_id = models.CharField(max_length=45, verbose_name=_("Assigned Request Number"))
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     in_year_request = models.BooleanField(verbose_name=_("In-Year Request"))
@@ -311,7 +277,8 @@ class ReqRequest(models.Model):
     client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
     client_name = models.CharField(max_length=100, verbose_name=_("Client Name"))
     client_title = models.CharField(max_length=100, verbose_name=_("Client Title"))
-    client_email = models.CharField(max_length=255, verbose_name=_("Client E-mail"))
+    # client_email = models.CharField(max_length=255, verbose_name=_("Client E-mail"))
+    client_email = models.EmailField(verbose_name=_("Client E-mail"))
     issue = models.TextField(verbose_name=_("Issue"),
                              help_text=_("Issue requiring science information and/or advice. Posted as a question "
                                          "to be answered by Science."))
@@ -342,12 +309,13 @@ class ReqRequest(models.Model):
         return "{}".format(self.title)
 
 
-# ---------------------------------------------------------------------------------------
-# Create models for publications
-class OthOther(models.Model):
-    oth_id = models.AutoField(primary_key=True)
-    oth_num = models.CharField(max_length=25)
-
-    def __str__(self):
-        return "{}".format(self.oth_num)
-
+# End of models.py
+# ----------------------------------------------------------------------------------------------------
+# 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+#
+# class OthOther(models.Model):
+#     oth_id = models.AutoField(primary_key=True)
+#     oth_num = models.CharField(max_length=25)
+#
+#     def __str__(self):
+#         return "{}".format(self.oth_num)
