@@ -1,0 +1,68 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load verbose_names %}
+
+<div class="">
+    <h3>
+        {% trans "Supplier:" %}
+    </h3>
+</div>
+
+{% if item.supplier.all.count == 0 %}
+    <em>
+        {% trans "No suppliers have been added to this entry" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            {% for field in sup_field_list %}
+            <th>
+                {% get_verbose_label random_sup field %}
+            </th>
+            {% endfor %}
+        </tr>
+        <tbody>
+        {% for obj in object.supplier.all %}
+            <tr>
+            {% for field in sup_field_list %}
+                {% if field == "supplier_name" %}
+                    <td>
+                        <a href="{% url 'mmutools:supplier_detail' obj.id %}">{{obj.supplier_name}}</a>
+                     </td>
+                {% else %}
+                    <td>
+                    {% get_field_value obj field %}
+                    </td>
+                {% endif %}
+            {% endfor %}
+            <td>
+                <a href="#"
+                   pop-href="{% url 'mmutools:supplier_edit' obj.id 1 %}">
+                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                  pop-href="{% url 'mmutools:supplier_delete' obj.id 1 %}">
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                </a>
+            </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+<a class="" href="#" pop-href="{% url 'mmutools:supplier_new' object.id %}">
+    {% trans "(Add New Supplier Record and Attach to this Item)" %}
+</a>
+
+<br>
+<br>
+<br>
+
+
+
+
