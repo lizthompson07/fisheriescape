@@ -1,9 +1,11 @@
 import csv
+import datetime
 import os
 import xml.etree.ElementTree as ET
 
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.timezone import make_aware
 
 from inventory import models
 from django.conf import settings
@@ -85,6 +87,7 @@ def import_paas():
             item.name = row["english"]
             item.nom = row["french"]
             item.save()
+
 
 """﻿
 ID --> this will be a new field
@@ -380,8 +383,9 @@ def get_custodians():
                     # there is one name that is a generic inbox. this should be excluded.
                     if "DFO" not in c and len(c.split(" ")) > 1:
                         # lets see if we can find a match
-                        first_name = c.split(" ")[0].lstrip().replace("é","e").replace("É","E").replace("è","e").replace("î","i").lower()
-                        last_name = c.split(" ")[1].lstrip().replace("é","e").replace("É","E").replace("è","e").replace("î","i").lower()
+                        first_name = c.split(" ")[0].lstrip().replace("é", "e").replace("É", "E").replace("è", "e").replace("î",
+                                                                                                                            "i").lower()
+                        last_name = c.split(" ")[1].lstrip().replace("é", "e").replace("É", "E").replace("è", "e").replace("î", "i").lower()
                         qs = User.objects.filter(
                             first_name__icontains=first_name,
                             last_name__icontains=last_name
@@ -416,8 +420,6 @@ def get_custodians():
             i += 1
 
 
-
-
 def attach_paa():
     with open(os.path.join(target_dir, "annette_open_data.csv"), 'r', encoding="utf8") as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
@@ -442,3 +444,68 @@ def attach_paa():
                         r.paa_items.add(shared_models.PAAItem.objects.get(code=my_code))
 
             i += 1
+
+
+def update_odi_dates():
+    with open(os.path.join(target_dir, "annette_report.csv"), 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        i = 0
+
+        for row in my_csv:
+            # only start on row #2
+            if i >= 1:
+                # most important thing is to establish a uuid. I have verified that the On OGP field is a reliable way to get the uuid
+                # i also verified that the best field to get the url / uuid would be row["Location (if yes):"]
+                r, created = models.Resource.objects.get_or_create(odi_id=row["ref_number"])
+
+                if created:
+                    print("bad one:", row["title_en"], row["ref_number"], row["portal_url_en"])
+
+                    r.notes = f'{timezone.now().strftime("%B %d, %Y")}: This record was present on the ODIP winter report but was not in the main OD inventory spreadsheet. ' \
+                              f'I (DJF) am adding Annette Anthony as custodian until proper metadata contacts are identified.'
+
+                    r.title_eng = row["title_en"]
+                    r.title_fre = row["title_fr"]
+                    r.descr_eng = row["description_en"]
+                    r.descr_fre = row["description_fr"]
+                    r.public_url = row["portal_url_en"]
+                    if len(row["portal_url_en"].split("/")) > 1:
+                        r.uuid = row["portal_url_en"].split("/")[-1]
+
+                    if row["date_published"]:
+                        r.od_publication_date = make_aware(datetime.datetime.strptime(row["date_published"].lstrip(), "%Y-%m-%d"))
+                    if row["date_released"]:
+                        r.od_release_date = make_aware(datetime.datetime.strptime(row["date_released"].lstrip(), "%Y-%m-%d"))
+
+                    r.save()
+
+                    my_user = get_create_user("Annette.Anthony@dfo-mpo.gc.ca")
+                    my_role = models.PersonRole.objects.get(id=1)  # steward
+                    models.ResourcePerson.objects.get_or_create(
+                        resource=r,
+                        person_id=my_user.id,
+                        role=my_role
+                    )
+
+                    field = "program_alignment_architecture_en"
+                    list1 = row[field].replace(";", ",").split(",")
+                    paa_code_list = [paa.code for paa in shared_models.PAAItem.objects.all()]
+                    for paa in list1:
+                        my_code = paa.lstrip().split(" ")[0]
+                        if my_code in paa_code_list:
+                            r.paa_items.add(shared_models.PAAItem.objects.get(code=my_code))
+
+
+                else:
+                    # simply add dates
+                    save_me = False
+                    if not r.od_publication_date and row["date_published"]:
+                        r.od_publication_date = make_aware(datetime.datetime.strptime(row["date_published"].lstrip(), "%Y-%m-%d"))
+                        save_me = True
+                    if not r.od_release_date and row["date_released"]:
+                        r.od_release_date = make_aware(datetime.datetime.strptime(row["date_released"].lstrip(), "%Y-%m-%d"))
+                        save_me = True
+                    if save_me:
+                        r.save()
+            i += 1
+        print(i)
