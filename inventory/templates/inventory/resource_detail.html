@@ -10,12 +10,7 @@
 {% block content %}
     <style media="screen">
         body {
-        {% if object.flagged_4_deletion %}
-            background-color: pink;
-        {% endif %}
-        {% if object.flagged_4_publication %}
-            background-color: #e1ffd6;
-        {% endif %}
+
         }
 
         #floating-panel {
@@ -31,21 +26,36 @@
     </style>
 
 
-        {% url 'inventory:index' as home_url %}
+    {% url 'inventory:index' as home_url %}
 
 
 
     <div class="container-fluid">
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ home_url }}">{% trans "Home" %}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object.truncated_title }}</li>
-        </ol>
-    </nav>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ home_url }}">{% trans "Home" %}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ object.truncated_title }}</li>
+            </ol>
+        </nav>
 
         <div class="text-center">
-            <h2>{{ object.t_title }}</h2>
+            <h2>
+                {{ object.t_title }}
+
+                {% if object.flagged_4_deletion %}
+                    <span class="bad"> - {% trans "Flagged for Deletion" %}</span>
+                {% endif %}
+                {% if object.flagged_4_publication %}
+                    <span class="good">
+                    {% if object.fgp_publication_date %}
+                        {% trans "Flagged for Open Data Re-publication" %}
+                    {% else %}
+                        {% trans "Flagged for Open Data Publication" %}
+                    {% endif %}
+                    </span>
+                {% endif %}
+            </h2>
         </div>
         <div id="floating-panel">
             {% with "btn btn-sm btn-outline-dark" as my_btn %}

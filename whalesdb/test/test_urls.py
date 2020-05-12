@@ -228,3 +228,7 @@ class URLTest(TestCase):
     def test_url_list_tea_view(self):
         self.basic_en_url_test('whalesdb:list_tea', 'whalesdb/list/tea/', views.TeaList)
 
+    @tag('tea', 'url', 'list')
+    def test_url_list_tea_view(self):
+        self.basic_en_url_test('whalesdb:list_tea', 'whalesdb/list/tea/', views.TeaList)
+

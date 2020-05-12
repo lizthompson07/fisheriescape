@@ -6,6 +6,41 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 
+class Lookup(models.Model):
+
+    class Meta:
+        abstract = True
+
+    name = models.CharField(unique=True, max_length=255)
+    nom = models.CharField(max_length=255, blank=True, null=True)
+
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            my_str = "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = "{}".format(self.name)
+        return my_str
+
+    @property
+    def tdescription(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("description_en"))):
+            my_str = "{}".format(getattr(self, str(_("description_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = "{}".format(self.description_en)
+        return my_str
+
+    def __str__(self):
+        return "{}".format(self.tname)
+
+
 # CONNECTED APPS: tickets, travel, projects, sci_fi
 class FiscalYear(models.Model):
     full = models.TextField(blank=True, null=True)
@@ -67,7 +102,7 @@ class Region(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
-    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("RDG"),
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("region head"),
                              related_name="shared_models_regions")
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))

@@ -38,7 +38,7 @@ class TestEmm(TestCase):
     # EqhHydrophoneProperties table. The Eqh table has a related name on the emm object
     @tag('emm', 'model', 'emm_model')
     def test_emm_eqh_hydrophones(self):
-        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=4)
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
         emm = Factory.EmmFactory(eqt=eqt)
         # create an Eqh object from the factory, in theory it should share the emm object
         # when emm.hydrophone is called there should be a single matching entry
@@ -51,7 +51,7 @@ class TestEmm(TestCase):
     # related name emm.channels
     @tag('emm', 'model', 'emm_model')
     def test_emm_ecp_channels(self):
-        eqt = models.EqtEquipmentTypeCode.objects.get(eqt_id=1)
+        eqt = models.EqtEquipmentTypeCode.objects.get(pk=1)
         emm = Factory.EmmFactory(eqt=eqt)
 
         eqr = Factory.EqrFactory(emm=emm)
@@ -82,7 +82,7 @@ class TestEdaEquipmentAttachment(TestCase):
 
     @tag('dep', 'eqp', 'eda', 'relationship')
     def test_eda_relationship(self):
-        emm = Factory.EmmFactory(eqt_id=1)
+        emm = Factory.EmmFactory(pk=1)
         eqp = Factory.EqpFactory(emm=emm)
         dep_1 = Factory.DepFactory()
         dep_2 = Factory.DepFactory()

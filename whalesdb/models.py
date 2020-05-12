@@ -8,7 +8,6 @@ import os
 
 
 class DepDeployment(models.Model):
-    dep_id = models.AutoField(primary_key=True)
     dep_year = models.BigIntegerField(verbose_name=_("Year"))
     dep_month = models.BigIntegerField(verbose_name=_("Month"))
     dep_name = models.CharField(max_length=255, verbose_name=_("Deployment"))
@@ -24,7 +23,6 @@ class DepDeployment(models.Model):
 
 
 class EcaCalibrationEvent(models.Model):
-    eca_id = models.AutoField(primary_key=True)
     eca_date = models.DateField(verbose_name=_("Calibration Date"))
     eca_attachment = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING, related_name='eca_attachment',
                                        verbose_name=_("Equipment"))
@@ -40,7 +38,6 @@ class EccCalibrationValue(models.Model):
 
 
 class EdaEquipmentAttachment(models.Model):
-    eda_id = models.AutoField(primary_key=True)
     eqp = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING, verbose_name=_("Equipment"),
                             related_name='deployments')
     dep = models.ForeignKey('DepDeployment', on_delete=models.DO_NOTHING, verbose_name=_("Deployment"),
@@ -51,7 +48,6 @@ class EdaEquipmentAttachment(models.Model):
 
 
 class EmmMakeModel(models.Model):
-    emm_id = models.AutoField(primary_key=True)
     eqt = models.ForeignKey('EqtEquipmentTypeCode', on_delete=models.DO_NOTHING, verbose_name=_("Equipment Type"))
     emm_make = models.CharField(max_length=50, verbose_name=_("Make"))
     emm_model = models.CharField(max_length=50, verbose_name=_("Model"))
@@ -63,7 +59,6 @@ class EmmMakeModel(models.Model):
 
 
 class EcpChannelProperty(models.Model):
-    ecp_id = models.AutoField(primary_key=True)
     eqr = models.ForeignKey('EqrRecorderProperties', on_delete=models.DO_NOTHING, verbose_name=_("Recorder"),
                             related_name="channels")
     ecp_channel_no = models.BigIntegerField(verbose_name=_("Channel Number"))
@@ -82,7 +77,6 @@ class EcpChannelProperty(models.Model):
 
 
 class EhaHydrophoneAttachment(models.Model):
-    eha_id = models.AutoField(primary_key=True)
     eda = models.ForeignKey("EdaEquipmentAttachment", blank=True, null=True, on_delete=models.DO_NOTHING,
                             verbose_name=_("Attachment"))
     eqp = models.ForeignKey('EqpEquipment', blank=True, null=True, on_delete=models.DO_NOTHING,
@@ -93,7 +87,6 @@ class EhaHydrophoneAttachment(models.Model):
 
 
 class EprEquipmentParameter(models.Model):
-    epr_id = models.AutoField(primary_key=True)
     emm = models.ForeignKey(EmmMakeModel, on_delete=models.DO_NOTHING, verbose_name=_("Equipment"))
     prm = models.ForeignKey('PrmParameterCode', on_delete=models.DO_NOTHING, verbose_name=_("Parameter"))
 
@@ -101,20 +94,12 @@ class EprEquipmentParameter(models.Model):
         unique_together = (('emm', 'prm'),)
 
 
-class ErtRecorderType(models.Model):
-    ert_id = models.AutoField(primary_key=True)
-    ert_name = models.CharField(unique=True, max_length=50, verbose_name=_("Recorder Type"))
-
-    def __str__(self):
-        return "{}".format(self.ert_name)
+class ErtRecorderType(shared_models.Lookup):
+    name = models.CharField(unique=True, max_length=50, verbose_name=_("Recorder Type"))
 
 
-class EqaAdcBitsCode(models.Model):
-    eqa_id = models.AutoField(primary_key=True)
-    eqa_name = models.CharField(unique=True, max_length=50, verbose_name=_("ADC Bit Name"))
-
-    def __str__(self):
-        return "{}".format(self.eqa_name)
+class EqaAdcBitsCode(shared_models.Lookup):
+    name = models.CharField(unique=True, max_length=50, verbose_name=_("ADC Bit Name"))
 
 
 class EqhHydrophoneProperty(models.Model):
@@ -127,16 +112,11 @@ class EqhHydrophoneProperty(models.Model):
         return "{}".format(self.emm)
 
 
-class EqoOwner(models.Model):
-    eqo_id = models.AutoField(primary_key=True)
-    eqo_institute = models.CharField(max_length=100, verbose_name=_("Institute"))
-
-    def __str__(self):
-        return "{}".format(self.eqo_institute)
+class EqoOwner(shared_models.Lookup):
+    name = models.CharField(max_length=100, verbose_name=_("Institute"))
 
 
 class EqpEquipment(models.Model):
-    eqp_id = models.AutoField(primary_key=True)
     emm = models.ForeignKey("EmmMakeModel", on_delete=models.DO_NOTHING, verbose_name=_("Make and Model"))
     eqp_serial = models.CharField(max_length=50, verbose_name=_("Serial Number"))
     eqp_asset_id = models.CharField(blank=True, null=True, unique=True, max_length=50, verbose_name=_("Asset ID"))
@@ -160,16 +140,11 @@ class EqrRecorderProperties(models.Model):
         return "{}".format(self.emm)
 
 
-class EqtEquipmentTypeCode(models.Model):
-    eqt_id = models.AutoField(primary_key=True)
-    eqt_name = models.CharField(unique=True, max_length=50, verbose_name=_("Equipment Type"))
-
-    def __str__(self):
-        return "{}".format(self.eqt_name)
+class EqtEquipmentTypeCode(shared_models.Lookup):
+    name = models.CharField(unique=True, max_length=50, verbose_name=_("Equipment Type"))
 
 
 class EtrTechnicalRepairEvent(models.Model):
-    etr_id = models.AutoField(primary_key=True)
     eqp_id = models.ForeignKey("EqpEquipment", on_delete=models.DO_NOTHING, verbose_name=_("Equipment"))
     etr_date = models.DateField(blank=True, null=True, verbose_name=_("Date"))
     etr_issue_desc = models.TextField(blank=True, null=True, verbose_name=_("Issue"))
@@ -177,12 +152,8 @@ class EtrTechnicalRepairEvent(models.Model):
     etr_repaired_by = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Repaired By"))
 
 
-class PrmParameterCode(models.Model):
-    prm_id = models.AutoField(primary_key=True)
-    prm_name = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Parameter Code"))
-
-    def __str__(self):
-        return "{}".format(self.prm_name)
+class PrmParameterCode(shared_models.Lookup):
+    name = models.CharField(max_length=200, blank=True, null=True, verbose_name=_("Parameter Code"))
 
 
 def mooring_directory_path(instance, filename):
@@ -191,7 +162,6 @@ def mooring_directory_path(instance, filename):
 
 
 class MorMooringSetup(models.Model):
-    mor_id = models.AutoField(primary_key=True)
     mor_name = models.CharField(unique=True, max_length=50, verbose_name=_("Name"))
     mor_max_depth = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True,
                                         verbose_name=_("Max Depth"))
@@ -238,27 +208,19 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
             os.remove(old_file.path)
 
 
-class PrjProject(models.Model):
-    prj_id = models.AutoField(primary_key=True)
-    prj_name = models.CharField(unique=True, max_length=255, verbose_name=_("Name"))
-    prj_description = models.CharField(max_length=4000, blank=True, null=True, verbose_name=_("Description"))
+class PrjProject(shared_models.Lookup):
+    name = models.CharField(unique=True, max_length=255, verbose_name=_("Name"))
     prj_url = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("URL"))
 
-    def __str__(self):
-        return "{}".format(self.prj_name)
 
-
-class SetStationEventCode(models.Model):
-    set_id = models.AutoField(primary_key=True)
-    set_name = models.CharField(unique=True, max_length=50, verbose_name=_("Type"))
-    set_description = models.CharField(max_length=400, verbose_name=_("Description"))
+class SetStationEventCode(shared_models.Lookup):
+    name = models.CharField(unique=True, max_length=50, verbose_name=_("Type"))
 
     def __str__(self):
-        return "{} - {}".format(self.set_name, self.set_description)
+        return "{} - {}".format(self.tname, self.tdescription)
 
 
 class SteStationEvent(models.Model):
-    ste_id = models.AutoField(primary_key=True)
     dep = models.ForeignKey(DepDeployment, on_delete=models.DO_NOTHING, related_name='station_events',
                             verbose_name=_("Deployment"))
     set_type = models.ForeignKey('SetStationEventCode', on_delete=models.DO_NOTHING, db_column='set_type',
@@ -290,7 +252,6 @@ class SteStationEvent(models.Model):
 
 
 class StnStation(models.Model):
-    stn_id = models.AutoField(primary_key=True)
     stn_name = models.CharField(max_length=100, verbose_name=_("Name"))
     stn_code = models.CharField(max_length=3, verbose_name=_("Code"))
     stn_revision = models.BigIntegerField(verbose_name=_("Revision"))
@@ -314,7 +275,6 @@ class StnStation(models.Model):
 
 
 class RciChannelInfo(models.Model):
-    rci_id = models.AutoField(primary_key=True)
     rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"))
     rci_name = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Name"))
     rci_size = models.IntegerField(blank=True, null=True, verbose_name=_("Size (GB)"))
@@ -323,7 +283,6 @@ class RciChannelInfo(models.Model):
 
 
 class RecDataset(models.Model):
-    rec_id = models.AutoField(primary_key=True)
     eda_id = models.ForeignKey("EdaEquipmentAttachment", on_delete=models.DO_NOTHING,
                                verbose_name=_("Equipment Deployment"))
     rsc_id = models.ForeignKey("RscRecordingSchedule", on_delete=models.DO_NOTHING,
@@ -345,7 +304,6 @@ class RecDataset(models.Model):
 
 
 class ReeRecordingEvent(models.Model):
-    ree_id = models.AutoField(primary_key=True)
     rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"))
     ret_id = models.ForeignKey("RetRecordingEventType", on_delete=models.DO_NOTHING, verbose_name=_("Event Type"))
     rtt_id = models.ForeignKey("RttTimezoneCode", on_delete=models.DO_NOTHING, verbose_name=_("Timezone"))
@@ -357,19 +315,16 @@ class ReeRecordingEvent(models.Model):
 
 
 class RetRecordingEventType(models.Model):
-    ret_id = models.AutoField(primary_key=True)
     ret_name = models.CharField(max_length=50, verbose_name=_("Name"))
     ret_desc = models.CharField(max_length=255, verbose_name=_("Description"))
 
 
 class RscRecordingSchedule(models.Model):
-    rsc_id = models.AutoField(primary_key=True)
     rsc_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Recording Schedule"))
     rsc_period = models.BigIntegerField(verbose_name=_("Period"))
 
 
 class RstRecordingStage(models.Model):
-    rst_id = models.AutoField(primary_key=True)
     rst_channel_no = models.BigIntegerField(blank=True, null=True, verbose_name=_("Channel Number"))
     rsc = models.ForeignKey(RscRecordingSchedule, models.DO_NOTHING, verbose_name=_("Schedule"), related_name="stages")
     rst_active = models.CharField(max_length=1, verbose_name=_("(A)ctive or (S)leep"))
@@ -378,14 +333,12 @@ class RstRecordingStage(models.Model):
 
 
 class RttTimezoneCode(models.Model):
-    rtt_id = models.AutoField(primary_key=True)
     rtt_abb = models.CharField(max_length=5, verbose_name=_("Abbreviation"))
     rtt_name = models.CharField(max_length=50, verbose_name=_("Name"))
     rtt_offset = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Offset"))
 
 
 class TeaTeamMember(models.Model):
-    tea_id = models.AutoField(primary_key=True)
     tea_abb = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Abbreviation"))
     tea_last_name = models.CharField(max_length=50, verbose_name=_("Last Name"))
     tea_first_name = models.CharField(max_length=50, verbose_name=_("First Name"))

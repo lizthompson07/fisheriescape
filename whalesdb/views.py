@@ -83,8 +83,8 @@ class DepCreate(CommonCreate):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in
-                        models.StnStation.objects.all().order_by('stn_id').values_list()]
+        station_dict = [{"pk": v[0], "stn_code": v[2]} for v in
+                        models.StnStation.objects.all().order_by('pk').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
         context['java_script'] = 'whalesdb/_entry_dep_js.html'
@@ -283,7 +283,7 @@ class DepUpdate(CommonUpdate):
         context = super().get_context_data(**kwargs)
 
         station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in
-                        models.StnStation.objects.all().order_by('stn_id').values_list()]
+                        models.StnStation.objects.all().order_by('pk').values_list()]
 
         context['station_json'] = json.dumps(station_dict)
         context['java_script'] = 'whalesdb/_entry_dep_js.html'
@@ -423,7 +423,7 @@ class PrjDetails(CommonDetails):
     key = 'prj'
     model = models.PrjProject
     title = _("Project Details")
-    fields = ['prj_name', 'prj_description', 'prj_url']
+    fields = ['name', 'description_en', 'prj_url']
     creation_form_height = 725
 
 
@@ -550,7 +550,7 @@ class PrjList(CommonList):
     model = models.PrjProject
     filterset_class = filters.PrjFilter
     title = _("Project List")
-    fields = ['prj_name', 'prj_description']
+    fields = ['name', 'description_en']
     creation_form_height = 400
 
 

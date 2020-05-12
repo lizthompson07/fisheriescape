@@ -42,6 +42,9 @@
                 transform: rotate(360deg);
             }
         }
+    label{
+        text-align: right;
+    }
     </style>
 
     <br>
@@ -52,32 +55,17 @@
                 {% trans "Please select the report" %}
             </h2>
             <hr>
-            <form method="post">
+            <form method="post" style="width: auto">
 
                 {% csrf_token %}
                 {% for field in form %}
-
-                    {% if field.name == "fiscal_year" %}
-                        <div class="fiscal_year_div">
-                            {% bootstrap_field field %}
-                        </div>
-                    {% elif field.name == "user" %}
-                        <div class="user_div">
-                            {% bootstrap_field field %}
-                        </div>
-                    {% elif field.name == "adm" %}
-                        <div class="adm_div">
-                            {% bootstrap_field field %}
-                        </div>
-                    {% elif field.name == "region" %}
-                        <div class="region_div">
-                            {% bootstrap_field field %}
-                        </div>
-                    {% else %}
-                        {% bootstrap_field field %}
-                    {% endif %}
+                    <div class="{{ field.name }}_div">
+                        {% bootstrap_field field layout="horizontal" %}
+                    </div>
                 {% endfor %}
+            <div class="mt-3 center-col">
                 <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
+            </div>
 
 
             </form>
@@ -94,28 +82,37 @@
             $(".user_div").addClass("gone");
             $(".region_div").addClass("gone");
             $(".adm_div").addClass("gone");
+            $(".trip_div").addClass("gone");
+            $(".from_date_div").addClass("gone");
+            $(".to_date_div").addClass("gone");
 
-            $("#id_fiscal_year").prop('required', true);
-            $("#id_user").prop('required', false);
 
         }
 
         function configureForm() {
             var reportChoice = $("#id_report")[0].value;
-            // species count report
+            // cfts report
             if (reportChoice == 1) {
                 $(".fiscal_year_div").removeClass("gone");
                 $(".region_div").removeClass("gone");
-            }
-            if (reportChoice == 2) {
-                $(".fiscal_year_div").removeClass("gone");
                 $(".user_div").removeClass("gone");
+                $(".trip_div").removeClass("gone");
+                $(".from_date_div").removeClass("gone");
+                $(".to_date_div").removeClass("gone");
+                $("label[for='id_from_date']").html("From date<br>(filters on trip request start date)");
+                $("label[for='id_to_date']").html("To date<br>(filters on trip request start date)");
 
             }
+            // trip list
             if (reportChoice == 3) {
                 $(".fiscal_year_div").removeClass("gone");
                 $(".region_div").removeClass("gone");
                 $(".adm_div").removeClass("gone");
+                $(".from_date_div").removeClass("gone");
+                $(".to_date_div").removeClass("gone");
+                $("label[for='id_from_date']").html("From date<br>(filters on trip start date)");
+                $("label[for='id_to_date']").html("To date<br>(filters on trip start date)");
+
             }
         }
 
@@ -124,6 +121,26 @@
             hideAll();
             configureForm();
         });
+
+        $("#id_from_date").change(function () {
+                if ($(this).val()) {
+                    $("#id_fiscal_year").val("");
+                }
+            }
+        );
+        $("#id_to_date").change(function () {
+                if ($(this).val()) {
+                    $("#id_fiscal_year").val("");
+                }
+            }
+        );
+        $("#id_fiscal_year").change(function () {
+                if ($(this).val()) {
+                    $("#id_from_date").val("");
+                    $("#id_to_date").val("");
+                }
+            }
+        );
 
         $("#id_report").change(function () {
             hideAll();
