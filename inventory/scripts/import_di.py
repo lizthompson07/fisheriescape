@@ -607,6 +607,10 @@ def check_url_and_uuid():
 
 
 def test_fgp_urls():
+    
+    # TODO: 1) check for any FGP datasets that are not declared 1a) published (i.e. 200 response) and non-published (404). Fields should be updated accordingly
+    # TODO: 2) check all the public_urls and make sure if present and reachable via 200 response there is a pub date.
+    
     for r in models.Resource.objects.all():
         if r.public_url:
             try:
