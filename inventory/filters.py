@@ -22,11 +22,11 @@ class ResourceFilter(django_filters.FilterSet):
     percent_complete = django_filters.NumberFilter(field_name="completedness_rating", label=_("Percent complete"), lookup_expr='gte',
                                                    widget=forms.NumberInput(attrs={"placeholder": "between 0 and 1"}))
     fgp_publication_date = django_filters.BooleanFilter(field_name="fgp_publication_date",
-                                                        lookup_expr='isnull', label=_("FGP Published?"),
+                                                        lookup_expr='isnull', label=_("Published to FGP?"),
                                                         exclude=True, # this will reverse the logic
                                                         )
-    odi_id = django_filters.BooleanFilter(field_name="odi_id",
-                                                        lookup_expr='isnull', label=_("ODI Published?"),
+    od_publication_date = django_filters.BooleanFilter(field_name="od_publication_date",
+                                                        lookup_expr='isnull', label=_("Published to Open Portal?"),
                                                         exclude=True,  # this will reverse the logic
                                                         )
 

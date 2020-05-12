@@ -367,7 +367,7 @@ class Resource(models.Model):
     date_verified = models.DateTimeField(blank=True, null=True)
 
     fgp_url = models.URLField(blank=True, null=True, verbose_name="Link to record on FGP")
-    public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Data")
+    public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Gov't Portal")
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
     od_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to Open Gov't Portal")
     od_release_date = models.DateTimeField(blank=True, null=True, verbose_name="Date released to Open Gov't Portal")
