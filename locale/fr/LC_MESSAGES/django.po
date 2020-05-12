@@ -6752,10 +6752,11 @@ msgid "estimated time needed"
 msgstr ""
 
 #: .\spring_cleanup\models.py:50 .\spring_cleanup\models.py:51
-#, fuzzy
-#| msgid "description (eng)"
+#: .\shared_models\models.py:33 .\shared_models\models.py:34
+#: .\shiny\models.py:38 .\shiny\models.py:39 .\spring_cleanup\models.py:58
+#: .\spring_cleanup\models.py:59
 msgid "description_en"
-msgstr "description (ang)"
+msgstr "description_fr"
 
 #: .\spring_cleanup\templates\spring_cleanup\index.html:29
 msgid "Welcome to the Gulf Region Spring Cleanup Coordination App"
