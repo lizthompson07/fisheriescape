@@ -417,6 +417,7 @@ class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "------"),
         (1, "Batch XML export"),
+        (2, "Open Data Inventory - Quarterly Report"),
         # (2, "Organizational Report / Cue Card (PDF)"),
     )
 
