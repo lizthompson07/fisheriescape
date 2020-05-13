@@ -45,7 +45,7 @@ def get_file(request, file):
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
         AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
         token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
-        blobService = BlockBlobService(account_name="dmappsdev", token_credential=token_credential)
+        blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
         blob_file = blobService.get_blob_to_bytes("media", blob_name)
         response = HttpResponse(blob_file.content, content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
