@@ -43,23 +43,22 @@ steps:
 
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: '$(Build.SourcesDirectory)'
-      includeRootFolder: false
-      archiveType: 'zip'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
-      replaceExistingArchive: true
-      verbose: # (no value); this input is optional
-  - publish: $(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip
-      displayName: 'Upload package'
-      artifact: drop
+        rootFolderOrFile: '$(Build.SourcesDirectory)'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
+        replaceExistingArchive: true
+        verbose: # (no value); this input is optional
+  - publish: $(Build.ArtifactStagingDirectory)/Application$(Build.BuildId).zip
+    displayName: 'Upload package'
+    artifact: drop
 
   - task: AzureWebApp@1
-    displayName: 'Deploy Azure Web App : {{ webAppName }}'
+    displayName: 'Deploy Azure Web App : dmapps-dev'
     inputs:
       azureSubscription: 'SP.DMAPPS-DEV'
-      WebAppName: 'dmapps-dev'
+      appName: 'dmapps-dev'
       appType: webAppLinux
-      appName: $(webAppName)
       package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
       startUpCommand:  Procfile.sh
 #
