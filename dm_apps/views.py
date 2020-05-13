@@ -1,20 +1,9 @@
 from collections import OrderedDict
-import io
-
-import requests
-import datetime
-from azure.storage.blob import BlockBlobService, ContainerPermissions
-from msrestazure.azure_active_directory import MSIAuthentication
 
 from django.conf import settings
-from django.contrib import messages
-from django.http import StreamingHttpResponse
 from django.urls import reverse, NoReverseMatch
-from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
-from msrestazure.azure_active_directory import MSIAuthentication
-
 from accounts.models import Announcement
 
 
@@ -393,61 +382,3 @@ class IndexView(TemplateView):
             context["build_number"] = settings.DEVOPS_BUILD_NUMBER
         return context
 
-#
-# def GetBlobUrl(blob_name):
-#     AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
-#     AZURE_STORAGE_KEY = "BQVttSG9lQbn7dD8LwYQ7LyjltsjUOS9eYAjhf5fATalNBqY4wxQIBhERsD8yPe8LfN1hq7rHaGFvSRHzwis5Q=="
-#     token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
-#
-#     blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, account_key=AZURE_STORAGE_KEY)
-#     blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
-#     blobService.get_blob_to_stream("media", "shiny/1_salmon.jpg", stream=IOBase)
-#     # it seems like we cannot generate sas token if we connect to the service with a token credential. need access key
-#     # sas_token = blobService.generate_blob_shared_access_signature("media",blob_name, BlobPermissions.READ, datetime.datetime.utcnow() + datetime.timedelta(hours=5))
-#     sas_token = blobService.generate_container_shared_access_signature("media", ContainerPermissions.READ,
-#                                                                        datetime.datetime.utcnow() + datetime.timedelta(minutes=2))
-#
-#     return f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/{"media"}/{blob_name}?{sas_token}'
-#
-
-def stream_file(request, blob_name=None):
-
-    AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
-    AZURE_STORAGE_KEY = "BQVttSG9lQbn7dD8LwYQ7LyjltsjUOS9eYAjhf5fATalNBqY4wxQIBhERsD8yPe8LfN1hq7rHaGFvSRHzwis5Q=="
-    # token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
-    # blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, account_key=token_credential)
-
-    blobService = BlockBlobService(account_name="dmappsdev", account_key=AZURE_STORAGE_KEY)
-
-
-    stream = io.BytesIO()
-    blob_file = blobService.get_blob_to_stream("media", "shiny/1_salmon.jpg", stream=stream)
-    #
-    # file_name = request.POST['tmtype']
-    # fp = open(file_name, 'wb')
-    # generator = block_blob_service.list_blobs(container_name)
-    # for blob in generator:
-    #     print(blob.name)
-    #     if blob.name == file_name:
-    #         blob = block_blob_service.get_blob_to_stream(container_name, blob.name, fp, max_connections=2)
-    #     response = HttpResponse(blob, content_type="image/png")
-    #     response['Content-Disposition'] = "attachment; filename=" + file_name
-    #     return response
-    #
-    # io.open(file_path, 'wb') as file:
-    #     blob = block_blob_service.get_blob_to_stream(container_name=container_name, blob_name=blob_name, stream=file, max_connections=2)
-    #
-    # r = blob_file
-
-    # bb = BlockBlobService(account_name='', account_key='')
-    # container_name = ""
-    # blob_name_to_download = "test.txt"
-    # file_path ="/home/Adam/Downloaded_test.txt"
-    #
-    # bb.get_blob_to_path(container_name, blob_name_to_download, file_path, open_mode='wb', snapshot=None, start_range=None, end_range=None, validate_content=False, progress_callback=None, max_connections=2, lease_id=None, if_modified_since=None, if_unmodified_since=None, if_match=None, if_none_match=None, timeout=None)
-
-
-
-    response = StreamingHttpResponse(streaming_content=blob_file.content)
-    response['Content-Disposition'] = f'attachment; filename="test123"'
-    return response
