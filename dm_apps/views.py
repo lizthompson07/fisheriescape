@@ -417,12 +417,11 @@ def stream_file(request, blob_name=None):
     # token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
     # blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, account_key=token_credential)
 
-    blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, account_key=AZURE_STORAGE_KEY)
+    blobService = BlockBlobService(account_name="dmappsdev", account_key=AZURE_STORAGE_KEY)
 
-    # sas_token = blobService.generate_container_shared_access_signature('media',ContainerPermissions.READ, datetime.utcnow() + datetime.timedelta(hours=1))
 
-    # stream = io.BytesIO()
-    # blob_file = blobService.get_blob_to_stream("media", "shiny/1_salmon.jpg", stream=stream)
+    stream = io.BytesIO()
+    blob_file = blobService.get_blob_to_stream("media", "shiny/1_salmon.jpg", stream=stream)
     #
     # file_name = request.POST['tmtype']
     # fp = open(file_name, 'wb')
@@ -449,6 +448,6 @@ def stream_file(request, blob_name=None):
 
 
 
-    # response = StreamingHttpResponse(streaming_content=blob_file.content)
-    # response['Content-Disposition'] = f'attachment; filename="test123"'
-    # return response
+    response = StreamingHttpResponse(streaming_content=blob_file.content)
+    response['Content-Disposition'] = f'attachment; filename="test123"'
+    return response
