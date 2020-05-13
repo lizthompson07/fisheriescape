@@ -10,6 +10,15 @@ from django.core.files import File
 from shared_models import models as shared_models
 
 
+def check_trip_purposes():
+    for trip in models.Conference.objects.all():
+        if trip.trip_requests.count():
+            print(trip.id, [tr.purpose.name for tr in trip.trip_requests.all() if tr.purpose])
+
+
+
+
+
 def export_fixtures():
     """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
     fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
