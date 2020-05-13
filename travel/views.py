@@ -3,6 +3,8 @@ import json
 import os
 from copy import deepcopy
 
+from azure.storage.blob import BlockBlobService
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -11,6 +13,7 @@ from django.db import IntegrityError
 from django.db.models.functions import Concat
 from django.template.defaultfilters import pluralize
 from django.utils.safestring import mark_safe
+from msrestazure.azure_active_directory import MSIAuthentication
 
 from dm_apps.utils import custom_send_mail
 from django.db.models import Sum, Q, Value, TextField
@@ -33,6 +36,24 @@ from . import filters
 from . import utils
 
 from shared_models import models as shared_models
+
+
+def get_file(request, file):
+    my_file = models.File.objects.get(pk=file)
+    blob_name = my_file.file
+
+    if settings.AZURE_STORAGE_ACCOUNT_NAME:
+        AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
+        token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
+        blobService = BlockBlobService(account_name="dmappsdev", token_credential=token_credential)
+        blob_file = blobService.get_blob_to_bytes("media", blob_name)
+        response = HttpResponse(blob_file.content, content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
+    else:
+        response = HttpResponse(my_file.file.read(), content_type='application/zip')
+        response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
+
+    return response
 
 
 # Create your views here.
@@ -493,7 +514,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, DetailView):
         my_object = self.get_object()
         context = super().get_context_data(**kwargs)
         context["h1"] = my_object
-        context["subtitle"] = f' - {my_object}'
+        context["subtitle"] = my_object
         context["crumbs"] = [
             {"title": _("Home"), "url": reverse("travel:index")},
             {"title": context["h1"]}

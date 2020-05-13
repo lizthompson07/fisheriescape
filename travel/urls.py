@@ -136,4 +136,7 @@ urlpatterns = [
     path('reports/trip-list/fiscal-year/<str:fy>/region/<str:region>/adm/<str:adm>/from_date/<str:from_date>/to_date/<str:to_date>/',
          views.export_trip_list, name="export_trip_list"),
 
+    # Download a file
+    path('download/file/<int:file>/', views.get_file, name="get_file"),
+
 ]
