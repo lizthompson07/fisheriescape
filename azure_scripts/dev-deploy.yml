@@ -14,27 +14,27 @@ steps:
       versionSpec: 3.7
       architecture: 'x64'
 
-  - task: PythonScript@0
-    displayName: 'Export project path'
-    inputs:
-      scriptSource: 'inline'
-      script: |
-        """Search all subdirectories for `manage.py`."""
-        from glob import iglob
-        from os import path
-        # Python >= 3.5
-        manage_py = next(iglob(path.join('**', 'manage.py'), recursive=True), None)
-        if not manage_py:
-            raise SystemExit('Could not find a Django project')
-        project_location = path.dirname(path.abspath(manage_py))
-        print('Found Django project in', project_location)
-        print('##vso[task.setvariable variable=projectRoot]{}'.format(project_location))
-  - script: |
-      python -m pip install --upgrade pip setuptools wheel
-      sudo apt-get install libmysqlclient-dev
-      # sudo apt-get install binutils libproj-dev gdal-bin libsqlite3-mod-spatialite spatialite-bin
-      pip install -r requirements.txt
-    displayName: 'Install prerequisites'
+#  - task: PythonScript@0
+#    displayName: 'Export project path'
+#    inputs:
+#      scriptSource: 'inline'
+#      script: |
+#        """Search all subdirectories for `manage.py`."""
+#        from glob import iglob
+#        from os import path
+#        # Python >= 3.5
+#        manage_py = next(iglob(path.join('**', 'manage.py'), recursive=True), None)
+#        if not manage_py:
+#            raise SystemExit('Could not find a Django project')
+#        project_location = path.dirname(path.abspath(manage_py))
+#        print('Found Django project in', project_location)
+#        print('##vso[task.setvariable variable=projectRoot]{}'.format(project_location))
+#  - script: |
+#      python -m pip install --upgrade pip setuptools wheel
+#      sudo apt-get install libmysqlclient-dev
+#       sudo apt-get install binutils libproj-dev gdal-bin libsqlite3-mod-spatialite spatialite-bin
+#      pip install -r requirements.txt
+#    displayName: 'Install prerequisites'
 
   - script: |
       # adding the azure devops build number to the environmental variable of the app service so that it can be picked up by the front end for display
@@ -77,7 +77,7 @@ steps:
       WebAppName: 'dmapps-dev'
       packageForLinux:  $(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip
       RuntimeStack: 'PYTHON|3.7'
-      startUpCommand:  Procfile.sh
+
 #
 #
 #
