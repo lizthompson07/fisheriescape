@@ -36,15 +36,6 @@ steps:
     inputs:
       azureSubscription: 'SP.DMAPPS-DEV'
       appType: webAppLinux
-      WebAppName: 'dmapps-test'
+      WebAppName: 'dmapps-test-web'
       packageForLinux:  $(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip
       RuntimeStack: 'PYTHON|3.7'
-
-#
-#
-#
-#  - task: KuduZipApiDeploy@1
-#    inputs:
-#      ConnectedServiceName: 'SP.DMAPPS-DEV'
-#      WebAppName: 'dmapps-dev'
-#      InputFilePath: '$(Pipeline.Workspace)/a/dm_apps$(Build.BuildId).zip'
