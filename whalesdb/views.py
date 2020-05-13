@@ -477,13 +477,13 @@ class CommonList(FilterCommon):
     # By default Listed objects will have an update button, set editable to false in extending classes to disable
     editable = True
 
+    def get_fields(self):
+        return ['tname|Name', 'tdescription|Description']
+
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
-        context['fields'] = self.fields
-
-        if self.title:
-            context['title'] = self.title
+        context['fields'] = self.get_fields()
 
         # if the url is not None, use the value specified by the url variable.
         # if the url is None, create a url using the views key
@@ -550,8 +550,8 @@ class PrjList(CommonList):
     model = models.PrjProject
     filterset_class = filters.PrjFilter
     title = _("Project List")
-    fields = ['name', 'description_en']
     creation_form_height = 400
+    fields = ['tname|Name', 'tdescription|Description']
 
 
 class RscList(CommonList):
