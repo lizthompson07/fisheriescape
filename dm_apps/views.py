@@ -413,8 +413,10 @@ class IndexView(TemplateView):
 def stream_file(request, blob_name=None):
 
     AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
-    token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
-    blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
+    AZURE_STORAGE_KEY = "BQVttSG9lQbn7dD8LwYQ7LyjltsjUOS9eYAjhf5fATalNBqY4wxQIBhERsD8yPe8LfN1hq7rHaGFvSRHzwis5Q=="
+    # token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
+    # blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, account_key=token_credential)
+    blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, account_key=AZURE_STORAGE_KEY)
     stream = io.BytesIO()
     blob_file = blobService.get_blob_to_stream("media", "shiny/1_salmon.jpg", stream=stream)
     #
