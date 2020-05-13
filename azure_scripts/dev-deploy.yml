@@ -54,6 +54,6 @@ steps:
       azureSubscription: 'SP.DMAPPS-DEV'
       appType: webAppLinux
       WebAppName: 'dmapps-dev'
-      packageForLinux: '$(System.DefaultWorkingDirectory)/_DMAPPS CI/drop/dm_apps*.zip'
+      packageForLinux: '$(System.DefaultWorkingDirectory)/drop/dm_apps*.zip'
       RuntimeStack: 'PYTHON|3.7'
       startUpCommand:  Procfile.sh
