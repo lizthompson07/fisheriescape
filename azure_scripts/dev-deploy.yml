@@ -67,14 +67,41 @@ steps:
   #
   #          startUpCommand: 'gunicorn --bind=0.0.0.0 --workers=4 startup:app'
   #
+#
+#  #
+#  - task: AzureRmWebAppDeployment@4
+#    displayName: 'Azure App Service Deploy: dmapps-dev'
+#    inputs:
+#      azureSubscription: 'SP.DMAPPS-DEV'
+#      appType: webAppLinux
+#      WebAppName: 'dmapps-dev'
+#      packageForLinux:  $(Pipeline.Workspace)/a/dm_apps$(Build.BuildId).zip
+#      RuntimeStack: 'PYTHON|3.7'
+#      startUpCommand:  Procfile.sh
 
-  #
-  - task: AzureRmWebAppDeployment@4
-    displayName: 'Azure App Service Deploy: dmapps-dev'
+#jobs:
+#- deployment: DeploymentJob
+#environment: $(environmentName)
+#strategy:
+#  runOnce:
+#    deploy:
+#      steps:
+#
+#      - task: UsePythonVersion@0
+#        inputs:
+#          versionSpec: '$(pythonVersion)'
+#        displayName: 'Use Python version'
+#
+#      - task: AzureWebApp@1
+#        displayName: 'Deploy Azure Web App : {{ webAppName }}'
+#        inputs:
+#          azureSubscription: $(azureServiceConnectionId)
+#          appName: $(webAppName)
+#          package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
+
+
+  - task: KuduZipApiDeploy@1
     inputs:
-      azureSubscription: 'SP.DMAPPS-DEV'
-      appType: webAppLinux
+      ConnectedServiceName: 'SP.DMAPPS-DEV'
       WebAppName: 'dmapps-dev'
-      packageForLinux:  $(Pipeline.Workspace)/a/dm_apps$(Build.BuildId).zip
-      RuntimeStack: 'PYTHON|3.7'
-      startUpCommand:  Procfile.sh
+      InputFilePath: '$(Pipeline.Workspace)/a/dm_apps$(Build.BuildId).zip'
