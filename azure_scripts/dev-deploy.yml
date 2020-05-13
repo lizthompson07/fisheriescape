@@ -5,6 +5,8 @@
 pool:
   vmImage: 'Ubuntu 16.04'
 
+trigger:
+
 steps:
   - task: UsePythonVersion@0
     inputs:
@@ -33,6 +35,11 @@ steps:
       pip install -r requirements.txt
     displayName: 'Install prerequisites'
 
+  - script: |
+      # adding the azure devops build number to the environmental variable of the app service so that it can be picked up by the front end for display
+      python create_env_file.py --devops-build-number "$(Build.BuildNumber)"
+    displayName: 'Creating configuration file'
+
   - task: ArchiveFiles@2
     inputs:
       rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
@@ -54,6 +61,6 @@ steps:
       azureSubscription: 'SP.DMAPPS-DEV'
       appType: webAppLinux
       WebAppName: 'dmapps-dev'
-      packageForLinux: '$(System.DefaultWorkingDirectory)/drop/dm_apps*.zip'
+      packageForLinux: '$(System.DefaultWorkingDirectory)/_Dev deployment/drop/dm_apps*.zip'
       RuntimeStack: 'PYTHON|3.7'
       startUpCommand:  Procfile.sh
