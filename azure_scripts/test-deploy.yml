@@ -14,10 +14,10 @@ steps:
       versionSpec: 3.7
       architecture: 'x64'
 
-#  - script: |
-#      # adding the azure devops build number to the environmental variable of the app service so that it can be picked up by the front end for display
-#      python create_env_file.py --devops-build-number "$(Build.BuildNumber)"
-#    displayName: 'Creating configuration file'
+  - script: |
+      # adding the azure devops build number to the environmental variable of the app service so that it can be picked up by the front end for display
+      python create_env_file.py --devops-build-number "$(Build.BuildNumber)"
+    displayName: 'Creating configuration file'
 
   - task: ArchiveFiles@2
     inputs:
