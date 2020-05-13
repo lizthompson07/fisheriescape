@@ -59,7 +59,7 @@ steps:
       azureSubscription: 'SP.DMAPPS-DEV'
       appName: 'dmapps-dev'
       appType: webAppLinux
-      package: $(Build.SourcesDirectory)/drop/dm_apps$(Build.BuildId).zip
+      package: $(Pipeline.Workspace)/a/$(Build.BuildId).zip
       startUpCommand:  Procfile.sh
 #
 #          # The following parameter is specific to the Flask example code. You may
