@@ -6312,11 +6312,10 @@ msgid "title_en"
 msgstr "title_fre"
 
 #: .\shiny\models.py:38 .\shiny\models.py:39 .\spring_cleanup\models.py:58
-#: .\spring_cleanup\models.py:59
-#, fuzzy
-#| msgid "description (eng)"
+#: .\spring_cleanup\models.py:59 .\shared_models\models.py:33
+#: .\shared_models\models.py:34 .\whalesdb\filters.py:41
 msgid "description_en"
-msgstr "description (ang)"
+msgstr "description_fr"
 
 #: .\shiny\templates\shiny\app_confirm_delete.html:11
 #, fuzzy
