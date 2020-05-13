@@ -74,3 +74,4 @@ steps:
       PathtoPublish: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
       ArtifactName: 'drop'
       publishLocation: 'Container'
+    displayName: 'build number: $(Build.BuildId)'

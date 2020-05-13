@@ -32,7 +32,7 @@ steps:
     artifact: drop
 
   - task: AzureRmWebAppDeployment@4
-    displayName: 'Azure App Service Deploy: dmapps-dev'
+    displayName: 'Azure App Service Deploy: dmapps-dev ($(Build.BuildNumber))'
     inputs:
       azureSubscription: 'SP.DMAPPS-DEV'
       appType: webAppLinux
