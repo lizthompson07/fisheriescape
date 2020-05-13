@@ -17,6 +17,7 @@ from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz, currency
 from lib.functions.custom_functions import fiscal_year, listrify
+from shared_models.models import Lookup
 from . import utils
 
 YES_NO_CHOICES = (
@@ -109,6 +110,10 @@ class Role(models.Model):
         ordering = ["name", ]
 
 
+class TripPurpose(Lookup):
+    pass
+
+
 class Reason(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
     nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
@@ -125,6 +130,7 @@ class Reason(models.Model):
         ordering = ["name", ]
 
 
+# THE HOPE IS TO DELETE THIS MODEL
 class Purpose(models.Model):
     name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
     nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
@@ -178,6 +184,8 @@ class Status(models.Model):
 class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
+    trip_purpose = models.ForeignKey(TripPurpose, on_delete=models.DO_NOTHING, verbose_name=_("trip purpose"),
+                             related_name="trips", null=True)
     is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "does attendance to this require ADM approval?"))
     location = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("location (city, province, country)"))
@@ -238,7 +246,7 @@ class Conference(models.Model):
     def adm_review_deadline(self):
         if self.is_adm_approval_required:
             # when was the deadline?
-            return self.closest_date - datetime.timedelta(days=21) # 14 business days -- > 21 calendar days?
+            return self.closest_date - datetime.timedelta(days=21)  # 14 business days -- > 21 calendar days?
 
     @property
     def days_until_adm_review_deadline(self):
@@ -247,8 +255,6 @@ class Conference(models.Model):
             deadline = self.adm_review_deadline
             # how many days until the deadline?
             return (deadline - timezone.now()).days
-
-
 
     @property
     def admin_notes_html(self):
