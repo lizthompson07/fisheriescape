@@ -42,13 +42,13 @@ steps:
     displayName: 'Creating configuration file'
 
   - task: ArchiveFiles@2
-      inputs:
-        rootFolderOrFile: '$(Build.SourcesDirectory)'
-        includeRootFolder: false
-        archiveType: 'zip'
-        archiveFile: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
-        replaceExistingArchive: true
-        verbose: # (no value); this input is optional
+    inputs:
+      rootFolderOrFile: '$(Build.SourcesDirectory)'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
+      replaceExistingArchive: true
+      verbose: # (no value); this input is optional
   - publish: $(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip
       displayName: 'Upload package'
       artifact: drop
