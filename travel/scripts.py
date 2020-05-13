@@ -3,6 +3,7 @@ import os
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 
+from lib.functions.custom_functions import listrify
 from . import models
 from . import utils
 from django.core import serializers
@@ -11,10 +12,10 @@ from shared_models import models as shared_models
 
 
 def check_trip_purposes():
+    print(f"trip id; trip name; purposes")
     for trip in models.Conference.objects.all():
         if trip.trip_requests.count():
-            print(trip.id, [tr.purpose.name for tr in trip.trip_requests.all() if tr.purpose])
-
+            print(f"{trip.id}; {trip.name}; {listrify([tr.purpose.name for tr in trip.trip_requests.all() if tr.purpose])}")
 
 
 
