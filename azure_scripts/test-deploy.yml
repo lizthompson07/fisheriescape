@@ -40,7 +40,7 @@ steps:
       packageForLinux:  $(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip
       RuntimeStack: 'PYTHON|3.7'
 #      ConfigurationSettings: '-LOG_FILE_PATH /home/LogFiles/django_error.log -DEVOPS_BUILD_NUMBER $(Build.BuildId)'
-      startUpCommand: Procfile.sh
+#      startUpCommand: Procfile.sh
 
       # ScriptType: 'File Path'
       # ScriptPath: Procfile.sh
