@@ -363,6 +363,7 @@ reviewer_field_list = [
 conf_field_list = [
     'tname|{}'.format(_("Name")),
     'location',
+    'trip_purpose',
     'lead',
     'has_event_template',
     'number',
