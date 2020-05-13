@@ -39,6 +39,11 @@ steps:
   - script: |
       # python create_env_file.py --devops-build-number "$(SECRET_KEY)" --sendgrid-api-key "$(SENDGRID_API_KEY)" --oauth-app-id "$(app_id)" --oauth-app-secret "$(app_secret)" --oauth-redirect "$(redirect)" --oauth-scopes "$(scopes)" --oauth-authority "$(authority)" --oauth-authorize-endpoint "$(authorize_endpoint)" --oauth-token-endpoint "$(token_endpoint)" --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME)"
       python create_env_file.py --devops-build-number "$(Build.BuildNumber)"
+      mkdir media
+      mkdir media/travel
+      mkdir media/travel/temp
+      mkdir media/inventory
+      mkdir media/inventory/temp
     displayName: 'Creating configuration file'
 
   - script: |
