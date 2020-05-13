@@ -49,7 +49,7 @@ steps:
         archiveFile: '$(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip'
         replaceExistingArchive: true
         verbose: # (no value); this input is optional
-  - publish: $(Build.ArtifactStagingDirectory)/Application$(Build.BuildId).zip
+  - publish: $(Build.ArtifactStagingDirectory)/dm_apps$(Build.BuildId).zip
     displayName: 'Upload package'
     artifact: drop
 
