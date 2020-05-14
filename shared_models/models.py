@@ -6,16 +6,13 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 
-class Lookup(models.Model):
-
+class SimpleLookup(models.Model):
     class Meta:
         abstract = True
+        ordering = [_("name"), ]
 
     name = models.CharField(unique=True, max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
-
-    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description"))
-    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description"))
 
     @property
     def tname(self):
@@ -27,6 +24,17 @@ class Lookup(models.Model):
             my_str = "{}".format(self.name)
         return my_str
 
+    def __str__(self):
+        return "{}".format(self.tname)
+
+
+class Lookup(SimpleLookup):
+    class Meta:
+        abstract = True
+
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+
     @property
     def tdescription(self):
         # check to see if a french value is given
@@ -36,9 +44,6 @@ class Lookup(models.Model):
         else:
             my_str = "{}".format(self.description_en)
         return my_str
-
-    def __str__(self):
-        return "{}".format(self.tname)
 
 
 # CONNECTED APPS: tickets, travel, projects, sci_fi
@@ -594,7 +599,6 @@ class River(models.Model):
         ordering = ['name']
 
 
-
 class PAAItem(models.Model):
     code = models.CharField(max_length=255, verbose_name=_("code"), unique=True)
     name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (en)"))
@@ -603,11 +607,11 @@ class PAAItem(models.Model):
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("name"))):
-            my_str= "{}".format(getattr(self, str(_("name"))))
+            my_str = "{}".format(getattr(self, str(_("name"))))
         # if there is no translated term, just pull from the english field
         else:
-            my_str= "{}".format(self.name)
-        return f"{self.code } - {my_str}"
+            my_str = "{}".format(self.name)
+        return f"{self.code} - {my_str}"
 
     class Meta:
         ordering = ['code', ]
