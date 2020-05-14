@@ -21,11 +21,11 @@ class SimpleLookup(models.Model):
             my_str = "{}".format(getattr(self, str(_("name"))))
         # if there is no translated term, just pull from the english field
         else:
-            my_str = "{}".format(self.name)
+            my_str = self.name
         return my_str
 
     def __str__(self):
-        return "{}".format(self.tname)
+        return self.tname
 
 
 class Lookup(SimpleLookup):
@@ -42,7 +42,7 @@ class Lookup(SimpleLookup):
             my_str = "{}".format(getattr(self, str(_("description_en"))))
         # if there is no translated term, just pull from the english field
         else:
-            my_str = "{}".format(self.description_en)
+            my_str = self.description_en
         return my_str
 
 
