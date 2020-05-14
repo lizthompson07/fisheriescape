@@ -28,6 +28,7 @@ from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
+from shared_models.views import TemplateCommon
 from . import models
 from . import forms
 from . import reports
@@ -363,7 +364,7 @@ reviewer_field_list = [
 conf_field_list = [
     'tname|{}'.format(_("Name")),
     'location',
-    'trip_purpose',
+    'trip_subcategory',
     'lead',
     'has_event_template',
     'number',
@@ -1353,6 +1354,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
         context["field_list"] = [
             {"name": 'fiscal_year', "class": "", "width": "75px"},
             {"name": 'status_string|{}'.format("status"), "width": "200px", },
+            {"name": 'trip_subcategory', "class": "", },
             {"name": 'tname|{}'.format(_("Trip title")), "class": "", },
             {"name": 'location|{}'.format(_("location")), "class": "", },
             {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
@@ -1365,7 +1367,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
         ]
         if self.kwargs.get("type") == "adm-hit-list" or self.kwargs.get("type") == "adm-all":
             context["field_list"].append(
-                {"name": 'adm_review_deadline|{}'.format(_("ADM review deadline")), "class": "", }
+                {"name": 'adm_review_deadline|{}'.format(_("ADM review deadline")), "class": "", "width": "200px"}
             )
 
         context["is_admin"] = in_travel_admin_group(self.request.user)
@@ -2316,6 +2318,10 @@ def manage_njc_rates(request):
     context['title'] = "Manage NJC Rates"
     context['formset'] = formset
     return render(request, 'travel/manage_settings_small.html', context)
+
+
+class NJCRatesFormsetView(TemplateCommon):
+    template_name = 'travel/manage_settings_small.html'
 
 
 # Default Reviewer Settings

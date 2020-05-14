@@ -26,7 +26,7 @@
                         {% echo "danger" as btn_color %}
                     {% endif %}
 
-                    <span class="btn-{{ btn_color }}">{{ object.adm_review_deadline|naturaltime }}</span>
+                    <span class="btn-{{ btn_color }}">{{ object.adm_review_deadline|date:"Y-m-d" }} ({{ object.adm_review_deadline|naturaltime }})</span>
                 {% elif "total_travellers" in field.name %}
                     {{ object.total_traveller_list|length|zero2val:"---" }}
                 {% elif "connected_request" in field.name %}

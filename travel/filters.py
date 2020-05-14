@@ -137,6 +137,7 @@ class TripFilter(django_filters.FilterSet):
             'lead': ['exact'],
             'is_adm_approval_required': ['exact'],
             'status': ['exact'],
+            'trip_subcategory': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
