@@ -84,8 +84,10 @@ class Cost(SimpleLookup):
 class Role(SimpleLookup):
     pass
 
+
 class TripCategory(SimpleLookup):
     pass
+
 
 class TripSubcategory(Lookup):
     trip_category = models.ForeignKey(TripCategory, on_delete=models.DO_NOTHING, related_name="subcategories")
@@ -99,6 +101,7 @@ class Reason(SimpleLookup):
 class Purpose(Lookup):
     pass
 
+
 class Status(SimpleLookup):
     # choices for used_for
     TR_REVIEWERS = 1
@@ -111,7 +114,7 @@ class Status(SimpleLookup):
         (TRIP_REVIEWERS, "Trip Reviewer status"),
         (TRIPS, "Trip status"),
     )
-    name = models.CharField(max_length=255) # overflowing this since we DO NOT want it to be unique=True
+    name = models.CharField(max_length=255)  # overflowing this since we DO NOT want it to be unique=True
     used_for = models.IntegerField(choices=USED_FOR_CHOICES)
     order = models.IntegerField(blank=True, null=True)
     color = models.CharField(max_length=10, blank=True, null=True)
@@ -123,8 +126,8 @@ class Status(SimpleLookup):
 class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
-    # trip_purpose = models.ForeignKey(TripPurpose, on_delete=models.DO_NOTHING, verbose_name=_("trip purpose"),
-    #                          related_name="trips", null=True)
+    trip_subcategory = models.ForeignKey(TripSubcategory, on_delete=models.DO_NOTHING, verbose_name=_("trip purpose"),
+                             related_name="trips", null=True)
     is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "does attendance to this require ADM approval?"))
     location = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("location (city, province, country)"))
