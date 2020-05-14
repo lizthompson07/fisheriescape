@@ -17,7 +17,7 @@ from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz, currency
 from lib.functions.custom_functions import fiscal_year, listrify
-from shared_models.models import Lookup
+from shared_models.models import Lookup, SimpleLookup
 from . import utils
 
 YES_NO_CHOICES = (
@@ -43,8 +43,7 @@ class DefaultReviewer(models.Model):
         ordering = ["user", ]
 
 
-class NJCRates(models.Model):
-    name = models.CharField(max_length=255)
+class NJCRates(SimpleLookup):
     amount = models.FloatField()
     last_modified = models.DateTimeField(blank=True, null=True)
 
@@ -56,9 +55,7 @@ class NJCRates(models.Model):
         ordering = ['id', ]
 
 
-class CostCategory(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+class CostCategory(SimpleLookup):
     order = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -77,79 +74,32 @@ class CostCategory(models.Model):
         return str(self)
 
 
-class Cost(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+class Cost(SimpleLookup):
     cost_category = models.ForeignKey(CostCategory, on_delete=models.DO_NOTHING, related_name="costs", verbose_name=_("category"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ['cost_category', 'name']
 
 
-class Role(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
-    nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
+class Role(SimpleLookup):
+    pass
 
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+class TripCategory(SimpleLookup):
+    pass
 
-    class Meta:
-        ordering = ["name", ]
+class TripSubcategory(Lookup):
+    trip_category = models.ForeignKey(TripCategory, on_delete=models.DO_NOTHING, related_name="subcategories")
 
 
-class TripPurpose(Lookup):
+class Reason(SimpleLookup):
     pass
 
 
-class Reason(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
-    nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ["name", ]
-
-
 # THE HOPE IS TO DELETE THIS MODEL
-class Purpose(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
-    nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
-    description_eng = models.CharField(max_length=1000, verbose_name=_("description (eng)"), blank=True, null=True)
-    description_fre = models.CharField(max_length=1000, verbose_name=_("description (fre)"), blank=True, null=True)
+class Purpose(Lookup):
+    pass
 
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ["name", ]
-
-
-class Status(models.Model):
+class Status(SimpleLookup):
     # choices for used_for
     TR_REVIEWERS = 1
     TRIP_REVIEWERS = 3
@@ -161,21 +111,10 @@ class Status(models.Model):
         (TRIP_REVIEWERS, "Trip Reviewer status"),
         (TRIPS, "Trip status"),
     )
-
+    name = models.CharField(max_length=255) # overflowing this since we DO NOT want it to be unique=True
     used_for = models.IntegerField(choices=USED_FOR_CHOICES)
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
     order = models.IntegerField(blank=True, null=True)
     color = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ['used_for', 'order', 'name', ]
@@ -184,8 +123,8 @@ class Status(models.Model):
 class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
-    trip_purpose = models.ForeignKey(TripPurpose, on_delete=models.DO_NOTHING, verbose_name=_("trip purpose"),
-                             related_name="trips", null=True)
+    # trip_purpose = models.ForeignKey(TripPurpose, on_delete=models.DO_NOTHING, verbose_name=_("trip purpose"),
+    #                          related_name="trips", null=True)
     is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "does attendance to this require ADM approval?"))
     location = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("location (city, province, country)"))
@@ -899,18 +838,8 @@ class TripRequestCost(models.Model):
         super().save(*args, **kwargs)
 
 
-class ReviewerRole(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
-    nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
+class ReviewerRole(SimpleLookup):
     order = models.IntegerField()
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ["order", "id"]
