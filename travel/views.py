@@ -1319,7 +1319,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
                         'location',
                         output_field=TextField()))
             elif self.kwargs.get("type") == "adm-all":
-                    queryset = queryset.filter(is_adm_approval_required=True)
+                queryset = queryset.filter(is_adm_approval_required=True)
             elif self.kwargs.get("type") == "upcoming":
                 queryset = queryset.filter(start_date__gte=timezone.now())
             else:
@@ -1346,15 +1346,15 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             {"title": _("Home"), "url": reverse("travel:index")},
             {"title": context["h1"]}
         ]
-        context["paginate_by"] = 50
+        context["paginate_by"] = 0 if self.kwargs.get("type") == "adm-hit-list" else None
         context["new_url_name"] = "travel:trip_new"
         context["row_url_name"] = "travel:trip_detail"
         context["container_class"] = "container-fluid"
         context["random_object"] = models.Conference.objects.first()
         context["field_list"] = [
             {"name": 'fiscal_year', "class": "", "width": "75px"},
-            {"name": 'status_string|{}'.format("status"), "width": "200px", },
-            {"name": 'trip_subcategory', "class": "", },
+            {"name": 'status_string|{}'.format("status"), "width": "150px", },
+            {"name": 'trip_subcategory', "class": "", "width": "200px", },
             {"name": 'tname|{}'.format(_("Trip title")), "class": "", },
             {"name": 'location|{}'.format(_("location")), "class": "", },
             {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
@@ -1362,12 +1362,12 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             {"name": 'lead|{}'.format(_("Regional lead")), "class": "center-col", },
             {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
             {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
-            {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
+            # {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
             {"name": 'verified_by', "class": "", },
         ]
         if self.kwargs.get("type") == "adm-hit-list" or self.kwargs.get("type") == "adm-all":
             context["field_list"].append(
-                {"name": 'adm_review_deadline|{}'.format(_("ADM review deadline")), "class": "", "width": "200px"}
+                {"name": 'adm_review_deadline|{}'.format(_("ADM review deadline")), "class": "", "width": "250px"}
             )
 
         context["is_admin"] = in_travel_admin_group(self.request.user)
@@ -1739,7 +1739,8 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, TemplateView):
         # start out optimistic
         duplicate_ppl = list()
         # we have to sift through each tr that will be transferred to the new trip and ensure that there is no overlap with the new travellers
-        request_users_from_trip_b = [tr.user for tr in trip_b.trip_requests.all() if tr.user] # this will be only individual requests and parent group requests
+        request_users_from_trip_b = [tr.user for tr in trip_b.trip_requests.all() if
+                                     tr.user]  # this will be only individual requests and parent group requests
         travellers_from_trip_b = trip_b.traveller_list
         for tr in trip_a.trip_requests.all():
             # if
@@ -1748,13 +1749,12 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, TemplateView):
 
             # now, depending on whether this request is a group request, our method will change.
             # if TR is a group request, we have to make sure there is no overlap in the travellers
-            #but because of the traveller() method, we can just use one approach
+            # but because of the traveller() method, we can just use one approach
 
             else:
                 for traveller in tr.travellers:
                     if traveller in travellers_from_trip_b:
                         duplicate_ppl.append(traveller)
-
 
         context["duplicate_ppl"] = duplicate_ppl
         return context
