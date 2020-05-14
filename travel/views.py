@@ -1317,7 +1317,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
                         'nom',
                         Value(" "),
                         'location',
-                        output_field=TextField())).order_by("-adm_review_deadline")
+                        output_field=TextField())).order_by("adm_review_deadline")
             elif self.kwargs.get("type") == "adm-all":
                 queryset = queryset.filter(is_adm_approval_required=True)
             elif self.kwargs.get("type") == "upcoming":
