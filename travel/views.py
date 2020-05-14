@@ -376,8 +376,8 @@ conf_field_list = [
     'is_adm_approval_required',
     'notes',
     'status_string|{}'.format("status"),
-    'date_eligible_for_adm_review|{}'.format(_("Date when eligible for ADM Office review")),
-    'adm_review_deadline|{}'.format(_("ADM Office review deadline")),
+    'date_eligible_for_adm_review',
+    'adm_review_deadline',
     'total_cost|{}'.format("Total DFO cost (excluding BTA)"),
     'non_res_total_cost|{}'.format("Total DFO cost from non-RES travellers (excluding BTA)"),
 ]
@@ -1317,7 +1317,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
                         'nom',
                         Value(" "),
                         'location',
-                        output_field=TextField()))
+                        output_field=TextField())).order_by("-adm_review_deadline")
             elif self.kwargs.get("type") == "adm-all":
                 queryset = queryset.filter(is_adm_approval_required=True)
             elif self.kwargs.get("type") == "upcoming":
@@ -1346,7 +1346,7 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             {"title": _("Home"), "url": reverse("travel:index")},
             {"title": context["h1"]}
         ]
-        context["paginate_by"] = 0 if self.kwargs.get("type") == "adm-hit-list" else None
+        context["paginate_by"] = None if self.kwargs.get("type") == "adm-hit-list" else 50
         context["new_url_name"] = "travel:trip_new"
         context["row_url_name"] = "travel:trip_detail"
         context["container_class"] = "container-fluid"
