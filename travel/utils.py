@@ -477,12 +477,12 @@ def get_adm_ready_trips():
     """returns a qs of trips that are ready for adm review"""
     three_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 3)
     # start with trips that need adm approval that have not already been reviewed or those that have been cancelled
-    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id=32)&~Q(status_id=43))
+    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id__in=[32, 43]))
 
     t_ids = list()
     for t in trips:
         # only get trips that have attached requests
-        if t.trip_requests.count():
+        if t.get_connected_active_requests().count():
             # only get trips that are within three months from the closest date
             if t.closest_date <= three_months_away:
                 t_ids.append(t.id)
