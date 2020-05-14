@@ -18,6 +18,7 @@ class TripFactory(factory.django.DjangoModelFactory):
     name = factory.lazy_attribute(lambda o: faker.catch_phrase())
     start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
+    trip_subcategory = factory.lazy_attribute(lambda o: models.TripSubcategory.objects.all()[faker.random_int(0, models.TripSubcategory.objects.count() - 1)])
 
     @staticmethod
     def get_valid_data():
@@ -30,6 +31,7 @@ class TripFactory(factory.django.DjangoModelFactory):
             "name": faker.catch_phrase(),
             "start_date": start_date.strftime("%Y-%m-%d %H:%M"),
             "end_date": end_date.strftime("%Y-%m-%d %H:%M"),
+            "trip_subcategory": models.TripSubcategory.objects.all()[faker.random_int(0, models.TripSubcategory.objects.count() - 1)].id,
         }
         return valid_data
 
