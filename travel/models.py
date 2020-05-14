@@ -122,7 +122,7 @@ class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
     trip_subcategory = models.ForeignKey(TripSubcategory, on_delete=models.DO_NOTHING, verbose_name=_("trip purpose"),
-                             related_name="trips", null=True)
+                                         related_name="trips", null=True)
     is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "does attendance to this require ADM approval?"))
     location = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("location (city, province, country)"))
@@ -147,6 +147,8 @@ class Conference(models.Model):
                                limit_choices_to={"used_for": 4}, verbose_name=_("trip status"), default=30)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
+    adm_review_deadline = models.DateTimeField(verbose_name=_("ADM Office review deadline"), blank=True, null=True)
+    date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"), blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -167,25 +169,12 @@ class Conference(models.Model):
         return min([abs_date, reg_date, start_date])
 
     @property
-    def date_eligible_for_adm_review(self):
-        """trips are eligible three months from the closest date"""
-        if self.is_adm_approval_required:
-            return self.closest_date - datetime.timedelta(days=(365 / 12) * 3)
-
-    @property
     def days_until_eligible_for_adm_review(self):
         if self.is_adm_approval_required:
             # when was the deadline?
             deadline = self.date_eligible_for_adm_review
             # how many days until the deadline?
             return (deadline - timezone.now()).days
-
-    @property
-    def adm_review_deadline(self):
-        """trips must be reviewed by ADMO before two weeks to the closest date"""
-        if self.is_adm_approval_required:
-            # when was the deadline?
-            return self.closest_date - datetime.timedelta(days=21)  # 14 business days -- > 21 calendar days?
 
     @property
     def days_until_adm_review_deadline(self):
@@ -330,6 +319,18 @@ class Conference(models.Model):
             reviewer.order = count
             reviewer.save()
             count += 1
+
+        if self.is_adm_approval_required:
+            # trips must be reviewed by ADMO before two weeks to the closest date
+            self.adm_review_deadline = self.closest_date - datetime.timedelta(days=21)  # 14 business days -- > 21 calendar days?
+
+            # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
+            if self.trip_subcategory.trip_category_id == 3:
+                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(365 / 12) * 3)
+            else:
+                # else they can start the review closer to the date: six business weeks (63 days)
+                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(21 * 3))
+
         super().save(*args, **kwargs)
 
     def get_connected_requests(self):
