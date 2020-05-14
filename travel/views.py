@@ -1978,7 +1978,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
                 # set status to cancelled = 22
                 tr.status_id = 22
                 # update the admin notes
-                tr.admin_notes = f'{timezone.now().strftime("%Y-%m-%d")}: {my_trip.admin_notes} \n\n{tr.admin_notes}'
+                tr.admin_notes = f'{my_trip.admin_notes}\n\n{tr.admin_notes}'
                 tr.save()
 
                 # cancel any outstanding reviews:
