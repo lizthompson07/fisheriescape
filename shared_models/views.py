@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView, ListView
+from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView, ListView, FormView
 from django_filters.views import FilterView
 
 ###
@@ -499,3 +499,77 @@ class FilterCommon(FilterView, CommonCommon):
         context.update(super().get_common_context())
 
         return context
+
+
+
+class TemplateCommon(TemplateView, CommonCommon):
+    auth = True
+
+    template_name = 'shared_models/shared_filter.html'
+
+    # override this if there are authorization requirements
+    def test_func(self):
+        return self.auth
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+
+        # for the most part if the user is authorized then the content is editable
+        # but extending classes can choose to make content not editable even if the user is authorized
+        # Default behaviour for the FilterCommon class is that users are authorized by default to view
+        # Data, but not to create or modify it.
+        context['auth'] = self.test_func()
+        context['editable'] = context['auth']
+
+        context.update(super().get_common_context())
+
+        return context
+
+
+#
+#
+# # SETTINGS #
+# ############
+# class FormsetView(FormView):
+#     queryset = None
+#     field_list = list()
+#     random_object = queryset.first()
+#     title = None
+#     formset_class = None
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["formset"] =
+#
+# def manage_statuses(request):
+#     qs = models.Status.objects.all()
+#     if request.method == 'POST':
+#         formset = forms.StatusFormSet(request.POST, )
+#         if formset.is_valid():
+#             formset.save()
+#             # do something with the formset.cleaned_data
+#             messages.success(request, "Items have been successfully updated")
+#             return HttpResponseRedirect(reverse("travel:manage_statuses"))
+#     else:
+#         formset = forms.StatusFormSet(
+#             queryset=qs)
+#     context = {}
+#     context["my_object"] = qs.first()
+#     context["field_list"] = [
+#         'used_for',
+#         'name',
+#         'nom',
+#         'order',
+#         'color',
+#     ]
+#     context['title'] = "Manage Statuses"
+#     context['formset'] = formset
+#     return render(request, 'travel/manage_settings_small.html', context)
+#
+#
+#
+#
+# def delete_status(request, pk):
+#     my_obj = models.Status.objects.get(pk=pk)
+#     my_obj.delete()
+#     return HttpResponseRedirect(reverse("travel:manage_statuses"))

@@ -78,6 +78,7 @@ class TripCategory(SimpleLookup):
 
 
 class TripSubcategory(Lookup):
+    name = models.CharField(max_length=255)  # overflowing this since we DO NOT want it to be unique=True
     trip_category = models.ForeignKey(TripCategory, on_delete=models.DO_NOTHING, related_name="subcategories")
 
     def __str__(self):
@@ -167,8 +168,9 @@ class Conference(models.Model):
 
     @property
     def date_eligible_for_adm_review(self):
+        """trips are eligible three months from the closest date"""
         if self.is_adm_approval_required:
-            return self.closest_date - datetime.timedelta(days=(365 / 12) * 6)
+            return self.closest_date - datetime.timedelta(days=(365 / 12) * 3)
 
     @property
     def days_until_eligible_for_adm_review(self):
@@ -180,6 +182,7 @@ class Conference(models.Model):
 
     @property
     def adm_review_deadline(self):
+        """trips must be reviewed by ADMO before two weeks to the closest date"""
         if self.is_adm_approval_required:
             # when was the deadline?
             return self.closest_date - datetime.timedelta(days=21)  # 14 business days -- > 21 calendar days?
