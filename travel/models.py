@@ -61,18 +61,6 @@ class CostCategory(SimpleLookup):
     class Meta:
         ordering = ['order', 'id']
 
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    @property
-    def tname(self):
-        return str(self)
-
 
 class Cost(SimpleLookup):
     cost_category = models.ForeignKey(CostCategory, on_delete=models.DO_NOTHING, related_name="costs", verbose_name=_("category"))
@@ -91,6 +79,12 @@ class TripCategory(SimpleLookup):
 
 class TripSubcategory(Lookup):
     trip_category = models.ForeignKey(TripCategory, on_delete=models.DO_NOTHING, related_name="subcategories")
+
+    def __str__(self):
+        return f"{self.trip_category} - {self.tname}"
+
+    class Meta:
+        ordering = ["trip_category", _("name")]
 
 
 class Reason(SimpleLookup):
