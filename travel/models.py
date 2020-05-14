@@ -325,7 +325,7 @@ class Conference(models.Model):
             self.adm_review_deadline = self.closest_date - datetime.timedelta(days=21)  # 14 business days -- > 21 calendar days?
 
             # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
-            if self.trip_subcategory.trip_category_id == 3:
+            if self.trip_subcategory and self.trip_subcategory.trip_category_id == 3:
                 self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(365 / 12) * 3)
             else:
                 # else they can start the review closer to the date: six business weeks (63 days)
