@@ -3,14 +3,14 @@
 {% load bootstrap4 %}
 {% block bug_create %}{% url 'tickets:bug_create' 'mmutools' %}{% endblock bug_create %}
 
-{% block title %}MMU Tools{% endblock title %}
+{% block title %}Marine Mammal Tools{% endblock title %}
 
 {% block body %}
     {% block content %}{% endblock content %}
 {% endblock body %}
 
 {% block left_all %}
-    <li class="nav-item"><a class="nav-link" href="{% url 'mmutools:index' %}">MMUTools Home</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'mmutools:index' %}">Marine Mammal Tools Home</a></li>
 {% endblock left_all %}
 
 {% block left_unauth %}
@@ -34,11 +34,11 @@
         </div>
     </li>
 
-    {# MMU Tools #}
+    {# Marine Mammal Tools #}
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
            aria-haspopup="true" aria-expanded="false">
-            MMU Tools
+            Marine Mammal Tools
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
@@ -58,8 +58,7 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
-			<a class="dropdown-item">Summary of Inventory</a>
-			<a class="dropdown-item">Summary of Incidents</a>
+			<a class="dropdown-item" href="{% url 'mmutools:report_generator' %}">Report Generator</a>
 
         </div>
     </li>

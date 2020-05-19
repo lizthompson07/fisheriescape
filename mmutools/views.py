@@ -86,8 +86,7 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/item_list.html"
     filterset_class = filters.SpecificItemFilter
     queryset = models.Item.objects.annotate(
-        search_term=Concat('id', 'item_name', 'description', 'serial_number', 'owners', 'sizes', 'categories',
-                           'gear_types', 'last_purchased', 'last_purchased_by', output_field=TextField()))
+        search_term=Concat('item_name', 'description', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -97,10 +96,10 @@ class ItemListView(MmutoolsAccessRequired, FilterView):
             'tname|{}'.format(_("Item name (size)")),
             'description',
             'serial_number',
-            'owners',
-            # 'sizes',
-            'categories',
-            'gear_types',
+            'owner',
+            # 'size',
+            'category',
+            'gear_type',
             'suppliers',
             'last_purchased',
             'last_purchased_by',
@@ -118,10 +117,10 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
             'item_name',
             'description',
             'serial_number',
-            'owners',
-            'sizes',
-            'categories',
-            'gear_types',
+            'owner',
+            'size',
+            'category',
+            'gear_type',
             'suppliers',
             'last_purchased',
             'last_purchased_by',
@@ -132,8 +131,8 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
         context["random_qty"] = models.Quantity.objects.first()
         context["qty_field_list"] = [
             'quantity',
-            'statuses',
-            'locations',
+            'status',
+            'location',
             'bin_id',
         ]
 
@@ -141,8 +140,8 @@ class ItemDetailView(MmutoolsAccessRequired, DetailView):
         # TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType' -- have to add a case where there is
         # no info yet in those fields? -- fixed it I think~!!! WOOOOH
 
-        ohqty = self.get_object().quantities.filter(statuses=1).aggregate(dsum=Sum('quantity')).get('dsum')
-        lentqty = self.get_object().quantities.filter(statuses=3).aggregate(dsum=Sum('quantity')).get('dsum')
+        ohqty = self.get_object().quantities.filter(status=1).aggregate(dsum=Sum('quantity')).get('dsum')
+        lentqty = self.get_object().quantities.filter(status=3).aggregate(dsum=Sum('quantity')).get('dsum')
 
         if ohqty is None:
             ohqty = 0
@@ -222,8 +221,7 @@ class LocationListView(MmutoolsAdminAccessRequired, FilterView):
     template_name = "mmutools/location_list.html"
     filterset_class = filters.LocationFilter
     queryset = models.Location.objects.annotate(
-        search_term=Concat('id', 'location', 'address', 'container', 'container_space',
-                           output_field=TextField()))
+        search_term=Concat('location', 'address', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -281,14 +279,14 @@ class LocationDeleteView(MmutoolsAdminAccessRequired, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
-    ##Quantities
+    ##QUANTITY##
 
 
 class QuantityListView(MmutoolsAccessRequired, FilterView):
     template_name = "mmutools/quantity_list.html"
     filterset_class = filters.QuantityFilter
     queryset = models.Quantity.objects.annotate(
-        search_term=Concat('id', 'items', 'quantity', 'statuses', 'lent_to', 'lent_date', 'return_date', 'last_audited', 'last_audited_by', 'locations', 'bin_id',
+        search_term=Concat('id', 'item', 'quantity', 'status', 'lent_to', 'lent_date', 'return_date', 'last_audited', 'last_audited_by', 'location', 'bin_id',
                            output_field=TextField()))
 
     def get_context_data(self, **kwargs):
@@ -296,15 +294,15 @@ class QuantityListView(MmutoolsAccessRequired, FilterView):
         context["my_object"] = models.Quantity.objects.first()
         context["field_list"] = [
             'id',
-            'items',
+            'item',
             'quantity',
-            'statuses',
+            'status',
             'lent_to',
             'lent_date',
             'return_date',
             'last_audited',
             'last_audited_by',
-            'locations',
+            'location',
             'bin_id',
         ]
         return context
@@ -317,15 +315,15 @@ class QuantityDetailView(MmutoolsAccessRequired, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'id',
-            'items',
+            'item',
             'quantity',
-            'statuses',
+            'status',
             'lent_to',
             'lent_date',
             'return_date',
             'last_audited',
             'last_audited_by',
-            'locations',
+            'location',
             'bin_id',
         ]
 
@@ -366,7 +364,7 @@ class QuantityCreateView(MmutoolsEditRequiredMixin, CreateView):
 
 
     def get_initial(self):
-        return {'items': self.kwargs.get('pk')}
+        return {'item': self.kwargs.get('pk')}
 
 
 class QuantityDeleteView(MmutoolsEditRequiredMixin, DeleteView):
@@ -383,6 +381,40 @@ class QuantityDeleteView(MmutoolsEditRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('mmutools:quantity_list'))
 
+    ##BULK QUANTITY##
+
+class BulkQuantityListView(MmutoolsAdminAccessRequired, FilterView):
+    filterset_class = filters.BulkQuantityFilter
+    template_name = 'mmutools/bulk_quantity_list.html'
+    queryset = models.Quantity.objects.annotate(
+        search_term=Concat('id', 'item__item_name', 'quantity', 'status', 'lent_to', 'lent_date', 'return_date', 'location', 'bin_id',
+                           output_field=TextField()))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Quantity.objects.first()
+        context["field_list"] = [
+            'id',
+            'item',
+            'quantity',
+            'status',
+            'lent_to',
+            'lent_date',
+            'return_date',
+            'location',
+            'bin_id',
+        ]
+        return context
+
+class BulkQuantityDeleteView(MmutoolsAdminAccessRequired, DeleteView):
+    model = models.Quantity
+    permission_required = "__all__"
+    success_url = reverse_lazy('mmutools:bulk_quantity_list')
+    success_message = 'The quantity was successfully deleted!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
 
     ## PERSONNEL ##
 
@@ -530,8 +562,8 @@ class SupplierCreateView(MmutoolsEditRequiredMixin, CreateView):
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Supplier record successfully created for : {my_object}"))
-        #if there's a pk argumentm this means user is calling from item_detail page and
 
+        #if there's a pk argumentm this means user is calling from item_detail page and
         if self.kwargs.get("pk"):
             my_item = models.Item.objects.get(pk=self.kwargs.get("pk"))
             my_item.suppliers.add(my_object)
@@ -621,75 +653,6 @@ class FileDeleteView(MmutoolsEditRequiredMixin, DeleteView):
         return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
-    ## LENDING ##
-
-
-# class LendingListView(MmutoolsAccessRequired, FilterView):
-#     template_name = "mmutools/lending_list.html"
-#     filterset_class = filters.LendingFilter
-#     queryset = models.Lending.objects.annotate(
-#         search_term=Concat('id', 'item', 'quantity_lent', 'lent_to', 'lent_date', output_field=TextField()))
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["my_object"] = models.Lending.objects.first()
-#         context["field_list"] = [
-#             'id',
-#             'item',
-#             'quantity_lent',
-#             'lent_to',
-#             'lent_date',
-#
-#         ]
-#         return context
-#
-#
-# class LendingDetailView(MmutoolsAccessRequired, DetailView):
-#     model = models.Lending
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'id',
-#             'item',
-#             'quantity_lent',
-#             'lent_to',
-#             'lent_date',
-#
-#         ]
-#         return context
-#
-#
-# class LendingUpdateView(MmutoolsEditRequiredMixin, UpdateView):
-#     model = models.Lending
-#     form_class = forms.LendingForm
-#
-#     def form_valid(self, form):
-#         my_object = form.save()
-#         messages.success(self.request, _(f"Lending record successfully updated for : {my_object}"))
-#         return super().form_valid(form)
-#
-#
-# class LendingCreateView(MmutoolsEditRequiredMixin, CreateView):
-#     model = models.Lending
-#     form_class = forms.LendingForm
-#
-#     def form_valid(self, form):
-#         my_object = form.save()
-#         messages.success(self.request, _(f"Lending record successfully created for : {my_object}"))
-#         return super().form_valid(form)
-#
-#
-# class LendingDeleteView(MmutoolsEditRequiredMixin, DeleteView):
-#     model = models.Lending
-#     permission_required = "__all__"
-#     success_url = reverse_lazy('mmutools:lending_list')
-#     success_message = 'The lending agreement was successfully deleted!'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-
     ## INCIDENT ##
 
 
@@ -776,3 +739,75 @@ class IncidentDeleteView(MmutoolsEditRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+    ## REPORTS ##
+
+class ReportGeneratorFormView(MmutoolsAccessRequired, FormView):
+    template_name = 'mmutools/report_generator.html'
+
+    form_class = forms.ReportGeneratorForm
+
+    def get_initial(self):
+
+        try:
+            self.kwargs["report_number"]
+        except KeyError:
+            print("no report")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+
+        container = int(form.cleaned_data["container"])
+        report = int(form.cleaned_data["report"])
+
+        try:
+            location = int(form.cleaned_data["location"])
+        except ValueError:
+            location = None
+
+        if report == 1:
+            return HttpResponseRedirect(reverse("mmutools:report_container", kwargs={
+                'container': container,
+                'location': str(location),
+            }))
+
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("mmutools:report_generator"))
+
+
+class ContainerSummaryListView(MmutoolsAccessRequired, ListView):
+    template_name = 'mmutools/report_container_summary.html'
+
+    def get_queryset(self, **kwargs):
+        qs = models.Location.objects.get(id=self.kwargs["location"]).quantities.all()
+            # .filter(container=True)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Quantity.objects.first()
+
+        container = models.Location.objects.get(pk=self.kwargs['container'])
+        context["container"] = container
+
+        location = models.Location.objects.get(pk=self.kwargs['location'])
+        context["location"] = location
+
+        context["field_list"] = [
+            'item',
+            'quantity',
+            'status',
+            'lent_to',
+            'lent_date',
+            'return_date',
+            'last_audited',
+            'last_audited_by',
+        ]
+
+        return context
+

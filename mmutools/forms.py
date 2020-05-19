@@ -25,7 +25,7 @@ class QuantityForm1(forms.ModelForm):
         model = models.Quantity
         fields = "__all__"
         widgets = {
-            'items': forms.HiddenInput(),
+            'item': forms.HiddenInput(),
         }
 
 class LocationForm(forms.ModelForm):
@@ -60,11 +60,6 @@ class FileForm(forms.ModelForm):
             'item': forms.HiddenInput(),
         }
 
-# class LendingForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Lending
-#         fields = "__all__"
-
 class IncidentForm(forms.ModelForm):
     class Meta:
         model = models.Incident
@@ -76,3 +71,27 @@ class IncidentForm(forms.ModelForm):
             'necropsy': forms.CheckboxInput,
             'photos': forms.CheckboxInput,
         }
+
+class ReportGeneratorForm(forms.Form):
+    report = forms.ChoiceField(required=True)
+    container = forms.ChoiceField(required=True)
+    location = forms.ChoiceField(required=False, label="Location/Container Name", widget=forms.Select(attrs=chosen_js))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        report_choices = [
+            (1, "Container Summary"),
+
+        ]
+        report_choices.insert(0, (None, "------"))
+
+        container_choices = [(obj.id, "{}".format(obj.container)) for obj in models.Location.objects.all()]
+        container_choices.insert(0, (None, "------"))
+
+        location_choices = [(obj.id, "{}".format(obj.location)) for obj in models.Location.objects.all()]
+        location_choices.insert(0, (None, "------"))
+
+        self.fields['report'].choices = report_choices
+        self.fields['container'].choices = container_choices
+        self.fields['location'].choices = location_choices

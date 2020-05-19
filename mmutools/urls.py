@@ -30,6 +30,11 @@ urlpatterns = [
     path('quantity/<int:pk>/delete/pop/<int:pop>/', views.QuantityDeleteView.as_view(), name="quantity_delete"),
     path('quantity/<int:pk>/delete/', views.QuantityDeleteView.as_view(), name="quantity_delete"),
 
+# BULK QUANTITIES #
+
+    path('bulk_quantity_list/', views.BulkQuantityListView.as_view(), name="bulk_quantity_list"),
+    path('quantity/<int:pk>/delete/', views.BulkQuantityDeleteView.as_view(), name="bulk_quantity_delete"),
+
 # LOCATION #
 
     path('location_list/', views.LocationListView.as_view(), name="location_list"),
@@ -64,13 +69,6 @@ urlpatterns = [
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name="file_edit"),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name="file_delete"),
 
-# LENDING #
-
-    # path('lending_list/', views.LendingListView.as_view(), name="lending_list"),
-    # path('lending_detail/<int:pk>/view/', views.LendingDetailView.as_view(), name="lending_detail"),
-    # path('lending/new/', views.LendingCreateView.as_view(), name="lending_new"),
-    # path('lending/<int:pk>/edit/', views.LendingUpdateView.as_view(), name="lending_edit"),
-    # path('lending/<int:pk>/delete/', views.LendingDeleteView.as_view(), name="lending_delete"),
 
 # INCIDENT #
 
@@ -79,6 +77,13 @@ urlpatterns = [
     path('incident/new/', views.IncidentCreateView.as_view(), name="incident_new"),
     path('incident/<int:pk>/edit/', views.IncidentUpdateView.as_view(), name="incident_edit"),
     path('incident/<int:pk>/delete/', views.IncidentDeleteView.as_view(), name="incident_delete"),
+
+# REPORTS #
+
+    path('reports/generator/', views.ReportGeneratorFormView.as_view(), name="report_generator"),
+    path('reports/generator/<int:report_number>/', views.ReportGeneratorFormView.as_view(), name="report_generator"),
+    path('report/container_summary/container/<int:container>/location/<int:location>/', views.ContainerSummaryListView.as_view(), name="report_container"),
+    ##get location pk and return location=container, true(container=1)
 
 ]
 
