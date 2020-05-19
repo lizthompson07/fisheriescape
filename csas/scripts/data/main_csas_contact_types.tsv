@@ -1,24 +1,24 @@
-old_cot_id	name_en	name_fr	cot_id
-2	Industry	Industry (fr)	2
-3	NGO	NGO (fr)	3
-4	Indigenous	Indigenous (fr)	4
-5	Consultant	Consultant (fr)	5
-6	Contractor	Contractor (fr)	6
-7	Aboriginal		4
-8	Aboriginal Organization		4
-9	ENGO / University		3
-10	First Nations		4
-11	Indigenous Government		4
-12	Industry-Fishery		2
-13	Industry-Petroleum		2
-14	Library		3
-15	Municipal		1
-16	Non Government Reviewer		3
-17	Other		999999
-18	Other Government		1
-19	Provincial		1
-20	Research Institute		3
-21	Supplier		3
-22	University		3
-999999	Not specified	Not specified (fr)	999999
-1	Government	Government (fr)	1
+old_cot_id	cot_id	name_en	name_fr
+999999	1	Not specified	Not specified (fr)
+1	2	Government	Government (fr)
+2	3	Industry	Industry (fr)
+3	4	NGO	NGO (fr)
+4	5	Indigenous	Indigenous (fr)
+5	6	Consultant	Consultant (fr)
+6	7	Contractor	Contractor (fr)
+7	5	Aboriginal
+8	5	Aboriginal Organization
+9	4	ENGO / University
+10	5	First Nations
+11	5	Indigenous Government
+12	3	Industry-Fishery
+13	3	Industry-Petroleum
+14	4	Library
+15	1	Municipal
+16	4	Non Government Reviewer
+17	1	Other
+18	2	Other Government
+19	2	Provincial
+20	4	Research Institute
+21	4	Supplier
+22	4	University
