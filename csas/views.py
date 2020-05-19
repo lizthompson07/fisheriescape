@@ -120,19 +120,26 @@ class DetailsCommon(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         if self.title:
             context['title'] = self.title
-
         if self.fields:
             context['fields'] = self.fields
+        if self.request.user:
+            context["auth"] = utils.csas_authorized(self.request.user)
+            context["csas_admin"] = utils.csas_admin(self.request.user)
 
         # If you don't provide specific list and update urls by setting list_url and/or update_url
         # in the extending class, then Common Details will use the provided key to create the url for you
         context['list_url'] = self.list_url if self.list_url else "csas:list_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "csas:update_{}".format(self.key)
-
         return context
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     if self.request.user:
+    #         context["auth"] = utils.csas_authorized(self.request.user)
+    #         context["csas_admin"] = utils.csas_admin(self.request.user)
+    #     return context
 
 
 class CloserTemplateView(TemplateView):
@@ -209,6 +216,13 @@ class RequestDetails(DetailsCommon):
               'rationale_for_timing', 'funding', 'funding_notes', 'science_discussion', 'science_discussion_notes',
               'adviser_submission', 'rd_submission', 'decision_date', ]
 
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     if self.request.user:
+    #         context["auth"] = utils.csas_authorized(self.request.user)
+    #         context["csas_admin"] = utils.csas_admin(self.request.user)
+    #     return context
+
 
 # ----------------------------------------------------------------------------------------------------
 # Create "Contact" forms
@@ -258,6 +272,13 @@ class ContactDetails(DetailsCommon):
               'notification_preference', 'phone', 'email', 'region', 'sector', 'role', 'expertise', 'cc_grad',
               'notes']
 
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     if self.request.user:
+    #         context["auth"] = utils.csas_authorized(self.request.user)
+    #         context["csas_admin"] = utils.csas_admin(self.request.user)
+    #     return context
+
 
 # ----------------------------------------------------------------------------------------------------
 # Create "Meeting" forms
@@ -266,6 +287,15 @@ class MeetingEntry(CsasCreateCommon):
     title = _("New Meeting Entry")
     model = models.MetMeeting
     form_class = forms.MeetingForm
+
+    def get_success_url(self):
+        return reverse_lazy("csas:details_met", args=(self.object.pk,))
+
+
+class MeetingEntryDocs(CsasCreateCommon):
+    title = _("New Meeting Documentation Entry")
+    model = models.MetMeetingDocs
+    form_class = forms.MeetingFormDocs
 
     def get_success_url(self):
         return reverse_lazy("csas:details_met", args=(self.object.pk,))
@@ -294,9 +324,32 @@ class MeetingDetails(DetailsCommon):
     key = "met"
     title = _("Meeting Details")
     model = models.MetMeeting
-    fields = ['start_date', 'end_date', 'title_en', 'title_fr', 'scope', 'status', 'chair_comments',
-              'status_notes', 'location', 'lead_region', 'other_region', 'process_type', 'program_contact',
-              'csas_contact', ]
+    fields = ['id', 'title_en', 'title_fr', 'status', 'status_notes', 'quarter',  'start_date', 'end_date',
+              'location', 'scope', 'process_type', 'lead_region', 'other_region', 'csas_contact', 'program_contact',
+               'chair_comments', ]
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     if self.request.user:
+    #         context["auth"] = utils.csas_authorized(self.request.user)
+    #         context["csas_admin"] = utils.csas_admin(self.request.user)
+    #     return context
+
+
+class MeetingDetailsDocs(DetailsCommon):
+    key = "mdd"
+    title = _("Meeting Document Details")
+    model = models.MetMeetingDocs
+    fields = ['id']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context["auth"] = utils.csas_authorized(self.request.user)
+            context["csas_admin"] = utils.csas_admin(self.request.user)
+
+        return context
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -337,6 +390,12 @@ class PublicationDetails(DetailsCommon):
     fields = ['pub_id', 'series', 'scope', 'lead_region', 'lead_author', 'pub_year', 'pub_num', 'pages',
               'citation', 'location']
 
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     if self.request.user:
+    #         context["auth"] = utils.csas_authorized(self.request.user)
+    #         context["csas_admin"] = utils.csas_admin(self.request.user)
+    #     return context
 
 # ----------------------------------------------------------------------------------------------------
 
