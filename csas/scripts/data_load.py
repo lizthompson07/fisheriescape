@@ -16,8 +16,8 @@ def load_lookup(model, options):
 
     for opt in options:
         # filter the model looking for this option. The option is only added if the filter returns a NoneType object
-        if not model.objects.filter(name_en=opt[0]):
-            model(name_en=opt[0], name_fr=opt[1]).save()
+        if not model.objects.filter(name=opt[0]):
+            model(name=opt[0], nom=opt[1]).save()
 
 
 # Load the (Request) priority model
@@ -75,11 +75,32 @@ quarter = [['Spring ', ' Spring(fr)'], ['Summer ', ' Summar(fr)'], ['Fall ', ' F
 load_lookup(models.MeqQuarter, quarter)
 
 # Load Locations
-locations = [['test ', ' test(fr)']]
+locations = [['Victoria ', ' Victoria(fr)'], ['Edmonton ', 'Edmonton(fr)'], ['Winnipeg ', ' Winnipeg(fr)'],
+             ['Toronto ', ' Toronto(fr)'], ['Quebec City ', ' Quebec City(fr)'], ['Halifax ', ' Halifax(fr)'],
+             ['Charlottetown ', ' Charlottetown(fr)']]
 load_lookup(models.LocLocation, locations)
 
 # Load Process Types
-process = [['test process ', ' test process(fr)']]
+process = [['Process Type A ', ' Process Type A(fr)'], ['Process Type B ', ' Process Type B(fr)'],
+           ['Process Type C ', ' Process Type C(fr)'], ['Process Type D ', ' Process Type D(fr)']]
 load_lookup(models.AptAdvisoryProcessType, process)
+
+# Load Expected Publication(s)
+exp_publication = [['SAR/SSR ', ' SAR/SSR(fr)'], ['Research Document ', ' Research Document(fr)'],
+                   ['Proceedings ', ' Proceedings(fr)'], ['Attendance List ', ' Attendance List(fr)'],
+                   ['Briefing Note(s) ', ' Briefing Notes(s)(fr)']]
+load_lookup(models.MepMeetingExpectedPublication, exp_publication)
+
+# ----------------------------------------------------------------------------------------------------
+# Yongcun: This part will be removed, we will use shared_models.Region in "models.py", it's just for
+#          the temporarily usage on my desktop.
+#
+# Load Regions
+region = [['Pacific ', ' Pacific(fr)'], ['Central & Arctic ', ' Central & Arctic(fr)'], ['Quebec ', ' Quebec(fr)'],
+          ['Gulf ', ' Gulf(fr)'], ['Maritimes ', ' Maritimes(fr)'], ['Newfoundland ', ' Newfoundland(fr)'],
+          ['National ', ' National(fr)']]
+load_lookup(models.MyRegion, region)
+#
+# ----------------------------------------------------------------------------------------------------
 
 print("Data Load complete")

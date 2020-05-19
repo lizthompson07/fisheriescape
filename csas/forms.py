@@ -57,11 +57,31 @@ class MeetingForm(forms.ModelForm):
         model = models.MetMeeting
         exclude = []
         widgets = {
-            "chair_comments": Textarea(attrs={"rows": 1, "cols": 20}),
+
             "status_notes": Textarea(attrs={"rows": 1, "cols": 20}),
             "other_region": Textarea(attrs={"rows": 1, "cols": 20}),
-            "program_contact": Textarea(attrs={"rows": 1, "cols": 20}),
+            "chair": Textarea(attrs={"rows": 1, "cols": 20}),
             "csas_contact": Textarea(attrs={"rows": 1, "cols": 20}),
+            "program_contact": Textarea(attrs={"rows": 1, "cols": 20}),
+            "chair_comments": Textarea(attrs={"rows": 1, "cols": 20}),
+            "description": Textarea(attrs={"rows": 1, "cols": 20})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['program_contact'].wigets = forms.Select(choices=models.ConContact.objects.all())
+
+
+class MeetingFormDocs(forms.ModelForm):
+    class Meta:
+        model = models.MetMeetingDocs
+        exclude = []
+        widgets = {
+            # "chair_comments": Textarea(attrs={"rows": 1, "cols": 20}),
+            # "status_notes": Textarea(attrs={"rows": 1, "cols": 20}),
+            # "other_region": Textarea(attrs={"rows": 1, "cols": 20}),
+            # "program_contact": Textarea(attrs={"rows": 1, "cols": 20}),
+            # "csas_contact": Textarea(attrs={"rows": 1, "cols": 20}),
         }
 
     def __init__(self, *args, **kwargs):

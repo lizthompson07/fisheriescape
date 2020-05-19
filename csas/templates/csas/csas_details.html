@@ -11,21 +11,47 @@
 
 {% block body %}
 
-<br><br>
+<br>
 <div class="container mt-1" >
+    <div class="container card border border-dark text-center mt-2 pt-1">
+        <div class="card-header bg-transparent">
+            <div class="row">
+                <div class="col-lg">
+                    <h1>{% trans title %}</h1>
+                </div>
+                <div class="col-3 pt-1">
+                    <a class="btn btn-secondary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
+                    {# if the user is authenticated and has permissions show the Update button #}
+                    {# --------------------------------------------------------------------------------------- #}
+                    {# Yongcun: following line is not good, I used condition update_url=="csas:update_req",    #}
+                    {#          it's coupled too close with class DetailsCommon(DetailView) in "views.py"      #}
+                    {# --------------------------------------------------------------------------------------- #}
+                    {% if update_url == "csas:update_req" and auth %}
+                        <a class="btn btn-secondary" href="#"
+                           onclick="return popitup('{% url ''|add:update_url object.pk 'pop' %}','popoutWindow')"
+                           title="{% trans 'Add' %}">{% trans 'Update' %}</a>
+                    {% elif csas_admin %}
+                        <a class="btn btn-secondary" href="#"
+                           onclick="return popitup('{% url ''|add:update_url object.pk 'pop' %}','popoutWindow')"
+                           title="{% trans 'Add' %}">{% trans 'Update' %}</a>
+                    {% endif %}
+                </div>
+            </div>
+         </div>
+    </div>
+    <br>
     <div class="jumbotron">
-    <h2>{% trans title %}</h2><br>
-    <a class="btn btn-secondary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
-    <a class="btn btn-secondary" href="#" onclick="return popitup('{% url ''|add:update_url object.pk 'pop' %}','popoutWindow')" title="{% trans 'Add' %}">{% trans 'Update' %}</a>
-
-    {% block field_override %}
-        <h2>{{ object.prj_name }}</h2>
-        {% for field in fields %}
-        <div class="row" >
-            <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field%}</span></div>
-        </div>
-        {% endfor %}
-    {% endblock field_override %}
+        {% block field_override %}
+            <h2>{{ object.prj_name }}</h2>
+            {% for field in fields %}
+                <div class="row" >
+                    <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span>
+                                           <span>{% get_field_value object field%}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endblock field_override %}
     </div>
 </div>
+
 {% endblock %}
