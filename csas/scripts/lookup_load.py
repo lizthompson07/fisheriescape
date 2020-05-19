@@ -27,3 +27,4 @@ def load_lookup(src_file, model):
 print(models.SecSector.objects.all())
 
 load_lookup(r"csas\scripts\data\main_csas_sectors.tsv", models.SecSector)
+load_lookup(r"csas\scripts\data\main_csas_contact_types.tsv", models.ConContact)

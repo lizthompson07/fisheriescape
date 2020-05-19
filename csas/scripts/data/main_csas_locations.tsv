@@ -1,6 +1,6 @@
 old_loc_id	loc_id	name_en	name_fr
 999999	1	Not specified	Not specified (fr)
-182	1	""	""
+182	1
 1	9	427 VS, Bedford Institute of Oceanograohy, Dartmouth, NS
 2	129	Aquarium Boardroom, NEFSC, Woods Hole, Mass., USA
 4	9	Baffin Boardroom (via videoconference), Bedford Institute of Oceanography, Dartmouth, NS
@@ -39,7 +39,7 @@ old_loc_id	loc_id	name_en	name_fr
 36	38	Dartmouth, Nova Scotia
 37	38	Dartmouth, NS
 38	39	Days Inn, Dartmouth, NS
-39	40	Delta Beaus�jour Hotel, Moncton, NB
+39	40	Delta Beauséjour Hotel, Moncton, NB
 40	41	Delta Halifax Hotel, Halifax, Nova Scotia
 41	9	Ford Auditorium, Bedford Institute of Oceanography, Dartmouth, NS
 42	43	Fredericton Inn, Fredericton, New Brunswick
