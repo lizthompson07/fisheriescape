@@ -1,5 +1,6 @@
 import django
 import django_filters
+from django.utils.translation import gettext as _
 
 from . import models
 
@@ -36,8 +37,8 @@ class MorFilter(django_filters.FilterSet):
 
 
 class PrjFilter(django_filters.FilterSet):
-    prj_name = django_filters.CharFilter(field_name='tname', lookup_expr='icontains')
-    prj_description = django_filters.CharFilter(field_name='tdescription', lookup_expr='icontains')
+    name = django_filters.CharFilter(field_name=_("name"), lookup_expr='icontains')
+    description = django_filters.CharFilter(field_name=_("description_en"), lookup_expr='icontains')
 
     class Meta:
         model = models.PrjProject
