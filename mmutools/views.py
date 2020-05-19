@@ -2,6 +2,7 @@ from django.utils.translation import gettext as _
 
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
+from django.utils.safestring import mark_safe
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -9,7 +10,7 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import Count, TextField, F, Sum
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
@@ -405,6 +406,40 @@ class BulkQuantityListView(MmutoolsAdminAccessRequired, FilterView):
             'bin_id',
         ]
         return context
+
+# from https://github.com/ccnmtl/dmt/blob/master/dmt/main/views.py#L614
+# class BulkQuantityDetailView(MmutoolsAdminAccessRequired, DetailView):
+#     model = models.Quantity #or should this be Quantity? TBD
+#
+#     @staticmethod
+#     def reassign_status(request, quantities, new_status):
+#         item_names = []
+#         for pk in quantities:
+#             item = get_object_or_404(models.Quantity, pk=pk)
+#             item.reassign(request.quantity.status, new_status, '')
+#             item_names.append(
+#                 '<a href="{}">{}</a>'.format(
+#                     item.get_absolute_url(), item.item_name))
+#
+#         if len(item_names) > 0:
+#             msg = 'Assigned the following items to ' + \
+#                   '<strong>{}</strong>: {}'.format(
+#                       new_status.get_fullname(),
+#                       ', '.join(item_names))
+#             messages.success(request, mark_safe(msg))
+#
+#     def post(self, request, *args, **kwargs):
+#         action = request.POST.get('action')
+#         quantities = request.POST.getlist('_selected_action')
+#
+#         if action == 'edit' and request.POST.get('edit_status'):
+#             edit_status = request.POST.get('edit_status')
+#             status = get_object_or_404(Status, name=edit_status)
+#             self.reassign_status(request, quantities, status)
+#
+#         return HttpResponseRedirect(
+#             reverse('bulk_quantity_detail', args=args, kwargs=kwargs))
+
 
 class BulkQuantityDeleteView(MmutoolsAdminAccessRequired, DeleteView):
     model = models.Quantity

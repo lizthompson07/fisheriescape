@@ -33,6 +33,7 @@ urlpatterns = [
 # BULK QUANTITIES #
 
     path('bulk_quantity_list/', views.BulkQuantityListView.as_view(), name="bulk_quantity_list"),
+    path('bulk_quantity_detail/<int:pk>/view/', views.BulkQuantityDetailView.as_view(), name="bulk_quantity_detail"),
     path('quantity/<int:pk>/delete/', views.BulkQuantityDeleteView.as_view(), name="bulk_quantity_delete"),
 
 # LOCATION #

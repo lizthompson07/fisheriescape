@@ -196,6 +196,25 @@ class Quantity(models.Model):
     def get_absolute_url(self):
         return reverse("mmutools:quantity_detail", kwargs={"pk": self.id})
 
+    # from https://github.com/ccnmtl/dmt/blob/master/dmt/main/models.py
+    # def reassign(self, user, assigned_to, comment):
+    #     self.assigned_user = assigned_to.user
+    #     self.save()
+    #     e = Events.objects.create(
+    #         status="OPEN",
+    #         event_date_time=timezone.now(),
+    #         item=self)
+    #     Comment.objects.create(
+    #         event=e,
+    #         username=user.username,
+    #         author=user.user,
+    #         comment="<b>Reassigned to %s</b><br />\n%s" % (
+    #             assigned_to.fullname, comment),
+    #         add_date_time=timezone.now())
+    #     self.add_subscriber(assigned_to)
+
+    def get_fullname(self):
+        return self.item or self.id
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/item_<id>/<filename>
