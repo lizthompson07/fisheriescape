@@ -23,6 +23,16 @@ class Lookup(models.Model):
 
 
 # ----------------------------------------------------------------------------------------------------
+# Yongcun: This class will be replaced by shared_models.Region, and there are 7 places in "models.py"
+#          need to be changed from MyRegion to shared_models.Region
+#          It's just for temporarily usage on my desktop. Also, "scripts\data_load.py" needs to be
+#          modified accordingly too.
+#
+class MyRegion(shared_models.Lookup):
+    pass
+
+
+# ----------------------------------------------------------------------------------------------------
 # Create models for contacts
 #
 class CohHonorific(shared_models.Lookup):
@@ -61,7 +71,9 @@ class ConContact(models.Model):
                                                 verbose_name=_("Notification Preference"))
     phone = models.CharField(max_length=12, verbose_name=_("Phone"))
     email = models.CharField(max_length=255, verbose_name=_("E-mail"))
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
+    # region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
+    #                            verbose_name=_("Region"))
+    region = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("Region"))
     sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Sector"))
     role = models.ForeignKey(RolRole, on_delete=models.DO_NOTHING,
@@ -113,30 +125,63 @@ class MeqQuarter(shared_models.Lookup):
     pass
 
 
+class MdfMeetingDocsRef(shared_models.Lookup):
+    pass
+
+
+class MepMeetingExpectedPublication(shared_models.Lookup):
+    pass
+
+
 class MetMeeting(models.Model):
-    quarter = models.ForeignKey(MeqQuarter, on_delete=models.DO_NOTHING)
-    start_date = models.DateField(null=True, blank=True, verbose_name=_("Start Date"))
-    end_date = models.DateField(null=True, blank=True, verbose_name=_("End_Date"))
-    title_en = models.CharField(max_length=255, verbose_name=_("Title (English)"))
-    title_fr = models.CharField(max_length=255, verbose_name=_("Title (French)"))
-    scope = models.ForeignKey(ScpScope, on_delete=models.DO_NOTHING, verbose_name=_("Scope"))
-    status = models.ForeignKey(SttStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
-    chair_comments = models.TextField(null=True, blank=True, verbose_name=_("Chair Comments"))
+    title_en = models.CharField(max_length=255, verbose_name=_("Meeting Title (English)"))
+    title_fr = models.CharField(max_length=255, verbose_name=_("Meeting Title (French)"))
+    status = models.ForeignKey(SttStatus, on_delete=models.DO_NOTHING, verbose_name=_("Meeting Status"))
     status_notes = models.TextField(null=True, blank=True, verbose_name=_("Status Notes"))
-    location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING, verbose_name=_("Location"))
-    lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING,
-                                    verbose_name=_("Lead Region"))
-    other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
-                                          verbose_name=_("Other Region"))
+    quarter = models.ForeignKey(MeqQuarter, on_delete=models.DO_NOTHING, verbose_name=_("Meeting Quarter"))
+    start_date = models.DateField(null=True, blank=True, verbose_name=_("Meeting Start Date"))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("Meeting End Date"))
+    location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING, verbose_name=_("Meeting Location"))
+    scope = models.ForeignKey(ScpScope, on_delete=models.DO_NOTHING, verbose_name=_("Scope"))
     process_type = models.ForeignKey(AptAdvisoryProcessType, on_delete=models.DO_NOTHING,
-                                     verbose_name=_("Process Type"))
-    program_contact = models.ManyToManyField(ConContact, blank=True, related_name="program_contacts",
-                                             verbose_name=_("Program Contact"))
+                                     verbose_name=_("Type of Advisory Process"))
+    # lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING,
+    #                                 verbose_name=_("Lead Region"))
+    lead_region = models.ForeignKey(MyRegion, blank=True, on_delete=models.DO_NOTHING,
+                                    verbose_name=_("Lead Region"))
+    # other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
+    #                                       verbose_name=_("Other Regions"))
+    other_region = models.ManyToManyField(MyRegion, blank=True, related_name="other_regions",
+                                          verbose_name=_("Other Regions"))
+    chair = models.ManyToManyField(ConContact, blank=True, related_name="chairs", verbose_name=_("Chair(s)"))
     csas_contact = models.ManyToManyField(ConContact, blank=True, related_name="csas_contacts",
-                                          verbose_name=_("CSAS Contact"))
+                                          verbose_name=_("CSAS Contact(s)"))
+    program_contact = models.ManyToManyField(ConContact, blank=True, related_name="program_contacts",
+                                             verbose_name=_("Program Contact(s)"))
+    #
+    # Yongcun: before it has been published, how could it be linked to PubPublication model, it doesn't exit in database
+    #          Also, how can a user chose multiple publications
+    #
+    exp_publication = models.ForeignKey(MepMeetingExpectedPublication, null=True, blank=True,
+                                        on_delete=models.DO_NOTHING, verbose_name=_("Expected Publication(s)"))
+
+    chair_comments = models.TextField(null=True, blank=True, verbose_name=_("Chair Comments"))
+    description = models.TextField(null=True, blank=True, verbose_name=_("Description"))
 
     def __str__(self):
         return "{}/{}".format(self.title_en, self.title_fr)
+
+
+class MetMeetingDocs(models.Model):
+    meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
+    reference = models.ForeignKey(MdfMeetingDocsRef, blank=True, on_delete=models.DO_NOTHING,
+                                  verbose_name=_("Terms of Reference"))
+    date_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted"))
+    date_posted = models.DateField(null=True, blank=True, verbose_name=_("Date Posted"))
+    link_en = models.CharField(max_length=255, verbose_name=_("Link (English)"))
+    link_fr = models.CharField(max_length=255, verbose_name=_("Link (French)"))
+    attachment_en = models.CharField(max_length=255, verbose_name=_("Attachment (English)"))
+    attachment_fr = models.CharField(max_length=255, verbose_name=_("Attachment (French)"))
 
 
 class MecMeetingContact(models.Model):
@@ -180,7 +225,8 @@ class MefMeetingFile(models.Model):
 
 class MerOtherRegion(models.Model):
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
+    # region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
+    region = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return "{}".format(self.meeting)
@@ -209,7 +255,9 @@ class PubPublication(models.Model):
     series = models.ForeignKey(PsePublicationSeries, null=True, blank=True, on_delete=models.DO_NOTHING,
                                verbose_name=_("Series"))
     scope = models.ForeignKey(ScpScope, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Scope"))
-    lead_region = models.ForeignKey(shared_models.Region, null=True, blank=True, on_delete=models.DO_NOTHING,
+    # lead_region = models.ForeignKey(shared_models.Region, null=True, blank=True, on_delete=models.DO_NOTHING,
+    #                                 verbose_name=_("Lead Region"))
+    lead_region = models.ForeignKey(MyRegion, null=True, blank=True, on_delete=models.DO_NOTHING,
                                     verbose_name=_("Lead Region"))
     lead_author = models.ForeignKey(ConContact, null=True, blank=True, on_delete=models.DO_NOTHING,
                                     verbose_name=_("Lead Author"))
@@ -234,7 +282,8 @@ class MepExpectedPublication(models.Model):
 
 class PurOtherRegion(models.Model):
     pub_id = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
-    reg_id = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
+    # reg_id = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
+    reg_id = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING, blank=True, null=True)
 
 
 class PuaOtherAuthor(models.Model):
@@ -273,7 +322,8 @@ class ReqRequest(models.Model):
     assigned_req_id = models.CharField(max_length=45, verbose_name=_("Assigned Request Number"))
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     in_year_request = models.BooleanField(verbose_name=_("In-Year Request"))
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
+    # region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
+    region = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING, blank=True, null=True)
     client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
     client_name = models.CharField(max_length=100, verbose_name=_("Client Name"))
     client_title = models.CharField(max_length=100, verbose_name=_("Client Title"))
