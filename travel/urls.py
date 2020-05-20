@@ -107,6 +107,8 @@ urlpatterns = [
     path('settings/cost/<int:pk>/delete/', views.delete_cost, name="delete_cost"),
     path('settings/njc-rates/', views.manage_njc_rates, name="manage_njc_rates"),
     path('settings/njc-rate/<int:pk>/delete/', views.delete_njc_rate, name="delete_njc_rate"),
+    path('settings/trip-subcategory/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),
+    # path('settings/trip-subcategory/<int:pk>/delete/', views.delete_njc_rate, name="delete_njc_rate"),
 
     # default reviewer settings
     path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),

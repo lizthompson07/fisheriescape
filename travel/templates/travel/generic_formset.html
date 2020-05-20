@@ -1,0 +1,91 @@
+{% extends "travel/generic_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% load custom_tags %}
+
+{% block subcontent %}
+
+
+    <form method="post" class="form">
+        {% csrf_token %}
+
+        {{ formset.management_form }}
+        {% bootstrap_formset_errors formset %}
+        <div class="mt-3 mb-3">
+            <input type="submit" class="btn btn-primary" value=
+                    "{% if not submit_text %}{% trans "Save" %}{% else %}{{ submit_text }}{% endif %}">
+
+            <a class="btn btn-secondary" href="{{ back_url }}">
+                {% if not cancel_text %}
+                    {% trans "Back" %}
+                {% else %}
+                    {{ cancel_text }}
+                {% endif %}
+            </a>
+        </div>
+        <br><br>
+        <table class="table" style="width: auto">
+            <thead>
+            <th>Id</th>
+            {% for field in field_list %}
+                <th scope="col">{% get_verbose_label random_object field %}</th>
+            {% endfor %}
+            </thead>
+            <tbody>
+            {% for form in formset %}
+                <tr>
+                    <td>{{ form.instance.id|nz:"---" }}</td>
+                    {% for field in form %}
+                        <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
+                            {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                        </td>
+                    {% endfor %}
+                    {% if form.instance.id %}
+
+                        <td>
+
+                            {% if "status" in title|lower %}
+                                {% url 'travel:delete_status' form.instance.id as my_delete_url %}
+                            {% elif "help" in title|lower %}
+                                {% url 'travel:delete_help_text' form.instance.id as my_delete_url %}
+                            {% elif "cost categories" in title|lower %}
+                                {% url 'travel:delete_cost_category' form.instance.id as my_delete_url %}
+                            {% elif "costs" in title|lower %}
+                                {% url 'travel:delete_cost' form.instance.id as my_delete_url %}
+                            {% elif "njc" in title|lower %}
+                                {#                                    {% url 'travel:delete_njc_rate' form.instance.id as my_delete_url %}#}
+                            {% endif %}
+
+                            <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
+                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                            </a>
+                        </td>
+                    {% else %}
+                        <td>(new record)</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+
+            </tbody>
+        </table>
+
+        <div class="mt-3 mb-3">
+            <input type="submit" class="btn btn-primary" value=
+                    "{% if not submit_text %}{% trans "Save" %}{% else %}{{ submit_text }}{% endif %}">
+
+            <a class="btn btn-secondary" href="{{ back_url }}">
+                {% if not cancel_text %}
+                    {% trans "Back" %}
+                {% else %}
+                    {{ cancel_text }}
+                {% endif %}
+            </a>
+        </div>
+
+    </form>
+
+    {% block post_form_p %}{% endblock %}
+{% endblock %}
