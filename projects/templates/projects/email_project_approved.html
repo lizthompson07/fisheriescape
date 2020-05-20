@@ -13,11 +13,11 @@
     <p>
         Your project in the DM Apps Project Planning Application entitled
         <a href="{{ SITE_FULL_URL }}{% url 'projects:project_detail' object.id %}">{{ object.project_title }}</a>
-        has been approved by the The Science Management team!
+        has been approved by the Science Management team!
     </p>
 
     <p>
-        The amount of budget allocated to this project is {{ object.allocated_budget|currency:True }}.
+        The amount of budget allocated to this project is ${{ object.allocated_budget|currency }}.
     </p>
 
 {% else %}
@@ -34,15 +34,17 @@
 {% endif %}
 
 {% if object.meeting_notes %}
-    <p>
-        The following administrative notes were provided:
-        <br><br>
-        {{ object.meeting_notes }}
-    </p>
+    The following administrative notes were provided:
+    <ul>
+        <li>
+            {{ object.meeting_notes }}
+
+        </li>
+    </ul>
 {% endif %}
 
 <p>
-    If you have any questions, please don't hesitate to ask your section head.
+    If you have any questions, please don't hesitate to ask your manager.
 </p>
 
 
@@ -80,14 +82,16 @@
 {% endif %}
 
 {% if object.meeting_notes %}
-    <p>
-        Les notes administratives suivantes ont été fournies:
-        <br><br>
-        {{ object.meeting_notes }}
-    </p>
+    Les notes administratives suivantes ont été fournies:
+    <ul>
+        <li>
+            {{ object.meeting_notes }}
+
+        </li>
+    </ul>
 {% endif %}
 
 <p>
-    Si vous avez des questions, n'hésitez pas à demander à votre chef de section.
+    Si vous avez des questions, n'hésitez pas à demander à votre gestionnaire.
 </p>
 
