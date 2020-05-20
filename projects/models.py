@@ -318,7 +318,7 @@ class Project(models.Model):
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
-        if self.approved is not None:
+        if self.approved is not None and not self.notification_email_sent:
             email = emails.ProjectApprovalEmail(self)
             # send the email object
             custom_send_mail(
