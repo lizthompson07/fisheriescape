@@ -450,7 +450,7 @@ class CommonCommon():
         else:
             return [
                 {"title": _("Home"), "url": reverse(self.home_url_name)},
-                {"title": self.h1}
+                {"title": self.get_h1()}
             ]
 
     def get_container_class(self):
