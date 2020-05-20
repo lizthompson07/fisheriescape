@@ -2160,7 +2160,7 @@ class StatusFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     h1 = "Manage Status"
     queryset = models.Status.objects.all()
     formset_class = forms.StatusFormset
-    success_url_name = "travel:manage_statuses"
+    success_url = reverse_lazy("travel:manage_statuses")
     home_url_name = "travel:index"
     container_class = "container-fluid"
     # delete_url_name = "travel:delete_status"
@@ -2176,7 +2176,7 @@ class HelpTextFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     h1 = "Manage HelpText"
     queryset = models.HelpText.objects.all()
     formset_class = forms.HelpTextFormset
-    success_url_name = "travel:manage_help_text"
+    success_url = reverse_lazy("travel:manage_help_text")
     home_url_name = "travel:index"
     delete_url_name = "travel:delete_help_text"
 
@@ -2191,7 +2191,7 @@ class CostCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     h1 = "Manage Cost Category"
     queryset = models.CostCategory.objects.all()
     formset_class = forms.CostCategoryFormset
-    success_url_name = "travel:manage_cost_categories"
+    success_url = reverse_lazy("travel:manage_cost_categories")
     home_url_name = "travel:index"
     delete_url_name = "travel:delete_cost_category"
 
@@ -2206,7 +2206,7 @@ class CostFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     h1 = "Manage Cost"
     queryset = models.Cost.objects.all()
     formset_class = forms.CostFormset
-    success_url_name = "travel:manage_costs"
+    success_url = reverse_lazy("travel:manage_costs")
     home_url_name = "travel:index"
     delete_url_name = "travel:delete_cost"
 
@@ -2221,7 +2221,7 @@ class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     h1 = "Manage NJCRates"
     queryset = models.NJCRates.objects.all()
     formset_class = forms.NJCRatesFormset
-    success_url_name = "travel:manage_njc_rates"
+    success_url = reverse_lazy("travel:manage_njc_rates")
     home_url_name = "travel:index"
 
 
@@ -2230,7 +2230,7 @@ class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     h1 = "Manage Trip Subcategories"
     queryset = models.TripSubcategory.objects.all()
     formset_class = forms.TripSubcategoryFormset
-    success_url_name = "travel:manage_trip_subcategories"
+    success_url = reverse_lazy("travel:manage_trip_subcategories")
     home_url_name = "travel:index"
     delete_url_name = "travel:delete_trip_subcategory"
 

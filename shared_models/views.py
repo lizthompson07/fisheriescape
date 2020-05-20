@@ -647,21 +647,31 @@ class CommonFormsetView(TemplateView, CommonCommon):
     auth = True
     queryset = None
     formset_class = None
-    success_url_name = None
+    success_url = None
     home_url_name = None
     delete_url_name = None
     pre_display_fields = ["id", ]
     post_display_fields = None
+    random_object = None
 
     # override this if there are authorization requirements
     def get_queryset(self):
         return self.queryset
+
+    def get_success_url(self):
+        return self.success_url
 
     def get_pre_display_fields(self):
         return self.pre_display_fields
 
     def get_post_display_fields(self):
         return self.post_display_fields
+
+    def get_random_object(self):
+        if self.random_object:
+            return self.random_object
+        else:
+            return self.get_queryset().first()
 
     def test_func(self):
         return self.auth
@@ -675,7 +685,7 @@ class CommonFormsetView(TemplateView, CommonCommon):
         # Data, but not to create or modify it.
         context['auth'] = self.test_func()
         context['editable'] = context['auth']
-        context['random_object'] = self.get_queryset().first()
+        context['random_object'] = self.get_random_object()
         context['delete_url_name'] = self.delete_url_name
         context['container_class'] = self.container_class
 
@@ -697,7 +707,7 @@ class CommonFormsetView(TemplateView, CommonCommon):
             formset.save()
             # do something with the formset.cleaned_data
             messages.success(self.request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse(self.success_url_name))
+            return HttpResponseRedirect(self.get_success_url())
             # return self.form_valid(formset)
         else:
             return self.render_to_response(self.get_context_data(formset=formset))
