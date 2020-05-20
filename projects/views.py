@@ -25,6 +25,7 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
+from shared_models.views import CommonHardDeleteView, CommonFormsetView, CommonTemplateView, CommonFormView
 from . import models
 from . import forms
 from . import emails
@@ -643,7 +644,6 @@ class SectionListView(LoginRequiredMixin, FilterView):
         context['unrecommended_projects'] = object_list.filter(recommended_for_funding=False, submitted=True)
         context['unsubmitted_projects'] = object_list.filter(submitted=False)
 
-
         # CAN PROBABLY DELETE THIS
         # in FY 2021, MAR Region is looking at only submitted projects (don't care about approved status for now)
         # This should be delete once the process in both regions is the same
@@ -654,7 +654,6 @@ class SectionListView(LoginRequiredMixin, FilterView):
         # else:
         #     approved_projects = object_list.filter(submitted=True)
         # approved_projects = object_list.filter(submitted=True)
-
 
         recommended_projects = object_list.filter(recommended_for_funding=True, submitted=True)
         context['recommended_projects'] = recommended_projects
@@ -1711,349 +1710,154 @@ class UserCreateView(LoginRequiredMixin, FormView):
 
 # SETTINGS #
 ############
-
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_funding_source(request, pk):
-    my_obj = models.FundingSource.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_funding_sources"))
+class FundingSourceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.FundingSource
+    success_url = reverse_lazy("projects:manage_funding_sources")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_funding_sources(request):
-    qs = models.FundingSource.objects.all()
-    if request.method == 'POST':
-        formset = forms.FundingSourceFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_funding_sources"))
-    else:
-        formset = forms.FundingSourceFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'nom',
-        'color',
-    ]
-    context['title'] = "Manage Funding Sources"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class FundingSourceFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage Funding Source"
+    queryset = models.FundingSource.objects.all()
+    formset_class = forms.FundingSourceFormset
+    success_url_name = "projects:manage_funding_sources"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_funding_source"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_om_cat(request, pk):
-    my_obj = models.OMCategory.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_om_cats"))
+class OMCategoryHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.OMCategory
+    success_url = reverse_lazy("projects:manage_om_cats")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_om_cats(request):
-    qs = models.OMCategory.objects.all()
-    if request.method == 'POST':
-        formset = forms.OMCategoryFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_om_cats"))
-    else:
-        formset = forms.OMCategoryFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'nom',
-        'group',
-    ]
-    context['title'] = "Manage O & M Categories"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class OMCategoryFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage OMCategory"
+    queryset = models.OMCategory.objects.all()
+    formset_class = forms.OMCategoryFormset
+    success_url_name = "projects:manage_om_cats"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_om_cat"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_employee_type(request, pk):
-    my_obj = models.EmployeeType.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_employee_types"))
+class EmployeeTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.EmployeeType
+    success_url = reverse_lazy("projects:manage_employee_types")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_employee_types(request):
-    qs = models.EmployeeType.objects.all()
-    if request.method == 'POST':
-        formset = forms.EmployeeTypeFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_employee_types"))
-    else:
-        formset = forms.EmployeeTypeFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'nom',
-        'cost_type',
-        'exclude_from_rollup',
-    ]
-    context['title'] = "Manage Employee Types"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class EmployeeTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage Employee Type"
+    queryset = models.EmployeeType.objects.all()
+    formset_class = forms.EmployeeTypeFormset
+    success_url_name = "projects:manage_employee_types"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_employee_type"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_status(request, pk):
-    my_obj = models.Status.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_statuses"))
+class StatusHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Status
+    success_url = reverse_lazy("projects:manage_statuses")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_statuses(request):
-    qs = models.Status.objects.all()
-    if request.method == 'POST':
-        formset = forms.StatusFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_statuses"))
-    else:
-        formset = forms.StatusFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'used_for',
-        'name',
-        'nom',
-        'order',
-        'color',
-    ]
-    context['title'] = "Manage Statuses"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class StatusFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage Status"
+    queryset = models.Status.objects.all()
+    formset_class = forms.StatusFormset
+    success_url_name = "projects:manage_statuses"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_status"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_tag(request, pk):
-    my_obj = models.Tag.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_tags"))
+class TagHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Tag
+    success_url = reverse_lazy("projects:manage_tags")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_tags(request):
-    qs = models.Tag.objects.all()
-    if request.method == 'POST':
-        formset = forms.TagFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_tags"))
-    else:
-        formset = forms.TagFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'nom',
-    ]
-    context['title'] = "Manage Tags"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage Tag"
+    queryset = models.Tag.objects.all()
+    formset_class = forms.TagFormset
+    success_url_name = "projects:manage_tags"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_tag"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_help_text(request, pk):
-    my_obj = models.HelpText.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_help_text"))
+class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("projects:manage_help_text")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_help_text(request):
-    qs = models.HelpText.objects.all()
-    if request.method == 'POST':
-        formset = forms.HelpTextFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_help_text"))
-    else:
-        formset = forms.HelpTextFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'field_name',
-        'eng_text',
-        'fra_text',
-    ]
-    context['title'] = "Manage Help Text"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage Help Text"
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url_name = "projects:manage_help_text"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_help_text"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_level(request, pk):
-    my_obj = models.Level.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_levels"))
+class LevelHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Level
+    success_url = reverse_lazy("projects:manage_levels")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_levels(request):
-    qs = models.Level.objects.all()
-    if request.method == 'POST':
-        formset = forms.LevelFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_levels"))
-    else:
-        formset = forms.LevelFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-    ]
-    context['title'] = "Manage Levels"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class LevelFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage Level"
+    queryset = models.Level.objects.all()
+    formset_class = forms.LevelFormset
+    success_url_name = "projects:manage_levels"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_level"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_program(request, pk):
-    my_obj = models.Program.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_programs"))
+class ProgramHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Program
+    success_url = reverse_lazy("projects:manage_programs")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_programs(request):
-    qs = models.Program.objects.all().order_by("regional_program_name_eng")
-    if request.method == 'POST':
-        formset = forms.ProgramFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_programs"))
-    else:
-        formset = forms.ProgramFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'national_responsibility_eng|National responsibility',
-        'program_inventory',
-        'funding_source_and_type',
-        'regional_program_name_eng|Regional program name',
-        'short_name',
-        'is_core',
-        'examples',
-        'theme',
-    ]
-    context['title'] = "Manage Programs"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class ProgramFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage Program"
+    queryset = models.Program.objects.all()
+    formset_class = forms.ProgramFormset
+    success_url_name = "projects:manage_programs"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_program"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_activity_type(request, pk):
-    my_obj = models.ActivityType.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_activity_types"))
+class ActivityTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.ActivityType
+    success_url = reverse_lazy("projects:manage_activity_types")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_activity_types(request):
-    qs = models.ActivityType.objects.all()
-    if request.method == 'POST':
-        formset = forms.ActivityTypeFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_activity_types"))
-    else:
-        formset = forms.ActivityTypeFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'nom',
-    ]
-    context['title'] = "Manage Activity Types"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage ActivityType"
+    queryset = models.ActivityType.objects.all()
+    formset_class = forms.ActivityTypeFormset
+    success_url_name = "projects:manage_activity_types"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_activity_type"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def delete_theme(request, pk):
-    my_obj = models.Theme.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("projects:manage_functional_groups"))
+class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Theme
+    success_url = reverse_lazy("projects:manage_functional_groups")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def manage_themes(request):
-    qs = models.Theme.objects.all()
-    if request.method == 'POST':
-        formset = forms.ThemeFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("projects:manage_themes"))
-    else:
-        formset = forms.ThemeFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'nom',
-    ]
-    context['title'] = "Manage Themes"
-    context['formset'] = formset
-    return render(request, 'projects/manage_settings_small.html', context)
+class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    h1 = "Manage Theme"
+    queryset = models.Theme.objects.all()
+    formset_class = forms.ThemeFormset
+    success_url_name = "projects:manage_themes"
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete_theme"
 
 
 class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
@@ -2145,6 +1949,37 @@ class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterVie
         context["section_year_program_dict"] = section_year_program_dict
         return context
 
+
+class ProjectApprovalsSearchView(AdminRequiredMixin, CommonFormView):
+    template_name = 'projects/generic_form.html'
+    form_class = forms.ApprovalQueryBuildForm
+    h1 = _("Find Projects to Approve")
+    home_url_name = "projects:index"
+
+    def form_valid(self, form):
+        region = int(form.cleaned_data.get("region"))
+        fy = int(form.cleaned_data.get("fiscal_year"))
+        return HttpResponseRedirect(reverse("projects:admin_project_approval", kwargs={"region": region, "fy": fy}))
+
+
+class ProjectApprovalFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/generic_formset.html'
+    formset_class = forms.ProjectApprovalFormset
+    success_url_name = "projects:project_approvals"
+    home_url_name = "projects:admin_project_approval_search"
+    pre_display_fields = ["id", "project_title"]
+    post_display_fields = ["notification_email_sent", ]
+
+    def get_queryset(self):
+        return models.Project.objects.filter(
+            recommended_for_funding=True,
+            section__division__branch__region_id=self.kwargs.get("region"),
+            year=self.kwargs.get("fy"))
+
+    def get_h1(self):
+        region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+        fy = shared_models.FiscalYear.objects.get(pk=self.kwargs.get("fy"))
+        return  f"Setting Project Approvals for {region} ({fy})"
 
 # STATUS REPORT #
 #################
@@ -3195,7 +3030,6 @@ class IWGroupList(LoginRequiredMixin, FormView):
         elif my_region:
             project_list = project_list.filter(section__division__branch__region=my_region)
 
-
         # This view is being retrofitted to be able to show projects by Theme/Program (instead of only by division/section)
         if self.kwargs.get("type") == "theme":
             big_list = models.Theme.objects.filter(functional_groups__projects__in=project_list).distinct().order_by()
@@ -3384,7 +3218,6 @@ class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
             project_list = project_list.filter(section__division=my_division)
         elif my_region:
             project_list = project_list.filter(section__division__branch__region=my_region)
-
 
         if self.kwargs.get("type") == "theme":
             project_list = project_list.filter(section__division__branch__region=my_region)

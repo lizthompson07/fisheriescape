@@ -28,7 +28,7 @@ from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
-from shared_models.views import FormsetCommon, HardDeleteView
+from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from . import models
 from . import forms
 from . import reports
@@ -2151,11 +2151,11 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 # SETTINGS #
 ############
 
-# class StatusHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+# class StatusHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
 #     model = models.Status
 #     success_url = reverse_lazy("travel:manage_statuses")
 
-class StatusFormsetView(FormsetCommon):
+class StatusFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/generic_formset.html'
     h1 = "Manage Status"
     queryset = models.Status.objects.all()
@@ -2166,12 +2166,12 @@ class StatusFormsetView(FormsetCommon):
     # delete_url_name = "travel:delete_status"
 
 
-class HelpTextHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+class HelpTextHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.HelpText
     success_url = reverse_lazy("travel:manage_help_text")
 
 
-class HelpTextFormsetView(FormsetCommon):
+class HelpTextFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/generic_formset.html'
     h1 = "Manage HelpText"
     queryset = models.HelpText.objects.all()
@@ -2181,12 +2181,12 @@ class HelpTextFormsetView(FormsetCommon):
     delete_url_name = "travel:delete_help_text"
 
 
-class CostCategoryHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+class CostCategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.CostCategory
     success_url = reverse_lazy("travel:manage_cost_categories")
 
 
-class CostCategoryFormsetView(FormsetCommon):
+class CostCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/generic_formset.html'
     h1 = "Manage Cost Category"
     queryset = models.CostCategory.objects.all()
@@ -2196,12 +2196,12 @@ class CostCategoryFormsetView(FormsetCommon):
     delete_url_name = "travel:delete_cost_category"
 
 
-class CostHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+class CostHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.Cost
     success_url = reverse_lazy("travel:manage_costs")
 
 
-class CostFormsetView(FormsetCommon):
+class CostFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/generic_formset.html'
     h1 = "Manage Cost"
     queryset = models.Cost.objects.all()
@@ -2211,12 +2211,12 @@ class CostFormsetView(FormsetCommon):
     delete_url_name = "travel:delete_cost"
 
 #
-# class NJCRatesHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+# class NJCRatesHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
 #     model = models.NJCRates
 #     success_url = reverse_lazy("travel:manage_njc_rates")
 
 
-class NJCRatesFormsetView(FormsetCommon):
+class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/generic_formset.html'
     h1 = "Manage NJCRates"
     queryset = models.NJCRates.objects.all()
@@ -2225,7 +2225,7 @@ class NJCRatesFormsetView(FormsetCommon):
     home_url_name = "travel:index"
 
 
-class TripSubcategoryFormsetView(TravelAdminRequiredMixin, FormsetCommon):
+class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/generic_formset.html'
     h1 = "Manage Trip Subcategories"
     queryset = models.TripSubcategory.objects.all()
@@ -2235,7 +2235,7 @@ class TripSubcategoryFormsetView(TravelAdminRequiredMixin, FormsetCommon):
     delete_url_name = "travel:delete_trip_subcategory"
 
 
-class TripSubcategoryHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+class TripSubcategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.TripSubcategory
     success_url = reverse_lazy("travel:manage_trip_subcategories")
 
