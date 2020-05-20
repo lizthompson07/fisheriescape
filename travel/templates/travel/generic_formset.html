@@ -27,7 +27,7 @@
             </a>
         </div>
         <br><br>
-        <table class="table" style="width: auto">
+        <table class="table" >
             <thead>
             <th>Id</th>
             {% for field in field_list %}
@@ -44,25 +44,13 @@
                         </td>
                     {% endfor %}
                     {% if form.instance.id %}
-
-                        <td>
-
-                            {% if "status" in title|lower %}
-                                {% url 'travel:delete_status' form.instance.id as my_delete_url %}
-                            {% elif "help" in title|lower %}
-                                {% url 'travel:delete_help_text' form.instance.id as my_delete_url %}
-                            {% elif "cost categories" in title|lower %}
-                                {% url 'travel:delete_cost_category' form.instance.id as my_delete_url %}
-                            {% elif "costs" in title|lower %}
-                                {% url 'travel:delete_cost' form.instance.id as my_delete_url %}
-                            {% elif "njc" in title|lower %}
-                                {#                                    {% url 'travel:delete_njc_rate' form.instance.id as my_delete_url %}#}
-                            {% endif %}
-
-                            <a class="delete-btn" href="#" delete_url="{{ my_delete_url }}">
-                                <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
-                            </a>
-                        </td>
+                        {% if delete_url_name %}
+                            <td>
+                                <a class="delete-btn" href="#" delete_url="{% url delete_url_name form.instance.id %}">
+                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                                </a>
+                            </td>
+                        {% endif %}
                     {% else %}
                         <td>(new record)</td>
                     {% endif %}
@@ -88,4 +76,23 @@
     </form>
 
     {% block post_form_p %}{% endblock %}
+{% endblock %}
+{% block body_js %}
+    <script type="application/javascript">
+
+        $(".delete-btn").click(function () {
+            input = confirm("Are you sure you want to delete this line?");
+            if (input) {
+                window.location.href = $(this).attr("delete_url");
+            }
+        });
+
+        $(".color-cell").each(function () {
+            let myColor = $(this).attr("color-value");
+            $(this).children().children("input").css("background-color", myColor);
+        });
+
+
+    </script>
+
 {% endblock %}

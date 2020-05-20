@@ -28,7 +28,7 @@ from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
-from shared_models.views import FormsetCommon
+from shared_models.views import FormsetCommon, HardDeleteView
 from . import models
 from . import forms
 from . import reports
@@ -1228,7 +1228,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
             # else:
             qs = models.Reviewer.objects.filter(trip_request=my_trip_request)
             if request.method == 'POST':
-                formset = forms.ReviewerFormSet(request.POST)
+                formset = forms.ReviewerFormset(request.POST)
                 if formset.is_valid():
                     formset.save()
 
@@ -1237,7 +1237,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
                     messages.success(request, _("The reviewer list has been successfully updated"))
                     return HttpResponseRedirect(reverse("travel:manage_tr_reviewers", kwargs={"triprequest": my_trip_request.id}))
             else:
-                formset = forms.ReviewerFormSet(
+                formset = forms.ReviewerFormset(
                     queryset=qs,
                     initial=[{"trip_request": my_trip_request}],
                 )
@@ -1262,7 +1262,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
         else:
             qs = models.TripReviewer.objects.filter(trip=trip)
             if request.method == 'POST':
-                formset = forms.TripReviewerFormSet(request.POST)
+                formset = forms.TripReviewerFormset(request.POST)
                 if formset.is_valid():
                     formset.save()
 
@@ -1271,7 +1271,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
                     messages.success(request, _("The reviewer list has been successfully updated"))
                     return HttpResponseRedirect(reverse("travel:manage_trip_reviewers", kwargs={"trip": my_trip.id}))
             else:
-                formset = forms.TripReviewerFormSet(
+                formset = forms.TripReviewerFormset(
                     queryset=qs,
                     initial=[{"trip": my_trip}],
                 )
@@ -2151,195 +2151,93 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 # SETTINGS #
 ############
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def delete_status(request, pk):
-    my_obj = models.Status.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("travel:manage_statuses"))
+# class StatusHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+#     model = models.Status
+#     success_url = reverse_lazy("travel:manage_statuses")
+
+class StatusFormsetView(FormsetCommon):
+    template_name = 'travel/generic_formset.html'
+    h1 = "Manage Status"
+    queryset = models.Status.objects.all()
+    formset_class = forms.StatusFormset
+    success_url_name = "travel:manage_statuses"
+    home_url_name = "travel:index"
+    container_class = "container-fluid"
+    # delete_url_name = "travel:delete_status"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def manage_statuses(request):
-    qs = models.Status.objects.all()
-    if request.method == 'POST':
-        formset = forms.StatusFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("travel:manage_statuses"))
-    else:
-        formset = forms.StatusFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'used_for',
-        'name',
-        'nom',
-        'order',
-        'color',
-    ]
-    context['title'] = "Manage Statuses"
-    context['formset'] = formset
-    return render(request, 'travel/manage_settings_small.html', context)
+class HelpTextHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("travel:manage_help_text")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def delete_help_text(request, pk):
-    my_obj = models.HelpText.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("travel:manage_help_text"))
+class HelpTextFormsetView(FormsetCommon):
+    template_name = 'travel/generic_formset.html'
+    h1 = "Manage HelpText"
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url_name = "travel:manage_help_text"
+    home_url_name = "travel:index"
+    delete_url_name = "travel:delete_help_text"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def manage_help_text(request):
-    qs = models.HelpText.objects.all()
-    if request.method == 'POST':
-        formset = forms.HelpTextFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("travel:manage_help_text"))
-    else:
-        formset = forms.HelpTextFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'field_name',
-        'eng_text',
-        'fra_text',
-    ]
-    context['title'] = "Manage Help Text"
-    context['formset'] = formset
-    return render(request, 'travel/manage_settings_small.html', context)
+class CostCategoryHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+    model = models.CostCategory
+    success_url = reverse_lazy("travel:manage_cost_categories")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def delete_cost_category(request, pk):
-    my_obj = models.CostCategory.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("travel:manage_cost_categories"))
+class CostCategoryFormsetView(FormsetCommon):
+    template_name = 'travel/generic_formset.html'
+    h1 = "Manage Cost Category"
+    queryset = models.CostCategory.objects.all()
+    formset_class = forms.CostCategoryFormset
+    success_url_name = "travel:manage_cost_categories"
+    home_url_name = "travel:index"
+    delete_url_name = "travel:delete_cost_category"
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def manage_cost_categories(request):
-    qs = models.CostCategory.objects.all()
-    if request.method == 'POST':
-        formset = forms.CostCategoryFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("travel:manage_cost_categories"))
-    else:
-        formset = forms.CostCategoryFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'nom',
-        'order',
-    ]
-    context['title'] = "Manage Cost Categories"
-    context['formset'] = formset
-    return render(request, 'travel/manage_settings_small.html', context)
+class CostHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+    model = models.Cost
+    success_url = reverse_lazy("travel:manage_costs")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def delete_cost(request, pk):
-    my_obj = models.Cost.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("travel:manage_costs"))
+class CostFormsetView(FormsetCommon):
+    template_name = 'travel/generic_formset.html'
+    h1 = "Manage Cost"
+    queryset = models.Cost.objects.all()
+    formset_class = forms.CostFormset
+    success_url_name = "travel:manage_costs"
+    home_url_name = "travel:index"
+    delete_url_name = "travel:delete_cost"
+
+#
+# class NJCRatesHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+#     model = models.NJCRates
+#     success_url = reverse_lazy("travel:manage_njc_rates")
 
 
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def manage_costs(request):
-    qs = models.Cost.objects.all()
-    if request.method == 'POST':
-        formset = forms.CostFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("travel:manage_costs"))
-    else:
-        formset = forms.CostFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'nom',
-        'cost_category',
-    ]
-    context['title'] = "Manage Costs"
-    context['formset'] = formset
-    return render(request, 'travel/manage_settings_small.html', context)
-
-
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def delete_njc_rate(request, pk):
-    my_obj = models.NJCRates.objects.get(pk=pk)
-    my_obj.delete()
-    return HttpResponseRedirect(reverse("travel:manage_njc_rates"))
-
-
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def manage_njc_rates(request):
-    qs = models.NJCRates.objects.all()
-    if request.method == 'POST':
-        formset = forms.NJCRatesFormSet(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(request, "Items have been successfully updated")
-            return HttpResponseRedirect(reverse("travel:manage_njc_rates"))
-    else:
-        formset = forms.NJCRatesFormSet(
-            queryset=qs)
-    context = {}
-    context["my_object"] = qs.first()
-    context["field_list"] = [
-        'name',
-        'amount',
-    ]
-    context['title'] = "Manage NJC Rates"
-    context['formset'] = formset
-    return render(request, 'travel/manage_settings_small.html', context)
+class NJCRatesFormsetView(FormsetCommon):
+    template_name = 'travel/generic_formset.html'
+    h1 = "Manage NJCRates"
+    queryset = models.NJCRates.objects.all()
+    formset_class = forms.NJCRatesFormset
+    success_url_name = "travel:manage_njc_rates"
+    home_url_name = "travel:index"
 
 
 class TripSubcategoryFormsetView(TravelAdminRequiredMixin, FormsetCommon):
     template_name = 'travel/generic_formset.html'
     h1 = "Manage Trip Subcategories"
-    subtitle = h1
     queryset = models.TripSubcategory.objects.all()
     formset_class = forms.TripSubcategoryFormset
     success_url_name = "travel:manage_trip_subcategories"
     home_url_name = "travel:index"
-
-    field_list = [
-        'name',
-        'nom',
-        'description_en',
-        'description_fr',
-        'trip_category',
-    ]
+    delete_url_name = "travel:delete_trip_subcategory"
 
 
+class TripSubcategoryHardDeleteView(TravelAdminRequiredMixin, HardDeleteView):
+    model = models.TripSubcategory
+    success_url = reverse_lazy("travel:manage_trip_subcategories")
 
 
 # Default Reviewer Settings

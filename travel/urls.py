@@ -97,18 +97,18 @@ urlpatterns = [
 
     # SETTINGS #
     ############
-    path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
-    path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
-    path('settings/help-text/', views.manage_help_text, name="manage_help_text"),
-    path('settings/help-text/<int:pk>/delete/', views.delete_help_text, name="delete_help_text"),
-    path('settings/cost-categories/', views.manage_cost_categories, name="manage_cost_categories"),
-    path('settings/cost-category/<int:pk>/delete/', views.delete_cost_category, name="delete_cost_category"),
-    path('settings/costs/', views.manage_costs, name="manage_costs"),
-    path('settings/cost/<int:pk>/delete/', views.delete_cost, name="delete_cost"),
-    path('settings/njc-rates/', views.manage_njc_rates, name="manage_njc_rates"),
-    path('settings/njc-rate/<int:pk>/delete/', views.delete_njc_rate, name="delete_njc_rate"),
-    path('settings/trip-subcategory/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),
-    # path('settings/trip-subcategory/<int:pk>/delete/', views.delete_njc_rate, name="delete_njc_rate"),
+    path('settings/statuses/', views.StatusFormsetView.as_view(), name="manage_statuses"),
+    # path('settings/status/<int:pk>/delete/', views.StatusHardDeleteView.as_view(), name="delete_status"),
+    path('settings/help-text/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
+    path('settings/cost-categories/', views.CostCategoryFormsetView.as_view(), name="manage_cost_categories"),
+    path('settings/cost-category/<int:pk>/delete/', views.CostCategoryHardDeleteView.as_view(), name="delete_cost_category"),
+    path('settings/costs/', views.CostFormsetView.as_view(), name="manage_costs"),
+    path('settings/cost/<int:pk>/delete/', views.CostHardDeleteView.as_view(), name="delete_cost"),
+    path('settings/njc-rates/', views.NJCRatesFormsetView.as_view(), name="manage_njc_rates"),
+    # path('settings/njc-rate/<int:pk>/delete/', views.NJCRatesHardDeleteView.as_view(), name="delete_njc_rate"),
+    path('settings/trip-subcategories/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),
+    path('settings/trip-subcategory/<int:pk>/delete/', views.TripSubcategoryHardDeleteView.as_view(), name="delete_trip_subcategory"),
 
     # default reviewer settings
     path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),
