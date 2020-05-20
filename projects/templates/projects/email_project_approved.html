@@ -15,10 +15,11 @@
         <a href="{{ SITE_FULL_URL }}{% url 'projects:project_detail' object.id %}">{{ object.project_title }}</a>
         has been approved by the Science Management team!
     </p>
-
-    <p>
-        The amount of budget allocated to this project is ${{ object.allocated_budget|currency }}.
-    </p>
+    {% if object.allocated_budget %}
+        <p>
+            The amount of budget allocated to this project is ${{ object.allocated_budget|currency }}.
+        </p>
+    {% endif %}
 
 {% else %}
 
@@ -63,10 +64,11 @@
         <a href="{{ SITE_FULL_URL }}{% url 'projects:project_detail' object.id %}">{{ object.project_title }}</a>
         a été approuvé par l'équipe de gestion des sciences!
     </p>
-
-    <p>
-        Le montant du budget alloué à ce projet est de {{ object.allocated_budget|currency:True }}.
-    </p>
+    {% if object.allocated_budget %}
+        <p>
+            Le montant du budget alloué à ce projet est de {{ object.allocated_budget|currency:True }}.
+        </p>
+    {% endif %}
 {% else %}
     <p>Bonjour,</p>
 
