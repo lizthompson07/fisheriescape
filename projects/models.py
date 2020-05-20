@@ -129,7 +129,6 @@ class FunctionalGroup(SimpleLookup):
     theme = models.ForeignKey(Theme, on_delete=models.DO_NOTHING, related_name="functional_groups", blank=True, null=True)
 
 
-
 class ActivityType(SimpleLookup):
     pass
 
@@ -155,6 +154,7 @@ class FundingSource(SimpleLookup):
 
 class Tag(SimpleLookup):
     pass
+
 
 class Status(SimpleLookup):
     # choices for used_for
@@ -400,7 +400,13 @@ class Project(models.Model):
 
     @property
     def total_capital(self):
-        return None
+        return nz(self.capital_costs.aggregate(dsum=Sum("budget_requested"))['dsum'], 0)
+
+    @property
+    def total_cost(self):
+        return nz(self.staff_members.all().aggregate(dsum=Sum("cost"))['dsum'], 0) + \
+               nz(self.om_costs.aggregate(dsum=Sum("budget_requested"))['dsum'], 0) + \
+               nz(self.capital_costs.aggregate(dsum=Sum("budget_requested"))['dsum'], 0)
 
 
 class EmployeeType(SimpleLookup):
@@ -413,7 +419,6 @@ class EmployeeType(SimpleLookup):
     ]
     cost_type = models.IntegerField(choices=COST_TYPE_CHOICES)
     exclude_from_rollup = models.BooleanField(default=False)
-
 
 
 class Level(SimpleLookup):
