@@ -1,0 +1,2480 @@
+[
+  {
+    "model": "shared_models.project",
+    "pk": 10004,
+    "fields": {
+      "name": "General",
+      "code": "00000",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1031,
+    "fields": {
+      "name": "AZMP Equipment & Instrumentation",
+      "code": "11464",
+      "description": null,
+      "project_lead": "J. Chass\u00e9",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 26,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10050,
+    "fields": {
+      "name": "Regional Director of Science",
+      "code": "21000",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": 10029,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10055,
+    "fields": {
+      "name": "Assoc. Sci. Director's Office",
+      "code": "21014",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": 10031,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10024,
+    "fields": {
+      "name": "Director\u2019s office (21301)",
+      "code": "21301",
+      "description": "",
+      "project_lead": "Director\u2019s office",
+      "default_responsibility_center": 10030,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10025,
+    "fields": {
+      "name": "Director\u2019s office (21369)",
+      "code": "21369",
+      "description": "",
+      "project_lead": "Director\u2019s office",
+      "default_responsibility_center": 10030,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10011,
+    "fields": {
+      "name": "Shelf Climate Variability",
+      "code": "21721",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10008,
+    "fields": {
+      "name": "ODIS Administration",
+      "code": "21769",
+      "description": "Ocean Data and Information Section (ODIS) administration",
+      "project_lead": "Spears, Tobias",
+      "default_responsibility_center": 10028,
+      "default_allotment_code": 3,
+      "default_business_line": 10010,
+      "default_line_object": 954
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10056,
+    "fields": {
+      "name": "Science - IMIT Supplemental SLA Charges",
+      "code": "2176F",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10048,
+    "fields": {
+      "name": "AZOMP",
+      "code": "21783",
+      "description": "AZOMP",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10010,
+    "fields": {
+      "name": "Administration",
+      "code": "21792",
+      "description": "Administration",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10054,
+    "fields": {
+      "name": "Meetings",
+      "code": "22PA5",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10057,
+    "fields": {
+      "name": "Section administration- B. Patten",
+      "code": "50184",
+      "description": "Stock Assessment and Research Division, Fishery & Assessment Data Section administration budget",
+      "project_lead": "Shelee Hamilton",
+      "default_responsibility_center": 10033,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10006,
+    "fields": {
+      "name": "Program coordination - International Governance",
+      "code": "61540",
+      "description": "",
+      "project_lead": "C. Breau",
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 184,
+    "fields": {
+      "name": "Science Director's Office",
+      "code": "71001",
+      "description": null,
+      "project_lead": "D. Bliss",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 763,
+    "fields": {
+      "name": "Employee Relocation Fees",
+      "code": "71001A",
+      "description": null,
+      "project_lead": "D. Bliss",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 878,
+    "fields": {
+      "name": "Capital using AZMP Budget in error",
+      "code": "71001B",
+      "description": null,
+      "project_lead": "D. Bliss",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 701,
+    "fields": {
+      "name": "Business Services",
+      "code": "71004",
+      "description": "",
+      "project_lead": "K. Bertolin",
+      "default_responsibility_center": 3,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 819,
+    "fields": {
+      "name": "Science Advisory - Gulf",
+      "code": "71016",
+      "description": null,
+      "project_lead": "G. Chaput",
+      "default_responsibility_center": 104,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 675,
+    "fields": {
+      "name": "FSCP Administration",
+      "code": "71026A",
+      "description": "",
+      "project_lead": "M. Hardy",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 677,
+    "fields": {
+      "name": "FSCP Lobster Juvenile Ecology / SCUBA",
+      "code": "71026C",
+      "description": null,
+      "project_lead": "A. Rondeau",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 684,
+    "fields": {
+      "name": "FSCP Herring Study",
+      "code": "71026J",
+      "description": null,
+      "project_lead": "F. Turcotte",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 827,
+    "fields": {
+      "name": "FSCP Lobster  Biodiversity / Collectors",
+      "code": "71026P",
+      "description": null,
+      "project_lead": "A. Rondeau",
+      "default_responsibility_center": 42,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 896,
+    "fields": {
+      "name": "FSCP Lobster Fishery Questionnaire",
+      "code": "71026U",
+      "description": null,
+      "project_lead": "A. Rondeau",
+      "default_responsibility_center": 42,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10005,
+    "fields": {
+      "name": "FSCP Temperatures Sea Scallop",
+      "code": "71026X",
+      "description": "",
+      "project_lead": "R. Sonier",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 37,
+      "default_business_line": 10007,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 172,
+    "fields": {
+      "name": "Division Management",
+      "code": "71101",
+      "description": "",
+      "project_lead": "M. Hardy",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 915,
+    "fields": {
+      "name": "Aqua. Resource Div.(for TESA)",
+      "code": "71101A",
+      "description": null,
+      "project_lead": "M. Hardy",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 674,
+    "fields": {
+      "name": "Modelling",
+      "code": "71104",
+      "description": null,
+      "project_lead": "J. Chass\u00e9",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 880,
+    "fields": {
+      "name": "AZMP FUNDING",
+      "code": "71104A",
+      "description": null,
+      "project_lead": "J. Chass\u00e9",
+      "default_responsibility_center": 105,
+      "default_allotment_code": 49,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10000,
+    "fields": {
+      "name": "UNKNOWN FROM OLD DB",
+      "code": "71105",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 165,
+    "fields": {
+      "name": "Marine Fish Section Coordination",
+      "code": "71141",
+      "description": null,
+      "project_lead": "J. McDermid",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 13,
+    "fields": {
+      "name": "Herring Monitoring & Research",
+      "code": "71146",
+      "description": null,
+      "project_lead": "F. Turcotte",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 16,
+    "fields": {
+      "name": "Southern Gulf Sampling Program",
+      "code": "71149",
+      "description": null,
+      "project_lead": "D. Ricard",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 17,
+    "fields": {
+      "name": "Southern Gulf Ecosystem Survey",
+      "code": "71150",
+      "description": null,
+      "project_lead": "N. Rolland",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 931,
+    "fields": {
+      "name": "Ecosystem Research",
+      "code": "71158",
+      "description": null,
+      "project_lead": "T. Tunney",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 932,
+    "fields": {
+      "name": "Groundfish Monitoring & Research",
+      "code": "71159",
+      "description": null,
+      "project_lead": "D. Swain",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10046,
+    "fields": {
+      "name": "Marine Mammals",
+      "code": "71160",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 26,
+    "fields": {
+      "name": "Sentinel Survey-G.of St. Lawr.",
+      "code": "71181",
+      "description": null,
+      "project_lead": "N. Rolland",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 27,
+    "fields": {
+      "name": "Section Coordination",
+      "code": "71211",
+      "description": "",
+      "project_lead": "P. Chamberland",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 168,
+    "fields": {
+      "name": "River Ecology",
+      "code": "71222",
+      "description": null,
+      "project_lead": "D. Caissie",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 318,
+    "fields": {
+      "name": "Esturarine Ecology & Assessment",
+      "code": "71223",
+      "description": "",
+      "project_lead": "P. Chamberland",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1058,
+    "fields": {
+      "name": "Miramichi Program",
+      "code": "71253",
+      "description": null,
+      "project_lead": "S. Douglas",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1059,
+    "fields": {
+      "name": "Restigouche Program",
+      "code": "71254",
+      "description": null,
+      "project_lead": "M. Biron",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1060,
+    "fields": {
+      "name": "Margaree - Gulf NS Program",
+      "code": "71255",
+      "description": null,
+      "project_lead": "S. LeBlanc",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1061,
+    "fields": {
+      "name": "Innovation & Technology",
+      "code": "71256",
+      "description": "",
+      "project_lead": "G. Dauphin",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1062,
+    "fields": {
+      "name": "Population Research and Assessment",
+      "code": "71257",
+      "description": "",
+      "project_lead": "G. Dauphin",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1063,
+    "fields": {
+      "name": "Stress and Survival",
+      "code": "71258",
+      "description": "",
+      "project_lead": "C. Breau",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 173,
+    "fields": {
+      "name": "Division Management",
+      "code": "71301",
+      "description": null,
+      "project_lead": "A.M.MacKinnon",
+      "default_responsibility_center": 93,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 64,
+    "fields": {
+      "name": "Mollusc Fisheries (formerly Scallop)",
+      "code": "71314",
+      "description": null,
+      "project_lead": "R. Sonier",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10039,
+    "fields": {
+      "name": "Environmental Change Onehealth Observatory",
+      "code": "71326",
+      "description": "",
+      "project_lead": "N. Gagne",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 19,
+      "default_business_line": 2,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10040,
+    "fields": {
+      "name": "Modelling nitrogen from agriculture (Living Lab)",
+      "code": "71327",
+      "description": "",
+      "project_lead": "M. Coffin",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 19,
+      "default_business_line": 2,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10012,
+    "fields": {
+      "name": "ACRDP Administration / CorporateTax",
+      "code": "71351",
+      "description": "ACRDP Administration / CorporateTaxes",
+      "project_lead": "A.M. MacKinnon",
+      "default_responsibility_center": 93,
+      "default_allotment_code": 69,
+      "default_business_line": 10001,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1035,
+    "fields": {
+      "name": "Piscine Reovirus Detection ",
+      "code": "713C4",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1036,
+    "fields": {
+      "name": "Corporate Tax - Piscine Reovirus Detect",
+      "code": "713C4Z",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1038,
+    "fields": {
+      "name": "Salmon gill poxvirus detection",
+      "code": "713C5",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1039,
+    "fields": {
+      "name": "Corporate Tax - Salmon gill poxvirus det",
+      "code": "713C5Z",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1041,
+    "fields": {
+      "name": "Develop markers to assess mussel health",
+      "code": "713C6",
+      "description": null,
+      "project_lead": "D. Meth\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1042,
+    "fields": {
+      "name": "Develop markers to assess mussel health",
+      "code": "713C6Z",
+      "description": null,
+      "project_lead": "D. Meth\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1066,
+    "fields": {
+      "name": "Mercenaria",
+      "code": "713D0",
+      "description": null,
+      "project_lead": "M. Maillet",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1067,
+    "fields": {
+      "name": "Corporate Tax - Mercenaria",
+      "code": "713D0Z",
+      "description": null,
+      "project_lead": "M. Maillet",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1068,
+    "fields": {
+      "name": "Eutrophication",
+      "code": "713D1",
+      "description": null,
+      "project_lead": "M. Coffin",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1069,
+    "fields": {
+      "name": "Corporate Tax - Eutrophication",
+      "code": "713D1Z",
+      "description": null,
+      "project_lead": "M. Coffin",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1070,
+    "fields": {
+      "name": "Triploids",
+      "code": "713D2",
+      "description": null,
+      "project_lead": "J. Davidson",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1071,
+    "fields": {
+      "name": "Corporate Tax - Triploids",
+      "code": "713D2Z",
+      "description": null,
+      "project_lead": "J. Davidson",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1072,
+    "fields": {
+      "name": "Acidification",
+      "code": "713D3",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1073,
+    "fields": {
+      "name": "Corporate Tax - Acidification",
+      "code": "713D3Z",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1074,
+    "fields": {
+      "name": "Sea Ranching",
+      "code": "713D4",
+      "description": null,
+      "project_lead": "R. Sonier",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1075,
+    "fields": {
+      "name": "Corporate Tax - Sea Ranching",
+      "code": "713D4Z",
+      "description": null,
+      "project_lead": "R. Sonier",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1094,
+    "fields": {
+      "name": "Salmon gill poxvirus detection Phase II",
+      "code": "713D5",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1095,
+    "fields": {
+      "name": "Corporate Tax - Sal. gill poxvirus det PII",
+      "code": "713D5Z",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1097,
+    "fields": {
+      "name": "Piscine Reovirus Detection  Phase II",
+      "code": "713D6",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1099,
+    "fields": {
+      "name": "Corporate Tax - Piscine Reovirus Detection  P II",
+      "code": "713D6Z",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10027,
+    "fields": {
+      "name": "Winter physiology of oysters",
+      "code": "713D7",
+      "description": "Winter storage of cultivated eastern oysters: survival and metabolic wastes 19-G-01",
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 69,
+      "default_business_line": 2,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10029,
+    "fields": {
+      "name": "Oyster survivorship pre-post- MSX",
+      "code": "713D8",
+      "description": "Comparison of oyster growth and survival pre-and-post-establishment of the oyster parasite, MSX, in the Bras d'Or Lakes, Canada 19-G-03",
+      "project_lead": "M. Maillet",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 69,
+      "default_business_line": 2,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10028,
+    "fields": {
+      "name": "Mussel seed health on PEI",
+      "code": "713D9",
+      "description": "The effect of environment and seed origin on the health of cultivated mussels in PEI 19-G-02",
+      "project_lead": "J. Davidson",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 69,
+      "default_business_line": 2,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 544,
+    "fields": {
+      "name": "Research Coord. Snow Crab",
+      "code": "71411",
+      "description": null,
+      "project_lead": "M. Moriyasu",
+      "default_responsibility_center": 100,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 78,
+    "fields": {
+      "name": "Section Coordination",
+      "code": "71511",
+      "description": "",
+      "project_lead": "A. Rondeau",
+      "default_responsibility_center": 42,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 80,
+    "fields": {
+      "name": "Lob. Res & Asses.LFA's 23 - 26",
+      "code": "71513",
+      "description": null,
+      "project_lead": "A. Rondeau",
+      "default_responsibility_center": 42,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1085,
+    "fields": {
+      "name": "Northumberland Strait Survey",
+      "code": "71518",
+      "description": null,
+      "project_lead": "A. Rondeau",
+      "default_responsibility_center": 42,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1111,
+    "fields": {
+      "name": "Crustacean Research",
+      "code": "71519",
+      "description": null,
+      "project_lead": "S. Boudreau",
+      "default_responsibility_center": 42,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 954,
+    "fields": {
+      "name": "Southern Gulf Snow Crab Survey",
+      "code": "71C62",
+      "description": null,
+      "project_lead": "M. Hebert",
+      "default_responsibility_center": 100,
+      "default_allotment_code": 61,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 991,
+    "fields": {
+      "name": "Sockeye susceptibility to ISAV/SAV",
+      "code": "71RB8",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1013,
+    "fields": {
+      "name": "Climate Change on Mussels",
+      "code": "71RC1",
+      "description": null,
+      "project_lead": "D. M\u00e9th\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1016,
+    "fields": {
+      "name": "Pre-winter conditioning of oysters",
+      "code": "71RC2",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1037,
+    "fields": {
+      "name": "Piscine Reovirus Detection ",
+      "code": "71RC4",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1040,
+    "fields": {
+      "name": "Salmon gill poxvirus detection",
+      "code": "71RC5",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1043,
+    "fields": {
+      "name": "Develop markers to assess mussel health",
+      "code": "71RC6",
+      "description": null,
+      "project_lead": "D. Meth\u00e9",
+      "default_responsibility_center": 99,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1076,
+    "fields": {
+      "name": "Mercenaria",
+      "code": "71RD0",
+      "description": null,
+      "project_lead": "M. Maillet",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1077,
+    "fields": {
+      "name": "Eutrophication",
+      "code": "71RD1",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1078,
+    "fields": {
+      "name": "Triploids",
+      "code": "71RD2",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1079,
+    "fields": {
+      "name": "Acidification",
+      "code": "71RD3",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1080,
+    "fields": {
+      "name": "Sea Ranching",
+      "code": "71RD4",
+      "description": null,
+      "project_lead": "R. Sonier",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1096,
+    "fields": {
+      "name": "Salmon gill poxvirus detection Phase II",
+      "code": "71RD5",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1098,
+    "fields": {
+      "name": "Piscine Reovirus Detection  Phase II",
+      "code": "71RD6",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 16,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10030,
+    "fields": {
+      "name": "Winter physiology of oysters (industry)",
+      "code": "71RD7",
+      "description": "Winter storage of cultivated eastern oysters: survival and metabolic wastes (industry)19-G-01",
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 69,
+      "default_business_line": 2,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10032,
+    "fields": {
+      "name": "Oyster survivorship pre-post- MSX (industry)",
+      "code": "71RD8",
+      "description": "Comparison of oyster growth and survival pre-and-post-establishment of the oyster parasite, MSX, in the Bras d'Or Lakes, Canada (industry) 19-G-03",
+      "project_lead": "M. Maillet",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 69,
+      "default_business_line": 2,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10031,
+    "fields": {
+      "name": "Mussel seed health on PEI (industry)",
+      "code": "71RD9",
+      "description": "The effect of environment and seed origin on the health of cultivated mussels in PEI (industry) 19-G-02",
+      "project_lead": "J. Davidson",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 69,
+      "default_business_line": 2,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1093,
+    "fields": {
+      "name": "Marine Environmental Quality Measures",
+      "code": "8P220",
+      "description": "",
+      "project_lead": "M. Coffin",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 49,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1082,
+    "fields": {
+      "name": "OPP - Improv. Drift Predict. & Near-shore Model.",
+      "code": "8X110",
+      "description": "",
+      "project_lead": "J. Chass\u00e9",
+      "default_responsibility_center": 105,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10009,
+    "fields": {
+      "name": "OPP - Expand Research on Fate, Behaviour & Biological Impact",
+      "code": "8X410",
+      "description": "OPP - Expand Research on Fate, Behaviour & Biological Impact",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 717,
+    "fields": {
+      "name": "Monitoring - Aquatic Invasive Species",
+      "code": "90239",
+      "description": "",
+      "project_lead": "R. Bernier",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 1,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 721,
+    "fields": {
+      "name": "Data Management",
+      "code": "90281",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": 93,
+      "default_allotment_code": null,
+      "default_business_line": 10010,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10001,
+    "fields": {
+      "name": "UNKNOWN FROM OLD DB",
+      "code": "90283",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 301,
+    "fields": {
+      "name": "Sustainable Aquaculture",
+      "code": "90300",
+      "description": null,
+      "project_lead": "M. Ouellette",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 967,
+    "fields": {
+      "name": "Sustainable Aquaculture (Galway Hab)",
+      "code": "90300C",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 724,
+    "fields": {
+      "name": "NAAHP - Gulf Biocontaminent Unit",
+      "code": "90310",
+      "description": null,
+      "project_lead": "P. Byrne",
+      "default_responsibility_center": 93,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 725,
+    "fields": {
+      "name": "NAAHP - General",
+      "code": "90310A",
+      "description": null,
+      "project_lead": "M. Laflamme",
+      "default_responsibility_center": 93,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 726,
+    "fields": {
+      "name": "NAAHP - Fish Health",
+      "code": "90310B",
+      "description": null,
+      "project_lead": "P. Boudreau",
+      "default_responsibility_center": 93,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1010,
+    "fields": {
+      "name": "Strengthening Marine & Coastal Conservation",
+      "code": "90598",
+      "description": null,
+      "project_lead": "D. Bliss",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 67,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 837,
+    "fields": {
+      "name": "Biotechnology - Ecobiomics",
+      "code": "90759A",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 19,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1057,
+    "fields": {
+      "name": "Biotechnology - eDNA",
+      "code": "90759B",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 19,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 808,
+    "fields": {
+      "name": "Immediate Awards",
+      "code": "91043",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 660,
+    "fields": {
+      "name": "Long Service Awards",
+      "code": "91044",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": 434
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 800,
+    "fields": {
+      "name": "DM's Prix d'Excellence",
+      "code": "91045",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10002,
+    "fields": {
+      "name": "UNKNOWN FROM OLD DB",
+      "code": "91101",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 910,
+    "fields": {
+      "name": "PARR - Administration / Equipment",
+      "code": "91107",
+      "description": null,
+      "project_lead": "A.M. MacKinnon",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 56,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1032,
+    "fields": {
+      "name": "PARR - Impr. Ecol. Models",
+      "code": "91107R",
+      "description": null,
+      "project_lead": "T. Guyondet",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 56,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1065,
+    "fields": {
+      "name": "PARR - ISA Risk Asessement",
+      "code": "91107S",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 103,
+      "default_allotment_code": 56,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1100,
+    "fields": {
+      "name": "PARR - Zoning System",
+      "code": "91107V",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 56,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1101,
+    "fields": {
+      "name": "PARR - Conversion Modeling",
+      "code": "91107W",
+      "description": null,
+      "project_lead": "T. Guyondet/R. Sonier",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 56,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10034,
+    "fields": {
+      "name": "PARR - Genetic Diversity of Wild Oyster",
+      "code": "91107X",
+      "description": "PARR-2019-G-09 Genetic Diversity of Wild Oysters (Crassostrea virginica) populations in the Maritime Provinces",
+      "project_lead": "D. Meth\u00e9",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 56,
+      "default_business_line": 10011,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 933,
+    "fields": {
+      "name": "PARR - Corporate Tax",
+      "code": "91107Z",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": 93,
+      "default_allotment_code": 56,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10049,
+    "fields": {
+      "name": "World Class Tanker Safety Phase 3 \u2013 South of 60",
+      "code": "9149N",
+      "description": "Study of the behaviour of diluted bitumen products in fresh and brackish water to provide science advice for preparing for and responding to spills in aquatic systems",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 929,
+    "fields": {
+      "name": "SPERA (from Ottawa B.L. 832)",
+      "code": "91601",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 945,
+    "fields": {
+      "name": "SPERA (from Maritimes Region B.L. 870)",
+      "code": "91601A",
+      "description": null,
+      "project_lead": "N. Gagn\u00e9",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10022,
+    "fields": {
+      "name": "SPERA Striped Bass",
+      "code": "91601B",
+      "description": "SPERA Striped Bass",
+      "project_lead": "P. Chamberland",
+      "default_responsibility_center": 101,
+      "default_allotment_code": 49,
+      "default_business_line": 10004,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10023,
+    "fields": {
+      "name": "IGS",
+      "code": "92080",
+      "description": "",
+      "project_lead": "Lorraine Hamilton (BIO) and Ian Bradbury (DFO NL)",
+      "default_responsibility_center": 10017,
+      "default_allotment_code": 44,
+      "default_business_line": 10009,
+      "default_line_object": 435
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 833,
+    "fields": {
+      "name": "IGS Competitive and Travel Fund",
+      "code": "92083",
+      "description": null,
+      "project_lead": "G. Chaput",
+      "default_responsibility_center": 104,
+      "default_allotment_code": 44,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 996,
+    "fields": {
+      "name": "MPA Basin Head",
+      "code": "93829",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": 94,
+      "default_allotment_code": 64,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1092,
+    "fields": {
+      "name": "Ecosystem Stressors",
+      "code": "96002",
+      "description": null,
+      "project_lead": "R. Bernier",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1107,
+    "fields": {
+      "name": "SPERA/Stressors Effects of Nutrient",
+      "code": "96002A",
+      "description": null,
+      "project_lead": "T. Guyondet",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1047,
+    "fields": {
+      "name": "Priorities and Partnership Fund",
+      "code": "96006",
+      "description": "",
+      "project_lead": "Various",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 49,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1110,
+    "fields": {
+      "name": "Priorities and Partnership Fund- Workshop",
+      "code": "96006A",
+      "description": null,
+      "project_lead": "P. Edwards",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 49,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10042,
+    "fields": {
+      "name": "OFSI - Ecosystem and Fisheries Research and Monitoring",
+      "code": "96011",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10052,
+    "fields": {
+      "name": "Comparative Fishing",
+      "code": "96011CF",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": 3,
+      "default_business_line": 10006,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1046,
+    "fields": {
+      "name": "OFSI - Salmon and Diadromous Species",
+      "code": "96012",
+      "description": "",
+      "project_lead": "D. Bliss / P. Edwards",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 26,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1106,
+    "fields": {
+      "name": "OFSI - Marine Mammals",
+      "code": "96013",
+      "description": "",
+      "project_lead": "S. Ratelle",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1051,
+    "fields": {
+      "name": "OFSI - Ocean Observ., Model.& Monit.",
+      "code": "96015",
+      "description": null,
+      "project_lead": "J. Chass\u00e9",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 68,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1054,
+    "fields": {
+      "name": "OFSI - Aqua. Animal Health Diagn.Capacity",
+      "code": "96017",
+      "description": null,
+      "project_lead": "A.M. MacKinnon",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 26,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1089,
+    "fields": {
+      "name": "Aquaculture Monitoring",
+      "code": "96023",
+      "description": "",
+      "project_lead": "J. Barrell",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1102,
+    "fields": {
+      "name": "Aquaculture Ecosystem Interactions Program",
+      "code": "96024",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 27,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1056,
+    "fields": {
+      "name": "ACCASP - Ocean Chemistry",
+      "code": "96036",
+      "description": "",
+      "project_lead": "J. Chass\u00e9",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1105,
+    "fields": {
+      "name": "ACCASP - Vulnerability Assessment",
+      "code": "96037",
+      "description": "",
+      "project_lead": "J. Chass\u00e9",
+      "default_responsibility_center": 105,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10014,
+    "fields": {
+      "name": "ACCASP FTE O&M Allocation",
+      "code": "96037A",
+      "description": "Annual allotment associated with O&M transferred to the region for ACCASP-related activities (typically program-related travel).",
+      "project_lead": "Blair Greenan",
+      "default_responsibility_center": 10016,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10015,
+    "fields": {
+      "name": "ACCASP - Lobster Vulnerability",
+      "code": "96037B",
+      "description": "Research project on assessing the vulnerability of lobster fishing communities in DFO Maritimes Region. PIs: B. Greenan and N. Shackell.",
+      "project_lead": "Blair Greenan",
+      "default_responsibility_center": 10016,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10016,
+    "fields": {
+      "name": "ACCASP - Extreme wave heights and coastal hazards",
+      "code": "96037C",
+      "description": "Estimates of extreme wave heights and coastal hazards for Canadian coastal areas",
+      "project_lead": "Will Perrie",
+      "default_responsibility_center": 10020,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10017,
+    "fields": {
+      "name": "ACCASP - Calanus copepod",
+      "code": "96037D",
+      "description": "Calanus copepod coupled physical-biological population model: A tool to forecast changes in a cornerstone prey in Atlantic Zone marine ecosystems.",
+      "project_lead": "Catherine Johnson",
+      "default_responsibility_center": 10011,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10018,
+    "fields": {
+      "name": "ACCASP - Barrow Strait",
+      "code": "96037E",
+      "description": "Funding for the Barrow Strait Monitoring Program.",
+      "project_lead": "Clark Richards",
+      "default_responsibility_center": 10016,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1055,
+    "fields": {
+      "name": "ACCASP - Modeling",
+      "code": "96038",
+      "description": "",
+      "project_lead": "J. Chass\u00e9",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10019,
+    "fields": {
+      "name": "ACCASP - Arctic Ocean Modeling",
+      "code": "96038A",
+      "description": "Improved Arctic Ocean models for climate simulations",
+      "project_lead": "Will Perrie",
+      "default_responsibility_center": 10020,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10020,
+    "fields": {
+      "name": "ACCASP - Trends in nutrients and oxygen",
+      "code": "96038B",
+      "description": "Trends in nutrients and oxygen on the Scotian Shelf and changes during a recent warm period.",
+      "project_lead": "Catherine Johnson",
+      "default_responsibility_center": 10011,
+      "default_allotment_code": 60,
+      "default_business_line": 10003,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1112,
+    "fields": {
+      "name": "Protection and recovery whales populations",
+      "code": "96196",
+      "description": "",
+      "project_lead": "Various",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 73,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10013,
+    "fields": {
+      "name": "Necropsy - Prot. & Recov. Whales Pop.",
+      "code": "96196N",
+      "description": "Necropsy - Protection & Recovery of Whales Population",
+      "project_lead": "Various",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 49,
+      "default_business_line": 14,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1048,
+    "fields": {
+      "name": "MCT - Oceans Act MPA Network",
+      "code": "96200",
+      "description": "",
+      "project_lead": "M. Ouellette",
+      "default_responsibility_center": 25,
+      "default_allotment_code": 49,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1116,
+    "fields": {
+      "name": "Fish & Fish Habitat Science-based analysis",
+      "code": "96247",
+      "description": "",
+      "project_lead": "Various",
+      "default_responsibility_center": 107,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1114,
+    "fields": {
+      "name": "Fish & Fish Habitat Sci. Research",
+      "code": "96248",
+      "description": "",
+      "project_lead": "Various",
+      "default_responsibility_center": 107,
+      "default_allotment_code": 3,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10007,
+    "fields": {
+      "name": "MSP - Scotian Shelf-Bay of Fundy",
+      "code": "96253",
+      "description": "Marine Spatial Planning - Scotian Shelf-Bay of Fundy region",
+      "project_lead": "Worcester, Tana",
+      "default_responsibility_center": 10028,
+      "default_allotment_code": 3,
+      "default_business_line": 10005,
+      "default_line_object": 1018
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10045,
+    "fields": {
+      "name": "Laboratories Canada",
+      "code": "96294",
+      "description": "",
+      "project_lead": "A. Veniot",
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1049,
+    "fields": {
+      "name": "MCT - Other Measures - Gulf",
+      "code": "96306",
+      "description": "",
+      "project_lead": "Various",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 49,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10044,
+    "fields": {
+      "name": "PIER - Planning for Integrated Environmental Response",
+      "code": "96337",
+      "description": "",
+      "project_lead": "Adrian Hamer",
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10033,
+    "fields": {
+      "name": "C-68 Fish Stocks provisions",
+      "code": "96350",
+      "description": "",
+      "project_lead": "M. Hardy",
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10037,
+    "fields": {
+      "name": "Lobster & Rock crab predation (C-68)",
+      "code": "96350A",
+      "description": "",
+      "project_lead": "A. Rondeau",
+      "default_responsibility_center": 42,
+      "default_allotment_code": 49,
+      "default_business_line": 10006,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10038,
+    "fields": {
+      "name": "Effectiveness of management measures",
+      "code": "96350B",
+      "description": "",
+      "project_lead": "J. McDermid",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 49,
+      "default_business_line": 10006,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10043,
+    "fields": {
+      "name": "Atlantic Reconciliation Agreements Implementation",
+      "code": "96369",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10003,
+    "fields": {
+      "name": "UNKNOWN FROM OLD DB",
+      "code": "96700",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10047,
+    "fields": {
+      "name": "AIS - Core Program",
+      "code": "96700",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 941,
+    "fields": {
+      "name": "SARA - North Atlantic Right Whale",
+      "code": "9S262",
+      "description": "",
+      "project_lead": "J. McDermid",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 74,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1113,
+    "fields": {
+      "name": "SARA - Lumpfish",
+      "code": "9S374",
+      "description": "",
+      "project_lead": "J. McDermid",
+      "default_responsibility_center": 11,
+      "default_allotment_code": 62,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10026,
+    "fields": {
+      "name": "Entanglement risk assessment to marine listed species in eastern Canadian waters",
+      "code": "9S410",
+      "description": "Using an integrated approach to assess entanglement risks to marine listed species in eastern Canadian waters",
+      "project_lead": null,
+      "default_responsibility_center": 11,
+      "default_allotment_code": 35,
+      "default_business_line": 14,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 692,
+    "fields": {
+      "name": "SARA - Multispecies",
+      "code": "9S900",
+      "description": "",
+      "project_lead": "Various",
+      "default_responsibility_center": 9,
+      "default_allotment_code": 35,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10053,
+    "fields": {
+      "name": "BIO-Science Relocation",
+      "code": "BIO38",
+      "description": "Science Branch Relocation Costs",
+      "project_lead": "Bob St-Laurent",
+      "default_responsibility_center": 10029,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": 503
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 9999,
+    "fields": {
+      "name": "unknown",
+      "code": "n/a",
+      "description": null,
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1108,
+    "fields": {
+      "name": "Science Enterprise Centre",
+      "code": "RF004",
+      "description": null,
+      "project_lead": "A.Veniot",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 1109,
+    "fields": {
+      "name": "Science Enterprise Centre (projet d'huitres)",
+      "code": "RF004A",
+      "description": null,
+      "project_lead": "L. Comeau",
+      "default_responsibility_center": 94,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10041,
+    "fields": {
+      "name": "Departmental Data Modernization Lift-Off Project",
+      "code": "RF115",
+      "description": "",
+      "project_lead": null,
+      "default_responsibility_center": null,
+      "default_allotment_code": null,
+      "default_business_line": null,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10036,
+    "fields": {
+      "name": "Science Enterprise Centres",
+      "code": "RF119",
+      "description": "Science Enterprise Centres",
+      "project_lead": "A. Veniot",
+      "default_responsibility_center": 106,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  },
+  {
+    "model": "shared_models.project",
+    "pk": 10051,
+    "fields": {
+      "name": "Maritimes Region's Collaboration and Partnership Hub",
+      "code": "RF122",
+      "description": "",
+      "project_lead": "Toby Balch",
+      "default_responsibility_center": 10031,
+      "default_allotment_code": 3,
+      "default_business_line": 1,
+      "default_line_object": null
+    }
+  }
+]

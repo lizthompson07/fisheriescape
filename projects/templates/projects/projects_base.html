@@ -26,7 +26,7 @@
             margin-top: 15px;
             padding: 15px;
             background-color: white;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.98);
             font-size: small;
 
         }
@@ -136,6 +136,9 @@
                     </a>
                     <a class="dropdown-item" href="{% url 'projects:admin_submitted_unapproved' %}">
                         {% trans "ADMIN: Submitted + Unapproved Projects" %}
+                    </a>
+                    <a class="dropdown-item" href="{% url 'projects:admin_project_approval_search' %}">
+                        {% trans "ADMIN: Project Approvals" %}
                     </a>
                 </div>
             </li>
