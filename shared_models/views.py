@@ -1,11 +1,14 @@
 from abc import ABC
 
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext as _
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
+from django.views import View
 from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView, ListView, FormView
+from django.views.generic.detail import SingleObjectMixin
 from django_filters.views import FilterView
 
 ###
@@ -407,6 +410,7 @@ class CommonCommon():
     h2 = None
     h3 = None
     crumbs = None
+    container_class = "container"
 
     def get_title(self):
         if not self.title and not self.h1:
@@ -445,6 +449,9 @@ class CommonCommon():
     def get_crumbs(self):
         return self.crumbs
 
+    def get_container_class(self):
+        return self.container_class
+
     def get_common_context(self) -> dict:
         context = dict()
 
@@ -459,6 +466,7 @@ class CommonCommon():
         h3 = self.get_h3()
         subtitle = self.get_subtitle()
         crumbs = self.get_crumbs()
+        container_class = self.get_container_class()
 
         if java_script:
             context['java_script'] = java_script
@@ -471,17 +479,26 @@ class CommonCommon():
 
         if field_list:
             context['field_list'] = field_list
+
         if subtitle:
             context['subtitle'] = subtitle
+        # if there is no subtitle, use the h1 as a default
+        elif h1:
+            context['subtitle'] = h1
+
         if h1:
             context['h1'] = h1
+
         if h2:
             context['h2'] = h2
+
         if h3:
             context['h3'] = h3
 
         if crumbs:
             context['crumbs'] = crumbs
+
+        context['container_class'] = container_class
 
         return context
 
@@ -529,7 +546,6 @@ class UpdateCommon(UserPassesTestMixin, UpdateView, CommonCommon, ABC):
 class FilterCommon(FilterView, CommonCommon):
     auth = True
 
-    template_name = 'shared_models/shared_filter.html'
 
     # override this if there are authorization requirements
     def test_func(self):
@@ -557,6 +573,8 @@ class FormsetCommon(TemplateView, CommonCommon):
     formset_class = None
     success_url_name = None
     home_url_name = None
+    delete_url_name = None
+
     # override this if there are authorization requirements
 
     def get_crumbs(self):
@@ -578,9 +596,12 @@ class FormsetCommon(TemplateView, CommonCommon):
         context['auth'] = self.test_func()
         context['editable'] = context['auth']
         context['random_object'] = self.queryset.first()
-        # context['container_class'] = "container-fluid"
+        context['delete_url_name'] = self.delete_url_name
+        context['container_class'] = self.container_class
 
         context.update(super().get_common_context())
+        # overwrite the existing field list to take just the fields being passed in by the formset / form
+        context["field_list"] = [f for f in self.formset_class.form.base_fields]
         return context
 
     def get(self, request, *args, **kwargs):
@@ -599,53 +620,18 @@ class FormsetCommon(TemplateView, CommonCommon):
             return self.render_to_response(self.get_context_data(formset=formset))
 
 
+class HardDeleteView(View, SingleObjectMixin):
+    '''a dangerous view; to use when you want to delete an object without any confirmation page'''
+    success_url = None
 
+    def get(self, request, *args, **kwargs):
+        my_obj = self.get_object()
+        my_obj.delete()
+        return HttpResponseRedirect(self.get_success_url())
 
-#
-# #
-#
-# # SETTINGS #
-# ############
-# class FormsetView(FormView):
-#     queryset = None
-#     field_list = list()
-#     random_object = queryset.first()
-#     title = None
-#     formset_class = None
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["formset"] =
-#
-# def manage_statuses(request):
-#     qs = models.Status.objects.all()
-#     if request.method == 'POST':
-#         formset = forms.StatusFormSet(request.POST, )
-#         if formset.is_valid():
-#             formset.save()
-#             # do something with the formset.cleaned_data
-#             messages.success(request, "Items have been successfully updated")
-#             return HttpResponseRedirect(reverse("travel:manage_statuses"))
-#     else:
-#         formset = forms.StatusFormSet(
-#             queryset=qs)
-#     context = {}
-#     context["my_object"] = qs.first()
-#     context["field_list"] = [
-#         'used_for',
-#         'name',
-#         'nom',
-#         'order',
-#         'color',
-#     ]
-#     context['title'] = "Manage Statuses"
-#     context['formset'] = formset
-#     return render(request, 'travel/manage_settings_small.html', context)
-#
-#
-#
-#
-# def delete_status(request, pk):
-#     my_obj = models.Status.objects.get(pk=pk)
-#     my_obj.delete()
-#     return HttpResponseRedirect(reverse("travel:manage_statuses"))
+    def get_success_url(self):
+        if self.success_url:
+            return self.success_url
+        else:
+            raise ImproperlyConfigured(
+                "No URL to redirect to. Provide a success_url.")

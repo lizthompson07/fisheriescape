@@ -537,10 +537,16 @@ class ReportSearchForm(forms.Form):
 class StatusForm(forms.ModelForm):
     class Meta:
         model = models.Status
-        fields = "__all__"
+        fields = [
+            "name",
+            "nom",
+            "used_for",
+            "order",
+            "color",
+        ]
 
 
-StatusFormSet = modelformset_factory(
+StatusFormset = modelformset_factory(
     model=models.Status,
     form=StatusForm,
     extra=1,
@@ -587,7 +593,7 @@ class ReviewerForm(forms.ModelForm):
                     _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
 
 
-ReviewerFormSet = modelformset_factory(
+ReviewerFormset = modelformset_factory(
     model=models.Reviewer,
     form=ReviewerForm,
     extra=1,
@@ -644,7 +650,7 @@ class TripReviewerForm(forms.ModelForm):
                     _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
 
 
-TripReviewerFormSet = modelformset_factory(
+TripReviewerFormset = modelformset_factory(
     model=models.TripReviewer,
     form=TripReviewerForm,
     extra=1,
@@ -670,7 +676,7 @@ class HelpTextForm(forms.ModelForm):
         }
 
 
-HelpTextFormSet = modelformset_factory(
+HelpTextFormset = modelformset_factory(
     model=models.HelpText,
     form=HelpTextForm,
     extra=1,
@@ -683,7 +689,7 @@ class CostForm(forms.ModelForm):
         fields = "__all__"
 
 
-CostFormSet = modelformset_factory(
+CostFormset = modelformset_factory(
     model=models.Cost,
     form=CostForm,
     extra=1,
@@ -696,7 +702,7 @@ class CostCategoryForm(forms.ModelForm):
         fields = "__all__"
 
 
-CostCategoryFormSet = modelformset_factory(
+CostCategoryFormset = modelformset_factory(
     model=models.CostCategory,
     form=CostCategoryForm,
     extra=1,
@@ -709,7 +715,7 @@ class NJCRatesForm(forms.ModelForm):
         exclude = ['last_modified', ]
 
 
-NJCRatesFormSet = modelformset_factory(
+NJCRatesFormset = modelformset_factory(
     model=models.NJCRates,
     form=NJCRatesForm,
     extra=0,
@@ -720,15 +726,15 @@ class TripSubcategoryForm(forms.ModelForm):
     class Meta:
         model = models.TripSubcategory
         fields = [
+            "trip_category",
             "name",
             "nom",
             "description_en",
             "description_fr",
-            "trip_category",
         ]
         widgets = {
-            "description_en": forms.TextInput(),
-            "description_fr": forms.TextInput(),
+            "description_en": forms.Textarea(attrs=attr_row3),
+            "description_fr": forms.Textarea(attrs=attr_row3),
         }
 
 
