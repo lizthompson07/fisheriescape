@@ -11,8 +11,8 @@ class SimpleLookup(models.Model):
         abstract = True
         ordering = [_("name"), ]
 
-    name = models.CharField(unique=True, max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+    name = models.CharField(unique=True, max_length=255, verbose_name=_("name (en)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (fr)"))
 
     @property
     def tname(self):
@@ -32,8 +32,8 @@ class Lookup(SimpleLookup):
     class Meta:
         abstract = True
 
-    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description"))
-    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
 
     @property
     def tdescription(self):

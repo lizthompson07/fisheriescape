@@ -399,9 +399,18 @@ class CommonCommon():
     # 'shared_models/shared_entry_form.html' template
     site_css = None
 
+    # an extending class can override this similarly to how the template_name attribute can be overriden
+    # Except in this case the value will be used to include a field_list in the context var
+    field_list = None
+    h1 = None
+    subtitle = None
+    h2 = None
+    h3 = None
+    crumbs = None
+
     def get_title(self):
-        if not self.title:
-            raise AttributeError("No title attribute set in the class extending CreateCommon")
+        if not self.title and not self.h1:
+            raise AttributeError("No title attribute set in the class extending CommonCommon")
 
         return self.title
 
@@ -417,6 +426,25 @@ class CommonCommon():
     def get_site_css(self):
         return self.site_css
 
+    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
+    def get_field_list(self):
+        return self.field_list
+
+    def get_subtitle(self):
+        return self.subtitle
+
+    def get_h1(self):
+        return self.h1
+
+    def get_h2(self):
+        return self.h2
+
+    def get_h3(self):
+        return self.h3
+
+    def get_crumbs(self):
+        return self.crumbs
+
     def get_common_context(self) -> dict:
         context = dict()
 
@@ -424,6 +452,13 @@ class CommonCommon():
         java_script = self.get_java_script()
         nav_menu = self.get_nav_menu()
         site_css = self.get_site_css()
+
+        field_list = self.get_field_list()
+        h1 = self.get_h1()
+        h2 = self.get_h2()
+        h3 = self.get_h3()
+        subtitle = self.get_subtitle()
+        crumbs = self.get_crumbs()
 
         if java_script:
             context['java_script'] = java_script
@@ -433,6 +468,20 @@ class CommonCommon():
 
         if site_css:
             context['site_css'] = site_css
+
+        if field_list:
+            context['field_list'] = field_list
+        if subtitle:
+            context['subtitle'] = subtitle
+        if h1:
+            context['h1'] = h1
+        if h2:
+            context['h2'] = h2
+        if h3:
+            context['h3'] = h3
+
+        if crumbs:
+            context['crumbs'] = crumbs
 
         return context
 
@@ -501,18 +550,26 @@ class FilterCommon(FilterView, CommonCommon):
         return context
 
 
-
-class TemplateCommon(TemplateView, CommonCommon):
+class FormsetCommon(TemplateView, CommonCommon):
     auth = True
-
     template_name = 'shared_models/shared_filter.html'
-
+    queryset = None
+    formset_class = None
+    success_url_name = None
+    home_url_name = None
     # override this if there are authorization requirements
+
+    def get_crumbs(self):
+        return [
+            {"title": _("Home"), "url": reverse(self.home_url_name)},
+            {"title": self.h1}
+        ]
+
     def test_func(self):
         return self.auth
 
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
@@ -520,13 +577,32 @@ class TemplateCommon(TemplateView, CommonCommon):
         # Data, but not to create or modify it.
         context['auth'] = self.test_func()
         context['editable'] = context['auth']
+        context['random_object'] = self.queryset.first()
+        # context['container_class'] = "container-fluid"
 
         context.update(super().get_common_context())
-
         return context
+
+    def get(self, request, *args, **kwargs):
+        formset = self.formset_class(queryset=self.queryset.all())
+        return self.render_to_response(self.get_context_data(formset=formset))
+
+    def post(self, request, *args, **kwargs):
+        formset = self.formset_class(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(self.request, "Items have been successfully updated")
+            return HttpResponseRedirect(reverse(self.success_url_name))
+            # return self.form_valid(formset)
+        else:
+            return self.render_to_response(self.get_context_data(formset=formset))
+
+
 
 
 #
+# #
 #
 # # SETTINGS #
 # ############

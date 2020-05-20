@@ -456,7 +456,8 @@ class ChildTripRequestForm(forms.ModelForm):
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
-        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status", "admin_notes", "review_start_date", "adm_review_deadline", "date_eligible_for_adm_review"]
+        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status", "admin_notes", "review_start_date",
+                   "adm_review_deadline", "date_eligible_for_adm_review"]
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -712,6 +713,29 @@ NJCRatesFormSet = modelformset_factory(
     model=models.NJCRates,
     form=NJCRatesForm,
     extra=0,
+)
+
+
+class TripSubcategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.TripSubcategory
+        fields = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "trip_category",
+        ]
+        widgets = {
+            "description_en": forms.TextInput(),
+            "description_fr": forms.TextInput(),
+        }
+
+
+TripSubcategoryFormset = modelformset_factory(
+    model=models.TripSubcategory,
+    form=TripSubcategoryForm,
+    extra=1,
 )
 
 

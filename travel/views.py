@@ -28,7 +28,7 @@ from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
-from shared_models.views import TemplateCommon
+from shared_models.views import FormsetCommon
 from . import models
 from . import forms
 from . import reports
@@ -2322,8 +2322,24 @@ def manage_njc_rates(request):
     return render(request, 'travel/manage_settings_small.html', context)
 
 
-class NJCRatesFormsetView(TemplateCommon):
-    template_name = 'travel/manage_settings_small.html'
+class TripSubcategoryFormsetView(TravelAdminRequiredMixin, FormsetCommon):
+    template_name = 'travel/generic_formset.html'
+    h1 = "Manage Trip Subcategories"
+    subtitle = h1
+    queryset = models.TripSubcategory.objects.all()
+    formset_class = forms.TripSubcategoryFormset
+    success_url_name = "travel:manage_trip_subcategories"
+    home_url_name = "travel:index"
+
+    field_list = [
+        'name',
+        'nom',
+        'description_en',
+        'description_fr',
+        'trip_category',
+    ]
+
+
 
 
 # Default Reviewer Settings
