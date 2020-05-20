@@ -429,6 +429,7 @@ project_field_list = [
     'date_last_modified',
 ]
 
+# this needs to be harmonized between regions
 gulf_field_list = deepcopy(project_field_list)
 gulf_field_list.remove("is_competitive")
 gulf_field_list.remove("is_approved")
@@ -590,6 +591,7 @@ class MyProjectListView(LoginRequiredMixin, FilterView):
             "submitted|{}".format("Submitted"),
             "recommended_for_funding",
             "approved",
+            "allocated_budget",
             "section|Section",
             "project_title",
             "is_hidden|is this a hidden project?",
@@ -1967,7 +1969,7 @@ class ProjectApprovalFormsetView(AdminRequiredMixin, CommonFormsetView):
     formset_class = forms.ProjectApprovalFormset
     success_url_name = "projects:project_approvals"
     home_url_name = "projects:admin_project_approval_search"
-    pre_display_fields = ["id", "project_title"]
+    pre_display_fields = ["id", "project_title", "total_cost|total budget requested"]
     post_display_fields = ["notification_email_sent", ]
 
     def get_queryset(self):
