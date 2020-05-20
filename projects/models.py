@@ -17,6 +17,8 @@ from shared_models import models as shared_models
 from dm_apps import custom_widgets
 
 # Choices for language
+from shared_models.models import SimpleLookup
+
 ENG = 1
 FRE = 2
 LANGUAGE_CHOICES = (
@@ -47,21 +49,8 @@ class BudgetCode(models.Model):
         ordering = ['code', ]
 
 
-class Theme(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
+class Theme(SimpleLookup):
+    pass
 
 
 #
@@ -135,74 +124,26 @@ class Program(models.Model):
         ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
 
 
-class FunctionalGroup(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+class FunctionalGroup(SimpleLookup):
     sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups", blank=True)
     theme = models.ForeignKey(Theme, on_delete=models.DO_NOTHING, related_name="functional_groups", blank=True, null=True)
 
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
 
 
-class ActivityType(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+class ActivityType(SimpleLookup):
+    pass
 
     class Meta:
         ordering = ['id', ]
 
 
-class FundingSourceType(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+class FundingSourceType(SimpleLookup):
     color = models.CharField(max_length=10, blank=True, null=True)
 
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
 
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
-
-
-class FundingSource(models.Model):
-    name = models.CharField(max_length=500)
-    nom = models.CharField(max_length=500, blank=True, null=True)
+class FundingSource(SimpleLookup):
+    name = models.CharField(max_length=255)
     funding_source_type = models.ForeignKey(FundingSourceType, on_delete=models.DO_NOTHING, related_name="funding_sources")
-
-    @property
-    def tname(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            my_str = "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            my_str = "{}".format(self.name)
-        return my_str
 
     def __str__(self):
         return "{} - {}".format(self.funding_source_type, self.tname)
@@ -212,24 +153,10 @@ class FundingSource(models.Model):
         unique_together = [('funding_source_type', 'name'), ]
 
 
-class Tag(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    nom = models.CharField(max_length=255, blank=True, null=True, unique=True)
+class Tag(SimpleLookup):
+    pass
 
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = [_('name'), ]
-
-
-class Status(models.Model):
+class Status(SimpleLookup):
     # choices for used_for
     PROJECT = 1
     REPORTS = 2
@@ -241,19 +168,8 @@ class Status(models.Model):
     )
 
     used_for = models.IntegerField(choices=USED_FOR_CHOICES)
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
     order = models.IntegerField(blank=True, null=True)
     color = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ['used_for', 'order', 'name', ]
@@ -372,8 +288,10 @@ class Project(models.Model):
     # admin
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
     # approved = models.BooleanField(default=False, verbose_name=_("approved"))
-    approved = models.BooleanField(default=False, verbose_name=_("approved"))
     recommended_for_funding = models.BooleanField(default=False, verbose_name=_("recommended"))
+    approved = models.BooleanField(default=False, verbose_name=_("approved"))
+    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
+    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"))
     # section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
 
     # manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))
@@ -485,7 +403,7 @@ class Project(models.Model):
         return None
 
 
-class EmployeeType(models.Model):
+class EmployeeType(SimpleLookup):
     # cost_type choices
     SAL = 1
     OM = 2
@@ -493,33 +411,13 @@ class EmployeeType(models.Model):
         (SAL, _("Salary")),
         (OM, _("O&M")),
     ]
-
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
     cost_type = models.IntegerField(choices=COST_TYPE_CHOICES)
     exclude_from_rollup = models.BooleanField(default=False)
 
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name']
 
 
-class Level(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return "{}".format(self.name)
-
-    class Meta:
-        ordering = ['name', ]
+class Level(SimpleLookup):
+    pass
 
 
 class Staff(models.Model):

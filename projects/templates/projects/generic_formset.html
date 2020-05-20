@@ -1,0 +1,15 @@
+{% extends "projects/generic_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% load custom_tags %}
+
+{% block messages %}{% endblock %}
+
+
+{% block subcontent %}
+
+    {% include "shared_models/_generic_formset.html" %}
+{% endblock %}

@@ -409,13 +409,11 @@ class CommonCommon():
     subtitle = None
     h2 = None
     h3 = None
+    home_url_name = None
     crumbs = None
     container_class = "container"
 
     def get_title(self):
-        if not self.title and not self.h1:
-            raise AttributeError("No title attribute set in the class extending CommonCommon")
-
         return self.title
 
     # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
@@ -447,7 +445,13 @@ class CommonCommon():
         return self.h3
 
     def get_crumbs(self):
-        return self.crumbs
+        if self.crumbs:
+            return self.crumbs
+        else:
+            return [
+                {"title": _("Home"), "url": reverse(self.home_url_name)},
+                {"title": self.h1}
+            ]
 
     def get_container_class(self):
         return self.container_class
@@ -455,13 +459,23 @@ class CommonCommon():
     def get_common_context(self) -> dict:
         context = dict()
 
-        context["title"] = self.get_title()
+        title = self.get_title()
+        h1 = self.get_h1()
+
+        if not title and not h1:
+            raise AttributeError("No title or h1 attribute set in the class extending CommonCommon")
+
+        if title:
+            context['title'] = title
+
+        if h1:
+            context['h1'] = h1
+
         java_script = self.get_java_script()
         nav_menu = self.get_nav_menu()
         site_css = self.get_site_css()
 
         field_list = self.get_field_list()
-        h1 = self.get_h1()
         h2 = self.get_h2()
         h3 = self.get_h3()
         subtitle = self.get_subtitle()
@@ -546,7 +560,6 @@ class UpdateCommon(UserPassesTestMixin, UpdateView, CommonCommon, ABC):
 class FilterCommon(FilterView, CommonCommon):
     auth = True
 
-
     # override this if there are authorization requirements
     def test_func(self):
         return self.auth
@@ -566,22 +579,89 @@ class FilterCommon(FilterView, CommonCommon):
         return context
 
 
-class FormsetCommon(TemplateView, CommonCommon):
+class CommonTemplateView(TemplateView, CommonCommon):
     auth = True
-    template_name = 'shared_models/shared_filter.html'
+
+    # override this if there are authorization requirements
+    def test_func(self):
+        return self.auth
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # for the most part if the user is authorized then the content is editable
+        # but extending classes can choose to make content not editable even if the user is authorized
+        # Default behaviour for the FilterCommon class is that users are authorized by default to view
+        # Data, but not to create or modify it.
+        context['auth'] = self.test_func()
+        context['editable'] = context['auth']
+        context['container_class'] = self.container_class
+
+        context.update(super().get_common_context())
+        # overwrite the existing field list to take just the fields being passed in by the formset / form
+        return context
+
+
+class CommonFormView(FormView, CommonCommon):
+    auth = True
+    cancel_url = None
+    cancel_text = _("Back")
+    submit_text = _("Submit")
+
+    # override this if there are authorization requirements
+    def test_func(self):
+        return self.auth
+
+    def get_cancel_url(self):
+        if self.cancel_url:
+            return self.cancel_url
+        else:
+            return self.request.META.get('HTTP_REFERER')
+
+    def get_cancel_text(self):
+        return self.cancel_text
+
+    def get_submit_text(self):
+        return self.submit_text
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # for the most part if the user is authorized then the content is editable
+        # but extending classes can choose to make content not editable even if the user is authorized
+        # Default behaviour for the FilterCommon class is that users are authorized by default to view
+        # Data, but not to create or modify it.
+        context['auth'] = self.test_func()
+        context['editable'] = context['auth']
+        context['container_class'] = self.container_class
+        context['cancel_url'] = self.get_cancel_url()
+        context['cancel_text'] = self.get_cancel_text()
+        context['submit_text'] = self.get_submit_text()
+
+        context.update(super().get_common_context())
+        # overwrite the existing field list to take just the fields being passed in by the formset / form
+        return context
+
+
+class CommonFormsetView(TemplateView, CommonCommon):
+    auth = True
     queryset = None
     formset_class = None
     success_url_name = None
     home_url_name = None
     delete_url_name = None
+    pre_display_fields = ["id", ]
+    post_display_fields = None
 
     # override this if there are authorization requirements
+    def get_queryset(self):
+        return self.queryset
 
-    def get_crumbs(self):
-        return [
-            {"title": _("Home"), "url": reverse(self.home_url_name)},
-            {"title": self.h1}
-        ]
+    def get_pre_display_fields(self):
+        return self.pre_display_fields
+
+    def get_post_display_fields(self):
+        return self.post_display_fields
 
     def test_func(self):
         return self.auth
@@ -595,17 +675,20 @@ class FormsetCommon(TemplateView, CommonCommon):
         # Data, but not to create or modify it.
         context['auth'] = self.test_func()
         context['editable'] = context['auth']
-        context['random_object'] = self.queryset.first()
+        context['random_object'] = self.get_queryset().first()
         context['delete_url_name'] = self.delete_url_name
         context['container_class'] = self.container_class
 
         context.update(super().get_common_context())
         # overwrite the existing field list to take just the fields being passed in by the formset / form
         context["field_list"] = [f for f in self.formset_class.form.base_fields]
+        context["pre_display_fields"] = self.get_pre_display_fields()
+        context["post_display_fields"] = self.get_post_display_fields()
         return context
 
     def get(self, request, *args, **kwargs):
-        formset = self.formset_class(queryset=self.queryset.all())
+        queryset = self.get_queryset()
+        formset = self.formset_class(queryset=queryset.all())
         return self.render_to_response(self.get_context_data(formset=formset))
 
     def post(self, request, *args, **kwargs):
@@ -620,13 +703,15 @@ class FormsetCommon(TemplateView, CommonCommon):
             return self.render_to_response(self.get_context_data(formset=formset))
 
 
-class HardDeleteView(View, SingleObjectMixin):
+class CommonHardDeleteView(View, SingleObjectMixin):
     '''a dangerous view; to use when you want to delete an object without any confirmation page'''
     success_url = None
 
     def get(self, request, *args, **kwargs):
         my_obj = self.get_object()
         my_obj.delete()
+        messages.error(self.request, f"{my_obj} has been successfully deleted.")
+
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
