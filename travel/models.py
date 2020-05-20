@@ -78,7 +78,7 @@ class TripCategory(SimpleLookup):
 
 
 class TripSubcategory(Lookup):
-    name = models.CharField(max_length=255)  # overflowing this since we DO NOT want it to be unique=True
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))  # overflowing this since we DO NOT want it to be unique=True
     trip_category = models.ForeignKey(TripCategory, on_delete=models.DO_NOTHING, related_name="subcategories")
 
     def __str__(self):
