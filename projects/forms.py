@@ -732,8 +732,8 @@ class ProjectApprovalForm(forms.ModelForm):
     class Meta:
         model = models.Project
         fields = [
-            "meeting_notes",
             "allocated_budget",
+            "meeting_notes",
             "approved",
         ]
         widgets = {
