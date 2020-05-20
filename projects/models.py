@@ -7,6 +7,8 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from textile import textile
+
+from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext
@@ -15,6 +17,7 @@ from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 
 from dm_apps import custom_widgets
+from . import emails
 
 # Choices for language
 from shared_models.models import SimpleLookup
@@ -315,6 +318,17 @@ class Project(models.Model):
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
+        if self.approved is not None:
+            email = emails.ProjectApprovalEmail(self)
+            # send the email object
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
+            self.notification_email_sent = timezone.now()
+
         super().save(*args, **kwargs)
 
     @property
