@@ -21,7 +21,11 @@ YESNO_CHOICES = (
     (True, _("Yes")),
     (False, _("No")),
 )
-
+NULLYESNO_CHOICES = (
+    (None, _("----")),
+    (True, _("Yes")),
+    (False, _("No")),
+)
 
 class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField(label=_("Region"))
@@ -737,7 +741,7 @@ class ProjectApprovalForm(forms.ModelForm):
             "approved",
         ]
         widgets = {
-            'approved': forms.Select(choices=YESNO_CHOICES),
+            'approved': forms.Select(choices=NULLYESNO_CHOICES),
         }
 
     def __init__(self, *args, **kwargs):

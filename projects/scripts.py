@@ -112,3 +112,11 @@ def recommend_approved_projects():
         p.approved = False
         p.save()
 
+
+def clear_all_approvals():
+    projects = models.Project.objects.filter(approved=False)
+    for p in projects:
+        p.approved = None
+        p.save()
+
+
