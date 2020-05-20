@@ -5,36 +5,27 @@ from django.views.generic import TemplateView
 
 from projects.test import FactoryFloor
 from projects.test.common_tests import CommonProjectTest as CommonTest
+from shared_models.views import CommonFormView
 from .. import views
+
 
 class TestProjectApprovalFormsetView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.ProjectApprovalFactory()
-        self.test_url = reverse_lazy('projects:view_name', kwargs={"pk":self.instance.pk})
-        self.expected_template = 'projects/template_file_path.html'
+        self.test_url = reverse_lazy('projects:admin_project_approval_search')
+        self.expected_template = 'projects/generic_form.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
 
-    @tag("view_name", 'type', "view")
+    @tag("admin_project_approval_search", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.ProjectApprovalFormsetView, FormsetView)
+        self.assert_inheritance(views.ProjectApprovalsSearchView, CommonFormView)
 
-    @tag("view_name", 'type', "access")
+    @tag("admin_project_approval_search", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
-        self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("view_name", 'type', "context")
-    def test_context(self):
-        context_vars = [
-            "field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars)
-    
-    @tag("view_name", 'type', "submit")
+    @tag("admin_project_approval_search", "submit")
     def test_submit(self):
-        data = FactoryFloor.ProjectApprovalFactory.get_valid_data()
+        data = {"region": 1, "fy": 2019}
         self.assert_success_url(self.test_url, data=data)
-        
-        # for delete views...
-        self.assertEqual(models.ProjectApproval.objects.filter(pk=self.instance.pk).count(), 0)
+
