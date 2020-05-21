@@ -7,9 +7,6 @@
 {% load custom_tags %}
 
 {% block subcontent %}
-    {% crash_if_none "cancel_url" cancel_url %}
-    {% crash_if_none "submit_text" submit_text %}
-    {% crash_if_none "cancel_text" cancel_text %}
 
     <form method="post" class="form">
         {% csrf_token %}

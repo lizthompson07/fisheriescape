@@ -60,7 +60,7 @@
                 {% for field in form %}
                     {% if not field.is_hidden %}
                         <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
-                            {{ field }}
+                        {% bootstrap_field field size="small" show_label=False %}
                         </td>
                     {% endif %}
                 {% endfor %}
