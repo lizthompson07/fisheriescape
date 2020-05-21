@@ -1849,7 +1849,7 @@ class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
 
 class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     model = models.Theme
-    success_url = reverse_lazy("projects:manage_functional_groups")
+    success_url = reverse_lazy("projects:manage_themes")
 
 
 class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
