@@ -25,19 +25,19 @@ def setup_view(view, request, *args, **kwargs):
 
 # #################################################################################
 #
-#                       CommonCommon Testing
+#                       CommonMixin Testing
 #
 # #################################################################################
-class TestCommonCommon(TestCase):
+class TestCommonMixin(TestCase):
     view = None
 
     def setUp(self) -> None:
-        self.view = views.CommonCommon()
+        self.view = views.CommonMixin()
 
     # The shared templates have a common layout that will display a form's title, so the CommonCreate
     # get_context method will return the title set in an extending class.
     def test_title(self):
-        # CreateCommon Should have the title
+        # CommonCreateView Should have the title
         self.assertTrue(hasattr(self.view, "title"))
 
         # The title should be null and overriden in an extending class. But be null in the parent
@@ -57,7 +57,7 @@ class TestCommonCommon(TestCase):
     # created where needed in the respective common view class. Specifiy a key in the extending class and
     # The create view will create context variables with the expected URL Name.
     def test_key(self):
-        # CreateCommon Should have the key
+        # CommonCreateView Should have the key
         self.assertTrue(hasattr(self.view, "key"))
 
         # The key should be null and overriden in an extending class. But be null in the parent
@@ -66,7 +66,7 @@ class TestCommonCommon(TestCase):
     # This frame work allows for the inclusion of a nav_menu attribute, if present it will be
     # included in the base forms and a navigation menu displayed at the top of a page
     def test_nav_menu(self):
-        # CreateCommon Should have the attribute
+        # CommonCreateView Should have the attribute
         self.assertTrue(hasattr(self.view, "nav_menu"))
 
         # The attribute should be null and overriden in an extending class. But be null in the parent
@@ -75,7 +75,7 @@ class TestCommonCommon(TestCase):
     # This frame work allows for the inclusion of a java_script attribute, if present it will be
     # included in the base forms
     def test_java_script(self):
-        # CreateCommon Should have the attribute
+        # CommonCreateView Should have the attribute
         self.assertTrue(hasattr(self.view, "java_script"))
 
         # The attribute should be null and overriden in an extending class. But be null in the parent
@@ -84,7 +84,7 @@ class TestCommonCommon(TestCase):
     # This frame work allows for the inclusion of a site_css attribute, if present it will be
     # included in the base forms template
     def test_site_css(self):
-        # CreateCommon Should have the attribute
+        # CommonCreateView Should have the attribute
         self.assertTrue(hasattr(self.view, "site_css"))
 
         # The attribute should be null and overriden in an extending class. But be null in the parent
@@ -132,13 +132,13 @@ class TestCommonCommon(TestCase):
 
 # #################################################################################
 #
-#                       CreateCommon Testing
+#                       CommonCreateView Testing
 #
 # #################################################################################
 
 
 # mock example of extending the create common view used in testing
-class MockCreateCommon(views.CreateCommon):
+class MockCommonCreateView(views.CommonCreateView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
@@ -176,24 +176,24 @@ class MockCreateCommon(views.CreateCommon):
 # Testing for CommonCreate view, used in:
 #  csas
 #  whalesdb
-class TestCreateCommon(TestCase):
+class TestCommonCreateView(TestCase):
 
     # In order to test users should be allowed to create database objects extending apps should make use of the test_
     # func method that comes from Django's django.contrib.auth.mixins.UserPassesTestMixin module. As such
-    # the CreateCommon class is an abstract class with CreateView and UserPassesTestMixin as super classes
+    # the CommonCreateView class is an abstract class with CreateView and UserPassesTestMixin as super classes
     def test_extends(self):
-        view = views.CreateCommon()
+        view = views.CommonCreateView()
 
         self.assertIsInstance(view, UserPassesTestMixin)
         self.assertIsInstance(view, CreateView)
-        self.assertIsInstance(view, views.CommonCommon)
+        self.assertIsInstance(view, views.CommonMixin)
 
     # All DM apps share a common login system so it makes sense that common views should direct
     # users to the common login URL
     def test_login_url(self):
-        view = views.CreateCommon()
+        view = views.CommonCreateView()
 
-        # CreateCommon Should have the login_url attribute
+        # CommonCreateView Should have the login_url attribute
         self.assertTrue(hasattr(view, "login_url"))
 
         # Expected Login URL
@@ -202,7 +202,7 @@ class TestCreateCommon(TestCase):
     # Create common by default uses the simple shared_models/shared_entry_form.html template
     # Extending classes can provide their own templates modeled on the shared_entry_form.html Template
     def test_template(self):
-        view = views.CreateCommon()
+        view = views.CommonCreateView()
         self.assertEquals(view.template_name, EXPECTED_FORM_TEMPLATE_NAME)
 
     # if the test_func method returns true then the get_context method will return an auth element used by
@@ -211,7 +211,7 @@ class TestCreateCommon(TestCase):
         # have to create the request and setup the view
         req_factory = RequestFactory()
         request = req_factory.get(EXPECTED_LOGIN_URL)
-        view = setup_view(MockCreateCommon(), request)
+        view = setup_view(MockCommonCreateView(), request)
         view.object = models.Region()
         view.title = EXPECTED_MOCK_TITLE
 
@@ -225,13 +225,13 @@ class TestCreateCommon(TestCase):
 
 # #################################################################################
 #
-#                       UpdateCommon Testing
+#                       CommonUpdateView Testing
 #
 # #################################################################################
 
 
-# mock example of extending the update common view used in testing, virtually the same as CreateCommon
-class MockUpdateCommonView(views.UpdateCommon):
+# mock example of extending the update common view used in testing, virtually the same as CommonCreateView
+class MockCommonUpdateView(views.CommonUpdateView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
@@ -266,25 +266,25 @@ class MockUpdateCommonView(views.UpdateCommon):
         return super().get_site_css()
 
 
-# Testing for UpdateCommon view, used in:
-class TestUpdateCommon(TestCase):
+# Testing for CommonUpdateView view, used in:
+class TestCommonUpdateView(TestCase):
 
     # In order to test users should be allowed to create database objects extending apps should make use of the test_
     # func method that comes from Django's django.contrib.auth.mixins.UserPassesTestMixin module. As such
-    # the UpdateCommon class is an abstract class with UpdateView and UserPassesTestMixin as super classes
+    # the CommonUpdateView class is an abstract class with UpdateView and UserPassesTestMixin as super classes
     def test_extends(self):
-        view = views.UpdateCommon()
+        view = views.CommonUpdateView()
 
         self.assertIsInstance(view, UserPassesTestMixin)
         self.assertIsInstance(view, UpdateView)
-        self.assertIsInstance(view, views.CommonCommon)
+        self.assertIsInstance(view, views.CommonMixin)
 
     # All DM apps share a common login system so it makes sense that common views should direct
     # users to the common login URL
     def test_login_url(self):
-        view = views.UpdateCommon()
+        view = views.CommonUpdateView()
 
-        # UpdateCommon Should have the login_url attribute
+        # CommonUpdateView Should have the login_url attribute
         self.assertTrue(hasattr(view, "login_url"))
 
         # Expected Login URL
@@ -293,7 +293,7 @@ class TestUpdateCommon(TestCase):
     # Update common by default uses the simple shared_models/shared_entry_form.html template
     # Extending classes can provide their own templates modeled on the shared_entry_form.html Template
     def test_template(self):
-        view = views.UpdateCommon()
+        view = views.CommonUpdateView()
         self.assertEquals(view.template_name, EXPECTED_FORM_TEMPLATE_NAME)
 
     # if the test_func method returns true then the get_context method will return an auth element used by
@@ -302,7 +302,7 @@ class TestUpdateCommon(TestCase):
         # have to create the request and setup the view
         req_factory = RequestFactory()
         request = req_factory.get(EXPECTED_LOGIN_URL)
-        view = setup_view(MockUpdateCommonView(), request)
+        view = setup_view(MockCommonUpdateView(), request)
         view.object = models.Region()
         view.title = EXPECTED_MOCK_TITLE
 
@@ -316,26 +316,26 @@ class TestUpdateCommon(TestCase):
 
 # #################################################################################
 #
-#                       FilterCommon Testing
+#                       CommonFilterView Testing
 #
 # #################################################################################
 
-class MockFilterCommonView(views.FilterCommon):
+class MockCommonFilterView(views.CommonFilterView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
 
 
-class TestFilterCommon(TestCase):
+class TestCommonFilterView(TestCase):
     view = None
 
     def setUp(self) -> None:
-        self.view = views.FilterCommon()
+        self.view = views.CommonFilterView()
 
-    # FilterCommon Extends django_filters.views.FilterView
+    # CommonFilterView Extends django_filters.views.FilterView
     def test_filter_extends(self):
         self.assertIsInstance(self.view, FilterView)
-        self.assertIsInstance(self.view, views.CommonCommon)
+        self.assertIsInstance(self.view, views.CommonMixin)
 
     # Update common by default uses the simple shared_models/shared_entry_form.html template
     # Extending classes can provide their own templates modeled on the shared_entry_form.html Template
@@ -346,7 +346,7 @@ class TestFilterCommon(TestCase):
         # have to create the request and setup the view
         req_factory = RequestFactory()
         request = req_factory.get(EXPECTED_LOGIN_URL)
-        view = setup_view(MockFilterCommonView(), request)
+        view = setup_view(MockCommonFilterView(), request)
         view.object_list = models.Region.objects.all()
         view.title = EXPECTED_MOCK_TITLE
 

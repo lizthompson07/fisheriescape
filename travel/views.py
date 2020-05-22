@@ -28,7 +28,7 @@ from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
-from shared_models.views import CommonFormsetView, CommonHardDeleteView
+from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonUpdateView
 from . import models
 from . import forms
 from . import reports
@@ -904,19 +904,12 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
 
 
-class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, UpdateView):
+class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     model = models.TripRequest
     form_class = forms.TripRequestAdminNotesForm
-    template_name = 'travel/generic_popout_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["h1"] = _("Administrative Notes (Public)")
-        return context
-
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse("shared_models:close_me"))
+    template_name = 'shared_models/generic_popout_form.html'
+    h1 = _("Administrative Notes (Public)")
+    success_url = reverse_lazy("shared_models:close_me")
 
 
 class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
@@ -1410,7 +1403,7 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
 class TripAdminNotesUpdateView(TravelADMAdminRequiredMixin, UpdateView):
     model = models.Conference
     form_class = forms.TripAdminNotesForm
-    template_name = 'travel/generic_popout_form.html'
+    template_name = 'shared_models/generic_popout_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1658,7 +1651,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
 
 
 class TripSelectFormView(TravelAdminRequiredMixin, FormView):
-    template_name = 'travel/generic_popout_form.html'
+    template_name = 'shared_models/generic_popout_form.html'
     form_class = forms.TripSelectForm
 
     def test_func(self):
