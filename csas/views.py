@@ -11,8 +11,8 @@ from shared_models import views as shared_view
 
 
 # Extend this class to add a new list view
-# class CsasListCommon(shared_view.FilterCommon):
-class CsasListCommon(shared_view.FilterCommon):
+# class CsasListCommon(shared_view.CommonFilterView):
+class CsasListCommon(shared_view.CommonFilterView):
 
     template_name = 'csas/csas_filter.html'
 
@@ -56,8 +56,8 @@ class CsasListCommon(shared_view.FilterCommon):
 #
 # Create Common uses the shared_models/shared_entry_form.html template to display common forms in a standard way
 #
-# class CreateCommon(UserPassesTestMixin, CreateView):
-class CsasCreateCommon(shared_view.CreateCommon):
+# class CommonCreateView(UserPassesTestMixin, CreateView):
+class CsasCommonCreateView(shared_view.CommonCreateView):
 
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
@@ -75,8 +75,8 @@ class CsasCreateCommon(shared_view.CreateCommon):
 # Virtually the same as the Create Common class, the Update Common class uses the _entry_form.html
 # template to display common forms in a popup dialog intended to be attached to some "update" button.
 #
-# class UpdateCommon(UserPassesTestMixin, UpdateView):
-class CsasUpdateCommon(shared_view.UpdateCommon):
+# class CommonUpdateView(UserPassesTestMixin, UpdateView):
+class CsasCommonUpdateView(shared_view.CommonUpdateView):
 
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
@@ -157,7 +157,7 @@ class IndexTemplateView(TemplateView):
 # ----------------------------------------------------------------------------------------------------
 # Create "Request" forms
 #
-class RequestEntry(CsasCreateCommon):
+class RequestEntry(CsasCommonCreateView):
 
     # The title to use on the Creation form
     title = _("New Request Entry")
@@ -172,7 +172,7 @@ class RequestEntry(CsasCreateCommon):
         return reverse_lazy("csas:details_req", args=(self.object.pk,))
 
 
-class RequestUpdate(CsasUpdateCommon):
+class RequestUpdate(CsasCommonUpdateView):
 
     # The title to use on the Update form
     title = _("Update Request")
@@ -230,7 +230,7 @@ class RequestDetails(DetailsCommon):
 # ----------------------------------------------------------------------------------------------------
 # Create "Contact" forms
 #
-class ContactEntry(CsasCreateCommon):
+class ContactEntry(CsasCommonCreateView):
 
     # The title to use on the Creation form
     title = _("New Contact Entry")
@@ -245,7 +245,7 @@ class ContactEntry(CsasCreateCommon):
         return reverse_lazy("csas:details_con", args=(self.object.pk,))
 
 
-class ContactUpdate(CsasUpdateCommon):
+class ContactUpdate(CsasCommonUpdateView):
 
     # The title to use on the Update form
     title = _("Update Contact")
@@ -302,7 +302,7 @@ class ContactDetails(DetailsCommon):
 # ----------------------------------------------------------------------------------------------------
 # Create "Meeting" forms
 #
-class MeetingEntry(CsasCreateCommon):
+class MeetingEntry(CsasCommonCreateView):
 
     # The title to use on the Creation form
     title = _("New Meeting Entry")
@@ -317,7 +317,7 @@ class MeetingEntry(CsasCreateCommon):
         return reverse_lazy("csas:details_met", args=(self.object.pk,))
 
 
-class MeetingUpdate(CsasUpdateCommon):
+class MeetingUpdate(CsasCommonUpdateView):
 
     # The title to use on the Update form
     title = _("Update Meeting")
@@ -365,7 +365,7 @@ class MeetingDetails(DetailsCommon):
 # ----------------------------------------------------------------------------------------------------
 # Create "Meeting" forms
 #
-class PublicationEntry(CsasCreateCommon):
+class PublicationEntry(CsasCommonCreateView):
 
     # The title to use on the Creation form
     title = _("New Publication Entry")
@@ -380,7 +380,7 @@ class PublicationEntry(CsasCreateCommon):
         return reverse_lazy("csas:details_pub", args=(self.object.pk,))
 
 
-class PublicationUpdate(CsasUpdateCommon):
+class PublicationUpdate(CsasCommonUpdateView):
 
     # The title to use on the Update form
     title = _("Update Publication")
