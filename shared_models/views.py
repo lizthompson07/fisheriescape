@@ -14,6 +14,7 @@ from django_filters.views import FilterView
 ###
 from . import models
 from . import forms
+from .mixins import CommonMixin, CommonFormMixin, CommonListMixin
 
 
 class CloserTemplateView(TemplateView):
@@ -31,6 +32,172 @@ def in_admin_group(user):
                 user.groups.filter(name='travel_adm_admin').count():
             return True
 
+
+class CommonTemplateView(TemplateView, CommonMixin):
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+# CommonCreate Extends the UserPassesTestMixin used to determine if a user has
+# has the correct privileges to interact with Creation Views
+class CommonCreateView(CreateView, CommonFormMixin):
+    # default template to use to create an update
+    #  shared_entry_form.html contains the common navigation elements at the top of the template
+    template_name = 'shared_models/shared_entry_form.html'
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+# UpdateCreate Extends the UserPassesTestMixin used to determine if a user has
+# has the correct privileges to interact with Creation Views
+class CommonUpdateView(UpdateView, CommonFormMixin):
+    # this is where the user should be redirected if they're not logged in
+    login_url = '/accounts/login_required/'
+
+    # default template to use to update an update
+    #  shared_entry_form.html contains the common navigation elements at the top of the template
+    template_name = 'shared_models/shared_entry_form.html'
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+class CommonFilterView(FilterView, CommonListMixin):
+    # this is where the user should be redirected if they're not logged in
+    login_url = '/accounts/login_required/'
+
+    # default template to use to update an update
+    #  shared_entry_form.html contains the common navigation elements at the top of the template
+    template_name = 'shared_models/shared_entry_form.html'
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+class CommonListView(ListView, CommonListMixin):
+    # this is where the user should be redirected if they're not logged in
+    login_url = '/accounts/login_required/'
+
+    # default template to use to update an update
+    #  shared_entry_form.html contains the common navigation elements at the top of the template
+    template_name = 'shared_models/shared_entry_form.html'
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+class CommonFormView(FormView, CommonFormMixin):
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+class CommonFormsetView(TemplateView, CommonFormMixin):
+    queryset = None
+    formset_class = None
+    success_url = None
+    home_url_name = None
+    delete_url_name = None
+    pre_display_fields = ["id", ]
+    post_display_fields = None
+    random_object = None
+
+    # override this if there are authorization requirements
+    def get_queryset(self):
+        return self.queryset
+
+    def get_success_url(self):
+        return self.success_url
+
+    def get_pre_display_fields(self):
+        return self.pre_display_fields
+
+    def get_post_display_fields(self):
+        return self.post_display_fields
+
+    def get_random_object(self):
+        if self.random_object:
+            return self.random_object
+        else:
+            return self.get_queryset().first()
+
+    def test_func(self):
+        return self.auth
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['random_object'] = self.get_random_object()
+        context['delete_url_name'] = self.delete_url_name
+        context['container_class'] = self.container_class
+
+        # overwrite the existing field list to take just the fields being passed in by the formset / form
+        context["field_list"] = [f for f in self.formset_class.form.base_fields]
+        context["pre_display_fields"] = self.get_pre_display_fields()
+        context["post_display_fields"] = self.get_post_display_fields()
+        return context
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        formset = self.formset_class(queryset=queryset.all())
+        return self.render_to_response(self.get_context_data(formset=formset))
+
+    def post(self, request, *args, **kwargs):
+        formset = self.formset_class(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(self.request, "Items have been successfully updated")
+            return HttpResponseRedirect(self.get_success_url())
+            # return self.form_valid(formset)
+        else:
+            return self.render_to_response(self.get_context_data(formset=formset))
+
+
+class CommonHardDeleteView(View, SingleObjectMixin, ABC):
+    '''a dangerous view; to use when you want to delete an object without any confirmation page; WARNING, this deletes on a GET request!!'''
+    success_url = None
+
+    def get(self, request, *args, **kwargs):
+        my_obj = self.get_object()
+        my_obj.delete()
+        messages.error(self.request, f"{my_obj} has been successfully deleted.")
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        if self.success_url:
+            return self.success_url
+        else:
+            raise ImproperlyConfigured(
+                "No URL to redirect to. Provide a success_url.")
+
+
+#
+##
+###
+####
+######
+####################  SOME COMMON FORMS
 
 class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
@@ -378,355 +545,3 @@ class RegionDeleteView(AdminRequiredMixin, DeleteView):
             "trip requests": getattr(self.get_object(), "trip_requests").all(),
         }
         return context
-
-
-class CommonCommon():
-    # key is used to construct commonly formatted strings, such as used in the get_success_url
-    key = None
-
-    # title to display on the CreateView page
-    title = None
-
-    # an extending class can override this similarly to how the template_name attribute can be overriden
-    # Except in this case the value will be used to include a java_script file at the bottom of the
-    # 'shared_models/shared_entry_form.html' template
-    java_script = None
-
-    # an extending class can override this similarly to how the template_name attribute can be overriden
-    # Except in this case the value will be used to include a nav_menu file at the top of the
-    # 'shared_models/shared_entry_form.html' template
-    nav_menu = None
-
-    # an extending class can override this similarly to how the template_name attribute can be overriden
-    # Except in this case the value will be used to include a site_css file at the top of the
-    # 'shared_models/shared_entry_form.html' template
-    site_css = None
-
-    # an extending class can override this similarly to how the template_name attribute can be overriden
-    # Except in this case the value will be used to include a field_list in the context var
-    field_list = None
-    h1 = None
-    subtitle = None
-    h2 = None
-    h3 = None
-    home_url_name = None
-    crumbs = None
-    container_class = "container"
-
-    def get_title(self):
-        return self.title
-
-    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
-    def get_java_script(self):
-        return self.java_script
-
-    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
-    def get_nav_menu(self):
-        return self.nav_menu
-
-    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
-    def get_site_css(self):
-        return self.site_css
-
-    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
-    def get_field_list(self):
-        return self.field_list
-
-    def get_subtitle(self):
-        return self.subtitle
-
-    def get_h1(self):
-        return self.h1
-
-    def get_h2(self):
-        return self.h2
-
-    def get_h3(self):
-        return self.h3
-
-    def get_crumbs(self):
-        if self.crumbs:
-            return self.crumbs
-        else:
-            return [
-                {"title": _("Home"), "url": reverse(self.home_url_name)},
-                {"title": self.get_h1()}
-            ]
-
-    def get_container_class(self):
-        return self.container_class
-
-    def get_common_context(self) -> dict:
-        context = dict()
-
-        title = self.get_title()
-        h1 = self.get_h1()
-
-        if not title and not h1:
-            raise AttributeError("No title or h1 attribute set in the class extending CommonCommon")
-
-        if title:
-            context['title'] = title
-
-        if h1:
-            context['h1'] = h1
-
-        java_script = self.get_java_script()
-        nav_menu = self.get_nav_menu()
-        site_css = self.get_site_css()
-
-        field_list = self.get_field_list()
-        h2 = self.get_h2()
-        h3 = self.get_h3()
-        subtitle = self.get_subtitle()
-        crumbs = self.get_crumbs()
-        container_class = self.get_container_class()
-
-        if java_script:
-            context['java_script'] = java_script
-
-        if nav_menu:
-            context['nav_menu'] = nav_menu
-
-        if site_css:
-            context['site_css'] = site_css
-
-        if field_list:
-            context['field_list'] = field_list
-
-        if subtitle:
-            context['subtitle'] = subtitle
-        # if there is no subtitle, use the h1 as a default
-        elif h1:
-            context['subtitle'] = h1
-
-        if h1:
-            context['h1'] = h1
-
-        if h2:
-            context['h2'] = h2
-
-        if h3:
-            context['h3'] = h3
-
-        if crumbs:
-            context['crumbs'] = crumbs
-
-        context['container_class'] = container_class
-
-        return context
-
-
-# CommonCreate Extends the UserPassesTestMixin used to determine if a user has
-# has the correct privileges to interact with Creation Views
-class CreateCommon(UserPassesTestMixin, CreateView, CommonCommon, ABC):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
-
-    # default template to use to create an update
-    #  shared_entry_form.html contains the common navigation elements at the top of the template
-    template_name = 'shared_models/shared_entry_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["auth"] = self.test_func()
-
-        context.update(super().get_common_context())
-
-        return context
-
-
-# UpdateCreate Extends the UserPassesTestMixin used to determine if a user has
-# has the correct privileges to interact with Creation Views
-class UpdateCommon(UserPassesTestMixin, UpdateView, CommonCommon, ABC):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
-
-    # default template to use to update an update
-    #  shared_entry_form.html contains the common navigation elements at the top of the template
-    template_name = 'shared_models/shared_entry_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["auth"] = self.test_func()
-
-        context.update(super().get_common_context())
-
-        return context
-
-
-class FilterCommon(FilterView, CommonCommon):
-    auth = True
-
-    # override this if there are authorization requirements
-    def test_func(self):
-        return self.auth
-
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, object_list=object_list, **kwargs)
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        # Default behaviour for the FilterCommon class is that users are authorized by default to view
-        # Data, but not to create or modify it.
-        context['auth'] = self.test_func()
-        context['editable'] = context['auth']
-
-        context.update(super().get_common_context())
-
-        return context
-
-
-class CommonTemplateView(TemplateView, CommonCommon):
-    auth = True
-
-    # override this if there are authorization requirements
-    def test_func(self):
-        return self.auth
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        # Default behaviour for the FilterCommon class is that users are authorized by default to view
-        # Data, but not to create or modify it.
-        context['auth'] = self.test_func()
-        context['editable'] = context['auth']
-        context['container_class'] = self.container_class
-
-        context.update(super().get_common_context())
-        # overwrite the existing field list to take just the fields being passed in by the formset / form
-        return context
-
-
-class CommonFormView(FormView, CommonCommon):
-    auth = True
-    cancel_url = None
-    cancel_text = _("Back")
-    submit_text = _("Submit")
-
-    # override this if there are authorization requirements
-    def test_func(self):
-        return self.auth
-
-    def get_cancel_url(self):
-        if self.cancel_url:
-            return self.cancel_url
-        else:
-            return self.request.META.get('HTTP_REFERER')
-
-    def get_cancel_text(self):
-        return self.cancel_text
-
-    def get_submit_text(self):
-        return self.submit_text
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        # Default behaviour for the FilterCommon class is that users are authorized by default to view
-        # Data, but not to create or modify it.
-        context['auth'] = self.test_func()
-        context['editable'] = context['auth']
-        context['container_class'] = self.container_class
-        context['cancel_url'] = self.get_cancel_url()
-        context['cancel_text'] = self.get_cancel_text()
-        context['submit_text'] = self.get_submit_text()
-
-        context.update(super().get_common_context())
-        # overwrite the existing field list to take just the fields being passed in by the formset / form
-        return context
-
-
-class CommonFormsetView(TemplateView, CommonCommon):
-    auth = True
-    queryset = None
-    formset_class = None
-    success_url = None
-    home_url_name = None
-    delete_url_name = None
-    pre_display_fields = ["id", ]
-    post_display_fields = None
-    random_object = None
-
-    # override this if there are authorization requirements
-    def get_queryset(self):
-        return self.queryset
-
-    def get_success_url(self):
-        return self.success_url
-
-    def get_pre_display_fields(self):
-        return self.pre_display_fields
-
-    def get_post_display_fields(self):
-        return self.post_display_fields
-
-    def get_random_object(self):
-        if self.random_object:
-            return self.random_object
-        else:
-            return self.get_queryset().first()
-
-    def test_func(self):
-        return self.auth
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        # Default behaviour for the FilterCommon class is that users are authorized by default to view
-        # Data, but not to create or modify it.
-        context['auth'] = self.test_func()
-        context['editable'] = context['auth']
-        context['random_object'] = self.get_random_object()
-        context['delete_url_name'] = self.delete_url_name
-        context['container_class'] = self.container_class
-
-        context.update(super().get_common_context())
-        # overwrite the existing field list to take just the fields being passed in by the formset / form
-        context["field_list"] = [f for f in self.formset_class.form.base_fields]
-        context["pre_display_fields"] = self.get_pre_display_fields()
-        context["post_display_fields"] = self.get_post_display_fields()
-        return context
-
-    def get(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        formset = self.formset_class(queryset=queryset.all())
-        return self.render_to_response(self.get_context_data(formset=formset))
-
-    def post(self, request, *args, **kwargs):
-        formset = self.formset_class(request.POST, )
-        if formset.is_valid():
-            formset.save()
-            # do something with the formset.cleaned_data
-            messages.success(self.request, "Items have been successfully updated")
-            return HttpResponseRedirect(self.get_success_url())
-            # return self.form_valid(formset)
-        else:
-            return self.render_to_response(self.get_context_data(formset=formset))
-
-
-class CommonHardDeleteView(View, SingleObjectMixin):
-    '''a dangerous view; to use when you want to delete an object without any confirmation page'''
-    success_url = None
-
-    def get(self, request, *args, **kwargs):
-        my_obj = self.get_object()
-        my_obj.delete()
-        messages.error(self.request, f"{my_obj} has been successfully deleted.")
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def get_success_url(self):
-        if self.success_url:
-            return self.success_url
-        else:
-            raise ImproperlyConfigured(
-                "No URL to redirect to. Provide a success_url.")

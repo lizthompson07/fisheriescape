@@ -1,68 +1,48 @@
-{% extends "projects/projects_base.html" %}
+{% extends "projects/base.html" %}
 {% load i18n %}
 {% load custom_filters %}
 {% load custom_tags %}
 
 
-{% block subtitle %}
-    - {{ subtitle }}
-{% endblock %}
+<style>
+    .label {
+        font-weight: bold;
+    }
 
-{% block content %}
-
-    <style>
-        .label {
-            font-weight: bold;
-        }
-
-        table, td {
-            font-size: small;
-        }
-    </style>
-
-    {# check to make sure all key variables are in place #}
-    {% crash_if_none "subtitle" subtitle %}
-    {% crash_if_none "crumbs" crumbs %}
-    {% crash_if_none "h1" h1 %}
+    table, td {
+        font-size: small;
+    }
+</style>
 
 
-    <div class="{% if container_class %}{{ container_class }}{% else %}container{% endif %}">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                {% for crumb in crumbs %}
-                    <li class="breadcrumb-item {% if forloop.counter == crumbs|length %}active{% endif %}">
-                        {% if forloop.counter == crumbs|length %}
-                            {{ crumb.title }}
-                        {% else %}
-                            <a href="{{ crumb.url }}">{{ crumb.title }}</a>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ol>
-        </nav>
+<div class="{% if container_class %}{{ container_class }}{% else %}container{% endif %}">
 
-        {% block area_above_h1 %}{% endblock %}
 
+    {% block area_above_h1 %}{% endblock %}
+
+    <div class="mb-3">
+        <h1>{{ h1|safe }}</h1>
+    </div>
+
+    {% if h2 %}
         <div class="mb-3">
-            <h1>{{ h1|safe }}</h1>
+            <h2>{{ h2|safe }}</h2>
         </div>
+    {% endif %}
 
-        {% if h2 %}
-            <div class="mb-3">
-                <h2>{{ h2|safe }}</h2>
-            </div>
-        {% endif %}
+    {% if h3 %}
+        <div class="mb-3">
+            <h3>{{ h3|safe }}</h3>
+        </div>
+    {% endif %}
 
-        {% if h3 %}
-            <div class="mb-3">
-                <h3>{{ h3|safe }}</h3>
-            </div>
-        {% endif %}
+    {% block subcontent %}
 
-        {% block subcontent %}
+
+
+
 
         {% endblock %}
 
-    </div>
+</div>
 
-{% endblock %}

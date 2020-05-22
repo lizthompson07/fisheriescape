@@ -1,15 +1,12 @@
 from django.test import tag
 from django.urls import reverse_lazy
 from django.utils.translation import activate
-from django.views.generic import TemplateView
 
 from projects.test import FactoryFloor
 from projects.test.common_tests import CommonProjectTest as CommonTest
-from shared_models.test.SharedModelsFactoryFloor import RegionFactory
-from shared_models.views import CommonFormView, CommonFormsetView, CommonHardDeleteView
+from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from .. import views
 from .. import models
-from shared_models import models as shared_models
 from faker import Factory
 
 faker = Factory.create()
