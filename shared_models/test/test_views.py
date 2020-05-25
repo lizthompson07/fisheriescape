@@ -1,7 +1,8 @@
 from django.test import TestCase, tag, RequestFactory
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, TemplateView
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView
 from django_filters.views import FilterView
 
 from shared_models import views, models
@@ -132,6 +133,73 @@ class TestCommonMixin(TestCase):
 
 # #################################################################################
 #
+#                       CommonTemplateView Testing
+#
+# #################################################################################
+
+
+# mock example of extending the create common view used in testing
+class MockCommonTemplateView(views.CommonCreateView):
+    # These are required at a minimum by extending classes as part of Django's base framework
+    model = models.Region
+    fields = []
+
+    # These are for testing purposes only
+    auth = True
+    editable = True
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+    # example of overriding the get_java_script function to return something other than the java_script variable
+    def get_java_script(self):
+        if self.kwargs.get("pop"):
+            return "pop/{}".format(self.java_script)
+
+        return super().get_java_script()
+
+    # example of overriding the get_nav_menu function to return something other than the nav_menu variable
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return "pop/{}".format(self.nav_menu)
+
+        return super().get_nav_menu()
+
+    # example of overriding the get_site_css function to return something other than the site_css variable
+    def get_site_css(self):
+        if self.kwargs.get("pop"):
+            return "pop/{}".format(self.site_css)
+
+        return super().get_site_css()
+
+
+class TestCommonTemplateView(TestCase):
+
+    # In order to test users should be allowed to create database objects extending apps should make use of the test_
+    # func method that comes from Django's django.contrib.auth.mixins.UserPassesTestMixin module. As such
+    # the CommonCreateView class is an abstract class with CreateView and UserPassesTestMixin as super classes
+    def test_extends(self):
+        view = views.CommonTemplateView()
+
+        self.assertIsInstance(view, TemplateView)
+        self.assertIsInstance(view, views.CommonMixin)
+
+    # if the test_func method returns true then the get_context method will return an auth element used by
+    # templates to determine when to show/hide certain elements
+    def test_get_context(self):
+        # have to create the request and setup the view
+        req_factory = RequestFactory()
+        request = req_factory.get(EXPECTED_LOGIN_URL)
+        view = setup_view(MockCommonTemplateView(), request)
+        view.object = models.Region()
+        view.title = EXPECTED_MOCK_TITLE
+
+        # at this point there is nothing more to test in this view. I am keeping this test as a placeholder for future tests
+
+
+# #################################################################################
+#
 #                       CommonCreateView Testing
 #
 # #################################################################################
@@ -184,20 +252,9 @@ class TestCommonCreateView(TestCase):
     def test_extends(self):
         view = views.CommonCreateView()
 
-        self.assertIsInstance(view, UserPassesTestMixin)
         self.assertIsInstance(view, CreateView)
         self.assertIsInstance(view, views.CommonMixin)
-
-    # All DM apps share a common login system so it makes sense that common views should direct
-    # users to the common login URL
-    def test_login_url(self):
-        view = views.CommonCreateView()
-
-        # CommonCreateView Should have the login_url attribute
-        self.assertTrue(hasattr(view, "login_url"))
-
-        # Expected Login URL
-        self.assertEquals(view.login_url, EXPECTED_LOGIN_URL)
+        self.assertIsInstance(view, views.CommonFormMixin)
 
     # Create common by default uses the simple shared_models/shared_entry_form.html template
     # Extending classes can provide their own templates modeled on the shared_entry_form.html Template
@@ -221,6 +278,10 @@ class TestCommonCreateView(TestCase):
 
         view.auth = False
         self.assertFalse(view.get_context_data()['auth'])
+
+        # without overriding the defaults, h1 and submit_text should have specific values
+        self.assertEqual(view.get_context_data()['h1'], _("New {}".format(view.model._meta.verbose_name.title())))
+        self.assertEqual(view.get_context_data()['submit_text'], _("Add"))
 
 
 # #################################################################################
@@ -278,17 +339,7 @@ class TestCommonUpdateView(TestCase):
         # self.assertIsInstance(view, UserPassesTestMixin)
         self.assertIsInstance(view, UpdateView)
         self.assertIsInstance(view, views.CommonMixin)
-
-    # All DM apps share a common login system so it makes sense that common views should direct
-    # users to the common login URL
-    def test_login_url(self):
-        view = views.CommonUpdateView()
-
-        # CommonUpdateView Should have the login_url attribute
-        self.assertTrue(hasattr(view, "login_url"))
-
-        # Expected Login URL
-        self.assertEquals(view.login_url, EXPECTED_LOGIN_URL)
+        self.assertIsInstance(view, views.CommonFormMixin)
 
     # Update common by default uses the simple shared_models/shared_entry_form.html template
     # Extending classes can provide their own templates modeled on the shared_entry_form.html Template
@@ -313,6 +364,100 @@ class TestCommonUpdateView(TestCase):
         view.auth = False
         self.assertFalse(view.get_context_data()['auth'])
 
+        # without overriding the defaults, h1 and submit_text should have specific values
+        self.assertEqual(view.get_context_data()['h1'], _("Edit"))
+        self.assertEqual(view.get_context_data()['submit_text'], _("Save"))
+
+        # should have a context var called model_name
+        self.assertIn("model_name", view.get_context_data())
+
+
+# #################################################################################
+#
+#                       CommonDeleteView Testing
+#
+# #################################################################################
+
+
+# mock example of extending the update common view used in testing, virtually the same as CommonCreateView
+class MockCommonDeleteView(views.CommonDeleteView):
+    # These are required at a minimum by extending classes as part of Django's base framework
+    model = models.Region
+    fields = []
+
+    # These are for testing purposes only
+    auth = True
+    editable = True
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+    # example of overriding the get_java_script function to return something other than the java_script variable
+    def get_java_script(self):
+        if self.kwargs.get("pop"):
+            return "pop/{}".format(self.java_script)
+
+        return super().get_java_script()
+
+    # example of overriding the get_nav_menu function to return something other than the nav_menu variable
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return "pop/{}".format(self.nav_menu)
+
+        return super().get_nav_menu()
+
+    # example of overriding the get_site_css function to return something other than the site_css variable
+    def get_site_css(self):
+        if self.kwargs.get("pop"):
+            return "pop/{}".format(self.site_css)
+
+        return super().get_site_css()
+
+
+# Testing for CommonUpdateView view, used in:
+class TestCommonDeleteView(TestCase):
+
+    # In order to test users should be allowed to create database objects extending apps should make use of the test_
+    # func method that comes from Django's django.contrib.auth.mixins.UserPassesTestMixin module. As such
+    # the CommonUpdateView class is an abstract class with UpdateView and UserPassesTestMixin as super classes
+    def test_extends(self):
+        view = views.CommonDeleteView()
+
+        # self.assertIsInstance(view, UserPassesTestMixin)
+        self.assertIsInstance(view, DeleteView)
+        self.assertIsInstance(view, views.CommonMixin)
+        self.assertIsInstance(view, views.CommonFormMixin)
+
+    # Update common by default uses the simple shared_models/shared_entry_form.html template
+    # Extending classes can provide their own templates modeled on the shared_entry_form.html Template
+    def test_template(self):
+        view = views.CommonDeleteView()
+        self.assertEquals(view.template_name, 'shared_models/generic_confirm_delete.html')
+
+    # if the test_func method returns true then the get_context method will return an auth element used by
+    # templates to determine when to show/hide certain elements
+    def test_get_context(self):
+        # have to create the request and setup the view
+        req_factory = RequestFactory()
+        request = req_factory.get(EXPECTED_LOGIN_URL)
+        print(request)
+        view = setup_view(MockCommonDeleteView(), request)
+        view.object = models.Region()
+
+        # without overriding the defaults, h1 and submit_text should have specific values
+        self.assertEqual(view.get_context_data()['h1'],
+                         _("Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
+                             view.model._meta.verbose_name,
+                             view.get_object(),
+                         )))
+        self.assertEqual(view.get_context_data()['submit_text'], _("Delete"))
+
+        # should have a context var called model_name
+        self.assertIn("model_name", view.get_context_data())
+        self.assertIn("delete_protection", view.get_context_data())
+        self.assertIn("related_names", view.get_context_data())
+
 
 # #################################################################################
 #
@@ -336,6 +481,7 @@ class TestCommonFilterView(TestCase):
     def test_filter_extends(self):
         self.assertIsInstance(self.view, FilterView)
         self.assertIsInstance(self.view, views.CommonMixin)
+        self.assertIsInstance(self.view, views.CommonListMixin)
 
     # Update common by default uses the simple shared_models/shared_entry_form.html template
     # Extending classes can provide their own templates modeled on the shared_entry_form.html Template
@@ -362,7 +508,7 @@ class TestIndexTemplateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:index')
-        self.expected_template = 'shared_models/pop_index.html'
+        self.expected_template = 'shared_models/org_index.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
         self.admin_user1 = self.get_and_login_user(in_group="travel_adm_admin")
 
@@ -376,4 +522,3 @@ class TestIndexTemplateView(CommonTest):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user1)
-

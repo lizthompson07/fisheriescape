@@ -1,7 +1,7 @@
 from abc import ABC
 
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -44,6 +44,8 @@ class CommonTemplateView(TemplateView, CommonMixin):
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
 class CommonCreateView(CommonFormMixin, CreateView):
+    submit_text = None
+
     # default template to use to create an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
     template_name = 'shared_models/shared_entry_form.html'
@@ -54,26 +56,33 @@ class CommonCreateView(CommonFormMixin, CreateView):
         else:
             return _("New {}".format(self.model._meta.verbose_name.title()))
 
+    def get_submit_text(self):
+        if self.submit_text:
+            return self.submit_text
+        else:
+            return _("Add")
+
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
         return context
 
-    def get_submit_text(self):
-        if self.submit_text:
-            return self.submit_text
-        else:
-            return _("Create")
-
 
 class CommonUpdateView(CommonFormMixin, UpdateView):
+    submit_text = None
 
     def get_h1(self):
         if self.h1:
             return self.h1
         else:
             return _("Edit")
+
+    def get_submit_text(self):
+        if self.submit_text:
+            return self.submit_text
+        else:
+            return _("Save")
 
     # default template to use to update an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
@@ -83,20 +92,18 @@ class CommonUpdateView(CommonFormMixin, UpdateView):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
-        context["model_name"] = self.get_object()._meta.verbose_name
+        try:
+            context["model_name"] = self.get_object()._meta.verbose_name
+        except AttributeError:
+            context["model_name"] = None
         return context
-
-    def get_submit_text(self):
-        if self.submit_text:
-            return self.submit_text
-        else:
-            return _("Save")
 
 
 class CommonDeleteView(CommonFormMixin, DeleteView):
     template_name = 'shared_models/generic_confirm_delete.html'
     # set this to false if you do not want the delete button to be greyed out if there are related objects
     delete_protection = True
+    submit_text = None
 
     def get_h1(self):
         if self.h1:
@@ -108,7 +115,10 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
             ))
 
     def get_submit_text(self):
-        return _("Delete")
+        if self.submit_text:
+            return self.submit_text
+        else:
+            return _("Delete")
 
     def get_related_names(self):
         """if a related_names list was provided, this will turn the simple list into a more complex list that is ready for template digestion"""
@@ -352,7 +362,7 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
-    template_name = 'shared_models/index.html'
+    template_name = 'shared_models/org_index.html'
     h1 = "<span class='red-font'><span class='font-weight-bold'>{}:</span> {}</span>".format(_("Warning"), _(
         "These are shared tables for all of DM Apps."))
     h2 = _("Please be careful when editing.")
