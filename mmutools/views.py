@@ -796,7 +796,6 @@ class ReportGeneratorFormView(MmutoolsAccessRequired, FormView):
 
     def form_valid(self, form):
 
-        container = int(form.cleaned_data["container"])
         report = int(form.cleaned_data["report"])
 
         try:
@@ -806,7 +805,6 @@ class ReportGeneratorFormView(MmutoolsAccessRequired, FormView):
 
         if report == 1:
             return HttpResponseRedirect(reverse("mmutools:report_container", kwargs={
-                'container': container,
                 'location': str(location),
             }))
 
@@ -819,16 +817,12 @@ class ContainerSummaryListView(MmutoolsAccessRequired, ListView):
     template_name = 'mmutools/report_container_summary.html'
 
     def get_queryset(self, **kwargs):
-        qs = models.Location.objects.get(id=self.kwargs["location"]).quantities.all()
-            # .filter(container=True)
+        qs = models.Quantity.objects.filter(location_id=self.kwargs['location'])
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Quantity.objects.first()
-
-        container = models.Location.objects.get(pk=self.kwargs['container'])
-        context["container"] = container
 
         location = models.Location.objects.get(pk=self.kwargs['location'])
         context["location"] = location

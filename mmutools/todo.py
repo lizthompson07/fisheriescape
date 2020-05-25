@@ -1,6 +1,7 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
+# TODO from location_detail page add link to be able to generate report for that location directly (without having to go to reports) (have to separate for containers and not)
 # TODO Figure out how to use generic_popout_form (have done this with the confirm_delete_popout)
 # TODO View for items of similar and all sizes (tyvek, gloves, batteries) showing all quantity
 # TODO make View for On Order items that you can change status, add location etc all at once for all on order items
@@ -15,7 +16,6 @@
 
 ### OTHER LARGER ITEMS
 # TODO maintenance schedule for certain items (generator, switlik, soundtraps), send email when needed to check?
-# TODO make container report - show everything in a container ((see Scifi or iHub  for example))
 # TODO If M2M is blank have it show the "---" or None like other fields ((see lib/templatetags/verbose_names, make branch off master to try)
 # TODO how to show what was used -- historical table or other simpler way for now?
 # TODO Add Historical model or some way to track history of inventory of each item (ie. track previous additions, subtractions, inventory control updates) --would need a description field for inveotry control comments (ie. "item missing")
@@ -44,3 +44,4 @@
 # TODO When adding a Supplier from item_detail, have it automatically also add it to the item.supplier field
 # TODO how to make unique_together = (('item_name', 'size'),) case insensitive? --- see my attempt to save size as lower, but returns error if it's duplicate --made a table for size instead
 # TODO remake models with fields that make sense for lending and make items--supplier relation M2M
+# TODO make container report - show everything in a container ((see Scifi or iHub  for example))

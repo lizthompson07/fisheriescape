@@ -74,7 +74,6 @@ class IncidentForm(forms.ModelForm):
 
 class ReportGeneratorForm(forms.Form):
     report = forms.ChoiceField(required=True)
-    container = forms.ChoiceField(required=True)
     location = forms.ChoiceField(required=False, label="Location/Container Name", widget=forms.Select(attrs=chosen_js))
 
     def __init__(self, *args, **kwargs):
@@ -86,12 +85,8 @@ class ReportGeneratorForm(forms.Form):
         ]
         report_choices.insert(0, (None, "------"))
 
-        container_choices = [(obj.id, "{}".format(obj.container)) for obj in models.Location.objects.all()]
-        container_choices.insert(0, (None, "------"))
-
-        location_choices = [(obj.id, "{}".format(obj.location)) for obj in models.Location.objects.all()]
+        location_choices = [(obj.id, "{}".format(obj.location)) for obj in models.Location.objects.filter(container=True)]
         location_choices.insert(0, (None, "------"))
 
         self.fields['report'].choices = report_choices
-        self.fields['container'].choices = container_choices
         self.fields['location'].choices = location_choices

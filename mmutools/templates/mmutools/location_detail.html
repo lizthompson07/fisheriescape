@@ -26,8 +26,9 @@
             <a class="btn btn-danger" href="{% url 'mmutools:location_delete' object.id %}">Delete</a>
             <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
         </p>
-
-        <br><br>
+        <p>
+            <a href="{% url 'mmutools:report_container' location.id %}" class="btn btn-sm btn-primary">See all items in container</a>
+        </p>
 
         <div class="row">
             <div class="col-3">

@@ -77,11 +77,8 @@
 <script type="application/javascript">
 
         function hideAll() {
-            $(".container_div").addClass("gone");
             $(".location_div").addClass("gone");
 
-
-            $("#id_container").prop('required', true);
             $("#id_report").prop('required', true);
             $("#id_location").prop('required', false);
 
@@ -91,8 +88,6 @@
             var reportChoice = $("#id_report").val();
             // branch report
             if (reportChoice == 1) {
-                $(".container_div").removeClass("gone");
-                $("#id_container").prop('required', true);
                 $(".location_div").removeClass("gone");
 
         }}

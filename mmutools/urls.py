@@ -33,7 +33,7 @@ urlpatterns = [
 # BULK QUANTITIES #
 
     path('bulk_quantity_list/', views.BulkQuantityListView.as_view(), name="bulk_quantity_list"),
-    path('bulk_quantity_detail/<int:pk>/view/', views.BulkQuantityDetailView.as_view(), name="bulk_quantity_detail"),
+    # path('bulk_quantity_detail/<int:pk>/view/', views.BulkQuantityDetailView.as_view(), name="bulk_quantity_detail"),
     path('quantity/<int:pk>/delete/', views.BulkQuantityDeleteView.as_view(), name="bulk_quantity_delete"),
 
 # LOCATION #
@@ -83,8 +83,7 @@ urlpatterns = [
 
     path('reports/generator/', views.ReportGeneratorFormView.as_view(), name="report_generator"),
     path('reports/generator/<int:report_number>/', views.ReportGeneratorFormView.as_view(), name="report_generator"),
-    path('report/container_summary/container/<int:container>/location/<int:location>/', views.ContainerSummaryListView.as_view(), name="report_container"),
-    ##get location pk and return location=container, true(container=1)
+    path('reports/container_summary/location/<int:location>/', views.ContainerSummaryListView.as_view(), name="report_container"),
 
 ]
 

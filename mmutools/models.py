@@ -176,7 +176,7 @@ class Quantity(models.Model):
     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                         verbose_name=_("last audited"))
     last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
-    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="locations",
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="quantities",
                                  verbose_name=_("location stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
 

@@ -4,8 +4,7 @@
 {% load verbose_names %}
 {% load custom_tags %}
 {% load i18n %}
-{% load humanize %}
-{% load custom_filters %}
+
 {% block content %}
 
     <style>
@@ -21,7 +20,7 @@
         </ol>
     </nav>
     <div class="indent-med">
-        <h1>Container Summary for {{ location }} </h1>
+        <h1>Container Summary for {{location}} </h1>
         <h2><em></em></h2>
         <br>
         <h3>Summary:</h3>
@@ -33,16 +32,18 @@
             <thead>
             <tr>
                 {% for field in field_list %}
-                        <th scope="col">{% get_verbose_label content_list field %}</th>
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
                 {% endfor %}
             </tr>
             </thead>
             <tbody>
+            {% for object in object_list %}
             <tr>
-            {% for content in content_list %}
-                <td>{% get_field_value object field %}</td>
-            {% endfor %}
+                {% for field in field_list %}
+                    <td>{% get_field_value object field %}</td>
+                {% endfor %}
             </tr>
+            {% endfor %}
             </tbody>
         </table>
 
