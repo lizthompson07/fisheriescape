@@ -5,6 +5,8 @@
 {% load custom_filters %}
 {% load custom_tags %}
 
+{% block messages %}{% endblock %}
+
 {% block subcontent %}
 
     {% trans "Save" as default_submit_text %}
@@ -112,7 +114,7 @@
 
     </form>
 
-    {% block post_form_p %}{% endblock %}
+    {% block post_form_div %}{% endblock %}
 
     <script type="application/javascript">
 

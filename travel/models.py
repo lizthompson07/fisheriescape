@@ -328,8 +328,8 @@ class Conference(models.Model):
             if self.trip_subcategory and self.trip_subcategory.trip_category_id == 3:
                 self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(365 / 12) * 3)
             else:
-                # else they can start the review closer to the date: six business weeks (63 days)
-                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(21 * 3))
+                # else they can start the review closer to the date: eight business weeks (60 days)
+                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(60))
 
         super().save(*args, **kwargs)
 
