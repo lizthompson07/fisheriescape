@@ -478,6 +478,9 @@ class CommonList(FilterCommon):
     editable = True
 
     def get_fields(self):
+        if self.fields:
+            return self.fields
+
         return ['tname|Name', 'tdescription|Description']
 
     def get_context_data(self, *args, object_list=None, **kwargs):

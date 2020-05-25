@@ -1970,7 +1970,7 @@ class ProjectApprovalFormsetView(AdminRequiredMixin, CommonFormsetView):
     home_url_name = "projects:admin_project_approval_search"
     pre_display_fields = ["id", "project_title", "total_cost|total budget requested"]
     post_display_fields = ["notification_email_sent", ]
-    random_object = models.Project.objects.first()
+#    random_object = models.Project.objects.first()
 
     def get_success_url(self):
         return reverse("projects:admin_project_approval", kwargs=self.kwargs)
