@@ -28,7 +28,8 @@ from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
-from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonUpdateView
+from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonUpdateView, CommonFilterView, CommonFormView, \
+    CommonPopoutFormView, CommonPopoutUpdateView, CommonListView, CommonDetailView
 from . import models
 from . import forms
 from . import reports
@@ -400,9 +401,28 @@ def get_help_text_dict():
 
 # TRIP REQUEST #
 ################
-class TripRequestListView(TravelAccessRequiredMixin, FilterView):
+class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
     filterset_class = filters.TripRequestFilter
     template_name = 'travel/trip_request_list.html'
+    subtitle = _("Trip Requests")
+    home_url_name = "travel:index"
+    paginate_by = 25
+    container_class = "container-fluid"
+    new_object_url_name = "travel:request_new"
+    row_object_url_name = "travel:request_detail"
+    random_object = models.TripRequest.objects.first()
+    field_list = [
+        {"name": 'fiscal_year', "width": "75px"},
+        {"name": 'is_group_request|Type', },
+        {"name": 'status', "width": "150px"},
+        {"name": 'section|{}'.format(_("DFO section")), },
+        {"name": 'requester_name|{}'.format(_("Requester name")), },
+        {"name": 'trip.tname', "width": "400px"},
+        {"name": 'destination|{}'.format(_("Destination")), },
+        {"name": 'start_date|{}'.format(_("Departure date")), },
+        {"name": 'processing_time|{}'.format(_("Processing time")), },
+        {"name": 'created_by', },
+    ]
 
     def get_queryset(self):
         if self.kwargs.get("region"):
@@ -411,36 +431,13 @@ class TripRequestListView(TravelAccessRequiredMixin, FilterView):
             queryset = utils.get_related_trips(self.request.user)
         return queryset
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["subtitle"] = _("Trip Requests")
+    def get_h1(self):
+        subtitle = self.subtitle
         if self.kwargs.get("region"):
-            context["h1"] = "{} - {}".format(_("Trip Requests"), shared_models.Region.objects.get(pk=self.kwargs.get("region")))
+            return f"{subtitle} - {shared_models.Region.objects.get(pk=self.kwargs.get('region'))}"
         else:
-            context["h1"] = "{} - {}".format(_("Trip Requests"), self.request.user)
-        context["crumbs"] = [
-            {"title": _("Home"), "url": reverse("travel:index")},
-            {"title": context["h1"]}
-        ]
+            return f"{subtitle} - {self.request.user}"
 
-        context["paginate_by"] = 25
-        context["container_class"] = "container-fluid"
-        context["new_url_name"] = "travel:request_new"
-        context["row_url_name"] = "travel:request_detail"
-        context["random_object"] = models.TripRequest.objects.first()
-        context["field_list"] = [
-            {"name": 'fiscal_year', "width": "75px"},
-            {"name": 'is_group_request|Type', },
-            {"name": 'status', "width": "150px"},
-            {"name": 'section|{}'.format(_("DFO section")), },
-            {"name": 'requester_name|{}'.format(_("Requester name")), },
-            {"name": 'trip.tname', "width": "400px"},
-            {"name": 'destination|{}'.format(_("Destination")), },
-            {"name": 'start_date|{}'.format(_("Departure date")), },
-            {"name": 'processing_time|{}'.format(_("Processing time")), },
-            {"name": 'created_by', },
-        ]
-        return context
 
 
 class TripRequestReviewListView(TravelAccessRequiredMixin, ListView):
@@ -904,12 +901,11 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
 
 
-class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
+class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, CommonPopoutUpdateView):
     model = models.TripRequest
     form_class = forms.TripRequestAdminNotesForm
-    template_name = 'shared_models/generic_popout_form.html'
     h1 = _("Administrative Notes (Public)")
-    success_url = reverse_lazy("shared_models:close_me")
+
 
 
 class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
@@ -1284,10 +1280,15 @@ def manage_reviewers(request, triprequest=None, trip=None):
 # TRIP #
 ########
 
-class TripListView(TravelAccessRequiredMixin, FilterView):
+class TripListView(TravelAccessRequiredMixin, CommonFilterView):
     model = models.Conference
     filterset_class = filters.TripFilter
     template_name = 'travel/trip_list.html'
+    new_object_url_name = "travel:trip_new"
+    row_object_url_name = "travel:trip_detail"
+    container_class = "container-fluid"
+    subtitle = _("Trips")
+    home_url_name = "travel:index"
 
     def get_queryset(self):
         queryset = models.Conference.objects.annotate(
@@ -1319,32 +1320,8 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
                 queryset = None
         return queryset
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.kwargs.get("type") == "adm-hit-list":
-            six_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 6)
-            context["h1"] = _("Trips Eligible for ADM Review")
-            context["h3"] = "{} {}".format(
-                _("Trips whose registration date, abstract date or start date (whichever is earliest) is on or before"),
-                six_months_away.strftime("%B %d, %Y"))
-        elif self.kwargs.get("type") == "adm-all":
-            context["h1"] = _("All Trips Requiring ADM Approval")
-        elif self.kwargs.get("type") == "upcoming":
-            context["h1"] = _("Upcoming Trips")
-        else:
-            context["h1"] = _("Trips")
-
-        context["subtitle"] = _("Trips")
-        context["crumbs"] = [
-            {"title": _("Home"), "url": reverse("travel:index")},
-            {"title": context["h1"]}
-        ]
-        context["paginate_by"] = None if self.kwargs.get("type") == "adm-hit-list" else 50
-        context["new_url_name"] = "travel:trip_new"
-        context["row_url_name"] = "travel:trip_detail"
-        context["container_class"] = "container-fluid"
-        context["random_object"] = models.Conference.objects.first()
-        context["field_list"] = [
+    def get_field_list(self):
+        field_list = [
             {"name": 'fiscal_year', "class": "", "width": "75px"},
             {"name": 'status_string|{}'.format("status"), "width": "150px", },
             {"name": 'trip_subcategory', "class": "", "width": "200px", },
@@ -1359,17 +1336,61 @@ class TripListView(TravelAccessRequiredMixin, FilterView):
             {"name": 'verified_by', "class": "", },
         ]
         if self.kwargs.get("type") == "adm-hit-list" or self.kwargs.get("type") == "adm-all":
-            context["field_list"].append(
+            field_list.append(
                 {"name": 'adm_review_deadline|{}'.format(_("ADM review deadline")), "class": "", "width": "250px"}
             )
+        return field_list
 
+    def get_h1(self):
+        if self.kwargs.get("type") == "adm-hit-list":
+            h1 = _("Trips Eligible for ADM Review")
+        elif self.kwargs.get("type") == "adm-all":
+            h1 = _("All Trips Requiring ADM Approval")
+        elif self.kwargs.get("type") == "upcoming":
+            h1 = _("Upcoming Trips")
+        elif self.kwargs.get("region"):
+            region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+            h1 = _("Trips") + f' ({str(region)})'
+        else:
+            h1 = _("Trips")
+        return h1
+
+    def get_h3(self):
+        if self.kwargs.get("type") == "adm-hit-list":
+            six_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 6)
+            return "{} {}".format(
+                _("Trips whose registration date, abstract date or start date (whichever is earliest) is on or before"),
+                six_months_away.strftime("%B %d, %Y"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["paginate_by"] = None if self.kwargs.get("type") == "adm-hit-list" else 50
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
 
 
-class TripDetailView(TravelAccessRequiredMixin, DetailView):
+class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
     model = models.Conference
     template_name = 'travel/trip_detail.html'
+    home_url_name = "travel:index"
+
+    def get_parent_crumb(self):
+        if self.kwargs.get("type") == "upcoming":
+            trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
+            trips_title = _("Upcoming Trips")
+        elif self.kwargs.get("type") == "adm-hit-list":
+            trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
+            trips_title = _("Trips Eligible for ADM Review")
+        elif self.kwargs.get("region"):
+            region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+            trips_url = reverse("travel:trip_list", kwargs={"region": self.kwargs.get("region")})
+            trips_title = _("Trips") + f' ({str(region)}'
+        else:
+            trips_url = reverse("travel:trip_list")
+            trips_title = _("Trips")
+        return {"title": trips_title, "url": trips_url}
+
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1379,40 +1400,14 @@ class TripDetailView(TravelAccessRequiredMixin, DetailView):
         context["can_cancel"] = (self.get_object().is_adm_approval_required and in_adm_admin_group(self.request.user)) or (
                 not self.get_object().is_adm_approval_required and in_travel_admin_group(self.request.user))
 
-        context["h1"] = str(self.get_object())
-        context["subtitle"] = context["h1"]
-        if self.kwargs.get("type") == "upcoming":
-            trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
-            trips_title = _("Upcoming Trips")
-        elif self.kwargs.get("type") == "adm-hit-list":
-            trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
-            trips_title = _("Trips Eligible for ADM Review")
-        else:
-            trips_url = reverse("travel:trip_list")
-            trips_title = _("Trips")
-
-        context["crumbs"] = [
-            {"title": _("Home"), "url": reverse("travel:index")},
-            {"title": trips_title, "url": trips_url},
-            {"title": context["h1"]}
-        ]
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
         return context
 
 
-class TripAdminNotesUpdateView(TravelADMAdminRequiredMixin, UpdateView):
+class TripAdminNotesUpdateView(TravelADMAdminRequiredMixin, CommonPopoutUpdateView):
     model = models.Conference
     form_class = forms.TripAdminNotesForm
-    template_name = 'shared_models/generic_popout_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["h1"] = _("Administrative Notes (Public)")
-        return context
-
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse("shared_models:close_me"))
+    h1 = _("Administrative Notes (Public)")
 
 
 class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
@@ -1650,9 +1645,11 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
                                                     "adm": self.kwargs.get("adm")}))
 
 
-class TripSelectFormView(TravelAdminRequiredMixin, FormView):
-    template_name = 'shared_models/generic_popout_form.html'
+class TripSelectFormView(TravelAdminRequiredMixin, CommonPopoutFormView):
     form_class = forms.TripSelectForm
+    h1 = _("Please select a trip to re-assign:")
+    h3 = _("(You will have a chance to review this action before it is carried out.)")
+    submit_text = _("Proceed")
 
     def test_func(self):
         my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
@@ -1668,16 +1665,6 @@ class TripSelectFormView(TravelAdminRequiredMixin, FormView):
                 "message": _("Sorry, only ADMO administrators can verify trips that require ADM approval.")}))
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
-        context["object"] = my_trip
-        context["h1"] = _("Please select a trip to re-assign:")
-        context["h3"] = _("(You will have a chance to review this action before it is carried out.)")
-        context["submit_text"] = _("Proceed")
-        context["conf_field_list"] = conf_field_list
-        return context
-
     def form_valid(self, form):
         trip_a = self.kwargs.get("pk")
         trip_b = form.cleaned_data["trip"]
@@ -1686,8 +1673,24 @@ class TripSelectFormView(TravelAdminRequiredMixin, FormView):
 
 class TripReassignConfirmView(TravelAdminRequiredMixin, TemplateView):
     template_name = 'travel/trip_reassign_form.html'
-    # just import the crsf token from the django Form class
     form_class = forms.forms.Form
+    width = 1200
+    height = 1500
+    h1 = _("Please confirm the following:")
+    submit_text = _("Confirm")
+    field_list = [
+        "name",
+        "nome",
+        'location',
+        'lead',
+        'start_date',
+        'end_date',
+        'meeting_url',
+        'is_adm_approval_required',
+        'status_string|{}'.format("status"),
+        'traveller_list|{}'.format("travellers"),
+        'requests|{}'.format("linked trip requests"),
+    ]
 
     def test_func(self):
         my_trip = models.Conference.objects.get(pk=self.kwargs.get("trip_a"))
@@ -1707,27 +1710,10 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         trip_a = models.Conference.objects.get(pk=self.kwargs.get("trip_a"))
         trip_b = models.Conference.objects.get(pk=self.kwargs.get("trip_b"))
-        context["width"] = 1200
-        context["height"] = 1500
+
         context["trip_a"] = trip_a
         context["trip_b"] = trip_b
         context["trip_list"] = [trip_a, trip_b]
-
-        context["h1"] = _("Please confirm the following:")
-        context["submit_text"] = _("Confirm")
-        context["field_list"] = [
-            "name",
-            "nome",
-            'location',
-            'lead',
-            'start_date',
-            'end_date',
-            'meeting_url',
-            'is_adm_approval_required',
-            'status_string|{}'.format("status"),
-            'traveller_list|{}'.format("travellers"),
-            'requests|{}'.format("linked trip requests"),
-        ]
 
         # start out optimistic
         duplicate_ppl = list()
@@ -1766,12 +1752,23 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, TemplateView):
             return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
-class TripReviewListView(TravelADMAdminRequiredMixin, ListView):
+class TripReviewListView(TravelADMAdminRequiredMixin, CommonListView):
     model = models.Conference
     template_name = 'travel/trip_review_list.html'
+    home_url_name = "travel:index"
+    field_list = [
+        {"name": 'status_string|{}'.format(_("status")), "class": "", },
+        {"name": 'tname|{}'.format(_("Trip title")), "class": "", },
+        {"name": 'location|{}'.format(_("location")), "class": "", },
+        {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
+        {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", },
+        {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
+        {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
+        {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
+        {"name": 'verified_by', "class": "", },
+    ]
 
     def get_queryset(self):
-
         if self.kwargs.get("which_ones") == "awaiting":
             qs = models.Conference.objects.filter(
                 pk__in=[reviewer.trip_id for reviewer in self.request.user.trip_reviewers.filter(status_id=25)])
@@ -1779,46 +1776,30 @@ class TripReviewListView(TravelADMAdminRequiredMixin, ListView):
             qs = models.Conference.objects.filter(pk__in=[reviewer.trip_id for reviewer in self.request.user.trip_reviewers.all()])
         return qs
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get_h1(self):
         if self.kwargs.get("which_ones") == "awaiting":
-            context["h1"] = _("Trips Awaiting Your Review")
+            h1 = _("Trips Awaiting Your Review")
         else:
-            context["h1"] = _("Tagged Trips")
+            h1 = _("Tagged Trips")
+        return h1
 
-        context["subtitle"] = context["h1"]
-        context["crumbs"] = [
-            {"title": _("Home"), "url": reverse("travel:index")},
-            {"title": context["h1"]}
-        ]
-
-        context["paginate_by"] = False
-        context["new_url_name"] = False
-
+    def get_row_object_url_name(self):
         if self.kwargs.get("which_ones") == "awaiting":
-            context["row_url_name"] = "travel:trip_review_update"
+            return "travel:trip_review_update"
         else:
-            context["row_url_name"] = "travel:trip_detail"
-
-        context["random_object"] = models.Conference.objects.first()
-        context["field_list"] = [
-            {"name": 'status_string|{}'.format(_("status")), "class": "", },
-            {"name": 'tname|{}'.format(_("Trip title")), "class": "", },
-            {"name": 'location|{}'.format(_("location")), "class": "", },
-            {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
-            {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", },
-            {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
-            {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
-            {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
-            {"name": 'verified_by', "class": "", },
-        ]
-        return context
+            return "travel:trip_detail"
 
 
-class TripReviewerUpdateView(TravelADMAdminRequiredMixin, UpdateView):
+
+class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     model = models.TripReviewer
     form_class = forms.ReviewerApprovalForm
     template_name = 'travel/trip_reviewer_approval_form.html'
+    back_url = reverse_lazy("travel:trip_review_list")
+    submit_text = _("Submit your review")
+    cancel_text = _("Cancel")
+    home_url_name = "travel:index"
+    parent_crumb = {"title": _("Trips Awaiting Your Review"), "url": reverse_lazy("travel:trip_review_list")}
 
     def test_func(self):
         my_trip = self.get_object().trip
@@ -1826,20 +1807,14 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, UpdateView):
         if is_trip_approver(my_user, my_trip):
             return True
 
+    def get_h1(self):
+        return _("{}'s Trip Review".format(self.get_object().user.first_name))
+
+    def get_h2(self):
+        return self.get_object().trip
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["h1"] = _("{}'s Trip Review".format(self.get_object().user.first_name))
-        context["h2"] = self.get_object().trip
-        context["subtitle"] = context["h1"]
-        context["crumbs"] = [
-            {"title": _("Home"), "url": reverse("travel:index")},
-            {"title": _("Trips Awaiting Your Review"), "url": reverse("travel:trip_review_list")},
-            {"title": context["h1"]}
-        ]
-        context["back_url"] = reverse("travel:trip_review_list")
-        context["submit_text"] = _("Submit your review")
-        context["cancel_text"] = _("Cancel")
-
         context["conf_field_list"] = conf_field_list
         context["trip"] = self.get_object().trip
         context["reviewer_field_list"] = reviewer_field_list
@@ -2149,7 +2124,7 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
 #     success_url = reverse_lazy("travel:manage_statuses")
 
 class StatusFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
-    template_name = 'travel/generic_formset.html'
+    template_name = 'travel/formset.html'
     h1 = "Manage Status"
     queryset = models.Status.objects.all()
     formset_class = forms.StatusFormset
@@ -2165,7 +2140,7 @@ class HelpTextHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
 
 
 class HelpTextFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
-    template_name = 'travel/generic_formset.html'
+    template_name = 'travel/formset.html'
     h1 = "Manage HelpText"
     queryset = models.HelpText.objects.all()
     formset_class = forms.HelpTextFormset
@@ -2180,7 +2155,7 @@ class CostCategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView)
 
 
 class CostCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
-    template_name = 'travel/generic_formset.html'
+    template_name = 'travel/formset.html'
     h1 = "Manage Cost Category"
     queryset = models.CostCategory.objects.all()
     formset_class = forms.CostCategoryFormset
@@ -2195,7 +2170,7 @@ class CostHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
 
 
 class CostFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
-    template_name = 'travel/generic_formset.html'
+    template_name = 'travel/formset.html'
     h1 = "Manage Cost"
     queryset = models.Cost.objects.all()
     formset_class = forms.CostFormset
@@ -2210,7 +2185,7 @@ class CostFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
 
 
 class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
-    template_name = 'travel/generic_formset.html'
+    template_name = 'travel/formset.html'
     h1 = "Manage NJCRates"
     queryset = models.NJCRates.objects.all()
     formset_class = forms.NJCRatesFormset
@@ -2219,7 +2194,7 @@ class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
 
 
 class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
-    template_name = 'travel/generic_formset.html'
+    template_name = 'travel/formset.html'
     h1 = "Manage Trip Subcategories"
     queryset = models.TripSubcategory.objects.all()
     formset_class = forms.TripSubcategoryFormset

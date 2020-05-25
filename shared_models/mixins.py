@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 class CommonMixin():
     '''
+    This is a mixin for all the variables and tools that we expect to have in view
     This should be called after a View class, if possible
     '''
 
@@ -30,6 +31,13 @@ class CommonMixin():
 
     # an extending class can override this similarly to how the template_name attribute can be overriden
     # Except in this case the value will be used to include a field_list in the context var
+
+    # These are for testing purposes only
+    auth = True
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
 
     # this is a list of fields used for describing the context variable called 'object'
     field_list = None
@@ -75,6 +83,9 @@ class CommonMixin():
     # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
     def get_site_css(self):
         return self.site_css
+
+    def get_auth(self):
+        return self.auth
 
     # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
     def get_field_list(self):
@@ -172,6 +183,7 @@ class CommonMixin():
         java_script = self.get_java_script()
         nav_menu = self.get_nav_menu()
         site_css = self.get_site_css()
+        context["auth"] = self.get_auth()
 
         field_list = self.get_field_list()
         h2 = self.get_h2()
@@ -195,8 +207,12 @@ class CommonMixin():
         if subtitle:
             context['subtitle'] = subtitle
         # if there is no subtitle, use the h1 as a default
+        elif self.get_crumbs():
+            context['subtitle'] = self.get_crumbs()[-1].get("title")
         elif h1:
             context['subtitle'] = h1
+        elif title:
+            context['subtitle'] = title
 
         if h1:
             context['h1'] = h1
@@ -220,10 +236,15 @@ class CommonFormMixin(CommonMixin):
     cancel_url = None
     cancel_text = _("Back")
     submit_text = _("Submit")
+    editable = True
 
     def get_cancel_url(self):
         if self.cancel_url:
             return self.cancel_url
+        elif self.parent_crumb:
+            return self.parent_crumb.get("url")
+        elif self.home_url_name:
+            return reverse(self.home_url_name)
         else:
             return self.request.META.get('HTTP_REFERER')
 
@@ -233,21 +254,34 @@ class CommonFormMixin(CommonMixin):
     def get_submit_text(self):
         return self.submit_text
 
+    def get_editable(self):
+        return self.editable
+
+    def get_success_url(self):
+        if self.success_url:
+            return self.success_url
+        # if there is no success url provided, a reasonable guess would be to go back to the parent url
+        elif self.parent_crumb:
+            return self.parent_crumb.get("url")
+
     def get_common_context(self):
         context = super().get_common_context()
         context['cancel_url'] = self.get_cancel_url()
         context['cancel_text'] = self.get_cancel_text()
         context['submit_text'] = self.get_submit_text()
+        context['editable'] = self.get_editable()
         return context
 
 
 class CommonPopoutFormMixin(CommonFormMixin):
     '''
     This can be added to a FormView (+Update, Create, Delete etc...) if you want to make it a popout
+    NOTE: This should come before the View class in order to work properly
     '''
     width = 900
     height = 650
     success_url = None
+    template_name = 'shared_models/generic_popout_form.html'
 
     def get_success_url(self):
         if self.success_url:
@@ -257,7 +291,6 @@ class CommonPopoutFormMixin(CommonFormMixin):
 
     def get_common_context(self):
         context = super().get_common_context()
-
         # set the width and the height of the popout form
         context['width'] = self.width
         context['height'] = self.height
@@ -265,8 +298,6 @@ class CommonPopoutFormMixin(CommonFormMixin):
 
 
 class CommonListMixin(CommonMixin):
-    # indicate if you want pagination and if so, by how much
-    paginate_by = None
     # the url to the corresponding CreateView for the same model object
     new_object_url = None
     # the url name to the corresponding CreateView for the same model object. This can be used in the simple scenario where there are no kwargs
@@ -275,9 +306,6 @@ class CommonListMixin(CommonMixin):
     row_object_url_name = None
     # an optional random object used to populate the table header of the list view
     random_object = None
-
-    def get_paginate_by(self):
-        return self.paginate_by
 
     def get_row_object_url_name(self):
         return self.row_object_url_name
@@ -300,11 +328,11 @@ class CommonListMixin(CommonMixin):
         if self.random_object:
             return self.random_object
         else:
-            return self.get_queryset().first()
+            return self.get_queryset().model.objects.first()
 
     def get_common_context(self):
         context = super().get_common_context()
-        context["paginate_by"] = self.get_paginate_by()
+        context["paginate_by"] = self.paginate_by # this is coming from ListView but we are putting it into context variable
         context["random_object"] = self.get_random_object()
         context["row_object_url_name"] = self.get_row_object_url_name()
         context["new_object_url"] = self.get_new_object_url()
