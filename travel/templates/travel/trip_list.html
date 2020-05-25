@@ -1,4 +1,4 @@
-{% extends "travel/generic_list.html" %}
+{% extends "travel/list.html" %}
 
 {% load verbose_names %}
 {% load custom_filters %}
@@ -7,9 +7,9 @@
 
 {% block row %}
     {% if view.kwargs.type %}
-        {% url row_url_name object.id view.kwargs.type as my_url %}
+        {% url row_object_url_name object.id view.kwargs.type as my_url %}
     {% else %}
-        {% url row_url_name object.id as my_url %}
+        {% url row_object_url_name object.id as my_url %}
     {% endif %}
 
     <tr href="{{ my_url }}">

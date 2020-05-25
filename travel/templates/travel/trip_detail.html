@@ -1,4 +1,4 @@
-{% extends "travel/generic_base.html" %}
+{% extends "travel/base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
@@ -59,7 +59,7 @@
                 </a>
 
 
-                {% if object.status.id != 43 and object.status.id != 32 and object.is_adm_approval_required%}
+                {% if object.status.id != 43 and object.status.id != 32 and object.is_adm_approval_required %}
 
                     {# Review BUTTON #}
                     {% if object.status.id != 32 %}
@@ -90,27 +90,26 @@
 
 
 
-            <a class="btn btn-warning" href="{% url 'travel:trip_edit' object.id %}">
+            <a class="btn btn-warning" href="{% url 'travel:trip_edit' object.id view.kwargs.type %}">
                 {% trans "Edit" %}
             </a>
 
             {# cancel button - only show if has permission and if trip is not already cancelled #}
             {% if can_cancel and object.status.id != 43 %}
-                <a class="btn btn-danger" href="{% url 'travel:trip_cancel' object.id %}">
+                <a class="btn btn-danger" href="{% url 'travel:trip_cancel' object.id view.kwargs.type %}">
                     {% trans "Cancel this Trip" %}
                 </a>
             {% endif %}
             {% if object.trip_requests.count %}
-                <span data-toggle="tooltip"
-                      title="You cannot delete a trip that is currently tagged on a trip request.">
+                {% trans "You cannot delete a trip that is currently tagged on a trip request." as trip_delete_text %}
+                {% echo "disabled" as delete_disabled_var %}
             {% endif %}
-            <a class="btn btn-danger {% if object.trip_requests.count %}disabled{% endif %}"
-               href="{% url 'travel:trip_delete' object.id %}">
+
+            <span data-toggle="tooltip" title="{{ trip_delete_text }}">
+            <a class="btn btn-danger {{ delete_disabled_var }}" href="{% url 'travel:trip_delete' object.id view.kwargs.type %}">
                 {% trans "Delete" %}
             </a>
-            {% if object.trip_requests.count %}
-                </span>
-            {% endif %}
+            </span>
         </div>
     </div>
 

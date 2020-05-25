@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% block title %}{{ subtitle|safe }}{% endblock %}
+
 {% block body %}
 
     {#  You can use content block to remove any of the busy-ness down below  #}
@@ -17,7 +19,7 @@
             {% endblock %}
 
             {#  otherwise, use the subcontent block  #}
-            {% block subcontent %} {% endblock %}
+            {% block subcontent %}{% endblock %}
 
         </div>
 

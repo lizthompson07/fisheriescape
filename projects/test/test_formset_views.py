@@ -41,7 +41,7 @@ class TestAllFormsets(CommonTest):
             views.ProgramFormsetView,
             views.ThemeFormsetView,
         ]
-        self.expected_template = 'projects/generic_formset.html'
+        self.expected_template = 'projects/formset.html'
         self.user = self.get_and_login_user(in_group="projects_admin")
 
     @tag('formsets', "view")
