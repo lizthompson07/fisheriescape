@@ -48,7 +48,7 @@
             <td>
 
                 {% if 'region' in field.name and "section" in model_name|lower %}
-                    {{ object.division.branch.region.tname }} test
+                    {{ object.division.branch.region.tname }}
                 {% elif 'region' in field.name and "division" in model_name|lower %}
                     {{ object.branch.region.tname }}
                 {% elif 'region' in field.name and "branch" in model_name|lower %}
