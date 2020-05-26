@@ -1957,7 +1957,7 @@ class ProjectApprovalsSearchView(AdminRequiredMixin, CommonFormView):
     form_class = forms.ApprovalQueryBuildForm
     h1 = _("Find Projects to Approve")
     home_url_name = "projects:index"
-    cancel_text = "bogah bogah"
+    cancel_text = _("Back")
 
     def form_valid(self, form):
         region = int(form.cleaned_data.get("region"))
