@@ -11,8 +11,8 @@ from shared_models import views as shared_view
 
 
 # Extend this class to add a new list view
-# class CsasListCommon(shared_view.CommonFilterView):
-class CsasListCommon(shared_view.CommonFilterView):
+# class CsasListCommon(shared_view.CommonAuthFilterView):
+class CsasListCommon(shared_view.CommonAuthFilterView):
 
     template_name = 'csas/csas_filter.html'
 
@@ -57,7 +57,7 @@ class CsasListCommon(shared_view.CommonFilterView):
 # Create Common uses the shared_models/shared_entry_form.html template to display common forms in a standard way
 #
 # class CommonCreateView(UserPassesTestMixin, CreateView):
-class CsasCommonCreateView(shared_view.CommonCreateView):
+class CsasCommonCreateView(shared_view.CommonAuthCreateView):
 
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
@@ -76,7 +76,7 @@ class CsasCommonCreateView(shared_view.CommonCreateView):
 # template to display common forms in a popup dialog intended to be attached to some "update" button.
 #
 # class CommonUpdateView(UserPassesTestMixin, UpdateView):
-class CsasCommonUpdateView(shared_view.CommonUpdateView):
+class CsasCommonUpdateView(shared_view.CommonAuthUpdateView):
 
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
