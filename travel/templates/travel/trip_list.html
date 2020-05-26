@@ -9,7 +9,7 @@
     {% if view.kwargs.type %}
         {% url row_object_url_name object.id view.kwargs.type as my_url %}
     {% else %}
-        {% url row_object_url_name object.id as my_url %}
+        {% url row_object_url_name object.id view.kwargs.region as my_url %}
     {% endif %}
 
     <tr href="{{ my_url }}">

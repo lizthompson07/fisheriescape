@@ -153,7 +153,7 @@
         <div class="mb-5">
             <div class="mb-3">
                 <div class="float-right">
-                    <a href="#" pop-href="{% url 'travel:trip_edit' object.id 1 %}" class="btn btn-warning">
+                    <a href="#" pop-href="{% url 'travel:trip_edit' object.id "pop" %}" class="btn btn-warning">
                         Edit Trip Details
                     </a>
                 </div>
@@ -233,7 +233,7 @@
 
                     {% endif %}
                     <span data-toggle="tooltip" title="{{ tip_text }}">
-                    <a class="btn btn-danger btn-lg {{ disabled_var }}" href="{% url 'travel:trip_delete' object.id 1 %}">
+                    <a class="btn btn-danger btn-lg {{ disabled_var }}" href="{% url 'travel:trip_delete' object.id "back_to_verify" %}">
                         {% trans "Delete" %}
                     </a>
                     </span>
