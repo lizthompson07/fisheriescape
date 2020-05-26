@@ -32,12 +32,6 @@ class CommonMixin():
     # an extending class can override this similarly to how the template_name attribute can be overriden
     # Except in this case the value will be used to include a field_list in the context var
 
-    # These are for testing purposes only
-    auth = True
-
-    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
-    def test_func(self):
-        return self.auth
 
     # this is a list of fields used for describing the context variable called 'object'
     field_list = None
@@ -83,9 +77,6 @@ class CommonMixin():
     # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
     def get_site_css(self):
         return self.site_css
-
-    def get_auth(self):
-        return self.auth
 
     # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
     def get_field_list(self):
@@ -183,7 +174,6 @@ class CommonMixin():
         java_script = self.get_java_script()
         nav_menu = self.get_nav_menu()
         site_css = self.get_site_css()
-        context["auth"] = self.get_auth()
 
         field_list = self.get_field_list()
         h2 = self.get_h2()
@@ -232,7 +222,6 @@ class CommonMixin():
 
 
 class CommonFormMixin(CommonMixin):
-    auth = True
     cancel_url = None
     cancel_text = _("Back")
     submit_text = _("Submit")

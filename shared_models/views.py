@@ -69,6 +69,25 @@ class CommonCreateView(CommonFormMixin, CreateView):
         return context
 
 
+class CommonAuthCreateView(UserPassesTestMixin, CommonCreateView):
+    # These are for testing purposes only
+    auth = True
+    login_url = '/accounts/login_required/'
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+    def get_auth(self):
+        return self.auth
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = self.get_auth()
+        return context
+
+
 class CommonUpdateView(CommonFormMixin, UpdateView):
     submit_text = None
 
@@ -92,10 +111,26 @@ class CommonUpdateView(CommonFormMixin, UpdateView):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
-        try:
-            context["model_name"] = self.get_object()._meta.verbose_name
-        except AttributeError:
-            context["model_name"] = None
+        context["model_name"] = self.get_object()._meta.verbose_name
+        return context
+
+
+class CommonAuthUpdateView(UserPassesTestMixin, CommonUpdateView):
+    # These are for testing purposes only
+    auth = True
+    login_url = '/accounts/login_required/'
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+    def get_auth(self):
+        return self.auth
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = self.get_auth()
         return context
 
 
@@ -209,6 +244,25 @@ class CommonFilterView(FilterView, CommonListMixin):
         return context
 
 
+class CommonAuthFilterView(UserPassesTestMixin, CommonFilterView):
+    # These are for testing purposes only
+    auth = True
+    login_url = '/accounts/login_required/'
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+    def get_auth(self):
+        return self.auth
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = self.get_auth()
+        return context
+
+
 class CommonListView(ListView, CommonListMixin):
     # this is where the user should be redirected if they're not logged in
     login_url = '/accounts/login_required/'
@@ -288,9 +342,6 @@ class CommonFormsetView(TemplateView, CommonFormMixin):
         else:
             return self.get_queryset().first()
 
-    def test_func(self):
-        return self.auth
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -303,7 +354,6 @@ class CommonFormsetView(TemplateView, CommonFormMixin):
         context["field_list"] = [f for f in self.formset_class.form.base_fields]
         context["pre_display_fields"] = self.get_pre_display_fields()
         context["post_display_fields"] = self.get_post_display_fields()
-
         return context
 
     def get(self, request, *args, **kwargs):
