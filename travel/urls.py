@@ -79,8 +79,6 @@ urlpatterns = [
     path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(), name="trip_reassign_confirm"),
 
 
-
-
     # TRIP REVIEWERS
     path('trip/<int:trip>/reset-reviewers/', views.reset_reviewers, name="reset_trip_reviewers"),
     path('trip/<int:trip>/manage-reviewers/', views.manage_reviewers, name="manage_trip_reviewers"),

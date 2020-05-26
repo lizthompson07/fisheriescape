@@ -34,7 +34,7 @@ class TestAllFormsets(CommonTest):
             views.NJCRatesFormsetView,
             views.TripSubcategoryFormsetView,
         ]
-        self.expected_template = 'travel/generic_formset.html'
+        self.expected_template = 'travel/formset.html'
         self.user = self.get_and_login_user(in_group="travel_admin")
 
     @tag('formsets', "view")

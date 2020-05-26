@@ -3,6 +3,7 @@ from django.test import tag
 from django.views.generic import DeleteView
 
 from shared_models.test.SharedModelsFactoryFloor import RegionFactory
+from shared_models.views import CommonDeleteView
 from travel.test import FactoryFloor
 from .. import models
 from .. import views
@@ -40,51 +41,45 @@ class IndividualTripRequestDelete(CommonTest):
 class TestTripDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.TripFactory()
-        self.test_url = reverse_lazy('travel:trip_delete', kwargs={"pk":self.instance.pk})
-        self.expected_template = 'travel/trip_confirm_delete.html'
+        self.instance0 = FactoryFloor.TripFactory()
+        self.instance1 = FactoryFloor.TripFactory()
+        self.instance2 = FactoryFloor.TripFactory(lead=RegionFactory())
+        self.instance3 = FactoryFloor.TripFactory(is_adm_approval_required=True)
+        self.test_url0 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance0.pk, "type": "adm-hit-list"})
+        self.test_url1 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance1.pk, "region": 1})
+        self.test_url2 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance2.pk, "type": "back_to_verify"})
+        self.test_url3 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance3.pk, "type": "back_to_verify"})
+        self.expected_template = 'travel/confirm_delete.html'
 
-    @tag("travel", 'delete', "view")
+    @tag("trip_delete", 'delete', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.TripDeleteView, DeleteView)
+        self.assert_inheritance(views.TripDeleteView, CommonDeleteView)
 
-    @tag("travel", 'delete', "access")
+    @tag("trip_delete", 'delete', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_not_broken(self.test_url0)
+        self.assert_not_broken(self.test_url1)
+        self.assert_not_broken(self.test_url2)
+        self.assert_not_broken(self.test_url3)
         # TODO: do some more elaborate testing here!!
         my_user = self.get_and_login_user(in_group="travel_admin")
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=my_user)
+        self.assert_non_public_view(test_url=self.test_url0, expected_template=self.expected_template, user=my_user)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=my_user)
+        self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template, user=my_user)
+        self.assert_non_public_view(test_url=self.test_url3, expected_template=self.expected_template, user=my_user)
 
-    @tag("travel", 'delete', "submit")
+    @tag("trip_delete", 'delete', "submit")
     def test_submit(self):
         my_user = self.get_and_login_user(in_group="travel_admin")
-        self.assert_success_url(self.test_url, user=my_user)
+        self.assert_success_url(self.test_url0, user=my_user)
+        self.assert_success_url(self.test_url1, user=my_user)
+        self.assert_success_url(self.test_url2, user=my_user)
+        self.assert_success_url(self.test_url3, user=my_user)
 
         # for delete views...
-        self.assertEqual(models.Conference.objects.filter(pk=self.instance.pk).count(), 0)
+        self.assertEqual(models.Conference.objects.filter(pk=self.instance0.pk).count(), 0)
+        self.assertEqual(models.Conference.objects.filter(pk=self.instance1.pk).count(), 0)
+        self.assertEqual(models.Conference.objects.filter(pk=self.instance2.pk).count(), 0)
+        self.assertEqual(models.Conference.objects.filter(pk=self.instance3.pk).count(), 0)
 
 
-class TestTripDeleteViewReturnToVerification(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.TripFactory(lead=RegionFactory())
-        self.test_url = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance.pk, "back_to_verify":1})
-        self.expected_template = 'travel/trip_confirm_delete.html'
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-
-    @tag("travel", 'delete', "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.TripDeleteView, DeleteView)
-        self.assert_inheritance(views.TripDeleteView, views.TravelAdminRequiredMixin)
-
-    @tag("travel", 'delete', "access")
-    def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
-
-    @tag("travel", 'delete', "submit")
-    def test_submit(self):
-        self.assert_success_url(self.test_url, user=self.admin_user)
-
-        # for delete views...
-        self.assertEqual(models.Conference.objects.filter(pk=self.instance.pk).count(), 0)
