@@ -560,6 +560,8 @@ class UpdateCommon(UserPassesTestMixin, UpdateView, CommonCommon, ABC):
 class FilterCommon(FilterView, CommonCommon):
     auth = True
 
+    template_name = 'shared_models/shared_filter.html'
+
     # override this if there are authorization requirements
     def test_func(self):
         return self.auth
