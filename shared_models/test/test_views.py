@@ -6,6 +6,7 @@ from django.views.generic import CreateView, UpdateView, TemplateView, DeleteVie
 from django_filters.views import FilterView
 
 from shared_models import views, models
+from .SharedModelsFactoryFloor import RegionFactory
 from .common_tests import CommonTest
 
 EXPECTED_LOGIN_URL = '/accounts/login_required/'
@@ -212,12 +213,7 @@ class MockCommonCreateView(views.CommonCreateView):
     fields = []
 
     # These are for testing purposes only
-    auth = True
     editable = True
-
-    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
-    def test_func(self):
-        return self.auth
 
     # example of overriding the get_java_script function to return something other than the java_script variable
     def get_java_script(self):
@@ -241,9 +237,6 @@ class MockCommonCreateView(views.CommonCreateView):
         return super().get_site_css()
 
 
-# Testing for CommonCreate view, used in:
-#  csas
-#  whalesdb
 class TestCommonCreateView(TestCase):
 
     # In order to test users should be allowed to create database objects extending apps should make use of the test_
@@ -272,16 +265,61 @@ class TestCommonCreateView(TestCase):
         view.object = models.Region()
         view.title = EXPECTED_MOCK_TITLE
 
-        # the context should contain a title element
-        self.assertIn("auth", view.get_context_data())
-        self.assertTrue(view.get_context_data()['auth'])
-
-        view.auth = False
-        self.assertFalse(view.get_context_data()['auth'])
-
         # without overriding the defaults, h1 and submit_text should have specific values
         self.assertEqual(view.get_context_data()['h1'], _("New {}".format(view.model._meta.verbose_name.title())))
         self.assertEqual(view.get_context_data()['submit_text'], _("Add"))
+
+
+# #################################################################################
+#
+#                       CommonAuthCreateView Testing
+#
+# #################################################################################
+
+# mock example of extending the create common view used in testing
+class MockCommonAuthCreateView(views.CommonAuthCreateView, MockCommonCreateView):
+    auth = True
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+
+# Testing for CommonCreate view, used in:
+class TestCommonAuthCreateView(TestCommonCreateView):
+    def test_extends(self):
+        view = views.CommonAuthCreateView()
+        self.assertIsInstance(view, UserPassesTestMixin)
+        self.assertIsInstance(view, CreateView)
+        self.assertIsInstance(view, views.CommonMixin)
+        self.assertIsInstance(view, views.CommonFormMixin)
+        self.assertIsInstance(view, views.CommonCreateView)
+
+    # All DM apps share a common login system so it makes sense that common views should direct
+    # users to the common login URL
+    def test_login_url(self):
+        view = views.CommonAuthCreateView()
+
+        # CreateCommon Should have the login_url attribute
+        self.assertTrue(hasattr(view, "login_url"))
+
+        # Expected Login URL
+        self.assertEquals(view.login_url, EXPECTED_LOGIN_URL)
+
+    def test_get_context(self):
+        super().test_get_context()
+        # have to create the request and setup the view
+        req_factory = RequestFactory()
+        request = req_factory.get(EXPECTED_LOGIN_URL)
+        view = setup_view(MockCommonAuthCreateView(), request)
+        view.object = models.Region()
+        view.title = EXPECTED_MOCK_TITLE
+
+        # the context should contain a title element
+        self.assertIn("auth", view.get_context_data())
+        self.assertTrue(view.get_context_data()['auth'])
+        view.auth = False
+        self.assertFalse(view.get_context_data()['auth'])
 
 
 # #################################################################################
@@ -296,14 +334,10 @@ class MockCommonUpdateView(views.CommonUpdateView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
+    test_region = RegionFactory()
 
     # These are for testing purposes only
-    auth = True
     editable = True
-
-    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
-    def test_func(self):
-        return self.auth
 
     # example of overriding the get_java_script function to return something other than the java_script variable
     def get_java_script(self):
@@ -325,6 +359,9 @@ class MockCommonUpdateView(views.CommonUpdateView):
             return "pop/{}".format(self.site_css)
 
         return super().get_site_css()
+
+    def get_object(self, queryset=None):
+        return self.test_region
 
 
 # Testing for CommonUpdateView view, used in:
@@ -357,19 +394,64 @@ class TestCommonUpdateView(TestCase):
         view.object = models.Region()
         view.title = EXPECTED_MOCK_TITLE
 
-        # the context should contain a title element
-        self.assertIn("auth", view.get_context_data())
-        self.assertTrue(view.get_context_data()['auth'])
-
-        view.auth = False
-        self.assertFalse(view.get_context_data()['auth'])
-
         # without overriding the defaults, h1 and submit_text should have specific values
         self.assertEqual(view.get_context_data()['h1'], _("Edit"))
         self.assertEqual(view.get_context_data()['submit_text'], _("Save"))
 
         # should have a context var called model_name
         self.assertIn("model_name", view.get_context_data())
+
+
+# #################################################################################
+#
+#                       CommonAuthUpdateView Testing
+#
+# #################################################################################
+
+# mock example of extending the create common view used in testing
+class MockCommonAuthUpdateView(views.CommonAuthUpdateView, MockCommonUpdateView):
+    auth = True
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+
+# Testing for CommonUpdate view, used in:
+class TestCommonAuthUpdateView(TestCommonUpdateView):
+    def test_extends(self):
+        view = views.CommonAuthUpdateView()
+        self.assertIsInstance(view, UserPassesTestMixin)
+        self.assertIsInstance(view, UpdateView)
+        self.assertIsInstance(view, views.CommonMixin)
+        self.assertIsInstance(view, views.CommonFormMixin)
+        self.assertIsInstance(view, views.CommonUpdateView)
+
+    # All DM apps share a common login system so it makes sense that common views should direct
+    # users to the common login URL
+    def test_login_url(self):
+        view = views.CommonAuthUpdateView()
+
+        # UpdateCommon Should have the login_url attribute
+        self.assertTrue(hasattr(view, "login_url"))
+
+        # Expected Login URL
+        self.assertEquals(view.login_url, EXPECTED_LOGIN_URL)
+
+    def test_get_context(self):
+        super().test_get_context()
+        # have to create the request and setup the view
+        req_factory = RequestFactory()
+        request = req_factory.get(EXPECTED_LOGIN_URL)
+        view = setup_view(MockCommonAuthUpdateView(), request)
+        view.object = models.Region()
+        view.title = EXPECTED_MOCK_TITLE
+
+        # the context should contain a title element
+        self.assertIn("auth", view.get_context_data())
+        self.assertTrue(view.get_context_data()['auth'])
+        view.auth = False
+        self.assertFalse(view.get_context_data()['auth'])
 
 
 # #################################################################################
@@ -384,6 +466,7 @@ class MockCommonDeleteView(views.CommonDeleteView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
+    test_region = RegionFactory()
 
     # These are for testing purposes only
     auth = True
@@ -414,6 +497,9 @@ class MockCommonDeleteView(views.CommonDeleteView):
 
         return super().get_site_css()
 
+    def get_object(self, queryset=None):
+        return self.test_region
+
 
 # Testing for CommonUpdateView view, used in:
 class TestCommonDeleteView(TestCase):
@@ -441,9 +527,8 @@ class TestCommonDeleteView(TestCase):
         # have to create the request and setup the view
         req_factory = RequestFactory()
         request = req_factory.get(EXPECTED_LOGIN_URL)
-        print(request)
         view = setup_view(MockCommonDeleteView(), request)
-        view.object = models.Region()
+        view.object = models.Region
 
         # without overriding the defaults, h1 and submit_text should have specific values
         self.assertEqual(view.get_context_data()['h1'],
@@ -469,6 +554,8 @@ class MockCommonFilterView(views.CommonFilterView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
+    test_region = RegionFactory()
+    object_list = models.Region.objects.all()
 
 
 class TestCommonFilterView(TestCase):
@@ -488,7 +575,7 @@ class TestCommonFilterView(TestCase):
     def test_filter_template(self):
         self.assertEquals(self.view.template_name, EXPECTED_FILTER_TEMPLATE_NAME)
 
-    def test_filter_get_context(self):
+    def test_get_context(self):
         # have to create the request and setup the view
         req_factory = RequestFactory()
         request = req_factory.get(EXPECTED_LOGIN_URL)
@@ -496,10 +583,54 @@ class TestCommonFilterView(TestCase):
         view.object_list = models.Region.objects.all()
         view.title = EXPECTED_MOCK_TITLE
 
+
+# #################################################################################
+#
+#                       CommonAuthFilterView Testing
+#
+# #################################################################################
+
+# mock example of extending the create common view used in testing
+class MockCommonAuthFilterView(views.CommonAuthFilterView, MockCommonFilterView):
+    auth = True
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+
+# Testing for CommonFilter view, used in:
+class TestCommonAuthFilterView(TestCommonFilterView):
+    def test_extends(self):
+        view = views.CommonAuthFilterView()
+        self.assertIsInstance(view, UserPassesTestMixin)
+        self.assertIsInstance(view, FilterView)
+        self.assertIsInstance(view, views.CommonMixin)
+        self.assertIsInstance(view, views.CommonFilterView)
+
+    # All DM apps share a common login system so it makes sense that common views should direct
+    # users to the common login URL
+    def test_login_url(self):
+        view = views.CommonAuthFilterView()
+
+        # FilterCommon Should have the login_url attribute
+        self.assertTrue(hasattr(view, "login_url"))
+
+        # Expected Login URL
+        self.assertEquals(view.login_url, EXPECTED_LOGIN_URL)
+
+    def test_get_context(self):
+        super().test_get_context()
+        # have to create the request and setup the view
+        req_factory = RequestFactory()
+        request = req_factory.get(EXPECTED_LOGIN_URL)
+        view = setup_view(MockCommonAuthFilterView(), request)
+        view.object = models.Region()
+        view.title = EXPECTED_MOCK_TITLE
+
         # the context should contain a title element
         self.assertIn("auth", view.get_context_data())
         self.assertTrue(view.get_context_data()['auth'])
-
         view.auth = False
         self.assertFalse(view.get_context_data()['auth'])
 
