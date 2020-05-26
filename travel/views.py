@@ -29,7 +29,7 @@ from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonUpdateView, CommonFilterView, CommonFormView, \
-    CommonPopoutFormView, CommonPopoutUpdateView, CommonListView, CommonDetailView
+    CommonPopoutFormView, CommonPopoutUpdateView, CommonListView, CommonDetailView, CommonTemplateView, CommonCreateView, CommonDeleteView
 from . import models
 from . import forms
 from . import reports
@@ -192,8 +192,10 @@ class TravelAccessRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login/'
 
 
-class IndexTemplateView(TravelAccessRequiredMixin, TemplateView):
+class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
     template_name = 'travel/index.html'
+    active_page_name_crumb = _("Home")
+    h1 = " "
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -437,7 +439,6 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
             return f"{subtitle} - {shared_models.Region.objects.get(pk=self.kwargs.get('region'))}"
         else:
             return f"{subtitle} - {self.request.user}"
-
 
 
 class TripRequestReviewListView(TravelAccessRequiredMixin, ListView):
@@ -907,7 +908,6 @@ class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, CommonPopoutUpda
     h1 = _("Administrative Notes (Public)")
 
 
-
 class TripRequestCreateView(TravelAccessRequiredMixin, CreateView):
     model = models.TripRequest
 
@@ -1284,11 +1284,13 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
     model = models.Conference
     filterset_class = filters.TripFilter
     template_name = 'travel/trip_list.html'
-    new_object_url_name = "travel:trip_new"
     row_object_url_name = "travel:trip_detail"
     container_class = "container-fluid"
     subtitle = _("Trips")
     home_url_name = "travel:index"
+
+    def get_new_object_url(self):
+        return reverse("travel:trip_new", kwargs=self.kwargs)
 
     def get_queryset(self):
         queryset = models.Conference.objects.annotate(
@@ -1384,13 +1386,10 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
         elif self.kwargs.get("region"):
             region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
             trips_url = reverse("travel:trip_list", kwargs={"region": self.kwargs.get("region")})
-            trips_title = _("Trips") + f' ({str(region)}'
+            trips_title = _("Trips") + f' ({str(region)})'
         else:
-            trips_url = reverse("travel:trip_list")
-            trips_title = _("Trips")
+            return None
         return {"title": trips_title, "url": trips_url}
-
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1410,12 +1409,33 @@ class TripAdminNotesUpdateView(TravelADMAdminRequiredMixin, CommonPopoutUpdateVi
     h1 = _("Administrative Notes (Public)")
 
 
-class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
+class TripUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     model = models.Conference
     form_class = forms.TripForm
+    home_url_name = "travel:index"
+
+    def get_parent_crumb(self):
+        # region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+        trips_url = reverse("travel:trip_detail", kwargs=self.kwargs)
+        return {"title": str(self.get_object()), "url": trips_url}
+
+    def get_grandparent_crumb(self):
+        if self.kwargs.get("type") == "upcoming":
+            trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
+            trips_title = _("Upcoming Trips")
+        elif self.kwargs.get("type") == "adm-hit-list":
+            trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
+            trips_title = _("Trips Eligible for ADM Review")
+        elif self.kwargs.get("region"):
+            region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+            trips_url = reverse("travel:trip_list", kwargs={"region": self.kwargs.get("region")})
+            trips_title = _("Trips") + f' ({str(region)})'
+        else:
+            return None
+        return {"title": trips_title, "url": trips_url}
 
     def get_template_names(self):
-        return 'travel/trip_form_popout.html' if self.kwargs.get("pop") else 'travel/trip_form.html'
+        return 'travel/trip_form_popout.html' if self.kwargs.get("type") == "pop" else 'travel/trip_form.html'
 
     def form_valid(self, form):
         my_object = form.save()
@@ -1427,10 +1447,10 @@ class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
             # This function will also delete any reviewers if adm approval is not required
             utils.get_trip_reviewers(my_object)
 
-        if self.kwargs.get("pop"):
+        if self.kwargs.get("type") == "pop":
             return HttpResponseRedirect(reverse("shared_models:close_me"))
         else:
-            return HttpResponseRedirect(reverse('travel:trip_detail', kwargs={'pk': my_object.id}))
+            return HttpResponseRedirect(reverse('travel:trip_detail', kwargs=self.kwargs))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1439,21 +1459,31 @@ class TripUpdateView(TravelAdminRequiredMixin, UpdateView):
         return context
 
 
-class TripCreateView(TravelAccessRequiredMixin, CreateView):
+class TripCreateView(TravelAccessRequiredMixin, CommonCreateView):
     model = models.Conference
     form_class = forms.TripForm
+    home_url_name = "travel:index"
+
+    def get_parent_crumb(self):
+        trips_url = reverse("travel:trip_list", kwargs=self.kwargs)
+        if self.kwargs.get("type") == "upcoming":
+            trips_title = _("Upcoming Trips")
+        elif self.kwargs.get("type") == "adm-hit-list":
+            # trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
+            trips_title = _("Trips Eligible for ADM Review")
+        elif self.kwargs.get("region"):
+            region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+            # trips_url = reverse("travel:trip_list", kwargs={"region": self.kwargs.get("region")})
+            trips_title = _("Trips") + f' ({str(region)})'
+        else:
+            return None
+        return {"title": trips_title, "url": trips_url}
 
     def get_template_names(self):
-        if self.kwargs.get("pop"):
+        if self.kwargs.get("type") == "pop":
             return 'travel/trip_form_popout.html'
         else:
             return 'travel/trip_form.html'
-
-    def get_success_url(self):
-        if self.kwargs.get("pop"):
-            return reverse("shared_models:close_me_no_refresh")
-        else:
-            return super().get_success_url()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1467,7 +1497,7 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
         # Add any trip reviewers to the trip, if adm approval is required
         utils.get_trip_reviewers(my_object)
 
-        if self.kwargs.get("pop"):
+        if self.kwargs.get("type") == "pop":
             # create a new email object
             email = emails.NewTripEmail(my_object)
             # send the email object
@@ -1479,26 +1509,28 @@ class TripCreateView(TravelAccessRequiredMixin, CreateView):
             )
             messages.success(self.request,
                              _("The trip has been added to the database!"))
-        return super().form_valid(form)
+
+            return HttpResponseRedirect(reverse("shared_models:close_me_no_refresh"))
+        else:
+            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_object.id, "type": "pop"}))
 
 
-class TripDeleteView(TravelAdminRequiredMixin, DeleteView):
-    template_name = 'travel/trip_confirm_delete.html'
+class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
+    template_name = 'travel/confirm_delete.html'
     model = models.Conference
     success_message = 'The trip was deleted successfully!'
+    delete_protection = False
 
     def get_success_url(self):
-        if self.kwargs.get("back_to_verify"):
+        if self.kwargs.get("type") == "back_to_verify":
             adm = 1 if self.get_object().is_adm_approval_required else 0
             region = self.get_object().lead.id if adm == 0 else 0
             success_url = reverse_lazy('travel:admin_trip_verification_list', kwargs={"adm": adm, "region": region})
         else:
-            success_url = reverse_lazy('travel:trip_list')
+            my_kwargs = self.kwargs
+            del my_kwargs["pk"]
+            success_url = reverse_lazy('travel:trip_list', kwargs=my_kwargs)
         return success_url
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
 
 
 class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
@@ -1790,7 +1822,6 @@ class TripReviewListView(TravelADMAdminRequiredMixin, CommonListView):
             return "travel:trip_detail"
 
 
-
 class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     model = models.TripReviewer
     form_class = forms.ReviewerApprovalForm
@@ -1799,7 +1830,8 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     submit_text = _("Submit your review")
     cancel_text = _("Cancel")
     home_url_name = "travel:index"
-    parent_crumb = {"title": _("Trips Awaiting Your Review"), "url": reverse_lazy("travel:trip_review_list")}
+    parent_crumb = {"title": _("Trips Awaiting Your Review"),
+                    "url": reverse_lazy("travel:trip_review_list", kwargs={"which_ones": "awaiting"})}
 
     def test_func(self):
         my_trip = self.get_object().trip
@@ -1834,7 +1866,7 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
 
             # update any statuses if necessary
             utils.trip_approval_seeker(my_reviewer.trip)
-            return HttpResponseRedirect(reverse("travel:trip_review_list"))
+            return HttpResponseRedirect(reverse("travel:trip_review_list", kwargs={"which_ones": "awaiting"}))
         else:
             my_kwargs = {"pk": my_reviewer.id}
             return HttpResponseRedirect(reverse("travel:trip_review_update", kwargs=my_kwargs))
@@ -1874,7 +1906,7 @@ class SkipTripReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
-class TripCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
+class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     # TODO: check permissions
     # TODO: cancel related trip requests and email clients
     # TODO: email travellers the change in their statuses
@@ -1882,44 +1914,46 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
     model = models.Conference
     form_class = forms.TripAdminNotesForm
     template_name = 'travel/trip_cancel_form.html'
+    submit_text = _("Cancel the trip")
+    h1 = _("Do you wish to un-cancel the following trip?")
+    h2 = "<span class='red-font'>" + \
+         _("Cancelling this trip will result in all linked requests to be 'cancelled'. "
+           "This list of associated trip requests can be viewed below in the trip detail.") + \
+         "</span><br><br>" + \
+         "<span class='red-font blink-me'>" + \
+         _("This action cannot be undone.") + \
+         "</span>"
+    active_page_name_crumb = _("Cancel Trip")
+
+    # home_url_name = "travel:index"
 
     def get_context_data(self, **kwargs):
-        my_object = models.Conference.objects.get(pk=self.kwargs.get("pk"))
-
-        # figure out the current state of the request
-        is_cancelled = True if my_object.status.id == 43 else False
-
         context = super().get_context_data(**kwargs)
-        if is_cancelled:
-            context["h1"] = _("Do you wish to un-cancel the following trip?")
-            active_crumb = _("Un-cancel Trip")
-        else:
-            context["h1"] = _("Do you wish to cancel the following trip?")
-            context["h2"] = "<span class='red-font'>" + \
-                            _("Cancelling this trip will result in all linked requests to be 'cancelled'. "
-                              "This list of associated trip requests can be viewed below in the trip detail.") + \
-                            "</span><br><br>" + \
-                            "<span class='red-font blink-me'>" + \
-                            _("This action cannot be undone.") + \
-                            "</span>"
-            active_crumb = _("Cancel Trip")
-
-        context["subtitle"] = active_crumb
-        context["back_url"] = reverse("travel:trip_detail", kwargs={"pk": my_object.id})
-        context["crumbs"] = [
-            {"title": _("Home"), "url": reverse("travel:index")},
-            {"title": my_object, "url": context["back_url"]},
-            {"title": active_crumb}
-        ]
-
         context["conf_field_list"] = conf_field_list
-        context["trip"] = my_object
+        context["trip"] = self.get_object()
         context['help_text_dict'] = get_help_text_dict()
         context["report_mode"] = True
-        context["submit_text"] = _("Cancel the trip")
-        context["cancel_text"] = _("Back")
-
         return context
+
+    # def get_parent_crumb(self):
+    #     # region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+    #     trips_url = reverse("travel:trip_detail", kwargs=self.kwargs)
+    #     return {"title": str(self.get_object()), "url": trips_url}
+
+    # def get_grandparent_crumb(self):
+    #     if self.kwargs.get("type") == "upcoming":
+    #         trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
+    #         trips_title = _("Upcoming Trips")
+    #     elif self.kwargs.get("type") == "adm-hit-list":
+    #         trips_url = reverse("travel:trip_list", kwargs={"type": self.kwargs.get("type")})
+    #         trips_title = _("Trips Eligible for ADM Review")
+    #     elif self.kwargs.get("region"):
+    #         region = shared_models.Region.objects.get(pk=self.kwargs.get("region"))
+    #         trips_url = reverse("travel:trip_list", kwargs={"region": self.kwargs.get("region")})
+    #         trips_title = _("Trips") + f' ({str(region)}'
+    #     else:
+    #         return None
+    #     return {"title": trips_title, "url": trips_url}
 
     def form_valid(self, form):
         my_trip = form.save()
@@ -1970,7 +2004,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
                         recipient_list=email.to_list
                     )
 
-            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_trip.id}))
+            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs=self.kwargs))
         else:
             return HttpResponseForbidden()
 
@@ -2177,6 +2211,7 @@ class CostFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("travel:manage_costs")
     home_url_name = "travel:index"
     delete_url_name = "travel:delete_cost"
+
 
 #
 # class NJCRatesHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
