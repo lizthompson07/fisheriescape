@@ -653,3 +653,94 @@ class TestIndexTemplateView(CommonTest):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user1)
+
+
+
+# #################################################################################
+#
+#                       CommonListView Testing
+#
+# #################################################################################
+
+
+# mock example of extending the update common view used in testing, virtually the same as CommonCreateView
+class MockCommonListView(views.CommonListView):
+    # These are required at a minimum by extending classes as part of Django's base framework
+    model = models.Region
+    fields = []
+    test_region = RegionFactory()
+
+    # These are for testing purposes only
+    auth = True
+    editable = True
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+    # example of overriding the get_java_script function to return something other than the java_script variable
+    def get_java_script(self):
+        if self.kwargs.get("pop"):
+            return "pop/{}".format(self.java_script)
+
+        return super().get_java_script()
+
+    # example of overriding the get_nav_menu function to return something other than the nav_menu variable
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return "pop/{}".format(self.nav_menu)
+
+        return super().get_nav_menu()
+
+    # example of overriding the get_site_css function to return something other than the site_css variable
+    def get_site_css(self):
+        if self.kwargs.get("pop"):
+            return "pop/{}".format(self.site_css)
+
+        return super().get_site_css()
+
+    def get_object(self, queryset=None):
+        return self.test_region
+
+
+# Testing for CommonUpdateView view, used in:
+class TestCommonListView(TestCase):
+
+    # In order to test users should be allowed to create database objects extending apps should make use of the test_
+    # func method that comes from Django's django.contrib.auth.mixins.UserPassesTestMixin module. As such
+    # the CommonUpdateView class is an abstract class with UpdateView and UserPassesTestMixin as super classes
+    def test_extends(self):
+        view = views.CommonListView()
+
+        # self.assertIsInstance(view, UserPassesTestMixin)
+        self.assertIsInstance(view, ListView)
+        self.assertIsInstance(view, views.CommonMixin)
+        self.assertIsInstance(view, views.CommonFormMixin)
+
+    # Update common by default uses the simple shared_models/shared_entry_form.html template
+    # Extending classes can provide their own templates modeled on the shared_entry_form.html Template
+    def test_template(self):
+        view = views.CommonListView()
+        self.assertEquals(view.template_name, 'shared_models/generic_confirm_delete.html')
+
+    # if the test_func method returns true then the get_context method will return an auth element used by
+    # templates to determine when to show/hide certain elements
+    def test_get_context(self):
+        # have to create the request and setup the view
+        req_factory = RequestFactory()
+        request = req_factory.get(EXPECTED_LOGIN_URL)
+        view = setup_view(MockCommonListView(), request)
+        view.object = models.Region
+
+        # without overriding the defaults, h1 and submit_text should have specific values
+        self.assertEqual(view.get_context_data()['h1'],
+                         _("Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
+                             view.model._meta.verbose_name,
+                             view.get_object(),
+                         )))
+        self.assertEqual(view.get_context_data()['submit_text'], _("List"))
+
+        # should have a context var called model_name
+        self.assertIn("model_name", view.get_context_data())
+        self.assertIn("delete_protection", view.get_context_data())
+        self.assertIn("related_names", view.get_context_data())
