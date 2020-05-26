@@ -78,20 +78,30 @@
 
         function hideAll() {
             $(".location_div").addClass("gone");
+            $(".item_name_div").addClass("gone");
+
 
             $("#id_report").prop('required', true);
             $("#id_location").prop('required', false);
+            $("#id_item_name").prop('required', false);
 
         }
 
         function configureForm() {
             var reportChoice = $("#id_report").val();
-            // branch report
+            // container summary report
             if (reportChoice == 1) {
                 $(".location_div").removeClass("gone");
+                $("#id_location").prop('required', true)
+            }
 
-        }}
+            // sized item report
+            else if (reportChoice == 2) {
+                $(".item_name_div").removeClass("gone");
+                $("#id_item_name").prop('required', true);
 
+            }
+        }
 
         $(document).ready(function () {
             // Stuff to do as soon as the DOM is ready

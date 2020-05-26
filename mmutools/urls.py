@@ -84,6 +84,7 @@ urlpatterns = [
     path('reports/generator/', views.ReportGeneratorFormView.as_view(), name="report_generator"),
     path('reports/generator/<int:report_number>/', views.ReportGeneratorFormView.as_view(), name="report_generator"),
     path('reports/container_summary/location/<int:location>/', views.ContainerSummaryListView.as_view(), name="report_container"),
+    path('reports/sized_item_summary/item_name/<int:item_name>/', views.SizedItemSummaryListView.as_view(), name="report_sized_item"),
 
 ]
 

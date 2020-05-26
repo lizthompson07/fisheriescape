@@ -802,11 +802,17 @@ class ReportGeneratorFormView(MmutoolsAccessRequired, FormView):
             location = int(form.cleaned_data["location"])
         except ValueError:
             location = None
+        try:
+            item_name = int(form.cleaned_data["item_name"])
+        except ValueError:
+            item_name = None
 
         if report == 1:
             return HttpResponseRedirect(reverse("mmutools:report_container", kwargs={
                 'location': str(location),
             }))
+        elif report == 2:
+            return HttpResponseRedirect(reverse("mmutools:report_sized_item", kwargs={'item_name': item_name}))
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -840,3 +846,31 @@ class ContainerSummaryListView(MmutoolsAccessRequired, ListView):
 
         return context
 
+class SizedItemSummaryListView(MmutoolsAccessRequired, ListView):
+    template_name = 'mmutools/report_sized_item_summary.html'
+
+    def get_queryset(self, **kwargs):
+        qs = models.Quantity.objects.filter(item_id=self.kwargs['item_name'])
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Quantity.objects.first()
+
+        item_name = models.Item.objects.get(pk=self.kwargs['item_name'])
+        context["location"] = item_name
+
+        context["field_list"] = [
+            'item',
+            'quantity',
+            'status',
+            'lent_to',
+            'lent_date',
+            'return_date',
+            'last_audited',
+            'last_audited_by',
+            'location',
+            'bin_id',
+        ]
+
+        return context
