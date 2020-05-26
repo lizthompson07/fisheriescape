@@ -1,3 +1,4 @@
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
 
 from lib.functions.custom_functions import listrify
@@ -803,7 +804,7 @@ class ReportGeneratorFormView(MmutoolsAccessRequired, FormView):
         except ValueError:
             location = None
         try:
-            item_name = int(form.cleaned_data["item_name"])
+            item_name = slugify(form.cleaned_data["item_name"])
         except ValueError:
             item_name = None
 
@@ -830,9 +831,6 @@ class ContainerSummaryListView(MmutoolsAccessRequired, ListView):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Quantity.objects.first()
 
-        location = models.Location.objects.get(pk=self.kwargs['location'])
-        context["location"] = location
-
         context["field_list"] = [
             'item',
             'quantity',
@@ -850,15 +848,12 @@ class SizedItemSummaryListView(MmutoolsAccessRequired, ListView):
     template_name = 'mmutools/report_sized_item_summary.html'
 
     def get_queryset(self, **kwargs):
-        qs = models.Quantity.objects.filter(item_id=self.kwargs['item_name'])
+        qs = models.Quantity.objects.filter(item__item_name__iexact=self.kwargs['item_name'])
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Quantity.objects.first()
-
-        item_name = models.Item.objects.get(pk=self.kwargs['item_name'])
-        context["location"] = item_name
 
         context["field_list"] = [
             'item',
