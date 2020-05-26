@@ -43,6 +43,7 @@ class CommonCreate(CreateCommon):
 
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
+    home_url_name = "whalesdb:index"
 
     def get_nav_menu(self):
         if self.kwargs.get("pop"):
@@ -240,6 +241,7 @@ class CommonUpdate(UpdateCommon):
 
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
+    home_url_name = "whalesdb:index"
 
     # update views are all intended to be pop out windows so upon success close the window
     success_url = reverse_lazy("shared_models:close_me_no_refresh")
@@ -457,6 +459,7 @@ class CommonList(FilterCommon):
 
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
+    home_url_name = "whalesdb:index"
 
     # fields to be used as columns to display an object in the filter view table
     fields = []
