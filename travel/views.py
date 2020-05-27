@@ -619,6 +619,7 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
     form_class = forms.ReviewerApprovalForm
     template_name = 'travel/reviewer_approval_form.html'
     home_url_name = "travel:index"
+
     def get_h1(self):
         if self.get_object().role_id in [5, 6, ]:
             return _("Do you wish to approve on behalf of {user} ({role})".format(
@@ -632,7 +633,8 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
         role = self.get_object().role
         if role.id in [5, 6, ]:
             txt = _("Admin Request Approval List") + f' ({self.get_object().role})'
-            kwargs = {"type": self.get_object().role.name.lower(), "region": self.get_object().trip_request.section.division.branch.region.id}
+            kwargs = {"type": self.get_object().role.name.lower(),
+                      "region": self.get_object().trip_request.section.division.branch.region.id}
             return {"title": txt, "url": reverse("travel:admin_approval_list", kwargs=kwargs)}
         else:
             return {"title": _("Requests Awaiting Your Review"),
@@ -709,10 +711,16 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
             return HttpResponseRedirect(parent_crumb_url)
 
 
-class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
+class SkipReviewerUpdateView(TravelAdminRequiredMixin, CommonPopoutUpdateView):
     model = models.Reviewer
     form_class = forms.ReviewerSkipForm
-    template_name = 'travel/reviewer_skip_form.html'
+    template_name = 'shared_models/generic_popout_form.html'
+
+    def get_h1(self):
+        return _("Are you certain you wish to skip the following user?")
+
+    def get_h2(self):
+        return str(self.get_object())
 
     def test_func(self):
         my_trip_request = self.get_object().trip_request
@@ -721,22 +729,15 @@ class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
         if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
             return True
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        my_object = self.get_object()
-        return context
-
     def form_valid(self, form):
         # if the form is submitted, that means the admin user has decided to go ahead with the manual skip
         my_reviewer = form.save(commit=False)
         my_reviewer.status_id = 21
         my_reviewer.status_date = timezone.now()
-        my_reviewer.comments = "This step was manually overridden by {} with the following rationale: \n\n {}".format(self.request.user,
-                                                                                                                      my_reviewer.comments)
-
+        my_reviewer.comments = "This reviewer was manually overridden by {} with the following rationale: \n\n {}".format(self.request.user,
+                                                                                                                          my_reviewer.comments)
         # now we save the reviewer for real
         my_reviewer.save()
-
         # update any statuses if necessary
         utils.approval_seeker(my_reviewer.trip_request)
 
@@ -1184,40 +1185,29 @@ def reset_reviewers(request, triprequest=None, trip=None):
 
 # REVIEWER #
 ############
-@login_required(login_url='/accounts/login/')
-# @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def delete_reviewer(request, triprequest=None, trip=None):
-    if triprequest:
-        my_obj = models.Reviewer.objects.get(pk=triprequest)
-        if can_modify_request(request.user, my_obj.trip_request.id):
-            # This function should only ever be run if the TR is in draft or changes have been requested
-            # if not my_obj.trip_request.status_id in [8, 16]:
-            #     messages.error(request, _("Sorry, you will have to unsubmit the trip in order to make this change"))
-            #     return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
-            # else:
-            # now, the status of the reviewer matters.. under no circumstances should a reviewer that is not in "draft" or "queue" mode be modified / deleted
+
+class TripRequestReviewerHardDeleteView(CanModifyMixin, CommonHardDeleteView):
+    model = models.Reviewer
+
+    def test_func(self):
+        my_obj = models.Reviewer.objects.get(pk=self.kwargs.get("pk"))
+        if can_modify_request(self.request.user, my_obj.trip_request.id):
             if my_obj.status_id not in [4, 20]:
-                messages.error(request, _(f"Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"))
+                messages.error(self.request, _(f"Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"))
             else:
-                # it is ok to delete the reviewer
-                my_obj.delete()
-                my_obj.trip_request.save()
-            return HttpResponseRedirect(reverse("travel:manage_tr_reviewers", kwargs={"triprequest": my_obj.trip_request.id}))
-        else:
-            messages.error(request, _("You do not have the permissions to delete a reviewer"))
-            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.trip_request.id}))
-    else:
-        if not in_adm_admin_group(request.user):
-            return HttpResponseForbidden()
-        else:
-            my_obj = models.TripReviewer.objects.get(pk=trip)
+                return False
+
+
+class TripReviewerHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
+    model = models.TripReviewer
+
+    def test_func(self):
+        my_obj = models.TripReviewer.objects.get(pk=self.kwargs.get("pk"))
+        if in_travel_admin_group(self.request.user):
             if my_obj.status_id not in [23, 24]:
-                messages.error(request, _(f"Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"))
+                messages.error(self.request, _(f"Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"))
             else:
-                # it is ok to delete the reviewer
-                my_obj.delete()
-                my_obj.trip.save()
-            return HttpResponseRedirect(reverse("travel:manage_trip_reviewers", kwargs={"trip": my_obj.trip.id}))
+                return True
 
 
 @login_required(login_url='/accounts/login/')
@@ -1603,7 +1593,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
         # decide where to go. If the request user is the same as the active reviewer for the trip, go right to the review page.
         # otherwise go to the index
         if my_trip.current_reviewer and self.request.user == my_trip.current_reviewer.user:
-            return HttpResponseRedirect(reverse("travel:trip_review_update", kwargs={"pk": my_trip.current_reviewer.id}))
+            return HttpResponseRedirect(reverse("travel:trip_reviewer_update", kwargs={"pk": my_trip.current_reviewer.id}))
         else:
             return HttpResponseRedirect(reverse("travel:index"))
 
@@ -1837,7 +1827,7 @@ class TripReviewListView(TravelADMAdminRequiredMixin, CommonListView):
 
     def get_row_object_url_name(self):
         if self.kwargs.get("which_ones") == "awaiting":
-            return "travel:trip_review_update"
+            return "travel:trip_reviewer_update"
         else:
             return "travel:trip_detail"
 
@@ -1889,7 +1879,7 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
             return HttpResponseRedirect(reverse("travel:trip_review_list", kwargs={"which_ones": "awaiting"}))
         else:
             my_kwargs = {"pk": my_reviewer.id}
-            return HttpResponseRedirect(reverse("travel:trip_review_update", kwargs=my_kwargs))
+            return HttpResponseRedirect(reverse("travel:trip_reviewer_update", kwargs=my_kwargs))
 
 
 class SkipTripReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):

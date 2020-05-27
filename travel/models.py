@@ -861,6 +861,9 @@ class Reviewer(models.Model):
     status_date = models.DateTimeField(verbose_name=_("status date"), blank=True, null=True)
     comments = models.TextField(null=True, verbose_name=_("Comments"))
 
+    def __str__(self):
+        return gettext("Reviewer") + f' - {self.user}'
+
     class Meta:
         unique_together = ['trip_request', 'user', 'role', ]
         ordering = ['trip_request', 'order', ]
