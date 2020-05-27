@@ -53,7 +53,7 @@
                         <tr data-toggle="tooltip" title="Edit" href="{% url 'travel:file_detail' obj.id %}" pop>
                             <td>{{ obj.name }}</td>
                             <td class="center-col">
-                                <a href="{{ obj.file.url }}" data-toggle="tooltip" title="{% trans "Open the file" %}"
+                                <a href="{% url 'travel:get_file' obj.id %}" data-toggle="tooltip" title="{% trans "Open the file" %}"
                                    class="stop-blank">
                                     <img src="{% static 'img/paperclip-1332775_1920.png' %}" alt="" width="20px">
                                 </a>
