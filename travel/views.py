@@ -412,7 +412,10 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
     new_object_url_name = "travel:request_new"
     row_object_url_name = "travel:request_detail"
-    random_object = models.TripRequest.objects.first()
+
+    def get_random_object(self):
+        return models.TripRequest.objects.first()
+
     field_list = [
         {"name": 'fiscal_year', "width": "75px"},
         {"name": 'is_group_request|Type', },
