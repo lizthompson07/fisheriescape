@@ -2,7 +2,7 @@ from django.test import TestCase, tag, RequestFactory
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView
+from django.views.generic import CreateView, UpdateView, TemplateView, DeleteView, ListView
 from django_filters.views import FilterView
 
 from shared_models import views, models
@@ -334,7 +334,6 @@ class MockCommonUpdateView(views.CommonUpdateView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
-    test_region = RegionFactory()
 
     # These are for testing purposes only
     editable = True
@@ -361,11 +360,14 @@ class MockCommonUpdateView(views.CommonUpdateView):
         return super().get_site_css()
 
     def get_object(self, queryset=None):
-        return self.test_region
+        return models.Region.objects.first()
 
 
 # Testing for CommonUpdateView view, used in:
 class TestCommonUpdateView(TestCase):
+
+    def setUp(self) -> None:
+        RegionFactory()
 
     # In order to test users should be allowed to create database objects extending apps should make use of the test_
     # func method that comes from Django's django.contrib.auth.mixins.UserPassesTestMixin module. As such
@@ -466,7 +468,6 @@ class MockCommonDeleteView(views.CommonDeleteView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
-    test_region = RegionFactory()
 
     # These are for testing purposes only
     auth = True
@@ -498,11 +499,14 @@ class MockCommonDeleteView(views.CommonDeleteView):
         return super().get_site_css()
 
     def get_object(self, queryset=None):
-        return self.test_region
+        return models.Region.objects.first()
 
 
 # Testing for CommonUpdateView view, used in:
 class TestCommonDeleteView(TestCase):
+
+    def setUp(self) -> None:
+        RegionFactory()
 
     # In order to test users should be allowed to create database objects extending apps should make use of the test_
     # func method that comes from Django's django.contrib.auth.mixins.UserPassesTestMixin module. As such
@@ -554,7 +558,6 @@ class MockCommonFilterView(views.CommonFilterView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
-    test_region = RegionFactory()
     object_list = models.Region.objects.all()
 
 
@@ -563,6 +566,7 @@ class TestCommonFilterView(TestCase):
 
     def setUp(self) -> None:
         self.view = views.CommonFilterView()
+        RegionFactory()
 
     # CommonFilterView Extends django_filters.views.FilterView
     def test_filter_extends(self):
@@ -655,7 +659,6 @@ class TestIndexTemplateView(CommonTest):
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user1)
 
 
-
 # #################################################################################
 #
 #                       CommonListView Testing
@@ -668,7 +671,7 @@ class MockCommonListView(views.CommonListView):
     # These are required at a minimum by extending classes as part of Django's base framework
     model = models.Region
     fields = []
-    test_region = RegionFactory()
+    object_list = models.Region.objects.all()
 
     # These are for testing purposes only
     auth = True
@@ -699,12 +702,12 @@ class MockCommonListView(views.CommonListView):
 
         return super().get_site_css()
 
-    def get_object(self, queryset=None):
-        return self.test_region
-
 
 # Testing for CommonUpdateView view, used in:
 class TestCommonListView(TestCase):
+
+    def setUp(self) -> None:
+        RegionFactory()
 
     # In order to test users should be allowed to create database objects extending apps should make use of the test_
     # func method that comes from Django's django.contrib.auth.mixins.UserPassesTestMixin module. As such
@@ -715,13 +718,13 @@ class TestCommonListView(TestCase):
         # self.assertIsInstance(view, UserPassesTestMixin)
         self.assertIsInstance(view, ListView)
         self.assertIsInstance(view, views.CommonMixin)
-        self.assertIsInstance(view, views.CommonFormMixin)
+        self.assertIsInstance(view, views.CommonListMixin)
 
     # Update common by default uses the simple shared_models/shared_entry_form.html template
     # Extending classes can provide their own templates modeled on the shared_entry_form.html Template
     def test_template(self):
         view = views.CommonListView()
-        self.assertEquals(view.template_name, 'shared_models/generic_confirm_delete.html')
+        self.assertEquals(view.template_name, 'shared_models/generic_filter.html')
 
     # if the test_func method returns true then the get_context method will return an auth element used by
     # templates to determine when to show/hide certain elements
@@ -733,14 +736,7 @@ class TestCommonListView(TestCase):
         view.object = models.Region
 
         # without overriding the defaults, h1 and submit_text should have specific values
-        self.assertEqual(view.get_context_data()['h1'],
-                         _("Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
-                             view.model._meta.verbose_name,
-                             view.get_object(),
-                         )))
-        self.assertEqual(view.get_context_data()['submit_text'], _("List"))
+        self.assertEqual(view.get_context_data()['h1'], view.get_queryset().model._meta.verbose_name_plural)
 
         # should have a context var called model_name
         self.assertIn("model_name", view.get_context_data())
-        self.assertIn("delete_protection", view.get_context_data())
-        self.assertIn("related_names", view.get_context_data())
