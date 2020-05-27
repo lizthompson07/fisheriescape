@@ -74,8 +74,26 @@ class ReviewerSkipForm(forms.ModelForm):
         }
 
 
-class TripRequestApprovalForm(forms.Form):
-    approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+class TripRequestApprovalForm(forms.ModelForm):
+    class Meta:
+        model = models.TripRequest
+        fields = [
+            "created_by",
+        ]
+        widgets = {
+            "created_by": forms.HiddenInput()
+        }
+
+
+class TripTimestampUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.Conference
+        fields = [
+            "last_modified_by",
+        ]
+        widgets = {
+            "last_modified_by": forms.HiddenInput()
+        }
 
 
 class TripRequestForm(forms.ModelForm):
@@ -299,7 +317,11 @@ class TripAdminNotesForm(forms.ModelForm):
         model = models.Conference
         fields = [
             "admin_notes",
+            "last_modified_by",
         ]
+        widgets = {
+            "last_modified_by": forms.HiddenInput()
+        }
 
 
 class ChildTripRequestForm(forms.ModelForm):
@@ -463,6 +485,7 @@ class TripForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'registration_deadline': forms.DateInput(attrs=attr_fp_date),
             'abstract_deadline': forms.DateInput(attrs=attr_fp_date),
+            'last_modified_by': forms.HiddenInput(),
         }
 
     def clean(self):
@@ -719,6 +742,19 @@ NJCRatesFormset = modelformset_factory(
     model=models.NJCRates,
     form=NJCRatesForm,
     extra=0,
+)
+
+
+class ReasonForm(forms.ModelForm):
+    class Meta:
+        model = models.Reason
+        fields = "__all__"
+
+
+ReasonFormset = modelformset_factory(
+    model=models.Reason,
+    form=ReasonForm,
+    extra=1,
 )
 
 

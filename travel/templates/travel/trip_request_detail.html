@@ -102,7 +102,7 @@
 
     <div class="float-right">
         {% if object.current_reviewer.user == user %}
-            <a href="{% url 'travel:review_approve' object.current_reviewer.id %}" class="btn btn-lg btn-outline-primary">
+            <a href="{% url 'travel:tr_review_update' object.current_reviewer.id %}" class="btn btn-lg btn-outline-primary">
                 {% trans "Back to Approver Panel" %}
             </a>
 
