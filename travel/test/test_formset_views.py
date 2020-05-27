@@ -61,8 +61,8 @@ class TestAllHardDeleteViews(CommonTest):
         super().setUp()
         self.starter_dicts = [
             {"model": models.HelpText, "url_name": "delete_help_text", "view": views.HelpTextHardDeleteView},
-            {"model": models.CostCategory, "url_name": "delete_cost_category", "view": views.CostCategoryHardDeleteView},
             {"model": models.Cost, "url_name": "delete_cost", "view": views.CostHardDeleteView},
+            {"model": models.CostCategory, "url_name": "delete_cost_category", "view": views.CostCategoryHardDeleteView},
             {"model": models.TripSubcategory, "url_name": "delete_trip_subcategory", "view": views.TripSubcategoryHardDeleteView},
         ]
         self.test_dicts = list()
