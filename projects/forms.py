@@ -21,7 +21,11 @@ YESNO_CHOICES = (
     (True, _("Yes")),
     (False, _("No")),
 )
-
+NULLYESNO_CHOICES = (
+    (None, _("----")),
+    (True, _("Yes")),
+    (False, _("No")),
+)
 
 class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField(label=_("Region"))
@@ -77,6 +81,7 @@ class ProjectForm(forms.ModelForm):
             'meeting_notes',
             'programs',
             "recommended_for_funding",
+            "allocated_budget",
         ]
         widgets = {
             "project_title": forms.Textarea(attrs={"rows": "3"}),
@@ -459,7 +464,7 @@ class FundingSourceForm(forms.ModelForm):
         fields = "__all__"
 
 
-FundingSourceFormSet = modelformset_factory(
+FundingSourceFormset = modelformset_factory(
     model=models.FundingSource,
     form=FundingSourceForm,
     extra=1,
@@ -476,7 +481,7 @@ class OMCategoryForm(forms.ModelForm):
         }
 
 
-OMCategoryFormSet = modelformset_factory(
+OMCategoryFormset = modelformset_factory(
     model=models.OMCategory,
     form=OMCategoryForm,
     extra=1,
@@ -492,7 +497,7 @@ class EmployeeTypeForm(forms.ModelForm):
         }
 
 
-EmployeeTypeFormSet = modelformset_factory(
+EmployeeTypeFormset = modelformset_factory(
     model=models.EmployeeType,
     form=EmployeeTypeForm,
     extra=1,
@@ -505,7 +510,7 @@ class StatusForm(forms.ModelForm):
         fields = "__all__"
 
 
-StatusFormSet = modelformset_factory(
+StatusFormset = modelformset_factory(
     model=models.Status,
     form=StatusForm,
     extra=1,
@@ -518,7 +523,7 @@ class TagForm(forms.ModelForm):
         fields = "__all__"
 
 
-TagFormSet = modelformset_factory(
+TagFormset = modelformset_factory(
     model=models.Tag,
     form=TagForm,
     extra=1,
@@ -535,7 +540,7 @@ class HelpTextForm(forms.ModelForm):
         }
 
 
-HelpTextFormSet = modelformset_factory(
+HelpTextFormset = modelformset_factory(
     model=models.HelpText,
     form=HelpTextForm,
     extra=1,
@@ -558,7 +563,7 @@ class ProgramForm(forms.ModelForm):
         }
 
 
-ProgramFormSet = modelformset_factory(
+ProgramFormset = modelformset_factory(
     model=models.Program,
     form=ProgramForm,
     extra=1,
@@ -589,7 +594,7 @@ class ActivityTypeForm(forms.ModelForm):
         fields = "__all__"
 
 
-ActivityTypeFormSet = modelformset_factory(
+ActivityTypeFormset = modelformset_factory(
     model=models.ActivityType,
     form=ActivityTypeForm,
     extra=1,
@@ -602,7 +607,7 @@ class ThemeForm(forms.ModelForm):
         fields = "__all__"
 
 
-ThemeFormSet = modelformset_factory(
+ThemeFormset = modelformset_factory(
     model=models.Theme,
     form=ThemeForm,
     extra=1,
@@ -615,7 +620,7 @@ class LevelForm(forms.ModelForm):
         fields = "__all__"
 
 
-LevelFormSet = modelformset_factory(
+LevelFormset = modelformset_factory(
     model=models.Level,
     form=LevelForm,
     extra=1,
@@ -647,7 +652,7 @@ class TempForm(forms.ModelForm):
         self.fields['functional_group'].choices = functional_group_choices
 
 
-TempFormSet = modelformset_factory(
+TempFormset = modelformset_factory(
     model=models.Project,
     form=TempForm,
     extra=0,
@@ -706,3 +711,46 @@ class IWForm(forms.Form):
         self.fields['region'].choices = region_choices
         self.fields['division'].choices = division_choices
         self.fields['section'].choices = section_choices
+
+
+
+class ApprovalQueryBuildForm(forms.Form):
+    region = forms.ChoiceField(required=False, label="Region", widget=forms.RadioSelect())
+    fiscal_year = forms.ChoiceField(required=False)
+    # division = forms.MultipleChoiceField(required=False, label="Divisions (Leave blank to select all)")
+    # section = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        fy_choices.insert(0, (None, "-----"))
+        self.fields['region'].choices = views.get_region_choices()
+        # self.fields['division'].choices = views.get_division_choices()
+        # self.fields["section"].choices = views.get_section_choices()
+        self.fields["fiscal_year"].choices = fy_choices
+
+
+
+
+class ProjectApprovalForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            "allocated_budget",
+            "meeting_notes",
+            "approved",
+        ]
+        widgets = {
+            'approved': forms.Select(choices=NULLYESNO_CHOICES),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.fields["approved"].choices = YESNO_CHOICES
+
+
+ProjectApprovalFormset = modelformset_factory(
+    model=models.Project,
+    form=ProjectApprovalForm,
+    extra=0,
+)
