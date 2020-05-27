@@ -381,6 +381,8 @@ class CommonHardDeleteView(View, SingleObjectMixin, ABC):
     def get_success_url(self):
         if self.success_url:
             return self.success_url
+        elif self.request.META.get('HTTP_REFERER'):
+            return self.request.META.get('HTTP_REFERER')
         else:
             raise ImproperlyConfigured(
                 "No URL to redirect to. Provide a success_url.")
