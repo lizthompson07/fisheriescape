@@ -9,7 +9,7 @@ from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
 from whalesdb import forms, models, filters, utils
-from shared_models.views import CreateCommon, UpdateCommon, FilterCommon
+from shared_models.views import CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView
 
 import json
 
@@ -39,7 +39,7 @@ class IndexView(TemplateView):
 
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
-class CommonCreate(CreateCommon):
+class CommonCreate(CommonAuthCreateView):
 
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
@@ -237,7 +237,7 @@ class TeaCreate(CommonCreate):
     title = _("Create Team Member")
 
 
-class CommonUpdate(UpdateCommon):
+class CommonUpdate(CommonAuthUpdateView):
 
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
@@ -455,7 +455,7 @@ class StnDetails(CommonDetails):
         return context
 
 
-class CommonList(FilterCommon):
+class CommonList(CommonAuthFilterView):
 
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'

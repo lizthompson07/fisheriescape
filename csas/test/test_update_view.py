@@ -8,19 +8,19 @@ from csas.test import CsasFactory as Factory
 from shared_models import views as shared_views
 
 
-class UpdateCommonTest(cct.CommonTestCase):
+class CommonUpdateViewTest(cct.CommonTestCase):
 
     # view = None  # view is held by the common test case
 
     def setUp(self) -> None:
 
-        self.view = views.CsasUpdateCommon()
+        self.view = views.CsasCommonUpdateView()
 
     def test_update_template(self):
         self.assertIn("csas/csas_entry_form.html", self.view.get_template_names())
 
     def test_update_extends(self):
-        self.assertIsInstance(self.view, shared_views.UpdateCommon)
+        self.assertIsInstance(self.view, shared_views.CommonUpdateView)
 
     def test_update_nav_menu(self):
         nav = self.view.get_nav_menu()
@@ -61,9 +61,9 @@ class ReqUpdateViewTest(TestCase):
     def setUp(self) -> None:
         self.view = views.RequestUpdate()
 
-    # Make sure the Req creation view is extending the CsasCreateCommon class.
+    # Make sure the Req creation view is extending the CsasCommonCreateView class.
     def test_req_update_extends(self):
-        self.assertIsInstance(self.view, views.CsasUpdateCommon)
+        self.assertIsInstance(self.view, views.CsasCommonUpdateView)
 
     # req should be using the ReqRequest model
     def test_req_update_model(self):

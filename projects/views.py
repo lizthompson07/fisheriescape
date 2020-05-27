@@ -1718,7 +1718,7 @@ class FundingSourceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class FundingSourceFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage Funding Source"
     queryset = models.FundingSource.objects.all()
     formset_class = forms.FundingSourceFormset
@@ -1733,7 +1733,7 @@ class OMCategoryHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class OMCategoryFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage OMCategory"
     queryset = models.OMCategory.objects.all()
     formset_class = forms.OMCategoryFormset
@@ -1748,7 +1748,7 @@ class EmployeeTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class EmployeeTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage Employee Type"
     queryset = models.EmployeeType.objects.all()
     formset_class = forms.EmployeeTypeFormset
@@ -1763,7 +1763,7 @@ class StatusHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class StatusFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage Status"
     queryset = models.Status.objects.all()
     formset_class = forms.StatusFormset
@@ -1778,7 +1778,7 @@ class TagHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage Tag"
     queryset = models.Tag.objects.all()
     formset_class = forms.TagFormset
@@ -1793,7 +1793,7 @@ class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage Help Text"
     queryset = models.HelpText.objects.all()
     formset_class = forms.HelpTextFormset
@@ -1808,7 +1808,7 @@ class LevelHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class LevelFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage Level"
     queryset = models.Level.objects.all()
     formset_class = forms.LevelFormset
@@ -1823,7 +1823,7 @@ class ProgramHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class ProgramFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage Program"
     queryset = models.Program.objects.all()
     formset_class = forms.ProgramFormset
@@ -1838,7 +1838,7 @@ class ActivityTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 
 
 class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage ActivityType"
     queryset = models.ActivityType.objects.all()
     formset_class = forms.ActivityTypeFormset
@@ -1849,11 +1849,11 @@ class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
 
 class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     model = models.Theme
-    success_url = reverse_lazy("projects:manage_functional_groups")
+    success_url = reverse_lazy("projects:manage_themes")
 
 
 class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     h1 = "Manage Theme"
     queryset = models.Theme.objects.all()
     formset_class = forms.ThemeFormset
@@ -1953,10 +1953,11 @@ class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterVie
 
 
 class ProjectApprovalsSearchView(AdminRequiredMixin, CommonFormView):
-    template_name = 'projects/generic_form.html'
+    template_name = 'projects/form.html'
     form_class = forms.ApprovalQueryBuildForm
     h1 = _("Find Projects to Approve")
     home_url_name = "projects:index"
+    cancel_text = _("Back")
 
     def form_valid(self, form):
         region = int(form.cleaned_data.get("region"))
@@ -1965,12 +1966,15 @@ class ProjectApprovalsSearchView(AdminRequiredMixin, CommonFormView):
 
 
 class ProjectApprovalFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/generic_formset.html'
+    template_name = 'projects/formset.html'
     formset_class = forms.ProjectApprovalFormset
-    home_url_name = "projects:admin_project_approval_search"
+    home_url_name = "projects:index"
+    parent_crumb = {"title":_("Find Projects to Approve"), "url": reverse_lazy("projects:admin_project_approval_search")}
     pre_display_fields = ["id", "project_title", "total_cost|total budget requested"]
     post_display_fields = ["notification_email_sent", ]
-#    random_object = models.Project.objects.first()
+
+    def get_random_object(self):
+        return models.Project.objects.first()
 
     def get_success_url(self):
         return reverse("projects:admin_project_approval", kwargs=self.kwargs)

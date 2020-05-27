@@ -1,11 +1,11 @@
-{% extends "travel/generic_form.html" %}
+{% extends "travel/form.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load verbose_names %}
 {% load custom_filters %}
 {% load i18n %}
 
-{% block post_form_p %}
+{% block post_form_div %}
     <hr>
     {% include "travel/_trip_detail.html" %}
 

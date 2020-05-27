@@ -199,7 +199,7 @@ class Conference(models.Model):
                  "<b>ADM approval required:</b> {}<br>" \
                  "<b>Verified:</b> {}<br>" \
                  "<b>Verified By:</b> {}<br>" \
-                 "<br><a href='{}' target='_blank' class='btn btn-primary btn-sm'>Go!</a>".format(
+                 "<br><a href='{}' target='_blank' class='btn btn-primary btn-sm'>View Details</a>".format(
             self.name, self.nom, self.location,
             self.start_date.strftime("%Y-%m-%d"),
             self.end_date.strftime("%Y-%m-%d"),
@@ -207,16 +207,18 @@ class Conference(models.Model):
             "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
-            reverse("travel:trip_detail", kwargs={"pk": self.id}),
+            reverse("travel:trip_detail", kwargs={"pk": self.id, "type":"pop"}),
         )
 
         return mark_safe(my_str)
 
     class Meta:
         ordering = ['start_date', ]
+        verbose_name = "trip"
+        verbose_name_plural = "trips"
 
-    def get_absolute_url(self):
-        return reverse('travel:trip_detail', kwargs={'pk': self.id})
+    # def get_absolute_url(self):
+    #     return reverse('travel:trip_detail', kwargs={'pk': self.id, "type":""})
 
     @property
     def bta_traveller_list(self):
@@ -328,8 +330,8 @@ class Conference(models.Model):
             if self.trip_subcategory and self.trip_subcategory.trip_category_id == 3:
                 self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(365 / 12) * 3)
             else:
-                # else they can start the review closer to the date: six business weeks (63 days)
-                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(21 * 3))
+                # else they can start the review closer to the date: eight business weeks (60 days)
+                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(60))
 
         super().save(*args, **kwargs)
 

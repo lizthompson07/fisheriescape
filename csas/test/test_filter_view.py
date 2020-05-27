@@ -22,7 +22,7 @@ class CommonListTest(cct.CommonTestCase):
 
     # Make sure the view is extending the expected classes
     def test_list_extends(self):
-        self.assertIsInstance(self.view, shared_views.FilterCommon)
+        self.assertIsInstance(self.view, shared_views.CommonFilterView)
 
     # test the nav menu is as expected
     def test_list_nav(self):
