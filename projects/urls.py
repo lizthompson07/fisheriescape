@@ -117,7 +117,7 @@ urlpatterns = [
 
     # SETTINGS #
     ############
-    path('settings/funding-source/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),
+    path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),
     path('settings/funding-source/<int:pk>/delete/', views.FundingSourceHardDeleteView.as_view(), name="delete_funding_source"),
 
     path('settings/activity-types/', views.ActivityTypeFormsetView.as_view(), name="manage_activity_types"),
@@ -135,7 +135,7 @@ urlpatterns = [
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
-    path('settings/help-text/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
 
     path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),

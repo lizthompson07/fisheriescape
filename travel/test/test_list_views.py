@@ -46,34 +46,37 @@ class TripRequestListView(CommonTest):
 class TestTripListView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('travel:trip_list')
         self.test_url1 = reverse_lazy('travel:trip_list', kwargs={"region": RegionFactory().id})
         self.test_url2 = reverse_lazy('travel:trip_list', kwargs={"type": "upcoming"})
         self.test_url3 = reverse_lazy('travel:trip_list', kwargs={"type": "adm-hit-list"})
         self.expected_template = 'travel/trip_list.html'
+        self.admin_user = self.get_and_login_user(in_group="travel_admin")
         # in order for this to work, we have to make sure there is a trip obj in the db
         FactoryFloor.TripFactory()
 
-    @tag("travel", 'list', "view")
+    @tag("trip_list", 'list', "view")
     def test_view_class(self):
         self.assert_inheritance(views.TripListView, FilterView)
         self.assert_inheritance(views.TripListView, views.TravelAccessRequiredMixin)
 
-    @tag("travel", 'list', "access")
+    @tag("trip_list", 'list', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
         self.assert_not_broken(self.test_url1)
         self.assert_not_broken(self.test_url2)
         self.assert_not_broken(self.test_url3)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url3, expected_template=self.expected_template)
 
-    @tag("travel", 'list', "context")
+    @tag("trip_list", 'list', "context")
     def test_context(self):
         context_vars = [
             "field_list",
             "is_admin",
         ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars)
+        self.assert_presence_of_context_vars(self.test_url1, context_vars, user=self.admin_user)
+        self.assert_presence_of_context_vars(self.test_url2, context_vars, user=self.admin_user)
+        self.assert_presence_of_context_vars(self.test_url3, context_vars, user=self.admin_user)
 
 
 class TestAdminTripVerificationListView(CommonTest):

@@ -53,14 +53,21 @@ urlpatterns = [
     path('trips/', views.TripListView.as_view(), name="trip_list"),
     path('trips/<str:type>/', views.TripListView.as_view(), name="trip_list"),
     path('trips/region/<int:region>/', views.TripListView.as_view(), name="trip_list"),
-    path('trip/new/', views.TripCreateView.as_view(), name="trip_new"),
-    path('trip/new/pop/<int:pop>/', views.TripCreateView.as_view(), name="trip_new"),
-    path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
+
+    path('trip/new/<str:type>/', views.TripCreateView.as_view(), name="trip_new"),
+    path('trip/new/region/<int:region>/', views.TripCreateView.as_view(), name="trip_new"),
+
     path('trip/<int:pk>/view/<str:type>/', views.TripDetailView.as_view(), name="trip_detail"),
-    path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
-    path('trip/<int:pk>/edit/popout/<int:pop>', views.TripUpdateView.as_view(), name="trip_edit"),
-    path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
-    path('trip/<int:pk>/cancel/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
+    path('trip/<int:pk>/view/region/<int:region>/', views.TripDetailView.as_view(), name="trip_detail"),
+
+    path('trip/<int:pk>/edit/<str:type>/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trip/<int:pk>/edit/region/<int:region>/', views.TripUpdateView.as_view(), name="trip_edit"),
+
+    path('trip/<int:pk>/cancel/<str:type>/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
+
+
+    path('trip/<int:pk>/delete/<str:type>/', views.TripDeleteView.as_view(), name="trip_delete"),
+    path('trip/<int:pk>/delete/region/<int:region>/', views.TripDeleteView.as_view(), name="trip_delete"),
 
     # admin
     path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
@@ -68,11 +75,8 @@ urlpatterns = [
     path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.AdminTripVerificationListView.as_view(),
          name="admin_trip_verification_list"),
     path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
-    path('trip/<int:pk>/delete/back-to-verify/<int:back_to_verify>/', views.TripDeleteView.as_view(), name="trip_delete"),
     path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
     path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(), name="trip_reassign_confirm"),
-
-
 
 
     # TRIP REVIEWERS

@@ -715,8 +715,8 @@ class IWForm(forms.Form):
 
 
 class ApprovalQueryBuildForm(forms.Form):
-    fiscal_year = forms.ChoiceField(required=False)
     region = forms.ChoiceField(required=False, label="Region", widget=forms.RadioSelect())
+    fiscal_year = forms.ChoiceField(required=False)
     # division = forms.MultipleChoiceField(required=False, label="Divisions (Leave blank to select all)")
     # section = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
 
