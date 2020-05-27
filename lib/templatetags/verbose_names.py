@@ -226,3 +226,13 @@ def verbose_td_display(instance, field_name, format=None, display_time=False, ur
     else:
         html_block = '<tr>{}{}</th>{}{}</td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, field_value)
     return SafeString(html_block)
+
+
+
+@register.filter
+def model_verbose_name(instance):
+    """send in a model object and it will send back out the verbose name of the model"""
+    try:
+        return type(instance)._meta.verbose_name
+    except AttributeError:
+        return "---"

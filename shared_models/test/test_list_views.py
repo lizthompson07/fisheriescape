@@ -5,18 +5,19 @@ from django_filters.views import FilterView
 from .. import models
 from .. import views
 from .common_tests import CommonTest
+from ..views import CommonListView
 
 
 class TestSectionListView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:section_list')
-        self.expected_template = 'shared_models/generic_list.html'
+        self.expected_template = 'shared_models/org_list.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("section_list", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SectionListView, ListView)
+        self.assert_inheritance(views.SectionListView, CommonListView)
         self.assert_inheritance(views.SectionListView, views.AdminRequiredMixin)
 
     @tag("section_list", 'list', "access")
@@ -27,10 +28,10 @@ class TestSectionListView(CommonTest):
     @tag("section_list", 'list', "context")
     def test_context(self):
         context_vars = [
-            "title",
-            "field_list",
-            "random_object",
-            "model_name",
+            "section",
+            "division",
+            "branch",
+            "region",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
 
@@ -39,12 +40,12 @@ class TestDivisionListView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:division_list')
-        self.expected_template = 'shared_models/generic_list.html'
+        self.expected_template = 'shared_models/org_list.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("division_list", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.DivisionListView, ListView)
+        self.assert_inheritance(views.DivisionListView, CommonListView)
         self.assert_inheritance(views.DivisionListView, views.AdminRequiredMixin)
 
     @tag("division_list", 'list', "access")
@@ -55,10 +56,10 @@ class TestDivisionListView(CommonTest):
     @tag("division_list", 'list', "context")
     def test_context(self):
         context_vars = [
-            "title",
-            "field_list",
-            "random_object",
-            "model_name",
+            "section",
+            "division",
+            "branch",
+            "region",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
 
@@ -67,12 +68,12 @@ class TestBranchListView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:branch_list')
-        self.expected_template = 'shared_models/generic_list.html'
+        self.expected_template = 'shared_models/org_list.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("branch_list", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.BranchListView, ListView)
+        self.assert_inheritance(views.BranchListView, CommonListView)
         self.assert_inheritance(views.BranchListView, views.AdminRequiredMixin)
 
     @tag("branch_list", 'list', "access")
@@ -83,10 +84,10 @@ class TestBranchListView(CommonTest):
     @tag("branch_list", 'list', "context")
     def test_context(self):
         context_vars = [
-            "title",
-            "field_list",
-            "random_object",
-            "model_name",
+            "section",
+            "division",
+            "branch",
+            "region",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
 
@@ -95,12 +96,12 @@ class TestRegionListView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:region_list')
-        self.expected_template = 'shared_models/generic_list.html'
+        self.expected_template = 'shared_models/org_list.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("region_list", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.RegionListView, ListView)
+        self.assert_inheritance(views.RegionListView, CommonListView)
         self.assert_inheritance(views.RegionListView, views.AdminRequiredMixin)
 
     @tag("region_list", 'list', "access")
@@ -111,9 +112,9 @@ class TestRegionListView(CommonTest):
     @tag("region_list", 'list', "context")
     def test_context(self):
         context_vars = [
-            "title",
-            "field_list",
-            "random_object",
-            "model_name",
+            "section",
+            "division",
+            "branch",
+            "region",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)

@@ -45,8 +45,12 @@ class IndividualTripRequestCreate(CommonTest):
 class TestTripCreateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('travel:trip_new')
+        self.test_url = reverse_lazy('travel:trip_new', kwargs={"type": "upcoming"})
+        self.test_url1 = reverse_lazy('travel:trip_new', kwargs={"region": 1})
+        self.test_url2 = reverse_lazy('travel:trip_new', kwargs={"type": "pop"})
+
         self.expected_template = 'travel/trip_form.html'
+        self.expected_template2 = 'travel/trip_form_popout.html'
 
     @tag("travel", 'create', "view")
     def test_view_class(self):
@@ -55,7 +59,11 @@ class TestTripCreateView(CommonTest):
     @tag("travel", 'create', "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
+        self.assert_not_broken(self.test_url1)
+        self.assert_not_broken(self.test_url2)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template2)
 
     @tag("travel", 'create', "context")
     def test_context(self):
@@ -63,44 +71,15 @@ class TestTripCreateView(CommonTest):
             "help_text_dict",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
+        self.assert_presence_of_context_vars(self.test_url1, context_vars)
+        self.assert_presence_of_context_vars(self.test_url2, context_vars)
 
     @tag("travel", 'create', "submit")
     def test_submit(self):
-        data = FactoryFloor.TripFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data)
+        self.assert_success_url(self.test_url, data=FactoryFloor.TripFactory.get_valid_data())
+        self.assert_success_url(self.test_url1, data=FactoryFloor.TripFactory.get_valid_data())
+        self.assert_success_url(self.test_url2, data=FactoryFloor.TripFactory.get_valid_data())
 
-
-class TestTripCreateViewPopup(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.test_url = reverse_lazy('travel:trip_new', kwargs={"pop": 1})
-        self.expected_template = 'travel/trip_form_popout.html'
-
-    @tag("travel", 'create', "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.TripCreateView, CreateView)
-
-    @tag("travel", 'create', "access")
-    def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
-
-    @tag("travel", 'create', "context")
-    def test_context(self):
-        context_vars = [
-            "help_text_dict",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars)
-
-    @tag("travel", 'create', "submit")
-    def test_submit(self):
-        data = FactoryFloor.TripFactory.get_valid_data()
-        data["name"] = f"A very specific test name {timezone.now()}"
-        self.assert_success_url(self.test_url, data=data)
-        my_new_trip = models.Conference.objects.get(name=data["name"])
-        # A new trip should have a status id of 30; unreviewed, unverified,     
-        self.assertIs(my_new_trip.status_id, 30)
-        # TODO: after a trip has been created, there should be reviewers... should have NCR travel coordinator, ADM reviewer and ADM
 
 class TestDefaultReviewerCreateView(CommonTest):
     def setUp(self):

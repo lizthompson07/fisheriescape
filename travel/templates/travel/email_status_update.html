@@ -13,6 +13,8 @@
 <br><br>
 
 <p>
+    {{ triprequest.user.first_name }},
+    <br><br>
     Your trip request has been
     {% if triprequest.status.id != 11 %}
         {{ triprequest.status.name }}.
