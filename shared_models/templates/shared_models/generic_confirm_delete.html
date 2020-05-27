@@ -1,50 +1,56 @@
-{% extends 'pop_base.html' %}
-
+{% extends "shared_models/generic_form.html" %}
 {% load bootstrap4 %}
 {% load i18n %}
-{% load static %}
 {% load custom_filters %}
-{% block body %}
+{% load custom_tags %}
 
 
-
-    <div class="container">
-
-        {% load static %}
-        {# Load js file to allow for popout window #}
-        <h1>Are you sure you want to delete this {{ model_name }}:</h1>
-            <div class="">
-            <h1>
-                {{ object }}?
-            </h1>
-            </div>
-        <p>(This action is permanent.)</p>
-        <br>
-        <div class="mb-4">
-            <form method="post" class="form">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
-                <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
-            </form>
-        </div>
-
-        <div class="mb-4">
-            <div class="mb-3">
-                <h3 style="font-weight: bold">This {{ model_name }} is related to the following items in the DM Apps database</h3>
-            </div>
-            {% for name in related_names %}
-                <h4>{{ name }}</h4>
-                <ul>
-                    {% for item in related_names|lookup:name %}
-                        <li>{{ item }}</li>
-                    {% empty %}
-                        <em>none :)</em>
-                    {% endfor %}
-                </ul>
-            {% endfor %}
-        </div>
-
-
-    </div>
+{% block pre_form_div %}
 
 {% endblock %}
+
+{% block submit_btn_tip_text %}
+    {% if delete_protection %} {% trans "You cannot delete this object since it has related items." %} {% endif %}
+{% endblock %}
+
+{% block submit_btn_props %}
+    {% if delete_protection %} disabled {% endif %}
+{% endblock %}
+
+{% block submit_btn_class %}
+    btn-danger
+{% endblock %}
+
+
+{% block post_form_div %}
+    {% if related_names|length %}
+        <div class="mt-5">
+            <div class="mb-3">
+                <h3 style="font-weight: bold">
+                    {% blocktrans %}
+                        This {{ model_name }} is related to the following items:
+                    {% endblocktrans %}
+                </h3>
+            </div>
+            {% for dict in related_names %}
+
+
+                <h4>{{ dict.title|title }}</h4>
+                <ul>
+                    {% for obj in dict.qs %}
+                        <li>{{ obj }}</li>
+                    {% empty %}
+                        <em>
+                            {% blocktrans with dict.title as title %}
+                                There are no {{ title }} linked to this item.
+                            {% endblocktrans %}
+                        </em>
+                    {% endfor %}
+                </ul>
+
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{% endblock %}
+
