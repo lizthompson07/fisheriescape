@@ -1,5 +1,6 @@
 from django.urls import reverse_lazy
 from django.test import tag
+from django.utils import timezone
 from django.utils.translation import activate
 from django.views.generic import CreateView, UpdateView, FormView
 
@@ -307,13 +308,20 @@ class TestTripRequestReviewerUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
 
+        # actors
+        self.tr = FactoryFloor.IndividualTripRequestFactory(submitted=timezone.now())
+        self.reviewer1 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role_id=1, order=1)
+        self.reviewer2 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role_id=5, order=2)
+        self.reviewer3 = FactoryFloor.ReviewerFactory(trip_request=self.tr, role_id=6, order=3)
+        # start the review process and get set the first reviewer to "pending"
+        utils.start_review_process(self.tr)
+        utils.approval_seeker(self.tr, supress_email=True)
+        self.test_url1 = reverse_lazy('travel:tr_review_update', kwargs={"pk": self.reviewer1.pk})
+
         # there are two cases we will want to test. 1) an admin coming in to approve on behalf of and 2) a reviewer approving their own record
 
-        self.instance = FactoryFloor.ReviewerFactory()
-        self.user = self.instance.user
+        # 2)
 
-        utils.approval_seeker(self.instance.trip_request)  # this should set the reviewer as the active reviewer
-        self.test_url = reverse_lazy('travel:tr_review_update', kwargs={"pk": self.instance.pk})
         self.expected_template = 'travel/reviewer_approval_form.html'
 
     @tag("tr_reviewer_update", "view")
@@ -323,8 +331,8 @@ class TestTripRequestReviewerUpdateView(CommonTest):
 
     @tag("tr_reviewer_update", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+        self.assert_not_broken(self.test_url1)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.reviewer1.user)
 
     @tag("tr_reviewer_update", "context")
     def test_context(self):
@@ -337,11 +345,40 @@ class TestTripRequestReviewerUpdateView(CommonTest):
             "help_text_dict",
             "report_mode",
         ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+        self.assert_presence_of_context_vars(self.test_url1, context_vars, user=self.reviewer1.user)
 
     @tag("tr_reviewer_update", "submit")
-    def test_submit(self):
-        self.assert_success_url(self.test_url, user=self.user)
+    def test_submit_approve(self):
+        data_approve = {"comments": faker.catch_phrase(), "approved": True}
+        self.assert_success_url(self.test_url1, user=self.reviewer1.user, data=data_approve)
+        # the reviewer's status should now be set to approved
+        rev1 = models.Reviewer.objects.get(pk=self.reviewer1.pk)
+        self.assertEqual(rev1.status_id, 2)
+
+    @tag("tr_reviewer_update", "submit")
+    def test_submit_deny(self):
+        data_deny = {"comments": faker.catch_phrase(), "approved": False}
+        self.assert_success_url(self.test_url1, user=self.reviewer1.user, data=data_deny)
+        # the reviewer's status should now be set to denied
+        rev1 = models.Reviewer.objects.get(pk=self.reviewer1.pk)
+        self.assertEqual(rev1.status_id, 3)
+
+    @tag("tr_reviewer_update", "submit")
+    def test_submit_changes(self):
+        data_request_changes = {"comments": faker.catch_phrase(), "changes_requested": True}
+        self.assert_success_url(self.test_url1, user=self.reviewer1.user, data=data_request_changes)
+        # the reviewer's status should now be set to changes_requested
+        rev1 = models.Reviewer.objects.get(pk=self.reviewer1.pk)
+        self.assertEqual(rev1.status_id, 1)
+        self.assertEqual(rev1.trip_request.status_id, 16)
+
+    @tag("tr_reviewer_update", "submit")
+    def test_submit_save_draft(self):
+        data_stay = {"comments": faker.catch_phrase(), "stay_on_page": True}
+        self.assert_success_url(self.test_url1, user=self.reviewer1.user, data=data_stay)
+        # the reviewer's status should now be set to changes_requested
+        rev1 = models.Reviewer.objects.get(pk=self.reviewer1.pk)
+        self.assertEqual(rev1.status_id, 1)
 
 
 class TestTripReviewerUpdateView(CommonTest):
@@ -355,20 +392,20 @@ class TestTripReviewerUpdateView(CommonTest):
         activate('en')
         # if a user is provided in the arg, log in with that user
         response = self.client.post(self.start_review_url)
-        self.test_url = reverse_lazy('travel:trip_review_update', kwargs={"pk": self.reviewer.pk})
+        self.test_url = reverse_lazy('travel:trip_reviewer_update', kwargs={"pk": self.reviewer.pk})
         self.expected_template = 'travel/trip_reviewer_approval_form.html'
 
-    @tag("trip_review_update", 'type', "view")
+    @tag("trip_reviewer_update", 'type', "view")
     def test_view_class(self):
         self.assert_inheritance(views.TripReviewerUpdateView, CommonUpdateView)
         self.assert_inheritance(views.TripReviewerUpdateView, views.TravelADMAdminRequiredMixin)
 
-    @tag("trip_review_update", 'type', "access")
+    @tag("trip_reviewer_update", 'type', "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("trip_review_update", 'type', "context")
+    @tag("trip_reviewer_update", 'type', "context")
     def test_context(self):
         context_vars = [
             "conf_field_list",
@@ -378,9 +415,23 @@ class TestTripReviewerUpdateView(CommonTest):
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
-    @tag("trip_review_update", 'type', "submit")
+    @tag("trip_reviewer_update", 'type', "submit")
     def test_submit(self):
-        pass
+        data = {"comments": faker.catch_phrase(), }  # for this form, as long as we are not "staying on page" it is considered approved
+        self.assert_success_url(self.test_url, user=self.reviewer.user, data=data)
+        # the reviewer's status should now be set to changes_requested
+        rev1 = models.TripReviewer.objects.get(pk=self.reviewer.pk)
+        self.assertEqual(rev1.status_id, 26)
+
+    @tag("trip_reviewer_update", 'type', "submit")
+    def test_submit_save_only(self):
+        data = {"comments": faker.catch_phrase(),
+                "stay_on_page": True}  # for this form, as long as we are not "staying on page" it is considered approved
+        self.assert_success_url(self.test_url, user=self.reviewer.user, data=data)
+        # the reviewer's status should now be set to changes_requested
+        rev1 = models.TripReviewer.objects.get(pk=self.reviewer.pk)
+        self.assertEqual(rev1.status_id, 25)
+
         # approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
         #     changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
         #     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)

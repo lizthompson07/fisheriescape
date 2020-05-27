@@ -30,23 +30,23 @@ urlpatterns = [
     # REVIEWER APPROVAL
     path('requests/review/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
     path('requests/review/<str:which_ones>/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
-    path('review/<int:pk>/skip/', views.SkipReviewerUpdateView.as_view(), name="reviewer_skip"),
+    # ADMIN APPROVAL LIST (FOR ADM and RDG)
+    path('admin/approval/for/<str:type>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
+    path('admin/approval/for/<str:type>/region/<int:region>/', views.TripRequestAdminApprovalListView.as_view(),
+         name="admin_approval_list"),
+    # path('admin/<int:pk>/approve/', views.TripRequestAdminApproveUpdateView.as_view(), name="admin_approve"),
 
     # this would be for a reviewer, recommender, approver
     path('review/<int:pk>/approve/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
     # This would be for an admin
     path('review/<int:pk>/approve/for/<str:type>/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
 
-    # ADMIN APPROVAL
-    path('admin/approval/for/<str:type>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
-    path('admin/approval/for/<str:type>/region/<int:region>/', views.TripRequestAdminApprovalListView.as_view(),
-         name="admin_approval_list"),
-    # path('admin/<int:pk>/approve/', views.TripRequestAdminApproveUpdateView.as_view(), name="admin_approve"),
 
     # TRIP REQUEST REVIEWERS
     path('request/<int:triprequest>/reset-reviewers/', views.reset_reviewers, name="reset_tr_reviewers"),
     path('request/<int:triprequest>/manage-reviewers/', views.manage_reviewers, name="manage_tr_reviewers"),
-    path('trip-request-reviewer/<int:triprequest>/delete/', views.delete_reviewer, name="delete_tr_reviewer"),
+    path('trip-request-reviewer/<int:pk>/delete/', views.TripRequestReviewerHardDeleteView.as_view(), name="delete_tr_reviewer"),
+    path('trip-request-reviewer/<int:pk>/skip/', views.SkipReviewerUpdateView.as_view(), name="skip_tr_reviewer"),
 
     # TRIP #
     ########
@@ -82,13 +82,13 @@ urlpatterns = [
     # TRIP REVIEWERS
     path('trip/<int:trip>/reset-reviewers/', views.reset_reviewers, name="reset_trip_reviewers"),
     path('trip/<int:trip>/manage-reviewers/', views.manage_reviewers, name="manage_trip_reviewers"),
-    path('trip-reviewer/<int:trip>/delete/', views.delete_reviewer, name="delete_trip_reviewer"),
+    path('trip-reviewer/<int:pk>/delete/', views.TripReviewerHardDeleteView.as_view(), name="delete_trip_reviewer"),
 
 
     # REVIEWER APPROVAL
     path('trips-for-your-review/<str:which_ones>/', views.TripReviewListView.as_view(), name="trip_review_list"),
     path('tagged-trips/', views.TripReviewListView.as_view(), name="trip_review_list"),
-    path('trip-reviewer/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_review_update"),
+    path('trip-reviewer/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_reviewer_update"),
     path('trip/<int:pk>/skip/', views.SkipTripReviewerUpdateView.as_view(), name="trip_skip"),
 
 
