@@ -149,6 +149,9 @@ class Conference(models.Model):
     review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
     adm_review_deadline = models.DateTimeField(verbose_name=_("ADM Office review deadline"), blank=True, null=True)
     date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"), blank=True, null=True)
+    last_modified = models.DateTimeField(verbose_name=_("last modified"), auto_now=True, editable=False)
+    last_modified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trips_last_modified_by",
+                                         verbose_name=_("last_modified_by"), blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -207,7 +210,7 @@ class Conference(models.Model):
             "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
-            reverse("travel:trip_detail", kwargs={"pk": self.id, "type":"pop"}),
+            reverse("travel:trip_detail", kwargs={"pk": self.id, "type": "verify"}),
         )
 
         return mark_safe(my_str)

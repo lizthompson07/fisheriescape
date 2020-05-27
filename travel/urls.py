@@ -33,9 +33,9 @@ urlpatterns = [
     path('review/<int:pk>/skip/', views.SkipReviewerUpdateView.as_view(), name="reviewer_skip"),
 
     # this would be for a reviewer, recommender, approver
-    path('review/<int:pk>/approve/', views.ReviewerApproveUpdateView.as_view(), name="review_approve"),
+    path('review/<int:pk>/approve/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
     # This would be for an admin
-    path('review/<int:pk>/approve/for/<str:type>/', views.ReviewerApproveUpdateView.as_view(), name="review_approve"),
+    path('review/<int:pk>/approve/for/<str:type>/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
 
     # ADMIN APPROVAL
     path('admin/approval/for/<str:type>/', views.TripRequestAdminApprovalListView.as_view(), name="admin_approval_list"),
@@ -69,7 +69,7 @@ urlpatterns = [
     path('trip/<int:pk>/delete/<str:type>/', views.TripDeleteView.as_view(), name="trip_delete"),
     path('trip/<int:pk>/delete/region/<int:region>/', views.TripDeleteView.as_view(), name="trip_delete"),
 
-    # admin
+    # verification / other admin views
     path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
     path('trip/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
     path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.AdminTripVerificationListView.as_view(),
@@ -113,6 +113,8 @@ urlpatterns = [
     # path('settings/njc-rate/<int:pk>/delete/', views.NJCRatesHardDeleteView.as_view(), name="delete_njc_rate"),
     path('settings/trip-subcategories/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),
     path('settings/trip-subcategory/<int:pk>/delete/', views.TripSubcategoryHardDeleteView.as_view(), name="delete_trip_subcategory"),
+    path('settings/trip-reasons/', views.ReasonFormsetView.as_view(), name="manage_reasons"),
+    path('settings/trip-reasons/<int:pk>/delete/', views.ReasonHardDeleteView.as_view(), name="delete_reason"),
 
     # default reviewer settings
     path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),

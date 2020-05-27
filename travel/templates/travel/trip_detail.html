@@ -37,6 +37,16 @@
             font-weight: bold;
         }
     </style>
+    <div class="mb-3">
+        {# ADM Admin stuff #}
+        {% if is_adm_admin and object.is_adm_approval_required and object.status.id == 30 %} {# disabled for everyone #}
+            <h4 class="red-font">
+                {% trans "This trip must be verified before a review can be started." %}
+                <a class="btn btn-sm btn-primary py-0"
+                   href="{% url 'travel:trip_verify' object.id 0 1 %}">{% trans "Verify the Trip Now" %}</a>
+            </h4>
+        {% endif %}
+    </div>
 
 
     <div class="mb-5">
@@ -107,6 +117,8 @@
             </span>
         </div>
     </div>
+
+
 
     {# Trip detail #}
 

@@ -174,7 +174,7 @@ def end_trip_review_process(trip):
         reviewer.save()
 
 
-def set_request_status(trip_request):
+def __set_request_status__(trip_request):
     """
     IF POSSIBLE, THIS SHOULD ONLY BE CALLED BY THE approval_seeker() function.
     This will look at the reviewers and decide on  what the project status should be. Will return False if trip_request is denied or if trip_request is not submitted
@@ -195,13 +195,15 @@ def set_request_status(trip_request):
         # if someone denied it at any point, the trip_request is 'denied' and all subsequent reviewers are set to "cancelled"
         is_denied = False
         for reviewer in trip_request.reviewers.all():
-            # if reviewer status is denied, set the is_denied var to true
-            if reviewer.status_id == 3:
-                is_denied = True
             # if is_denied, all subsequent reviewer statuses should be set to "cancelled"
             if is_denied:
                 reviewer.status_id = 5
                 reviewer.save()
+
+            # if reviewer status is denied, set the is_denied var to true
+            if reviewer.status_id == 3:
+                is_denied = True
+
         if is_denied:
             trip_request.status_id = 10
             trip_request.save()
@@ -264,12 +266,12 @@ def set_request_status(trip_request):
 def approval_seeker(trip_request):
     """
     This method is meant to seek approvals via email + set reveiwer statuses.
-    It will also set the trip_request status vis a vis set_request_status()
+    It will also set the trip_request status vis a vis __set_request_status__()
 
     """
 
     # start by setting the trip_request status... if the trip_request is "denied" OR "draft" or "approved", do not continue
-    if set_request_status(trip_request):
+    if __set_request_status__(trip_request):
         next_reviewer = None
         email = None
         for reviewer in trip_request.reviewers.all():
@@ -305,7 +307,7 @@ def approval_seeker(trip_request):
                 )
 
             # Then, lets set the trip_request status again to account for the fact that something happened
-            set_request_status(trip_request)
+            __set_request_status__(trip_request)
 
 
 def populate_trip_request_costs(request, trip_request):
@@ -412,8 +414,7 @@ def __set_trip_status__(trip):
 
 def trip_approval_seeker(trip):
     """
-    This method is meant to seek approvals via email + set reveiwer statuses.
-    It will also set the trip_request status vis a vis set_request_status()
+    This method is meant to seek approvals via email + set reviewer statuses.
     """
 
     # start by setting the trip status... if the trip_request is "denied" OR "draft" or "approved", do not continue

@@ -89,9 +89,9 @@
                         {% for object in object_list %}
 
                             {% if awaiting %}
-                                {% url 'travel:review_approve' object.current_reviewer.id as my_url %}
+                                {% url 'travel:tr_review_update' object.current_reviewer.id as my_url %}
                             {% elif admin %}
-                                {% url 'travel:review_approve' object.current_reviewer.id view.kwargs.type as my_url %}
+                                {% url 'travel:tr_review_update' object.current_reviewer.id view.kwargs.type as my_url %}
                             {% else %}
                                 {% url 'travel:request_detail' object.id as my_url %}
                             {% endif %}
