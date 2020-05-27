@@ -1,7 +1,7 @@
 from abc import ABC
 
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy, gettext
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -54,13 +54,13 @@ class CommonCreateView(CommonFormMixin, CreateView):
         if self.h1:
             return self.h1
         else:
-            return _("New {}".format(self.model._meta.verbose_name.title()))
+            return gettext("New {}".format(self.model._meta.verbose_name.title()))
 
     def get_submit_text(self):
         if self.submit_text:
             return self.submit_text
         else:
-            return _("Add")
+            return gettext("Add")
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
@@ -95,13 +95,13 @@ class CommonUpdateView(CommonFormMixin, UpdateView):
         if self.h1:
             return self.h1
         else:
-            return _("Edit")
+            return gettext("Edit")
 
     def get_submit_text(self):
         if self.submit_text:
             return self.submit_text
         else:
-            return _("Save")
+            return gettext("Save")
 
     # default template to use to update an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
@@ -144,7 +144,7 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
         if self.h1:
             return self.h1
         else:
-            return _("Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
+            return gettext("Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
                 self.model._meta.verbose_name,
                 self.get_object(),
             ))
@@ -153,7 +153,7 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
         if self.submit_text:
             return self.submit_text
         else:
-            return _("Delete")
+            return gettext("Delete")
 
     def get_related_names(self):
         """if a related_names list was provided, this will turn the simple list into a more complex list that is ready for template digestion"""
@@ -207,7 +207,7 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
         if self.active_page_name_crumb:
             return self.active_page_name_crumb
         else:
-            return _("Delete Confirmation")
+            return gettext("Delete Confirmation")
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
@@ -407,10 +407,10 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
     template_name = 'shared_models/org_index.html'
-    h1 = "<span class='red-font'><span class='font-weight-bold'>{}:</span> {}</span>".format(_("Warning"), _(
+    h1 = "<span class='red-font'><span class='font-weight-bold'>{}:</span> {}</span>".format(gettext_lazy("Warning"), gettext_lazy(
         "These are shared tables for all of DM Apps."))
-    h2 = _("Please be careful when editing.")
-    active_page_name_crumb = _("DM Apps Shared Settings")
+    h2 = gettext_lazy("Please be careful when editing.")
+    active_page_name_crumb = gettext_lazy("DM Apps Shared Settings")
 
 
 # SECTION #
@@ -423,13 +423,13 @@ class SectionListView(AdminRequiredMixin, CommonListView):
         {"name": "region", },
         {"name": "branch", },
         {"name": "division", },
-        {"name": "tname|{}".format(_("section")), },
+        {"name": "tname|{}".format(gettext_lazy("section")), },
         {"name": "abbrev", },
         {"name": "head", },
         {"name": "date_last_modified", },
         {"name": "last_modified_by", },
     ]
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     home_url_name = "shared_models:index"
     row_object_url_name = "shared_models:section_edit"
     new_object_url_name = "shared_models:section_new"
@@ -448,7 +448,7 @@ class SectionUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Section
     template_name = 'shared_models/org_form.html'
     form_class = forms.SectionForm
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:section_list")}
 
     def get_context_data(self, **kwargs):
@@ -464,7 +464,7 @@ class SectionCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Section
     template_name = 'shared_models/generic_form.html'
     form_class = forms.SectionForm
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:section_list")}
 
     def get_initial(self):
@@ -475,7 +475,7 @@ class SectionDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Section
     success_url = reverse_lazy('shared_models:section_list')
     template_name = 'shared_models/generic_confirm_delete.html'
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:section_list")}
 
     def get_parent_crumb(self):
@@ -493,13 +493,13 @@ class DivisionListView(AdminRequiredMixin, CommonListView):
     field_list = [
         {"name": "region", },
         {"name": "branch", },
-        {"name": "tname|{}".format(_("division")), },
+        {"name": "tname|{}".format(gettext_lazy("division")), },
         {"name": "abbrev", },
         {"name": "head", },
         {"name": "date_last_modified", },
         {"name": "last_modified_by", },
     ]
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     home_url_name = "shared_models:index"
     row_object_url_name = "shared_models:division_edit"
     new_object_url_name = "shared_models:division_new"
@@ -518,7 +518,7 @@ class DivisionUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Division
     template_name = 'shared_models/org_form.html'
     form_class = forms.DivisionForm
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:division_list")}
 
     def get_context_data(self, **kwargs):
@@ -534,7 +534,7 @@ class DivisionCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Division
     template_name = 'shared_models/generic_form.html'
     form_class = forms.DivisionForm
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:division_list")}
 
     def get_initial(self):
@@ -545,7 +545,7 @@ class DivisionDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Division
     success_url = reverse_lazy('shared_models:division_list')
     template_name = 'shared_models/generic_confirm_delete.html'
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:division_list")}
 
     def get_parent_crumb(self):
@@ -562,13 +562,13 @@ class BranchListView(AdminRequiredMixin, CommonListView):
     template_name = 'shared_models/org_list.html'
     field_list = [
         {"name": "region", },
-        {"name": "tname|{}".format(_("branch")), },
+        {"name": "tname|{}".format(gettext_lazy("branch")), },
         {"name": "abbrev", },
         {"name": "head", },
         {"name": "date_last_modified", },
         {"name": "last_modified_by", },
     ]
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     home_url_name = "shared_models:index"
     row_object_url_name = "shared_models:branch_edit"
     new_object_url_name = "shared_models:branch_new"
@@ -587,7 +587,7 @@ class BranchUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Branch
     template_name = 'shared_models/org_form.html'
     form_class = forms.BranchForm
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
     def get_context_data(self, **kwargs):
@@ -603,7 +603,7 @@ class BranchCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Branch
     template_name = 'shared_models/generic_form.html'
     form_class = forms.BranchForm
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
     def get_initial(self):
@@ -614,7 +614,7 @@ class BranchDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Branch
     success_url = reverse_lazy('shared_models:branch_list')
     template_name = 'shared_models/generic_confirm_delete.html'
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
     def get_parent_crumb(self):
@@ -631,13 +631,13 @@ class RegionListView(AdminRequiredMixin, CommonListView):
     template_name = 'shared_models/org_list.html'
     field_list = [
         {"name": "region", },
-        {"name": "tname|{}".format(_("branch")), },
+        {"name": "tname|{}".format(gettext_lazy("branch")), },
         {"name": "abbrev", },
         {"name": "head", },
         {"name": "date_last_modified", },
         {"name": "last_modified_by", },
     ]
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     home_url_name = "shared_models:index"
     row_object_url_name = "shared_models:branch_edit"
     new_object_url_name = "shared_models:branch_new"
@@ -656,7 +656,7 @@ class RegionUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Region
     template_name = 'shared_models/org_form.html'
     form_class = forms.RegionForm
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
     def get_context_data(self, **kwargs):
@@ -672,7 +672,7 @@ class RegionCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Region
     template_name = 'shared_models/generic_form.html'
     form_class = forms.RegionForm
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
     def get_initial(self):
@@ -683,7 +683,7 @@ class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Region
     success_url = reverse_lazy('shared_models:branch_list')
     template_name = 'shared_models/generic_confirm_delete.html'
-    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
     def get_parent_crumb(self):

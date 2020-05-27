@@ -19,7 +19,7 @@ from dm_apps.utils import custom_send_mail
 from django.db.models import Sum, Q, Value, TextField
 from django.shortcuts import render
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse, HttpResponseForbidden
 from django.urls import reverse_lazy, reverse
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView, FormView
@@ -194,7 +194,7 @@ class TravelAccessRequiredMixin(LoginRequiredMixin):
 
 class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
     template_name = 'travel/index.html'
-    active_page_name_crumb = _("Home")
+    active_page_name_crumb = gettext_lazy("Home")
     h1 = " "
 
     def get_context_data(self, **kwargs):
@@ -406,7 +406,7 @@ def get_help_text_dict():
 class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
     filterset_class = filters.TripRequestFilter
     template_name = 'travel/trip_request_list.html'
-    subtitle = _("Trip Requests")
+    subtitle = gettext_lazy("Trip Requests")
     home_url_name = "travel:index"
     paginate_by = 25
     container_class = "container-fluid"
@@ -420,12 +420,12 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
         {"name": 'fiscal_year', "width": "75px"},
         {"name": 'is_group_request|Type', },
         {"name": 'status', "width": "150px"},
-        {"name": 'section|{}'.format(_("DFO section")), },
-        {"name": 'requester_name|{}'.format(_("Requester name")), },
+        {"name": 'section|{}'.format(gettext_lazy("DFO section")), },
+        {"name": 'requester_name|{}'.format(gettext_lazy("Requester name")), },
         {"name": 'trip.tname', "width": "400px"},
-        {"name": 'destination|{}'.format(_("Destination")), },
-        {"name": 'start_date|{}'.format(_("Departure date")), },
-        {"name": 'processing_time|{}'.format(_("Processing time")), },
+        {"name": 'destination|{}'.format(gettext_lazy("Destination")), },
+        {"name": 'start_date|{}'.format(gettext_lazy("Departure date")), },
+        {"name": 'processing_time|{}'.format(gettext_lazy("Processing time")), },
         {"name": 'created_by', },
     ]
 
@@ -614,10 +614,29 @@ class TripRequestUpdateView(CanModifyMixin, UpdateView):
         return context
 
 
-class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
+class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
     model = models.Reviewer
     form_class = forms.ReviewerApprovalForm
     template_name = 'travel/reviewer_approval_form.html'
+    home_url_name = "travel:index"
+    def get_h1(self):
+        if self.get_object().role_id in [5, 6, ]:
+            return _("Do you wish to approve on behalf of {user} ({role})".format(
+                user=self.get_object().trip_request.current_reviewer.user,
+                role=self.get_object().trip_request.current_reviewer.role,
+            ))
+        else:
+            return _("Do you wish to approve the following request?")
+
+    def get_parent_crumb(self):
+        role = self.get_object().role
+        if role.id in [5, 6, ]:
+            txt = _("Admin Request Approval List") + f' ({self.get_object().role})'
+            kwargs = {"type": self.get_object().role.name.lower(), "region": self.get_object().trip_request.section.division.branch.region.id}
+            return {"title": txt, "url": reverse("travel:admin_approval_list", kwargs=kwargs)}
+        else:
+            return {"title": _("Requests Awaiting Your Review"),
+                    "url": reverse("travel:request_review_list", kwargs={"which_ones": "awaiting"})}
 
     def test_func(self):
         my_trip_request = self.get_object().trip_request
@@ -683,14 +702,11 @@ class ReviewerApproveUpdateView(AdminOrApproverRequiredMixin, UpdateView):
         utils.approval_seeker(my_reviewer.trip_request)
 
         if stay_on_page:
-            my_kwargs = {"pk": my_reviewer.id}
-            # if this is an adm or rdg review, we have to pass the type into the url.
-            if my_reviewer.role_id in [5, 6, ]:
-                my_kwargs.update({"type": self.kwargs.get("type")})
-            return HttpResponseRedirect(reverse("travel:review_approve", kwargs=my_kwargs))
+            return HttpResponseRedirect(reverse("travel:tr_review_update", kwargs=self.kwargs))
         else:
-            # This means that they have approved or did not approve...
-            return HttpResponseRedirect(reverse("travel:request_review_list", kwargs={"which_ones": "awaiting"}))
+            # the answer lies in the parent crumb...
+            parent_crumb_url = self.get_parent_crumb().get("url")
+            return HttpResponseRedirect(parent_crumb_url)
 
 
 class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
@@ -727,47 +743,44 @@ class SkipReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
-class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
+class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
     model = models.TripRequest
     form_class = forms.TripRequestApprovalForm
     template_name = 'travel/trip_request_submission_form.html'
+    submit_text = gettext_lazy("Proceed")
+    home_url_name = "travel:index"
+
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        if my_object.submitted:
+            return _("Un-submit request")
+        else:
+            return _("Re-submit request") if my_object.status_id == "16" else _("Submit request")
+
+    def get_h1(self):
+        my_object = self.get_object()
+        if my_object.submitted:
+            return _("Do you wish to un-submit the following request?")
+        else:
+            return _("Do you wish to re-submit the following request?") if my_object.status_id == 16 else _(
+                "Do you wish to submit the following request?")
+
+    def get_h2(self):
+        my_object = self.get_object()
+        if my_object.submitted:
+            return '<span class="red-font">WARNING: Un-submitting this request will reset the' \
+                   ' status of any exisitng recommendations and/or approvals.</span>'
 
     def test_func(self):
         # This view is a little different. A trip owner should always be allowed to unsubmit
         return can_modify_request(self.request.user, self.kwargs.get("pk"), True)
 
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("travel:request_detail", kwargs=self.kwargs)}
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        my_object = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
-
-        if my_object.submitted:
-            active_crumb = _("Un-submit request")
-            h1 = _("Do you wish to un-submit the following request?")
-            h2 = '<span class="red-font">WARNING: Un-submitting this request will reset the' \
-                 ' status of any exisitng recommendations and/or approvals.</span>'
-        else:
-            active_crumb = _("Re-submit request") if my_object.status_id == "16" else _("Submit request")
-            h1 = _("Do you wish to re-submit the following request?") if my_object.status_id == "16" else _(
-                "Do you wish to submit the following request?")
-            h2 = None
-
-        context["submit_text"] = _("Submit")
-        context["cancel_text"] = _("Cancel")
-
-        context["h1"] = h1
-        context["h2"] = h2
-
-        context["subtitle"] = active_crumb
-        context["back_url"] = reverse("travel:request_detail", kwargs={"pk": my_object.id})
-        context["crumbs"] = [
-            {"title": _("Home"), "url": reverse("travel:index")},
-            {"title": _("Trip Requests"), "url": reverse("travel:request_list")},
-            {"title": str(my_object), "url": context["back_url"]},
-            {"title": active_crumb}
-        ]
-
-        context["object"] = my_object
+        my_object = self.get_object()
         context["triprequest"] = my_object
         context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
         context["child_field_list"] = request_child_field_list
@@ -776,54 +789,53 @@ class TripRequestSubmitUpdateView(CanModifyMixin, FormView):
         context["cost_field_list"] = cost_field_list
         context['help_text_dict'] = get_help_text_dict()
         context["report_mode"] = True
-
         return context
 
     def form_valid(self, form):
-        my_trip_request = models.TripRequest.objects.get(pk=self.kwargs.get("pk"))
+        my_object = form.save(commit=False)  # There is nothing really to save here. I am just using the machinery of UpdateView (djf)
         # figure out the current state of the request
-        is_submitted = True if my_trip_request.submitted else False
+        is_submitted = True if my_object.submitted else False
 
         # if submitted, then unsumbit but only if admin or owner
         if is_submitted:
             #  UNSUBMIT REQUEST
-            if in_travel_admin_group(self.request.user) or my_trip_request.user == self.request.user:
-                my_trip_request.submitted = None
-                my_trip_request.status_id = 8
-                my_trip_request.save()
+            if in_travel_admin_group(self.request.user) or my_object.user == self.request.user:
+                my_object.submitted = None
+                my_object.status_id = 8
+                my_object.save()
                 # reset all the reviewer statuses
-                utils.end_review_process(my_trip_request)
+                utils.end_review_process(my_object)
             else:
                 messages.error(self.request, "sorry, only admins or owners can unsubmit requests")
         else:
-            if my_trip_request.trip.status_id != 30 and my_trip_request.trip.status_id != 41:
+            if my_object.trip.status_id != 30 and my_object.trip.status_id != 41:
                 messages.error(self.request, "sorry, the trip you are requesting to attend is not accepting additional requests.")
             else:
 
                 #  SUBMIT REQUEST
-                my_trip_request.submitted = timezone.now()
+                my_object.submitted = timezone.now()
                 # if there is not an original submission date, add one
-                if not my_trip_request.original_submission_date:
-                    my_trip_request.original_submission_date = timezone.now()
+                if not my_object.original_submission_date:
+                    my_object.original_submission_date = timezone.now()
                 # if the request is being resubmitted, this is a special case...
-                if my_trip_request.status_id == 16:
-                    my_trip_request.status_id = 8
-                    my_trip_request.save()
+                if my_object.status_id == 16:
+                    my_object.status_id = 8  # it doesn't really matter what we set the status to. The approval_seeker func will handle this
+                    my_object.save()
                 else:
                     # set all the reviewer statuses to 'queued'
-                    utils.start_review_process(my_trip_request)
+                    utils.start_review_process(my_object)
                     # go and get approvals!!
 
         # No matter what business was done, we will call this function to sort through reviewer and request statuses
-        utils.approval_seeker(my_trip_request)
-        my_trip_request.save()
+        utils.approval_seeker(my_object)
+        my_object.save()
 
         # clean up any unused cost categories
-        utils.clear_empty_trip_request_costs(my_trip_request)
-        for child in my_trip_request.children_requests.all():
+        utils.clear_empty_trip_request_costs(my_object)
+        for child in my_object.children_requests.all():
             utils.clear_empty_trip_request_costs(child)
 
-        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_object.id}))
 
 
 class TripRequestCancelUpdateView(TravelAdminRequiredMixin, UpdateView):
@@ -1536,48 +1548,45 @@ class TripDeleteView(TravelAdminRequiredMixin, CommonDeleteView):
         return success_url
 
 
-class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, FormView):
+class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     model = models.Conference
-    form_class = forms.TripRequestApprovalForm
+    form_class = forms.TripTimestampUpdateForm
     template_name = 'travel/trip_review_process_form.html'
+    submit_text = _("Proceed")
+
+    def test_func(self):
+        # make sure that this page can only be accessed for active trips (exclude those already reviewed and those canceled)
+        return in_adm_admin_group(self.request.user) and not self.get_object().status_id in [32, 43]
+
+    def get_h1(self):
+        if self.get_object().status_id in [30, 41]:
+            return _("Do you wish to start a review on the following trip?")
+        else:
+            return _("Do you wish to end a review on the following trip?")
+
+    def get_h2(self):
+        if self.get_object().status_id in [30, 41]:
+            return '<span class="blue-font">WARNING: starting a review on this trip will prevent any additional' \
+                   ' travellers from adding themselves to it.</span>'
+        else:
+            return '<span class="red-font">WARNING: stopping the review on this trip will reset the' \
+                   ' status of any exisitng recommendations and/or approvals.</span>'
+
+    def get_subtitle(self):
+        return _("Start a Review") if self.get_object().status_id in [30, 41] else _("End a Review")
+
+    # def get_parent_crumb(self):
+    #     return {"title":str(self.get_object()), "url": reverse("travel:trip_detail", kwargs=self.kwargs)}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_object = models.Conference.objects.get(pk=self.kwargs.get("pk"))
-
-        if my_object.status_id in [30, 41]:
-            active_crumb = _("Start a Review")
-            h1 = _("Do you wish to start a review on the following trip?")
-            h2 = '<span class="blue-font">WARNING: starting a review on this trip will prevent any additional' \
-                 ' travellers from adding themselves to it.</span>'
-        else:
-            active_crumb = _("End a Review")
-            h1 = _("Do you wish to end a review on the following trip?")
-            h2 = '<span class="red-font">WARNING: stopping the review on this trip will reset the' \
-                 ' status of any exisitng recommendations and/or approvals.</span>'
-
-        context["h1"] = h1
-        context["h2"] = h2
-
-        context["subtitle"] = active_crumb
-        context["back_url"] = reverse("travel:trip_detail", kwargs={"pk": my_object.id})
-        context["crumbs"] = [
-            {"title": _("Home"), "url": reverse("travel:index")},
-            {"title": _("Trips"), "url": reverse("travel:trip_list")},
-            {"title": str(my_object), "url": context["back_url"]},
-            {"title": active_crumb}
-        ]
-
-        context["trip"] = my_object
+        context["trip"] = self.get_object()
         context["conf_field_list"] = conf_field_list
         context['help_text_dict'] = get_help_text_dict()
-        context["submit_text"] = _("Yes")
-        context["cancel_text"] = _("Cancel")
-
         return context
 
     def form_valid(self, form):
-        my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
+        my_trip = form.save()
         # figure out the current state of the request
         is_under_review = False if my_trip.status_id in [30, 41] else True
 
@@ -1625,10 +1634,17 @@ class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
         return context
 
 
-class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
+class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
     template_name = 'travel/trip_verification_form.html'
     model = models.Conference
     form_class = forms.TripRequestApprovalForm
+    home_url_name = "travel:index"
+    h1 = gettext_lazy("Verify Trip")
+
+    def get_parent_crumb(self):
+        my_kwargs = deepcopy(self.kwargs)
+        del my_kwargs["pk"]
+        return {"title": _("Trips Awaiting Verfication"), "url": reverse_lazy("travel:admin_trip_verification_list", kwargs=my_kwargs)}
 
     def test_func(self):
         my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
@@ -1649,6 +1665,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, FormView):
         my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
         context["object"] = my_trip
         context["conf_field_list"] = conf_field_list
+        context["trip_subcategories"] = models.TripSubcategory.objects.all()
 
         base_qs = models.Conference.objects.filter(~Q(id=my_trip.id)).filter(fiscal_year=my_trip.fiscal_year)
 
@@ -2244,6 +2261,21 @@ class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
 class TripSubcategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.TripSubcategory
     success_url = reverse_lazy("travel:manage_trip_subcategories")
+
+
+class ReasonFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+    template_name = 'travel/formset.html'
+    h1 = "Manage Trip Reasons"
+    queryset = models.Reason.objects.all()
+    formset_class = forms.ReasonFormset
+    success_url = reverse_lazy("travel:manage_reasons")
+    home_url_name = "travel:index"
+    delete_url_name = "travel:delete_reason"
+
+
+class ReasonHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Reason
+    success_url = reverse_lazy("travel:manage_reasons")
 
 
 # Default Reviewer Settings
