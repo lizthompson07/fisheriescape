@@ -229,9 +229,6 @@ class CommonPopoutUpdateView(CommonPopoutFormMixin, UpdateView):
 
 
 class CommonFilterView(FilterView, CommonListMixin):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
-
     # default template to use to update an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
     template_name = 'shared_models/shared_filter.html'
@@ -264,12 +261,9 @@ class CommonAuthFilterView(UserPassesTestMixin, CommonFilterView):
 
 
 class CommonListView(ListView, CommonListMixin):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
-
     # default template to use to update an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
-    template_name = 'shared_models/shared_entry_form.html'
+    template_name = 'shared_models/generic_filter.html'
 
     def get_h1(self):
         # take a stab at getting the h1
