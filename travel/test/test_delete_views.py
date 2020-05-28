@@ -15,8 +15,8 @@ class IndividualTripRequestDelete(CommonTest):
         super().setUp()
         self.tr = FactoryFloor.IndividualTripRequestFactory()
         self.tr1 = FactoryFloor.ChildTripRequestFactory()
-        self.test_url = reverse_lazy('travel:request_delete', args={self.tr.pk, "my"})
-        self.test_url1 = reverse_lazy('travel:request_delete', args={self.tr1.pk, "pop"})
+        self.test_url = reverse_lazy('travel:request_delete', args=(self.tr.pk, "my"))
+        self.test_url1 = reverse_lazy('travel:request_delete', args=(self.tr1.pk, "pop"))
         self.expected_template = 'travel/confirm_delete.html'
         self.expected_template1 = 'shared_models/generic_popout_form.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")

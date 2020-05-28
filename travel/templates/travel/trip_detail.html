@@ -58,6 +58,14 @@
                 {% trans "Administrative Notes" %}
             </a>
         {% endif %}
+
+        {# all admins can modify trip detail #}
+        {% if is_admin %}
+            <a class="btn btn-admin" href="{% url 'travel:trip_edit' object.id view.kwargs.type %}">
+                {% trans "Edit" %}
+            </a>
+        {% endif %}
+
         {% if is_adm_admin %}
             {% if object.status.id != 43 and object.status.id != 32 and object.is_adm_approval_required %}
 
@@ -69,7 +77,7 @@
                     {% endif %}
 
                     {% if object.status.id == 30 or object.status.id == 41 %}
-                        {% echo "admin" as review_btn_color %}
+                        {% echo "success" as review_btn_color %}
                         {% trans "Start a Review for this trip" as review_btn_text %}
                     {% else %}
                         {% echo "danger" as review_btn_color %}
@@ -78,7 +86,7 @@
                 {% endif %}
 
                 <span data-toggle="tooltip" title="{{ review_tip_text }}">
-                        <a class="btn btn-{{ review_btn_text }} {{ review_disabled_var }}"
+                        <a class="btn btn-{{ review_btn_color }} {{ review_disabled_var }}"
                            href="{% url 'travel:trip_review_toggle' object.id %}">{{ review_btn_text }}</a>
                         </span>
             {% endif %}
@@ -91,12 +99,7 @@
             </a>
         {% endif %}
 
-        {# all admins can modify trip detail #}
-        {% if is_admin %}
-            <a class="btn btn-admin" href="{% url 'travel:trip_edit' object.id view.kwargs.type %}">
-                {% trans "Edit" %}
-            </a>
-        {% endif %}
+
 
 
         {% if object.trip_requests.count %}

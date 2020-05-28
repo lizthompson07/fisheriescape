@@ -167,7 +167,7 @@ class TestTripRequestSubmitUpdateView(CommonTest):
         self.reviewer = FactoryFloor.ReviewerFactory()
         self.instance = self.reviewer.trip_request
         self.user = self.instance.user
-        self.test_url = reverse_lazy('travel:request_submit', args={self.instance.pk, "my"})
+        self.test_url = reverse_lazy('travel:request_submit', args=(self.instance.pk, "my"))
         self.expected_template = 'travel/trip_request_submission_form.html'
 
     @tag("request_submit", "view")
