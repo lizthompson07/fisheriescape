@@ -967,9 +967,30 @@ class TripRequestAdminNotesUpdateView(TravelAdminRequiredMixin, CommonPopoutUpda
 #########################
 
 
-class TripRequestReviewListView(TravelAccessRequiredMixin, ListView):
+class TripRequestReviewListView(TravelAccessRequiredMixin, CommonListView):
     model = models.TripRequest
     template_name = 'travel/trip_request_review_list.html'
+    home_url_name = "travel:index"
+    field_list = [
+        {"name": 'status_string|{}'.format(_("Request status")), "class": "", "width": ""},
+        {"name": 'is_group_request|type', "class": "", "width": ""},
+        {"name": 'first_name', "class": "", "width": ""},
+        {"name": 'last_name', "class": "", "width": ""},
+        {"name": 'trip', "class": "", "width": ""},
+        {"name": 'destination', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'end_date', "class": "", "width": ""},
+        {"name": 'total_request_cost|{}'.format(_("Total cost (DFO)")), "class": "", "width": ""},
+    ]
+
+
+
+
+    def get_h1(self):
+        if self.kwargs.get("type") == "awaiting":
+            return _("Requests Awaiting Your Review")
+        else:
+            return _("Requests Assigned to You for Review")
 
     def get_queryset(self):
         if self.kwargs.get("which_ones") == "awaiting":
@@ -981,25 +1002,27 @@ class TripRequestReviewListView(TravelAccessRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.TripRequest.objects.first()
         context["awaiting"] = True if self.kwargs.get("which_ones") else False
-        context["field_list"] = [
-            'status_string|{}'.format(_("Request status")),
-            'is_group_request',
-            'first_name',
-            'last_name',
-            'trip',
-            'destination',
-            'start_date',
-            'end_date',
-            'total_request_cost|{}'.format(_("Total cost (DFO)")),
-        ]
         return context
 
 
-class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
+class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, CommonListView):
     model = models.TripRequest
     template_name = 'travel/trip_request_review_list.html'
+    home_url_name = "travel:index"
+    field_list = [
+        {"name": 'is_group_request', "class": "", "width": ""},
+        {"name": 'first_name', "class": "", "width": ""},
+        {"name": 'last_name', "class": "", "width": ""},
+        {"name": 'trip', "class": "", "width": ""},
+        {"name": 'destination', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'end_date', "class": "", "width": ""},
+        {"name": 'total_request_cost|{}'.format(_("Total cost (DFO)")), "class": "", "width": ""},
+    ]
+
+    def get_h1(self):
+        return _("Admin Request Approval List") + ' ({})'.format(_(self.kwargs.get("type")).upper())
 
     def get_queryset(self):
         # return a list only of those awaiting ADM or RDG approval
@@ -1015,20 +1038,10 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.TripRequest.objects.first()
+        # context["random_object"] = models.TripRequest.objects.first()
         context["admin"] = True
         context["type_bilingual"] = _(self.kwargs.get("type")).upper()
 
-        context["field_list"] = [
-            'is_group_request',
-            'first_name',
-            'last_name',
-            'trip',
-            'destination',
-            'start_date',
-            'end_date',
-            'total_request_cost|{}'.format(_("Total cost (DFO)")),
-        ]
         return context
 
 

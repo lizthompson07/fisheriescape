@@ -125,6 +125,7 @@
                     </ul>
                     {% echo "22em" as width1 %}
                     {% echo "24em" as width2 %}
+                    {% echo "26em" as width3 %}
                     <!-- Tab panes -->
                     <div class="tab-content">
 
@@ -183,7 +184,7 @@
                             <div class="row">
                                 {% if is_trip_reviewer %}
                                     {% if trip_reviews_waiting %}
-                                        <div class="card" style="width: {{ width1 }};">
+                                        <div class="card" style="width: {{ width3 }};">
                                             <div class="card-body">
                                                 <h5 class="card-title">
                                                     {% trans "Trips Awaiting Review" %}
@@ -221,7 +222,7 @@
                                 {% if is_tr_reviewer %}
                                     {% if tr_reviews_waiting %}
 
-                                        <div class="card" style="width: {{ width1 }};">
+                                        <div class="card" style="width: {{ width3 }};">
                                             <div class="card-body">
                                                 <h5 class="card-title">
                                                     {% trans "Requests Awaiting Review" %}
