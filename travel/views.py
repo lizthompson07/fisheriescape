@@ -1224,7 +1224,7 @@ class TripRequestReviewerHardDeleteView(CanModifyMixin, CommonHardDeleteView):
             if my_obj.status_id not in [4, 20]:
                 messages.error(self.request, _(f"Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"))
             else:
-                return False
+                return True
 
 
 class TripReviewerHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteView):
