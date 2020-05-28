@@ -53,14 +53,21 @@ urlpatterns = [
     path('trips/', views.TripListView.as_view(), name="trip_list"),
     path('trips/<str:type>/', views.TripListView.as_view(), name="trip_list"),
     path('trips/region/<int:region>/', views.TripListView.as_view(), name="trip_list"),
-    path('trip/new/', views.TripCreateView.as_view(), name="trip_new"),
-    path('trip/new/pop/<int:pop>/', views.TripCreateView.as_view(), name="trip_new"),
-    path('trip/<int:pk>/view/', views.TripDetailView.as_view(), name="trip_detail"),
+
+    path('trip/new/<str:type>/', views.TripCreateView.as_view(), name="trip_new"),
+    path('trip/new/region/<int:region>/', views.TripCreateView.as_view(), name="trip_new"),
+
     path('trip/<int:pk>/view/<str:type>/', views.TripDetailView.as_view(), name="trip_detail"),
-    path('trip/<int:pk>/edit/', views.TripUpdateView.as_view(), name="trip_edit"),
-    path('trip/<int:pk>/edit/popout/<int:pop>', views.TripUpdateView.as_view(), name="trip_edit"),
-    path('trip/<int:pk>/delete/', views.TripDeleteView.as_view(), name="trip_delete"),
-    path('trip/<int:pk>/cancel/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
+    path('trip/<int:pk>/view/region/<int:region>/', views.TripDetailView.as_view(), name="trip_detail"),
+
+    path('trip/<int:pk>/edit/<str:type>/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trip/<int:pk>/edit/region/<int:region>/', views.TripUpdateView.as_view(), name="trip_edit"),
+
+    path('trip/<int:pk>/cancel/<str:type>/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
+
+
+    path('trip/<int:pk>/delete/<str:type>/', views.TripDeleteView.as_view(), name="trip_delete"),
+    path('trip/<int:pk>/delete/region/<int:region>/', views.TripDeleteView.as_view(), name="trip_delete"),
 
     # admin
     path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
@@ -68,11 +75,8 @@ urlpatterns = [
     path('admin/trip-verification-list/region/<int:region>/adm/<int:adm>/', views.AdminTripVerificationListView.as_view(),
          name="admin_trip_verification_list"),
     path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
-    path('trip/<int:pk>/delete/back-to-verify/<int:back_to_verify>/', views.TripDeleteView.as_view(), name="trip_delete"),
     path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
     path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(), name="trip_reassign_confirm"),
-
-
 
 
     # TRIP REVIEWERS
@@ -97,16 +101,18 @@ urlpatterns = [
 
     # SETTINGS #
     ############
-    path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
-    path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
-    path('settings/help-text/', views.manage_help_text, name="manage_help_text"),
-    path('settings/help-text/<int:pk>/delete/', views.delete_help_text, name="delete_help_text"),
-    path('settings/cost-categories/', views.manage_cost_categories, name="manage_cost_categories"),
-    path('settings/cost-category/<int:pk>/delete/', views.delete_cost_category, name="delete_cost_category"),
-    path('settings/costs/', views.manage_costs, name="manage_costs"),
-    path('settings/cost/<int:pk>/delete/', views.delete_cost, name="delete_cost"),
-    path('settings/njc-rates/', views.manage_njc_rates, name="manage_njc_rates"),
-    path('settings/njc-rate/<int:pk>/delete/', views.delete_njc_rate, name="delete_njc_rate"),
+    path('settings/statuses/', views.StatusFormsetView.as_view(), name="manage_statuses"),
+    # path('settings/status/<int:pk>/delete/', views.StatusHardDeleteView.as_view(), name="delete_status"),
+    path('settings/help-text/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
+    path('settings/cost-categories/', views.CostCategoryFormsetView.as_view(), name="manage_cost_categories"),
+    path('settings/cost-category/<int:pk>/delete/', views.CostCategoryHardDeleteView.as_view(), name="delete_cost_category"),
+    path('settings/costs/', views.CostFormsetView.as_view(), name="manage_costs"),
+    path('settings/cost/<int:pk>/delete/', views.CostHardDeleteView.as_view(), name="delete_cost"),
+    path('settings/njc-rates/', views.NJCRatesFormsetView.as_view(), name="manage_njc_rates"),
+    # path('settings/njc-rate/<int:pk>/delete/', views.NJCRatesHardDeleteView.as_view(), name="delete_njc_rate"),
+    path('settings/trip-subcategories/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),
+    path('settings/trip-subcategory/<int:pk>/delete/', views.TripSubcategoryHardDeleteView.as_view(), name="delete_trip_subcategory"),
 
     # default reviewer settings
     path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),
@@ -135,5 +141,8 @@ urlpatterns = [
 
     path('reports/trip-list/fiscal-year/<str:fy>/region/<str:region>/adm/<str:adm>/from_date/<str:from_date>/to_date/<str:to_date>/',
          views.export_trip_list, name="export_trip_list"),
+
+    # Download a file
+    path('download/file/<int:file>/', views.get_file, name="get_file"),
 
 ]

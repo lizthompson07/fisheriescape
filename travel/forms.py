@@ -456,7 +456,8 @@ class ChildTripRequestForm(forms.ModelForm):
 class TripForm(forms.ModelForm):
     class Meta:
         model = models.Conference
-        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status", "admin_notes", "review_start_date"]
+        exclude = ["fiscal_year", "is_verified", "verified_by", "cost_warning_sent", "status", "admin_notes", "review_start_date",
+                   "adm_review_deadline", "date_eligible_for_adm_review"]
         widgets = {
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -536,10 +537,16 @@ class ReportSearchForm(forms.Form):
 class StatusForm(forms.ModelForm):
     class Meta:
         model = models.Status
-        fields = "__all__"
+        fields = [
+            "name",
+            "nom",
+            "used_for",
+            "order",
+            "color",
+        ]
 
 
-StatusFormSet = modelformset_factory(
+StatusFormset = modelformset_factory(
     model=models.Status,
     form=StatusForm,
     extra=1,
@@ -586,7 +593,7 @@ class ReviewerForm(forms.ModelForm):
                     _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
 
 
-ReviewerFormSet = modelformset_factory(
+ReviewerFormset = modelformset_factory(
     model=models.Reviewer,
     form=ReviewerForm,
     extra=1,
@@ -609,10 +616,11 @@ class TripReviewerForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        user_choices = [(u.id, str(u)) for u in User.objects.filter(groups__name__icontains="travel_adm_admin")]
-        # add any users with special roles
-        user_choices.extend([(df.user.id, str(df.user)) for df in models.DefaultReviewer.objects.filter(reviewer_roles__id__in=[3, 4, 5])])
-        user_choices = list(set(user_choices))
+        user_choices = [(u.id, str(u)) for u in User.objects.all()]
+        # user_choices = [(u.id, str(u)) for u in User.objects.filter(groups__name__icontains="travel_adm_admin")]
+        # # add any users with special roles
+        # user_choices.extend([(df.user.id, str(df.user)) for df in models.DefaultReviewer.objects.filter(reviewer_roles__id__in=[3, 4, 5])])
+        # user_choices = list(set(user_choices))
         user_choices.insert(0, (None, "-----"))
         self.fields["user"].choices = user_choices
 
@@ -642,7 +650,7 @@ class TripReviewerForm(forms.ModelForm):
                     _(f'Sorry, the order of a reviewer whose status is set to {my_object.status} cannot be changed'))
 
 
-TripReviewerFormSet = modelformset_factory(
+TripReviewerFormset = modelformset_factory(
     model=models.TripReviewer,
     form=TripReviewerForm,
     extra=1,
@@ -668,7 +676,7 @@ class HelpTextForm(forms.ModelForm):
         }
 
 
-HelpTextFormSet = modelformset_factory(
+HelpTextFormset = modelformset_factory(
     model=models.HelpText,
     form=HelpTextForm,
     extra=1,
@@ -681,7 +689,7 @@ class CostForm(forms.ModelForm):
         fields = "__all__"
 
 
-CostFormSet = modelformset_factory(
+CostFormset = modelformset_factory(
     model=models.Cost,
     form=CostForm,
     extra=1,
@@ -694,7 +702,7 @@ class CostCategoryForm(forms.ModelForm):
         fields = "__all__"
 
 
-CostCategoryFormSet = modelformset_factory(
+CostCategoryFormset = modelformset_factory(
     model=models.CostCategory,
     form=CostCategoryForm,
     extra=1,
@@ -707,10 +715,33 @@ class NJCRatesForm(forms.ModelForm):
         exclude = ['last_modified', ]
 
 
-NJCRatesFormSet = modelformset_factory(
+NJCRatesFormset = modelformset_factory(
     model=models.NJCRates,
     form=NJCRatesForm,
     extra=0,
+)
+
+
+class TripSubcategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.TripSubcategory
+        fields = [
+            "trip_category",
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+        ]
+        widgets = {
+            "description_en": forms.Textarea(attrs=attr_row3),
+            "description_fr": forms.Textarea(attrs=attr_row3),
+        }
+
+
+TripSubcategoryFormset = modelformset_factory(
+    model=models.TripSubcategory,
+    form=TripSubcategoryForm,
+    extra=1,
 )
 
 

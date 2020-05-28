@@ -32,7 +32,6 @@ urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
     path('accounts/', include('accounts.urls')),
     path('shared/', include('shared_models.urls')),
-    path('stream-test-file/', views.stream_file, name='stream_file'),
 
     # Password reset views. Views are part of accounts app #
     ########################################################
@@ -109,7 +108,7 @@ else:
 if settings.INSTALLED_APPS.count("ios2"):
     urlpatterns += i18n_patterns(path('ios2/', include('ios2.urls')), prefix_default_language=True)
 else:
-    print("not connecting spot")
+    print("not connecting ios2")
 
 if settings.INSTALLED_APPS.count("spot"):
     urlpatterns += i18n_patterns(path('grants-and-contributions/', include('spot.urls')), prefix_default_language=True)
@@ -165,7 +164,7 @@ else:
 if settings.INSTALLED_APPS.count("csas"):
     urlpatterns += i18n_patterns(path('csas/', include('csas.urls')), prefix_default_language=True)
 else:
-    print("not connecting shiny app repo")
+    print("not connecting csas app")
 
 
 # if not settings.DEBUG:

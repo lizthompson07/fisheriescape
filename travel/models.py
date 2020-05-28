@@ -17,6 +17,7 @@ from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
 from lib.templatetags.custom_filters import nz, currency
 from lib.functions.custom_functions import fiscal_year, listrify
+from shared_models.models import Lookup, SimpleLookup
 from . import utils
 
 YES_NO_CHOICES = (
@@ -42,8 +43,7 @@ class DefaultReviewer(models.Model):
         ordering = ["user", ]
 
 
-class NJCRates(models.Model):
-    name = models.CharField(max_length=255)
+class NJCRates(SimpleLookup):
     amount = models.FloatField()
     last_modified = models.DateTimeField(blank=True, null=True)
 
@@ -55,95 +55,49 @@ class NJCRates(models.Model):
         ordering = ['id', ]
 
 
-class CostCategory(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+class CostCategory(SimpleLookup):
     order = models.IntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ['order', 'id']
 
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
-    @property
-    def tname(self):
-        return str(self)
-
-
-class Cost(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+class Cost(SimpleLookup):
     cost_category = models.ForeignKey(CostCategory, on_delete=models.DO_NOTHING, related_name="costs", verbose_name=_("category"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ['cost_category', 'name']
 
 
-class Role(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
-    nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
+class Role(SimpleLookup):
+    pass
+
+
+class TripCategory(SimpleLookup):
+    pass
+
+
+class TripSubcategory(Lookup):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))  # overflowing this since we DO NOT want it to be unique=True
+    trip_category = models.ForeignKey(TripCategory, on_delete=models.DO_NOTHING, related_name="subcategories")
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+        return f"{self.trip_category} - {self.tname}"
 
     class Meta:
-        ordering = ["name", ]
+        ordering = ["trip_category", _("name")]
 
 
-class Reason(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
-    nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ["name", ]
+class Reason(SimpleLookup):
+    pass
 
 
-class Purpose(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
-    nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
-    description_eng = models.CharField(max_length=1000, verbose_name=_("description (eng)"), blank=True, null=True)
-    description_fre = models.CharField(max_length=1000, verbose_name=_("description (fre)"), blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
-    class Meta:
-        ordering = ["name", ]
+# THE HOPE IS TO DELETE THIS MODEL
+class Purpose(Lookup):
+    pass
 
 
-class Status(models.Model):
+class Status(SimpleLookup):
     # choices for used_for
     TR_REVIEWERS = 1
     TRIP_REVIEWERS = 3
@@ -155,21 +109,10 @@ class Status(models.Model):
         (TRIP_REVIEWERS, "Trip Reviewer status"),
         (TRIPS, "Trip status"),
     )
-
+    name = models.CharField(max_length=255)  # overflowing this since we DO NOT want it to be unique=True
     used_for = models.IntegerField(choices=USED_FOR_CHOICES)
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
     order = models.IntegerField(blank=True, null=True)
     color = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ['used_for', 'order', 'name', ]
@@ -178,6 +121,8 @@ class Status(models.Model):
 class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("trip title (French)"))
+    trip_subcategory = models.ForeignKey(TripSubcategory, on_delete=models.DO_NOTHING, verbose_name=_("trip purpose"),
+                                         related_name="trips", null=True)
     is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "does attendance to this require ADM approval?"))
     location = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("location (city, province, country)"))
@@ -202,6 +147,8 @@ class Conference(models.Model):
                                limit_choices_to={"used_for": 4}, verbose_name=_("trip status"), default=30)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
+    adm_review_deadline = models.DateTimeField(verbose_name=_("ADM Office review deadline"), blank=True, null=True)
+    date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"), blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -222,11 +169,6 @@ class Conference(models.Model):
         return min([abs_date, reg_date, start_date])
 
     @property
-    def date_eligible_for_adm_review(self):
-        if self.is_adm_approval_required:
-            return self.closest_date - datetime.timedelta(days=(365 / 12) * 6)
-
-    @property
     def days_until_eligible_for_adm_review(self):
         if self.is_adm_approval_required:
             # when was the deadline?
@@ -235,20 +177,12 @@ class Conference(models.Model):
             return (deadline - timezone.now()).days
 
     @property
-    def adm_review_deadline(self):
-        if self.is_adm_approval_required:
-            # when was the deadline?
-            return self.closest_date - datetime.timedelta(days=21) # 14 business days -- > 21 calendar days?
-
-    @property
     def days_until_adm_review_deadline(self):
         if self.is_adm_approval_required:
             # when was the deadline?
             deadline = self.adm_review_deadline
             # how many days until the deadline?
             return (deadline - timezone.now()).days
-
-
 
     @property
     def admin_notes_html(self):
@@ -265,7 +199,7 @@ class Conference(models.Model):
                  "<b>ADM approval required:</b> {}<br>" \
                  "<b>Verified:</b> {}<br>" \
                  "<b>Verified By:</b> {}<br>" \
-                 "<br><a href='{}' target='_blank' class='btn btn-primary btn-sm'>Go!</a>".format(
+                 "<br><a href='{}' target='_blank' class='btn btn-primary btn-sm'>View Details</a>".format(
             self.name, self.nom, self.location,
             self.start_date.strftime("%Y-%m-%d"),
             self.end_date.strftime("%Y-%m-%d"),
@@ -273,16 +207,18 @@ class Conference(models.Model):
             "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
-            reverse("travel:trip_detail", kwargs={"pk": self.id}),
+            reverse("travel:trip_detail", kwargs={"pk": self.id, "type":"pop"}),
         )
 
         return mark_safe(my_str)
 
     class Meta:
         ordering = ['start_date', ]
+        verbose_name = "trip"
+        verbose_name_plural = "trips"
 
-    def get_absolute_url(self):
-        return reverse('travel:trip_detail', kwargs={'pk': self.id})
+    # def get_absolute_url(self):
+    #     return reverse('travel:trip_detail', kwargs={'pk': self.id, "type":""})
 
     @property
     def bta_traveller_list(self):
@@ -385,6 +321,18 @@ class Conference(models.Model):
             reviewer.order = count
             reviewer.save()
             count += 1
+
+        if self.is_adm_approval_required:
+            # trips must be reviewed by ADMO before two weeks to the closest date
+            self.adm_review_deadline = self.closest_date - datetime.timedelta(days=21)  # 14 business days -- > 21 calendar days?
+
+            # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
+            if self.trip_subcategory and self.trip_subcategory.trip_category_id == 3:
+                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(365 / 12) * 3)
+            else:
+                # else they can start the review closer to the date: eight business weeks (60 days)
+                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(60))
+
         super().save(*args, **kwargs)
 
     def get_connected_requests(self):
@@ -893,18 +841,8 @@ class TripRequestCost(models.Model):
         super().save(*args, **kwargs)
 
 
-class ReviewerRole(models.Model):
-    name = models.CharField(max_length=100, verbose_name=_("name (eng)"), blank=True, null=True)
-    nom = models.CharField(max_length=100, verbose_name=_("name (fre)"), blank=True, null=True)
+class ReviewerRole(SimpleLookup):
     order = models.IntegerField()
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ["order", "id"]

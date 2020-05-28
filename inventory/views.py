@@ -1612,6 +1612,8 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("inventory:export_batch_xml", kwargs={
                 'sections': sections,
             }))
+        if report == 2:
+            return HttpResponseRedirect(reverse("inventory:export_odi_report"))
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -1630,6 +1632,19 @@ def export_batch_xml(request, sections):
     raise Http404
 
     # return HttpResponseRedirect(reverse("inventory:report_search"))
+
+
+@login_required()
+def export_odi_report(request):
+    # print(trip)
+    file_url = reports.generate_odi_report()
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="ODI Report {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
 
 
 # def capacity_export_spreadsheet(request, fy=None, orgs=None):

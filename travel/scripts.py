@@ -3,6 +3,7 @@ import os
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 
+from lib.functions.custom_functions import listrify
 from . import models
 from . import utils
 from django.core import serializers
@@ -10,18 +11,29 @@ from django.core.files import File
 from shared_models import models as shared_models
 
 
+def check_trip_purposes():
+    print(f"trip id; trip name; purposes")
+    for trip in models.Conference.objects.all():
+        if trip.trip_requests.count():
+            print(f"{trip.id}; {trip.name}; {listrify([tr.purpose.name for tr in trip.trip_requests.all() if tr.purpose])}")
+
+
+
+
 def export_fixtures():
     """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
     fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
     models_to_export = [
-        # models.NJCRates,
-        # models.CostCategory,
-        # models.Cost,
-        # models.Role,
-        # models.Reason,
-        # models.Purpose,
+        models.NJCRates,
+        models.CostCategory,
+        models.Cost,
+        models.Role,
+        models.Reason,
+        models.Purpose,
         models.Status,
-        models.ReviewerRole,
+        models.TripCategory,
+        models.TripSubcategory,
+        # models.ReviewerRole,
         # models.HelpText,
         # shared_models.FiscalYear,
         # shared_models.Region,

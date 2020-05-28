@@ -1,103 +1,67 @@
-{% extends "travel/travel_base.html" %}
+{% extends "travel/form.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load custom_filters %}
 {% load i18n %}
 {% block header %}
 {% endblock %}
-{% block subtitle %}
-    - {% if object %}    {{ object }}{% else %}    {% trans "New Trip" %}{% endif %}
+
+{#    <form method="post" class="form">#}
+{#        {% csrf_token %}#}
+{#        {% bootstrap_form_errors form %}#}
+{#        {% for field in form %}#}
+
+{% block form_field %}
+    {% if field.name == "name" %}
+        <div class="alert alert-danger" role="alert">
+            <h4 class="alert-heading blink-me mb-3">
+                {% trans "Important:" %}
+            </h4>
+            <p>
+                {% trans "With exception of words like DFO and ICES, please do not use undefined acronyms in trip titles!!!" %}
+                <br>
+                <br>
+                <img src="{% static 'admin/img/icon-no.svg' %}" alt=""> "ICES ASC 2020"
+                <br>
+                <img src="{% static 'admin/img/icon-yes.svg' %}" alt=""> "ICES Annual Science Conference (ASC) 2020"
+            </p>
+        </div>
+    {% endif %}
+
+    {% if field.name in help_text_dict and "_date" not in field.name %}
+        {% bootstrap_label field.label %}
+        {% with help_text_dict|lookup:field.name as help_text %}
+            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                 title="{{ field.label }}"
+                 data-content="{{ help_text }}">
+            {% bootstrap_field field placeholder="" show_label=False %}
+        {% endwith %}
+    {% else %}
+        {% bootstrap_field field placeholder="" %}
+    {% endif %}
 {% endblock %}
 
-{% block content %}
+{##}
+{##}
+{#        {% buttons %}#}
+{#            {% if object %}#}
+{#                <button type="submit" class="btn btn-success">Update</button>#}
+{#                <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">#}
+{#                    {% trans "Cancel" %}#}
+{#                </a>#}
+{#            {% else %}#}
+{#                <button type="submit" class="btn btn-success">Add</button>#}
+{#                <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">#}
+{#                    {% trans "Cancel" %}#}
+{#                </a>#}
+{#            {% endif %}#}
+{##}
+{##}
+{#        {% endbuttons %}#}
+{#    </form>#}
+{##}
+{#{% endblock %}#}
 
-
-
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                    {% trans "Home" %}
-                </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'travel:trip_list' %}">
-                    {% trans "Trips" %}
-                </a></li>
-                {% if object %}
-                    <li class="breadcrumb-item"><a href="{% url 'travel:trip_detail' object.id %}">{{ object }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">
-                        {% trans "Edit" %}
-                    </li>
-                {% else %}
-                    <li class="breadcrumb-item active" aria-current="page">
-                        {% trans "New" %}
-                    </li>
-                {% endif %}
-            </ol>
-        </nav>
-
-        <h1>
-            {% if object %}
-                {{ object }}
-            {% else %}
-                {% trans "New Trip" %}
-            {% endif %}
-        </h1>
-
-        <br>
-
-        <form method="post" class="form">
-            {% csrf_token %}
-            {% bootstrap_form_errors form %}
-            {% for field in form %}
-                {% if field.name == "name" %}
-                    <div class="alert alert-danger" role="alert">
-                        <h4 class="alert-heading blink-me mb-3">
-                            {% trans "Important:" %}
-                        </h4>
-                        <p>
-                            {% trans "With exception of words like DFO and ICES, please do not use undefined acronyms in trip titles!!!" %}
-                            <br>
-                            <br>
-                            <img src="{% static 'admin/img/icon-no.svg' %}" alt=""> "ICES ASC 2020"
-                            <br>
-                            <img src="{% static 'admin/img/icon-yes.svg' %}" alt=""> "ICES Annual Science Conference (ASC) 2020"
-                        </p>
-                    </div>
-                {% endif %}
-
-                {% if field.name in help_text_dict and "_date" not in field.name %}
-                    {% bootstrap_label field.label %}
-                    {% with help_text_dict|lookup:field.name as help_text %}
-                        <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
-                             title="{{ field.label }}"
-                             data-content="{{ help_text }}">
-                        {% bootstrap_field field placeholder="" show_label=False %}
-                    {% endwith %}
-                {% else %}
-                    {% bootstrap_field field placeholder="" %}
-                {% endif %}
-            {% endfor %}
-
-
-            {% buttons %}
-                {% if object %}
-                    <button type="submit" class="btn btn-success">Update</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:trip_detail' object.id %}">
-                        {% trans "Cancel" %}
-                    </a>
-                {% else %}
-                    <button type="submit" class="btn btn-success">Add</button>
-                    <a class="btn btn-secondary" href="{% url 'travel:trip_list' %}">
-                        {% trans "Cancel" %}
-                    </a>
-                {% endif %}
-
-
-            {% endbuttons %}
-        </form>
-
-    </div>
-{% endblock content %}
 
 {% block body_js %}
 
@@ -137,4 +101,3 @@
     </script>
 
 {% endblock %}
-

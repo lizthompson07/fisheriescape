@@ -343,7 +343,7 @@ def populate_trip_request_costs(request, trip_request):
                     messages.warning(request,
                                      _("NJC rates for incidentals missing from database. Please let your system administrator know."))
 
-    messages.success(request, _("All costs have been added to this project."))
+    # messages.success(request, _("All costs have been added to this project."))
 
 
 def clear_empty_trip_request_costs(trip_request):
@@ -475,11 +475,15 @@ def get_related_trips(user):
 
 def get_adm_ready_trips():
     """returns a qs of trips that are ready for adm review"""
-    six_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 6)
-    # start with trips that need adm approval that have not already been reviewed
-    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id=32))
+    three_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 3)
+    # start with trips that need adm approval that have not already been reviewed or those that have been cancelled
+    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id__in=[32, 43]))
+
     t_ids = list()
     for t in trips:
-        if t.closest_date <= six_months_away:
-            t_ids.append(t.id)
+        # only get trips that have attached requests
+        if t.get_connected_active_requests().count():
+            # only get trips that are within three months from the closest date
+            if t.closest_date <= three_months_away:
+                t_ids.append(t.id)
     return models.Conference.objects.filter(id__in=t_ids)

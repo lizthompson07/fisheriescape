@@ -10,3 +10,5 @@
 # TODO: when a trip is being re-assigned, if should only be able to be reassigned by an adm admin if adm-approval-required
 # TODO: ... all trip requests under the trip should be successfully moved.
 # TODO: ... should not be able to merge the trips if there is an overlap of travellers.
+
+# TODO: IMPORTANT... check to see that the correct trips are being caught by the ADM filter... one good test would be to ensure that a trip shows up only when it has an associated active tr

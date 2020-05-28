@@ -1,4 +1,4 @@
-{% extends "travel/travel_base.html" %}
+{% extends "travel/base.html" %}
 {% load i18n %}
 {% load static %}
 {% load custom_filters %}
@@ -377,7 +377,7 @@
                                                     <h5 class="card-title">{% trans "Browse all Trips" %}</h5>
                                                     <p class="card-text">{% trans "View a full list of current and historical trips in the systems." %}</p>
                                                     <div class="center-col">
-                                                        <a href="{% url 'travel:trip_list' 'adm-hit-list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+                                                        <a href="{% url 'travel:trip_list' 'adm-all' %}" class="btn btn-primary">{% trans "Go" %}</a>
                                                     </div>
                                                 </div>
                                             </div>

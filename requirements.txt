@@ -3,12 +3,12 @@ certifi==2019.3.9
 chardet==3.0.4
 Deprecated==1.2.5
 Django==2.2.2
-django-bootstrap4==0.0.7
+django-bootstrap4==1.1.1
 django-easy-pdf==0.1.1
-django-el-pagination==3.2.4
-django-filter==2.1.0
+django-el-pagination==3.3.0
+django-filter==2.2.0
 django-tracking2==0.5.0
-html2text==2018.1.9
+html2text==2020.1.16
 html5lib==1.0.1
 idna==2.8
 Jinja2==2.10
@@ -26,7 +26,7 @@ PyPDF2==1.26.0
 python-dateutil==2.8.1
 pytz==2018.9
 PyYAML==3.13
-reportlab==3.5.13
+reportlab==3.5.42
 requests==2.21.0
 selenium==3.141.0
 six==1.14.0
@@ -38,7 +38,7 @@ urllib3==1.24.1
 webencodings==0.5.1
 wrapt==1.11.1
 xhtml2pdf==0.2.4
-XlsxWriter==1.1.4
+XlsxWriter==1.2.8
 python-decouple==3.3
 python-Levenshtein==0.12.0
 gunicorn==19.9.0

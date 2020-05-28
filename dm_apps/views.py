@@ -1,20 +1,9 @@
 from collections import OrderedDict
-import io
-
-import requests
-import datetime
-from azure.storage.blob import BlockBlobService, ContainerPermissions
-from msrestazure.azure_active_directory import MSIAuthentication
 
 from django.conf import settings
-from django.contrib import messages
-from django.http import StreamingHttpResponse
 from django.urls import reverse, NoReverseMatch
-from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
-from msrestazure.azure_active_directory import MSIAuthentication
-
 from accounts.models import Announcement
 
 
@@ -393,31 +382,3 @@ class IndexView(TemplateView):
             context["build_number"] = settings.DEVOPS_BUILD_NUMBER
         return context
 
-#
-# def GetBlobUrl(blob_name):
-#     AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
-#     AZURE_STORAGE_KEY = "BQVttSG9lQbn7dD8LwYQ7LyjltsjUOS9eYAjhf5fATalNBqY4wxQIBhERsD8yPe8LfN1hq7rHaGFvSRHzwis5Q=="
-#     token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
-#
-#     blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, account_key=AZURE_STORAGE_KEY)
-#     blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
-#     blobService.get_blob_to_stream("media", "shiny/1_salmon.jpg", stream=IOBase)
-#     # it seems like we cannot generate sas token if we connect to the service with a token credential. need access key
-#     # sas_token = blobService.generate_blob_shared_access_signature("media",blob_name, BlobPermissions.READ, datetime.datetime.utcnow() + datetime.timedelta(hours=5))
-#     sas_token = blobService.generate_container_shared_access_signature("media", ContainerPermissions.READ,
-#                                                                        datetime.datetime.utcnow() + datetime.timedelta(minutes=2))
-#
-#     return f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/{"media"}/{blob_name}?{sas_token}'
-#
-
-def stream_file(request, blob_name=None):
-    AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
-    token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
-    blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
-    stream = io.BytesIO()
-    blob_file = blobService.get_blob_to_stream("media", "shiny/1_salmon.jpg", stream=stream)
-
-    r = blob_file
-    resp = StreamingHttpResponse(streaming_content=r)
-    resp['Content-Disposition'] = f'attachment; filename="{blob_name}"'
-    return resp
