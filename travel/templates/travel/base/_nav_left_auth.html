@@ -3,6 +3,12 @@
 <li class="nav-item"><a class="nav-link" href="{% url 'travel:index' %}">
     {% trans "Home" %}
 </a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'travel:trip_list' "all" %}">
+    {% trans "All Trips" %}
+</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'travel:request_list' "all"  %}">
+    {% trans "All Requests" %}
+</a></li>
 
 <li class="nav-item"><a class="nav-link" href="{% url 'travel:report_search' %}">
     {% trans "Reports" %}

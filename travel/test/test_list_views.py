@@ -46,8 +46,8 @@ class TripRequestListView(CommonTest):
 class TestTripListView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url1 = reverse_lazy('travel:trip_list', kwargs={"region": RegionFactory().id})
-        self.test_url2 = reverse_lazy('travel:trip_list', kwargs={"type": "upcoming"})
+        self.test_url1 = reverse_lazy('travel:trip_list', kwargs={"type": f"region-{RegionFactory().id}"})
+        self.test_url2 = reverse_lazy('travel:trip_list', kwargs={"type": "upcoming"}) # should be accessible by anyone
         self.test_url3 = reverse_lazy('travel:trip_list', kwargs={"type": "adm-hit-list"})
         self.expected_template = 'travel/trip_list.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")

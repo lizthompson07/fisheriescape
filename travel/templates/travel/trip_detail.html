@@ -88,20 +88,14 @@
             {% endif %}
 
 
-            {% if view.kwargs.type %}
-                {% echo view.kwargs.type as my_arg %}
-            {% elif view.kwargs.region %}
-                {% echo view.kwargs.region as my_arg %}
-            {% endif %}
 
-
-            <a class="btn btn-warning" href="{% url 'travel:trip_edit' object.id my_arg %}">
+            <a class="btn btn-warning" href="{% url 'travel:trip_edit' object.id view.kwargs.type %}">
                 {% trans "Edit" %}
             </a>
 
             {# cancel button - only show if has permission and if trip is not already cancelled #}
             {% if can_cancel and object.status.id != 43 %}
-                <a class="btn btn-danger" href="{% url 'travel:trip_cancel' object.id my_arg %}">
+                <a class="btn btn-danger" href="{% url 'travel:trip_cancel' object.id view.kwargs.type %}">
                     {% trans "Cancel this Trip" %}
                 </a>
             {% endif %}
@@ -111,7 +105,7 @@
             {% endif %}
 
             <span data-toggle="tooltip" title="{{ trip_delete_text }}">
-            <a class="btn btn-danger {{ delete_disabled_var }}" href="{% url 'travel:trip_delete' object.id my_arg %}">
+            <a class="btn btn-danger {{ delete_disabled_var }}" href="{% url 'travel:trip_delete' object.id view.kwargs.type %}">
                 {% trans "Delete" %}
             </a>
             </span>
