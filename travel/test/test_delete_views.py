@@ -14,29 +14,39 @@ class IndividualTripRequestDelete(CommonTest):
     def setUp(self):
         super().setUp()
         self.tr = FactoryFloor.IndividualTripRequestFactory()
-        self.test_url = reverse_lazy('travel:request_delete', kwargs={"pk": self.tr.pk})
-        self.expected_template = 'travel/trip_request_confirm_delete.html'
+        self.tr1 = FactoryFloor.ChildTripRequestFactory()
+        self.test_url = reverse_lazy('travel:request_delete', args={self.tr.pk, "my"})
+        self.test_url1 = reverse_lazy('travel:request_delete', args={self.tr1.pk, "pop"})
+        self.expected_template = 'travel/confirm_delete.html'
+        self.expected_template1 = 'shared_models/generic_popout_form.html'
+        self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("trip_request", 'delete', "view")
     def test_view_class(self):
         # make sure the view is inheriting from CanModify Mixin
         self.assert_inheritance(views.TripRequestDeleteView, views.CanModifyMixin)
+        self.assert_inheritance(views.TripRequestDeleteView, CommonDeleteView)
 
     @tag("trip_request", 'delete', "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
         # create an admin user (who should always be able to delete) and check to see there is a 200 response
-        admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=admin_user)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.admin_user)
 
     @tag("trip_request", 'delete', "submit")
     def test_submit(self):
         # use an admin user because they should always be able to delete
-        admin_user = self.get_and_login_user(in_group="travel_admin")
-        self.assert_success_url(self.test_url, user=admin_user)
+        self.assert_success_url(self.test_url, user=self.admin_user)
         # ensure the user is deleted
         self.assertEqual(models.TripRequest.objects.filter(pk=self.tr.pk).count(), 0)
 
+    @tag("trip_request", 'delete', "submit")
+    def test_submit_pop(self):
+        # use an admin user because they should always be able to delete
+        self.assert_success_url(self.test_url1, user=self.admin_user)
+        # ensure the user is deleted
+        self.assertEqual(models.TripRequest.objects.filter(pk=self.tr1.pk).count(), 0)
 
 class TestTripDeleteView(CommonTest):
     def setUp(self):
@@ -46,9 +56,9 @@ class TestTripDeleteView(CommonTest):
         self.instance2 = FactoryFloor.TripFactory(lead=RegionFactory())
         self.instance3 = FactoryFloor.TripFactory(is_adm_approval_required=True)
         self.test_url0 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance0.pk, "type": "adm-hit-list"})
-        self.test_url1 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance1.pk, "region": 1})
+        self.test_url1 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance1.pk, "type": "region-1"})
         self.test_url2 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance2.pk, "type": "back_to_verify"})
-        self.test_url3 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance3.pk, "type": "back_to_verify"})
+        self.test_url3 = reverse_lazy('travel:trip_delete', kwargs={"pk": self.instance3.pk, "type": "all"})
         self.expected_template = 'travel/confirm_delete.html'
 
     @tag("trip_delete", 'delete', "view")

@@ -47,8 +47,8 @@ urlpatterns = [
 
 
     # TRIP REQUEST REVIEWERS
-    path('request/<int:triprequest>/reset-reviewers/', views.reset_reviewers, name="reset_tr_reviewers"),
-    path('request/<int:triprequest>/manage-reviewers/', views.manage_reviewers, name="manage_tr_reviewers"),
+    path('request/<int:triprequest>/reset-reviewers/for/<str:type>/', views.reset_reviewers, name="reset_tr_reviewers"),
+    path('request/<int:triprequest>/manage-reviewers/for/<str:type>/', views.manage_reviewers, name="manage_tr_reviewers"),
     path('trip-request-reviewer/<int:pk>/delete/', views.TripRequestReviewerHardDeleteView.as_view(), name="delete_tr_reviewer"),
     path('trip-request-reviewer/<int:pk>/skip/', views.SkipReviewerUpdateView.as_view(), name="skip_tr_reviewer"),
 

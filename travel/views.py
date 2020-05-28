@@ -432,16 +432,16 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
     ]
 
     def get_queryset(self):
-        if self.kwargs.get("region"):
-            queryset = models.TripRequest.objects.filter(section__division__branch__region_id=self.kwargs.get("region"))
+        if self.kwargs.get("type") == "all" and in_travel_admin_group(self.request.user):
+            queryset = models.TripRequest.objects.all()
         else:
             queryset = utils.get_related_trips(self.request.user)
         return queryset
 
     def get_h1(self):
         subtitle = self.subtitle
-        if self.kwargs.get("region"):
-            return f"{subtitle} - {shared_models.Region.objects.get(pk=self.kwargs.get('region'))}"
+        if self.kwargs.get("type") == "all" and in_travel_admin_group(self.request.user):
+            return f"{subtitle}"
         else:
             return f"{subtitle} - {self.request.user}"
 
@@ -1164,7 +1164,7 @@ class SkipReviewerUpdateView(TravelAdminRequiredMixin, CommonPopoutUpdateView):
 
 @login_required(login_url='/accounts/login/')
 # @user_passes_test(in_travel_admin_group, login_url='/accounts/denied/')
-def reset_reviewers(request, triprequest=None, trip=None):
+def reset_reviewers(request, type, triprequest=None, trip=None):
     """this function will reset the reviewers on either a trip request or trip
     """
     if triprequest:
@@ -1180,7 +1180,7 @@ def reset_reviewers(request, triprequest=None, trip=None):
                 messages.error(request, _("This function can only be used when the trip request is still a draft"))
         else:
             messages.error(request, _("You do not have the permissions to reset the reviewer list"))
-        return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_obj.id}))
+        return HttpResponseRedirect(reverse("travel:request_detail", args=(triprequest, type)))
 
     elif trip:
         # first, this should only ever be an ADM admin group
@@ -1196,7 +1196,7 @@ def reset_reviewers(request, triprequest=None, trip=None):
                 utils.get_trip_reviewers(my_obj)
             else:
                 messages.error(request, _("This function can only with an unreviewed trip."))
-            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs={"pk": my_obj.id}))
+            return HttpResponseRedirect(reverse("travel:trip_detail", args=(trip, type)))
 
 
 # REVIEWER #
@@ -1228,7 +1228,7 @@ class TripReviewerHardDeleteView(TravelADMAdminRequiredMixin, CommonHardDeleteVi
 
 @login_required(login_url='/accounts/login/')
 # @user_passes_test(is_superuser, login_url='/accounts/denied/')
-def manage_reviewers(request, triprequest=None, trip=None):
+def manage_reviewers(request, type, triprequest=None, trip=None):
     if triprequest:
         my_trip_request = models.TripRequest.objects.get(pk=triprequest)
         if can_modify_request(request.user, my_trip_request.id):
@@ -1245,7 +1245,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
                     my_trip_request.save()
                     # do something with the formset.cleaned_data
                     messages.success(request, _("The reviewer list has been successfully updated"))
-                    return HttpResponseRedirect(reverse("travel:manage_tr_reviewers", kwargs={"triprequest": my_trip_request.id}))
+                    return HttpResponseRedirect(reverse("travel:manage_tr_reviewers", args=(triprequest, type)))
             else:
                 formset = forms.ReviewerFormset(
                     queryset=qs,
@@ -1255,6 +1255,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
             context = dict()
             context['triprequest'] = my_trip_request
             context['formset'] = formset
+            context['type'] = type
             context["my_object"] = models.Reviewer.objects.first()
             context["field_list"] = [
                 'order',
@@ -1264,7 +1265,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
             return render(request, 'travel/reviewer_formset.html', context)
         else:
             messages.error(request, _("You do not have the permissions to modify the reviewer list"))
-            return HttpResponseRedirect(reverse("travel:request_detail", kwargs={"pk": my_trip_request.id}))
+            return HttpResponseRedirect(reverse("travel:request_detail", args=(triprequest, type)))
     elif trip:
         my_trip = models.Conference.objects.get(pk=trip)
         if not in_adm_admin_group(request.user):
@@ -1279,7 +1280,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
                     my_trip.save()
                     # do something with the formset.cleaned_data
                     messages.success(request, _("The reviewer list has been successfully updated"))
-                    return HttpResponseRedirect(reverse("travel:manage_trip_reviewers", kwargs={"trip": my_trip.id}))
+                    return HttpResponseRedirect(reverse("travel:manage_trip_reviewers", args=(triprequest, type)))
             else:
                 formset = forms.TripReviewerFormset(
                     queryset=qs,
@@ -1288,6 +1289,7 @@ def manage_reviewers(request, triprequest=None, trip=None):
 
             context = dict()
             context['trip'] = my_trip
+            context['type'] = type
             context['formset'] = formset
             context["my_object"] = models.TripReviewer.objects.first()
             context["field_list"] = [

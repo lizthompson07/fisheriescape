@@ -51,7 +51,7 @@
         <a class="btn" id="request_changes" href="#" style="background-color: orange">
             {% trans "Request changes" %}
         </a>
-        <a class="btn btn-primary" href="{% url 'travel:request_detail' triprequest.id %}">
+        <a class="btn btn-primary" href="{% url 'travel:request_detail' triprequest.id "all" %}" target="_blank">
             {% trans "Make changes yourself" %}
         </a>
 
