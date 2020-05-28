@@ -497,8 +497,8 @@ class TripRequest(models.Model):
     multiple_conferences_rationale = models.TextField(blank=True, null=True,
                                                       verbose_name=_("rationale for individual attending multiple conferences"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
-    multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
-        "rationale for multiple travelers"))
+    # multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
+    #     "rationale for multiple travelers"))
     late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
     funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes"))
@@ -740,8 +740,6 @@ class TripRequest(models.Model):
             my_str += "<br><em>Benefit to DFO:</em> {}".format(self.benefit_to_dfo)
         if self.multiple_conferences_rationale:
             my_str += "<br><em>Rationale for attending multiple conferences:</em> {}".format(self.multiple_conferences_rationale)
-        if self.multiple_attendee_rationale:
-            my_str += "<br><em>Rationale for multiple attendees:</em> {}".format(self.multiple_attendee_rationale)
         if self.funding_source:
             my_str += "<br><em>Funding source:</em> {}".format(self.funding_source)
 
@@ -761,9 +759,6 @@ class TripRequest(models.Model):
         my_str += "\n\n{}: {}".format(
             "Rationale for attending multiple conferences".upper(), nz(self.multiple_conferences_rationale, "n/a"))
 
-        my_str += "\n\n{}: {}".format(
-            "Rationale for multiple attendees".upper(),
-            nz(self.multiple_attendee_rationale, "n/a"))
         return my_str
 
     @property
