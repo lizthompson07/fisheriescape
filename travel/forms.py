@@ -484,7 +484,7 @@ class TripForm(forms.ModelForm):
             'registration_deadline': forms.DateInput(attrs=attr_fp_date),
             'abstract_deadline': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
-            'trip_subcategory': forms.RadioSelect(),
+            # 'trip_subcategory': forms.RadioSelect(),
         }
 
     def clean(self):
