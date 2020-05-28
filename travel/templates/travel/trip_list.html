@@ -6,18 +6,14 @@
 {% load custom_tags %}
 
 {% block row %}
-    {% if view.kwargs.type %}
-        {% url row_object_url_name object.id view.kwargs.type as my_url %}
-    {% else %}
-        {% url row_object_url_name object.id view.kwargs.region as my_url %}
-    {% endif %}
+    {% url row_object_url_name object.id view.kwargs.type as my_url %}
 
     <tr href="{{ my_url }}">
         {% for field in field_list %}
             <td class="{{ field.class }}">
                 {% if "adm_approval" in field.name %}
                     <span class="{% if object.is_adm_approval_required %}red-font{% endif %}">{% get_field_value object field.name safe=True %}</span>
-                {% elif "deadline" in field.name %}
+                {% elif "deadline" in field.name and "abstract" not in field.name and "registration" not in field.name %}
                     {% if object.days_until_adm_review_deadline > 45 %}
                         {% echo "success" as btn_color %}
                     {% elif object.days_until_adm_review_deadline >= 15 %}

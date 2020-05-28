@@ -9,23 +9,27 @@ urlpatterns = [
 
     # TRIP REQUEST #
     ################
-    path('requests/', views.TripRequestListView.as_view(), name="request_list"),
-    path('requests/region/<int:region>/', views.TripRequestListView.as_view(), name="request_list"),
+    # path('requests/', views.TripRequestListView.as_view(), name="request_list"), # remove
+    path('requests/<str:type>/', views.TripRequestListView.as_view(), name="request_list"),
 
     # path('your-requests/', views.TripRequestListView.as_view(), name="request_list"),
-    path('request/new/', views.TripRequestCreateView.as_view(), name="request_new"),
-    path('request/<int:pk>/view/', views.TripRequestDetailView.as_view(), name="request_detail"),
-    path('request/<int:pk>/print/', views.TravelPlanPDF.as_view(), name="request_print"),
-    path('request/<int:pk>/edit/', views.TripRequestUpdateView.as_view(), name="request_edit"),
-    path('request/<int:pk>/edit/<str:pop>/', views.TripRequestUpdateView.as_view(), name="request_edit"),
-    path('request/<int:pk>/delete/', views.TripRequestDeleteView.as_view(), name="request_delete"),
-    path('request/<int:pk>/delete/pop/<str:pop>/', views.TripRequestDeleteView.as_view(), name="request_delete"),
-    path('request/<int:pk>/duplicate/', views.TripRequestCloneUpdateView.as_view(), name="duplicate_event"),
+
+    path('request/new/<str:type>/', views.TripRequestCreateView.as_view(), name="request_new"),
     path('request/<int:parent_request>/new-child-request/', views.TripRequestCreateView.as_view(), name="request_new"),
-    path('request/<int:pk>/clone-child/pop/<str:pop>', views.ChildTripRequestCloneUpdateView.as_view(), name="child_duplicate_event"),
-    path('request/<int:pk>/submit/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
-    path('request/<int:pk>/cancel/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
+
+    path('request/<int:pk>/view/from/<str:type>/', views.TripRequestDetailView.as_view(), name="request_detail"),
+    path('request/<int:pk>/edit/from/<str:type>/', views.TripRequestUpdateView.as_view(), name="request_edit"),
+    path('request/<int:pk>/delete/from/<str:type>/', views.TripRequestDeleteView.as_view(), name="request_delete"),
+    path('request/<int:pk>/submit/from/<str:type>/', views.TripRequestSubmitUpdateView.as_view(), name="request_submit"),
+    path('request/<int:pk>/clone/from/<str:type>/', views.TripRequestCloneUpdateView.as_view(), name="request_clone"),
+    path('request/<int:pk>/cancel/from/<str:type>/', views.TripRequestCancelUpdateView.as_view(), name="request_cancel"),
+
+    path('request/<int:pk>/print/', views.TravelPlanPDF.as_view(), name="request_print"),
+
+    path('request/<int:pk>/clone-child/pop/<str:type>', views.ChildTripRequestCloneUpdateView.as_view(), name="child_request_clone"),
+
     path('request/<int:pk>/admin-notes/', views.TripRequestAdminNotesUpdateView.as_view(), name="admin_notes_edit"),
+
 
     # REVIEWER APPROVAL
     path('requests/review/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
@@ -50,24 +54,15 @@ urlpatterns = [
 
     # TRIP #
     ########
-    path('trips/', views.TripListView.as_view(), name="trip_list"),
+    # path('trips/', views.TripListView.as_view(), name="trip_list"),
     path('trips/<str:type>/', views.TripListView.as_view(), name="trip_list"),
-    path('trips/region/<int:region>/', views.TripListView.as_view(), name="trip_list"),
-
     path('trip/new/<str:type>/', views.TripCreateView.as_view(), name="trip_new"),
-    path('trip/new/region/<int:region>/', views.TripCreateView.as_view(), name="trip_new"),
-
-    path('trip/<int:pk>/view/<str:type>/', views.TripDetailView.as_view(), name="trip_detail"),
-    path('trip/<int:pk>/view/region/<int:region>/', views.TripDetailView.as_view(), name="trip_detail"),
-
-    path('trip/<int:pk>/edit/<str:type>/', views.TripUpdateView.as_view(), name="trip_edit"),
-    path('trip/<int:pk>/edit/region/<int:region>/', views.TripUpdateView.as_view(), name="trip_edit"),
-
-    path('trip/<int:pk>/cancel/<str:type>/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
+    path('trip/<int:pk>/view/from/<str:type>/', views.TripDetailView.as_view(), name="trip_detail"),
+    path('trip/<int:pk>/edit/from/<str:type>/', views.TripUpdateView.as_view(), name="trip_edit"),
+    path('trip/<int:pk>/delete/from/<str:type>/', views.TripDeleteView.as_view(), name="trip_delete"),
+    path('trip/<int:pk>/cancel/from/<str:type>/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
 
 
-    path('trip/<int:pk>/delete/<str:type>/', views.TripDeleteView.as_view(), name="trip_delete"),
-    path('trip/<int:pk>/delete/region/<int:region>/', views.TripDeleteView.as_view(), name="trip_delete"),
 
     # verification / other admin views
     path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
