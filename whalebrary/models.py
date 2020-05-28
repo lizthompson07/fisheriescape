@@ -96,9 +96,6 @@ class Item(models.Model):
     gear_type = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="items",
                                   verbose_name=_("type of equipment"))
     suppliers = models.ManyToManyField(Supplier, blank=True, verbose_name=_("suppliers"))
-    last_purchased = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                          verbose_name=_("last purchased"))
-    last_purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last purchased by"))
 
     class Meta:
         unique_together = (('item_name', 'size'),)
@@ -164,21 +161,46 @@ class Status(models.Model):
         else:
             return "{}".format(self.name)
 
-class Quantity(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("item"))
+class Transaction(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("status"))
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("status"))
+    date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("date"))
+    # for lent out status
     lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
-    lent_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                     verbose_name=_("lent date"))
     return_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                        verbose_name=_("expected return date"))
+    # for on order status
+    order_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("order number"))
+    # for purchased status
+    purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("purchased by"))
+    # for used status
+    reason = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("reason"))
+    incident = models.ForeignKey(Incident, blank=True, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("incident"))  # if linked to use at an incident
+    # auditing
     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                         verbose_name=_("last audited"))
     last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
-    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="quantities",
+    # location of quantities taken/used/received
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("location stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
+
+# class Quantity(models.Model):
+#     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("item"))
+#     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
+#     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("status"))
+#     lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
+#     lent_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+#                                      verbose_name=_("lent date"))
+#     return_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+#                                        verbose_name=_("expected return date"))
+#     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+#                                         verbose_name=_("last audited"))
+#     last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
+#     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="quantities",
+#                                  verbose_name=_("location stored"))
+#     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
 
     def __str__(self):
 
@@ -378,6 +400,7 @@ INCIDENT_CHOICES = (
 
 
 class Incident(models.Model):
+    name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("incident name"))
     species_count = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("species count"))
     submitted = models.BooleanField(choices=BOOL_CHOICES, blank=True, null=True,
                                     verbose_name=_("incident report submitted by Gulf?"))
