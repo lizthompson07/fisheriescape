@@ -6,6 +6,7 @@ from django.views.generic import ListView
 from django_filters.views import FilterView
 
 from shared_models.test.SharedModelsFactoryFloor import RegionFactory
+from shared_models.views import CommonFilterView
 from travel.test import FactoryFloor
 from .. import models
 from .. import views
@@ -16,23 +17,20 @@ class TripRequestListView(CommonTest):
     def setUp(self):
         super().setUp()
         self.tr = FactoryFloor.IndividualTripRequestFactory()
-        self.test_url = reverse_lazy('travel:request_list')
-        self.test_url1 = reverse_lazy('travel:request_list', kwargs={"region": RegionFactory().id})
+        self.test_url = reverse_lazy('travel:request_list', args=("my",))
         self.expected_template = 'travel/trip_request_list.html'
 
     @tag("trip_request", 'list', "view")
     def test_view_class(self):
         # make sure the view is inheriting from CanModify Mixin
-        self.assert_inheritance(views.TripRequestListView, FilterView)
+        self.assert_inheritance(views.TripRequestListView, CommonFilterView)
         self.assert_inheritance(views.TripRequestListView, views.TravelAccessRequiredMixin)
 
     @tag("trip_request", 'list', "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
-        self.assert_not_broken(self.test_url1)
         # create an admin user (who should always be able to delete) and check to see there is a 200 response
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
-        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
     @tag("trip_request", 'list', "context")
@@ -56,7 +54,7 @@ class TestTripListView(CommonTest):
 
     @tag("trip_list", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.TripListView, FilterView)
+        self.assert_inheritance(views.TripListView, CommonFilterView)
         self.assert_inheritance(views.TripListView, views.TravelAccessRequiredMixin)
 
     @tag("trip_list", 'list', "access")

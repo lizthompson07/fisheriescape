@@ -33,11 +33,11 @@
                 <li class="breadcrumb-item">
 
                     {% if trip %}
-                        <a href="{% url 'travel:trip_detail' trip.id %}">
+                        <a href="{% url 'travel:trip_detail' trip.id type %}">
                             {{ trip }}
                         </a>
                     {% else %}
-                        <a href="{% url 'travel:request_detail' triprequest.id %}">
+                        <a href="{% url 'travel:request_detail' triprequest.id type %}">
                             {{ triprequest }}
                         </a>
                     {% endif %}
@@ -72,11 +72,11 @@
                 </button>
 
                 {% if trip %}
-                    {% url 'travel:reset_trip_reviewers' trip.id as reset_url %}
-                    {% url 'travel:trip_detail' trip.id as back_url %}
+                    {% url 'travel:reset_trip_reviewers' trip.id type as reset_url %}
+                    {% url 'travel:trip_detail' trip.id type as back_url %}
                 {% else %}
-                    {% url 'travel:reset_tr_reviewers' triprequest.id as reset_url %}
-                    {% url 'travel:request_detail' triprequest.id as back_url %}
+                    {% url 'travel:reset_tr_reviewers' triprequest.id type as reset_url %}
+                    {% url 'travel:request_detail' triprequest.id type as back_url %}
                 {% endif %}
 
                 <a class="btn btn-warning" href="{{ reset_url }}">
