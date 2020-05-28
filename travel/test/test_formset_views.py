@@ -24,7 +24,7 @@ class TestAllFormsets(CommonTest):
             "manage_njc_rates",
             "manage_trip_subcategories",
             "manage_trip_categories",
-            "manage_trip_reasons",
+            "manage_reasons",
         ]
 
         self.test_urls = [reverse_lazy("travel:" + name) for name in self.test_url_names]
