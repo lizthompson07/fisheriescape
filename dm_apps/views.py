@@ -311,13 +311,13 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["mmutools"] = {
-            "title": _("Marine Mammal Unit Tools and Necropsy Tracking"),
-            "description": _("Tools for Marine Mammal Unit and necropsy organization suite"),
+        app_dict["whalebrary"] = {
+            "title": _("Whalebrary / Baleinothèque"),
+            "description": _("Tools for Marine Mammal and Necropsy Organization"),
             "status": "dev",
             "access": "permission-required",
-            "url": reverse('mmutools:index'),
-            "icon_path": 'img/icons/mmutools.svg',
+            "url": reverse('whalebrary:index'),
+            "icon_path": 'img/icons/whalebrary.svg',
             "region": "regional",
         }
     except NoReverseMatch:

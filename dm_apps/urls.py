@@ -146,9 +146,9 @@ else:
     print("not connecting vault app")
 
 try:
-    urlpatterns += i18n_patterns(path('mmutools/', include('mmutools.urls')), prefix_default_language=True)
+    urlpatterns += i18n_patterns(path('whalebrary/', include('whalebrary.urls')), prefix_default_language=True)
 except RuntimeError:
-    print("not connecting mmutools app")
+    print("not connecting whalebrary app")
 
 if settings.INSTALLED_APPS.count("spring_cleanup"):
     urlpatterns += i18n_patterns(path('spring-cleanup/', include('spring_cleanup.urls')), prefix_default_language=True)
