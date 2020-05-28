@@ -258,7 +258,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
             messages.error(self.request, mark_safe(
                 f"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
 
-        adm_ready_trips = utils.get_adm_ready_trips().count()
+        adm_ready_trips = utils.get_adm_eligible_trips().count()
 
         tab_dict[admo_name]["unverified_trips"] = unverified_trips
         tab_dict[admo_name]["trip_verification_list_url"] = trip_verification_list_url
@@ -1293,7 +1293,7 @@ def manage_reviewers(request, type, triprequest=None, trip=None):
                     my_trip.save()
                     # do something with the formset.cleaned_data
                     messages.success(request, _("The reviewer list has been successfully updated"))
-                    return HttpResponseRedirect(reverse("travel:manage_trip_reviewers", args=(triprequest, type)))
+                    return HttpResponseRedirect(reverse("travel:manage_trip_reviewers", args=(trip, type)))
             else:
                 formset = forms.TripReviewerFormset(
                     queryset=qs,
@@ -1346,7 +1346,7 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
                 if self.kwargs.get("type").startswith("region"):
                     queryset = queryset.filter(lead_id=self.kwargs.get("type").replace("region-", ""))
                 elif self.kwargs.get("type") == "adm-hit-list":
-                    queryset = utils.get_adm_ready_trips().annotate(
+                    queryset = utils.get_adm_eligible_trips().annotate(
                         search_term=Concat(
                             'name',
                             Value(" "),
@@ -1428,10 +1428,11 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
         context["conf_field_list"] = conf_field_list
         context["reviewer_field_list"] = reviewer_field_list
         context["trip"] = self.get_object()
-        context["can_cancel"] = (self.get_object().is_adm_approval_required and in_adm_admin_group(self.request.user)) or (
+        context["can_modify"] = (self.get_object().is_adm_approval_required and in_adm_admin_group(self.request.user)) or (
                 not self.get_object().is_adm_approval_required and in_travel_admin_group(self.request.user))
 
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
+        context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
 
 
@@ -1730,10 +1731,10 @@ class TripSelectFormView(TravelAdminRequiredMixin, CommonPopoutFormView):
         return HttpResponseRedirect(reverse("travel:trip_reassign_confirm", kwargs={"trip_a": trip_a, "trip_b": trip_b, }))
 
 
-class TripReassignConfirmView(TravelAdminRequiredMixin, TemplateView):
+class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
     template_name = 'travel/trip_reassign_form.html'
     form_class = forms.forms.Form
-    width = 1200
+    width = 1500
     height = 1500
     h1 = _("Please confirm the following:")
     submit_text = _("Confirm")
@@ -2233,6 +2234,22 @@ class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     formset_class = forms.NJCRatesFormset
     success_url = reverse_lazy("travel:manage_njc_rates")
     home_url_name = "travel:index"
+
+
+
+class TripCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+    template_name = 'travel/formset.html'
+    h1 = "Manage Trip Categories"
+    queryset = models.TripCategory.objects.all()
+    formset_class = forms.TripCategoryFormset
+    success_url = reverse_lazy("travel:manage_trip_categories")
+    home_url_name = "travel:index"
+
+
+# class TripCategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+#     model = models.TripCategory
+#     success_url = reverse_lazy("travel:manage_trip_categories")
+
 
 
 class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):

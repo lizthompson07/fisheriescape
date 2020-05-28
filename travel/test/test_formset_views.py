@@ -23,6 +23,8 @@ class TestAllFormsets(CommonTest):
             "manage_costs",
             "manage_njc_rates",
             "manage_trip_subcategories",
+            "manage_trip_categories",
+            "manage_trip_reasons",
         ]
 
         self.test_urls = [reverse_lazy("travel:" + name) for name in self.test_url_names]
@@ -33,6 +35,8 @@ class TestAllFormsets(CommonTest):
             views.CostFormsetView,
             views.NJCRatesFormsetView,
             views.TripSubcategoryFormsetView,
+            views.TripCategoryFormsetView,
+            views.ReasonFormsetView,
         ]
         self.expected_template = 'travel/formset.html'
         self.user = self.get_and_login_user(in_group="travel_admin")
@@ -64,6 +68,7 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.Cost, "url_name": "delete_cost", "view": views.CostHardDeleteView},
             {"model": models.CostCategory, "url_name": "delete_cost_category", "view": views.CostCategoryHardDeleteView},
             {"model": models.TripSubcategory, "url_name": "delete_trip_subcategory", "view": views.TripSubcategoryHardDeleteView},
+            {"model": models.Reason, "url_name": "delete_reason", "view": views.ReasonHardDeleteView},
         ]
         self.test_dicts = list()
 

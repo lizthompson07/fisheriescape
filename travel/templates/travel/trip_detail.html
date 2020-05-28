@@ -54,61 +54,65 @@
         <div class="btns">
 
             {# ADM Admin stuff #}
-            {% if is_adm_admin %}
-                <a class="btn btn-dark" href="#" pop-href="{% url 'travel:trip_admin_notes_edit' object.id %}">
-                    {% trans "Administrative Notes" %}
-                </a>
+            <div class="btns mb-3">
+                {% if can_modify %}
+                    <a class="btn btn-admin" href="#" pop-href="{% url 'travel:trip_admin_notes_edit' object.id %}">
+                        {% trans "Administrative Notes" %}
+                    </a>
+                {% endif %}
+                {% if is_adm_admin %}
+                    {% if object.status.id != 43 and object.status.id != 32 and object.is_adm_approval_required %}
 
+                        {# Review BUTTON #}
+                        {% if object.status.id != 32 %}
+                            {% if object.status.id == 30 %} {# disabled for everyone #}
+                                {% echo "disabled" as review_disabled_var %}
+                                {% trans "This trip must be verified before a review can be started." as review_tip_text %}
+                            {% endif %}
 
-                {% if object.status.id != 43 and object.status.id != 32 and object.is_adm_approval_required %}
-
-                    {# Review BUTTON #}
-                    {% if object.status.id != 32 %}
-                        {% if object.status.id == 30 %} {# disabled for everyone #}
-                            {% echo "disabled" as review_disabled_var %}
-                            {% trans "This trip must be verified before a review can be started." as review_tip_text %}
+                            {% if object.status.id == 30 or object.status.id == 41 %}
+                                {% echo "success" as review_btn_color %}
+                                {% trans "Start a Review for this trip" as review_btn_text %}
+                            {% else %}
+                                {% echo "danger" as review_btn_color %}
+                                {% trans "Terminate the review process" as review_btn_text %}
+                            {% endif %}
                         {% endif %}
-
-                        {% if object.status.id == 30 or object.status.id == 41 %}
-                            {% echo "success" as review_btn_color %}
-                            {% trans "Start a Review for this trip" as review_btn_text %}
-                        {% else %}
-                            {% echo "danger" as review_btn_color %}
-                            {% trans "Terminate the review process" as review_btn_text %}
-                        {% endif %}
-
 
                         <span data-toggle="tooltip" title="{{ review_tip_text }}">
-                        <a class="btn btn-{{ review_btn_color }} {{ review_disabled_var }}"
+                        <a class="btn btn-admin {{ review_disabled_var }}"
                            href="{% url 'travel:trip_review_toggle' object.id %}">{{ review_btn_text }}</a>
                         </span>
                     {% endif %}
                 {% endif %}
 
-            {% endif %}
+                {# cancel button - only show if has permission and if trip is not already cancelled #}
+                {% if can_modify and object.status.id != 43 %}
+                    <a class="btn btn-admin" href="{% url 'travel:trip_cancel' object.id view.kwargs.type %}">
+                        {% trans "Cancel this Trip" %}
+                    </a>
+                {% endif %}
+
+                {# all admins can modify trip detail #}
+                {% if is_admin %}
+                    <a class="btn btn-admin" href="{% url 'travel:trip_edit' object.id view.kwargs.type %}">
+                        {% trans "Edit" %}
+                    </a>
+                {% endif %}
 
 
+                {% if object.trip_requests.count %}
+                    {% trans "You cannot delete a trip that is currently tagged on a trip request." as trip_delete_text %}
+                    {% echo "disabled" as delete_disabled_var %}
+                {% endif %}
 
-            <a class="btn btn-warning" href="{% url 'travel:trip_edit' object.id view.kwargs.type %}">
-                {% trans "Edit" %}
-            </a>
-
-            {# cancel button - only show if has permission and if trip is not already cancelled #}
-            {% if can_cancel and object.status.id != 43 %}
-                <a class="btn btn-danger" href="{% url 'travel:trip_cancel' object.id view.kwargs.type %}">
-                    {% trans "Cancel this Trip" %}
+                <span data-toggle="tooltip" title="{{ trip_delete_text }}">
+                <a class="btn btn-admin {{ delete_disabled_var }}" href="{% url 'travel:trip_delete' object.id view.kwargs.type %}">
+                    {% trans "Delete" %}
                 </a>
-            {% endif %}
-            {% if object.trip_requests.count %}
-                {% trans "You cannot delete a trip that is currently tagged on a trip request." as trip_delete_text %}
-                {% echo "disabled" as delete_disabled_var %}
-            {% endif %}
+                </span>
+            </div>
 
-            <span data-toggle="tooltip" title="{{ trip_delete_text }}">
-            <a class="btn btn-danger {{ delete_disabled_var }}" href="{% url 'travel:trip_delete' object.id view.kwargs.type %}">
-                {% trans "Delete" %}
-            </a>
-            </span>
         </div>
     </div>
 
