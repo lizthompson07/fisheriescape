@@ -781,6 +781,23 @@ TripSubcategoryFormset = modelformset_factory(
 )
 
 
+
+class TripCategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.TripCategory
+        fields = [
+            "name",
+            "nom",
+            "days_when_eligible_for_review",
+        ]
+
+
+TripCategoryFormset = modelformset_factory(
+    model=models.TripCategory,
+    form=TripCategoryForm,
+    extra=0,
+)
+
 class TripRequestCostForm(forms.ModelForm):
     class Meta:
         model = models.TripRequestCost

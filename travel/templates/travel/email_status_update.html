@@ -53,7 +53,7 @@
         </u>
     {% endif %}
     <br><br>
-    Vous pouvez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour accéder la voyage.
+    Vous pouvez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">ICI</a> pour accéder la voyage.
     Voici les détails du voyage:
 </p>
 

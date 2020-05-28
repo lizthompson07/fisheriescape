@@ -74,7 +74,8 @@ class Role(SimpleLookup):
 
 
 class TripCategory(SimpleLookup):
-    pass
+    days_when_eligible_for_review = models.IntegerField(verbose_name=_(
+        "Number days before earliest date that is eligible for review"))  # overflowing this since we DO NOT want it to be unique=True
 
 
 class TripSubcategory(Lookup):
@@ -330,11 +331,10 @@ class Conference(models.Model):
             self.adm_review_deadline = self.closest_date - datetime.timedelta(days=21)  # 14 business days -- > 21 calendar days?
 
             # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
-            if self.trip_subcategory and self.trip_subcategory.trip_category_id == 3:
-                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(365 / 12) * 3)
-            else:
-                # else they can start the review closer to the date: eight business weeks (60 days)
-                self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(days=(60))
+            # else they can start the review closer to the date: eight business weeks (60 days)
+            # this is stored in the table
+            self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(
+                days=self.trip_subcategory.trip_category.days_when_eligible_for_review)
 
         super().save(*args, **kwargs)
 
@@ -544,8 +544,8 @@ class TripRequest(models.Model):
         ordering = ["-start_date", "last_name"]
         unique_together = [("user", "parent_request"), ("user", "trip"), ]
 
-    def get_absolute_url(self):
-        return reverse('travel:request_detail', kwargs={'pk': self.id})
+    # def get_absolute_url(self):
+    #     return reverse('travel:request_detail', kwargs={'pk': self.id})
 
     def save(self, *args, **kwargs):
         # if the start and end dates are null, but there is a trip, use those.. to populate
