@@ -25,7 +25,7 @@
     {{ triprequest.current_reviewer.comments_html|safe }}
     </div>
     Please address these changes and then re-submit your request to continue with the approval process.
-    You can click <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">HERE</a> to access the request. Here are the request details:
+    You can click <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">HERE</a> to access the request. Here are the request details:
 </p>
 
 <table>
