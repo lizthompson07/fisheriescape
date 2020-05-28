@@ -1374,6 +1374,7 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
             # {"name": 'lead|{}'.format(_("Regional lead")), "class": "center-col", },
             {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
             {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
+            {"name": 'date_eligible_for_adm_review', "class": "center-col", },
             # {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
             # {"name": 'verified_by', "class": "", },
         ]

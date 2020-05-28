@@ -123,7 +123,6 @@ class TripRequestForm(forms.ModelForm):
             'is_group_request': forms.Select(choices=YES_NO_CHOICES),
             'objective_of_event': forms.Textarea(attrs=attr_row3),
             'benefit_to_dfo': forms.Textarea(attrs=attr_row3),
-            'multiple_attendee_rationale': forms.Textarea(attrs=attr_row3),
             'late_justification': forms.Textarea(attrs=attr_row3),
             'funding_source': forms.Textarea(attrs=attr_row3),
             'notes': forms.Textarea(attrs=attr_row3),
@@ -180,7 +179,6 @@ class TripRequestForm(forms.ModelForm):
         field_list = [
             'is_group_request',
             'purpose',
-            'reason',
             'trip',
             'departure_location',
             'destination',
@@ -212,12 +210,12 @@ class TripRequestForm(forms.ModelForm):
 
         # justification
         field_list = [
+            'reason',
             'role',
             'role_of_participant',
             'objective_of_event',
             'benefit_to_dfo',
             'multiple_conferences_rationale',
-            'multiple_attendee_rationale',
             'late_justification',
             'funding_source',
             'notes',
