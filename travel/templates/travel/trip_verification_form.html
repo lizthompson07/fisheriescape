@@ -267,7 +267,7 @@
 
         <div class="center-col">
             {% buttons %}
-                <button type="submit" class="btn btn-success">
+                <button type="submit" class="btn btn-success" {% if not object.trip_subcategory %}disabled{% endif %}>
                     {% trans "Yes, looks good!" %}
                 </button>
 
