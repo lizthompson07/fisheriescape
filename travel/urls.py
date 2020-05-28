@@ -30,7 +30,6 @@ urlpatterns = [
 
     path('request/<int:pk>/admin-notes/', views.TripRequestAdminNotesUpdateView.as_view(), name="admin_notes_edit"),
 
-
     # REVIEWER APPROVAL
     path('requests/review/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
     path('requests/review/<str:which_ones>/', views.TripRequestReviewListView.as_view(), name="request_review_list"),
@@ -44,7 +43,6 @@ urlpatterns = [
     path('review/<int:pk>/approve/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
     # This would be for an admin
     path('review/<int:pk>/approve/for/<str:type>/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
-
 
     # TRIP REQUEST REVIEWERS
     path('request/<int:triprequest>/reset-reviewers/for/<str:type>/', views.reset_reviewers, name="reset_tr_reviewers"),
@@ -62,8 +60,6 @@ urlpatterns = [
     path('trip/<int:pk>/delete/from/<str:type>/', views.TripDeleteView.as_view(), name="trip_delete"),
     path('trip/<int:pk>/cancel/from/<str:type>/', views.TripCancelUpdateView.as_view(), name="trip_cancel"),
 
-
-
     # verification / other admin views
     path('trip/<int:pk>/admin-notes/', views.TripAdminNotesUpdateView.as_view(), name="trip_admin_notes_edit"),
     path('trip/<int:pk>/review-process/', views.TripReviewProcessUpdateView.as_view(), name="trip_review_toggle"),
@@ -71,21 +67,19 @@ urlpatterns = [
          name="admin_trip_verification_list"),
     path('trip/<int:pk>/verify/region/<int:region>/adm/<int:adm>/', views.TripVerifyUpdateView.as_view(), name="trip_verify"),
     path('select-a-trip-to-reassign-requests-to/<int:pk>/', views.TripSelectFormView.as_view(), name="trip_reassign_select"),
-    path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(), name="trip_reassign_confirm"),
-
+    path('re-assign-requests-from-trip/<int:trip_a>/to/<int:trip_b>/', views.TripReassignConfirmView.as_view(),
+         name="trip_reassign_confirm"),
 
     # TRIP REVIEWERS
-    path('trip/<int:trip>/reset-reviewers/', views.reset_reviewers, name="reset_trip_reviewers"),
-    path('trip/<int:trip>/manage-reviewers/', views.manage_reviewers, name="manage_trip_reviewers"),
+    path('trip/<int:trip>/reset-reviewers/from/<str:type>/', views.reset_reviewers, name="reset_trip_reviewers"),
+    path('trip/<int:trip>/manage-reviewers/from/<str:type>/', views.manage_reviewers, name="manage_trip_reviewers"),
     path('trip-reviewer/<int:pk>/delete/', views.TripReviewerHardDeleteView.as_view(), name="delete_trip_reviewer"),
-
 
     # REVIEWER APPROVAL
     path('trips-for-your-review/<str:which_ones>/', views.TripReviewListView.as_view(), name="trip_review_list"),
     path('tagged-trips/', views.TripReviewListView.as_view(), name="trip_review_list"),
     path('trip-reviewer/<int:pk>/review/', views.TripReviewerUpdateView.as_view(), name="trip_reviewer_update"),
     path('trip/<int:pk>/skip/', views.SkipTripReviewerUpdateView.as_view(), name="trip_skip"),
-
 
     # FILES #
     #########
@@ -106,6 +100,8 @@ urlpatterns = [
     path('settings/cost/<int:pk>/delete/', views.CostHardDeleteView.as_view(), name="delete_cost"),
     path('settings/njc-rates/', views.NJCRatesFormsetView.as_view(), name="manage_njc_rates"),
     # path('settings/njc-rate/<int:pk>/delete/', views.NJCRatesHardDeleteView.as_view(), name="delete_njc_rate"),
+    path('settings/trip-categories/', views.TripCategoryFormsetView.as_view(), name="manage_trip_categories"),
+    # path('settings/trip-category/<int:pk>/delete/', views.TripCategoryHardDeleteView.as_view(), name="delete_trip_category"),
     path('settings/trip-subcategories/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),
     path('settings/trip-subcategory/<int:pk>/delete/', views.TripSubcategoryHardDeleteView.as_view(), name="delete_trip_subcategory"),
     path('settings/trip-reasons/', views.ReasonFormsetView.as_view(), name="manage_reasons"),
@@ -116,7 +112,6 @@ urlpatterns = [
     path('default-reviewer/new/', views.DefaultReviewerCreateView.as_view(), name="default_reviewer_new"),
     path('default-reviewer/<int:pk>/edit/', views.DefaultReviewerUpdateView.as_view(), name="default_reviewer_edit"),
     path('default-reviewer/<int:pk>/delete/', views.DefaultReviewerDeleteView.as_view(), name="default_reviewer_delete"),
-
 
     # TRIP REQUEST COST #
     #####################

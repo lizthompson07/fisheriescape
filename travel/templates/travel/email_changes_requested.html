@@ -46,7 +46,7 @@
     {{ triprequest.current_reviewer.comments_html|safe }}
     </div>
     Veuillez adresser ces modifications, puis soumettez à nouveau votre demande pour poursuivre le processus d'approbation.
-    Vous pouvez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id %}">ICI</a> pour accéder la demande.
+    Vous pouvez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">ICI</a> pour accéder la demande.
     Voici les détails du voyage:
 </p>
 

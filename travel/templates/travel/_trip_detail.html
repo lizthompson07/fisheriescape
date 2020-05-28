@@ -61,7 +61,7 @@
                     <th>{% trans "Connected requests" %}</th>
                     <td>
                         {% for obj in trip.trip_requests.all %}
-                            {% url 'travel:request_detail' obj.id as my_url %}
+                            {% url 'travel:request_detail' obj.id "all" as my_url %}
                             <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}">{{ obj }}</a>
                             by {{ obj.user }}
                             (STATUS: <span style="background-color: {{ obj.status.color }}">{{ obj.status }}</span>)

@@ -1,6 +1,18 @@
 {% extends "travel/list.html" %}
 {% load verbose_names %}
+{% load static %}
+{% load i18n %}
 
+{% block subcontent %}
+    {% if not object_list.count %}
+        <div class="center-col">
+            <img src="{% static 'travel/you_are_done.png' %}" alt="">
+            <h3>{% trans "Way to go! You're all done here" %} :)</h3>
+        </div>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
 
 {% block row %}
     {% if view.kwargs.which_ones == "awaiting" %}

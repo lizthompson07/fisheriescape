@@ -228,7 +228,7 @@
                 <ul>
                     {% for triprequest in object.trip_requests.all %}
                         <li>
-                            <a href="{% url 'travel:request_detail' triprequest.id %}" target="_blank">{{ triprequest }}</a>
+                            <a href="{% url 'travel:request_detail' triprequest.id "all" %}" target="_blank">{{ triprequest }}</a>
                             by {{ triprequest.user }}
                             (STATUS: <span style="background-color: {{ triprequest.status.color }}">{{ triprequest.status }}</span>)
 

@@ -215,7 +215,7 @@ class TestTripRequestSubmitUpdateView(CommonTest):
 
         # test that you cannot submit to a closed trip (ie. when not = 30 or 41)
         my_trip = self.instance.trip
-        my_trip.status_id = [43, 31, 32][faker.pyint(1, 3)]
+        my_trip.status_id = [43, 31, 32][faker.pyint(0, 2)]
         my_trip.save()
         self.assert_success_url(self.test_url, user=self.user)
         self.instance = models.TripRequest.objects.get(pk=self.instance.pk)
