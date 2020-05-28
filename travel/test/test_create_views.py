@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.views.generic import CreateView
 
 from shared_models.test.SharedModelsFactoryFloor import SectionFactory, BranchFactory
+from shared_models.views import CommonCreateView
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 from .. import views
@@ -16,8 +17,13 @@ class IndividualTripRequestCreate(CommonTest):
     def setUp(self):
         super().setUp()  # used to import fixutres
         self.trip_request = FactoryFloor.IndividualTripRequestFactory()
-        self.test_url = reverse_lazy('travel:request_new')
+        self.test_url = reverse_lazy('travel:request_new', args=("my",))
         self.expected_template = 'travel/trip_request_form.html'
+
+    @tag("travel", 'create', "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.TripCreateView, CommonCreateView)
+        self.assert_inheritance(views.TripCreateView, views.TravelAccessRequiredMixin)
 
     @tag("trip_request", 'create', 'response')
     def test_access(self):
@@ -46,7 +52,6 @@ class TestTripCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('travel:trip_new', kwargs={"type": "upcoming"})
-        self.test_url1 = reverse_lazy('travel:trip_new', kwargs={"region": 1})
         self.test_url2 = reverse_lazy('travel:trip_new', kwargs={"type": "pop"})
 
         self.expected_template = 'travel/trip_form.html'
@@ -54,15 +59,13 @@ class TestTripCreateView(CommonTest):
 
     @tag("travel", 'create', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.TripCreateView, CreateView)
+        self.assert_inheritance(views.TripCreateView, CommonCreateView)
 
     @tag("travel", 'create', "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
-        self.assert_not_broken(self.test_url1)
         self.assert_not_broken(self.test_url2)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
-        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template)
         self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template2)
 
     @tag("travel", 'create', "context")
@@ -71,13 +74,11 @@ class TestTripCreateView(CommonTest):
             "help_text_dict",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
-        self.assert_presence_of_context_vars(self.test_url1, context_vars)
         self.assert_presence_of_context_vars(self.test_url2, context_vars)
 
     @tag("travel", 'create', "submit")
     def test_submit(self):
         self.assert_success_url(self.test_url, data=FactoryFloor.TripFactory.get_valid_data())
-        self.assert_success_url(self.test_url1, data=FactoryFloor.TripFactory.get_valid_data())
         self.assert_success_url(self.test_url2, data=FactoryFloor.TripFactory.get_valid_data())
 
 

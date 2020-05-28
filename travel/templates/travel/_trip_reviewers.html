@@ -30,12 +30,12 @@
                     {% endif %}
 
                     <span data-toggle="tooltip" title="{{ help_text_1 }}">
-                    <a href="{% url 'travel:reset_trip_reviewers' trip.id %}"
+                    <a href="{% url 'travel:reset_trip_reviewers' trip.id view.kwargs.type %}"
                        class="btn btn-sm btn-warning {{ my_disbaled_var }}" id="reset-btn">
                         {% trans "Reset" %}
                     </a>
                     </span>
-                    <a href="{% url 'travel:manage_trip_reviewers' trip.id %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'travel:manage_trip_reviewers' trip.id view.kwargs.type %}" class="btn btn-sm btn-primary">
                         {% trans "Modify" %}
                     </a>
                 </div>

@@ -833,6 +833,9 @@ class TripRequestCost(models.Model):
     number_of_days = models.FloatField(verbose_name=_("number of days"), blank=True, null=True)
     amount_cad = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
 
+    def __str__(self):
+        return f'{self.cost} - {self.amount_cad}'
+
     class Meta:
         unique_together = (("trip_request", "cost"),)
 

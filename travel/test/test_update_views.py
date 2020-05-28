@@ -19,18 +19,23 @@ class TestTripRequestUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.IndividualTripRequestFactory()
-        self.test_url = reverse_lazy('travel:request_edit', kwargs={"pk": self.instance.pk})
+        self.instance_child = FactoryFloor.IndividualTripRequestFactory()
+        self.test_url = reverse_lazy('travel:request_edit', args=(self.instance.pk, "my"))
+        self.test_url1 = reverse_lazy('travel:request_edit', args=(self.instance_child.pk, "pop"))
         self.expected_template = 'travel/trip_request_form.html'
+        self.expected_template1 = 'travel/trip_request_form_popout.html'
 
     @tag("travel", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.TripRequestUpdateView, UpdateView)
+        self.assert_inheritance(views.TripRequestUpdateView, CommonUpdateView)
         self.assert_inheritance(views.TripRequestUpdateView, views.CanModifyMixin)
 
     @tag("travel", "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
+        self.assert_not_broken(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.instance.user)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.instance_child.user)
 
     @tag("travel", "context")
     def test_context(self):
@@ -41,44 +46,16 @@ class TestTripRequestUpdateView(CommonTest):
             "help_text_dict",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.instance.user)
+        self.assert_presence_of_context_vars(self.test_url1, context_vars, user=self.instance_child.user)
 
     @tag("travel", "submit")
     def test_submit(self):
         data = FactoryFloor.IndividualTripRequestFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.instance.user)
-
-
-class TestTripRequestUpdateViewPopup(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.ChildTripRequestFactory()
-        self.test_url = reverse_lazy('travel:request_edit', kwargs={"pk": self.instance.pk, "pop": 1})
-        self.expected_template = 'travel/trip_request_form_popout.html'
-
-    @tag("travel", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.TripRequestUpdateView, UpdateView)
-        self.assert_inheritance(views.TripRequestUpdateView, views.CanModifyMixin)
-
-    @tag("travel", "access")
-    def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.instance.user)
-
-    @tag("travel", "context")
-    def test_context(self):
-        context_vars = [
-            "cost_field_list",
-            "user_json",
-            "conf_json",
-            "help_text_dict",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.instance.user)
-
-    @tag("travel", "submit")
-    def test_submit(self):
         data = FactoryFloor.ChildTripRequestFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.instance.user)
+        self.assert_success_url(self.test_url1, data=data, user=self.instance_child.user)
+
+
 
 
 class TestTripUpdateView(CommonTest):
@@ -87,7 +64,7 @@ class TestTripUpdateView(CommonTest):
         self.instance = FactoryFloor.TripFactory()
         self.test_url0 = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk, "type": "upcoming"})
         self.test_url1 = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk, "type": "pop"})
-        self.test_url2 = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk, "region": 1})
+        self.test_url2 = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk, "type": "region-1"})
         self.expected_template = 'travel/trip_form.html'
         self.expected_template1 = 'travel/trip_form_popout.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
@@ -190,7 +167,7 @@ class TestTripRequestSubmitUpdateView(CommonTest):
         self.reviewer = FactoryFloor.ReviewerFactory()
         self.instance = self.reviewer.trip_request
         self.user = self.instance.user
-        self.test_url = reverse_lazy('travel:request_submit', kwargs={"pk": self.instance.pk})
+        self.test_url = reverse_lazy('travel:request_submit', args={self.instance.pk, "my"})
         self.expected_template = 'travel/trip_request_submission_form.html'
 
     @tag("request_submit", "view")
