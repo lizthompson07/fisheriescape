@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class WhalebraryConfig(AppConfig):
+class CampConfig(AppConfig):
     name = 'whalebrary'

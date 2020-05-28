@@ -1,0 +1,58 @@
+[
+  {
+    "model": "whalebrary.geartype",
+    "pk": 1,
+    "fields": {
+      "name": "common",
+      "nom": null
+    }
+  },
+  {
+    "model": "whalebrary.geartype",
+    "pk": 2,
+    "fields": {
+      "name": "general",
+      "nom": null
+    }
+  },
+  {
+    "model": "whalebrary.geartype",
+    "pk": 3,
+    "fields": {
+      "name": "not",
+      "nom": null
+    }
+  },
+  {
+    "model": "whalebrary.geartype",
+    "pk": 4,
+    "fields": {
+      "name": "effect",
+      "nom": null
+    }
+  },
+  {
+    "model": "whalebrary.geartype",
+    "pk": 5,
+    "fields": {
+      "name": "real",
+      "nom": null
+    }
+  },
+  {
+    "model": "whalebrary.geartype",
+    "pk": 6,
+    "fields": {
+      "name": "half",
+      "nom": null
+    }
+  },
+  {
+    "model": "whalebrary.geartype",
+    "pk": 7,
+    "fields": {
+      "name": "you",
+      "nom": null
+    }
+  }
+]

@@ -1,0 +1,136 @@
+{% extends "whalebrary/whalebrary_base.html" %}}
+{% load static %}
+{% load bootstrap4 %}
+
+
+{% block content %}
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+        }
+
+        /* Safari */
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+</style>
+
+<link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen"
+      type="text/css">
+<style>
+        .ms-container {
+            width: 700px;
+        }
+
+</style>
+
+{# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+<div class="container">
+    <div class="jumbotron">
+        <h1>Please enter the Report Details:</h1>
+    </div>
+</div>
+
+<div class="container">
+    <form method="post">
+
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="{{field.name}}_div">
+                {% bootstrap_field field %}
+            </div>
+        {% endfor %}
+        <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
+    </form>
+    <br>
+    <p>
+    </p>
+
+    <div class="loader hidden"></div>
+</div>
+{% endblock  %}
+{% block body_js %}
+
+<script type="application/javascript">
+
+        function hideAll() {
+            $(".location_div").addClass("gone");
+            $(".item_name_div").addClass("gone");
+
+
+            $("#id_report").prop('required', true);
+            $("#id_location").prop('required', false);
+            $("#id_item_name").prop('required', false);
+
+        }
+
+        function configureForm() {
+            var reportChoice = $("#id_report").val();
+            // container summary report
+            if (reportChoice == 1) {
+                $(".location_div").removeClass("gone");
+                $("#id_location").prop('required', true)
+            }
+
+            // sized item report
+            else if (reportChoice == 2) {
+                $(".item_name_div").removeClass("gone");
+                $("#id_item_name").prop('required', true);
+
+            }
+        }
+
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            hideAll()
+            configureForm()
+        });
+
+        $("#id_report").change(function () {
+            hideAll()
+            configureForm()
+            console.log("test")
+        })
+
+        $("form").submit(function () {
+            var reportChoice = $("#id_report")[0].value;
+            // species count report
+            if (reportChoice != 4) {
+                $(this).addClass("hidden");
+                $(".loader").removeClass("hidden");
+                window.setTimeout(closeLoader, 5000)
+            }
+        })
+
+        function closeLoader() {
+            $("form").removeClass("hidden");
+            $(".loader").addClass("hidden");
+        }
+
+</script>
+
+{% endblock  %}
+
