@@ -433,7 +433,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
 
     def get_queryset(self):
         if self.kwargs.get("type") == "all" and in_travel_admin_group(self.request.user):
-            queryset = models.TripRequest.objects.all()
+            queryset = models.TripRequest.objects.filter(parent_request__isnull=True)
         else:
             queryset = utils.get_related_trips(self.request.user)
         return queryset

@@ -69,7 +69,7 @@
 
 
             {% url 'travel:request_new' "my" as request_new_url %}
-            {% url 'travel:request_list' "my" as request_list_url %}
+            {% url 'travel:request_list' user|slugify as request_list_url %}
 
             {% url 'travel:request_review_list' "awaiting" as active_tr_reviews_list_url %}
             {% url 'travel:request_review_list' as all_tr_reviews_list_url %}

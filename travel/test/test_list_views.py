@@ -40,6 +40,10 @@ class TripRequestListView(CommonTest):
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
 
+    def test_excludes_child_requests():
+        # TODO: make sure that the list is not showing child requests
+        pass
+
 
 class TestTripListView(CommonTest):
     def setUp(self):
