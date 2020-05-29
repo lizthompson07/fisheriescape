@@ -67,35 +67,12 @@
 {% block body_js %}
 
     <script type="application/javascript">
-        var userObj = {{ user_json|safe }};
-        var sectionObj = {{ section_json|safe }};
-        var myId = "";
 
-        function refreshUserInfo() {
-            myId = $("#id_user").val();
-            $("#id_first_name").val(userObj[myId]["first_name"]);
-            $("#id_last_name").val(userObj[myId]["last_name"]);
-            $("#id_email").val(userObj[myId]["email"]);
-        }
-
-
-        $("#id_user").change(function () {
-            refreshUserInfo();
-        });
-
-
-        $("#id_section").change(function () {
-            mySectionId = $(this).val();
-            $("#id_recommender_1").val(sectionObj[mySectionId]["recommender_1"]);
-            $("#id_recommender_2").val(sectionObj[mySectionId]["recommender_2"]);
-            $("#id_recommender_3").val(sectionObj[mySectionId]["recommender_3"]);
-            $("#id_approver").val(sectionObj[mySectionId]["approver"]);
-            $('select').trigger("chosen:updated");
-        });
-
-        $(document).ready(function () {
-            // Stuff to do as soon as the DOM is ready
-            refreshUserInfo();
+        $("#id_start_date").change(function () {
+            var startDate = $(this).val();
+            if (startDate != null) {
+                $("#id_end_date").flatpickr().setDate(startDate);
+            }
         });
 
 
