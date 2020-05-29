@@ -155,7 +155,7 @@
 
             {# Unsubmitted only: if the trip is closed for further registration #}
         {% elif not object.submitted and trip %}
-            {% if triprequest.trip.status.id != 30 and triprequest.trip.status.id != 41 %}
+            {% if triprequest.trip.status.id != 30 and triprequest.trip.status.id != 41 and object.status.id != 16 %}
                 {% echo "disabled" as submit_disabled_var %}
                 {% trans "This trip is closed to further requests." as submit_tip_text %}
             {% endif %}
