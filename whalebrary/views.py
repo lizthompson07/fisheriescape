@@ -103,8 +103,6 @@ class ItemListView(WhalebraryAccessRequired, FilterView):
             'category',
             'gear_type',
             'suppliers',
-            'last_purchased',
-            'last_purchased_by',
         ]
         return context
 
@@ -124,13 +122,11 @@ class ItemDetailView(WhalebraryAccessRequired, DetailView):
             'category',
             'gear_type',
             'suppliers',
-            'last_purchased',
-            'last_purchased_by',
 
         ]
 
-        # contexts for _quantity.html file
-        context["random_qty"] = models.Quantity.objects.first()
+        # contexts for _transaction.html file
+        context["random_qty"] = models.Transaction.objects.first()
         context["qty_field_list"] = [
             'quantity',
             'status',
@@ -142,8 +138,8 @@ class ItemDetailView(WhalebraryAccessRequired, DetailView):
         # TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType' -- have to add a case where there is
         # no info yet in those fields? -- fixed it I think~!!! WOOOOH
 
-        ohqty = self.get_object().quantities.filter(status=1).aggregate(dsum=Sum('quantity')).get('dsum')
-        lentqty = self.get_object().quantities.filter(status=3).aggregate(dsum=Sum('quantity')).get('dsum')
+        ohqty = self.get_object().transactions.filter(status=1).aggregate(dsum=Sum('quantity')).get('dsum')
+        lentqty = self.get_object().transactions.filter(status=3).aggregate(dsum=Sum('quantity')).get('dsum')
 
         if ohqty is None:
             ohqty = 0
@@ -168,11 +164,11 @@ class ItemDetailView(WhalebraryAccessRequired, DetailView):
 
 
         # context for _lending.html
-        context["random_lend"] = models.Quantity.objects.first()
+        context["random_lend"] = models.Transaction.objects.first()
         context["lend_field_list"] = [
             'lent_to',
             'quantity',
-            'lent_date',
+            'date',
             'return_date',
         ]
 
@@ -217,7 +213,7 @@ class ItemDeleteView(WhalebraryEditRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
-        ## LOCATION ##
+# # LOCATION # #
 
 class LocationListView(WhalebraryAdminAccessRequired, FilterView):
     template_name = "whalebrary/location_list.html"
@@ -281,27 +277,32 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
-    ##QUANTITY##
+    ##TRANSACTION##
 
 
-class QuantityListView(WhalebraryAccessRequired, FilterView):
-    template_name = "whalebrary/quantity_list.html"
-    filterset_class = filters.QuantityFilter
-    queryset = models.Quantity.objects.annotate(
-        search_term=Concat('id', 'item', 'quantity', 'status', 'lent_to', 'lent_date', 'return_date', 'last_audited', 'last_audited_by', 'location', 'bin_id',
-                           output_field=TextField()))
+class TransactionListView(WhalebraryAccessRequired, FilterView):
+    template_name = "whalebrary/transaction_list.html"
+    filterset_class = filters.TransactionFilter
+    queryset = models.Transaction.objects.annotate(
+        search_term=Concat('id', 'item', 'quantity', 'status', 'date', 'lent_to', 'return_date', 'order_number',
+                           'purchased_by', 'reason', 'incident', 'last_audited', 'last_audited_by', 'location',
+                           'bin_id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Quantity.objects.first()
+        context["my_object"] = models.Transaction.objects.first()
         context["field_list"] = [
             'id',
             'item',
             'quantity',
             'status',
+            'date',
             'lent_to',
-            'lent_date',
             'return_date',
+            'order_number',
+            'purchased_by',
+            'reason',
+            'incident',
             'last_audited',
             'last_audited_by',
             'location',
@@ -310,8 +311,8 @@ class QuantityListView(WhalebraryAccessRequired, FilterView):
         return context
 
 
-class QuantityDetailView(WhalebraryAccessRequired, DetailView):
-    model = models.Quantity
+class TransactionDetailView(WhalebraryAccessRequired, DetailView):
+    model = models.Transaction
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -320,9 +321,13 @@ class QuantityDetailView(WhalebraryAccessRequired, DetailView):
             'item',
             'quantity',
             'status',
+            'date',
             'lent_to',
-            'lent_date',
             'return_date',
+            'order_number',
+            'purchased_by',
+            'reason',
+            'incident',
             'last_audited',
             'last_audited_by',
             'location',
@@ -332,76 +337,76 @@ class QuantityDetailView(WhalebraryAccessRequired, DetailView):
         return context
 
 
-class QuantityUpdateView(WhalebraryEditRequiredMixin, UpdateView):
-    model = models.Quantity
-    form_class = forms.QuantityForm
+class TransactionUpdateView(WhalebraryEditRequiredMixin, UpdateView):
+    model = models.Transaction
+    form_class = forms.TransactionForm
 
     def get_template_names(self):
-       return "whalebrary/quantity_form_popout.html" if self.kwargs.get("pop") else "whalebrary/quantity_form.html"
+       return "whalebrary/transaction_form_popout.html" if self.kwargs.get("pop") else "whalebrary/transaction_form.html"
 
     def get_form_class(self):
-        return forms.QuantityForm1 if self.kwargs.get("pop") else forms.QuantityForm
+        return forms.TransactionForm1 if self.kwargs.get("pop") else forms.TransactionForm
 
     def form_valid(self, form):
         my_object = form.save()
-        messages.success(self.request, _(f"Quantity record successfully updated for : {my_object}"))
-        success_url = reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:quantity_detail', kwargs={"pk": my_object.id})
+        messages.success(self.request, _(f"Transaction record successfully updated for : {my_object}"))
+        success_url = reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:transaction_detail', kwargs={"pk": my_object.id})
         return HttpResponseRedirect(success_url)
 
 
-class QuantityCreateView(WhalebraryEditRequiredMixin, CreateView):
-    model = models.Quantity
-    form_class = forms.QuantityForm
+class TransactionCreateView(WhalebraryEditRequiredMixin, CreateView):
+    model = models.Transaction
+    form_class = forms.TransactionForm
 
     def get_template_names(self):
-       return "whalebrary/quantity_form_popout.html" if self.kwargs.get("pk") else "whalebrary/quantity_form.html"
+       return "whalebrary/transaction_form_popout.html" if self.kwargs.get("pk") else "whalebrary/transaction_form.html"
 
     def get_form_class(self):
-        return forms.QuantityForm1 if self.kwargs.get("pk") else forms.QuantityForm
+        return forms.TransactionForm1 if self.kwargs.get("pk") else forms.TransactionForm
 
     def form_valid(self, form):
         my_object = form.save()
-        messages.success(self.request, _(f"Quantity record successfully created for : {my_object}"))
-        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy('whalebrary:quantity_list'))
+        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy('whalebrary:transaction_list'))
 
 
     def get_initial(self):
         return {'item': self.kwargs.get('pk')}
 
 
-class QuantityDeleteView(WhalebraryEditRequiredMixin, DeleteView):
-    model = models.Quantity
+class TransactionDeleteView(WhalebraryEditRequiredMixin, DeleteView):
+    model = models.Transaction
     permission_required = "__all__"
-    success_message = 'The quantity was successfully deleted!'
+    success_message = 'The transaction was successfully deleted!'
 
     def get_template_names(self):
-        return "whalebrary/generic_confirm_delete_popout.html" if self.kwargs.get("pop") else "whalebrary/quantity_confirm_delete.html"
+        return "whalebrary/generic_confirm_delete_popout.html" if self.kwargs.get("pop") else "whalebrary/transaction_confirm_delete.html"
 
     def delete(self, request, *args, **kwargs):
         my_object = self.get_object()
         my_object.delete()
         messages.success(self.request, self.success_message)
-        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:quantity_list'))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:transaction_list'))
 
-    ##BULK QUANTITY##
+    ##BULK TRANSACTION##
 
-class BulkQuantityListView(WhalebraryAdminAccessRequired, FilterView):
-    filterset_class = filters.BulkQuantityFilter
-    template_name = 'whalebrary/bulk_quantity_list.html'
-    queryset = models.Quantity.objects.annotate(
-        search_term=Concat('id', 'item__item_name', 'quantity', 'status', 'lent_to', 'lent_date', 'return_date', 'location', 'bin_id',
+class BulkTransactionListView(WhalebraryAdminAccessRequired, FilterView):
+    filterset_class = filters.BulkTransactionFilter
+    template_name = 'whalebrary/bulk_transaction_list.html'
+    queryset = models.Transaction.objects.annotate(
+        search_term=Concat('id', 'item__item_name', 'quantity', 'status', 'date', 'lent_to', 'return_date', 'location', 'bin_id',
                            output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Quantity.objects.first()
+        context["my_object"] = models.Transaction.objects.first()
         context["field_list"] = [
             'id',
             'item',
             'quantity',
             'status',
+            'date',
             'lent_to',
-            'lent_date',
             'return_date',
             'location',
             'bin_id',
@@ -409,15 +414,15 @@ class BulkQuantityListView(WhalebraryAdminAccessRequired, FilterView):
         return context
 
 # from https://github.com/ccnmtl/dmt/blob/master/dmt/main/views.py#L614
-# class BulkQuantityDetailView(WhalebraryAdminAccessRequired, DetailView):
-#     model = models.Quantity #or should this be Quantity? TBD
+# class BulkTransactionDetailView(WhalebraryAdminAccessRequired, DetailView):
+#     model = models.Transaction #or should this be Transaction? TBD
 #
 #     @staticmethod
-#     def reassign_status(request, quantities, new_status):
+#     def reassign_status(request, transactions, new_status):
 #         item_names = []
-#         for pk in quantities:
-#             item = get_object_or_404(models.Quantity, pk=pk)
-#             item.reassign(request.quantity.status, new_status, '')
+#         for pk in transactions:
+#             item = get_object_or_404(models.Transaction, pk=pk)
+#             item.reassign(request.transaction.status, new_status, '')
 #             item_names.append(
 #                 '<a href="{}">{}</a>'.format(
 #                     item.get_absolute_url(), item.item_name))
@@ -431,22 +436,22 @@ class BulkQuantityListView(WhalebraryAdminAccessRequired, FilterView):
 #
 #     def post(self, request, *args, **kwargs):
 #         action = request.POST.get('action')
-#         quantities = request.POST.getlist('_selected_action')
+#         transactions = request.POST.getlist('_selected_action')
 #
 #         if action == 'edit' and request.POST.get('edit_status'):
 #             edit_status = request.POST.get('edit_status')
 #             status = get_object_or_404(Status, name=edit_status)
-#             self.reassign_status(request, quantities, status)
+#             self.reassign_status(request, transactions, status)
 #
 #         return HttpResponseRedirect(
-#             reverse('bulk_quantity_detail', args=args, kwargs=kwargs))
+#             reverse('bulk_transaction_detail', args=args, kwargs=kwargs))
 
 
-class BulkQuantityDeleteView(WhalebraryAdminAccessRequired, DeleteView):
-    model = models.Quantity
+class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, DeleteView):
+    model = models.Transaction
     permission_required = "__all__"
-    success_url = reverse_lazy('whalebrary:bulk_quantity_list')
-    success_message = 'The quantity was successfully deleted!'
+    success_url = reverse_lazy('whalebrary:bulk_transaction_list')
+    success_message = 'The transaction was successfully deleted!'
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
@@ -824,19 +829,19 @@ class ContainerSummaryListView(WhalebraryAccessRequired, ListView):
     template_name = 'whalebrary/report_container_summary.html'
 
     def get_queryset(self, **kwargs):
-        qs = models.Quantity.objects.filter(location_id=self.kwargs['location'])
+        qs = models.Transaction.objects.filter(location_id=self.kwargs['location'])
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Quantity.objects.first()
+        context["my_object"] = models.Transaction.objects.first()
 
         context["field_list"] = [
             'item',
             'quantity',
             'status',
+            'date',
             'lent_to',
-            'lent_date',
             'return_date',
             'last_audited',
             'last_audited_by',
@@ -848,19 +853,19 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, ListView):
     template_name = 'whalebrary/report_sized_item_summary.html'
 
     def get_queryset(self, **kwargs):
-        qs = models.Quantity.objects.filter(item__item_name__iexact=self.kwargs['item_name'])
+        qs = models.Transaction.objects.filter(item__item_name__iexact=self.kwargs['item_name'])
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Quantity.objects.first()
+        context["my_object"] = models.Transaction.objects.first()
 
         context["field_list"] = [
             'item',
             'quantity',
             'status',
+            'date',
             'lent_to',
-            'lent_date',
             'return_date',
             'last_audited',
             'last_audited_by',

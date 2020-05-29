@@ -26,13 +26,13 @@ class SpecificItemFilter(django_filters.FilterSet):
                                                                          widget=forms.TextInput())
 
 
-class QuantityFilter(django_filters.FilterSet):
+class TransactionFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
 
-class BulkQuantityFilter(django_filters.FilterSet):
+class BulkTransactionFilter(django_filters.FilterSet):
     class Meta:
-        model = models.Quantity
+        model = models.Transaction
         fields = {
             'status': ['exact'],
             'lent_to': ['exact'],

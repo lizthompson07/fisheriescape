@@ -119,10 +119,10 @@ class Item(models.Model):
 
     @property
     def lent_out_quantities(self):
-        """find all status=3 (lent out) quantities"""
-        return self.quantities.filter(status=3)
+        """find all status=3 (lent out) transactions"""
+        return self.transactions.filter(status=3)
         # same as:
-        # return Quantity.objects.filter(item=self, statuses=3)
+        # return Transaction.objects.filter(item=self, statuses=3)
 
     def get_absolute_url(self):
         return reverse("whalebrary:item_detail", kwargs={"pk": self.id})
@@ -161,82 +161,6 @@ class Status(models.Model):
         else:
             return "{}".format(self.name)
 
-class Transaction(models.Model):
-    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
-    quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("status"))
-    date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("date"))
-    # for lent out status
-    lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
-    return_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                       verbose_name=_("expected return date"))
-    # for on order status
-    order_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("order number"))
-    # for purchased status
-    purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("purchased by"))
-    # for used status
-    reason = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("reason"))
-    incident = models.ForeignKey(Incident, blank=True, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("incident"))  # if linked to use at an incident
-    # auditing
-    last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                        verbose_name=_("last audited"))
-    last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
-    # location of quantities taken/used/received
-    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
-                                 verbose_name=_("location stored"))
-    bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
-
-# class Quantity(models.Model):
-#     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("item"))
-#     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
-#     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="quantities", verbose_name=_("status"))
-#     lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
-#     lent_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-#                                      verbose_name=_("lent date"))
-#     return_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-#                                        verbose_name=_("expected return date"))
-#     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-#                                         verbose_name=_("last audited"))
-#     last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
-#     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="quantities",
-#                                  verbose_name=_("location stored"))
-#     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
-
-    def __str__(self):
-
-        # check to see if a french value is given
-        if getattr(self, str(_("item"))):
-
-            my_str = "{}".format(getattr(self, str(_("item"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            my_str = "{}".format(self.item)
-
-        if self.quantity:
-            return '{} - {}'.format(self.quantity, my_str)
-
-    def get_absolute_url(self):
-        return reverse("whalebrary:quantity_detail", kwargs={"pk": self.id})
-
-    # from https://github.com/ccnmtl/dmt/blob/master/dmt/main/models.py
-    # def reassign(self, user, assigned_to, comment):
-    #     self.assigned_user = assigned_to.user
-    #     self.save()
-    #     e = Events.objects.create(
-    #         status="OPEN",
-    #         event_date_time=timezone.now(),
-    #         item=self)
-    #     Comment.objects.create(
-    #         event=e,
-    #         username=user.username,
-    #         author=user.user,
-    #         comment="<b>Reassigned to %s</b><br />\n%s" % (
-    #             assigned_to.fullname, comment),
-    #         add_date_time=timezone.now())
-    #     self.add_subscriber(assigned_to)
-
-    def get_fullname(self):
-        return self.item or self.id
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/item_<id>/<filename>
@@ -436,3 +360,65 @@ class Incident(models.Model):
 
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})
+
+
+class Transaction(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
+    quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("status"))
+    date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("date"))
+    # for lent out status
+    lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
+    return_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+                                       verbose_name=_("expected return date"))
+    # for on order status
+    order_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("order number"))
+    # for purchased status
+    purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("purchased by"))
+    # for used status
+    reason = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("reason"))
+    incident = models.ForeignKey(Incident, blank=True, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("incident"))  # if linked to use at an incident
+    # auditing
+    last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+                                        verbose_name=_("last audited"))
+    last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
+    # location of quantities taken/used/received
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
+                                 verbose_name=_("location stored"))
+    bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
+
+    def __str__(self):
+
+        # check to see if a french value is given
+        if getattr(self, str(_("item"))):
+
+            my_str = "{}".format(getattr(self, str(_("item"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = "{}".format(self.item)
+
+        if self.quantity:
+            return '{} - {}'.format(self.quantity, my_str)
+
+    def get_absolute_url(self):
+        return reverse("whalebrary:transaction_detail", kwargs={"pk": self.id})
+
+    # from https://github.com/ccnmtl/dmt/blob/master/dmt/main/models.py
+    # def reassign(self, user, assigned_to, comment):
+    #     self.assigned_user = assigned_to.user
+    #     self.save()
+    #     e = Events.objects.create(
+    #         status="OPEN",
+    #         event_date_time=timezone.now(),
+    #         item=self)
+    #     Comment.objects.create(
+    #         event=e,
+    #         username=user.username,
+    #         author=user.user,
+    #         comment="<b>Reassigned to %s</b><br />\n%s" % (
+    #             assigned_to.fullname, comment),
+    #         add_date_time=timezone.now())
+    #     self.add_subscriber(assigned_to)
+
+    def get_fullname(self):
+        return self.item or self.id

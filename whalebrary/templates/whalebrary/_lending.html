@@ -9,7 +9,7 @@
     </h3>
 </div>
 
-{% if object.lent_out_quantities.count == 0 %}
+{% if object.lent_out_transactions.count == 0 %}
     <em>
         {% trans "None of this item is currently lent out" %}
     </em><br>
@@ -17,7 +17,7 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-<!--            if quantity status = lent out then display table of information-->
+<!--            if transaction status = lent out then display table of information-->
             {% for field in lend_field_list %}
             <th>
 
@@ -26,7 +26,7 @@
             {% endfor %}
         </tr>
         <tbody>
-         {% for obj in object.lent_out_quantities.all %}
+         {% for obj in object.lent_out_transactions.all %}
             <tr>
             {% for field in lend_field_list %}
             <td>
@@ -40,7 +40,7 @@
         </tbody>
     </table>
 {% endif %}
-<a class="" href="#" pop-href="{% url 'whalebrary:quantity_new' object.id %}">
+<a class="" href="#" pop-href="{% url 'whalebrary:transaction_new' object.id %}">
     {% trans "(Lend out item)" %}
 </a>
 <br>

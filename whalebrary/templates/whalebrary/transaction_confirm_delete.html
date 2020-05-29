@@ -7,8 +7,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'whalebrary:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:quantity_list' %}">Quantity List</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:quantity_detail' object.id %}">{{object}}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'whalebrary:transaction_list' %}">Transaction List</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'whalebrary:transaction_detail' object.id %}">{{object}}</a></li>
             <li class="breadcrumb-item active" aria-current="page">Delete</li>
         </ol>
     </nav>
@@ -23,7 +23,7 @@
         <form method="post" class="form">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Delete</button>
-            <a class="btn btn-secondary" href="{% url 'whalebrary:quantity_detail' object.id %}">Cancel</a>
+            <a class="btn btn-secondary" href="{% url 'whalebrary:transaction_detail' object.id %}">Cancel</a>
         </form>
 
     </div>

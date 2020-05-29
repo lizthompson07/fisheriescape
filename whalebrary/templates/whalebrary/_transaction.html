@@ -15,13 +15,13 @@
 
 <div class="">
     <h3>
-        {% trans "Quantity:" %}
+        {% trans "Transaction:" %}
     </h3>
 </div>
 
-{% if object.quantities.count == 0 %}
+{% if object.transactions.count == 0 %}
     <em>
-        {% trans "No quantities have been added to this entry" %}
+        {% trans "No transactions have been added to this entry" %}
     </em><br>
 {% else %}
 
@@ -35,7 +35,7 @@
             {% endfor %}
         </tr>
         <tbody>
-        {% for obj in object.quantities.all %}
+        {% for obj in object.transactions.all %}
             <tr>
             {% for field in qty_field_list %}
                 {% if field == "location" %}
@@ -50,13 +50,13 @@
             {% endfor %}
             <td>
                 <a href="#"
-                   pop-href="{% url 'whalebrary:quantity_edit' obj.id 1 %}">
+                   pop-href="{% url 'whalebrary:transaction_edit' obj.id 1 %}">
                     <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
                 </a>
             </td>
             <td>
                 <a href="#"
-                   pop-href="{% url 'whalebrary:quantity_delete' obj.id 1 %}">
+                   pop-href="{% url 'whalebrary:transaction_delete' obj.id 1 %}">
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
                 </a>
             </td>
@@ -73,7 +73,7 @@
         </tbody>
     </table>
 {% endif %}
-<a class="" href="#" pop-href="{% url 'whalebrary:quantity_new' object.id %}">
+<a class="" href="#" pop-href="{% url 'whalebrary:transaction_new' object.id %}">
     {% trans "(Add Inventory)" %}
 </a>
 <br>

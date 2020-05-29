@@ -14,15 +14,15 @@ class ItemForm(forms.ModelForm):
             # 'suppliers': forms.SelectMultiple(attrs=multi_select_js),
         }
 
-class QuantityForm(forms.ModelForm):
+class TransactionForm(forms.ModelForm):
     class Meta:
-        model = models.Quantity
+        model = models.Transaction
         fields = "__all__"
 
 
-class QuantityForm1(forms.ModelForm):
+class TransactionForm1(forms.ModelForm):
     class Meta:
-        model = models.Quantity
+        model = models.Transaction
         fields = "__all__"
         widgets = {
             'item': forms.HiddenInput(),

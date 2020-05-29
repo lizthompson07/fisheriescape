@@ -19,22 +19,22 @@ urlpatterns = [
     path('item/<int:pk>/edit/', views.ItemUpdateView.as_view(), name="item_edit"),
     path('item/<int:pk>/delete/', views.ItemDeleteView.as_view(), name="item_delete"),
 
-# QUANTITIES #
+# TRANSACTIONS #
 
-    path('quantity_list/', views.QuantityListView.as_view(), name="quantity_list"),
-    path('quantity_detail/<int:pk>/view/', views.QuantityDetailView.as_view(), name="quantity_detail"),
-    path('item/<int:pk>/quantity/new/', views.QuantityCreateView.as_view(), name="quantity_new"),
-    path('quantity/new/', views.QuantityCreateView.as_view(), name="quantity_new"),
-    path('quantity/<int:pk>/edit/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
-    path('quantity/<int:pk>/edit/pop/<int:pop>/', views.QuantityUpdateView.as_view(), name="quantity_edit"),
-    path('quantity/<int:pk>/delete/pop/<int:pop>/', views.QuantityDeleteView.as_view(), name="quantity_delete"),
-    path('quantity/<int:pk>/delete/', views.QuantityDeleteView.as_view(), name="quantity_delete"),
+    path('transaction_list/', views.TransactionListView.as_view(), name="transaction_list"),
+    path('transaction_detail/<int:pk>/view/', views.TransactionDetailView.as_view(), name="transaction_detail"),
+    path('item/<int:pk>/transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
+    path('transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
+    path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="transaction_edit"),
+    path('transaction/<int:pk>/edit/pop/<int:pop>/', views.TransactionUpdateView.as_view(), name="transaction_edit"),
+    path('transaction/<int:pk>/delete/pop/<int:pop>/', views.TransactionDeleteView.as_view(), name="transaction_delete"),
+    path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="transaction_delete"),
 
-# BULK QUANTITIES #
+# BULK TRANSACTIONS #
 
-    path('bulk_quantity_list/', views.BulkQuantityListView.as_view(), name="bulk_quantity_list"),
-    # path('bulk_quantity_detail/<int:pk>/view/', views.BulkQuantityDetailView.as_view(), name="bulk_quantity_detail"),
-    path('quantity/<int:pk>/delete/', views.BulkQuantityDeleteView.as_view(), name="bulk_quantity_delete"),
+    path('bulk_transaction_list/', views.BulkTransactionListView.as_view(), name="bulk_transaction_list"),
+    # path('bulk_transaction_detail/<int:pk>/view/', views.BulkTransactionDetailView.as_view(), name="bulk_transaction_detail"),
+    path('transaction/<int:pk>/delete/', views.BulkTransactionDeleteView.as_view(), name="bulk_transaction_delete"),
 
 # LOCATION #
 
