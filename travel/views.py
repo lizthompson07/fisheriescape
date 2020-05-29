@@ -983,9 +983,6 @@ class TripRequestReviewListView(TravelAccessRequiredMixin, CommonListView):
         {"name": 'total_request_cost|{}'.format(_("Total cost (DFO)")), "class": "", "width": ""},
     ]
 
-
-
-
     def get_h1(self):
         if self.kwargs.get("type") == "awaiting":
             return _("Requests Awaiting Your Review")
@@ -1617,8 +1614,20 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
             return HttpResponseRedirect(reverse("travel:index"))
 
 
-class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
+class TripVerificationListView(TravelAdminRequiredMixin, CommonListView):
     template_name = 'travel/trip_verification_list.html'
+    home_url_name = "travel:index"
+    h1 = gettext_lazy("Trips Awaiting Verification")
+
+    field_list = [
+        {"name": 'fiscal_year', "class": "", "width": "75px"},
+        {"name": 'tname|{}'.format("Name"), "class": "", "width": ""},
+        {"name": 'trip_subcategory', "class": "", "width": ""},
+        {"name": 'location|{}'.format(_("location")), "class": "", "width": ""},
+        {"name": 'dates|{}'.format(_("dates")), "class": "", "width": "180px"},
+        {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", "width": ""},
+        {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", "width": ""},
+    ]
 
     def get_queryset(self):
         if self.kwargs.get("adm") == 1:
@@ -1629,18 +1638,6 @@ class AdminTripVerificationListView(TravelAdminRequiredMixin, ListView):
             )
         return queryset
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Conference.objects.first()
-        context["field_list"] = [
-            'fiscal_year',
-            'tname|{}'.format("Name"),
-            'location|{}'.format(_("location")),
-            'dates|{}'.format(_("dates")),
-            'number_of_days|{}'.format(_("length (days)")),
-            'is_adm_approval_required|{}'.format(_("ADM approval required?")),
-        ]
-        return context
 
 
 class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
@@ -2237,7 +2234,6 @@ class NJCRatesFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     home_url_name = "travel:index"
 
 
-
 class TripCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
     h1 = "Manage Trip Categories"
@@ -2250,7 +2246,6 @@ class TripCategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
 # class TripCategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
 #     model = models.TripCategory
 #     success_url = reverse_lazy("travel:manage_trip_categories")
-
 
 
 class TripSubcategoryFormsetView(TravelAdminRequiredMixin, CommonFormsetView):

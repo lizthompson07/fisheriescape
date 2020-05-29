@@ -267,7 +267,10 @@ class CommonListView(ListView, CommonListMixin):
 
     def get_h1(self):
         # take a stab at getting the h1
-        return self.get_queryset().model._meta.verbose_name_plural
+        if self.h1:
+            return self.h1
+        else:
+            return self.get_queryset().model._meta.verbose_name_plural.title()
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
