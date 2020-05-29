@@ -15,7 +15,7 @@
     {% endif %}
 {% endblock %}
 
-{% block row %}
+{% block table_tr %}
     {% if awaiting %}
         {% url 'travel:tr_review_update' object.current_reviewer.id as my_url %}
     {% elif admin %}

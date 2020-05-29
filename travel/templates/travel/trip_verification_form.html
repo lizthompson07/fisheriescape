@@ -151,11 +151,17 @@
                     <span class=""> {{ object.tname }}</span>
                 </td>
                 <td>
-                    <span class=""> {{ object.trip_subcategory }}</span>
-                    {% if object.trip_subcategory.tdescription %}
-                        <div class="">
-                            <span class=""> ({{ object.trip_subcategory.tdescription }})</span>
-                        </div>
+                    {% if not object.trip_subcategory %}
+                        <h5 class="red-font">
+                            There is no trip purpose. You will not be allowed to submit this form without selecting a trip purpose!
+                        </h5>
+                    {% else %}
+                        <span class=""> {{ object.trip_subcategory }}</span>
+                        {% if object.trip_subcategory.tdescription %}
+                            <div class="">
+                                <span class=""> ({{ object.trip_subcategory.tdescription }})</span>
+                            </div>
+                        {% endif %}
                     {% endif %}
                 </td>
                 <td>
@@ -172,22 +178,6 @@
                             {% endif %}
                         {% endfor %}
                     </ul>
-                    {#                    <table class="table table-striped">#}
-                    {#                        <thead>#}
-                    {#                        <th class="invert">Trip Purpose</th>#}
-                    {#                        <th class="invert">Description</th>#}
-                    {#                        </thead>#}
-                    {#                        {% for item in trip_subcategories %}#}
-                    {#                            <tr>#}
-                    {#                                <td>#}
-                    {#                                    {{ item }}#}
-                    {#                                </td>#}
-                    {#                                <td>#}
-                    {#                                    {{ item.tdescription|nz:"no description provided" }}#}
-                    {#                                </td>#}
-                    {#                            </tr>#}
-                    {#                        {% endfor %}#}
-                    {#                    </table>#}
 
                 </td>
             </tr>

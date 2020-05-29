@@ -14,7 +14,7 @@
     {% endif %}
 {% endblock %}
 
-{% block row %}
+{% block table_tr %}
     {% if view.kwargs.which_ones == "awaiting" %}
         {% url row_object_url_name object.current_reviewer.id as my_url %}
     {% else %}
@@ -25,7 +25,7 @@
     <tr href="{{ my_url }}">
         {% for field in field_list %}
             <td class="{{ field.class }}">
-                {% block field_td %}
+                {% block table_td %}
                     {% get_field_value object field.name safe=True %}
                 {% endblock %}
             </td>
