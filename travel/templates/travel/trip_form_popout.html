@@ -28,7 +28,7 @@
 
             {% for field in form %}
                 {% if field.name == "name" %}
-                   <div class="alert alert-danger" role="alert">
+                    <div class="alert alert-danger" role="alert">
                         <h4 class="alert-heading blink-me mb-3">
                             {% trans "Important:" %}
                         </h4>
@@ -57,7 +57,7 @@
                     {% bootstrap_field field placeholder="" %}
                 {% endif %}
 
-{#                {% bootstrap_field field placeholder="" size="small" %}#}
+                {#                {% bootstrap_field field placeholder="" size="small" %}#}
             {% endfor %}
 
             {% buttons %}
@@ -77,6 +77,13 @@
 
     <script type="application/javascript">
         window.resizeTo(width = 700, height = 900);
+
+        $("#id_start_date").change(function () {
+            var startDate = $(this).val();
+            if (startDate != null) {
+                $("#id_end_date").flatpickr().setDate(startDate);
+            }
+        });
 
     </script>
 {% endblock %}
