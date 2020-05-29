@@ -6,7 +6,7 @@ from django.views.generic import ListView
 from django_filters.views import FilterView
 
 from shared_models.test.SharedModelsFactoryFloor import RegionFactory
-from shared_models.views import CommonFilterView
+from shared_models.views import CommonFilterView, CommonListView
 from travel.test import FactoryFloor
 from .. import models
 from .. import views
@@ -82,7 +82,7 @@ class TestTripListView(CommonTest):
         self.assert_presence_of_context_vars(self.test_url1, context_vars, user=self.admin_user)
 
 
-class TestAdminTripVerificationListView(CommonTest):
+class TestTripVerificationListView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.TripFactory()
@@ -92,8 +92,8 @@ class TestAdminTripVerificationListView(CommonTest):
 
     @tag("travel", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.AdminTripVerificationListView, ListView)
-        self.assert_inheritance(views.AdminTripVerificationListView, views.TravelAdminRequiredMixin)
+        self.assert_inheritance(views.TripVerificationListView, CommonListView)
+        self.assert_inheritance(views.TripVerificationListView, views.TravelAdminRequiredMixin)
 
     @tag("travel", 'list', "access")
     def test_view(self):
@@ -119,7 +119,7 @@ class TestDefaultReviewerListView(CommonTest):
 
     @tag("default_reviewer_list", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.DefaultReviewerListView, ListView)
+        self.assert_inheritance(views.DefaultReviewerListView, CommonListView)
 
     @tag("default_reviewer_list", 'list', "access")
     def test_view(self):
