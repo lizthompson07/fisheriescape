@@ -11,11 +11,11 @@ from django.core.files import File
 from shared_models import models as shared_models
 
 
-def remove_empty_trips():
-    for trip in models.Conference.objects.all():
-        if trip.trip_requests.count() == 0:
-            trip.delete()
-
+# def remove_empty_trips():
+#     for trip in models.Conference.objects.all():
+#         if trip.trip_requests.count() == 0:
+#             trip.delete()
+#
 
 
 def check_trip_purposes():

@@ -470,6 +470,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
         context["is_owner"] = my_object.user == self.request.user
         context["now"] = timezone.now()
         context["trip"] = my_object.trip
+        context["triprequest"] = my_object
 
         # Admins should be given the same permissions as a current reviewer; the two are synonymous
         if context["is_admin"]:
@@ -477,6 +478,7 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
         else:
             is_current_reviewer = my_object.current_reviewer.user == self.request.user if my_object.current_reviewer else None
 
+        context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().reviewers.all()]
         context["is_current_reviewer"] = is_current_reviewer
         if my_object.submitted and not is_current_reviewer:
             context["report_mode"] = True
@@ -1037,7 +1039,6 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, CommonListView)
         # context["random_object"] = models.TripRequest.objects.first()
         context["admin"] = True
         context["type_bilingual"] = _(self.kwargs.get("type")).upper()
-
         return context
 
 
@@ -1083,7 +1084,8 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
         context['help_text_dict'] = get_help_text_dict()
-
+        context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().trip_request.reviewers.all()]
+        context["trip"] = my_object.trip_request.trip
         context["triprequest"] = my_object.trip_request
         context["report_mode"] = True
         if my_object.role_id in [5, 6, ]:
@@ -1430,6 +1432,8 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
 
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
         context["is_admin"] = in_travel_admin_group(self.request.user)
+        context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().reviewers.all()]
+
         return context
 
 
@@ -1638,7 +1642,6 @@ class TripVerificationListView(TravelAdminRequiredMixin, CommonListView):
         return queryset
 
 
-
 class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
     template_name = 'travel/trip_verification_form.html'
     model = models.Conference
@@ -1809,7 +1812,7 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
             return HttpResponseRedirect(reverse("shared_models:close_me"))
 
 
-class TripReviewListView(TravelADMAdminRequiredMixin, CommonListView):
+class TripReviewListView(TravelAccessRequiredMixin, CommonListView):
     model = models.Conference
     template_name = 'travel/trip_review_list.html'
     home_url_name = "travel:index"
@@ -1876,6 +1879,11 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
         context["trip"] = self.get_object().trip
         context["reviewer_field_list"] = reviewer_field_list
         context["report_mode"] = True
+        trip = self.get_object().trip
+        context["is_adm_admin"] = in_adm_admin_group(self.request.user)
+        context["is_admin"] = in_travel_admin_group(self.request.user)
+        context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().trip.reviewers.all()]
+
         return context
 
     def form_valid(self, form):
@@ -2287,11 +2295,11 @@ class DefaultReviewerListView(TravelAdminRequiredMixin, CommonListView):
     new_object_url_name = "travel:default_reviewer_new"
     home_url_name = "travel:index"
     field_list = [
-            {"name": 'user', "class": "", "width": ""},
-            {"name": 'sections', "class": "", "width": ""},
-            {"name": 'branches', "class": "", "width": ""},
-            {"name": 'reviewer_roles', "class": "", "width": ""},
-        ]
+        {"name": 'user', "class": "", "width": ""},
+        {"name": 'sections', "class": "", "width": ""},
+        {"name": 'branches', "class": "", "width": ""},
+        {"name": 'reviewer_roles', "class": "", "width": ""},
+    ]
 
 
 class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):
