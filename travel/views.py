@@ -293,7 +293,6 @@ request_field_list = [
     'destination',
     'start_date',
     'end_date',
-    'purpose',
     'reason',
     'trip',
 
@@ -322,7 +321,6 @@ request_group_field_list = [
     'user',
     'section',
     'destination',
-    'purpose',
     'reason',
     'trip',
 
@@ -562,6 +560,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
 
 class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
     model = models.TripRequest
+    home_url_name = "travel:index"
 
     def get_template_names(self):
         if self.kwargs.get("parent_request"):
@@ -2123,7 +2122,7 @@ class TravelPlanPDF(TravelAccessRequiredMixin, PDFTemplateView):
         context = super().get_context_data(**kwargs)
         my_object = models.TripRequest.objects.get(id=self.kwargs['pk'])
         context["parent"] = my_object
-        context["purpose_list"] = models.Purpose.objects.all()
+        context["trip_category_list"] = models.TripCategory.objects.all()
 
         cost_categories = models.CostCategory.objects.all()
         my_dict = dict()
@@ -2280,20 +2279,19 @@ class ReasonHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
 
 # Default Reviewer Settings
 
-class DefaultReviewerListView(TravelAdminRequiredMixin, ListView):
+class DefaultReviewerListView(TravelAdminRequiredMixin, CommonListView):
     model = models.DefaultReviewer
     template_name = 'travel/default_reviewer_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'user',
-            'sections',
-            'branches',
-            'reviewer_roles',
+    h1 = gettext_lazy("Default Reviewers")
+    h3 = gettext_lazy("Use this module to set the default reviewers that get added to a trip request.")
+    new_object_url_name = "travel:default_reviewer_new"
+    home_url_name = "travel:index"
+    field_list = [
+            {"name": 'user', "class": "", "width": ""},
+            {"name": 'sections', "class": "", "width": ""},
+            {"name": 'branches', "class": "", "width": ""},
+            {"name": 'reviewer_roles', "class": "", "width": ""},
         ]
-        context["random_object"] = self.object_list.first()
-        return context
 
 
 class DefaultReviewerUpdateView(TravelAdminRequiredMixin, UpdateView):

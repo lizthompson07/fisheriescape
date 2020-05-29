@@ -32,12 +32,12 @@
     {% endif %}
 {% endblock %}
 
-{% block row %}
+{% block table_tr %}
     {% url 'travel:trip_verify' object.id view.kwargs.region view.kwargs.adm as my_url %}
     <tr href="{{ my_url }}">
         {% for field in field_list %}
             <td class="{{ field.class }}">
-                {% block field_td %}
+                {% block table_td %}
                     {% get_field_value object field.name safe=True %}
                 {% endblock %}
             </td>
@@ -45,7 +45,7 @@
     </tr>
 {% endblock %}
 {##}
-{#{% block row %}#}
+{#{% block table_tr %}#}
 {#    {% for object in object_list %}#}
 {#        <tr href="{{ my_url }}">#}
 {#            {% for field in field_list %}#}

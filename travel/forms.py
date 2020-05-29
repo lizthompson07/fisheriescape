@@ -147,6 +147,7 @@ class TripRequestForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
             'end_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
             'departure_location': forms.TextInput(attrs={"class": "not-a-group-field"}),
+            'reason': forms.Select(attrs={"class": "not-a-group-field"}),
             'role': forms.Select(attrs={"class": "not-a-group-field"}),
             'region': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}),
             'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field"}),
@@ -178,7 +179,6 @@ class TripRequestForm(forms.ModelForm):
         # general trip infomation
         field_list = [
             'is_group_request',
-            'purpose',
             'trip',
             'departure_location',
             'destination',
@@ -343,6 +343,7 @@ class ChildTripRequestForm(forms.ModelForm):
             'departure_location',
             'non_dfo_costs',
             'non_dfo_org',
+            'reason',
             'role',
             'role_of_participant',
             'exclude_from_travel_plan',
@@ -407,6 +408,7 @@ class ChildTripRequestForm(forms.ModelForm):
 
         # justification
         field_list = [
+            'reason',
             'role',
             'role_of_participant',
             'multiple_conferences_rationale',

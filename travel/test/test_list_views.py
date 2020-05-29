@@ -105,7 +105,6 @@ class TestTripVerificationListView(CommonTest):
     def test_context(self):
         context_vars = [
             "field_list",
-            "my_object",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
 
