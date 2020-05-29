@@ -207,6 +207,13 @@ class RstCreate(CommonCreate):
         return initial
 
 
+class RttCreate(CommonCreate):
+    key = 'rtt'
+    model = models.RttTimezoneCode
+    form_class = forms.RttForm
+    title = _("Time Zone")
+
+
 class SteCreate(CommonCreate):
     key = 'ste'
     model = models.SteStationEvent
@@ -292,11 +299,17 @@ class DepUpdate(CommonUpdate):
 
         return context
 
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_dep")
+
 
 class EmmUpdate(CommonUpdate):
     model = models.EmmMakeModel
     form_class = forms.EmmForm
     title = _("Update Make/Model")
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_emm")
 
 
 class EqhUpdate(CommonUpdate):
@@ -310,6 +323,9 @@ class EqpUpdate(CommonUpdate):
     form_class = forms.EqpForm
     title = _("Update Equipment")
 
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_eqp")
+
 
 class EqrUpdate(CommonUpdate):
     model = models.EqrRecorderProperties
@@ -322,17 +338,26 @@ class MorUpdate(CommonUpdate):
     form_class = forms.MorForm
     title = _("Update Mooring Setup")
 
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_mor")
+
 
 class PrjUpdate(CommonUpdate):
     model = models.PrjProject
     form_class = forms.PrjForm
     title = _("Update Project")
 
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_prj")
+
 
 class StnUpdate(CommonUpdate):
     model = models.StnStation
     form_class = forms.StnForm
     title = _("Update Station")
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_stn")
 
 
 class CommonDetails(DetailView):
@@ -438,6 +463,14 @@ class RscDetails(CommonDetails):
     editable = False
 
 
+class RttDetails(CommonDetails):
+    key = 'rtt'
+    model = models.RttTimezoneCode
+    title = _("Time Zone")
+    template_name = "whalesdb/details_rtt.html"
+    fields = ['rtt_name', 'rtt_abb', 'rtt_period']
+
+
 class StnDetails(CommonDetails):
     key = 'stn'
     model = models.StnStation
@@ -486,6 +519,15 @@ class CommonList(CommonAuthFilterView):
 
         return ['tname|Name', 'tdescription|Description']
 
+    def get_create_url(self):
+        return self.create_url if self.create_url is not None else "whalesdb:create_{}".format(self.key)
+
+    def get_details_url(self):
+        return self.details_url if self.details_url is not None else "whalesdb:details_{}".format(self.key)
+
+    def get_update_url(self):
+        return self.update_url if self.update_url is not None else "whalesdb:update_{}".format(self.key)
+
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
@@ -497,9 +539,9 @@ class CommonList(CommonAuthFilterView):
         # if the details_url = False in the extending view then False will be passed to the context['detials_url']
         # variable and in the template where the variable is used for buttons and links the button and/or links can
         # be left out without causing URL Not Found issues.
-        context['create_url'] = self.create_url if self.create_url is not None else "whalesdb:create_{}".format(self.key)
-        context['details_url'] = self.details_url if self.details_url is not None else "whalesdb:details_{}".format(self.key)
-        context['update_url'] = self.update_url if self.update_url is not None else "whalesdb:update_{}".format(self.key)
+        context['create_url'] = self.get_create_url()
+        context['details_url'] = self.get_details_url()
+        context['update_url'] = self.get_update_url()
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
@@ -567,6 +609,18 @@ class RscList(CommonList):
     title = _("Recording Schedule List")
     fields = ['rsc_name', 'rsc_period']
     editable = False
+
+
+class RttList(CommonList):
+    key = 'rtt'
+    model = models.RttTimezoneCode
+    filterset_class = filters.RttFilter
+    title = _("Time Zone")
+    fields = ['rtt_name', 'rtt_abb', 'rtt_offset']
+    editable = False
+
+    def get_details_url(self):
+        return None
 
 
 class StnList(CommonList):

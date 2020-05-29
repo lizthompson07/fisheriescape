@@ -25,6 +25,8 @@ class TestDepUpdate(CommonUpdateTest):
 
         self.expected_form = forms.DepForm
 
+        self.expected_success_url = reverse_lazy("whalesdb:list_dep")
+
     # Users must be logged in to update object
     @tag('dep', 'update_dep', 'response', 'access')
     def test_update_dep_en(self):
@@ -108,6 +110,8 @@ class TestEmmUpdate(CommonUpdateTest):
 
         self.expected_form = forms.EmmForm
 
+        self.expected_success_url = reverse_lazy("whalesdb:list_emm")
+
     # Users must be logged in to update object
     @tag('emm', 'update_emm', 'response', 'access')
     def test_update_emm_en(self):
@@ -163,6 +167,7 @@ class TestEqhUpdate(CommonUpdateTest):
         self.expected_view = views.EqhUpdate
 
         self.expected_form = forms.EqhForm
+
 
     # Users must be logged in to update object
     @tag('eqh', 'update_eqh', 'response', 'access')
@@ -223,6 +228,8 @@ class TestEqpUpdate(CommonUpdateTest):
 
         self.expected_form = forms.EqpForm
 
+        self.expected_success_url = reverse_lazy("whalesdb:list_eqp")
+
     # Users must be logged in to update object
     @tag('eqp', 'update_eqp', 'response', 'access')
     def test_update_eqp_en(self):
@@ -277,6 +284,7 @@ class TestEqrUpdate(CommonUpdateTest):
         self.expected_view = views.EqrUpdate
 
         self.expected_form = forms.EqrForm
+
 
     # Users must be logged in to update object
     @tag('eqr', 'update_eqr', 'response', 'access')
@@ -336,6 +344,8 @@ class TestMorUpdate(CommonUpdateTest):
 
         self.expected_form = forms.MorForm
 
+        self.expected_success_url = reverse_lazy("whalesdb:list_mor")
+
     # Users must be logged in to update object
     @tag('mor', 'update_mor', 'response', 'access')
     def test_update_mor_en(self):
@@ -391,6 +401,8 @@ class TestPrjUpdate(CommonUpdateTest):
 
         self.expected_form = forms.PrjForm
 
+        self.expected_success_url = reverse_lazy("whalesdb:list_prj")
+
     # Users must be logged in to create new stations
     @tag('prj', 'update_prj', 'response', 'access')
     def test_update_prj_en(self):
@@ -445,6 +457,8 @@ class TestStnUpdate(CommonUpdateTest):
         self.expected_view = views.StnUpdate
 
         self.expected_form = forms.StnForm
+        
+        self.expected_success_url = reverse_lazy("whalesdb:list_stn")
 
     # Users must be logged in to create new stations
     @tag('stn', 'update_stn', 'response', 'access')

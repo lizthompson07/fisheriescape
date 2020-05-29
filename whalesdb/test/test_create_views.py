@@ -615,6 +615,45 @@ class TestRstCreate(CommonCreateTest):
         super().assert_successful_url()
 
 
+class TestRttCreate(CommonCreateTest):
+
+    rtt_id = 1
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.RttFactory.get_valid_data()
+        self.test_url = reverse_lazy('whalesdb:create_rtt')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_view = views.RstCreate
+
+        self.expected_form = forms.RstForm
+
+        self.expected_success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+    # Users must be logged in to create new stations
+    @tag('rtt', 'create', 'response', 'access')
+    def test_create_rtt_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('rtt', 'create', 'response', 'access')
+    def test_create_rtt_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
+    @tag('rtt', 'create', 'response', 'access')
+    def test_create_rtt_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+
 class TestSteCreate(CommonCreateTest):
 
     def setUp(self):
