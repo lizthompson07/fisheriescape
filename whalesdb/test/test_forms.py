@@ -218,6 +218,18 @@ class TestRstForm(CommonFormTest):
         self.assertIsInstance(form.fields['rsc'].widget, d_forms.HiddenInput)
 
 
+class TestRttForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.RttForm
+        self.test_factory = factory.RttFactory
+
+    @tag('rtt', 'form', 'valid_data')
+    def test_rtt_valid_data(self):
+        self.assert_valid_data()
+
+
 class TestSteForm(CommonFormTest):
 
     def setUp(self) -> None:

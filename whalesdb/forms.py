@@ -134,6 +134,12 @@ class RstForm(forms.ModelForm):
         }
 
 
+class RttForm(forms.ModelForm):
+    class Meta:
+        model = models.RttTimezoneCode
+        exclude = []
+
+
 class StnForm(forms.ModelForm):
     min_height = 935
     min_width = 600

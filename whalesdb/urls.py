@@ -67,4 +67,9 @@ urlpatterns = [
 
     path('create/tea/', views.TeaCreate.as_view(), name="create_tea"),
     path('list/tea/', views.TeaList.as_view(), name="list_tea"),
+
+    path('create/rtt/', views.RttCreate.as_view(), name="create_rtt"),
+    path('list/rtt/', views.RttList.as_view(), name="list_rtt"),
+    path('details/rtt/<int:pk>/', views.RttDetails.as_view(), name="details_rtt"),
 ]
+

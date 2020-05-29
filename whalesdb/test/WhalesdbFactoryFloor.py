@@ -360,6 +360,25 @@ class RstFactory(factory.django.DjangoModelFactory):
         return valid_data
 
 
+class RttFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.RttTimezoneCode
+
+    rtt_name = factory.lazy_attribute(faker.word())
+    rtt_abb = factory.lazy_attribute(lambda o: faker.word()[0:5])
+    rtt_offset = factory.lazy_attribute(faker.random_int(-12, 12))
+
+    @staticmethod
+    def get_valid_data():
+        valid_data = {
+            'rtt_name': faker.word(),
+            'rtt_abb': 'ASDFG',
+            'rtt_offset': faker.random_int(-12, 12)
+        }
+
+        return valid_data
+
+
 class TeaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.TeaTeamMember

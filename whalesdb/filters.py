@@ -53,6 +53,14 @@ class RscFilter(django_filters.FilterSet):
         fields = []
 
 
+class RttFilter(django_filters.FilterSet):
+    rtt_name = django_filters.CharFilter(field_name='rtt_name', lookup_expr='icontains')
+
+    class Meta:
+        model = models.RttTimezoneCode
+        fields = []
+
+
 class StnFilter(django_filters.FilterSet):
     stn_name = django_filters.CharFilter(field_name='stn_name', lookup_expr='icontains')
     stn_code = django_filters.ChoiceFilter(field_name='stn_code')

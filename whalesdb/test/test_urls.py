@@ -232,3 +232,14 @@ class URLTest(TestCase):
     def test_url_list_tea_view(self):
         self.basic_en_url_test('whalesdb:list_tea', 'whalesdb/list/tea/', views.TeaList)
 
+    @tag('rtt', 'url', 'list')
+    def test_url_list_rtt_view(self):
+        self.basic_en_url_test('whalesdb:list_rtt', 'whalesdb/list/rtt/', views.RttList)
+
+    @tag('rtt', 'url', 'details')
+    def test_url_details_rtt_view(self):
+        self.basic_en_url_test('whalesdb:details_rtt', 'whalesdb/details/rtt/1/', views.RttDetails, [1])
+
+    @tag('rtt', 'url', 'create')
+    def test_url_details_rtt_view(self):
+        self.basic_en_url_test('whalesdb:create_rtt', 'whalesdb/create/rtt/', views.RttCreate)
