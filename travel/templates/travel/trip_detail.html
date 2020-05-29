@@ -100,18 +100,19 @@
         {% endif %}
 
 
+        {% if can_modify %}
 
+            {% if object.trip_requests.count %}
+                {% trans "You cannot delete a trip that is currently tagged on a trip request." as trip_delete_text %}
+                {% echo "disabled" as delete_disabled_var %}
+            {% endif %}
 
-        {% if object.trip_requests.count %}
-            {% trans "You cannot delete a trip that is currently tagged on a trip request." as trip_delete_text %}
-            {% echo "disabled" as delete_disabled_var %}
+            <span data-toggle="tooltip" title="{{ trip_delete_text }}">
+            <a class="btn btn-danger {{ delete_disabled_var }}" href="{% url 'travel:trip_delete' object.id view.kwargs.type %}">
+                {% trans "Delete" %}
+            </a>
+            </span>
         {% endif %}
-
-        <span data-toggle="tooltip" title="{{ trip_delete_text }}">
-        <a class="btn btn-danger {{ delete_disabled_var }}" href="{% url 'travel:trip_delete' object.id view.kwargs.type %}">
-            {% trans "Delete" %}
-        </a>
-        </span>
     </div>
 
 
