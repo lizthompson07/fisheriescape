@@ -1,14 +1,12 @@
-{% extends "travel/base.html" %}
+{% extends "travel/list.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load i18n %}
 {% load verbose_names %}
 {% load custom_filters %}
-{% block subtitle %}
-    - {% trans "Trip Verification List" %}
-{% endblock %}
-{% block content %}
 
+{% block header %}
+    {{ block.super }}
     <style>
         .indent-lg {
             margin-left: 5em;
@@ -20,98 +18,59 @@
         }
 
     </style>
-    {% trans "Trips Awaiting Verfication" as my_title %}
+{% endblock %}
 
-    <div class="container-fluid">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                    {% trans "Home" %}
-                </a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ my_title }}</li>
-            </ol>
-        </nav>
 
-        <div class="mb-3">
-            <h1 class="big-header">{{ my_title }}</h1>
+{% block subcontent %}
+    {% if not object_list.count %}
+        <div class="center-col">
+            <img src="{% static 'travel/you_are_done.png' %}" alt="">
+            <h3>Way to go! You're all done here :)</h3>
         </div>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block row %}
+    {% url 'travel:trip_verify' object.id view.kwargs.region view.kwargs.adm as my_url %}
+    <tr href="{{ my_url }}">
+        {% for field in field_list %}
+            <td class="{{ field.class }}">
+                {% block field_td %}
+                    {% get_field_value object field.name safe=True %}
+                {% endblock %}
+            </td>
+        {% endfor %}
+    </tr>
+{% endblock %}
+{##}
+{#{% block row %}#}
+{#    {% for object in object_list %}#}
+{#        <tr href="{{ my_url }}">#}
+{#            {% for field in field_list %}#}
+{#                {% if "number" in field or "adm" in field %}#}
+{#                    <td class="center-col">#}
+{#                        {% if "adm" in field %}#}
+{#                            <span class="{% if object.is_adm_approval_required %}red-font{% endif %}">#}
+{##}
+{#                                        {% get_field_value object field safe=True %}#}
+{#                                        </span>#}
+{#                        {% else %}#}
+{#                            {% get_field_value object field safe=True %}#}
+{#                        {% endif %}#}
+{#                    </td>#}
+{#                {% else %}#}
+{#                    <td>{% get_field_value object field safe=True %}</td>#}
+{#                {% endif %}#}
+{#            {% endfor %}#}
+{#            <td class="center-col">{{ object.traveller_list|length|zero2val:"---" }}</td>#}
+{#            <td class="center-col">{{ object.bta_traveller_list|length|zero2val:"---" }}</td>#}
+{#            <td class="center-col">{{ object.total_traveller_list|length|zero2val:"---" }}</td>#}
+{#            <td class="center-col">{{ object.trip_requests.count|zero2val:"---" }}</td>#}
+{#        </tr>#}
+{#    {% endfor %}#}
+{##}
+{#{% endblock %}#}
 
 
-        {% if not object_list.count %}
-            <div class="center-col">
-                <img src="{% static 'travel/you_are_done.png' %}" alt="">
-                <h3>Way to go! You're all done here :)</h3>
-            </div>
-        {% else %}
-
-            <div class="row">
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col">
-                            {% trans "(click on a header to sort table)" %}
-                        </div>
-                        <div class="col">
-                            {% blocktrans with object_list.count as count %}
-                                <em>displaying {{ count }} records</em>
-                            {% endblocktrans %}
-                        </div>
-                    </div>
-
-                    <table class="table table-sm table-hover sortable">
-                        <thead>
-
-                        <tr>
-                            {% for field in field_list %}
-                                {% if field == "fiscal_year" %}
-                                    <th style="width: 6%">{% get_verbose_label my_object field %}</th>
-                                {% elif "dates" in field %}
-                                    <th style="width: 12%">{% get_verbose_label my_object field %}</th>
-                                {% elif "number" in field or "adm" in field %}
-                                    <th class="center-col">{% get_verbose_label my_object field %}</th>
-                                {% else %}
-                                    <th scope="col">{% get_verbose_label my_object field %}</th>
-                                {% endif %}
-                            {% endfor %}
-                            <th class="center-col">
-                                {% trans "Non-BTA travellers" %}
-                            </th>
-                            <th class="center-col">{% trans "BTA travellers" %}</th>
-                            <th class="center-col">{% trans "Total travellers" %}</th>
-                            <th class="center-col">{% trans "Connected requests" %}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for object in object_list %}
-                            {% url 'travel:trip_verify' object.id view.kwargs.region view.kwargs.adm as my_url %}
-                            <tr href="{{ my_url }}">
-                                {% for field in field_list %}
-                                    {% if "number" in field or "adm" in field %}
-                                        <td class="center-col">
-                                            {% if "adm" in field %}
-                                                <span class="{% if object.is_adm_approval_required %}red-font{% endif %}">
-
-                                        {% get_field_value object field safe=True %}
-                                        </span>
-                                            {% else %}
-                                                {% get_field_value object field safe=True %}
-                                            {% endif %}
-                                        </td>
-                                    {% else %}
-                                        <td>{% get_field_value object field safe=True %}</td>
-                                    {% endif %}
-                                {% endfor %}
-                                <td class="center-col">{{ object.traveller_list|length|zero2val:"---" }}</td>
-                                <td class="center-col">{{ object.bta_traveller_list|length|zero2val:"---" }}</td>
-                                <td class="center-col">{{ object.total_traveller_list|length|zero2val:"---" }}</td>
-                                <td class="center-col">{{ object.trip_requests.count|zero2val:"---" }}</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        {% endif %}
-    </div>
-
-
-{% endblock content %}
