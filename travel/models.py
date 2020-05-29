@@ -478,7 +478,7 @@ class TripRequest(models.Model):
     # Trip Details
     is_group_request = models.BooleanField(default=False,
                                            verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
-    purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
+    # purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
     reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, null=True, verbose_name=_("trip"), related_name="trip_requests")
 

@@ -5,7 +5,7 @@
 {% load humanize %}
 {% load custom_tags %}
 
-{% block row %}
+{% block table_tr %}
     {% url row_object_url_name object.id view.kwargs.type as my_url %}
 
     <tr href="{{ my_url }}">
