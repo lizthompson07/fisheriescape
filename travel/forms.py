@@ -150,8 +150,8 @@ class TripRequestForm(forms.ModelForm):
             'reason': forms.Select(attrs={"class": "not-a-group-field"}),
             'role': forms.Select(attrs={"class": "not-a-group-field"}),
             'region': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}),
-            'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field"}),
-            'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field"}),
+            'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field", "rows": 3}),
+            'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field", "rows": 3}),
             'non_dfo_costs': forms.NumberInput(attrs={"class": "not-a-group-field"}),
             'non_dfo_org': forms.TextInput(attrs={"class": "not-a-group-field"}),
         }
@@ -782,7 +782,6 @@ TripSubcategoryFormset = modelformset_factory(
 )
 
 
-
 class TripCategoryForm(forms.ModelForm):
     class Meta:
         model = models.TripCategory
@@ -798,6 +797,7 @@ TripCategoryFormset = modelformset_factory(
     form=TripCategoryForm,
     extra=0,
 )
+
 
 class TripRequestCostForm(forms.ModelForm):
     class Meta:
