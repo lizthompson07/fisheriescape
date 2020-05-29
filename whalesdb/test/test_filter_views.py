@@ -161,6 +161,25 @@ class TestRscList(CommonListTest):
         self.assertEquals(False, response.context["editable"])
 
 
+class TestRttList(CommonListTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_rtt')
+
+    # User should be able to view lists without login required
+    @tag('rtt', 'rtt_list', 'response', 'access')
+    def test_rsc_list_en(self):
+        super().assert_view()
+
+    # User should be able to view lists without login required
+    @tag('rtt', 'rtt_list', 'response', 'access')
+    def test_rsc_list_fr(self):
+        super().assert_view(lang='fr')
+
+
+
 class TestStnList(CommonListTest):
 
     def setUp(self):
