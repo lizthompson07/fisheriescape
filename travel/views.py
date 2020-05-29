@@ -200,6 +200,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context["requests_awaiting_changes"] = utils.get_related_trips(self.request.user).filter(status_id=16).count()
         context["user_trip_requests"] = utils.get_related_trips(self.request.user).count()
         # show the number of reviews awaiting for the logged in user
         tr_reviews_waiting = self.request.user.reviewers.filter(status_id=1).filter(
@@ -345,7 +346,7 @@ request_child_field_list = [
     'departure_location',
     'reason',
     'role',
-    'role_of_participant',
+    # 'role_of_participant',
     'total_cost|{}'.format(_("Total cost")),
     'non_dfo_costs|{}'.format(_("non-DFO funding")),
 
@@ -853,7 +854,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
             else:
                 messages.error(self.request, "sorry, only admins or owners can unsubmit requests")
         else:
-            if my_object.trip.status_id != 30 and my_object.trip.status_id != 41:
+            if my_object.trip.status_id != 30 and my_object.trip.status_id != 41 and my_object.status_id != 16:
                 messages.error(self.request, "sorry, the trip you are requesting to attend is not accepting additional requests.")
             else:
 
