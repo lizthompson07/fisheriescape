@@ -20,8 +20,8 @@ class TripRequestDetails(CommonTest):
 
     @tag("trip_request", 'detail', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.TripDetailView, views.TravelAccessRequiredMixin)
-        self.assert_inheritance(views.TripDetailView, CommonDetailView)
+        self.assert_inheritance(views.TripRequestDetailView, views.TravelAccessRequiredMixin)
+        self.assert_inheritance(views.TripRequestDetailView, CommonDetailView)
 
     @tag("trip_request", 'detail')
     def test_access(self):
@@ -51,6 +51,8 @@ class TripRequestDetails(CommonTest):
             "is_owner",
             "is_current_reviewer",
             "can_modify",
+            "trip",
+            "triprequest",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
 

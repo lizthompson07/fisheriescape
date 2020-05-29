@@ -60,49 +60,54 @@
                     {% endif %}
                 {% endfor %}
 
-                {# connected trip requests #}
-                <tr>
-                    <th>{% trans "Connected requests" %}</th>
-                    <td>
-                        {% for obj in trip.trip_requests.all %}
-                            {% url 'travel:request_detail' obj.id "all" as my_url %}
-                            <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}">{{ obj }}</a>
-                            by {{ obj.user }}
-                            (STATUS: <span style="background-color: {{ obj.status.color }}">{{ obj.status }}</span>)
-                            {% if obj.id == triprequest.id %}
-                                <span class="purple-font text-uppercase font-weight-bold">({% trans "CURRENT TRIP REQUEST" %})</span>
-                            {% endif %}
+
+                {% if is_admin or is_adm_admin or is_reviewer %}
+
+                    {# connected trip requests #}
+                    <tr>
+                        <th>{% trans "Connected requests" %}</th>
+                        <td>
+                            {% for obj in trip.trip_requests.all %}
+                                {% url 'travel:request_detail' obj.id "all" as my_url %}
+                                <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}">{{ obj }}</a>
+                                by {{ obj.user }}
+                                (STATUS: <span style="background-color: {{ obj.status.color }}">{{ obj.status }}</span>)
+                                {% if obj.id == triprequest.id %}
+                                    <span class="purple-font text-uppercase font-weight-bold">({% trans "CURRENT TRIP REQUEST" %})</span>
+                                {% endif %}
+                                <br>
+                            {% endfor %}
+                        </td>
+                    </tr>
+
+                    {# traveller history #}
+                    <tr>
+                        <th>
+                            {% trans "Complete list of travellers" %}
                             <br>
-                        {% endfor %}
-                    </td>
-                </tr>
+                            {% trans "(across all submitted requests; includes BTA travellers)" %}
 
-                {# traveller history #}
-                <tr>
-                    <th>
-                        {% trans "Complete list of travellers" %}
-                        <br>
-                        {% trans "(across all submitted requests; includes BTA travellers)" %}
+                        </th>
+                        <td>
+                            <br>
+                            {% include "travel/_trip_traveller_history.html" %}
+                        </td>
+                    </tr>
 
-                    </th>
-                    <td>
-                        <br>
-                        {% include "travel/_trip_traveller_history.html" %}
-                    </td>
-                </tr>
+                    {#  cost comparison #}
+                    <tr>
+                        <th>
+                            {% trans "Comparision of costs" %}
+                            <br>
+                            {% trans "(across all submitted requests)" %}
+                        </th>
+                        <td>
+                            <br>
+                            {% include "travel/_trip_traveller_cost_comparison.html" %}
+                        </td>
+                    </tr>
+                {% endif %}
 
-                {#  cost comparison #}
-                <tr>
-                    <th>
-                        {% trans "Comparision of costs" %}
-                        <br>
-                        {% trans "(across all submitted requests)" %}
-                    </th>
-                    <td>
-                        <br>
-                        {% include "travel/_trip_traveller_cost_comparison.html" %}
-                    </td>
-                </tr>
             </table>
 
         </div>

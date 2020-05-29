@@ -321,6 +321,8 @@ class TestTripRequestReviewerUpdateView(CommonTest):
             "cost_field_list",
             "help_text_dict",
             "report_mode",
+            "trip",
+            "triprequest",
         ]
         self.assert_presence_of_context_vars(self.test_url1, context_vars, user=self.reviewer1.user)
 
