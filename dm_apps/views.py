@@ -313,7 +313,7 @@ def get_app_dict(request):
     try:
         app_dict["whalebrary"] = {
             "title": _("Whalebrary / Baleinothèque"),
-            "description": _("Tools for Marine Mammal and Necropsy Organization"),
+            "description": _("Tools for Marine Mammal Teams and Necropsy Organization"),
             "status": "dev",
             "access": "permission-required",
             "url": reverse('whalebrary:index'),

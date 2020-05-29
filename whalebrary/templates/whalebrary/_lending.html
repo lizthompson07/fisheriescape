@@ -9,7 +9,7 @@
     </h3>
 </div>
 
-{% if object.lent_out_transactions.count == 0 %}
+{% if object.lent_out_quantities.count == 0 %}
     <em>
         {% trans "None of this item is currently lent out" %}
     </em><br>
@@ -26,7 +26,7 @@
             {% endfor %}
         </tr>
         <tbody>
-         {% for obj in object.lent_out_transactions.all %}
+         {% for obj in object.lent_out_quantities.all %}
             <tr>
             {% for field in lend_field_list %}
             <td>

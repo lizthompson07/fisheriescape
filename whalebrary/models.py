@@ -351,12 +351,12 @@ class Incident(models.Model):
 
     def __str__(self):
         # check to see if a french value is given
-        if getattr(self, str(_("species_count"))):
+        if getattr(self, str(_("name"))):
 
-            return "{}".format(getattr(self, str(_("species_count"))))
+            return "{}".format(getattr(self, str(_("name"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.species_count)
+            return "{}".format(self.name)
 
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})
@@ -366,10 +366,10 @@ class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("status"))
-    date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss", verbose_name=_("date"))
+    date = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy", verbose_name=_("date"))
     # for lent out status
     lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
-    return_date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+    return_date = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy",
                                        verbose_name=_("expected return date"))
     # for on order status
     order_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("order number"))
@@ -377,7 +377,7 @@ class Transaction(models.Model):
     purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("purchased by"))
     # for used status
     reason = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("reason"))
-    incident = models.ForeignKey(Incident, blank=True, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("incident"))  # if linked to use at an incident
+    incident = models.ManyToManyField(Incident, blank=True, verbose_name=_("incident"))  # if linked to use at an incident
     # auditing
     last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                         verbose_name=_("last audited"))

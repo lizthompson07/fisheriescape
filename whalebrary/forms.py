@@ -18,7 +18,10 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = models.Transaction
         fields = "__all__"
-
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'return_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class TransactionForm1(forms.ModelForm):
     class Meta:
@@ -26,6 +29,8 @@ class TransactionForm1(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'item': forms.HiddenInput(),
+            'date': forms.DateInput(attrs={'type': 'date'}),
+            'return_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
 class LocationForm(forms.ModelForm):

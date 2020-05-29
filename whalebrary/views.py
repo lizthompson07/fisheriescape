@@ -140,6 +140,7 @@ class ItemDetailView(WhalebraryAccessRequired, DetailView):
 
         ohqty = self.get_object().transactions.filter(status=1).aggregate(dsum=Sum('quantity')).get('dsum')
         lentqty = self.get_object().transactions.filter(status=3).aggregate(dsum=Sum('quantity')).get('dsum')
+        usedqty = self.get_object().transactions.filter(status=4).aggregate(dsum=Sum('quantity')).get('dsum')
 
         if ohqty is None:
             ohqty = 0
@@ -151,7 +152,12 @@ class ItemDetailView(WhalebraryAccessRequired, DetailView):
         else:
             lentqty = lentqty
 
-        context['quantity_avail'] = ohqty - lentqty
+        if usedqty is None:
+            usedqty = 0
+        else:
+            usedqty = usedqty
+
+        context['quantity_avail'] = ohqty - lentqty - usedqty
 
         # context for _supplier.html
         context["random_sup"] = models.Supplier.objects.first()
@@ -701,13 +707,14 @@ class IncidentListView(WhalebraryAccessRequired, FilterView):
     template_name = "whalebrary/incident_list.html"
     filterset_class = filters.IncidentFilter
     queryset = models.Incident.objects.annotate(
-        search_term=Concat('id', 'species_count', 'submitted', 'first_report', 'location', 'region', output_field=TextField()))
+        search_term=Concat('id', 'name', 'species_count', 'submitted', 'first_report', 'location', 'region', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["my_object"] = models.Incident.objects.first()
         context["field_list"] = [
             'id',
+            'name',
             'species_count',
             'submitted',
             'first_report',
@@ -727,6 +734,7 @@ class IncidentDetailView(WhalebraryAccessRequired, DetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'id',
+            'name',
             'species_count',
             'submitted',
             'first_report',

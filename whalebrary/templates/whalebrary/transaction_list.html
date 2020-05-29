@@ -23,7 +23,7 @@
 
     <div class="container-fluid">
 
-        <h1 class="big-header">Quantity list </h1>
+        <h1 class="big-header">transaction list </h1>
 
         <form class="form" action="." method="get" id="filter-form">
             <div class="row">
@@ -53,7 +53,7 @@
                         <em>displaying all {{ filter.qs.count }} records</em>
                     </div>
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{% url 'whalebrary:quantity_new' %}" class="btn btn-sm btn-primary">New Quantity</a>
+                        <a href="{% url 'whalebrary:transaction_new' %}" class="btn btn-sm btn-primary">New transaction</a>
                     </div>
                 </div>
 
@@ -68,7 +68,7 @@
                     </thead>
                     <tbody>
                     {% for object in filter.qs %}
-                        {% url 'whalebrary:quantity_detail' object.id as my_url %}
+                        {% url 'whalebrary:transaction_detail' object.id as my_url %}
                         <tr href="{{ my_url }}">
 
 

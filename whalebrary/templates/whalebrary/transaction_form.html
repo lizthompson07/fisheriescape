@@ -41,9 +41,9 @@
                 {% endif %}
 
                 {% if object.id %}
-                    <a class="btn btn-secondary" href="{% url 'whalebrary:quantity_detail' object.id %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'whalebrary:transaction_detail' object.id %}">Cancel</a>
                 {% else %}
-                    <a class="btn btn-secondary" href="{% url 'whalebrary:quantity_list' %}">Cancel</a>
+                    <a class="btn btn-secondary" href="{% url 'whalebrary:transaction_list' %}">Cancel</a>
                 {% endif %}
 
             {% endbuttons %}
