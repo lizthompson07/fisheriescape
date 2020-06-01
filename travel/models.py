@@ -245,7 +245,7 @@ class Conference(models.Model):
         trip_requests = self.get_connected_active_requests()  # a list of individual and child requests connected to this trip
         my_list = [tr.user for tr in trip_requests if tr.user]
         # now those without names...
-        blurb = _("no DM Apps user connected")
+        blurb = _("not a DM Apps user")
         my_list.extend([f"{tr.requester_name} ({blurb})" for tr in trip_requests if not tr.user])
         return set(my_list)
 

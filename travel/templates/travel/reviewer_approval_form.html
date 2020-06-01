@@ -5,6 +5,7 @@
 {% load custom_filters %}
 {% load i18n %}
 {% block header %}
+    {{ block.super }}
     <style>
         .label {
             font-weight: bold;
@@ -22,6 +23,17 @@
 {% endblock %}
 
 {% block pre_form_div %}
+
+
+    <hr>
+    {% include "travel/_trip_request_detail.html" %}
+    <br><br>
+{#    <div class="center-col">#}
+{#        <h2>#}
+{#            <a href="#the-top">({% trans "Back to top" %})</a>#}
+{#        </h2>#}
+{#    </div>#}
+
     <div class="float-right mb-3">
         <a class="btn btn-outline-dark " href="{% url 'travel:request_print' triprequest.id %}" target="_blank">
             {% trans "Print Travel Plan" %}&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
@@ -63,14 +75,6 @@
 {% block post_form_div %}
 
 
-    <hr>
-    {% include "travel/_trip_request_detail.html" %}
-    <br><br>
-    <div class="center-col">
-        <h2>
-            <a href="#the-top">({% trans "Back to top" %})</a>
-        </h2>
-    </div>
 
 {% endblock %}
 

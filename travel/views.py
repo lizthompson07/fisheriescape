@@ -204,7 +204,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         context["user_trip_requests"] = utils.get_related_trips(self.request.user).count()
         # show the number of reviews awaiting for the logged in user
         tr_reviews_waiting = self.request.user.reviewers.filter(status_id=1).filter(
-            ~Q(trip_request__status_id=16)).count()  # number of requests where review is pending
+            ~Q(trip_request__status_id__in=[16, 14])).count()  # number of requests where review is pending
         trip_reviews_waiting = self.request.user.trip_reviewers.filter(status_id=25).count()  # number of trips where review is pending
         context["tr_reviews_waiting"] = tr_reviews_waiting
         context["trip_reviews_waiting"] = trip_reviews_waiting
@@ -224,12 +224,12 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
             rdg_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'rdg', "region": region.id})
 
             # ADM
-            adm_number_waiting = models.Reviewer.objects.filter(
-                status_id=1,
-                role_id=5,
-                trip_request__section__division__branch__region=region,
-            ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
-            adm_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'adm', "region": region.id})
+            # adm_number_waiting = models.Reviewer.objects.filter(
+            #     status_id=1,
+            #     role_id=5,
+            #     trip_request__section__division__branch__region=region,
+            # ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
+            # adm_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'adm', "region": region.id})
 
             # unverified trips
             unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=False, lead=region).count()
@@ -241,11 +241,12 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
 
             tab_dict[region]["rdg_number_waiting"] = rdg_number_waiting
             tab_dict[region]["rdg_approval_list_url"] = rdg_approval_list_url
-            tab_dict[region]["adm_number_waiting"] = adm_number_waiting
-            tab_dict[region]["adm_approval_list_url"] = adm_approval_list_url
+            # tab_dict[region]["adm_number_waiting"] = adm_number_waiting
+            # tab_dict[region]["adm_approval_list_url"] = adm_approval_list_url
             tab_dict[region]["unverified_trips"] = unverified_trips
             tab_dict[region]["trip_verification_list_url"] = trip_verification_list_url
-            tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + adm_number_waiting + unverified_trips
+            # tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + adm_number_waiting + unverified_trips
+            tab_dict[region]["things_to_deal_with"] = rdg_number_waiting  + unverified_trips
 
         # Now for NCR
         admo_name = "ADM Office"
@@ -625,7 +626,7 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
             if form.cleaned_data.get("stay_on_page"):
                 messages.success(self.request, _(
                     "{} has been added as a traveller to this request. Please add any costs associated with this traveller.".format(
-                        my_object.user)))
+                        my_object.requester_name)))
                 return HttpResponseRedirect(reverse("travel:request_edit", kwargs={"pk": my_object.id, "type": "pop"}))
             else:
                 return HttpResponseRedirect(reverse("shared_models:close_me"))
@@ -992,7 +993,8 @@ class TripRequestReviewListView(TravelAccessRequiredMixin, CommonListView):
     def get_queryset(self):
         if self.kwargs.get("which_ones") == "awaiting":
             qs = models.TripRequest.objects.filter(
-                pk__in=[reviewer.trip_request.id for reviewer in self.request.user.reviewers.filter(status_id=1)])
+                pk__in=[reviewer.trip_request.id for reviewer in self.request.user.reviewers.filter(status_id=1).filter(
+                    ~Q(trip_request__status_id__in=[16, 14]))])
         else:
             qs = models.TripRequest.objects.filter(pk__in=[reviewer.trip_request.id for reviewer in self.request.user.reviewers.all()])
         return qs
@@ -1862,7 +1864,6 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
     form_class = forms.ReviewerApprovalForm
     template_name = 'travel/trip_reviewer_approval_form.html'
     back_url = reverse_lazy("travel:trip_review_list")
-    submit_text = _("Submit your review")
     cancel_text = _("Cancel")
     home_url_name = "travel:index"
     parent_crumb = {"title": _("Trips Awaiting Your Review"),
@@ -1875,9 +1876,19 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
             return True
 
     def get_h1(self):
-        return _("{}'s Trip Review".format(self.get_object().user.first_name))
+        my_str = _("{}'s Trip Review".format(self.get_object().user.first_name))
+        if self.get_object().role_id == 5: # if ADM
+            my_str += " ({})".format(_("ADM Level Review"))
+        return my_str
 
-    def get_h2(self):
+    def get_submit_text(self):
+        if self.get_object().role_id == 5: # if ADM
+            submit_text = _("Complete the review")
+        else:
+            submit_text = _("Submit your review")
+        return submit_text
+
+    def get_h3(self):
         return self.get_object().trip
 
     def get_context_data(self, **kwargs):
@@ -2410,7 +2421,7 @@ class TRCostCreateView(LoginRequiredMixin, CreateView):
         my_trip_request = models.TripRequest.objects.get(pk=self.kwargs['trip_request'])
         return {
             'trip_request': my_trip_request,
-            'number_of_days': my_trip_request.trip.number_of_days,
+            # 'number_of_days': my_trip_request.trip.number_of_days,
         }
 
     def get_context_data(self, **kwargs):

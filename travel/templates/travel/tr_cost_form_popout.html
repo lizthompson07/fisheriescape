@@ -78,7 +78,6 @@
         </form>
     </div>
 
-
 {% endblock %}
 
 {% block body_js %}
@@ -122,6 +121,13 @@
 
             if (hasRates) {
                 $("#by-rate").click();
+                if (hasDays == false) {
+                    {% if object.trip_request.parent_request %}
+                        $days.val({{object.trip_request.parent_request.trip.number_of_days}});
+                    {% else %}
+                        $days.val({{object.trip_request.trip.number_of_days}});
+                    {% endif %}
+                }
             } else {
                 $("#by-amount").click();
             }

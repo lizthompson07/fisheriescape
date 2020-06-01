@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load static %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load custom_tags %}
+
+
+<div class="card mb-2">
+    <h3 class="card-header bg-outline-dark">
+        {% trans "ADM - Approve / Deny Trip Requests" %}
+    </h3>
+
+    <div class="card-body">
+        <div class="card-text">
+
+            <table class="table table-sm table-bordered">
+                <thead>
+                <th>{% trans "Name" %}</th>
+                </thead>
+                <tbody>
+                {% for tr in trip.traveller_list %}
+                    <tr>
+                        <td>
+                            {{ tr }}
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+
+        </div>
+    </div>
+</div>
+<br><br>
