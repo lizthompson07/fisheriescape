@@ -157,7 +157,7 @@ def start_trip_review_process(trip, reset=False):
     for reviewer in trip.reviewers.all():
         # set everyone to being queued
         reviewer.status_id = 24
-        if reset:
+        if not reset:
             reviewer.status_date = None
         reviewer.save()
 
