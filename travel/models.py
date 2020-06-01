@@ -326,7 +326,7 @@ class Conference(models.Model):
             reviewer.save()
             count += 1
 
-        if self.is_adm_approval_required:
+        if self.is_adm_approval_required and self.trip_subcategory:
             # trips must be reviewed by ADMO before two weeks to the closest date
             self.adm_review_deadline = self.closest_date - datetime.timedelta(days=21)  # 14 business days -- > 21 calendar days?
 
