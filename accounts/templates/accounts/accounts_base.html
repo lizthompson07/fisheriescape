@@ -3,16 +3,19 @@
 {% block bug_create %}{% url 'tickets:bug_create' 'general' %}{% endblock bug_create %}
 {% block title %}DM-Accounts{% endblock title %}
 {% block right_auth %}
-  <li class="nav-item"><a class="nav-link" href="{% url 'accounts:account' user.id %}">
-      {% trans "My Account" %}
-  </a></li>
-  <li class="nav-item"><a class="nav-link" href="{% url 'accounts:profile' user.id %}">
-      {% trans "My Profile" %}
-  </a></li>
+
+    <li class="nav-item"><a class="nav-link" href="{% url 'accounts:account' user.id %}">
+        {% trans "My Account" %}
+    </a></li>
+    {% if not AZURE_AD %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:profile' user.id %}">
+            {% trans "My Profile" %}
+        </a></li>
+    {% endif %}
 
 {% endblock right_auth %}
 
 
 {% block body %}
-  {% block content %}{% endblock content %}
+    {% block content %}{% endblock content %}
 {% endblock body %}
