@@ -1887,18 +1887,22 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
 
     def form_valid(self, form):
         my_reviewer = form.save()
-        approved = form.cleaned_data.get("approved")
         stay_on_page = form.cleaned_data.get("stay_on_page")
+        reset = form.cleaned_data.get("reset")
 
         if not stay_on_page:
-            # if it was approved, then we change the reviewer status to 'approved'
-            my_reviewer.status_id = 26
-            my_reviewer.status_date = timezone.now()
-            my_reviewer.save()
+            if reset:
+                utils.reset_trip_review_process(my_reviewer.trip)
+            else:
+                # if it was approved, then we change the reviewer status to 'approved'
+                my_reviewer.status_id = 26
+                my_reviewer.status_date = timezone.now()
+                my_reviewer.save()
 
             # update any statuses if necessary
             utils.trip_approval_seeker(my_reviewer.trip)
             return HttpResponseRedirect(reverse("travel:trip_review_list", kwargs={"which_ones": "awaiting"}))
+
         else:
             my_kwargs = {"pk": my_reviewer.id}
             return HttpResponseRedirect(reverse("travel:trip_reviewer_update", kwargs=my_kwargs))

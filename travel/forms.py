@@ -29,6 +29,7 @@ class ReviewerApprovalForm(forms.ModelForm):
     approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    reset = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = models.Reviewer

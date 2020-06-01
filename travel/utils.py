@@ -144,34 +144,47 @@ def end_review_process(trip_request):
         reviewer.save()
 
 
-def start_trip_review_process(trip):
-    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""
+def start_trip_review_process(trip, reset=False):
+    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending
+        set the `reset` arg to True is this is being used in the context of restarting a review process
+    """
     # focus only on reviewers that are status = Not Submitted
-
-    trip.review_start_date = timezone.now()
-    trip.status_id = 31
-    trip.save()
+    if not reset:
+        trip.review_start_date = timezone.now()
+        trip.status_id = 31
+        trip.save()
 
     for reviewer in trip.reviewers.all():
         # set everyone to being queued
         reviewer.status_id = 24
-        reviewer.status_date = None
+        if reset:
+            reviewer.status_date = None
         reviewer.save()
 
 
-def end_trip_review_process(trip):
-    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
+def end_trip_review_process(trip, reset=False):
+    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending
+    set the `reset` arg to True is this is being used in the context of restarting a review process
+    """
     # focus only on reviewers that are status = Not Submitted
-
-    # trip.review_start_date = None NEVER reset the review start date!
-    trip.status_id = 41
-    trip.save()
+    if not reset:
+        # trip.review_start_date = None NEVER reset the review start date!
+        trip.status_id = 41
+        trip.save()
 
     for reviewer in trip.reviewers.all():
         reviewer.status_id = 23
-        reviewer.status_date = None
-        reviewer.comments = None
+        if not reset:
+            reviewer.status_date = None
+            reviewer.comments = None
         reviewer.save()
+
+
+def reset_trip_review_process(trip):
+    """To be used if a trip reviewer finds modifications that are required and wants to restart the review process. COMMENTS ARE SAVED"""
+    # focus only on reviewers that are status = Not Submitted
+    end_trip_review_process(trip, reset=True)
+    start_trip_review_process(trip, reset=True)
 
 
 def __set_request_status__(trip_request):
