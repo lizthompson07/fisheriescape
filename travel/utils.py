@@ -334,7 +334,7 @@ def populate_trip_request_costs(request, trip_request):
         new_item, created = models.TripRequestCost.objects.get_or_create(
             trip_request=trip_request,
             cost=obj,
-            number_of_days=trip.number_of_days,
+            # number_of_days=trip.number_of_days,
         )
         if created:
             # breakfast
@@ -491,8 +491,11 @@ def get_related_trips(user):
     """give me a user and I'll send back a queryset with all related trips, i.e.
      they are the request.user | they are the request.created_by | they are a traveller on a child trip"""
 
-    tr_ids = [tr.id for tr in models.TripRequest.objects.filter(user=user)]
+    # all individual or group requests where user =user (this should include parent requests)
+    tr_ids = [tr.id for tr in models.TripRequest.objects.filter(parent_request__isnull=True, user=user)]
+    # all trips that were created by user
     tr_ids.extend([tr.id for tr in models.TripRequest.objects.filter(parent_request__isnull=True, created_by=user)])
+    # all trips where the user is a traveller on a group trip
     tr_ids.extend([tr.parent_request.id for tr in models.TripRequest.objects.filter(parent_request__isnull=False, user=user)])
     return models.TripRequest.objects.filter(id__in=tr_ids)
 
