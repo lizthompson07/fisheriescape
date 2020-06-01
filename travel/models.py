@@ -944,12 +944,12 @@ class TripReviewer(models.Model):
         )
         return mark_safe(my_str)
 
-    def save(self, *args, **kwargs):
-        # If the trip is currently under review add this reviewer directly in the queue
-
-        if self.trip.status_id == 31:
-            self.status_id = 24
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     # If the trip is currently under review add this reviewer directly in the queue
+    #
+    #     if self.trip.status_id == 31:
+    #         self.status_id = 24
+    #     return super().save(*args, **kwargs)
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
