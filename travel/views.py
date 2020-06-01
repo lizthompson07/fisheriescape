@@ -1613,7 +1613,9 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
         if my_trip.current_reviewer and self.request.user == my_trip.current_reviewer.user:
             return HttpResponseRedirect(reverse("travel:trip_reviewer_update", kwargs={"pk": my_trip.current_reviewer.id}))
         else:
-            return HttpResponseRedirect(reverse("travel:index"))
+            my_kwargs = deepcopy(self.kwargs)
+            my_kwargs["type"] = "all"
+            return HttpResponseRedirect(reverse("travel:trip_detail", kwargs=my_kwargs))
 
 
 class TripVerificationListView(TravelAdminRequiredMixin, CommonListView):
