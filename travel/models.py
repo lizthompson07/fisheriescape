@@ -251,8 +251,7 @@ class Conference(models.Model):
 
     @property
     def number_of_days(self):
-        if self.end_date:
-            return (self.end_date - self.start_date).days
+        return (self.end_date - self.start_date).days
 
     @property
     def dates(self):

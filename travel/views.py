@@ -1054,7 +1054,10 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
                 role=self.get_object().trip_request.current_reviewer.role,
             ))
         else:
-            return _("Do you wish to approve the following request?")
+            if self.get_object().trip_request.is_group_request:
+                return _("Do you wish to approve the following group request?")
+            else:
+                return _("Do you wish to approve the following request?")
 
     def get_parent_crumb(self):
         role = self.get_object().role
@@ -1280,6 +1283,9 @@ def manage_reviewers(request, type, triprequest=None, trip=None):
         my_trip = models.Conference.objects.get(pk=trip)
         if not in_adm_admin_group(request.user):
             return HttpResponseForbidden()
+        elif my_trip.status_id not in [30, 41]:
+            messages.error(request, _("Sorry, you cannot modify the reviewers on a trip that is under review."))
+            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
         else:
             qs = models.TripReviewer.objects.filter(trip=trip)
             if request.method == 'POST':
@@ -2404,6 +2410,7 @@ class TRCostCreateView(LoginRequiredMixin, CreateView):
         my_trip_request = models.TripRequest.objects.get(pk=self.kwargs['trip_request'])
         return {
             'trip_request': my_trip_request,
+            'number_of_days': my_trip_request.trip.number_of_days,
         }
 
     def get_context_data(self, **kwargs):
