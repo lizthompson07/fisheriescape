@@ -324,8 +324,18 @@ def approval_seeker(trip_request, supress_email=False):
 
 
 def populate_trip_request_costs(request, trip_request):
+    # determine if we are dealing with a child trip request - used to prepopulate number of days
+    if trip_request.parent_request:
+        trip = trip_request.parent_request.trip
+    else:
+        trip = trip_request.trip
+
     for obj in models.Cost.objects.all():
-        new_item, created = models.TripRequestCost.objects.get_or_create(trip_request=trip_request, cost=obj)
+        new_item, created = models.TripRequestCost.objects.get_or_create(
+            trip_request=trip_request,
+            cost=obj,
+            number_of_days=trip.number_of_days,
+        )
         if created:
             # breakfast
             if new_item.cost_id == 9:
