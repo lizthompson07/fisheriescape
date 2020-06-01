@@ -5,7 +5,18 @@
 {% load custom_filters %}
 {% load i18n %}
 {% load custom_tags %}
+{% block pre_form_div %}
+    <div class="mt-5">
+        {% include "travel/_trip_reviewers.html" %}
+        {% include "travel/_trip_detail.html" %}
+        {% if object.role_id == 5 %}
 
+            {% include "travel/_trip_request_approvals.html" %}
+        {% endif %}
+    </div>
+
+
+{% endblock %}
 
 {% block form_buttons %}
 
@@ -65,8 +76,6 @@
 
         {% endif %}
 
-        {% include "travel/_trip_detail.html" %}
-        {% include "travel/_trip_reviewers.html" %}
 
     </div>
 {% endblock %}

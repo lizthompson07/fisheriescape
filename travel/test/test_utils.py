@@ -68,6 +68,7 @@ class UtilsTest(CommonTest):
         # actors
         ind_request = FactoryFloor.IndividualTripRequestFactory()
         child_request = FactoryFloor.ChildTripRequestFactory()
+        child_request1 = FactoryFloor.ChildTripRequestFactory()
         parent_request = child_request.parent_request
         random_request = FactoryFloor.IndividualTripRequestFactory()
 
@@ -88,10 +89,16 @@ class UtilsTest(CommonTest):
         self.assertIn(parent_request, utils.get_related_trips(reg_user))
         self.assertEqual(utils.get_related_trips(reg_user).count(), 2)
 
-        # setting parent of child trip to user should increase by 1...
+        # setting parent of child trip to user should NOT increase by 1, since this is the same trip as the parent trip...
         child_request.user = reg_user
         child_request.save()
         self.assertIn(child_request, utils.get_related_trips(reg_user))
+        self.assertEqual(utils.get_related_trips(reg_user).count(), 2)
+
+        # setting parent of child trip to user should increase by 1...
+        child_request1.user = reg_user
+        child_request1.save()
+        self.assertIn(child_request1, utils.get_related_trips(reg_user))
         self.assertEqual(utils.get_related_trips(reg_user).count(), 3)
 
         # setting created_by of random trip to user should increase by 1...

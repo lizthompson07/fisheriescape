@@ -257,7 +257,7 @@ class TripRequestForm(forms.ModelForm):
         trip_start_date = trip.start_date
         trip_end_date = trip.end_date
 
-        if trip.status_id not in [30, 41]:
+        if trip.status_id not in [30, 41] and self.instance not in trip.trip_requests.all():
             if trip.status_id == 31:
                 message = _("This trip is currently under review from NCR and is closed to additional requests.")
             elif trip.status_id == 32:
@@ -441,7 +441,7 @@ class ChildTripRequestForm(forms.ModelForm):
         user = cleaned_data.get("user")
 
         # we have to make sure there is not already a trip request in the system for this user and this trip
-        if user.user_trip_requests.filter(trip=trip, is_group_request=False).count():
+        if user and user.user_trip_requests.filter(trip=trip, is_group_request=False).count():
             msg = _('There is already a trip request in the system for this user and this trip.')
             self.add_error('user', msg)
 
