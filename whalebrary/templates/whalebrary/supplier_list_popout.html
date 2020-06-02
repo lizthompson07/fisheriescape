@@ -1,0 +1,15 @@
+{% extends 'shared_models/generic_popout_form.html' %}
+
+{% block form_fields %}
+    {#keep this empty for now#}
+{% endblock %}
+
+{% block pre_form_div %}
+    <ul>
+        {% for s in suppliers %}
+            <li>
+                <a href="{% url 'whalebrary:add_supplier_to_item' s.id view.kwargs.item %}">{{ s }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

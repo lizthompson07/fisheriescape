@@ -1,5 +1,6 @@
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
+from django.utils.translation.trans_null import gettext_lazy
 
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
@@ -16,6 +17,8 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
 from django.utils import timezone
+
+from shared_models.views import CommonPopoutFormView
 from . import models
 from . import forms
 from . import filters
@@ -960,4 +963,24 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, ListView):
             'bin_id',
         ]
 
+        return context
+
+
+def add_supplier_to_item(request, supplier, item):
+    """simple function to add supplier to item"""
+    my_item = models.Item.objects.get(pk=item)
+    my_supplier = models.Supplier.objects.get(pk=supplier)
+    my_item.suppliers.add(my_supplier)
+    return request.META.get("HTTP_REFERER")
+
+
+
+class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
+    h1 = gettext_lazy("Please select a supplier to add to item")
+    form_class = forms.IncidentForm # just a temp placeholder until we create a CommonPopoutTemplateView
+    template_name = "whalebrary/supplier_list_popout.html"
+
+    def get_context_data(self, **kwargs):
+        context= super().get_context_data(**kwargs)
+        context["suppliers"] = models.Supplier.objects.all()
         return context
