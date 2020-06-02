@@ -1084,38 +1084,33 @@ class TripRequestReviewerADMUpdateView(AdminOrApproverRequiredMixin, CommonPopou
         tr = my_reviewer.trip_request
         is_approved = True if self.kwargs.get("approve") == 1 else False
 
-        # big fork in process here between individual and child requests...
+        # if it was approved, then we change the reviewer status to 'approved'
+        if is_approved:
+            my_reviewer.status_id = 2
+            my_reviewer.status_date = timezone.now()
+            my_reviewer.save()
+        # if it was denied, then we change the reviewer status to 'denied'
+        else:
+            my_reviewer.status_id = 3
+            my_reviewer.status_date = timezone.now()
+            my_reviewer.save()
 
+        # big fork in process here between individual and child requests...
         #1) individual request:
         ################
         if not tr.parent_request:
-            # if it was approved, then we change the reviewer status to 'approved'
-            if is_approved:
-                my_reviewer.status_id = 2
-                my_reviewer.status_date = timezone.now()
-                my_reviewer.save()
-            # if it was approved, then we change the reviewer status to 'approved'
-            else:
-                my_reviewer.status_id = 3
-                my_reviewer.status_date = timezone.now()
-                my_reviewer.save()
-
             # update any statuses if necessary
             utils.approval_seeker(my_reviewer.trip_request)
         else:
+            # We have to append any comments to the corresponding review of the parent request
+            if  tr.smart_reviewers.filter(role_id=5, status_id=1).count() == 1: # if the parent request has a adm reviewer that is pending, here is our match!
+                parent_review = tr.smart_reviewers.get(role_id=5, status_id=1)
 
-            #
-            if is_approved:
-                my_reviewer.status_id = 2
-                my_reviewer.status_date = timezone.now()
-                my_reviewer.save()
-            # if it was approved, then we change the reviewer status to 'approved'
-            else:
-                my_reviewer.status_id = 3
-                my_reviewer.status_date = timezone.now()
-                my_reviewer.save()
+# TODO: maybe the button should say something like "remove from group request"
 
-
+            parent_request = tr.parent_request
+            if parent_request.comments:
+                pass
 
             # # send an email to the request owner
             # email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
