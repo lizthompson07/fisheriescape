@@ -451,6 +451,11 @@ class Conference(models.Model):
             status_str += " {} {}".format(_("by"), self.current_reviewer.user)
         return status_str
 
+    @property
+    def is_adm_approved(self):
+        """method to determine if all linked trip requests have been reviewed by the ADM"""
+        return
+
 
 class TripRequest(models.Model):
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
@@ -767,11 +772,18 @@ class TripRequest(models.Model):
 
     @property
     def status_string(self):
-        my_status = self.status
-        #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
-        status_str = "{}".format(my_status)
-        if my_status.id not in [11, 8, ] and self.current_reviewer:
-            status_str += " {} {}".format(_("by"), self.current_reviewer.user)
+        if self.parent_request:
+            my_status = self.parent_request.status
+            #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
+            status_str = "{}".format(my_status)
+            if my_status.id not in [11, 8, ] and self.parent_request.current_reviewer:
+                status_str += " {} {}".format(_("by"), self.parent_request.current_reviewer.user)
+        else:
+            my_status = self.status
+            #  if the status is not 'draft' or 'approved' AND there is a current_reviewer
+            status_str = "{}".format(my_status)
+            if my_status.id not in [11, 8, ] and self.current_reviewer:
+                status_str += " {} {}".format(_("by"), self.current_reviewer.user)
         return status_str
 
     @property
@@ -818,6 +830,26 @@ class TripRequest(models.Model):
             )
         return my_str
 
+    @property
+    def smart_status(self):
+        return self.parent_request.status if self.parent_request else self.status
+
+    @property
+    def smart_section(self):
+        return self.parent_request.section if self.parent_request else self.section
+
+    @property
+    def smart_reviewers(self):
+        return self.parent_request.reviewers if self.parent_request else self.reviewers
+
+    @property
+    def smart_recommendation_notes(self):
+        my_str = ""
+        reviewers = self.smart_reviewers
+        for r in reviewers.filter(role_id=2):
+            if r.status_id == 2 and r.comments:
+                my_str += f'<u>{r.user}</u>: {r.comments}<br>'
+        return mark_safe(my_str)
 
 class TripRequestCost(models.Model):
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs",
@@ -949,6 +981,7 @@ class TripReviewer(models.Model):
     #     if self.trip.status_id == 31:
     #         self.status_id = 24
     #     return super().save(*args, **kwargs)
+
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>

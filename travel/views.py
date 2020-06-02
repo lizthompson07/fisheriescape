@@ -521,7 +521,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
 
         # decide whether the reviewers should be reset
         if form.cleaned_data.get("reset_reviewers"):
-            reset_reviewers(self.request, my_object.pk)
+            reset_reviewers(self.request, type=self.kwargs.get("type"), triprequest=my_object.pk)
 
         if not my_object.parent_request:
             if form.cleaned_data.get("stay_on_page"):
@@ -1041,6 +1041,95 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, CommonListView)
         context["admin"] = True
         context["type_bilingual"] = _(self.kwargs.get("type")).upper()
         return context
+
+
+
+class TripRequestReviewerADMUpdateView(AdminOrApproverRequiredMixin, CommonPopoutUpdateView):
+    model = models.Reviewer
+    form_class = forms.ReviewerApprovalForm
+    template_name = 'travel/adm_reviewer_approval_form.html'
+
+    def get_h1(self):
+        if self.kwargs.get("approve") == 1:
+            return _("Do you wish to approve the following request for {}".format(
+                self.get_object().trip_request.requester_name
+            ))
+        else:
+            return _("Do you wish to deny the following request for {}".format(
+                self.get_object().trip_request.requester_name
+            ))
+
+    def get_submit_text(self):
+        return _("Approve") if self.kwargs.get("approve") == 1 else _("Deny")
+
+    def get_submit_btn_class(self):
+        return "btn-success" if self.kwargs.get("approve") == 1 else "btn-danger"
+
+
+    def test_func(self):
+        my_trip_request = self.get_object().trip_request
+        my_user = self.request.user
+        # print(in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request))
+        if in_travel_admin_group(my_user) or is_approver(my_user, my_trip_request):
+            return True
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_object = self.get_object()
+        return context
+
+    def form_valid(self, form):
+        # don't save the reviewer yet because there are still changes to make
+        my_reviewer = form.save(commit=True)
+        tr = my_reviewer.trip_request
+        is_approved = True if self.kwargs.get("approve") == 1 else False
+
+        # big fork in process here between individual and child requests...
+
+        #1) individual request:
+        ################
+        if not tr.parent_request:
+            # if it was approved, then we change the reviewer status to 'approved'
+            if is_approved:
+                my_reviewer.status_id = 2
+                my_reviewer.status_date = timezone.now()
+                my_reviewer.save()
+            # if it was approved, then we change the reviewer status to 'approved'
+            else:
+                my_reviewer.status_id = 3
+                my_reviewer.status_date = timezone.now()
+                my_reviewer.save()
+
+            # update any statuses if necessary
+            utils.approval_seeker(my_reviewer.trip_request)
+        else:
+
+            #
+            if is_approved:
+                my_reviewer.status_id = 2
+                my_reviewer.status_date = timezone.now()
+                my_reviewer.save()
+            # if it was approved, then we change the reviewer status to 'approved'
+            else:
+                my_reviewer.status_id = 3
+                my_reviewer.status_date = timezone.now()
+                my_reviewer.save()
+
+
+
+            # # send an email to the request owner
+            # email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
+            # # send the email object
+            # custom_send_mail(
+            #     subject=email.subject,
+            #     html_message=email.message,
+            #     from_email=email.from_email,
+            #     recipient_list=email.to_list
+            # )
+            pass
+
+        return HttpResponseRedirect(self.get_success_url())
+
 
 
 class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
@@ -1901,6 +1990,30 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
         context["is_admin"] = in_travel_admin_group(self.request.user)
         context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().trip.reviewers.all()]
+
+
+        adm_tr_list = list()
+        # we need all the trip requests, excluding parents; start out with simple ones
+        tr_id_list = [tr.id for tr in trip.trip_requests.filter(is_group_request=False)]
+        my_list = [child_tr.id for parent_tr in trip.trip_requests.filter(is_group_request=True) for child_tr in parent_tr.children_requests.all()]
+        tr_id_list.extend(my_list)
+        trip_requests = models.TripRequest.objects.filter(id__in=tr_id_list)
+        for tr in trip_requests:
+            # get any adm reviewers of the trip request that is pending; it is important that we only look at parent requests for this
+            my_reviewer = tr.smart_reviewers.get(role_id=5) if tr.smart_reviewers.filter(role_id=5, status_id=1).count() == 1 else None
+
+            # if there is a reviewer and the trip request is a child, we have to actually create a new trip request for that child
+            if my_reviewer and tr.parent_request:
+                # use get_or_create
+                my_reviewer, created = models.Reviewer.objects.get_or_create(
+                    trip_request=tr,
+                    status=my_reviewer.status,
+                    role=my_reviewer.role,
+                )
+
+            adm_tr_list.append({"trip_request": tr, "reviewer": my_reviewer})
+        context["adm_tr_list"] = adm_tr_list
+        # context["adm_can_submit"] = self.request.user in [r.user for r in self.get_object().trip.reviewers.all()]
 
         return context
 
