@@ -43,6 +43,7 @@ urlpatterns = [
     path('review/<int:pk>/approve/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
     # This would be for an admin
     path('review/<int:pk>/approve/for/<str:type>/', views.TripRequestReviewerUpdateView.as_view(), name="tr_review_update"),
+    path('adm-review/<int:pk>/<int:approve>/', views.TripRequestReviewerADMUpdateView.as_view(), name="tr_review_adm_update"),
 
     # TRIP REQUEST REVIEWERS
     path('request/<int:triprequest>/reset-reviewers/for/<str:type>/', views.reset_reviewers, name="reset_tr_reviewers"),
