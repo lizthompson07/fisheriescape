@@ -567,9 +567,9 @@ class TripRequest(models.Model):
         if self.is_group_request:
             self.trip_request_costs.all().delete()
 
-        # If this is a child request, it should not have any assigned reviewers
+        # If this is a child request, it should not have any assigned reviewers -> unless it is an ADM reviewer
         if self.parent_request:
-            self.reviewers.all().delete()
+            self.reviewers.filter(~Q(role_id=5)).delete()
 
         # ensure the process order makes sense
         count = 1

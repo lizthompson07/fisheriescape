@@ -27,7 +27,13 @@
     </div>
 
     <div class="mt-3 mb-3">
-        <input type="submit" class="btn btn-danger" value="{{ submit_text }}">
+        {% if not adm_can_submit %}
+            {% echo "disabled" as disabled_var %}
+            {% trans "You cannot complete the trip review until all trip requests have been either approved or denied" as submit_tip_text %}
+        {% endif %}
+        <span data-toggle="tooltip" title="{{submit_tip_text}}">
+        <input type="submit" class="btn btn-danger" value="{{ submit_text }}" {{ disabled_var }}>
+        </span>
 
         {# reinitiate #}
         {% if user == object.trip.reviewers.first.user %}

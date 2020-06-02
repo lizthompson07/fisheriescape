@@ -204,7 +204,8 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         context["user_trip_requests"] = utils.get_related_trips(self.request.user).count()
         # show the number of reviews awaiting for the logged in user
         tr_reviews_waiting = self.request.user.reviewers.filter(status_id=1).filter(
-            ~Q(trip_request__status_id__in=[16, 14])).count()  # number of requests where review is pending
+            ~Q(trip_request__status_id__in=[16, 14,
+                                            8])).count()  # number of requests where review is pending (excluding those that are drafts (from children), changes_requested and pending ADM approval)
         trip_reviews_waiting = self.request.user.trip_reviewers.filter(status_id=25).count()  # number of trips where review is pending
         context["tr_reviews_waiting"] = tr_reviews_waiting
         context["trip_reviews_waiting"] = trip_reviews_waiting
@@ -246,7 +247,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
             tab_dict[region]["unverified_trips"] = unverified_trips
             tab_dict[region]["trip_verification_list_url"] = trip_verification_list_url
             # tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + adm_number_waiting + unverified_trips
-            tab_dict[region]["things_to_deal_with"] = rdg_number_waiting  + unverified_trips
+            tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + unverified_trips
 
         # Now for NCR
         admo_name = "ADM Office"
@@ -1043,11 +1044,11 @@ class TripRequestAdminApprovalListView(TravelAdminRequiredMixin, CommonListView)
         return context
 
 
-
 class TripRequestReviewerADMUpdateView(AdminOrApproverRequiredMixin, CommonPopoutUpdateView):
     model = models.Reviewer
     form_class = forms.ReviewerApprovalForm
-    template_name = 'travel/adm_reviewer_approval_form.html'
+
+    # template_name = 'travel/adm_reviewer_approval_form.html'
 
     def get_h1(self):
         if self.kwargs.get("approve") == 1:
@@ -1059,12 +1060,14 @@ class TripRequestReviewerADMUpdateView(AdminOrApproverRequiredMixin, CommonPopou
                 self.get_object().trip_request.requester_name
             ))
 
+    def get_h2(self):
+        return "<span class='red-font'>{}</span>".format(_("These comments will be visible to the traveller"))
+
     def get_submit_text(self):
         return _("Approve") if self.kwargs.get("approve") == 1 else _("Deny")
 
     def get_submit_btn_class(self):
         return "btn-success" if self.kwargs.get("approve") == 1 else "btn-danger"
-
 
     def test_func(self):
         my_trip_request = self.get_object().trip_request
@@ -1082,35 +1085,66 @@ class TripRequestReviewerADMUpdateView(AdminOrApproverRequiredMixin, CommonPopou
         # don't save the reviewer yet because there are still changes to make
         my_reviewer = form.save(commit=True)
         tr = my_reviewer.trip_request
+        parent_request = tr.parent_request
+
         is_approved = True if self.kwargs.get("approve") == 1 else False
 
         # if it was approved, then we change the reviewer status to 'approved'
         if is_approved:
             my_reviewer.status_id = 2
-            my_reviewer.status_date = timezone.now()
-            my_reviewer.save()
         # if it was denied, then we change the reviewer status to 'denied'
         else:
             my_reviewer.status_id = 3
-            my_reviewer.status_date = timezone.now()
-            my_reviewer.save()
 
+        my_reviewer.status_date = timezone.now()
+        my_reviewer.save()
         # big fork in process here between individual and child requests...
-        #1) individual request:
+        # 1) individual request:
         ################
-        if not tr.parent_request:
-            # update any statuses if necessary
+        if not parent_request:
+            # update any statuses if necessary; this is business as usual
             utils.approval_seeker(my_reviewer.trip_request)
         else:
-            # We have to append any comments to the corresponding review of the parent request
-            if  tr.smart_reviewers.filter(role_id=5, status_id=1).count() == 1: # if the parent request has a adm reviewer that is pending, here is our match!
-                parent_review = tr.smart_reviewers.get(role_id=5, status_id=1)
+            # if this is a child request,
+            if my_reviewer.status_id == 3:
+                tr.status_id = 10
+            else:
+                tr.status_id = 11
+            tr.save()
 
-# TODO: maybe the button should say something like "remove from group request"
+            # now we must update the trip reviewer comments so that they are in sync with the child review comments
+            # best to make from scratch to avoid complexities with duplicating information
+            parent_reviewer = parent_request.adm  # let's hope there is only one
+            # let's get all the approved or denied children requests and append the comments to the parent_reviewer
+            comments = ""
+            for child_request in parent_request.children_requests.filter(status_id__in=[10, 11]):
+                comments += f'{child_request.requester_name} &rarr; {child_request.adm.comments}<br>'
+            parent_reviewer.comments = comments
+            parent_reviewer.save()
 
-            parent_request = tr.parent_request
-            if parent_request.comments:
-                pass
+            # if we are at the point where all the children request have been approved or denied,
+            # we are ready to make headway on the parent request
+            if parent_request.children_requests.filter(status_id__in=[10, 11]).count() == parent_request.children_requests.all().count():
+                # the parent request is approved if there is at least one approved traveller
+                if parent_request.children_requests.filter(status_id=11).count() > 0:
+                    parent_reviewer.status_id = 2
+                else:
+                    parent_reviewer.status_id = 3
+                parent_reviewer.status_date = timezone.now()
+                parent_reviewer.save()
+
+                utils.approval_seeker(parent_request)
+
+            #
+            #             # We have to append any comments to the corresponding review of the parent request
+            #             if  tr.smart_reviewers.filter(role_id=5, status_id=1).count() == 1: # if the parent request has a adm reviewer that is pending, here is our match!
+            #                 parent_review = tr.smart_reviewers.get(role_id=5, status_id=1)
+            #
+            # # TODO: maybe the button should say something like "remove from group request"
+            #
+            #             parent_request = tr.parent_request
+            #             if parent_request.comments:
+            #                 pass
 
             # # send an email to the request owner
             # email = emails.ChangesRequestedEmail(my_reviewer.trip_request)
@@ -1124,7 +1158,6 @@ class TripRequestReviewerADMUpdateView(AdminOrApproverRequiredMixin, CommonPopou
             pass
 
         return HttpResponseRedirect(self.get_success_url())
-
 
 
 class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateView):
@@ -1961,12 +1994,12 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
 
     def get_h1(self):
         my_str = _("{}'s Trip Review".format(self.get_object().user.first_name))
-        if self.get_object().role_id == 5: # if ADM
+        if self.get_object().role_id == 5:  # if ADM
             my_str += " ({})".format(_("ADM Level Review"))
         return my_str
 
     def get_submit_text(self):
-        if self.get_object().role_id == 5: # if ADM
+        if self.get_object().role_id == 5:  # if ADM
             submit_text = _("Complete the review")
         else:
             submit_text = _("Submit your review")
@@ -1986,29 +2019,41 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
         context["is_admin"] = in_travel_admin_group(self.request.user)
         context["is_reviewer"] = self.request.user in [r.user for r in self.get_object().trip.reviewers.all()]
 
+        # if this is the ADM looking at the page, we need to provide more data
+        if self.get_object().role_id == 5:
+            adm_tr_list = list()
+            # we need all the trip requests, excluding parents; start out with simple ones
+            tr_id_list = [tr.id for tr in trip.trip_requests.filter(is_group_request=False, status_id__in=[14, 15, 10, 11])]
+            my_list = [child_tr.id for parent_tr in trip.trip_requests.filter(is_group_request=True, status_id__in=[14, 15, 10, 11]) for
+                       child_tr in
+                       parent_tr.children_requests.all()]
+            tr_id_list.extend(my_list)
+            trip_requests = models.TripRequest.objects.filter(id__in=tr_id_list)
+            for tr in trip_requests:
+                # the child requests will be set as 'draft', change them to 'pending adm review'
+                if tr.parent_request and tr.parent_request.status_id == 14 and tr.status_id == 8:
+                    tr.status = tr.parent_request.status
+                    tr.save()
 
-        adm_tr_list = list()
-        # we need all the trip requests, excluding parents; start out with simple ones
-        tr_id_list = [tr.id for tr in trip.trip_requests.filter(is_group_request=False)]
-        my_list = [child_tr.id for parent_tr in trip.trip_requests.filter(is_group_request=True) for child_tr in parent_tr.children_requests.all()]
-        tr_id_list.extend(my_list)
-        trip_requests = models.TripRequest.objects.filter(id__in=tr_id_list)
-        for tr in trip_requests:
-            # get any adm reviewers of the trip request that is pending; it is important that we only look at parent requests for this
-            my_reviewer = tr.smart_reviewers.get(role_id=5) if tr.smart_reviewers.filter(role_id=5, status_id=1).count() == 1 else None
+                # get any adm reviewers of the trip request that is pending; it is important that we only look at parent requests for this
+                my_reviewer = tr.smart_reviewers.get(role_id=5) if tr.smart_reviewers.filter(role_id=5, status_id=1).count() == 1 else None
 
-            # if there is a reviewer and the trip request is a child, we have to actually create a new trip request for that child
-            if my_reviewer and tr.parent_request:
-                # use get_or_create
-                my_reviewer, created = models.Reviewer.objects.get_or_create(
-                    trip_request=tr,
-                    status=my_reviewer.status,
-                    role=my_reviewer.role,
-                )
+                # if there is a reviewer and the trip request is a child, we have to actually create a new trip request for that child
+                if my_reviewer and tr.parent_request:
+                    # use get_or_create
+                    my_reviewer, created = models.Reviewer.objects.get_or_create(
+                        trip_request=tr,
+                        role=my_reviewer.role,
+                        user=my_reviewer.user,
+                    )
+                    # status=my_reviewer.status,
 
-            adm_tr_list.append({"trip_request": tr, "reviewer": my_reviewer})
-        context["adm_tr_list"] = adm_tr_list
-        # context["adm_can_submit"] = self.request.user in [r.user for r in self.get_object().trip.reviewers.all()]
+                adm_tr_list.append({"trip_request": tr, "reviewer": my_reviewer})
+            context["adm_tr_list"] = adm_tr_list
+            # we need to create a variable that ensures the adm cannot submit her request unless all the trip requests have been actionned
+            # basically, we want to make sure there is nothing that has a trip request status of 14
+
+            context["adm_can_submit"] = bool(self.get_object().trip.trip_requests.filter(status_id=14).count()) is False
 
         return context
 
