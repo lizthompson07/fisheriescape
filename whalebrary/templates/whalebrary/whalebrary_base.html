@@ -19,63 +19,6 @@
 
 {% block left_auth %}
 
-    {# Inventory #}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-           aria-haspopup="true" aria-expanded="false">
-            Inventory
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-
-            <a class="dropdown-item" href="{% url 'whalebrary:item_list' %}">Inventory</a>
-            <a class="dropdown-item" href="{% url 'whalebrary:transaction_list' %}">Transaction</a>
-            <a class="dropdown-item" href="{% url 'whalebrary:supplier_list' %}">Suppliers</a>
-
-        </div>
-    </li>
-
-    {# Necropsy Tools #}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-           aria-haspopup="true" aria-expanded="false">
-            Necropsy Tools
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-
-			<a class="dropdown-item">More stuffff</a>
-			<a class="dropdown-item">Yay stuff</a>
-			<a class="dropdown-item">So much stuff</a>
-
-        </div>
-    </li>
-
-
-    {# Reports #}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-           aria-haspopup="true" aria-expanded="false">
-            Reports
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-
-			<a class="dropdown-item" href="{% url 'whalebrary:report_generator' %}">Report Generator</a>
-
-        </div>
-    </li>
-
-    {# Admin Settings #}
-    <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-           aria-haspopup="true" aria-expanded="false">
-            Admin Settings
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-
-			<a class="dropdown-item" href="{% url 'whalebrary:location_list' %}">Locations</a>
-
-
-        </div>
-    </li>
 {% endblock left_auth %}
 
 {% block left_admin %}

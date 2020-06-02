@@ -1,51 +1,34 @@
-{% extends "whalebrary/whalebrary_base.html" %}
+{% extends "whalebrary/base.html" %}
 {% load static %}
 {% load verbose_names %}
-{% block content %}
-
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:item_list' %}">Inventory List</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
-        </ol>
-    </nav>
 
 
-    <style type="text/css">
-        .label {
-            font-weight: bold;
-        }
-    </style>
-
-    <div class="container">
-        <br>
-        <h1>{{ object }}</h1>
+{% block subcontent %}
+    <div class="mb-4">
         <p>
             <a class="btn btn-warning" href="{% url 'whalebrary:item_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'whalebrary:item_delete' object.id %}">Delete</a>
-            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
+            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}">Back</a>
         </p>
+    </div>
 
-        <br><br>
 
-        <div class="row">
-            <div class="col-3">
-                <table class="table table-hover table-sm">
-                    {% for field in field_list %}
-                        {% verbose_td_display object field %}
-                    {% endfor %}
-                </table>
-            </div>
+    <div class="row">
+        <div class="col-3">
+            <table class="table table-hover table-sm">
+                {% for field in field_list %}
+                    {% verbose_td_display object field %}
+                {% endfor %}
+            </table>
+        </div>
 
-            <div class="col-8">
-                {% include "whalebrary/_transaction.html" %}
-                {% include "whalebrary/_lending.html" %}
-                {% include "whalebrary/_supplier.html" %}
-                {% include "whalebrary/_file.html" %}
-            </div>
+        <div class="col-8">
+            {% include "whalebrary/_transaction.html" %}
+            {% include "whalebrary/_lending.html" %}
+            {% include "whalebrary/_supplier.html" %}
+            {% include "whalebrary/_file.html" %}
         </div>
     </div>
 
 
-{% endblock content %}
+{% endblock %}
