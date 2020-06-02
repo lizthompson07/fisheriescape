@@ -971,7 +971,7 @@ def add_supplier_to_item(request, supplier, item):
     my_item = models.Item.objects.get(pk=item)
     my_supplier = models.Supplier.objects.get(pk=supplier)
     my_item.suppliers.add(my_supplier)
-    return request.META.get("HTTP_REFERER")
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
 
@@ -981,6 +981,6 @@ class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
     template_name = "whalebrary/supplier_list_popout.html"
 
     def get_context_data(self, **kwargs):
-        context= super().get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["suppliers"] = models.Supplier.objects.all()
         return context

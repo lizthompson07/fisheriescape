@@ -39,7 +39,7 @@ APP_DICT = {
     'whalesdb': "Whale Equipment Deployment Inventory",
 	'csas': "Canadian Science Advisory Secretariat",
     'vault': "Marine Megafauna Media Vault",
-    'mmutools': "Marine Mammal Unit Tools and Necropsy Planner",
+    'whalebrary': "Marine Mammal Tools and Necropsy Planner",
     'spring_cleanup': "Gulf Region Spring Cleanup",
     'shiny': "DM Apps Shiny App Collection",
 }
