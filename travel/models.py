@@ -364,7 +364,7 @@ class Conference(models.Model):
         # group requests
         my_id_list.extend(
             [trip_request.id for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(parent_request__status_id__in=[10, 22, 8]))])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(parent_request__status_id__in=[10, 22, 8])).filter(~Q(status_id=10))])
         return TripRequest.objects.filter(id__in=my_id_list)
 
     @property
