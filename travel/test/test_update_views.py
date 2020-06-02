@@ -393,6 +393,7 @@ class TestTripReviewerUpdateView(CommonTest):
             "trip",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+        # TODO: NEED TO TEST WITH ADM REVIEWER AND MAKE SURE EXTRA FIELDS ARE PRESENT!!
 
     @tag("trip_reviewer_update", 'type', "submit")
     def test_submit(self):
