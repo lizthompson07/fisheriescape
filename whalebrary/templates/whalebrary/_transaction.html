@@ -15,8 +15,9 @@
 
 <div class="">
     <h3>
-        {% trans "Transaction:" %}
+        {% trans "Transaction Snapshot:" %}
     </h3>
+    <a class="btn btn-success" href="{% url 'whalebrary:item_transaction_detail' object.id %}">Details</a>
 </div>
 
 {% if object.transactions.count == 0 %}

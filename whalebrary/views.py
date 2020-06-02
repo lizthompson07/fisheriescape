@@ -188,6 +188,86 @@ class ItemDetailView(WhalebraryAccessRequired, DetailView):
 
         return context
 
+# class TransactionItemDetailView(WhalebraryAccessRequired, ListView):
+#     template_name = 'whalebrary/transaction_item_detail.html'
+#     model = models.Transaction
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["my_object"] = models.Transaction.objects.first()
+#
+#         context["field_list"] = [
+#             'item',
+#             'quantity',
+#             'status',
+#             'date',
+#             'lent_to',
+#             'return_date',
+#             'order_number',
+#             'purchased_by',
+#             'reason',
+#             'incident',
+#             'last_audited',
+#             'last_audited_by',
+#             'location',
+#             'bin_id',
+#         ]
+#
+#         return context
+#
+#         # context for _item_summary.html
+#         context["random_item"] = models.Item.objects.first()
+#         context["item_field_list"] = [
+#             'item_name',
+#             'description',
+#             'serial_number',
+#
+#         ]
+
+
+class ItemTransactionListView(WhalebraryAccessRequired, ListView):
+    template_name = 'whalebrary/item_transaction_detail.html'
+    filterset_class = filters.TransactionFilter
+    queryset = models.Transaction.objects.annotate(
+        search_term=Concat('id', 'item', 'quantity', 'status', 'date', 'lent_to', 'return_date', 'order_number',
+                           'purchased_by', 'reason', 'incident', 'last_audited', 'last_audited_by', 'location',
+                           'bin_id', output_field=TextField()))
+
+    def get_queryset(self, **kwargs):
+        my_item = models.Item.objects.get(pk=self.kwargs.get('pk'))
+        return my_item.transactions.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Transaction.objects.first()
+
+        context["field_list"] = [
+            'item',
+            'quantity',
+            'status',
+            'date',
+            'lent_to',
+            'return_date',
+            'order_number',
+            'purchased_by',
+            'reason',
+            'incident',
+            'last_audited',
+            'last_audited_by',
+            'location',
+            'bin_id',
+        ]
+
+        return context
+
+        # context for _item_summary.html
+        context["random_item"] = models.Item.objects.first()
+        context["item_field_list"] = [
+            'item_name',
+            'description',
+            'serial_number',
+
+        ]
 
 class ItemUpdateView(WhalebraryEditRequiredMixin, UpdateView):
     model = models.Item
@@ -341,7 +421,6 @@ class TransactionDetailView(WhalebraryAccessRequired, DetailView):
         ]
 
         return context
-
 
 class TransactionUpdateView(WhalebraryEditRequiredMixin, UpdateView):
     model = models.Transaction

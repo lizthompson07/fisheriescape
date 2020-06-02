@@ -14,6 +14,8 @@ urlpatterns = [
 #     # ITEMS #
 #     ###########
     path('item_list/', views.ItemListView.as_view(), name="item_list"),
+    path('item/<int:pk>/transaction-list/', views.ItemTransactionListView.as_view(),
+         name="item_transaction_detail"),
     path('item_detail/<int:pk>/view/', views.ItemDetailView.as_view(), name="item_detail"),
     path('item/new/', views.ItemCreateView.as_view(), name="item_new"),
     path('item/<int:pk>/edit/', views.ItemUpdateView.as_view(), name="item_edit"),
@@ -23,6 +25,7 @@ urlpatterns = [
 
     path('transaction_list/', views.TransactionListView.as_view(), name="transaction_list"),
     path('transaction_detail/<int:pk>/view/', views.TransactionDetailView.as_view(), name="transaction_detail"),
+    # path('transaction_list/<int:pk>/view/', views.TransactionItemListView.as_view(), name="transaction_item_detail"),
     path('item/<int:pk>/transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
     path('transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="transaction_edit"),

@@ -1,0 +1,54 @@
+{% extends "whalebrary/whalebrary_base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_tags %}
+{% load i18n %}
+
+{% block content %}
+
+    <style>
+        .label {
+            font-weight: bold;
+        }
+    </style>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'whalebrary:index' %}">Home</a></li>
+
+            <li class="breadcrumb-item active" aria-current="page">{{item_name}} Transaction Details</li>
+        </ol>
+    </nav>
+    <div class="indent-med">
+        <h1>Transaction Details for {{item_name}} </h1>
+        <h2><em></em></h2>
+        <br>
+        <h3>Item:</h3>
+        {% include "whalebrary/_item_summary.html" %}
+
+        <br>
+        <h3>Transactions:</h3>
+        <table class="table table-sm table-hover sortable" style="width: auto;">
+            <thead>
+            <tr>
+                {% for field in field_list %}
+                        <th scope="col">{% get_verbose_label my_object field %}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for object in object_list %}
+            <tr>
+                {% for field in field_list %}
+                    <td>{% get_field_value object field %}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+    </div>
+
+
+{% endblock content %}
