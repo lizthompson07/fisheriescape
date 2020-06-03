@@ -71,5 +71,10 @@ urlpatterns = [
     path('create/rtt/', views.RttCreate.as_view(), name="create_rtt"),
     path('list/rtt/', views.RttList.as_view(), name="list_rtt"),
     path('details/rtt/<int:pk>/', views.RttDetails.as_view(), name="details_rtt"),
+
+    path('create/rec/', views.RecCreate.as_view(), name="create_rec"),
+    path('list/rec/', views.RecList.as_view(), name="list_rec"),
+    path('details/rec/<int:pk>/', views.RecDetails.as_view(), name="details_rec"),
+    path('update/rec/<int:pk>/', views.RecUpdate.as_view(), name="update_rec"),
 ]
 

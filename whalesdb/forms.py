@@ -117,6 +117,14 @@ class PrjForm(forms.ModelForm):
         }
 
 
+class RecForm(forms.ModelForm):
+    class Meta:
+        model = models.RecDataset
+        exclude = []
+        widgets = {
+        }
+
+
 class RscForm(forms.ModelForm):
     class Meta:
         model = models.RscRecordingSchedule
