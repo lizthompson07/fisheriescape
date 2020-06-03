@@ -35,6 +35,7 @@ class DefaultReviewer(models.Model):
                                       related_name="travel_default_reviewers")
     reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"), blank=True,
                                             related_name="travel_default_reviewers", limit_choices_to={"id__in": [3, 4, 5]})
+    order = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return "{}".format(self.user)
