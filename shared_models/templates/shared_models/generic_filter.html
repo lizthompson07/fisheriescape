@@ -71,7 +71,7 @@
         {% endblock %}
 
         {% block table %}
-            <table class="table table-sm table-hover sortable">
+            <table class="table table-sm {% if row_object_url_name %}table-hover{% endif %} sortable">
                 <thead>
                 {% block head %}
                     {% for field in field_list %}
@@ -87,7 +87,7 @@
                 {% for object in list %}
                     {% block table_tr %}
                         {% url row_object_url_name object.id as my_url %}
-                        <tr href="{{ my_url }}">
+                        <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
                             {% for field in field_list %}
                                 <td class="{{ field.class }}">
                                     {% block table_td %}
