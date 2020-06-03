@@ -25,12 +25,12 @@ class IndexTemplateView(CommonFilterView):
     container_class = "container-fluid"
 
     field_list = [
-        {"name": 'thumbnail| ', "class": "", "width": "200px"},
+        {"name": 'thumbnail| ', "class": "", "width": "300px"},
         {"name": 'ttitle|{}'.format(_("title")), "class": "", "width": ""},
         {"name": "tdescription|{}".format(_("description")), "class": "", "width": ""},
-        {"name": 'owner', "class": "", "width": ""},
-        {"name": 'last_modified', "class": "", "width": ""},
-        {"name": "github_url|{}".format("link to github"), "class": "", "width": ""},
+        {"name": 'owner', "class": "", "width": "150px"},
+        {"name": 'last_modified', "class": "", "width": "100px"},
+        {"name": "github_url|{}".format("link to github"), "class": "center-col", "width": "100px"},
     ]
 
     def get_queryset(self):
