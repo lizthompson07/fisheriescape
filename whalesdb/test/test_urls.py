@@ -241,5 +241,18 @@ class URLTest(TestCase):
         self.basic_en_url_test('whalesdb:details_rtt', 'whalesdb/details/rtt/1/', views.RttDetails, [1])
 
     @tag('rtt', 'url', 'create')
-    def test_url_details_rtt_view(self):
+    def test_url_create_rtt_view(self):
         self.basic_en_url_test('whalesdb:create_rtt', 'whalesdb/create/rtt/', views.RttCreate)
+
+    @tag('rec', 'url', 'create')
+    def test_url_create_rec_view(self):
+        self.basic_en_url_test('whalesdb:create_rec', 'whalesdb/create/rec/', views.RecCreate)
+
+    @tag('rec', 'url', 'list')
+    def test_url_list_rec_view(self):
+        self.basic_en_url_test('whalesdb:list_rec', 'whalesdb/list/rec/', views.RecList)
+
+    @tag('rec', 'url', 'update')
+    def test_url_update_rec_view(self):
+        self.basic_en_url_test('whalesdb:update_rec', 'whalesdb/update/rec/1/', views.RecUpdate, [1])
+

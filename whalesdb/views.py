@@ -182,6 +182,13 @@ class PrjCreate(CommonCreate):
     title = _("Create Project")
 
 
+class RecCreate(CommonCreate):
+    key = 'rec'
+    model = models.RecDataset
+    form_class = forms.RecForm
+    title = _("Dataset")
+
+
 class RscCreate(CommonCreate):
     key = 'rsc'
     model = models.RscRecordingSchedule
@@ -351,6 +358,15 @@ class PrjUpdate(CommonUpdate):
         return reverse_lazy("whalesdb:list_prj")
 
 
+class RecUpdate(CommonUpdate):
+    model = models.RecDataset
+    form_class = forms.RecForm
+    title = _("Update Dataset")
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_rec")
+
+
 class StnUpdate(CommonUpdate):
     model = models.StnStation
     form_class = forms.StnForm
@@ -452,6 +468,14 @@ class PrjDetails(CommonDetails):
     title = _("Project Details")
     fields = ['name', 'description_en', 'prj_url']
     creation_form_height = 725
+
+
+class RecDetails(CommonDetails):
+    key = 'rec'
+    model = models.RecDataset
+    title = _("Dataset")
+    template_name = "whalesdb/whales_details.html"
+    fields = []
 
 
 class RscDetails(CommonDetails):
@@ -600,6 +624,14 @@ class PrjList(CommonList):
     title = _("Project List")
     creation_form_height = 400
     fields = ['tname|Name', 'tdescription|Description']
+
+
+class RecList(CommonList):
+    key = 'rec'
+    model = models.RecDataset
+    filterset_class = filters.RecFilter
+    title = _("Dataset")
+    fields = ['eda_id', 'rsc_id', 'rtt_in_water','rtt_dataset']
 
 
 class RscList(CommonList):

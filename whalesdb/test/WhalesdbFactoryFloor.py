@@ -364,9 +364,9 @@ class RttFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.RttTimezoneCode
 
-    rtt_name = factory.lazy_attribute(faker.word())
     rtt_abb = factory.lazy_attribute(lambda o: faker.word()[0:5])
-    rtt_offset = factory.lazy_attribute(faker.random_int(-12, 12))
+    rtt_name = factory.lazy_attribute(lambda o: faker.word())
+    rtt_offset = factory.lazy_attribute(lambda o: faker.random_int(-12, 12))
 
     @staticmethod
     def get_valid_data():
@@ -374,6 +374,33 @@ class RttFactory(factory.django.DjangoModelFactory):
             'rtt_name': faker.word(),
             'rtt_abb': 'ASDFG',
             'rtt_offset': faker.random_int(-12, 12)
+        }
+
+        return valid_data
+
+
+class RecFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.RecDataset
+
+    eda_id = factory.SubFactory(EdaFactory)
+    rsc_id = factory.SubFactory(RscFactory)
+    rtt_in_water = factory.SubFactory(RttFactory)
+    rtt_dataset = factory.SubFactory(RttFactory)
+
+    @staticmethod
+    def get_valid_data():
+
+        eda_id = EdaFactory()
+        rsc_id = RscFactory()
+        rtt_in_water = RttFactory()
+        rtt_dataset = RttFactory()
+
+        valid_data = {
+            'eda_id': eda_id.pk,
+            'rsc_id': rsc_id.pk,
+            'rtt_in_water': rtt_in_water.pk,
+            'rtt_dataset': rtt_dataset.pk
         }
 
         return valid_data

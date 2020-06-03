@@ -45,6 +45,13 @@ class PrjFilter(django_filters.FilterSet):
         fields = []
 
 
+class RecFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.RecDataset
+        fields = []
+
+
 class RscFilter(django_filters.FilterSet):
     rsc_name = django_filters.CharFilter(field_name='rsc_name', lookup_expr='icontains')
 

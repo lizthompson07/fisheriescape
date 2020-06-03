@@ -59,10 +59,18 @@
                     <h2>{% trans 'Recording Datasets' %}</h2>
                 </div>
                 <div class="card-body">
+                    <div class="mb-3">
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:list_rec' %}" >{% trans 'Datasets' %}</a>
+                    {% if auth %}
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:create_rec' %}" >{% trans 'New Dataset' %}</a>
+                    {% endif %}
+                    </div>
+                    <div>
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_rsc' %}" >{% trans 'Recording Schedules' %}</a>
                     {% if auth %}
                     <a class="btn btn-secondary" href="{% url 'whalesdb:create_rsc' %}" >{% trans 'New Recording Schedule' %}</a>
                     {% endif %}
+                    </div>
                     <hr />
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_tea' %}" >{% trans 'Team Members' %}</a>
                     {% if auth %}
