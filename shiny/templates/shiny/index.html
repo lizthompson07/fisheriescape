@@ -27,12 +27,12 @@
     {% url row_object_url_name object.id as my_url %}
     <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
         {% for field in field_list %}
-            <td>
+            <td class="{{ field.class }}">
                 {% if "thumbnail" in field.name %}
                     {% if object.thumbnail %}
-                        <img src="{{ object.thumbnail.url }}" alt="" width="100">
+                        <img src="{{ object.thumbnail.url }}" alt="" width="100%">
                     {% else %}
-                        <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="100">
+                        <img src="{% static 'shiny/img/rproj.jfif' %}" alt="" width="100%">
                     {% endif %}
                 {% elif "github" in field.name %}
                     {% if object.github_url %}
