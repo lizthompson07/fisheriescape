@@ -323,6 +323,9 @@ class RscRecordingSchedule(models.Model):
     rsc_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Recording Schedule"))
     rsc_period = models.BigIntegerField(verbose_name=_("Period"))
 
+    def __str__(self):
+        return "{} : {}".format(self.rsc_name, self.rsc_period)
+
 
 class RstRecordingStage(models.Model):
     rst_channel_no = models.BigIntegerField(blank=True, null=True, verbose_name=_("Channel Number"))
@@ -336,6 +339,9 @@ class RttTimezoneCode(models.Model):
     rtt_abb = models.CharField(max_length=5, verbose_name=_("Abbreviation"))
     rtt_name = models.CharField(max_length=50, verbose_name=_("Name"))
     rtt_offset = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Offset"))
+
+    def __str__(self):
+        return "{}".format(self.rtt_abb)
 
 
 class TeaTeamMember(models.Model):
