@@ -4,14 +4,7 @@
 {% block title %}DM-Accounts{% endblock title %}
 {% block right_auth %}
 
-    {% if not AZURE_AD %}
-        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:account' user.id %}">
-            {% trans "My Account" %}
-        </a></li>
-        <li class="nav-item"><a class="nav-link" href="{% url 'accounts:profile' user.id %}">
-            {% trans "My Profile" %}
-        </a></li>
-    {% endif %}
+
 
 {% endblock right_auth %}
 
