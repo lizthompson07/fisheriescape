@@ -93,6 +93,7 @@ def index(request):
 #
 class ItemListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
+    h1 = "Lists"
     filterset_class = filters.SpecificItemFilter
     queryset = models.Item.objects.annotate(
         search_term=Concat('item_name', 'description', output_field=TextField()))
@@ -102,12 +103,13 @@ class ItemListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'description', "class": "", "width": ""},
         {"name": 'serial_number', "class": "", "width": ""},
         {"name": 'owner', "class": "", "width": ""},
-        {"name": 'category', "class": "", "width": ""},
+        {"name": 'category', "class": "red-font", "width": ""},
         {"name": 'gear_type', "class": "", "width": ""},
         {"name": 'suppliers', "class": "", "width": ""},
     ]
     home_url_name = "whalebrary:index"
-
+    container_class = "container-fluid"
+    row_object_url_name = "whalebrary:item_detail"
 
 class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
     model = models.Item
