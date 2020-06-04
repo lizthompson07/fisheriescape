@@ -226,6 +226,10 @@ class CommonFormMixin(CommonMixin):
     submit_text = _("Submit")
     submit_btn_class = "btn-warning"
     editable = True
+    is_multipart_form_data = False
+
+    def get_is_multipart_form_data(self):
+        return self.is_multipart_form_data
 
     def get_cancel_url(self):
         if self.get_cancel_url:
@@ -263,6 +267,8 @@ class CommonFormMixin(CommonMixin):
         context['submit_text'] = self.get_submit_text()
         context['editable'] = self.get_editable()
         context["submit_btn_class"] = self.get_submit_btn_class()
+        context["is_multipart_form_data"] = self.get_is_multipart_form_data()
+
         return context
 
 
