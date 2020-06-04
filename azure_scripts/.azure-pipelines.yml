@@ -56,7 +56,7 @@ steps:
 
   - script: |
       pushd '$(projectRoot)'
-#      ./run_tests.sh
+      ./run_tests.sh
     condition: succeededOrFailed()
     displayName: 'Run tests'
 
