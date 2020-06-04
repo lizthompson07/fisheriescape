@@ -391,6 +391,8 @@ class TestTripReviewerUpdateView(CommonTest):
             "reviewer_field_list",
             "report_mode",
             "trip",
+            "adm_can_submit",
+            "adm_tr_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
         # TODO: NEED TO TEST WITH ADM REVIEWER AND MAKE SURE EXTRA FIELDS ARE PRESENT!!
