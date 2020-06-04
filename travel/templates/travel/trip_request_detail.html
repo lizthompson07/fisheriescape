@@ -31,7 +31,9 @@
                 {% else %}
                     {% trans "This trip is closed to additional requests." %}
                 {% endif %}
-                {% trans "You will not be able to submit this request." %}
+                {% if not object.submitted %}
+                    {% trans "You will not be able to submit this request." %}
+                {% endif %}
             </p>
         </div>
 
