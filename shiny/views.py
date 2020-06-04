@@ -52,6 +52,7 @@ class AppUpdateView(LoginRequiredMixin, CommonUpdateView):
     success_url = reverse_lazy('shiny:index')
     template_name = 'shared_models/generic_form.html'
     home_url_name = "shiny:index"
+    is_multipart_form_data = True
 
 
 class AppCreateView(LoginRequiredMixin, CommonCreateView):
@@ -60,6 +61,7 @@ class AppCreateView(LoginRequiredMixin, CommonCreateView):
     success_url = reverse_lazy('shiny:index')
     template_name = 'shared_models/generic_form.html'
     home_url_name = "shiny:index"
+    is_multipart_form_data = True
 
     def get_initial(self):
         return {
