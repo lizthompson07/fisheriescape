@@ -22,10 +22,10 @@ class IndexTemplateView(CommonFilterView):
     filterset_class = filters.AppFilter
     h1 = gettext_lazy("DFO Shiny Apps Repository")
     new_object_url_name = "shiny:create"
-    container_class = "container-fluid"
+    # container_class = "container-fluid"
 
     field_list = [
-        {"name": 'thumbnail| ', "class": "", "width": "200px"},
+        {"name": 'thumbnail| ', "class": "", "width": "150px"},
         {"name": 'ttitle|{}'.format(_("title")), "class": "", "width": ""},
         {"name": "tdescription|{}".format(_("description")), "class": "", "width": ""},
         {"name": 'owner', "class": "", "width": "150px"},
