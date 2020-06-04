@@ -75,33 +75,36 @@
 
     <div class="container-fluid">
     <br>
-    <div class=" text-center jumbotron container">
-        <h1 class="text-center" style="font-size: 65px">
-            {% trans 'Welcome to DM Apps' %}
-        </h1>
-        {#        <h2 class="">#}
-        {#            {% trans "By DFO Science" %}#}
-        {#        </h2>#}
-{#        <hr>#}
+    {% if not user.is_authenticated %}
 
-        {% url 'accounts:login' as sign_in_url %}
-        {% url 'accounts:signup' as sign_up_url %}
+        <div class=" text-center jumbotron container">
+            {#        <h1 class="text-center" style="font-size: 65px">#}
+            {#            {% trans 'Welcome to DM Apps' %}#}
+            {#        </h1>#}
+            {#        <h2 class="">#}
+            {#            {% trans "By DFO Science" %}#}
+            {#        </h2>#}
+            {#        <hr>#}
+
+            {% url 'accounts:login' as sign_in_url %}
+            {% url 'accounts:signup' as sign_up_url %}
 
 
-        <h4 class="text-center montserrat" style="font-size: 26px">
-            {% if not user.is_authenticated %}
-{#                {% blocktrans with name=user.first_name %}#}
-{#                    Hi, {{ name }}! Please select an application below.#}
-{#                {% endblocktrans %}#}
-{#            {% else %}#}
-                {% blocktrans %}
-                    Please <a href="{{ sign_in_url }}">sign in</a> or select an application below. If you do not have an
-                    account, you can register for one
-                    <a href="{{ sign_up_url }}">here.</a>
-                {% endblocktrans %}
-            {% endif %}
-        </h4>
-    </div>
+            <h4 class="text-center montserrat" style="font-size: 26px">
+                {% if not user.is_authenticated %}
+                    {#                {% blocktrans with name=user.first_name %}#}
+                    {#                    Hi, {{ name }}! Please select an application below.#}
+                    {#                {% endblocktrans %}#}
+                    {#            {% else %}#}
+                    {% blocktrans %}
+                        Please <a href="{{ sign_in_url }}">sign in</a> or select an application below. If you do not have an
+                        account, you can register for one
+                        <a href="{{ sign_up_url }}">here.</a>
+                    {% endblocktrans %}
+                {% endif %}
+            </h4>
+        </div>
+    {% endif %}
 
 
     <br>
