@@ -1496,13 +1496,13 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
             # {"name": 'lead|{}'.format(_("Regional lead")), "class": "center-col", },
             {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
             {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
-            {"name": 'date_eligible_for_adm_review', "class": "center-col", },
+            {"name": 'date_eligible_for_adm_review', "class": "center-col", "width": "100px"},
             # {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
             # {"name": 'verified_by', "class": "", },
         ]
         if self.kwargs.get("type") == "adm-hit-list" or self.kwargs.get("type") == "adm-all":
             field_list.append(
-                {"name": 'adm_review_deadline|{}'.format(_("ADM review deadline")), "class": "", "width": "250px"}
+                {"name": 'adm_review_deadline|{}'.format(_("ADM decision deadline")), "class": "", "width": "200px"}
             )
         return field_list
 
@@ -1522,10 +1522,7 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
 
     def get_h3(self):
         if self.kwargs.get("type") == "adm-hit-list":
-            six_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 6)
-            return "{} {}".format(
-                _("Trips whose registration date, abstract date or start date (whichever is earliest) is on or before"),
-                six_months_away.strftime("%B %d, %Y"))
+            return "<em>(" + _("i.e., Trips which are fair game for ADMO review to begin") + ")</em>"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -2054,7 +2051,10 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
             # basically, we want to make sure there is nothing that has a trip request status of 14
 
             context["adm_can_submit"] = bool(self.get_object().trip.trip_requests.filter(status_id=14).count()) is False
-
+        else:
+            # otherwise we can always submit the trip
+            context["adm_tr_list"] = None
+            context["adm_can_submit"] = True
         return context
 
     def form_valid(self, form):

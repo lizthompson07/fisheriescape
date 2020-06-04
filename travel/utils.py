@@ -510,6 +510,6 @@ def get_adm_eligible_trips():
         # only get trips that have attached requests
         if t.get_connected_active_requests().count():
             # only get trips that are within three months from the closest date
-            if t.date_eligible_for_adm_review and t.date_eligible_for_adm_review >= timezone.now():
+            if t.date_eligible_for_adm_review and t.date_eligible_for_adm_review <= timezone.now():
                 t_ids.append(t.id)
     return models.Conference.objects.filter(id__in=t_ids)
