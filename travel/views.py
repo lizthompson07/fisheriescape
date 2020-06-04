@@ -604,6 +604,8 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
                 last_name=self.request.user.last_name,
                 email=self.request.user.email,
                 parent_request=my_object,
+                start_date=my_object.trip.start_date,
+                end_date=my_object.trip.end_date,
             )
             # pre-populate the costs on the 'child' record
             utils.populate_trip_request_costs(self.request, my_child_object)
@@ -2018,14 +2020,22 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
 
         # if this is the ADM looking at the page, we need to provide more data
         if self.get_object().role_id == 5:
+            # prime a list of trip requests to run by the ADM. This will be a list of travellers (ie. ind TRs and child TRs; not parent records)
             adm_tr_list = list()
             # we need all the trip requests, excluding parents; start out with simple ones
+
+            # get all ind TRs that are pending ADM, pending RDG, denied or accepted
             tr_id_list = [tr.id for tr in trip.trip_requests.filter(is_group_request=False, status_id__in=[14, 15, 10, 11])]
-            my_list = [child_tr.id for parent_tr in trip.trip_requests.filter(is_group_request=True, status_id__in=[14, 15, 10, 11]) for
-                       child_tr in
-                       parent_tr.children_requests.all()]
-            tr_id_list.extend(my_list)
+
+            # make a list of child requests whose parents are in the same status categories
+            child_list = [child_tr.id for parent_tr in trip.trip_requests.filter(is_group_request=True, status_id__in=[14, 15, 10, 11]) for
+                          child_tr in parent_tr.children_requests.all()]
+            #extend the list
+            tr_id_list.extend(child_list)
+            # get a QS from the work done above
             trip_requests = models.TripRequest.objects.filter(id__in=tr_id_list)
+
+            # go through each trip request
             for tr in trip_requests:
                 # the child requests will be set as 'draft', change them to 'pending adm review'
                 if tr.parent_request and tr.parent_request.status_id == 14 and tr.status_id == 8:
@@ -2033,17 +2043,21 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
                     tr.save()
 
                 # get any adm reviewers of the trip request that is pending; it is important that we only look at parent requests for this
+                # hence the use of `smart_reviewer` prop
                 my_reviewer = tr.smart_reviewers.get(role_id=5) if tr.smart_reviewers.filter(role_id=5, status_id=1).count() == 1 else None
 
-                # if there is a reviewer and the trip request is a child, we have to actually create a new trip request for that child
+                # if there is a reviewer and the trip request is a child, we have to actually create a new trip request  reviewer for that child
                 if my_reviewer and tr.parent_request:
                     # use get_or_create
+                    status = my_reviewer.status
                     my_reviewer, created = models.Reviewer.objects.get_or_create(
                         trip_request=tr,
                         role=my_reviewer.role,
                         user=my_reviewer.user,
                     )
-                    # status=my_reviewer.status,
+                    if created:
+                        my_reviewer.status = status
+                        my_reviewer.save()
 
                 adm_tr_list.append({"trip_request": tr, "reviewer": my_reviewer})
             context["adm_tr_list"] = adm_tr_list

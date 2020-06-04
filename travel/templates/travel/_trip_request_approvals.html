@@ -50,11 +50,11 @@
                         </td>
 
                         <td>
-                        <span style="background-color: {{ item.trip_request.adm.status.color }}">
-                        {{ item.trip_request.adm.status }}
-                        </span>
+                        <span style="background-color: {{ item.trip_request.adm.status.color }}">{{ item.trip_request.adm.status }}</span>
+                        {% if item.trip_request.adm.comments %}
                             &mdash;
                             {{ item.trip_request.adm.comments }}
+                        {% endif %}
 
                         </td>
                         <td>
