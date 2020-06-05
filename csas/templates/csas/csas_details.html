@@ -19,18 +19,37 @@
                 <div class="col-lg">
                     <h1>{% trans title %}</h1>
                 </div>
-                <div class="col-3 pt-1">
-                    <a class="btn btn-secondary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
+                <div class="col-6 pt-1">
+                    {% if key == 'pub' %}
+                        {% if csas_admin %}
+                            <a class="btn btn-secondary"
+                               href="{% url ''|add:index_url %}">{% trans 'New Publication Entry' %}</a>
+                        {% endif %}
+                        <a class="btn btn-secondary"
+                           href="{% url ''|add:list_url %}">{% trans title %}</a>
+                    {% elif key == 'met' %}
+                        {% if csas_admin %}
+                            <a class="btn btn-secondary"
+                               href="{% url ''|add:index_url %}">{% trans 'New Meeting Entry' %}</a>
+                        {% endif %}
+                        <a class="btn btn-secondary"
+                           href="{% url ''|add:list_url %}">{% trans 'Meeting List' %}</a>
+                    {% elif key == 'req' %}
+                        <a class="btn btn-secondary"
+                           href="{% url ''|add:list_url %}">{% trans 'Request List' %}</a>
+                    {% elif key == 'con' %}
+                        <a class="btn btn-secondary"
+                           href="{% url ''|add:list_url %}">{% trans 'Contact List' %}</a>
+                    {% elif key == 'met_DFO_pars' %}
+                        <a class="btn btn-secondary"
+                           href="{% url ''|add:list_url %}">{% trans 'DFO Participants List' %}</a>
+                    {% elif key == 'met_other_pars' %}
+                        <a class="btn btn-secondary"
+                           href="{% url ''|add:list_url %}">{% trans 'Other Participants List' %}</a>
+                    {% endif %}
+
                     {# if the user is authenticated and has permissions show the Update button #}
-                    {# --------------------------------------------------------------------------------------- #}
-                    {# Yongcun: following line is not good, I used condition update_url=="csas:update_req",    #}
-                    {#          it's coupled too close with class DetailsCommon(DetailView) in "views.py"      #}
-                    {# --------------------------------------------------------------------------------------- #}
-                    {% if update_url == "csas:update_req" and auth %}
-                        <a class="btn btn-secondary" href="#"
-                           onclick="return popitup('{% url ''|add:update_url object.pk 'pop' %}','popoutWindow')"
-                           title="{% trans 'Add' %}">{% trans 'Update' %}</a>
-                    {% elif csas_admin %}
+                    {% if key == 'req' and auth or csas_admin %}
                         <a class="btn btn-secondary" href="#"
                            onclick="return popitup('{% url ''|add:update_url object.pk 'pop' %}','popoutWindow')"
                            title="{% trans 'Add' %}">{% trans 'Update' %}</a>
@@ -43,6 +62,11 @@
     <div class="jumbotron">
         {% block field_override %}
             <h2>{{ object.prj_name }}</h2>
+            <style>
+                .mymdb-masthead {
+                   background-color: #EEEEEE;
+                   margin-bottom: 1em;
+            </style>
             {% for field in fields %}
                 <div class="row" >
                     <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span>

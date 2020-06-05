@@ -28,6 +28,35 @@ class MeetingFilter(django_filters.FilterSet):
         self.filters['start_date'] = django_filters.ChoiceFilter(field_name='start_date', lookup_expr='exact', choices=dates)
 
 
+class MeetingFilterDFOPars(django_filters.FilterSet):
+    # meeting = django_filters.ChoiceFilter(field_name='meeting', lookup_expr='exact')
+
+    class Meta:
+        model = models.MetMeetingDFOPars
+        fields = ['meeting', 'name', 'role', 'time']
+        # fields = ['meeting', 'name', 'role', 'time', 'cost_category', 'funding_source', 'total_salary']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        #meet = [(y[0], str(y[0])) for y in models.MetMeetingDFOPars.objects.all().values_list('meeting').distinct()]
+        #self.filters['meeting'] = django_filters.ChoiceFilter(field_name='meeting', lookup_expr='exact', choices=meet)
+
+
+class MeetingFilterOtherPars(django_filters.FilterSet):
+    name = django_filters.ChoiceFilter(field_name='meeting', lookup_expr='exact')
+
+    class Meta:
+        model = models.MetMeetingOtherPars
+        fields = ['meeting', 'name', 'role', 'affiliation', 'invited', 'attended']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        dates = [(y[0], str(y[0])) for y in models.MetMeetingOtherPars.objects.all().values_list('meeting').distinct()]
+        self.filters['meeting'] = django_filters.ChoiceFilter(field_name='meeting', lookup_expr='exact', choices=dates)
+
+
 class PublicationFilter(django_filters.FilterSet):
     series = django_filters.CharFilter(field_name='series', lookup_expr='icontains')
 
