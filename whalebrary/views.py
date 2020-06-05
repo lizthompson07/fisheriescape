@@ -93,7 +93,7 @@ def index(request):
 #
 class ItemListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
-    h1 = "Lists"
+    h1 = "Item List"
     filterset_class = filters.SpecificItemFilter
     queryset = models.Item.objects.annotate(
         search_term=Concat('item_name', 'description', output_field=TextField()))
@@ -192,51 +192,33 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
 
         return context
 
-
-# class TransactionItemDetailView(WhalebraryAccessRequired, ListView):
-#     template_name = 'whalebrary/transaction_item_detail.html'
-#     model = models.Transaction
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["my_object"] = models.Transaction.objects.first()
-#
-#         context["field_list"] = [
-#             'item',
-#             'quantity',
-#             'status',
-#             'date',
-#             'lent_to',
-#             'return_date',
-#             'order_number',
-#             'purchased_by',
-#             'reason',
-#             'incident',
-#             'last_audited',
-#             'last_audited_by',
-#             'location',
-#             'bin_id',
-#         ]
-#
-#         return context
-#
-#         # context for _item_summary.html
-#         context["random_item"] = models.Item.objects.first()
-#         context["item_field_list"] = [
-#             'item_name',
-#             'description',
-#             'serial_number',
-#
-#         ]
-
-
-class ItemTransactionListView(WhalebraryAccessRequired, ListView):
+class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = 'whalebrary/item_transaction_detail.html'
+    h1 = "Detailed Transactions"
     filterset_class = filters.TransactionFilter
     queryset = models.Transaction.objects.annotate(
         search_term=Concat('id', 'item', 'quantity', 'status', 'date', 'lent_to', 'return_date', 'order_number',
                            'purchased_by', 'reason', 'incident', 'last_audited', 'last_audited_by', 'location',
                            'bin_id', output_field=TextField()))
+    # field_list = [
+    #     {"name": 'item', "class": "", "width": ""},
+    #     {"name": 'quantity', "class": "", "width": ""},
+    #     {"name": 'status', "class": "", "width": ""},
+    #     {"name": 'date', "class": "", "width": ""},
+    #     {"name": 'lent_to', "class": "", "width": ""},
+    #     {"name": 'return_date', "class": "red-font", "width": ""},
+    #     {"name": 'order_number', "class": "", "width": ""},
+    #     {"name": 'purchased_by', "class": "", "width": ""},
+    #     {"name": 'reason', "class": "", "width": ""},
+    #     {"name": 'incident', "class": "", "width": ""},
+    #     {"name": 'last_audited', "class": "", "width": ""},
+    #     {"name": 'last_audited_by', "class": "", "width": ""},
+    #     {"name": 'location', "class": "", "width": ""},
+    #     {"name": 'bin_id', "class": "", "width": ""},
+    # ]
+    # home_url_name = "whalebrary:index"
+    # container_class = "container-fluid"
+    # row_object_url_name = "whalebrary:transaction_detail"
 
     def get_queryset(self, **kwargs):
         my_item = models.Item.objects.get(pk=self.kwargs.get('pk'))
