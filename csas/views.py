@@ -28,6 +28,30 @@ class FilterCommon(shared_view.FilterView, shared_view.CommonCommon):
         context['auth'] = self.test_func()
         context['editable'] = context['auth']
         context.update(super().get_common_context())
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+
+        return context
+
+
+class FilterCommonPars(shared_view.FilterView, shared_view.CommonCommon):
+    auth = True
+    template_name = 'csas/csas_filter_pars.html'
+
+    def test_func(self):
+        return self.auth
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+
+        context['auth'] = self.test_func()
+        context['editable'] = context['auth']
+        context.update(super().get_common_context())
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+
         return context
 
 
@@ -47,6 +71,7 @@ class CsasListCommon(FilterCommon):
 
     # URL to use for the update button element in the filter view's list
     update_url = None
+    index_url = None
 
     # The height of the popup dialog used to display the creation/update form
     # if not set by the extending class the default popup height will be used
@@ -58,10 +83,46 @@ class CsasListCommon(FilterCommon):
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
+
+        if self.key:
+            context['key'] = self.key
+
         context['fields'] = self.fields
-        context['create_url'] = self.create_url if self.create_url else "csas:create_{}".format(self.key)
-        context['details_url'] = self.details_url if self.details_url else "csas:details_{}".format(self.key)
-        context['update_url'] = self.update_url if self.update_url else "csas:update_{}".format(self.key)
+        context['create_url'] = self.create_url if self.create_url else 'csas:create_{}'.format(self.key)
+        context['details_url'] = self.details_url if self.details_url else 'csas:details_{}'.format(self.key)
+        context['update_url'] = self.update_url if self.update_url else 'csas:update_{}'.format(self.key)
+        context['index_url'] = self.index_url if self.index_url else 'csas:index_{}'.format(self.key)
+
+        return context
+
+
+class CsasListCommonPars(FilterCommonPars):
+    nav_menu = 'csas/csas_nav.html'
+    site_css = 'csas/csas_css.css'
+
+    fields = []
+    create_url = None
+    details_url = None
+    update_url = None
+    index_url = None
+    creation_form_height = None
+
+    def test_func(self):
+        return utils.csas_authorized(self.request.user)
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+
+        if self.key:
+            context['key'] = self.key
+
+        context['fields'] = self.fields
+        context['create_url'] = self.create_url if self.create_url else 'csas:create_{}'.format(self.key)
+        context['details_url'] = self.details_url if self.details_url else 'csas:details_{}'.format(self.key)
+        # context['details_url'] = 'csas:details_met_DFO_pars'
+        context['update_url'] = self.update_url if self.update_url else 'csas:update_{}'.format(self.key)
+        context['index_url'] = self.index_url if self.index_url else 'csas:index_{}'.format(self.key)
+
         return context
 
 
@@ -75,6 +136,16 @@ class CsasCreateCommon(shared_view.CreateCommon):
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
     template_name = 'csas/csas_entry_form.html'
+
+    # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
+    def test_func(self):
+        return utils.csas_authorized(self.request.user)
+
+
+class CsasCreateCommon3col(shared_view.CreateCommon):
+    nav_menu = 'csas/csas_nav.html'
+    site_css = 'csas/csas_css.css'
+    template_name = 'csas/csas_entry_form_3col.html'
 
     # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
     def test_func(self):
@@ -98,15 +169,14 @@ class CsasUpdateCommon(shared_view.UpdateCommon):
         return utils.csas_authorized(self.request.user)
 
     def get_nav_menu(self):
-        if hasattr(self, 'kwargs') and self.kwargs.get("pop"):
+        if hasattr(self, 'kwargs') and self.kwargs.get('pop'):
             return None
-
         return super().get_nav_menu()
 
 
 class DetailsCommon(DetailView):
     # default template to use to create a details view
-    template_name = "csas/csas_details.html"
+    template_name = 'csas/csas_details.html'
 
     # title to display on the list page
     title = None
@@ -115,6 +185,7 @@ class DetailsCommon(DetailView):
     key = None
 
     # URL linking the details page back to the proper list
+    index_url = None
     list_url = None
     update_url = None
 
@@ -122,32 +193,32 @@ class DetailsCommon(DetailView):
         context = super().get_context_data(**kwargs)
         if self.title:
             context['title'] = self.title
+
         if self.fields:
             context['fields'] = self.fields
+
+        if self.key:
+            context['key'] = self.key
+
         if self.request.user:
-            context["auth"] = utils.csas_authorized(self.request.user)
-            context["csas_admin"] = utils.csas_admin(self.request.user)
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
 
         # If you don't provide specific list and update urls by setting list_url and/or update_url
         # in the extending class, then Common Details will use the provided key to create the url for you
-        context['list_url'] = self.list_url if self.list_url else "csas:list_{}".format(self.key)
-        context['update_url'] = self.update_url if self.update_url else "csas:update_{}".format(self.key)
-        return context
+        context['index_url'] = self.index_url if self.index_url else 'csas:index_{}'.format(self.key)
+        context['list_url'] = self.list_url if self.list_url else 'csas:list_{}'.format(self.key)
+        context['update_url'] = self.update_url if self.update_url else 'csas:update_{}'.format(self.key)
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     if self.request.user:
-    #         context["auth"] = utils.csas_authorized(self.request.user)
-    #         context["csas_admin"] = utils.csas_admin(self.request.user)
-    #     return context
+        return context
 
 
 class CloserTemplateView(TemplateView):
-    template_name = "shared_models/close_me.html"
+    template_name = 'shared_models/close_me.html'
 
 
 # ----------------------------------------------------------------------------------------------------
-# Create index view
+# Create index view for CSAS
 #
 class IndexTemplateView(TemplateView):
     template_name = 'csas/index.html'
@@ -156,8 +227,38 @@ class IndexTemplateView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         if self.request.user:
-            context["auth"] = utils.csas_authorized(self.request.user)
-            context["csas_admin"] = utils.csas_admin(self.request.user)
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+
+        return context
+
+
+# Create index view for new meeting
+#
+class IndexMeetingView(TemplateView):
+    template_name = 'csas/index_met.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+
+        return context
+
+
+# Create index view for new publication
+#
+class IndexPublicationView(TemplateView):
+    template_name = 'csas/index_pub.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
 
         return context
 
@@ -167,7 +268,7 @@ class IndexTemplateView(TemplateView):
 #
 class RequestEntry(CsasCreateCommon):
     # The title to use on the Request form
-    title = _("New Request Entry")
+    title = _('New Request Entry')
     # The model Django uses to retrieve the object(s) used on the page
     model = models.ReqRequest
     # This is what controls what fields and what widgets for what fields should be used on the entry form
@@ -175,227 +276,384 @@ class RequestEntry(CsasCreateCommon):
 
     # Go to Request List or Request Details page after Submit a new request
     def get_success_url(self):
-        return reverse_lazy("csas:details_req", args=(self.object.pk,))
+        return reverse_lazy('csas:details_req', args=(self.object.pk,))
 
 
 class RequestUpdate(CsasUpdateCommon):
-    title = _("Update Request")
+    title = _('Update Request')
     model = models.ReqRequest
     form_class = forms.RequestForm
 
     # Go to Request Details page after Update a request
     def get_success_url(self):
-        if "pop" in self.kwargs:
-            return reverse_lazy("shared_models:close_me")
-        return reverse_lazy("csas:details_req", args=(self.object.pk,))
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_req', args=(self.object.pk,))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         if self.request.user:
-            context["auth"] = utils.csas_authorized(self.request.user)
-            context["csas_admin"] = utils.csas_admin(self.request.user)
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
 
         return context
 
 
 class RequestList(CsasListCommon):
     key = 'req'
-    title = _("Request List")
+    title = _('Request List')
     model = models.ReqRequest
     filterset_class = filters.RequestFilter
     fields = ['id', 'title', 'region', 'client_sector', 'client_name', 'funding']
 
 
 class RequestDetails(DetailsCommon):
-    key = "req"
-    title = _("Request Details")
+    key = 'req'
+    title = _('Request Details')
     model = models.ReqRequest
     fields = ['assigned_req_id', 'title', 'in_year_request', 'region', 'client_sector', 'client_name',
               'client_title', 'client_email', 'issue', 'priority', 'rationale', 'proposed_timing',
               'rationale_for_timing', 'funding', 'funding_notes', 'science_discussion', 'science_discussion_notes',
               'adviser_submission', 'rd_submission', 'decision_date', ]
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     if self.request.user:
-    #         context["auth"] = utils.csas_authorized(self.request.user)
-    #         context["csas_admin"] = utils.csas_admin(self.request.user)
-    #     return context
-
 
 # ----------------------------------------------------------------------------------------------------
 # Create "Contact" forms
 #
 class ContactEntry(CsasCreateCommon):
-    title = _("New Contact Entry")
+    title = _('New Contact Entry')
     model = models.ConContact
     form_class = forms.ContactForm
 
     def get_success_url(self):
-        return reverse_lazy("csas:details_con", args=(self.object.pk,))
+        return reverse_lazy('csas:details_con', args=(self.object.pk,))
 
 
 class ContactUpdate(CsasUpdateCommon):
-    title = _("Update Contact")
+    title = _('Update Contact')
     model = models.ConContact
     form_class = forms.ContactForm
 
     def get_success_url(self):
         if "pop" in self.kwargs:
-            return reverse_lazy("shared_models:close_me")
-        return reverse_lazy("csas:details_con", args=(self.object.pk,))
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_con', args=(self.object.pk,))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         if self.request.user:
-            context["auth"] = utils.csas_authorized(self.request.user)
-            context["csas_admin"] = utils.csas_admin(self.request.user)
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
 
         return context
 
 
 class ContactList(CsasListCommon):
     key = 'con'
-    title = _("Contact List")
+    title = _('Contact List')
     model = models.ConContact
     filterset_class = filters.ContactFilter
     fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'email', 'phone']
 
 
 class ContactDetails(DetailsCommon):
-    key = "con"
-    title = _("Contact Details")
+    key = 'con'
+    title = _('Contact Details')
     model = models.ConContact
-    fields = ['honorific', 'first_name', 'last_name', 'affiliation', 'job_title', 'language', 'contact_type',
+    fields = ['id', 'honorific', 'first_name', 'last_name', 'affiliation', 'job_title', 'language', 'contact_type',
               'notification_preference', 'phone', 'email', 'region', 'sector', 'role', 'expertise', 'cc_grad',
               'notes']
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     if self.request.user:
-    #         context["auth"] = utils.csas_authorized(self.request.user)
-    #         context["csas_admin"] = utils.csas_admin(self.request.user)
-    #     return context
 
 
 # ----------------------------------------------------------------------------------------------------
 # Create "Meeting" forms
 #
 class MeetingEntry(CsasCreateCommon):
-    title = _("New Meeting Entry")
+    key = 'met'
+    title = _('New Meeting Details Entry')
     model = models.MetMeeting
     form_class = forms.MeetingForm
 
     def get_success_url(self):
-        return reverse_lazy("csas:details_met", args=(self.object.pk,))
+        return reverse_lazy('csas:details_met', args=(self.object.pk,))
+        # return reverse_lazy('csas:index_met', args='')
 
 
 class MeetingEntryDocs(CsasCreateCommon):
-    title = _("New Meeting Documentation Entry")
+    title = _('New Meeting Documentation Entry')
     model = models.MetMeetingDocs
     form_class = forms.MeetingFormDocs
 
     def get_success_url(self):
-        return reverse_lazy("csas:details_met", args=(self.object.pk,))
+        return reverse_lazy('csas:details_met_docs', args=(self.object.pk,))
+
+
+class MeetingEntryDFOPars(CsasCreateCommon):
+    title = _('New Meeting DFO Participants Entry')
+    model = models.MetMeetingDFOPars
+    form_class = forms.MeetingFormDFOPars
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_met_DFO_pars', args=(self.object.pk,))
+
+
+class MeetingEntryOtherPars(CsasCreateCommon):
+    title = _('New Meeting Other Participants Entry')
+    model = models.MetMeetingOtherPars
+    form_class = forms.MeetingFormOtherPars
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_met_other_pars', args=(self.object.pk,))
+
+
+class MeetingEntryOMCosts(CsasCreateCommon3col):
+    title = _('New Meeting O&M Costs Entry')
+    model = models.MetMeetingOMCosts
+    form_class = forms.MeetingFormOMCosts
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_met', args=(self.object.pk,))
+
+
+class MeetingEntryMedia(CsasCreateCommon):
+    title = _('New Meeting Media Entry')
+    model = models.MetMeetingMedia
+    form_class = forms.MeetingFormMedia
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_met', args=(self.object.pk,))
 
 
 class MeetingUpdate(CsasUpdateCommon):
-    title = _("Update Meeting")
+    title = _('Update Meeting')
     model = models.MetMeeting
     form_class = forms.MeetingForm
 
     def get_success_url(self):
-        if "pop" in self.kwargs:
-            return reverse_lazy("shared_models:close_me")
-        return reverse_lazy("csas:details_met", args=(self.object.pk,))
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_met', args=(self.object.pk,))
+
+
+class MeetingUpdateDocs(CsasUpdateCommon):
+    title = _('Update Meeting Details')
+    model = models.MetMeetingDocs
+    form_class = forms.MeetingFormDocs
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_met_doc', args=(self.object.pk,))
+
+
+class MeetingUpdateDFOPars(CsasUpdateCommon):
+    title = _('Update Meeting DFO Participants')
+    model = models.MetMeetingDFOPars
+    form_class = forms.MeetingFormDFOPars
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_met_DFO_pars', args=(self.object.pk,))
+
+
+class MeetingUpdateOtherPars(CsasUpdateCommon):
+    title = _('Update Meeting Other Participants')
+    model = models.MetMeetingOtherPars
+    form_class = forms.MeetingFormOtherPars
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_met_other_pars', args=(self.object.pk,))
+
+
+class MeetingUpdateOMCosts(CsasUpdateCommon):
+    title = _('Update Meeting O&M Costs')
+    model = models.MetMeetingOMCosts
+    form_class = forms.MeetingFormOMCosts
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_met_OM_costs', args=(self.object.pk,))
+
+
+class MeetingUpdateMedia(CsasUpdateCommon):
+    title = _('Update Meeting Media')
+    model = models.MetMeetingMedia
+    form_class = forms.MeetingFormMedia
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_met_media', args=(self.object.pk,))
 
 
 class MeetingList(CsasListCommon):
     key = 'met'
-    title = _("Meeting List")
+    title = _('Meeting List')
     model = models.MetMeeting
     filterset_class = filters.MeetingFilter
     fields = ['id', 'start_date', 'title_en', 'title_fr', 'location', 'process_type']
 
 
+class MeetingListDFOPars(CsasListCommonPars):
+    key = 'met_DFO_pars'
+    title = _('Meeting: DFO Participants List')
+    model = models.MetMeetingDFOPars
+    filterset_class = filters.MeetingFilterDFOPars
+    fields = ['id', 'meeting', 'name', 'role', 'time', 'cost_category', 'funding_source', 'total_salary']
+
+
+class MeetingListOtherPars(CsasListCommonPars):
+    key = 'met_other_pars'
+    title = _('Meeting: Other Participants List')
+    model = models.MetMeetingOtherPars
+    filterset_class = filters.MeetingFilterOtherPars
+    fields = ['id', 'meeting', 'name', 'role', 'affiliation', 'invited', 'attended']
+
+
 class MeetingDetails(DetailsCommon):
-    key = "met"
-    title = _("Meeting Details")
+    key = 'met'
+    title = _('Meeting Details')
     model = models.MetMeeting
     fields = ['id', 'title_en', 'title_fr', 'status', 'status_notes', 'quarter',  'start_date', 'end_date',
-              'location', 'scope', 'process_type', 'lead_region', 'other_region', 'csas_contact', 'program_contact',
-               'chair_comments', ]
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     if self.request.user:
-    #         context["auth"] = utils.csas_authorized(self.request.user)
-    #         context["csas_admin"] = utils.csas_admin(self.request.user)
-    #     return context
+              'location', 'scope', 'process_type', 'lead_region', 'other_region', 'chair', 'csas_contact',
+              'program_contact', 'exp_publication', 'chair_comments', 'description']
 
 
 class MeetingDetailsDocs(DetailsCommon):
-    key = "mdd"
-    title = _("Meeting Document Details")
+    key = 'met'
+    title = _('Meeting Documentation')
     model = models.MetMeetingDocs
-    fields = ['id']
+    fields = ['meeting', 'reference', 'date_submitted', 'date_posted', 'link_en', 'link_fr',
+              'attachment_en', 'attachment_fr']
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
 
-        if self.request.user:
-            context["auth"] = utils.csas_authorized(self.request.user)
-            context["csas_admin"] = utils.csas_admin(self.request.user)
+class MeetingDetailsDFOPars(DetailsCommon):
+    key = 'met_DFO_pars'
+    title = _('Meeting DFO Participants')
+    model = models.MetMeetingDFOPars
+    fields = ['id', 'meeting', 'name', 'role', 'time', 'cost_category', 'funding_source', 'total_salary']
 
-        return context
+
+class MeetingDetailsOtherPars(DetailsCommon):
+    key = 'met_other_pars'
+    title = _('Meeting Other Participants')
+    model = models.MetMeetingOtherPars
+    fields = ['id', 'meeting', 'name', 'role', 'affiliation', 'invited', 'attended']
+
+
+class MeetingDetailsOMCosts(DetailsCommon):
+    key = 'met'
+    title = _('Meeting O&M Costs')
+    model = models.MetMeetingOMCosts
+    fields = ['meeting',
+              'hospitality_description', 'hospitality_funding', 'hospitality_total',
+              'travel_description', 'travel_funding', 'travel_total',
+              'venue_description', 'venue_funding', 'venue_total',
+              'interpretation_description', 'interpretation_funding', 'interpretation_total',
+              'office_supplies_description', 'office_supplies_funding', 'office_supplies_total',
+              'rentals_description', 'rentals_funding', 'rentals_total',
+              'contractors_description', 'contractors_funding', 'contractors_total',
+              'planning_description', 'planning_funding', 'planning_total']
+
+
+class MeetingDetailsMedia(DetailsCommon):
+    key = 'met'
+    title = _('Meeting Media')
+    model = models.MetMeetingMedia
+    fields = ['meeting', 'media_attention', 'media_attention_yes', 'media_attention_no',
+              'media_bullets', 'media_lines']
 
 
 # ----------------------------------------------------------------------------------------------------
-# Create "Meeting" forms
+# Create "Publication" forms
 #
 class PublicationEntry(CsasCreateCommon):
-    title = _("New Publication Entry")
+    title = _('New Publication Details Entry')
     model = models.PubPublication
     form_class = forms.PublicationForm
 
     def get_success_url(self):
-        return reverse_lazy("csas:details_pub", args=(self.object.pk,))
+        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+
+
+class PublicationEntryStatus(CsasCreateCommon):
+    title = _('New Publication Status Entry')
+    model = models.PubPublicationStatus
+    form_class = forms.PublicationFormStatus
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+
+
+class PublicationEntryTransInfo(CsasCreateCommon):
+    title = _('New Publication Translation Information Entry')
+    model = models.PubPublicationTransInfo
+    form_class = forms.PublicationFormTransInfo
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+
+
+class PublicationEntryDocLocation(CsasCreateCommon):
+    title = _('New Publication Documentation Location Entry')
+    model = models.PubPublicationDocLocation
+    form_class = forms.PublicationFormDocLocation
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+
+
+class PublicationEntryOMCosts(CsasCreateCommon):
+    title = _('New Publication O&M Costs Entry')
+    model = models.PubPublicationOMCosts
+    form_class = forms.PublicationFormOMCosts
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+
+
+class PublicationEntryComResults(CsasCreateCommon3col):
+    title = _('New Publication Communication of Results Entry')
+    model = models.PubPublicationComResults
+    form_class = forms.PublicationFormComResults
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
 
 
 class PublicationUpdate(CsasUpdateCommon):
-    title = _("Update Publication")
+    title = _('Update Publication')
     model = models.PubPublication
     form_class = forms.PublicationForm
 
     def get_success_url(self):
-        if "pop" in self.kwargs:
-            return reverse_lazy("shared_models:close_me")
-        return reverse_lazy("csas:details_pub", args=(self.object.pk,))
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
 
 
 class PublicationList(CsasListCommon):
     key = 'pub'
-    title = _("Publication List")
+    title = _('Publication List')
     model = models.PubPublication
     filterset_class = filters.PublicationFilter
     fields = ['id', 'series', 'scope', 'lead_region', 'lead_author', 'pub_year']
 
 
 class PublicationDetails(DetailsCommon):
-    key = "pub"
-    title = _("Publication Details")
+    key = 'pub'
+    title = _('Publication Details')
     model = models.PubPublication
-    fields = ['pub_id', 'series', 'scope', 'lead_region', 'lead_author', 'pub_year', 'pub_num', 'pages',
-              'citation', 'location']
+    fields = ['pub_id', 'series', 'lead_region', 'title_en', 'title_fr',  'title_in', 'pub_year',
+              'lead_author', 'other_author', 'pub_num', 'pages', 'keywords', 'citation', 'client',
+              'description']
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     if self.request.user:
-    #         context["auth"] = utils.csas_authorized(self.request.user)
-    #         context["csas_admin"] = utils.csas_admin(self.request.user)
-    #     return context
 
 # ----------------------------------------------------------------------------------------------------
 
@@ -403,7 +661,7 @@ class PublicationDetails(DetailsCommon):
 class CommonLookup(CreateView):
     template_name = 'csas/_lookup_entry_form.html'
     fields = ['name']
-    success_url = reverse_lazy("csas:close_me")
+    success_url = reverse_lazy('csas:close_me')
 
 
 class HonorificView(CommonLookup):
