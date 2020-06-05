@@ -21,8 +21,17 @@
                     </div>
                     <div class="col-1 pt-1">
                         {# if the user is authenticated and has permissions show the add button #}
-                        {% if auth %}
-                        <a class="btn btn-secondary btn" href="{% url ''|add:create_url %}" title="{% trans 'Add' %}">+</a>
+                        {% if csas_admin %}
+                            {% if key == 'met' or key == 'pub' %}
+                                <a class="btn btn-secondary btn"
+                                   href="{% url ''|add:index_url %}" title="{% trans 'Add' %}">+</a>
+                            {% else %}
+                                <a class="btn btn-secondary btn"
+                                   href="{% url ''|add:create_url %}" title="{% trans 'Add' %}">+</a>
+                            {% endif %}
+                        {% elif auth and key == 'req' %}
+                            <a class="btn btn-secondary btn"
+                               href="{% url ''|add:create_url %}" title="{% trans 'Add' %}">+</a>
                         {% endif %}
 
                     </div>
@@ -83,24 +92,21 @@
                                 <td>{% get_field_value obj field %}</td>
                             {% endfor %}
 
-                            {# ------------------------------------------------------------------------------------- #}
-                            {# Yongcun: following line is not good, I used condition details_url=="csas:details_met" #}
-                            {#          and "csas:details_pub", it's coupled too close with                          #}
-                            {#          class CsasListCommon(FilterCommon) in "views.py"                             #}
-                            {# ------------------------------------------------------------------------------------- #}
-                            {% if details_url == "csas:details_met" %}
+                            {% if key == 'met' %}
                                 <td><a class="btn btn-secondary btn-sm"
                                        href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>
                                     <a class="btn btn-secondary btn-sm"
-                                       href="{% url ''|add:details_url obj.pk %}">{% trans 'Docs' %}</a>
+                                       href="{% url ''|add:'csas:details_met_docs' obj.pk %}">{% trans 'Docs' %}</a>
                                     <a class="btn btn-secondary btn-sm"
-                                       href="{% url ''|add:details_url obj.pk %}">{% trans 'Participants' %}</a>
+                                       href="{% url ''|add:'csas:list_met_DFO_pars' %}">{% trans 'DFO participants' %}</a>
                                     <a class="btn btn-secondary btn-sm"
-                                       href="{% url ''|add:details_url obj.pk %}">{% trans 'O&M Costs' %}</a>
+                                       href="{% url ''|add:'csas:list_met_other_pars' %}">{% trans 'Other participants' %}</a>
                                     <a class="btn btn-secondary btn-sm"
-                                       href="{% url ''|add:details_url obj.pk %}">{% trans 'Media' %}</a>
+                                       href="{% url ''|add:'csas:details_met_OM_costs' obj.pk %}">{% trans 'O&M Costs' %}</a>
+                                    <a class="btn btn-secondary btn-sm"
+                                       href="{% url ''|add:'csas:details_met_media' obj.pk %}">{% trans 'Media' %}</a>
                                 </td>
-                            {% elif details_url == "csas:details_pub" %}
+                            {% elif key == 'pub' %}
                                 <td><a class="btn btn-secondary btn-sm"
                                        href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>
                                     <a class="btn btn-secondary btn-sm"

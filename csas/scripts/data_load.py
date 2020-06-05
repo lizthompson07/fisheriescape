@@ -91,6 +91,35 @@ exp_publication = [['SAR/SSR ', ' SAR/SSR(fr)'], ['Research Document ', ' Resear
                    ['Briefing Note(s) ', ' Briefing Notes(s)(fr)']]
 load_lookup(models.MepMeetingExpectedPublication, exp_publication)
 
+# Load Terms of Reference
+reference = [['SAR/SSR ', ' SAR/SSR(fr)'], ['Research Document ', ' Research Document(fr)'],
+             ['Proceedings ', ' Proceedings(fr)'], ['Attendance List ', ' Attendance List(fr)'],
+             ['Briefing Note(s) ', ' Briefing Notes(s)(fr)']]
+load_lookup(models.MdfMeetingDocsRef, reference)
+
+# load Series
+series = [['SAR ', ' SAR(fr)'], ['SR ', ' SR(fr)'], ['RES ', ' RES(fr)'], ['PRO ', ' PRO(fr)']]
+load_lookup(models.PsePublicationSeries, series)
+
+# load Publication Status
+pub_status = [['In Approvals ', ' In Approvals(fr)'], ['Submitted for Posting ', ' Submitted for Posting(fr)']]
+load_lookup(models.PusPublicationStatus, pub_status)
+
+# load Publication Translation Status
+trans_status = [['Not Translation ', ' Not Translation(fr)'],
+                ['Submitted for Translation ', ' Submitted for Translation(fr)'],
+                ['Back from Translation ', ' Back from Translation(fr)'], ['Complete ', ' Complete(fr)']]
+load_lookup(models.PtsPublicationTransStatus, trans_status)
+
+# load Publication Target Language
+target_lang = [['English ', ' English(fr)'], ['French ', ' French(fr)'],
+               ['Inuktitut (& dialects) ', ' Inuktitut (& dialects) (fr)']]
+load_lookup(models.PtlPublicationTargetLanguage, target_lang)
+
+# load Publication Translation Urgent Request
+urgent_req = [['Yes ', ' Yes(fr)'], ['No ', ' No(fr)']]
+load_lookup(models.PurPublicationUrgentRequest, urgent_req)
+
 # ----------------------------------------------------------------------------------------------------
 # Yongcun: This part will be removed, we will use shared_models.Region in "models.py", it's just for
 #          the temporarily usage on my desktop.
