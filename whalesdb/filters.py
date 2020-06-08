@@ -49,7 +49,7 @@ class RecFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.RecDataset
-        fields = []
+        fields = ['eda_id', 'rsc_id', 'rec_start_date', 'rec_end_date']
 
 
 class RscFilter(django_filters.FilterSet):
