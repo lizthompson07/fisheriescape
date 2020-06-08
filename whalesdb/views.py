@@ -364,7 +364,7 @@ class RecUpdate(CommonUpdate):
     title = _("Update Dataset")
 
     def get_success_url(self):
-        return reverse_lazy("whalesdb:list_rec")
+        return reverse_lazy("whalesdb:details_rec", args=(self.kwargs['pk'],))
 
 
 class StnUpdate(CommonUpdate):
@@ -475,7 +475,8 @@ class RecDetails(CommonDetails):
     model = models.RecDataset
     title = _("Dataset")
     template_name = "whalesdb/whales_details.html"
-    fields = []
+    fields = ['eda_id', 'rsc_id', 'rtt_dataset', 'rtt_in_water', 'rec_start_date', 'rec_start_time', 'rec_end_date',
+              'rec_end_time', 'rec_backup_hd_1', 'rec_backup_hd_2', 'rec_notes', ]
 
 
 class RscDetails(CommonDetails):
@@ -631,7 +632,7 @@ class RecList(CommonList):
     model = models.RecDataset
     filterset_class = filters.RecFilter
     title = _("Dataset")
-    fields = ['eda_id', 'rsc_id', 'rtt_in_water','rtt_dataset']
+    fields = ['eda_id', 'rsc_id', 'rec_start_date', 'rec_end_date']
 
 
 class RscList(CommonList):

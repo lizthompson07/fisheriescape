@@ -186,6 +186,26 @@ class TestPrjForm(CommonFormTest):
         self.assert_valid_data()
 
 
+class TestRecForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.RecForm
+        self.test_factory = factory.RecFactory
+
+    @tag('rec', 'form', 'valid_data')
+    def test_rec_valid_data(self):
+        self.assert_valid_data()
+
+    # This form has some fields that should be hidden
+    @tag('rec', 'form', 'widgets')
+    def test_rec_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['rec_start_date'], 'widget'))
+        self.assertIsInstance(form.fields['rec_start_date'].widget, d_forms.DateInput)
+
+
 class TestRscForm(CommonFormTest):
 
     def setUp(self) -> None:
