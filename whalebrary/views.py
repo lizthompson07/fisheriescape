@@ -198,7 +198,7 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     filterset_class = filters.TransactionFilter
     queryset = models.Transaction.objects.annotate(
         search_term=Concat('id', 'item', 'quantity', 'status', 'date', 'lent_to', 'return_date', 'order_number',
-                           'purchased_by', 'reason', 'incident', 'last_audited', 'last_audited_by', 'location',
+                           'purchased_by', 'reason', 'incident', 'audit', 'location',
                            'bin_id', output_field=TextField()))
     # field_list = [
     #     {"name": 'item', "class": "", "width": ""},
@@ -211,8 +211,7 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     #     {"name": 'purchased_by', "class": "", "width": ""},
     #     {"name": 'reason', "class": "", "width": ""},
     #     {"name": 'incident', "class": "", "width": ""},
-    #     {"name": 'last_audited', "class": "", "width": ""},
-    #     {"name": 'last_audited_by', "class": "", "width": ""},
+    #     {"name": 'audit', "class": "", "width": ""},
     #     {"name": 'location', "class": "", "width": ""},
     #     {"name": 'bin_id', "class": "", "width": ""},
     # ]
@@ -365,7 +364,7 @@ class TransactionListView(WhalebraryAccessRequired, FilterView):
     filterset_class = filters.TransactionFilter
     queryset = models.Transaction.objects.annotate(
         search_term=Concat('id', 'item', 'quantity', 'status', 'date', 'lent_to', 'return_date', 'order_number',
-                           'purchased_by', 'reason', 'incident', 'last_audited', 'last_audited_by', 'location',
+                           'purchased_by', 'reason', 'incident', 'audit', 'location',
                            'bin_id', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
@@ -383,8 +382,7 @@ class TransactionListView(WhalebraryAccessRequired, FilterView):
             'purchased_by',
             'reason',
             'incident',
-            'last_audited',
-            'last_audited_by',
+            'audit',
             'location',
             'bin_id',
         ]
@@ -408,8 +406,7 @@ class TransactionDetailView(WhalebraryAccessRequired, DetailView):
             'purchased_by',
             'reason',
             'incident',
-            'last_audited',
-            'last_audited_by',
+            'audit',
             'location',
             'bin_id',
         ]
@@ -548,7 +545,7 @@ class PersonnelListView(WhalebraryAdminAccessRequired, FilterView):
     template_name = "whalebrary/personnel_list.html"
     filterset_class = filters.PersonnelFilter
     queryset = models.Personnel.objects.annotate(
-        search_term=Concat('id', 'first_name', 'last_name', 'organisation', 'email', 'phone', 'exp_level', 'training',
+        search_term=Concat('id', 'first_name', 'last_name', 'organisation', 'email', 'phone', 'exp_level',
                            output_field=TextField()))
 
     def get_context_data(self, **kwargs):

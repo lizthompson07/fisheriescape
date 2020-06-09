@@ -361,6 +361,10 @@ class Incident(models.Model):
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})
 
+class Audit(models.Model):
+    date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
+                                        verbose_name=_("last audited"))
+    last_audited_by = models.ForeignKey(Personnel, on_delete=models.DO_NOTHING, verbose_name=_("last audited by"))
 
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
@@ -368,7 +372,7 @@ class Transaction(models.Model):
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("status"))
     date = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy", verbose_name=_("date"))
     # for lent out status
-    lent_to = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("lent to"))
+    lent_to = models.ForeignKey(Personnel, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions", verbose_name=_("lent to"))
     return_date = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy",
                                        verbose_name=_("expected return date"))
     # for on order status
@@ -379,11 +383,9 @@ class Transaction(models.Model):
     reason = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("reason"))
     incident = models.ManyToManyField(Incident, blank=True, verbose_name=_("incident"))  # if linked to use at an incident
     # auditing
-    last_audited = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                        verbose_name=_("last audited"))
-    last_audited_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("last audited by"))
+    audit = models.ManyToManyField(Audit, blank=True, verbose_name=_("audits"))
     # location of quantities taken/used/received
-    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions",
                                  verbose_name=_("location stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
 
