@@ -182,11 +182,39 @@ class PrjCreate(CommonCreate):
     title = _("Create Project")
 
 
+class RciCreate(CommonCreate):
+    key = 'rci'
+    model = models.RciChannelInfo
+    form_class = forms.RciForm
+    title = _("Channel Information")
+
+    def get_initial(self):
+        init = super().get_initial()
+        if 'rec_id' in self.kwargs and models.RecDataset.objects.filter(pk=self.kwargs['rec_id']):
+            init['rec_id'] = models.RecDataset.objects.get(pk=self.kwargs['rec_id'])
+
+        return init
+
+
 class RecCreate(CommonCreate):
     key = 'rec'
     model = models.RecDataset
     form_class = forms.RecForm
     title = _("Dataset")
+
+
+class ReeCreate(CommonCreate):
+    key = 'ree'
+    model = models.ReeRecordingEvent
+    form_class = forms.ReeForm
+    title = _("Recording Events")
+
+    def get_initial(self):
+        init = super().get_initial()
+        if 'rec_id' in self.kwargs and models.RecDataset.objects.filter(pk=self.kwargs['rec_id']):
+            init['rec_id'] = models.RecDataset.objects.get(pk=self.kwargs['rec_id'])
+
+        return init
 
 
 class RscCreate(CommonCreate):
@@ -474,7 +502,7 @@ class RecDetails(CommonDetails):
     key = 'rec'
     model = models.RecDataset
     title = _("Dataset")
-    template_name = "whalesdb/whales_details.html"
+    template_name = "whalesdb/details_rec.html"
     fields = ['eda_id', 'rsc_id', 'rtt_dataset', 'rtt_in_water', 'rec_start_date', 'rec_start_time', 'rec_end_date',
               'rec_end_time', 'rec_backup_hd_1', 'rec_backup_hd_2', 'rec_notes', ]
 

@@ -256,3 +256,11 @@ class URLTest(TestCase):
     def test_url_update_rec_view(self):
         self.basic_en_url_test('whalesdb:update_rec', 'whalesdb/update/rec/1/', views.RecUpdate, [1])
 
+    @tag('rci', 'url', 'create', 'pop')
+    def test_url_create_rci_pop_ste_view(self):
+        self.basic_en_url_test('whalesdb:create_rci', 'whalesdb/create/rci/1/pop/', views.RciCreate, [1, 'pop'])
+
+    @tag('ree', 'url', 'create', 'pop')
+    def test_url_create_set_pop_ree_view(self):
+        self.basic_en_url_test('whalesdb:create_ree', 'whalesdb/create/ree/1/pop/', views.ReeCreate, [1, 'pop'])
+

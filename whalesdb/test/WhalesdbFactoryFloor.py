@@ -406,6 +406,31 @@ class RecFactory(factory.django.DjangoModelFactory):
         return valid_data
 
 
+class RciFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.RciChannelInfo
+
+    rec_id = factory.SubFactory(RecFactory)
+    rci_name = factory.lazy_attribute(lambda o: faker.word())
+    rci_size = factory.lazy_attribute(lambda o: faker.random_int(0, 12))
+    rci_gain = factory.lazy_attribute(lambda o: faker.random_int(0, 12))
+    rci_volts = factory.lazy_attribute(lambda o: faker.pyfloat(left_digits=3, right_digits=1))
+
+    @staticmethod
+    def get_valid_data():
+
+        rec = RecFactory()
+        valid_data = {
+            "rec_id": rec.pk,
+            "rci_name": faker.word(),
+            "rci_size": faker.random_int(0, 12),
+            "rci_gain": faker.random_int(0, 12),
+            "rci_volts": faker.pyfloat(left_digits=3, right_digits=1)
+        }
+
+        return valid_data
+
+
 class TeaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.TeaTeamMember
@@ -421,6 +446,36 @@ class TeaFactory(factory.django.DjangoModelFactory):
             "tea_abb": faker.word(),
             "tea_last_name": faker.word(),
             "tea_first_name": faker.word(),
+        }
+
+        return valid_data
+
+
+class ReeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ReeRecordingEvent
+
+    rec_id = factory.SubFactory(RecFactory)
+    ret_id = factory.lazy_attribute(lambda o: models.RetRecordingEventType.objects.get(pk=faker.random_int(1, 6)))
+    rtt_id = factory.SubFactory(RttFactory)
+    ree_date = factory.lazy_attribute(lambda o: faker.date())
+    ree_time = factory.lazy_attribute(lambda o: faker.time())
+    tea_id = factory.SubFactory(TeaFactory)
+
+    @staticmethod
+    def get_valid_data():
+        rec = RecFactory()
+        ret = models.RetRecordingEventType.objects.get(pk=faker.random_int(1, 6))
+        rtt = RttFactory()
+        tea = TeaFactory()
+
+        valid_data = {
+            'rec_id': rec.pk,
+            'ret_id': ret.pk,
+            'rtt_id': rtt.pk,
+            'ree_date': faker.date(),
+            'ree_time': faker.time(),
+            'tea_id': tea.pk
         }
 
         return valid_data
