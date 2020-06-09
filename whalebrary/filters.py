@@ -27,7 +27,7 @@ class SpecificItemFilter(django_filters.FilterSet):
 
 
 class TransactionFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
+    search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of any field...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
 
 class BulkTransactionFilter(django_filters.FilterSet):

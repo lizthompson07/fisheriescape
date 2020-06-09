@@ -92,11 +92,16 @@ def index(request):
 # #
 #
 class ItemListView(WhalebraryAccessRequired, CommonFilterView):
-    template_name = "whalebrary/list.html"
+    template_name = "whalebrary/item_list.html"
     h1 = "Item List"
     filterset_class = filters.SpecificItemFilter
+    home_url_name = "whalebrary:index"
+    container_class = "container-fluid"
+    row_object_url_name = "whalebrary:item_detail"
+
     queryset = models.Item.objects.annotate(
         search_term=Concat('item_name', 'description', output_field=TextField()))
+
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'tname|{}'.format(gettext_lazy("Item name (size)")), "class": "", "width": ""},
@@ -106,10 +111,11 @@ class ItemListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'category', "class": "red-font", "width": ""},
         {"name": 'gear_type', "class": "", "width": ""},
         {"name": 'suppliers', "class": "", "width": ""},
+        {"name": 'testname', "class": "", "width": ""},
     ]
-    home_url_name = "whalebrary:index"
-    container_class = "container-fluid"
-    row_object_url_name = "whalebrary:item_detail"
+
+    def get_new_object_url(self):
+        return reverse("whalebrary:item_new", kwargs=self.kwargs)
 
 class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
     model = models.Item
@@ -126,6 +132,7 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
     ]
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Item List"), "url": reverse_lazy("whalebrary:item_list")}
+    container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -193,58 +200,41 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         return context
 
 class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
-    template_name = 'whalebrary/item_transaction_detail.html'
-    h1 = "Detailed Transactions"
+    template_name = 'whalebrary/list.html'
     filterset_class = filters.TransactionFilter
-    queryset = models.Transaction.objects.annotate(
-        search_term=Concat('id', 'item', 'quantity', 'status', 'date', 'lent_to', 'return_date', 'order_number',
-                           'purchased_by', 'reason', 'incident', 'audit', 'location',
-                           'bin_id', output_field=TextField()))
-    # field_list = [
-    #     {"name": 'item', "class": "", "width": ""},
-    #     {"name": 'quantity', "class": "", "width": ""},
-    #     {"name": 'status', "class": "", "width": ""},
-    #     {"name": 'date', "class": "", "width": ""},
-    #     {"name": 'lent_to', "class": "", "width": ""},
-    #     {"name": 'return_date', "class": "red-font", "width": ""},
-    #     {"name": 'order_number', "class": "", "width": ""},
-    #     {"name": 'purchased_by', "class": "", "width": ""},
-    #     {"name": 'reason', "class": "", "width": ""},
-    #     {"name": 'incident', "class": "", "width": ""},
-    #     {"name": 'audit', "class": "", "width": ""},
-    #     {"name": 'location', "class": "", "width": ""},
-    #     {"name": 'bin_id', "class": "", "width": ""},
-    # ]
-    # home_url_name = "whalebrary:index"
-    # container_class = "container-fluid"
-    # row_object_url_name = "whalebrary:transaction_detail"
+
+    field_list = [
+        {"name": 'item', "class": "", "width": ""},
+        {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'date', "class": "", "width": ""},
+        {"name": 'lent_to', "class": "", "width": ""},
+        {"name": 'return_date', "class": "orange-font", "width": ""},
+        {"name": 'order_number', "class": "", "width": ""},
+        {"name": 'purchased_by', "class": "", "width": ""},
+        {"name": 'reason', "class": "", "width": ""},
+        {"name": 'incident', "class": "", "width": ""},
+        {"name": 'audit', "class": "", "width": ""},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'bin_id', "class": "", "width": ""},
+    ]
+    home_url_name = "whalebrary:index"
+    container_class = "container-fluid"
+    row_object_url_name = "whalebrary:transaction_detail"
+
+    def get_new_object_url(self):
+        return reverse("whalebrary:transaction_new", kwargs=self.kwargs)
 
     def get_queryset(self, **kwargs):
         my_item = models.Item.objects.get(pk=self.kwargs.get('pk'))
-        return my_item.transactions.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Transaction.objects.first()
-
-        context["field_list"] = [
-            'item',
-            'quantity',
-            'status',
-            'date',
-            'lent_to',
-            'return_date',
-            'order_number',
-            'purchased_by',
-            'reason',
-            'incident',
-            'last_audited',
-            'last_audited_by',
-            'location',
-            'bin_id',
-        ]
-
-        return context
+        return my_item.transactions.all().annotate(
+        search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name', 'return_date', 'order_number',
+                           'purchased_by', 'reason', 'incident__name', 'audit__date', 'location__location',
+                           'bin_id', output_field=TextField()))
+    def get_h1(self):
+        item_name = models.Item.objects.get(pk=self.kwargs.get('pk'))
+        h1 = _("Detailed Transactions for ") + f' {str(item_name)}'
+        return h1
 
         # context for _item_summary.html
         context["random_item"] = models.Item.objects.first()

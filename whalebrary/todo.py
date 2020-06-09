@@ -1,24 +1,26 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
+# TODO now if there is no location set item_detail view shows an error because of _transaction.html -- fix this (if elseif?)
+# TODO what if you want to overwrite the name of the 'new' button from generic_filter.html? do you have to copy the whole block?
+# TODO DeleteView - shows all related now, but is there a way to get it to prompt and then delete all? Is that from models with cascade?
+# TODO redo all views possible with common templates format
 # TODO from location_detail page add link to be able to generate report for that location directly (without having to go to reports) (have to separate for containers and not)
 # TODO Figure out how to use generic_popout_form (have done this with the confirm_delete_popout)
 # TODO View for items of similar and all sizes (tyvek, gloves, batteries) showing all quantity
 # TODO make View for On Order items that you can change status, add location etc all at once for all on order items
-# TODO on _Supplier.html -- make 'add supplier from existing' view
 # TODO if status=lent out, automatically set Location = lent out
+# TODO reports view - if no items in container, don't display table and display message instead (like with _summary pages)
 
 ### LARGER ITEMS - PRIORITY
 # TODO Testing Units so Dev version can be deployed
 # TODO Add lending table to quantity, JS for having lent_to and other fields appear if "lent out" is selected as status
 # TODO Lend button beside quantities on item_detail --- form could ask how many, calculate difference etc
-# TODO Change name of app, can't call us MMU
+
 
 ### OTHER LARGER ITEMS
 # TODO maintenance schedule for certain items (generator, switlik, soundtraps), send email when needed to check?
 # TODO If M2M is blank have it show the "---" or None like other fields ((see lib/templatetags/verbose_names, make branch off master to try)
-# TODO how to show what was used -- historical table or other simpler way for now?
-# TODO Add Historical model or some way to track history of inventory of each item (ie. track previous additions, subtractions, inventory control updates) --would need a description field for inveotry control comments (ie. "item missing")
 # TODO on _lending.html -- add function to delete a lending (call it 'return') and on return log in eventual historical table with returned date
 # TODO Add Bulk Lending View to checkout (change to "lent out") status multiple items of various quantities all on one page -- how to sort so you can find all items you want also?
 # TODO Bulk Check In View to check back in items -- should be easy enough to sort on a person's name and then bulk check back in items you have out
@@ -45,3 +47,7 @@
 # TODO how to make unique_together = (('item_name', 'size'),) case insensitive? --- see my attempt to save size as lower, but returns error if it's duplicate --made a table for size instead
 # TODO remake models with fields that make sense for lending and make items--supplier relation M2M
 # TODO make container report - show everything in a container ((see Scifi or iHub  for example))
+# TODO on _Supplier.html -- make 'add supplier from existing' view
+# TODO Change name of app, can't call us MMU
+# TODO how to show what was used -- historical table or other simpler way for now? -- made transaction model
+# TODO Add Historical model or some way to track history of inventory of each item (ie. track previous additions, subtractions, inventory control updates) --would need a description field for inveotry control comments (ie. "item missing")

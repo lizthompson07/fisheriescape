@@ -366,6 +366,15 @@ class Audit(models.Model):
                                         verbose_name=_("last audited"))
     last_audited_by = models.ForeignKey(Personnel, on_delete=models.DO_NOTHING, verbose_name=_("last audited by"))
 
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("date"))):
+
+            return "{}".format(getattr(self, str(_("date"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.date)
+
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
