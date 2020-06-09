@@ -10,7 +10,7 @@
     </div>
 
     {% block form %}
-        <form method="post" class="form">
+        <form method="post" class="form" {% if is_multipart_form_data %}enctype="multipart/form-data"{% endif %}>
             {% csrf_token %}
 
             {% block form_fields %}

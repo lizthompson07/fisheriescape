@@ -29,6 +29,7 @@ class ReviewerApprovalForm(forms.ModelForm):
     approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     changes_requested = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+    reset = forms.BooleanField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
         model = models.Reviewer
@@ -74,8 +75,26 @@ class ReviewerSkipForm(forms.ModelForm):
         }
 
 
-class TripRequestApprovalForm(forms.Form):
-    approved = forms.BooleanField(widget=forms.HiddenInput(), required=False)
+class TripRequestApprovalForm(forms.ModelForm):
+    class Meta:
+        model = models.TripRequest
+        fields = [
+            "created_by",
+        ]
+        widgets = {
+            "created_by": forms.HiddenInput()
+        }
+
+
+class TripTimestampUpdateForm(forms.ModelForm):
+    class Meta:
+        model = models.Conference
+        fields = [
+            "last_modified_by",
+        ]
+        widgets = {
+            "last_modified_by": forms.HiddenInput()
+        }
 
 
 class TripRequestForm(forms.ModelForm):
@@ -105,7 +124,6 @@ class TripRequestForm(forms.ModelForm):
             'is_group_request': forms.Select(choices=YES_NO_CHOICES),
             'objective_of_event': forms.Textarea(attrs=attr_row3),
             'benefit_to_dfo': forms.Textarea(attrs=attr_row3),
-            'multiple_attendee_rationale': forms.Textarea(attrs=attr_row3),
             'late_justification': forms.Textarea(attrs=attr_row3),
             'funding_source': forms.Textarea(attrs=attr_row3),
             'notes': forms.Textarea(attrs=attr_row3),
@@ -130,10 +148,11 @@ class TripRequestForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
             'end_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
             'departure_location': forms.TextInput(attrs={"class": "not-a-group-field"}),
+            'reason': forms.Select(attrs={"class": "not-a-group-field"}),
             'role': forms.Select(attrs={"class": "not-a-group-field"}),
             'region': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}),
-            'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field"}),
-            'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field"}),
+            'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field", "rows": 3}),
+            'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field", "rows": 3}),
             'non_dfo_costs': forms.NumberInput(attrs={"class": "not-a-group-field"}),
             'non_dfo_org': forms.TextInput(attrs={"class": "not-a-group-field"}),
         }
@@ -161,8 +180,6 @@ class TripRequestForm(forms.ModelForm):
         # general trip infomation
         field_list = [
             'is_group_request',
-            'purpose',
-            'reason',
             'trip',
             'departure_location',
             'destination',
@@ -194,12 +211,12 @@ class TripRequestForm(forms.ModelForm):
 
         # justification
         field_list = [
+            'reason',
             'role',
             'role_of_participant',
             'objective_of_event',
             'benefit_to_dfo',
             'multiple_conferences_rationale',
-            'multiple_attendee_rationale',
             'late_justification',
             'funding_source',
             'notes',
@@ -240,7 +257,7 @@ class TripRequestForm(forms.ModelForm):
         trip_start_date = trip.start_date
         trip_end_date = trip.end_date
 
-        if trip.status_id not in [30, 41]:
+        if trip.status_id not in [30, 41] and self.instance not in trip.trip_requests.all():
             if trip.status_id == 31:
                 message = _("This trip is currently under review from NCR and is closed to additional requests.")
             elif trip.status_id == 32:
@@ -299,7 +316,11 @@ class TripAdminNotesForm(forms.ModelForm):
         model = models.Conference
         fields = [
             "admin_notes",
+            "last_modified_by",
         ]
+        widgets = {
+            "last_modified_by": forms.HiddenInput()
+        }
 
 
 class ChildTripRequestForm(forms.ModelForm):
@@ -323,6 +344,7 @@ class ChildTripRequestForm(forms.ModelForm):
             'departure_location',
             'non_dfo_costs',
             'non_dfo_org',
+            'reason',
             'role',
             'role_of_participant',
             'exclude_from_travel_plan',
@@ -334,7 +356,8 @@ class ChildTripRequestForm(forms.ModelForm):
             'parent_request': forms.HiddenInput(),
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
-            'role_of_participant': forms.Textarea(attrs=attr_row4),
+            'role_of_participant': forms.Textarea(attrs=attr_row3),
+            'multiple_conferences_rationale': forms.Textarea(attrs=attr_row3),
             'phone': forms.TextInput(attrs={"class": "disappear-if-user input-phone"}),
             'first_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
             'last_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
@@ -387,6 +410,7 @@ class ChildTripRequestForm(forms.ModelForm):
 
         # justification
         field_list = [
+            'reason',
             'role',
             'role_of_participant',
             'multiple_conferences_rationale',
@@ -417,7 +441,7 @@ class ChildTripRequestForm(forms.ModelForm):
         user = cleaned_data.get("user")
 
         # we have to make sure there is not already a trip request in the system for this user and this trip
-        if user.user_trip_requests.filter(trip=trip, is_group_request=False).count():
+        if user and user.user_trip_requests.filter(trip=trip, is_group_request=False).count():
             msg = _('There is already a trip request in the system for this user and this trip.')
             self.add_error('user', msg)
 
@@ -463,6 +487,8 @@ class TripForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'registration_deadline': forms.DateInput(attrs=attr_fp_date),
             'abstract_deadline': forms.DateInput(attrs=attr_fp_date),
+            'last_modified_by': forms.HiddenInput(),
+            # 'trip_subcategory': forms.RadioSelect(),
         }
 
     def clean(self):
@@ -722,6 +748,19 @@ NJCRatesFormset = modelformset_factory(
 )
 
 
+class ReasonForm(forms.ModelForm):
+    class Meta:
+        model = models.Reason
+        fields = "__all__"
+
+
+ReasonFormset = modelformset_factory(
+    model=models.Reason,
+    form=ReasonForm,
+    extra=1,
+)
+
+
 class TripSubcategoryForm(forms.ModelForm):
     class Meta:
         model = models.TripSubcategory
@@ -742,6 +781,23 @@ TripSubcategoryFormset = modelformset_factory(
     model=models.TripSubcategory,
     form=TripSubcategoryForm,
     extra=1,
+)
+
+
+class TripCategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.TripCategory
+        fields = [
+            "name",
+            "nom",
+            "days_when_eligible_for_review",
+        ]
+
+
+TripCategoryFormset = modelformset_factory(
+    model=models.TripCategory,
+    form=TripCategoryForm,
+    extra=0,
 )
 
 

@@ -4,12 +4,14 @@
     {% trans "Home" %}
 </a></li>
 
-<li class="nav-item"><a class="nav-link" href="{% url 'travel:report_search' %}">
-    {% trans "Reports" %}
-</a></li>
-
 {% for group in user.groups.all %}
     {% if group.name == "travel_admin" %}
+        <li class="nav-item"><a class="nav-link" href="{% url 'travel:trip_list' "all" %}">
+            {% trans "All Trips" %}
+        </a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'travel:request_list' "all" %}">
+            {% trans "All Requests" %}
+        </a></li>
 
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
@@ -32,6 +34,12 @@
                 <a class="dropdown-item" href="{% url 'travel:manage_costs' %}">
                     {% trans "Manage Costs" %}
                 </a>
+                <a class="dropdown-item" href="{% url 'travel:manage_reasons' %}">
+                    {% trans "Manage Trip Reasons" %}
+                </a>
+                <a class="dropdown-item" href="{% url 'travel:manage_trip_categories' %}">
+                    {% trans "Manage Trip Categories" %}
+                </a>
                 <a class="dropdown-item" href="{% url 'travel:manage_trip_subcategories' %}">
                     {% trans "Manage Trip Subcategories" %}
                 </a>
@@ -49,3 +57,7 @@
 
 {% endfor %}
 
+
+<li class="nav-item"><a class="nav-link" href="{% url 'travel:report_search' %}">
+    {% trans "Reports" %}
+</a></li>

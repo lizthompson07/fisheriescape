@@ -32,7 +32,6 @@ class CommonMixin():
     # an extending class can override this similarly to how the template_name attribute can be overriden
     # Except in this case the value will be used to include a field_list in the context var
 
-
     # this is a list of fields used for describing the context variable called 'object'
     field_list = None
 
@@ -225,7 +224,12 @@ class CommonFormMixin(CommonMixin):
     cancel_url = None
     cancel_text = _("Back")
     submit_text = _("Submit")
+    submit_btn_class = "btn-warning"
     editable = True
+    is_multipart_form_data = False
+
+    def get_is_multipart_form_data(self):
+        return self.is_multipart_form_data
 
     def get_cancel_url(self):
         if self.get_cancel_url:
@@ -246,6 +250,9 @@ class CommonFormMixin(CommonMixin):
     def get_editable(self):
         return self.editable
 
+    def get_submit_btn_class(self):
+        return self.submit_btn_class
+
     def get_success_url(self):
         if self.success_url:
             return self.success_url
@@ -259,6 +266,9 @@ class CommonFormMixin(CommonMixin):
         context['cancel_text'] = self.get_cancel_text()
         context['submit_text'] = self.get_submit_text()
         context['editable'] = self.get_editable()
+        context["submit_btn_class"] = self.get_submit_btn_class()
+        context["is_multipart_form_data"] = self.get_is_multipart_form_data()
+
         return context
 
 
@@ -321,7 +331,7 @@ class CommonListMixin(CommonMixin):
 
     def get_common_context(self):
         context = super().get_common_context()
-        context["paginate_by"] = self.paginate_by # this is coming from ListView but we are putting it into context variable
+        context["paginate_by"] = self.paginate_by  # this is coming from ListView but we are putting it into context variable
         context["random_object"] = self.get_random_object()
         context["row_object_url_name"] = self.get_row_object_url_name()
         context["new_object_url"] = self.get_new_object_url()
