@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from shared_models import views as shared_view
 
 
-class FilterCommon(shared_view.FilterView, shared_view.CommonCommon):
+class FilterCommon(shared_view.FilterView, shared_view.CommonCreateView):
     auth = True
     template_name = 'csas/csas_filter.html'
 
@@ -19,7 +19,7 @@ class FilterCommon(shared_view.FilterView, shared_view.CommonCommon):
         return self.auth
 
     def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+        context = super().get_context_data(**kwargs)
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
@@ -35,7 +35,7 @@ class FilterCommon(shared_view.FilterView, shared_view.CommonCommon):
         return context
 
 
-class FilterCommonPars(shared_view.FilterView, shared_view.CommonCommon):
+class FilterCommonPars(shared_view.FilterView, shared_view.CommonCreateView):
     auth = True
     template_name = 'csas/csas_filter_pars.html'
 
@@ -43,7 +43,7 @@ class FilterCommonPars(shared_view.FilterView, shared_view.CommonCommon):
         return self.auth
 
     def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, object_list=object_list, **kwargs)
+        context = super().get_context_data(**kwargs)
 
         context['auth'] = self.test_func()
         context['editable'] = context['auth']
@@ -132,7 +132,7 @@ class CsasListCommonPars(FilterCommonPars):
 # Create Common uses the shared_models/shared_entry_form.html template to display common forms in a standard way
 #
 # class CreateCommon(UserPassesTestMixin, CreateView):
-class CsasCreateCommon(shared_view.CreateCommon):
+class CsasCreateCommon(shared_view.CommonCreateView):
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
     template_name = 'csas/csas_entry_form.html'
@@ -142,7 +142,7 @@ class CsasCreateCommon(shared_view.CreateCommon):
         return utils.csas_authorized(self.request.user)
 
 
-class CsasCreateCommon3col(shared_view.CreateCommon):
+class CsasCreateCommon3col(shared_view.CommonCreateView):
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
     template_name = 'csas/csas_entry_form_3col.html'
@@ -159,7 +159,7 @@ class CsasCreateCommon3col(shared_view.CreateCommon):
 # template to display common forms in a popup dialog intended to be attached to some "update" button.
 #
 # class UpdateCommon(UserPassesTestMixin, UpdateView):
-class CsasUpdateCommon(shared_view.UpdateCommon):
+class CsasUpdateCommon(shared_view.CommonUpdateView):
     nav_menu = 'csas/csas_nav.html'
     site_css = 'csas/csas_css.css'
     template_name = 'csas/csas_entry_form.html'

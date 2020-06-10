@@ -6,16 +6,13 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 
-class Lookup(models.Model):
-
+class SimpleLookup(models.Model):
     class Meta:
         abstract = True
+        ordering = [_("name"), ]
 
-    name = models.CharField(unique=True, max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
-
-    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description"))
-    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description"))
+    name = models.CharField(unique=True, max_length=255, verbose_name=_("name (en)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (fr)"))
 
     @property
     def tname(self):
@@ -24,8 +21,19 @@ class Lookup(models.Model):
             my_str = "{}".format(getattr(self, str(_("name"))))
         # if there is no translated term, just pull from the english field
         else:
-            my_str = "{}".format(self.name)
+            my_str = self.name
         return my_str
+
+    def __str__(self):
+        return self.tname
+
+
+class Lookup(SimpleLookup):
+    class Meta:
+        abstract = True
+
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
 
     @property
     def tdescription(self):
@@ -34,11 +42,8 @@ class Lookup(models.Model):
             my_str = "{}".format(getattr(self, str(_("description_en"))))
         # if there is no translated term, just pull from the english field
         else:
-            my_str = "{}".format(self.description_en)
+            my_str = self.description_en
         return my_str
-
-    def __str__(self):
-        return "{}".format(self.tname)
 
 
 # CONNECTED APPS: tickets, travel, projects, sci_fi
@@ -102,7 +107,7 @@ class Region(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
-    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("region head"),
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("RDG / ADM"),
                              related_name="shared_models_regions")
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -122,6 +127,8 @@ class Region(models.Model):
 
     class Meta:
         ordering = ['name', ]
+        verbose_name = _("Region / NCR Sector")
+        verbose_name_plural = _("Regions / NCR Sectors")
 
     @property
     def tname(self):
@@ -133,7 +140,7 @@ class Branch(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches")
-    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("branch manager"),
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("regional director / NCR director general"),
                              related_name="shared_models_branches")
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -149,6 +156,8 @@ class Branch(models.Model):
 
     class Meta:
         ordering = ['name', ]
+        verbose_name = _("Branch / NCR Directorate")
+        verbose_name_plural = _("Branches / NCR Directorates")
 
     @property
     def tname(self):
@@ -165,7 +174,7 @@ class Division(models.Model):
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
     branch = models.ForeignKey(Branch, on_delete=models.DO_NOTHING, verbose_name=_("branch"), related_name="divisions")
-    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("division manager"),
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("division manager / NCR director"),
                              related_name="shared_models_divisions")
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -181,6 +190,8 @@ class Division(models.Model):
 
     class Meta:
         ordering = ['name', ]
+        verbose_name = _("Division / NCR Branch")
+        verbose_name_plural = _("Divisions / NCR Branches")
 
     @property
     def tname(self):
@@ -196,7 +207,7 @@ class Section(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name (English)"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
     division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="sections")
-    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("section head"),
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("section head  / NCR team lead"),
                              related_name="shared_models_sections")
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
     # meta
@@ -217,6 +228,8 @@ class Section(models.Model):
 
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
+        verbose_name = _("Section / NCR Team")
+        verbose_name_plural = _("Sections / NCR Teams")
 
     @property
     def full_name(self):
@@ -592,3 +605,21 @@ class River(models.Model):
 
     class Meta:
         ordering = ['name']
+
+
+class PAAItem(models.Model):
+    code = models.CharField(max_length=255, verbose_name=_("code"), unique=True)
+    name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (en)"))
+    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (fr)"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+            my_str = "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = "{}".format(self.name)
+        return f"{self.code} - {my_str}"
+
+    class Meta:
+        ordering = ['code', ]

@@ -67,4 +67,18 @@ urlpatterns = [
 
     path('create/tea/', views.TeaCreate.as_view(), name="create_tea"),
     path('list/tea/', views.TeaList.as_view(), name="list_tea"),
+
+    path('create/rtt/', views.RttCreate.as_view(), name="create_rtt"),
+    path('list/rtt/', views.RttList.as_view(), name="list_rtt"),
+    path('details/rtt/<int:pk>/', views.RttDetails.as_view(), name="details_rtt"),
+
+    path('create/rec/', views.RecCreate.as_view(), name="create_rec"),
+    path('list/rec/', views.RecList.as_view(), name="list_rec"),
+    path('details/rec/<int:pk>/', views.RecDetails.as_view(), name="details_rec"),
+    path('update/rec/<int:pk>/', views.RecUpdate.as_view(), name="update_rec"),
+
+    path('create/rci/<int:rec_id>/<str:pop>/', views.RciCreate.as_view(), name="create_rci"),
+
+    path('create/ree/<int:rec_id>/<str:pop>/', views.ReeCreate.as_view(), name="create_ree"),
 ]
+

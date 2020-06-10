@@ -2,7 +2,7 @@
 {% load static %}
 {% load verbose_names %}
 {% load custom_filters %}
-
+{% load humanize %}
 
 <div class="card mb-2">
     <h3 class="card-header bg-outline-dark">
@@ -31,9 +31,27 @@
                     {% if "has_event_template" in field %}
                         {% trans "Unsure" as not_sure %}
                         {% verbose_td_display trip field format="currency" th_width="30%" nullmark=not_sure date_format="%B %d, %Y" %}
-                    {% elif "eligible" in field %}
-                        {% verbose_td_display trip field th_width="30%" date_format="%B %d, %Y" %}
+                    {% elif "ADM Office" in field %}
+                        <tr>
+                            <th>
+                                {% get_verbose_label trip field %}
+                            </th>
+                            <td>
+                                {% get_field_value trip field as val %}
+                                {{ val|date }} ({{ val|naturaltime }})
+                            </td>
+                        </tr>
+                    {% elif "status" in field %}
+                        <tr>
+                            <th>
+                                {% get_verbose_label trip field %}
+                            </th>
+                            <td>
+                                <span style="background-color: {{ object.status.color }}">{% get_field_value trip field %}</span>
+                            </td>
+                        </tr>
                     {% else %}
+
                         {% verbose_td_display trip field format="currency" th_width="30%" date_format="%B %d, %Y" %}
                     {% endif %}
                 {% endfor %}
