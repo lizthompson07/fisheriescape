@@ -9,7 +9,7 @@ from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
 from whalesdb import forms, models, filters, utils
-from shared_models.views import CreateCommon, UpdateCommon, FilterCommon
+from shared_models.views import CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView
 
 import json
 
@@ -39,10 +39,11 @@ class IndexView(TemplateView):
 
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
-class CommonCreate(CreateCommon):
+class CommonCreate(CommonAuthCreateView):
 
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
+    home_url_name = "whalesdb:index"
 
     def get_nav_menu(self):
         if self.kwargs.get("pop"):
@@ -181,6 +182,41 @@ class PrjCreate(CommonCreate):
     title = _("Create Project")
 
 
+class RciCreate(CommonCreate):
+    key = 'rci'
+    model = models.RciChannelInfo
+    form_class = forms.RciForm
+    title = _("Channel Information")
+
+    def get_initial(self):
+        init = super().get_initial()
+        if 'rec_id' in self.kwargs and models.RecDataset.objects.filter(pk=self.kwargs['rec_id']):
+            init['rec_id'] = models.RecDataset.objects.get(pk=self.kwargs['rec_id'])
+
+        return init
+
+
+class RecCreate(CommonCreate):
+    key = 'rec'
+    model = models.RecDataset
+    form_class = forms.RecForm
+    title = _("Dataset")
+
+
+class ReeCreate(CommonCreate):
+    key = 'ree'
+    model = models.ReeRecordingEvent
+    form_class = forms.ReeForm
+    title = _("Recording Events")
+
+    def get_initial(self):
+        init = super().get_initial()
+        if 'rec_id' in self.kwargs and models.RecDataset.objects.filter(pk=self.kwargs['rec_id']):
+            init['rec_id'] = models.RecDataset.objects.get(pk=self.kwargs['rec_id'])
+
+        return init
+
+
 class RscCreate(CommonCreate):
     key = 'rsc'
     model = models.RscRecordingSchedule
@@ -204,6 +240,13 @@ class RstCreate(CommonCreate):
         initial['rsc'] = self.kwargs['rsc']
 
         return initial
+
+
+class RttCreate(CommonCreate):
+    key = 'rtt'
+    model = models.RttTimezoneCode
+    form_class = forms.RttForm
+    title = _("Time Zone")
 
 
 class SteCreate(CommonCreate):
@@ -236,10 +279,11 @@ class TeaCreate(CommonCreate):
     title = _("Create Team Member")
 
 
-class CommonUpdate(UpdateCommon):
+class CommonUpdate(CommonAuthUpdateView):
 
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
+    home_url_name = "whalesdb:index"
 
     # update views are all intended to be pop out windows so upon success close the window
     success_url = reverse_lazy("shared_models:close_me_no_refresh")
@@ -290,11 +334,17 @@ class DepUpdate(CommonUpdate):
 
         return context
 
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_dep")
+
 
 class EmmUpdate(CommonUpdate):
     model = models.EmmMakeModel
     form_class = forms.EmmForm
     title = _("Update Make/Model")
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_emm")
 
 
 class EqhUpdate(CommonUpdate):
@@ -308,6 +358,9 @@ class EqpUpdate(CommonUpdate):
     form_class = forms.EqpForm
     title = _("Update Equipment")
 
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_eqp")
+
 
 class EqrUpdate(CommonUpdate):
     model = models.EqrRecorderProperties
@@ -320,17 +373,35 @@ class MorUpdate(CommonUpdate):
     form_class = forms.MorForm
     title = _("Update Mooring Setup")
 
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_mor")
+
 
 class PrjUpdate(CommonUpdate):
     model = models.PrjProject
     form_class = forms.PrjForm
     title = _("Update Project")
 
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_prj")
+
+
+class RecUpdate(CommonUpdate):
+    model = models.RecDataset
+    form_class = forms.RecForm
+    title = _("Update Dataset")
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:details_rec", args=(self.kwargs['pk'],))
+
 
 class StnUpdate(CommonUpdate):
     model = models.StnStation
     form_class = forms.StnForm
     title = _("Update Station")
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_stn")
 
 
 class CommonDetails(DetailView):
@@ -427,6 +498,15 @@ class PrjDetails(CommonDetails):
     creation_form_height = 725
 
 
+class RecDetails(CommonDetails):
+    key = 'rec'
+    model = models.RecDataset
+    title = _("Dataset")
+    template_name = "whalesdb/details_rec.html"
+    fields = ['eda_id', 'rsc_id', 'rtt_dataset', 'rtt_in_water', 'rec_start_date', 'rec_start_time', 'rec_end_date',
+              'rec_end_time', 'rec_backup_hd_1', 'rec_backup_hd_2', 'rec_notes', ]
+
+
 class RscDetails(CommonDetails):
     key = 'rsc'
     model = models.RscRecordingSchedule
@@ -434,6 +514,14 @@ class RscDetails(CommonDetails):
     template_name = "whalesdb/details_rsc.html"
     fields = ['rsc_name', 'rsc_period']
     editable = False
+
+
+class RttDetails(CommonDetails):
+    key = 'rtt'
+    model = models.RttTimezoneCode
+    title = _("Time Zone")
+    template_name = "whalesdb/details_rtt.html"
+    fields = ['rtt_name', 'rtt_abb', 'rtt_period']
 
 
 class StnDetails(CommonDetails):
@@ -453,10 +541,11 @@ class StnDetails(CommonDetails):
         return context
 
 
-class CommonList(FilterCommon):
+class CommonList(CommonAuthFilterView):
 
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
+    home_url_name = "whalesdb:index"
 
     # fields to be used as columns to display an object in the filter view table
     fields = []
@@ -478,7 +567,19 @@ class CommonList(FilterCommon):
     editable = True
 
     def get_fields(self):
+        if self.fields:
+            return self.fields
+
         return ['tname|Name', 'tdescription|Description']
+
+    def get_create_url(self):
+        return self.create_url if self.create_url is not None else "whalesdb:create_{}".format(self.key)
+
+    def get_details_url(self):
+        return self.details_url if self.details_url is not None else "whalesdb:details_{}".format(self.key)
+
+    def get_update_url(self):
+        return self.update_url if self.update_url is not None else "whalesdb:update_{}".format(self.key)
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
@@ -491,9 +592,9 @@ class CommonList(FilterCommon):
         # if the details_url = False in the extending view then False will be passed to the context['detials_url']
         # variable and in the template where the variable is used for buttons and links the button and/or links can
         # be left out without causing URL Not Found issues.
-        context['create_url'] = self.create_url if self.create_url is not None else "whalesdb:create_{}".format(self.key)
-        context['details_url'] = self.details_url if self.details_url is not None else "whalesdb:details_{}".format(self.key)
-        context['update_url'] = self.update_url if self.update_url is not None else "whalesdb:update_{}".format(self.key)
+        context['create_url'] = self.get_create_url()
+        context['details_url'] = self.get_details_url()
+        context['update_url'] = self.get_update_url()
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
@@ -554,6 +655,14 @@ class PrjList(CommonList):
     fields = ['tname|Name', 'tdescription|Description']
 
 
+class RecList(CommonList):
+    key = 'rec'
+    model = models.RecDataset
+    filterset_class = filters.RecFilter
+    title = _("Dataset")
+    fields = ['eda_id', 'rsc_id', 'rec_start_date', 'rec_end_date']
+
+
 class RscList(CommonList):
     key = 'rsc'
     model = models.RscRecordingSchedule
@@ -561,6 +670,18 @@ class RscList(CommonList):
     title = _("Recording Schedule List")
     fields = ['rsc_name', 'rsc_period']
     editable = False
+
+
+class RttList(CommonList):
+    key = 'rtt'
+    model = models.RttTimezoneCode
+    filterset_class = filters.RttFilter
+    title = _("Time Zone")
+    fields = ['rtt_name', 'rtt_abb', 'rtt_offset']
+    editable = False
+
+    def get_details_url(self):
+        return None
 
 
 class StnList(CommonList):

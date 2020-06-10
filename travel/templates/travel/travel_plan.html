@@ -71,10 +71,6 @@
         padding-bottom: 5px;
     }
 
-    th.wset, td.wset {
-        width: 100px;
-    }
-
 
 </style>
 
@@ -168,7 +164,7 @@
         <tr class="real">
             <th rowspan="2" style="text-align: center;" class="real center">Amended</th>
             <th rowspan="2" class="real center">Trip</th>
-            <th rowspan="1" colspan="2" class="real center">Date</th>
+            <th rowspan="1" colspan="2" class="real center" style="text-align: center">Date</th>
             <th rowspan="2" class="real center">Origin / Destination(s) of Travel</th>
             <th rowspan="1" colspan="2" class="real center">Purpose of Travel</th>
             <th rowspan="1" colspan="11" class="real center">Cost Information (include taxes)</th>
@@ -218,18 +214,19 @@
 
         </tr>
         <tr>
-            <td class="center wset"></td>
-            <td class="center wset"></td>
-            <td class="center wset"></td>
-            <td class="center wset"></td>
-            <td class="center wset"></td>
-            <td class="center wset"></td>
-            <td style="width: 400px" class="center"></td>
+            <td class="center wset" style="width: 50px;"></td>
+            <td class="center wset" style="width: 30px;"></td>
+            <td class="center wset" style="width: 50px;"></td>
+            <td class="center wset" style="width: 50px;"></td>
+            <td class="center wset" style="width: 150px;"></td>
+            <td class="center wset" style="width: 100px;"></td>
+            <td style="width: 300px" class="center"></td>
             {# starting with AIR #}
-            {% for key in key_list %}
-                <td class="real center wset"><b>{{ total_dict|lookup:key|currency }}</b></td>
+            {% for key in my_dict|lookup:parent %}
+                <td style="width: 50px;" class=" center"></td>
             {% endfor %}
-            <td class="center wset"></td>
+            <td class="center wset" style="width: 50px;"></td>
+            <td class="center wset" style="width: 50px;"></td>
         </tr>
     </table>
 </div>

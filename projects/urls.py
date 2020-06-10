@@ -117,35 +117,35 @@ urlpatterns = [
 
     # SETTINGS #
     ############
-    path('settings/funding-source/', views.manage_funding_sources, name="manage_funding_sources"),
-    path('settings/funding-source/<int:pk>/delete/', views.delete_funding_source, name="delete_funding_source"),
+    path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),
+    path('settings/funding-source/<int:pk>/delete/', views.FundingSourceHardDeleteView.as_view(), name="delete_funding_source"),
 
-    path('settings/activity-types/', views.manage_activity_types, name="manage_activity_types"),
-    path('settings/activity-type/<int:pk>/delete/', views.delete_activity_type, name="delete_activity_type"),
+    path('settings/activity-types/', views.ActivityTypeFormsetView.as_view(), name="manage_activity_types"),
+    path('settings/activity-type/<int:pk>/delete/', views.ActivityTypeHardDeleteView.as_view(), name="delete_activity_type"),
 
-    path('settings/om-categories/', views.manage_om_cats, name="manage_om_cats"),
-    path('settings/om-category/<int:pk>/delete/', views.delete_om_cat, name="delete_om_cat"),
+    path('settings/om-categories/', views.OMCategoryFormsetView.as_view(), name="manage_om_cats"),
+    path('settings/om-category/<int:pk>/delete/', views.OMCategoryHardDeleteView.as_view(), name="delete_om_cat"),
 
-    path('settings/employee-types/', views.manage_employee_types, name="manage_employee_types"),
-    path('settings/employee-type/<int:pk>/delete/', views.delete_employee_type, name="delete_employee_type"),
+    path('settings/employee-types/', views.EmployeeTypeFormsetView.as_view(), name="manage_employee_types"),
+    path('settings/employee-type/<int:pk>/delete/', views.EmployeeTypeHardDeleteView.as_view(), name="delete_employee_type"),
 
-    path('settings/statuses/', views.manage_statuses, name="manage_statuses"),
-    path('settings/status/<int:pk>/delete/', views.delete_status, name="delete_status"),
+    path('settings/statuses/', views.StatusFormsetView.as_view(), name="manage_statuses"),
+    path('settings/status/<int:pk>/delete/', views.StatusHardDeleteView.as_view(), name="delete_status"),
 
-    path('settings/tags/', views.manage_tags, name="manage_tags"),
-    path('settings/tag/<int:pk>/delete/', views.delete_tag, name="delete_tag"),
+    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
+    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
-    path('settings/help-text/', views.manage_help_text, name="manage_help_text"),
-    path('settings/help-text/<int:pk>/delete/', views.delete_help_text, name="delete_help_text"),
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
 
-    path('settings/levels/', views.manage_levels, name="manage_levels"),
-    path('settings/level/<int:pk>/delete/', views.delete_level, name="delete_level"),
+    path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),
+    path('settings/level/<int:pk>/delete/', views.LevelHardDeleteView.as_view(), name="delete_level"),
 
-    path('settings/programs/', views.manage_programs, name="manage_programs"),
-    path('settings/program/<int:pk>/delete/', views.delete_program, name="delete_program"),
+    path('settings/programs/', views.ProgramFormsetView.as_view(), name="manage_programs"),
+    path('settings/program/<int:pk>/delete/', views.ProgramHardDeleteView.as_view(), name="delete_program"),
 
-    path('settings/themes/', views.manage_themes, name="manage_themes"),
-    path('settings/theme/<int:pk>/delete/', views.delete_theme, name="delete_theme"),
+    path('settings/themes/', views.ThemeFormsetView.as_view(), name="manage_themes"),
+    path('settings/theme/<int:pk>/delete/', views.ThemeHardDeleteView.as_view(), name="delete_theme"),
 
     path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
     path('admin/project-program-list/', views.AdminProjectProgramListView.as_view(), name="admin_project_program_list"),
@@ -156,6 +156,11 @@ urlpatterns = [
     path('admin/staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
 
     path('admin/submitted-unapproved-list/', views.SubmittedUnapprovedProjectsListView.as_view(), name="admin_submitted_unapproved"),
+
+    # project approvals
+    path('admin/project-approvals/search/', views.ProjectApprovalsSearchView.as_view(), name="admin_project_approval_search"),
+    path('admin/project-approval-for/region/<int:region>/fiscal-year/<int:fy>/', views.ProjectApprovalFormsetView.as_view(), name="admin_project_approval"),
+
 
     # Reports #
     ###########

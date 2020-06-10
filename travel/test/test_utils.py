@@ -7,7 +7,7 @@ from shared_models.test.SharedModelsFactoryFloor import UserFactory
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 from travel.views import can_modify_request
-
+from .. import utils
 
 class UtilsTest(CommonTest):
 
@@ -60,53 +60,42 @@ class UtilsTest(CommonTest):
         trip_request.save()
         self.assertEqual(can_modify_request(trip_request.user, trip_request.id, True), True)
 
-    #
-    # @tag("utils", 'cost_warning')
-    # def test_trip_cost_warning(self):
-    #     activate('en')
-    #
-    #     # actors
-    #     trip_request = FactoryFloor.IndividualTripRequestFactory()
-    #     reg_user = self.get_and_login_user()
-    #     admin_user = self.get_and_login_user(in_group="travel_admin")
-    #
-    #     # scenario 1: trip cost goes over 10K
+    @tag("utils", 'get_related_trips')
+    def test_get_related_trips(self):
+        activate('en')
 
+        # actors
+        ind_request = FactoryFloor.IndividualTripRequestFactory()
+        child_request = FactoryFloor.ChildTripRequestFactory()
+        parent_request = child_request.parent_request
+        random_request = FactoryFloor.IndividualTripRequestFactory()
 
-#         """
-#
-# def manage_trip_warning(trip):
-#     This function will decide if sending an email to NCR is necessary based on
-#     1) the total costs accrued for a trip
-#     2) whether or not a warning has already been sent
-#
-#     :param trip: an instance of Trip
-#     :return: NoneObject
-#
-#     # first make sure we are not receiving a NoneObject
-#     try:
-#         trip.non_res_total_cost
-#     except AttributeError:
-#         pass
-#     else:
-#
-#         # If the trip cost is below 10k, make sure the warning field is null and an then do nothing more :)
-#         if trip.non_res_total_cost < 10000:
-#             if trip.cost_warning_sent:
-#                 trip.cost_warning_sent = None
-#                 trip.save()
-#
-#         # if the trip is >= 10K, we simply need to send an email to NCR
-#         else:
-#             if not trip.cost_warning_sent:
-#                 email = emails.TripCostWarningEmail(trip)
-#                 # # send the email object
-#                 custom_send_mail(
-#                     subject=email.subject,
-#                     html_message=email.message,
-#                     from_email=email.from_email,
-#                     recipient_list=email.to_list
-#                 )
-#                 trip.cost_warning_sent = timezone.now()
-#                 trip.save()
-#         """
+        reg_user = self.get_and_login_user()
+
+        # to start, this user should have 0 trips
+        self.assertEqual(utils.get_related_trips(reg_user).count(), 0)
+
+        # setting the individual request to user should result in 1 trip
+        ind_request.user = reg_user
+        ind_request.save()
+        self.assertIn(ind_request, utils.get_related_trips(reg_user))
+        self.assertEqual(utils.get_related_trips(reg_user).count(), 1)
+
+        # setting parent of group trip to user should increase by 1...
+        parent_request.user = reg_user
+        parent_request.save()
+        self.assertIn(parent_request, utils.get_related_trips(reg_user))
+        self.assertEqual(utils.get_related_trips(reg_user).count(), 2)
+
+        # setting parent of child trip to user should increase by 1...
+        child_request.user = reg_user
+        child_request.save()
+        self.assertIn(child_request, utils.get_related_trips(reg_user))
+        self.assertEqual(utils.get_related_trips(reg_user).count(), 3)
+
+        # setting created_by of random trip to user should increase by 1...
+        random_request.created_by = reg_user
+        random_request.save()
+        self.assertIn(random_request, utils.get_related_trips(reg_user))
+        self.assertEqual(utils.get_related_trips(reg_user).count(), 4)
+
