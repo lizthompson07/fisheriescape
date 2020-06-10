@@ -1,41 +1,49 @@
 {% load i18n %}
 
-{% with "80px" as w %}
 
-    <div class="mb-3 mt-5 center-col">
-        <h3>{% trans "Submission deadlines" %}</h3>
-    </div>
-    <div class="container" style="padding-right: {{ w }};padding-left: {{ w }}">
-        <div style="font-size: 16px">
-            <p>
-                {% blocktrans %}
-                    Travel requests can be submitted up to <b>180 days in advance of any potential trip</b>, regardless of the purpose and
-                    across
-                    fiscal
-                    years.
-                {% endblocktrans %}
-            </p>
-            <p>
-                {% blocktrans %}
-                    Requests to participate in <b>conferences</b> must be submitted at least <b>90 days before</b> the registration or
-                    abstract
-                    deadline
-                    (whichever is earlier). No requests will be accepted after the review process has started.
-                {% endblocktrans %}
-            </p>
-            <p>
-                {% blocktrans %}
-                    Requests for <b> all other types </b> of travel (i.e. not related to a conference) must be submitted at least <b>60 days
-                    prior </b> to the date
-                    of travel. Late requests will only be considered in very exceptional circumstances.
-                {% endblocktrans %}
-            </p>
+{% with "" as w %}
+    {% if is_adm_admin %}
+
+        <div class="mb-3 mt-5 center-col">
+            <h3>{% trans "Submission Deadlines" %} </h3>
+            <h4>
+                (currently visible only to ADM admin group)
+            </h4>
         </div>
-    </div>
+        <div class="container" style="padding-right: {{ w }};padding-left: {{ w }}">
+            <div style="font-size: 16px">
+                <p>
+                    {% blocktrans %}
+                        Travel requests can be submitted up to <b>180 days in advance of any potential trip</b>, regardless of the purpose
+                        and
+                        across
+                        fiscal
+                        years.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        Requests to participate in <b>conferences</b> must be submitted at least <b>90 days before</b> the registration or
+                        abstract
+                        deadline
+                        (whichever is earlier). No requests will be accepted after the review process has started.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        Requests for <b> all other types </b> of travel (i.e. not related to a conference) must be submitted at least
+                        <b>60 days
+                            prior </b> to the date
+                        of travel. Late requests will only be considered in very exceptional circumstances.
+                    {% endblocktrans %}
+                </p>
+            </div>
+        </div>
 
+    {% endif %}
 
     <div class="mb-3 mt-3 center-col">
-        <h3>{% trans "Service standards" %}</h3>
+        <h3>{% trans "Service Standards" %}</h3>
     </div>
     <div class="container" style="padding-right: {{ w }};padding-left: {{ w }}">
         <p style="font-size: 16px">
@@ -49,13 +57,13 @@
     </div>
 
 
-
     <div id="app">
         <v-app id="inspire">
             <div class="mt-3 ml-3 mr-3">
                 {% for process in processes %}
-                    <div class="mb-3 mt-5 center-col">
-                        <h3>{{ process.first.get_stage_display }}</h3>
+
+                    <div class="mb-5 mt-5 center-col">
+                        <h3>{{ process.first.get_stage_display|title }}</h3>
                     </div>
                     <v-timeline
                             :align-top="alignTop"
@@ -87,10 +95,15 @@
                                     </v-card-text>
                                 </v-card>
                             </v-timeline-item>
+
                         {% endfor %}
-
-
                     </v-timeline>
+
+
+                    <br>
+                    <br>
+                    <br>
+                    <br>
                 {% endfor %}
             </div>
         </v-app>
@@ -131,10 +144,8 @@
                 small: false,
             }),
         })
+
     </script>
-
-
-    </div>
 
 {% endwith %}
 
