@@ -275,7 +275,8 @@ class StnStation(models.Model):
 
 
 class RciChannelInfo(models.Model):
-    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"))
+    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"),
+                               related_name='channels')
     rci_name = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Name"))
     rci_size = models.IntegerField(blank=True, null=True, verbose_name=_("Size (GB)"))
     rci_gain = models.IntegerField(blank=True, null=True, verbose_name=_("Gain"))
@@ -304,7 +305,8 @@ class RecDataset(models.Model):
 
 
 class ReeRecordingEvent(models.Model):
-    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"))
+    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"),
+                               related_name='events')
     ret_id = models.ForeignKey("RetRecordingEventType", on_delete=models.DO_NOTHING, verbose_name=_("Event Type"))
     rtt_id = models.ForeignKey("RttTimezoneCode", on_delete=models.DO_NOTHING, verbose_name=_("Timezone"))
     ree_date = models.DateField(verbose_name=_("Date"))
@@ -318,10 +320,16 @@ class RetRecordingEventType(models.Model):
     ret_name = models.CharField(max_length=50, verbose_name=_("Name"))
     ret_desc = models.CharField(max_length=255, verbose_name=_("Description"))
 
+    def __str__(self):
+        return "{} : {}".format(self.ret_name, self.ret_desc)
+
 
 class RscRecordingSchedule(models.Model):
     rsc_name = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Recording Schedule"))
     rsc_period = models.BigIntegerField(verbose_name=_("Period"))
+
+    def __str__(self):
+        return "{} : {}".format(self.rsc_name, self.rsc_period)
 
 
 class RstRecordingStage(models.Model):
@@ -336,6 +344,9 @@ class RttTimezoneCode(models.Model):
     rtt_abb = models.CharField(max_length=5, verbose_name=_("Abbreviation"))
     rtt_name = models.CharField(max_length=50, verbose_name=_("Name"))
     rtt_offset = models.DecimalField(max_digits=4, decimal_places=2, verbose_name=_("Offset"))
+
+    def __str__(self):
+        return "{}".format(self.rtt_abb)
 
 
 class TeaTeamMember(models.Model):

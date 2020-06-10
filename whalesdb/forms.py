@@ -117,6 +117,38 @@ class PrjForm(forms.ModelForm):
         }
 
 
+class RciForm(forms.ModelForm):
+    min_height = 1000
+    min_width = 600
+
+    class Meta:
+        model = models.RciChannelInfo
+        exclude = []
+        widgets = {
+            'rec_id': forms.HiddenInput(),
+        }
+
+
+class RecForm(forms.ModelForm):
+    class Meta:
+        model = models.RecDataset
+        exclude = []
+        widgets = {
+        }
+
+
+class ReeForm(forms.ModelForm):
+    min_height = 1000
+    min_width = 600
+
+    class Meta:
+        model = models.ReeRecordingEvent
+        exclude = []
+        widgets = {
+            'rec_id': forms.HiddenInput(),
+        }
+
+
 class RscForm(forms.ModelForm):
     class Meta:
         model = models.RscRecordingSchedule
@@ -132,6 +164,12 @@ class RstForm(forms.ModelForm):
         widgets = {
             'rsc': forms.HiddenInput()
         }
+
+
+class RttForm(forms.ModelForm):
+    class Meta:
+        model = models.RttTimezoneCode
+        exclude = []
 
 
 class StnForm(forms.ModelForm):
