@@ -27,12 +27,12 @@
                     {% endif %}
 
                     <span data-toggle="tooltip" title="{{ help_text_1 }}">
-                    <a href="{% url 'travel:reset_tr_reviewers' triprequest.id %}"
+                    <a href="{% url 'travel:reset_tr_reviewers' triprequest.id view.kwargs.type %}"
                        class="btn btn-sm btn-warning {{ my_disbaled_var }}" id="reset-btn">
                         {% trans "Reset" %}
                     </a>
                     </span>
-                    <a href="{% url 'travel:manage_tr_reviewers' triprequest.id %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'travel:manage_tr_reviewers' triprequest.id view.kwargs.type %}" class="btn btn-sm btn-primary">
                         {% trans "Modify" %}
                     </a>
                 </div>
@@ -77,7 +77,7 @@
                             {% if obj.status_id == 1 and is_admin %}
                                 {% if obj.role.id == 1 or obj.role.id == 2 %}
                                     <td>
-                                        <a href="#" pop-href="{% url 'travel:reviewer_skip' obj.id %}" class="btn btn-sm btn-danger">
+                                        <a href="#" pop-href="{% url 'travel:skip_tr_reviewer' obj.id %}" class="btn btn-sm btn-danger">
                                             {% trans "Skip" %}
                                         </a>
                                     </td>

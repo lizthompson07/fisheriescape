@@ -19,6 +19,7 @@ class GroupFactory(factory.django.DjangoModelFactory):
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
+        django_get_or_create = ('username',)
 
     first_name = factory.LazyAttribute(lambda o: faker.first_name())
     last_name = factory.LazyAttribute(lambda o: faker.last_name())
