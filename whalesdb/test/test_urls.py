@@ -232,3 +232,35 @@ class URLTest(TestCase):
     def test_url_list_tea_view(self):
         self.basic_en_url_test('whalesdb:list_tea', 'whalesdb/list/tea/', views.TeaList)
 
+    @tag('rtt', 'url', 'list')
+    def test_url_list_rtt_view(self):
+        self.basic_en_url_test('whalesdb:list_rtt', 'whalesdb/list/rtt/', views.RttList)
+
+    @tag('rtt', 'url', 'details')
+    def test_url_details_rtt_view(self):
+        self.basic_en_url_test('whalesdb:details_rtt', 'whalesdb/details/rtt/1/', views.RttDetails, [1])
+
+    @tag('rtt', 'url', 'create')
+    def test_url_create_rtt_view(self):
+        self.basic_en_url_test('whalesdb:create_rtt', 'whalesdb/create/rtt/', views.RttCreate)
+
+    @tag('rec', 'url', 'create')
+    def test_url_create_rec_view(self):
+        self.basic_en_url_test('whalesdb:create_rec', 'whalesdb/create/rec/', views.RecCreate)
+
+    @tag('rec', 'url', 'list')
+    def test_url_list_rec_view(self):
+        self.basic_en_url_test('whalesdb:list_rec', 'whalesdb/list/rec/', views.RecList)
+
+    @tag('rec', 'url', 'update')
+    def test_url_update_rec_view(self):
+        self.basic_en_url_test('whalesdb:update_rec', 'whalesdb/update/rec/1/', views.RecUpdate, [1])
+
+    @tag('rci', 'url', 'create', 'pop')
+    def test_url_create_rci_pop_ste_view(self):
+        self.basic_en_url_test('whalesdb:create_rci', 'whalesdb/create/rci/1/pop/', views.RciCreate, [1, 'pop'])
+
+    @tag('ree', 'url', 'create', 'pop')
+    def test_url_create_set_pop_ree_view(self):
+        self.basic_en_url_test('whalesdb:create_ree', 'whalesdb/create/ree/1/pop/', views.ReeCreate, [1, 'pop'])
+
