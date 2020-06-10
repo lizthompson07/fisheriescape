@@ -62,16 +62,6 @@
 
         }
 
-    </style>
-
-{% endblock %}
-
-{% block title %}
-    {% trans 'DM Apps' %}
-{% endblock title %}
-
-{% block body %}
-    <style>
         .sidebar {
             position: fixed;
             top: 0;
@@ -98,30 +88,33 @@
                 position: -webkit-sticky;
                 position: sticky;
             }
+        }
 
-            body {
-                font-size: .875rem;
-            }
+        body {
+            font-size: .875rem;
+        }
 
-            [role="main"] {
-                padding-top: 48px; /* Space for fixed navbar */
-            }
+        [role="main"] {
+            padding-top: 48px; /* Space for fixed navbar */
+        }
 
     </style>
+
+{% endblock %}
+
+{% block title %}
+    {% trans 'DM Apps' %}
+{% endblock title %}
+
+{% block body %}
     <div class="container-fluid">
         <div class="row">
             <nav class="col-3 sidebar bg-light  d-none d-md-block">
                 <div class="sidebar-sticky">
                     <br>
-                    <h4>
-                        {% trans "Announcements" %}
-                    </h4>
 
                     {% for a in announcements %}
                         <div class="alert {{ a.alert_type }}" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
                             <h4 class="alert-heading">{{ a.tsubject|safe }}</h4>
 
                             <p style="font-size: small">{{ a.valid_from }}</p>
