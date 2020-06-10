@@ -5,6 +5,12 @@
 {% load custom_filters %}
 {% load custom_tags %}
 
+{% block header %}
+{{ block.super }}
+    <style>
+    </style>
+{% endblock %}
+
 {% block messages %}{% endblock %}
 
 {% block subcontent %}
@@ -29,7 +35,7 @@
 
         <br><br>
 
-        <table class="table table-bordered">
+        <table class="table table-sm table-bordered">
             <thead>
             {% for field in pre_display_fields %}
                 <th>
@@ -65,7 +71,7 @@
                     {% for field in form %}
                         {% if not field.is_hidden %}
                             <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
-                                {% bootstrap_field field size="small" show_label=False %}
+                                {% bootstrap_field field size="small" show_label=False placeholder="" %}
                             </td>
                         {% endif %}
                     {% endfor %}

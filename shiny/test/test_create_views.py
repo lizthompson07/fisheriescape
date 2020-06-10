@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.test import tag
 from django.views.generic import CreateView
 
+from shared_models.views import CommonCreateView
 from shiny.test import FactoryFloor
 from shiny  .test.common_tests import CommonShinyTest as CommonTest
 from .. import views
@@ -13,11 +14,11 @@ class TestAppCreateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.AppFactory()
         self.test_url = reverse_lazy('shiny:create')
-        self.expected_template = 'shiny/app_form.html'
+        self.expected_template = 'shared_models/generic_form.html'
 
     @tag("shiny", 'create', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.AppCreateView, CreateView)
+        self.assert_inheritance(views.AppCreateView, CommonCreateView)
         self.assert_inheritance(views.AppCreateView, LoginRequiredMixin)
 
     @tag("shiny", 'create', "access")

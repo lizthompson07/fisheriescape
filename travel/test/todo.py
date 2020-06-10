@@ -12,3 +12,7 @@
 # TODO: ... should not be able to merge the trips if there is an overlap of travellers.
 
 # TODO: IMPORTANT... check to see that the correct trips are being caught by the ADM filter... one good test would be to ensure that a trip shows up only when it has an associated active tr
+
+# TODO: reset reviewers!!
+# TripRequestReviewerADMUpdateView
+# Create a test for the closest date function!!

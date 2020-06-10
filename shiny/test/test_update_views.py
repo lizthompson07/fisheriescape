@@ -2,6 +2,7 @@ from django.urls import reverse_lazy
 from django.test import tag
 from django.views.generic import CreateView, UpdateView
 
+from shared_models.views import CommonUpdateView
 from shiny.test import FactoryFloor
 from shiny.test.common_tests import CommonShinyTest as CommonTest
 from .. import views
@@ -11,11 +12,11 @@ class TestAppUpdateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.AppFactory()
         self.test_url = reverse_lazy('shiny:update', kwargs={"pk":self.instance.pk})
-        self.expected_template = 'shiny/app_form.html'
+        self.expected_template = 'shared_models/generic_form.html'
 
     @tag("shiny", 'update', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.AppUpdateView, UpdateView)
+        self.assert_inheritance(views.AppUpdateView, CommonUpdateView)
 
     @tag("shiny", 'update', "access")
     def test_view(self):

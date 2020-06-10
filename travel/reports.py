@@ -155,7 +155,6 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
     if trip_request_list:
         i = 3
         for tr in trip_request_list.order_by("trip__start_date"):
-            print(123)
             # Build the Notes field
             notes = "TRAVELLER COST BREAKDOWN: " + tr.cost_breakdown
 
@@ -185,12 +184,6 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 my_status = str(tr.parent_request.status)
             else:
                 my_status = str(tr.status)
-
-            # REASON
-            if tr.parent_request:
-                my_reason = str(tr.parent_request.reason) if tr.parent_request.reason else "n/a"
-            else:
-                my_reason = str(tr.reason) if tr.reason else "n/a"
 
             # TRIP NAME
             if tr.parent_request:
@@ -232,7 +225,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 my_name,
                 str(tr.region) if tr.region else "n/a",
                 my_role,
-                my_reason,
+                str(tr.reason) if tr.reason else "n/a",
                 my_trip_name,
                 my_dest,
                 my_start,
