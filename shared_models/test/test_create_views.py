@@ -6,6 +6,7 @@ from . import SharedModelsFactoryFloor as FactoryFloor
 from .common_tests import CommonTest
 from .. import views
 from .. import models
+from ..views import CommonCreateView
 
 
 class TestSectionCreateView(CommonTest):
@@ -17,7 +18,7 @@ class TestSectionCreateView(CommonTest):
 
     @tag("section_new", 'update', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SectionCreateView, CreateView)
+        self.assert_inheritance(views.SectionCreateView, CommonCreateView)
         self.assert_inheritance(views.SectionCreateView, views.AdminRequiredMixin)
 
     @tag("section_new", 'update', "access")
@@ -25,19 +26,10 @@ class TestSectionCreateView(CommonTest):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
-    @tag("section_new", 'update', "context")
-    def test_context(self):
-        context_vars = [
-            "title",
-            "model_name",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
-
     @tag("section_new", 'update', "submit")
     def test_submit(self):
         data = FactoryFloor.SectionFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.admin_user)
-
 
 
 class TestDivisionCreateView(CommonTest):
@@ -49,21 +41,13 @@ class TestDivisionCreateView(CommonTest):
 
     @tag("division_new", 'update', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.DivisionCreateView, CreateView)
+        self.assert_inheritance(views.DivisionCreateView, CommonCreateView)
         self.assert_inheritance(views.DivisionCreateView, views.AdminRequiredMixin)
 
     @tag("division_new", 'update', "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
-
-    @tag("division_new", 'update', "context")
-    def test_context(self):
-        context_vars = [
-            "title",
-            "model_name",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
 
     @tag("division_new", 'update', "submit")
     def test_submit(self):
@@ -80,21 +64,13 @@ class TestBranchCreateView(CommonTest):
 
     @tag("branch_new", 'update', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.BranchCreateView, CreateView)
+        self.assert_inheritance(views.BranchCreateView, CommonCreateView)
         self.assert_inheritance(views.BranchCreateView, views.AdminRequiredMixin)
 
     @tag("branch_new", 'update', "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
-
-    @tag("branch_new", 'update', "context")
-    def test_context(self):
-        context_vars = [
-            "title",
-            "model_name",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
 
     @tag("branch_new", 'update', "submit")
     def test_submit(self):
@@ -111,21 +87,13 @@ class TestRegionCreateView(CommonTest):
 
     @tag("region_new", 'update', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.RegionCreateView, CreateView)
+        self.assert_inheritance(views.RegionCreateView, CommonCreateView)
         self.assert_inheritance(views.RegionCreateView, views.AdminRequiredMixin)
 
     @tag("region_new", 'update', "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
-
-    @tag("region_new", 'update', "context")
-    def test_context(self):
-        context_vars = [
-            "title",
-            "model_name",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
 
     @tag("region_new", 'update', "submit")
     def test_submit(self):

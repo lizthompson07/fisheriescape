@@ -12,16 +12,24 @@ def export_fixtures():
     fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
     models_to_export = [
         models.Theme,
-        # models.FunctionalGroup,
         models.ActivityType,
         models.FundingSourceType,
-        # models.FundingSource,
         models.Status,
         models.HelpText,
         models.EmployeeType,
         models.Level,
         models.OMCategory,
         shared_models.FiscalYear,
+        # shared_models.ResponsibilityCenter,
+        # shared_models.AllotmentCode,
+        # shared_models.AllotmentCategory,
+        # shared_models.BusinessLine,
+        # shared_models.LineObject,
+        # shared_models.Project,
+        # models.FunctionalGroup,
+        # models.FundingSource,
+
+        # models.Project,
     ]
     for model in models_to_export:
         data = serializers.serialize("json", model.objects.all())
@@ -103,4 +111,12 @@ def recommend_approved_projects():
         p.recommended_for_funding = True
         p.approved = False
         p.save()
+
+
+def clear_all_approvals():
+    projects = models.Project.objects.filter(approved=False)
+    for p in projects:
+        p.approved = None
+        p.save()
+
 
