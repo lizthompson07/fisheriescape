@@ -35,7 +35,7 @@ class FilterCommon(shared_view.CommonFilterView):
         return context
 
 
-class FilterCommonPars(shared_view.FilterView, shared_view.CommonCreateView):
+class FilterCommonPars(shared_view.FilterView):
     auth = True
     template_name = 'csas/csas_filter_pars.html'
 
