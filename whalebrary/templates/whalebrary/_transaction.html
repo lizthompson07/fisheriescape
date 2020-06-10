@@ -3,21 +3,20 @@
 {% load i18n %}
 {% load verbose_names %}
 
-
-<h3>
-<span class="badge badge-info">
-{% trans "Quantity Currently Available:" %}
-    {{ quantity_avail }}
-</span>
-</h3>
-
-<br>
-
 <div class="">
     <h3>
         {% trans "Transaction Snapshot:" %}
     </h3>
-    <a class="btn btn-success" href="{% url 'whalebrary:item_transaction_detail' object.id %}">Details</a>
+    <div class="btn-group">
+        <h3>
+        <span class="badge badge-info">
+        {% trans "Quantity Currently Available:" %}
+            {{ quantity_avail }}
+<!--figure out how to add a bit more space inside nested span between -->
+                <a class="badge badge-danger" href="{% url 'whalebrary:item_transaction_detail' object.id %}">Details</a>
+       </span>
+       </h3>
+       </div>
 </div>
 
 {% if object.transactions.count == 0 %}

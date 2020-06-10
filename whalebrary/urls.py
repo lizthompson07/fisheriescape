@@ -22,7 +22,7 @@ urlpatterns = [
     path('item/<int:pk>/delete/', views.ItemDeleteView.as_view(), name="item_delete"),
     path('supplier/<int:supplier>/to/item/<int:item>/', views.add_supplier_to_item, name="add_supplier_to_item"),
     path('item/<int:item>/add-suppliers', views.AddSuppliersToItemView.as_view(), name="item_suppliers_list"),
-    path('supplier/<int:supplier>/from/item/<int:item>/', views.delete_supplier_from_item, name="delete_supplier_from_item"),
+    path('supplier/<int:supplier>/from/item/<int:item>/', views.remove_supplier_from_item, name="remove_supplier_from_item"),
 
     # TRANSACTIONS #
 

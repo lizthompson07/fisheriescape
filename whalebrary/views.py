@@ -96,8 +96,9 @@ class ItemListView(WhalebraryAccessRequired, CommonFilterView):
     h1 = "Item List"
     filterset_class = filters.SpecificItemFilter
     home_url_name = "whalebrary:index"
-    container_class = "container-fluid"
+    # container_class = "container-fluid"
     row_object_url_name = "whalebrary:item_detail"
+    new_btn_text = "New Item"
 
     queryset = models.Item.objects.annotate(
         search_term=Concat('item_name', 'description', output_field=TextField()))
@@ -132,7 +133,7 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
     ]
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Item List"), "url": reverse_lazy("whalebrary:item_list")}
-    container_class = "container-fluid"
+    # container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -613,11 +614,11 @@ def add_supplier_to_item(request, supplier, item):
     my_item.suppliers.add(my_supplier)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
-def delete_supplier_from_item(request, supplier, item):
-    """simple function to delete supplier from item"""
+def remove_supplier_from_item(request, supplier, item):
+    """simple function to remove supplier from item"""
     my_item = models.Item.objects.get(pk=item)
     my_supplier = models.Supplier.objects.get(pk=supplier)
-    my_item.suppliers.delete(my_supplier)
+    my_item.suppliers.remove(my_supplier)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):

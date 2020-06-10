@@ -19,6 +19,7 @@
                     <div class="col">
                         <br>
                         <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+                        <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
                     </div>
                 </div>
             </form>
@@ -62,8 +63,9 @@
                     {% endif %}
                 </div>
                 {% if new_object_url %}
+                    {% trans 'New' as default_new_btn_text %}
                     <div class="col" style="text-align: right; padding-bottom: 10px">
-                        <a href="{{ new_object_url }}" class="btn btn-sm btn-primary">{% trans 'New' %}</a>
+                        <a href="{{ new_object_url }}" class="btn btn-sm btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
                     </div>
                 {% endif %}
             </div>
