@@ -11,6 +11,19 @@ from django.core.files import File
 from shared_models import models as shared_models
 
 
+# def remove_empty_trips():
+#     for trip in models.Conference.objects.all():
+#         if trip.trip_requests.count() == 0:
+#             trip.delete()
+#
+
+
+def reset_trip_reviewers():
+    for trip in models.Conference.objects.filter(is_adm_approval_required=True):
+        if trip.reviewers.count() == 0:
+            utils.get_trip_reviewers(trip)
+
+
 def check_trip_purposes():
     print(f"trip id; trip name; purposes")
     for trip in models.Conference.objects.all():

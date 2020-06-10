@@ -18,7 +18,8 @@ class TripFactory(factory.django.DjangoModelFactory):
     name = factory.lazy_attribute(lambda o: faker.catch_phrase())
     start_date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     end_date = factory.lazy_attribute(lambda o: o.start_date + datetime.timedelta(days=faker.random_int(1, 10)))
-    trip_subcategory = factory.lazy_attribute(lambda o: models.TripSubcategory.objects.all()[faker.random_int(0, models.TripSubcategory.objects.count() - 1)])
+    trip_subcategory = factory.lazy_attribute(
+        lambda o: models.TripSubcategory.objects.all()[faker.random_int(0, models.TripSubcategory.objects.count() - 1)])
 
     @staticmethod
     def get_valid_data():
@@ -107,6 +108,7 @@ class ChildTripRequestFactory(factory.django.DjangoModelFactory):
         }
         return valid_data
 
+
 class ReviewerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Reviewer
@@ -118,6 +120,24 @@ class ReviewerFactory(factory.django.DjangoModelFactory):
     status = factory.lazy_attribute(
         lambda o: models.Status.objects.filter(used_for=1)[faker.random_int(0, models.Status.objects.filter(used_for=1).count() - 1)])
     status_date = factory.lazy_attribute(lambda o: o.trip_request.start_date + datetime.timedelta(days=faker.random_int(1, 365)))
+
+
+class TripReviewerFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TripReviewer
+
+    trip = factory.SubFactory(TripFactory)
+    role = factory.lazy_attribute(lambda o: models.ReviewerRole.objects.all()[faker.random_int(0, models.ReviewerRole.objects.count() - 1)])
+    user = factory.SubFactory(UserFactory)
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            # 'trip': TripFactory().id,
+            # 'role': models.ReviewerRole.objects.all()[faker.random_int(0, models.ReviewerRole.objects.count() - 1)],
+            # 'user': UserFactory().id,
+            'comments': faker.catch_phrase(),
+        }
 
 
 class FileFactory(factory.django.DjangoModelFactory):
@@ -161,4 +181,3 @@ class DefaultReviewerFactory(factory.django.DjangoModelFactory):
             'sections': SectionFactory().id,
             'branches': BranchFactory().id,
         }
-

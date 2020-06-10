@@ -146,12 +146,12 @@
             <table style="font-size: small">
                 <tr>
                     <th style="width: 100px; text-align: left"><u>Purpose of Travel</u></th>
-                    <th style="width: 500px; text-align: left"><u>Explanation</u></th>
+{#                    <th style="width: 500px; text-align: left"><u>Explanation</u></th>#}
                 </tr>
-                {% for purpose in purpose_list %}
+                {% for category in trip_category_list %}
                     <tr>
-                        <td>{{ purpose.name }}</td>
-                        <td>{{ purpose.description_eng }}</td>
+                        <td>{{ forloop.counter }} - {{ category.name }}</td>
+{#                        <td>{{ purpose.description_eng }}</td>#}
                     </tr>
                 {% endfor %}
 
@@ -199,7 +199,7 @@
                 {% endif %}
                 {{ parent.destination }}
             </td>
-            <td class="real center">{{ parent.purpose }}</td>
+            <td class="real center">{{ parent.trip.trip_subcategory.trip_category }}</td>
             <td class="real left">{{ parent.purpose_long|safe }}</td>
             {% for key in my_dict|lookup:parent %}
                 <td class="real center">{{ my_dict|lookup:parent|lookup:key|currency|nz:"---" }}</td>
