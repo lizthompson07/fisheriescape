@@ -116,7 +116,7 @@ class TestTravelPlanPDFDetailView(CommonTest):
     def test_context(self):
         context_vars = [
             "parent",
-            "purpose_list",
+            "trip_category_list",
             "object_list",
             "my_dict",
         ]

@@ -9,5 +9,6 @@ def my_envr(request):
         'USE_LOCAL_DB': settings.USE_LOCAL_DB,
         'DB_NAME': settings.DB_NAME,
         'DB_HOST': settings.DB_HOST,
+        'AZURE_AD': settings.AZURE_AD,
         'SITE_FULL_URL': settings.SITE_FULL_URL,
     }

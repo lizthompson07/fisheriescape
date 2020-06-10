@@ -9,6 +9,7 @@ from travel.test.common_tests import CommonTravelTest as CommonTest
 from travel.views import can_modify_request
 from .. import utils
 
+
 class UtilsTest(CommonTest):
 
     def setUp(self):
@@ -67,6 +68,7 @@ class UtilsTest(CommonTest):
         # actors
         ind_request = FactoryFloor.IndividualTripRequestFactory()
         child_request = FactoryFloor.ChildTripRequestFactory()
+        child_request1 = FactoryFloor.ChildTripRequestFactory()
         parent_request = child_request.parent_request
         random_request = FactoryFloor.IndividualTripRequestFactory()
 
@@ -87,10 +89,16 @@ class UtilsTest(CommonTest):
         self.assertIn(parent_request, utils.get_related_trips(reg_user))
         self.assertEqual(utils.get_related_trips(reg_user).count(), 2)
 
-        # setting parent of child trip to user should increase by 1...
+        # setting parent of child trip to user should NOT increase by 1, since this is the same trip as the parent trip...
         child_request.user = reg_user
         child_request.save()
         self.assertIn(child_request, utils.get_related_trips(reg_user))
+        self.assertEqual(utils.get_related_trips(reg_user).count(), 2)
+
+        # setting parent of child trip to user should increase by 1...
+        child_request1.user = reg_user
+        child_request1.save()
+        self.assertIn(child_request1, utils.get_related_trips(reg_user))
         self.assertEqual(utils.get_related_trips(reg_user).count(), 3)
 
         # setting created_by of random trip to user should increase by 1...
@@ -99,3 +107,53 @@ class UtilsTest(CommonTest):
         self.assertIn(random_request, utils.get_related_trips(reg_user))
         self.assertEqual(utils.get_related_trips(reg_user).count(), 4)
 
+    @tag("utils", 'trip_review_process')
+    def test_trip_review_process(self):
+        activate('en')
+
+        # actors
+        trip = FactoryFloor.TripFactory(status_id=41)  # unreviewed, verified
+        reviewer1 = FactoryFloor.TripReviewerFactory(trip=trip, order=1)
+        reviewer2 = FactoryFloor.TripReviewerFactory(trip=trip, order=2)
+        reviewer3 = FactoryFloor.TripReviewerFactory(trip=trip, order=3)
+
+        self.assertIsNone(trip.review_start_date)
+        utils.start_trip_review_process(trip)
+        self.assertEqual(trip.status_id, 31)
+        self.assertIsNotNone(trip.review_start_date)
+        for reviewer in trip.reviewers.all():
+            self.assertEqual(reviewer.status_id, 24)
+            self.assertIsNone(reviewer.status_date)
+
+        # now let's end the review process
+        utils.end_trip_review_process(trip)
+        self.assertEqual(trip.status_id, 41)
+        # the timestamp should not be undone
+        self.assertIsNotNone(trip.review_start_date)
+        for reviewer in trip.reviewers.all():
+            self.assertEqual(reviewer.status_id, 23)
+            self.assertIsNone(reviewer.status_date)
+
+    @tag("utils", 'tr_review_process')
+    def test_tr_review_process(self):
+        activate('en')
+
+        # actors
+        tr = FactoryFloor.IndividualTripRequestFactory(status_id=8)  # draft
+        reviewer1 = FactoryFloor.ReviewerFactory(trip_request=tr, order=1)
+        reviewer2 = FactoryFloor.ReviewerFactory(trip_request=tr, order=2)
+        reviewer3 = FactoryFloor.ReviewerFactory(trip_request=tr, order=3)
+
+        utils.start_review_process(tr)
+        for reviewer in tr.reviewers.all():
+            self.assertEqual(reviewer.status_id, 20)
+            self.assertIsNone(reviewer.status_date)
+
+        # now let's end the review process
+        utils.end_review_process(tr)
+        for reviewer in tr.reviewers.all():
+            self.assertEqual(reviewer.status_id, 4)
+            self.assertIsNone(reviewer.status_date)
+
+# TODO: trip approval seeker
+# TODO: trip request approval seeker
