@@ -1,88 +1,67 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Value, TextField
+from django.db.models.functions import Concat
 from django.shortcuts import render
 
 # Create your views here.
 from django.templatetags.static import static
 from django.urls import reverse_lazy
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 from django.views.generic import TemplateView, ListView, DeleteView, CreateView, UpdateView
+
+from shared_models.views import CommonFilterView, CommonUpdateView, CommonCreateView, CommonDeleteView
 from . import models
 from . import forms
+from . import filters
 
 
-class IndexTemplateView(ListView):
+class IndexTemplateView(CommonFilterView):
     template_name = 'shiny/index.html'
     model = models.App
+    filterset_class = filters.AppFilter
+    h1 = gettext_lazy("DFO Shiny Apps Repository")
+    new_object_url_name = "shiny:create"
+    # container_class = "container-fluid"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            "thumbnail| ",
-            "ttitle|{}".format(_("title")),
-            "tdescription|{}".format(_("description")),
-            "owner",
-            "last_modified",
-            "github_url|{}".format("link to github"),
-        ]
-        context['apps'] = [
-            # Restigouche Salmon
-            {
-                "title": _("Juvenile Atlantic Salmon Densities in the Restigouche Watershed"),
-                "author": "Guillaume Dauphin",
-                "description": _("n/a"),
-                "github_url": "n/a",
-                "url": "http://dmapps:3838/restigouche",
-                "thumbnail": static("shiny/img/salmon.jpg"),
-            },
+    field_list = [
+        {"name": 'thumbnail| ', "class": "", "width": "150px"},
+        {"name": 'ttitle|{}'.format(_("title")), "class": "", "width": ""},
+        {"name": "tdescription|{}".format(_("description")), "class": "", "width": ""},
+        {"name": 'owner', "class": "", "width": "150px"},
+        {"name": 'last_modified', "class": "", "width": "100px"},
+        {"name": "github_url|{}".format("link to github"), "class": "center-col", "width": "100px"},
+    ]
 
-            # trawl sustainability
-            {
-                "title": _("2018 Sustainability Survey Viewer"),
-                "author": "Jason Ladell",
-                "description": _(
-                    "This application was designed to convert data included in the results of the 2018 Sustainability Survey into a more easily readable format that can be filtered by specific stocks, regions, and/or species groups."),
-                "github_url": "https://github.com/NCR-FPS/2018.SS.Viewer",
-                "url": "http://dmapps:3838/2018.SS.Viewer",
-                "thumbnail": static("shiny/img/trawl.jpg"),
-            },
-
-            # DFO/TC Right Whale Sightings Trigger Analysis
-            {
-                "title": _("DFO/TC Right Whale Sightings Trigger Analysis"),
-                "author": "leeyuhc",
-                "description": _("n/a"),
-                "github_url": "https://github.com/leeyuhc/DFO_dyna",
-                "url": "http://dmapps:3838/DFO_dyna",
-                "thumbnail": static("shiny/img/narw.jfif"),
-            },
-            # NARW Identification Tool
-            {
-                "title": _("NARW Identification Tool"),
-                "author": "Liz Thompson",
-                "description": _("For helping to identify whales quickly in the Gulf Region"),
-                "github_url": "n/a",
-                "url": "http://dmapps:3838/DFO_IDapp",
-                "thumbnail": static("shiny/img/narw.jfif"),
-            },
-
-        ]
-
-        return context
+    def get_queryset(self):
+        return models.App.objects.all().annotate(search_term=Concat(
+            'title_en',
+            Value(" "),
+            'title_fr',
+            Value(" "),
+            'description_en',
+            Value(" "),
+            'description_fr',
+            output_field=TextField()
+        ))
 
 
-class AppUpdateView(LoginRequiredMixin, UpdateView):
+class AppUpdateView(LoginRequiredMixin, CommonUpdateView):
     model = models.App
     form_class = forms.AppForm
     success_url = reverse_lazy('shiny:index')
-    template_name = 'shiny/app_form.html'
+    template_name = 'shared_models/generic_form.html'
+    home_url_name = "shiny:index"
+    is_multipart_form_data = True
 
 
-class AppCreateView(LoginRequiredMixin, CreateView):
+class AppCreateView(LoginRequiredMixin, CommonCreateView):
     model = models.App
     form_class = forms.AppForm
     success_url = reverse_lazy('shiny:index')
-    template_name = 'shiny/app_form.html'
+    template_name = 'shared_models/generic_form.html'
+    home_url_name = "shiny:index"
+    is_multipart_form_data = True
 
     def get_initial(self):
         return {
@@ -90,12 +69,8 @@ class AppCreateView(LoginRequiredMixin, CreateView):
         }
 
 
-class AppDeleteView(LoginRequiredMixin, DeleteView):
+class AppDeleteView(LoginRequiredMixin, CommonDeleteView):
     model = models.App
     success_url = reverse_lazy('shiny:index')
-    success_message = 'The app record was successfully deleted!'
-    template_name = 'shiny/app_confirm_delete.html'
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    template_name = 'shared_models/generic_confirm_delete.html'
+    home_url_name = "shiny:index"

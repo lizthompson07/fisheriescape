@@ -30,7 +30,7 @@
                     {% trans "Submit" as default_submit_text %}
                     {% trans "Cancel" as default_cancel_text %}
                     {% echo request.META.HTTP_REFERER as default_cancel_url %}
-                    <input type="submit" class="btn btn-lg {% block submit_btn_class %}btn-warning{% endblock %}"
+                    <input type="submit" class="btn btn-lg {% block submit_btn_class %}{{ submit_btn_class|nz:"btn-warning" }}{% endblock %}"
                            value="{{ submit_text|nz:default_submit_text }}">
                     <a class="btn btn-lg btn-secondary" onclick="refreshParent(); window.close()" href="#">
                         {% trans "Close" %}

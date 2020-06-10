@@ -7,16 +7,20 @@
 
 <div class="card mb-2">
     <h3 class="card-header bg-outline-dark">
-        {% trans "Reviewers, Recommenders and Approvers" %}
+        {% if trip.review_start_date %}
 
-        <div class="neighbours mb-3">
-            {% with help_text_dict|lookup:"trip_reviewers_header" as help_text %}
-                <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
-                     data-trigger="hover"
-                     title="{% trans "Trip Reviewers" %}"
-                     data-content="{{ help_text }}">
-            {% endwith %}
-        </div>
+            {% trans "Reviewer Comments" %}
+        {% else %}
+            {% trans "Reviewers, Recommenders and Approvers" %}
+        {% endif %}
+        {#        <div class="neighbours mb-3">#}
+        {#            {% with help_text_dict|lookup:"trip_reviewers_header" as help_text %}#}
+        {#                <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"#}
+        {#                     data-trigger="hover"#}
+        {#                     title="{% trans "Trip Reviewers" %}"#}
+        {#                     data-content="{{ help_text }}">#}
+        {#            {% endwith %}#}
+        {#        </div>#}
         <div class="float-right mb-3">
 
             {% if not report_mode %}
@@ -30,12 +34,12 @@
                     {% endif %}
 
                     <span data-toggle="tooltip" title="{{ help_text_1 }}">
-                    <a href="{% url 'travel:reset_trip_reviewers' trip.id %}"
+                    <a href="{% url 'travel:reset_trip_reviewers' trip.id view.kwargs.type %}"
                        class="btn btn-sm btn-warning {{ my_disbaled_var }}" id="reset-btn">
                         {% trans "Reset" %}
                     </a>
                     </span>
-                    <a href="{% url 'travel:manage_trip_reviewers' trip.id %}" class="btn btn-sm btn-primary">
+                    <a href="{% url 'travel:manage_trip_reviewers' trip.id view.kwargs.type %}" class="btn btn-sm btn-primary">
                         {% trans "Modify" %}
                     </a>
                 </div>

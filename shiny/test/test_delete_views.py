@@ -2,6 +2,7 @@ from django.urls import reverse_lazy
 from django.test import tag
 from django.views.generic import DeleteView
 
+from shared_models.views import CommonDeleteView
 from .. import models
 from .. import views
 from shiny.test.common_tests import CommonShinyTest as CommonTest
@@ -14,11 +15,11 @@ class TestAppDeleteView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.AppFactory()
         self.test_url = reverse_lazy('shiny:delete', kwargs={"pk":self.instance.pk})
-        self.expected_template = 'shiny/app_confirm_delete.html'
+        self.expected_template = 'shared_models/generic_confirm_delete.html'
 
     @tag("shiny", 'delete', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.AppDeleteView, DeleteView)
+        self.assert_inheritance(views.AppDeleteView, CommonDeleteView)
 
     @tag("shiny", 'delete', "access")
     def test_view(self):

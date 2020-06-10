@@ -5,19 +5,15 @@
 {% load humanize %}
 {% load custom_tags %}
 
-{% block row %}
-    {% if view.kwargs.type %}
-        {% url row_object_url_name object.id view.kwargs.type as my_url %}
-    {% else %}
-        {% url row_object_url_name object.id view.kwargs.region as my_url %}
-    {% endif %}
+{% block table_tr %}
+    {% url row_object_url_name object.id view.kwargs.type as my_url %}
 
     <tr href="{{ my_url }}">
         {% for field in field_list %}
             <td class="{{ field.class }}">
                 {% if "adm_approval" in field.name %}
                     <span class="{% if object.is_adm_approval_required %}red-font{% endif %}">{% get_field_value object field.name safe=True %}</span>
-                {% elif "deadline" in field.name %}
+                {% elif "deadline" in field.name and "abstract" not in field.name and "registration" not in field.name %}
                     {% if object.days_until_adm_review_deadline > 45 %}
                         {% echo "success" as btn_color %}
                     {% elif object.days_until_adm_review_deadline >= 15 %}
@@ -26,7 +22,8 @@
                         {% echo "danger" as btn_color %}
                     {% endif %}
 
-                    <span class="btn-{{ btn_color }}">{{ object.adm_review_deadline|date:"Y-m-d" }} ({{ object.adm_review_deadline|naturaltime }})</span>
+                    <span class="btn-{{ btn_color }}">{{ object.adm_review_deadline|date:"Y-m-d" }}</span>
+                    <br>({{ object.adm_review_deadline|naturaltime }})
                 {% elif "total_travellers" in field.name %}
                     {{ object.total_traveller_list|length|zero2val:"---" }}
                 {% elif "connected_request" in field.name %}
