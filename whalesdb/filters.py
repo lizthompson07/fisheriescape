@@ -45,11 +45,26 @@ class PrjFilter(django_filters.FilterSet):
         fields = []
 
 
+class RecFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.RecDataset
+        fields = ['eda_id', 'rsc_id', 'rec_start_date', 'rec_end_date']
+
+
 class RscFilter(django_filters.FilterSet):
     rsc_name = django_filters.CharFilter(field_name='rsc_name', lookup_expr='icontains')
 
     class Meta:
         model = models.RscRecordingSchedule
+        fields = []
+
+
+class RttFilter(django_filters.FilterSet):
+    rtt_name = django_filters.CharFilter(field_name='rtt_name', lookup_expr='icontains')
+
+    class Meta:
+        model = models.RttTimezoneCode
         fields = []
 
 

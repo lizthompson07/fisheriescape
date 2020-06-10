@@ -1,4 +1,4 @@
-{% extends "travel/travel_base.html" %}
+{% extends "travel/base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load custom_filters %}
@@ -14,9 +14,10 @@
         table, th, td {
             font-size: 14px;
         }
-    h4{
-        font-weight: bold;
-    }
+
+        h4 {
+            font-weight: bold;
+        }
     </style>
 
     {% trans "Verify Trip" as my_title %}
@@ -152,7 +153,7 @@
         <div class="mb-5">
             <div class="mb-3">
                 <div class="float-right">
-                    <a href="#" pop-href="{% url 'travel:trip_edit' object.id 1 %}" class="btn btn-warning">
+                    <a href="#" pop-href="{% url 'travel:trip_edit' object.id "pop" %}" class="btn btn-warning">
                         Edit Trip Details
                     </a>
                 </div>
@@ -177,7 +178,8 @@
                     <ul>
                         {% for triprequest in object.trip_requests.all %}
                             <li>
-                                <a href="{% url 'travel:request_detail' triprequest.id %}" target="_blank">{{ triprequest }}</a> by {{ triprequest.user }}
+                                <a href="{% url 'travel:request_detail' triprequest.id %}" target="_blank">{{ triprequest }}</a>
+                                by {{ triprequest.user }}
                                 (STATUS: <span style="background-color: {{ triprequest.status.color }}">{{ triprequest.status }}</span>)
 
                             </li>
@@ -216,17 +218,22 @@
             <div class="center-col">
                 {% buttons %}
                     <button type="submit" class="btn btn-lg btn-success">
-                    {% trans "Yes, looks good!" %}
+                        {% trans "Yes, looks good!" %}
                     </button>
-                    <a class="btn btn-secondary btn-lg" href="{% url 'travel:admin_trip_verification_list' view.kwargs.region view.kwargs.adm %}">
-                    {% trans "Cancel" %}
+                    <a class="btn btn-secondary btn-lg"
+                       href="{% url 'travel:admin_trip_verification_list' view.kwargs.region view.kwargs.adm %}">
+                        {% trans "Cancel" %}
                     </a>
                     {% if object.trip_requests.count %}
                         {% echo "disabled" as disabled_var %}
                         {% trans "Cannot delete a trip that has requests attached to it." as tip_text %}
+                        <a class="btn btn-warning btn-lg" href="#" pop-href="{% url 'travel:trip_reassign_select' object.id %}">
+                            {% trans "This trip is no good and I want to re-assign the requests." %}
+                        </a>
+
                     {% endif %}
                     <span data-toggle="tooltip" title="{{ tip_text }}">
-                    <a class="btn btn-danger btn-lg {{ disabled_var }}" href="{% url 'travel:trip_delete' object.id 1 %}">
+                    <a class="btn btn-danger btn-lg {{ disabled_var }}" href="{% url 'travel:trip_delete' object.id "back_to_verify" %}">
                         {% trans "Delete" %}
                     </a>
                     </span>

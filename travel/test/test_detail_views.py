@@ -95,7 +95,8 @@ class TestTripDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.TripFactory()
-        self.test_url = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk})
+        self.test_url0 = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk, "type": "upcoming"})
+        self.test_url1 = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk, "region": 1})
         self.expected_template = 'travel/trip_detail.html'
 
     @tag("travel", 'detail', "view")
@@ -104,8 +105,10 @@ class TestTripDetailView(CommonTest):
 
     @tag("travel", 'detail', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
+        self.assert_not_broken(self.test_url0)
+        self.assert_not_broken(self.test_url1)
+        self.assert_non_public_view(test_url=self.test_url0, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template)
 
     @tag("travel", 'detail', "context")
     def test_context(self):
@@ -115,4 +118,5 @@ class TestTripDetailView(CommonTest):
             "is_adm_admin",
             "trip",
         ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars)
+        self.assert_presence_of_context_vars(self.test_url0, context_vars)
+        self.assert_presence_of_context_vars(self.test_url1, context_vars)

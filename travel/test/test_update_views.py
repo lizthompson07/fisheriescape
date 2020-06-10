@@ -2,6 +2,7 @@ from django.urls import reverse_lazy
 from django.test import tag
 from django.views.generic import CreateView, UpdateView, FormView
 
+from shared_models.views import CommonUpdateView
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 from .. import views
@@ -44,7 +45,7 @@ class TestTripRequestUpdateView(CommonTest):
 class TestTripRequestUpdateViewPopup(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.IndividualTripRequestFactory()
+        self.instance = FactoryFloor.ChildTripRequestFactory()
         self.test_url = reverse_lazy('travel:request_edit', kwargs={"pk": self.instance.pk, "pop": 1})
         self.expected_template = 'travel/trip_request_form_popout.html'
 
@@ -70,7 +71,7 @@ class TestTripRequestUpdateViewPopup(CommonTest):
 
     @tag("travel", 'update', "submit")
     def test_submit(self):
-        data = FactoryFloor.IndividualTripRequestFactory.get_valid_data()
+        data = FactoryFloor.ChildTripRequestFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.instance.user)
 
 
@@ -78,60 +79,41 @@ class TestTripUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.TripFactory()
-        self.test_url = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk})
+        self.test_url0 = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk, "type": "upcoming"})
+        self.test_url1 = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk, "type": "pop"})
+        self.test_url2 = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk, "region": 1})
         self.expected_template = 'travel/trip_form.html'
+        self.expected_template1 = 'travel/trip_form_popout.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
-    @tag("travel", 'update', "view")
+    @tag("trip_update", 'update', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.TripUpdateView, UpdateView)
+        self.assert_inheritance(views.TripUpdateView, CommonUpdateView)
 
-    @tag("travel", 'update', "access")
+    @tag("trip_update", 'update', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
+        self.assert_not_broken(self.test_url0)
+        self.assert_not_broken(self.test_url1)
+        self.assert_not_broken(self.test_url2)
+        self.assert_non_public_view(test_url=self.test_url0, expected_template=self.expected_template, user=self.admin_user)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.admin_user)
+        self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template, user=self.admin_user)
 
-    @tag("travel", 'update', "context")
+    @tag("trip_update", 'update', "context")
     def test_context(self):
         context_vars = [
             "help_text_dict",
         ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
+        self.assert_presence_of_context_vars(self.test_url0, context_vars, user=self.admin_user)
+        self.assert_presence_of_context_vars(self.test_url1, context_vars, user=self.admin_user)
+        self.assert_presence_of_context_vars(self.test_url2, context_vars, user=self.admin_user)
 
-    @tag("travel", 'update', "submit")
+    @tag("trip_update", 'update', "submit")
     def test_submit(self):
         data = FactoryFloor.TripFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.admin_user)
-
-
-class TestTripUpdateViewPopout(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.TripFactory()
-        self.test_url = reverse_lazy('travel:trip_edit', kwargs={"pk": self.instance.pk, "pop": 1})
-        self.expected_template = 'travel/trip_form_popout.html'
-        self.admin_user = self.get_and_login_user(in_group="travel_admin")
-
-    @tag("travel", 'update', "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.TripUpdateView, UpdateView)
-
-    @tag("travel", 'update', "access")
-    def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
-
-    @tag("travel", 'update', "context")
-    def test_context(self):
-        context_vars = [
-            "help_text_dict",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
-
-    @tag("travel", 'update', "submit")
-    def test_submit(self):
-        data = FactoryFloor.TripFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.admin_user)
+        self.assert_success_url(self.test_url0, data=data, user=self.admin_user)
+        self.assert_success_url(self.test_url1, data=data, user=self.admin_user)
+        self.assert_success_url(self.test_url2, data=data, user=self.admin_user)
 
 
 class TestTripVerifyUpdateViewPopout(CommonTest):
@@ -168,6 +150,7 @@ class TestTripVerifyUpdateViewPopout(CommonTest):
         data = FactoryFloor.TripFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.admin_user)
         # check the trip status!! should be equal to 41 after form.save()
+        self.instance = models.Conference.objects.get(id=self.instance.id)
         self.assertIs(self.instance.status_id, 41)
 
 
@@ -175,7 +158,7 @@ class TestDefaultReviewerUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.DefaultReviewerFactory()
-        self.test_url = reverse_lazy('travel:default_reviewer_edit', kwargs={"pk": self.instance.user.pk})
+        self.test_url = reverse_lazy('travel:default_reviewer_edit', kwargs={"pk": self.instance.pk})
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
         self.expected_template = 'travel/default_reviewer_form.html'
 
@@ -192,4 +175,3 @@ class TestDefaultReviewerUpdateView(CommonTest):
     def test_submit(self):
         data = FactoryFloor.DefaultReviewerFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.admin_user)
-

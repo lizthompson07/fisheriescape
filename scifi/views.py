@@ -802,7 +802,8 @@ class ImportFileView(SciFiAdminRequiredMixin, CreateView):
             "IN MRS": ['string field', "must be one of the following: 'yes', or 'no'",
                        "not case sensitive", "If left blank, it will default to 'No'"],
             "REFERENCE NUMBER": ['text field', ],
-            "INVOICE DATE": ['date field', "must be formated as 'MM/DD/YYYY'"]
+            "INVOICE DATE": ['date field', "must be formated as 'MM/DD/YYYY'"],
+            "EXPECTED PURCHASE DATE": ['date field', "must be formated as 'MM/DD/YYYY'"],
         }
         context["header_dict"] = header_dict
         return context
@@ -846,6 +847,9 @@ class ImportFileView(SciFiAdminRequiredMixin, CreateView):
                 # INVOICE DATE
                 invoice_date = datetime.datetime.strptime(row.get("INVOICE DATE"), "%m/%d/%Y") if row.get("INVOICE DATE") else None
 
+                # EXPECTED PURCHASE DATE
+                expected_purchase_date = datetime.datetime.strptime(row.get("EXPECTED PURCHASE DATE"), "%m/%d/%Y") if row.get("EXPECTED PURCHASE DATE") else None
+
                 # LINE OBJECT
                 if row.get("LINE OBJECT"):
                     try:
@@ -870,7 +874,8 @@ class ImportFileView(SciFiAdminRequiredMixin, CreateView):
                     invoice_cost=float(row.get("INVOICE COST")),
                     in_mrs=in_mrs,
                     reference_number=row.get("REFERENCE NUMBER"),
-                    invoice_date=invoice_date
+                    invoice_date=invoice_date,
+                    expected_purchase_date=expected_purchase_date,
                 )
                 my_t.created_by = self.request.user
                 my_t.save()
