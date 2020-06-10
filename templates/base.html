@@ -40,7 +40,7 @@
 {% block navigation %}
     {# for sites that wish to turn the navigation off, they can by calling this block with show_nav=False. If show_nav is None or True it's displayed #}
     {% if show_nav == None or show_nav %}
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark transparent py-0">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-navy transparent py-0 fixed-top shadow flex-md-nowrap">
             <a class="navbar-brand bigbrand" href="{% url 'index' %}">
                 <img src="{% static 'img/icons/iconfinder_cluster-data-group-organize_2205240 - white.png' %}" width="30"
                      class="d-inline-block align-top" alt="" data-toggle="tooltip" title="{% trans "Data Management Home" %}">
@@ -119,7 +119,7 @@
                         {% include "_language_form.html" %}
                         {% block right_unauth %}{% endblock right_unauth %}
                         <li class="nav-item py-1">
-                            <a class="btn btn-dark" href="{% url 'accounts:login' %}">
+                            <a class="nav-link " href="{% url 'accounts:login' %}">
                                 {% trans 'Sign In' %}
                             </a>
 
@@ -140,7 +140,9 @@
         {% endblock %}
     {% endautoescape %}
 {% endblock %}
-
+<br>
+<br>
+<br>
 {% block body %}{% endblock body %}
 
 {# I moved the jquery import here because if it's "include" from another file #}
