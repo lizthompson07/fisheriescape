@@ -1,11 +1,11 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
+# TODO Ask David if "clear" button can be added to generic_filter
 # TODO now if there is no location set item_detail view shows an error because of _transaction.html -- fix this (if elseif?)
 # TODO what if you want to overwrite the name of the 'new' button from generic_filter.html? do you have to copy the whole block?
 # TODO DeleteView - shows all related now, but is there a way to get it to prompt and then delete all? Is that from models with cascade?
 # TODO redo all views possible with common templates format
-# TODO from location_detail page add link to be able to generate report for that location directly (without having to go to reports) (have to separate for containers and not)
 # TODO Figure out how to use generic_popout_form (have done this with the confirm_delete_popout)
 # TODO View for items of similar and all sizes (tyvek, gloves, batteries) showing all quantity
 # TODO make View for On Order items that you can change status, add location etc all at once for all on order items
@@ -51,3 +51,4 @@
 # TODO Change name of app, can't call us MMU
 # TODO how to show what was used -- historical table or other simpler way for now? -- made transaction model
 # TODO Add Historical model or some way to track history of inventory of each item (ie. track previous additions, subtractions, inventory control updates) --would need a description field for inveotry control comments (ie. "item missing")
+# TODO from location_detail page add link to be able to generate report for that location directly (without having to go to reports) (have to separate for containers and not)

@@ -606,6 +606,29 @@ class PersonnelDeleteView(WhalebraryAdminAccessRequired, DeleteView):
 
     ## SUPPLIER ##
 
+def add_supplier_to_item(request, supplier, item):
+    """simple function to add supplier to item"""
+    my_item = models.Item.objects.get(pk=item)
+    my_supplier = models.Supplier.objects.get(pk=supplier)
+    my_item.suppliers.add(my_supplier)
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+
+def delete_supplier_from_item(request, supplier, item):
+    """simple function to delete supplier from item"""
+    my_item = models.Item.objects.get(pk=item)
+    my_supplier = models.Supplier.objects.get(pk=supplier)
+    my_item.suppliers.delete(my_supplier)
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+
+class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
+    h1 = gettext_lazy("Please select a supplier to add to item")
+    form_class = forms.IncidentForm  # just a temp placeholder until we create a CommonPopoutTemplateView
+    template_name = "whalebrary/supplier_list_popout.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["suppliers"] = models.Supplier.objects.all()
+        return context
 
 class SupplierListView(WhalebraryAccessRequired, FilterView):
     template_name = "whalebrary/supplier_list.html"
@@ -951,23 +974,4 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, ListView):
             'bin_id',
         ]
 
-        return context
-
-
-def add_supplier_to_item(request, supplier, item):
-    """simple function to add supplier to item"""
-    my_item = models.Item.objects.get(pk=item)
-    my_supplier = models.Supplier.objects.get(pk=supplier)
-    my_item.suppliers.add(my_supplier)
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-
-
-class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
-    h1 = gettext_lazy("Please select a supplier to add to item")
-    form_class = forms.IncidentForm  # just a temp placeholder until we create a CommonPopoutTemplateView
-    template_name = "whalebrary/supplier_list_popout.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["suppliers"] = models.Supplier.objects.all()
         return context

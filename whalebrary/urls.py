@@ -20,13 +20,11 @@ urlpatterns = [
     path('item/new/', views.ItemCreateView.as_view(), name="item_new"),
     path('item/<int:pk>/edit/', views.ItemUpdateView.as_view(), name="item_edit"),
     path('item/<int:pk>/delete/', views.ItemDeleteView.as_view(), name="item_delete"),
-
     path('supplier/<int:supplier>/to/item/<int:item>/', views.add_supplier_to_item, name="add_supplier_to_item"),
     path('item/<int:item>/add-suppliers', views.AddSuppliersToItemView.as_view(), name="item_suppliers_list"),
+    path('supplier/<int:supplier>/from/item/<int:item>/', views.delete_supplier_from_item, name="delete_supplier_from_item"),
 
-
-
-# TRANSACTIONS #
+    # TRANSACTIONS #
 
     path('transaction_list/', views.TransactionListView.as_view(), name="transaction_list"),
     path('transaction_detail/<int:pk>/view/', views.TransactionDetailView.as_view(), name="transaction_detail"),
