@@ -90,6 +90,7 @@ class ConContact(models.Model):
         return "{}, {}".format(self.last_name, self.first_name)
 
     class Meta:
+        # abstract = True
         ordering = ['last_name']
 
 
