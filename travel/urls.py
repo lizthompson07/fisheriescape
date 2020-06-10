@@ -108,6 +108,9 @@ urlpatterns = [
     path('settings/trip-reasons/', views.ReasonFormsetView.as_view(), name="manage_reasons"),
     path('settings/trip-reasons/<int:pk>/delete/', views.ReasonHardDeleteView.as_view(), name="delete_reason"),
 
+    path('settings/process-steps/', views.ProcessStepFormsetView.as_view(), name="manage_process_steps"),
+    path('settings/process-step/<int:pk>/delete/', views.ProcessStepHardDeleteView.as_view(), name="delete_process_step"),
+
     # default reviewer settings
     path('default-reviewers/', views.DefaultReviewerListView.as_view(), name="default_reviewer_list"),
     path('default-reviewer/new/', views.DefaultReviewerCreateView.as_view(), name="default_reviewer_new"),

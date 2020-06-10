@@ -761,6 +761,18 @@ ReasonFormset = modelformset_factory(
 )
 
 
+class ProcessStepForm(forms.ModelForm):
+    class Meta:
+        model = models.ProcessStep
+        fields = "__all__"
+
+ProcessStepFormset = modelformset_factory(
+    model=models.ProcessStep,
+    form=ProcessStepForm,
+    extra=1,
+)
+
+
 class TripSubcategoryForm(forms.ModelForm):
     class Meta:
         model = models.TripSubcategory
