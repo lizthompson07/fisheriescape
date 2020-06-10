@@ -2,6 +2,8 @@ from django.urls import reverse_lazy
 from django.test import tag
 from django.views.generic import ListView
 from django_filters.views import FilterView
+
+from shared_models.views import CommonFilterView
 from .. import models
 from .. import views
 
@@ -17,7 +19,7 @@ class TestAppListView(CommonTest):
 
     @tag("shiny", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.IndexTemplateView, ListView)
+        self.assert_inheritance(views.IndexTemplateView, CommonFilterView)
 
     @tag("shiny", 'list', "access")
     def test_view(self):

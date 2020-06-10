@@ -4,6 +4,7 @@ from django.urls import reverse_lazy
 from django.test import tag
 from django.views.generic import DetailView
 
+from shared_models.views import CommonDetailView
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 from .. import views
@@ -14,8 +15,13 @@ class TripRequestDetails(CommonTest):
     def setUp(self):
         super().setUp()  # used to import fixutres
         self.trip_request = FactoryFloor.IndividualTripRequestFactory()
-        self.test_url = reverse_lazy('travel:request_detail', args=(self.trip_request.pk,))
+        self.test_url = reverse_lazy('travel:request_detail', args=(self.trip_request.pk, "my"))
         self.expected_template = 'travel/trip_request_detail.html'
+
+    @tag("trip_request", 'detail', "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.TripRequestDetailView, views.TravelAccessRequiredMixin)
+        self.assert_inheritance(views.TripRequestDetailView, CommonDetailView)
 
     @tag("trip_request", 'detail')
     def test_access(self):
@@ -45,6 +51,8 @@ class TripRequestDetails(CommonTest):
             "is_owner",
             "is_current_reviewer",
             "can_modify",
+            "trip",
+            "triprequest",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
 
@@ -96,12 +104,12 @@ class TestTripDetailView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.TripFactory()
         self.test_url0 = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk, "type": "upcoming"})
-        self.test_url1 = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk, "region": 1})
+        self.test_url1 = reverse_lazy('travel:trip_detail', kwargs={"pk": self.instance.pk, "type": "region-1"})
         self.expected_template = 'travel/trip_detail.html'
 
     @tag("travel", 'detail', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.TripDetailView, DetailView)
+        self.assert_inheritance(views.TripDetailView, CommonDetailView)
 
     @tag("travel", 'detail', "access")
     def test_view(self):

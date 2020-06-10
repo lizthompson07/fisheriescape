@@ -122,7 +122,7 @@
                     </tr>
                     <tr>
                         <th style="width: 200px; text-align: right;" class="real">Trip Purpose:</th>
-                        <td style="width: 400px; text-align: left;" class="real">{{ parent.purpose|nz:"n/a" }}</td>
+                        <td style="width: 400px; text-align: left;" class="real">{{ parent.trip.trip_subcategory.trip_category|nz:"n/a" }}</td>
                     </tr>
                     <tr>
                         <th style="width: 200px; text-align: right;" class="real">If "Other" is chosen, provide a detailed explanation:</th>
@@ -151,12 +151,12 @@
             <table style="font-size: small">
                 <tr>
                     <th style="width: 100px; text-align: left"><u>Purpose of Travel</u></th>
-                    <th style="width: 500px; text-align: left"><u>Explanation</u></th>
+{#                    <th style="width: 500px; text-align: left"><u>Explanation</u></th>#}
                 </tr>
-                {% for purpose in purpose_list %}
+                {% for category in trip_category_list %}
                     <tr>
-                        <td>{{ purpose.name }}</td>
-                        <td>{{ purpose.description_eng }}</td>
+                        <td>{{ forloop.counter }} - {{ category.name }}</td>
+{#                        <td>{{ purpose.description_eng }}</td>#}
                     </tr>
                 {% endfor %}
 
