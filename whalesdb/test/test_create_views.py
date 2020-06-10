@@ -501,6 +501,119 @@ class TestPrjCreate(CommonCreateTest):
         super().assert_successful_url()
 
 
+class TestRciCreate(CommonCreateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.RciFactory.get_valid_data()
+
+        args = [self.data['rec_id'], 'pop']
+        # the STE entry from should only be accessed via popup arguments are dep (deployment),
+        # set(Station Event Type) and 'pop' for popup
+        self.test_url = reverse_lazy('whalesdb:create_rci', args=args)
+
+        # because STE entry is a popup it should use the close_me_no_refresh
+        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_view = views.RciCreate
+
+        self.expected_form = forms.RciForm
+
+    # Users must be logged in to create new stations
+    @tag('rci', 'create', 'response', 'access')
+    def test_create_rci_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('rci', 'create', 'response', 'access')
+    def test_create_rci_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
+    @tag('rci', 'create', 'response', 'access')
+    def test_create_rci_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('rci', 'create', 'form')
+    def test_create_rci_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('rci', 'create', 'context')
+    def test_create_rci_context_fields(self):
+        super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('rci', 'create', 'redirect')
+    def test_create_rci_successful_url(self):
+        super().assert_successful_url()
+
+
+class TestRecCreate(CommonCreateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.RecFactory.get_valid_data()
+        self.test_url = reverse_lazy('whalesdb:create_rec')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_view = views.RecCreate
+
+        self.expected_form = forms.RecForm
+
+        self.expected_success_url = reverse_lazy('whalesdb:list_rec')
+
+    # Users must be logged in to create new stations
+    @tag('rec', 'create', 'response', 'access')
+    def test_create_rec_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('rec', 'create', 'response', 'access')
+    def test_create_rec_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
+    @tag('rec', 'create', 'response', 'access')
+    def test_create_rec_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('rec', 'create', 'form')
+    def test_create_rec_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('rec', 'create', 'context')
+    def test_create_rec_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('rec', 'create', 'redirect')
+    def test_create_prj_successful_url(self):
+        super().assert_successful_url()
+
+
 class TestRscCreate(CommonCreateTest):
 
     def setUp(self):
@@ -613,6 +726,45 @@ class TestRstCreate(CommonCreateTest):
     @tag('rst', 'create', 'redirect')
     def test_create_rst_successful_url(self):
         super().assert_successful_url()
+
+
+class TestRttCreate(CommonCreateTest):
+
+    rtt_id = 1
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.RttFactory.get_valid_data()
+        self.test_url = reverse_lazy('whalesdb:create_rtt')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_view = views.RstCreate
+
+        self.expected_form = forms.RstForm
+
+        self.expected_success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+    # Users must be logged in to create new stations
+    @tag('rtt', 'create', 'response', 'access')
+    def test_create_rtt_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new stations
+    @tag('rtt', 'create', 'response', 'access')
+    def test_create_rtt_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
+    @tag('rtt', 'create', 'response', 'access')
+    def test_create_rtt_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
 
 
 class TestSteCreate(CommonCreateTest):

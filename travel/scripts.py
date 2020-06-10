@@ -1,12 +1,23 @@
 import os
 
 from django.contrib.auth.models import User, Group
+from django.utils import timezone
 
+from lib.functions.custom_functions import listrify
 from . import models
 from . import utils
 from django.core import serializers
 from django.core.files import File
 from shared_models import models as shared_models
+
+
+def check_trip_purposes():
+    print(f"trip id; trip name; purposes")
+    for trip in models.Conference.objects.all():
+        if trip.trip_requests.count():
+            print(f"{trip.id}; {trip.name}; {listrify([tr.purpose.name for tr in trip.trip_requests.all() if tr.purpose])}")
+
+
 
 
 def export_fixtures():
@@ -20,16 +31,18 @@ def export_fixtures():
         models.Reason,
         models.Purpose,
         models.Status,
-        models.ReviewerRole,
-        models.HelpText,
-        shared_models.FiscalYear,
+        models.TripCategory,
+        models.TripSubcategory,
+        # models.ReviewerRole,
+        # models.HelpText,
+        # shared_models.FiscalYear,
         # shared_models.Region,
         # shared_models.Branch,
         # shared_models.Division,
         # shared_models.Section,
         # models.DefaultReviewer,
-        User,
-        Group,
+        # User,
+        # Group,
     ]
     for model in models_to_export:
         data = serializers.serialize("json", model.objects.all())
@@ -39,6 +52,26 @@ def export_fixtures():
         myfile.write(data)
         myfile.close()
 
+
+
+def update_conf_status():
+    conf_list = models.Conference.objects.all()
+    for obj in conf_list:
+        if obj.is_verified:
+            obj.status_id = 41
+        else:
+            obj.status_id = 30
+
+        obj.save()
+
+
+
+def set_old_trips_to_reviewed():
+    conf_list = models.Conference.objects.filter(is_adm_approval_required=True)
+    for obj in conf_list:
+        if obj.start_date <= timezone.now():
+            obj.status_id = 32
+            obj.save()
 
 
 

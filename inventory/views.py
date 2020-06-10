@@ -110,7 +110,7 @@ class OpenDataDashboardTemplateView(TemplateView):
         my_dict["TOTAL"] = dict()
         my_dict["TOTAL"]["qs_total"] = qs.count()
         my_dict["TOTAL"]["qs_fgp"] = qs.filter(fgp_publication_date__isnull=False).count()
-        my_dict["TOTAL"]["qs_open_data"] = qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False).count()
+        my_dict["TOTAL"]["qs_open_data"] = qs.filter(public_url__isnull=False).count()
         my_dict["TOTAL"]["qs_open_data_current_fy"] = qs.filter(fgp_publication_date__isnull=False,
                                                                 publication_fy=current_fy, public_url__isnull=False).count()
 
@@ -119,10 +119,20 @@ class OpenDataDashboardTemplateView(TemplateView):
             my_dict[region] = dict()
             my_dict[region]["qs_total"] = regional_qs
             my_dict[region]["qs_fgp"] = regional_qs.filter(fgp_publication_date__isnull=False)
-            my_dict[region]["qs_open_data"] = regional_qs.filter(public_url__isnull=False, fgp_publication_date__isnull=False)
+            my_dict[region]["qs_open_data"] = regional_qs.filter(public_url__isnull=False)
             my_dict[region]["qs_open_data_current_fy"] = regional_qs.filter(fgp_publication_date__isnull=False,
                                                                             publication_fy=current_fy,
                                                                             public_url__isnull=False)
+
+        # unsorted
+        regional_qs = qs.filter(section__isnull=True)
+        my_dict["unsorted"] = dict()
+        my_dict["unsorted"]["qs_total"] = regional_qs
+        my_dict["unsorted"]["qs_fgp"] = regional_qs.filter(fgp_publication_date__isnull=False)
+        my_dict["unsorted"]["qs_open_data"] = regional_qs.filter(public_url__isnull=False)
+        my_dict["unsorted"]["qs_open_data_current_fy"] = regional_qs.filter(fgp_publication_date__isnull=False,
+                                                                        publication_fy=current_fy,
+                                                                        public_url__isnull=False)
 
         context["my_dict"] = my_dict
         context['field_list'] = [
@@ -162,6 +172,8 @@ class ResourceListView(FilterView):
                            'purpose_eng',
                            Value(" "),
                            'uuid',
+                           Value(" "),
+                           'odi_id',
                            output_field=TextField()))
 
 
@@ -1600,6 +1612,8 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("inventory:export_batch_xml", kwargs={
                 'sections': sections,
             }))
+        if report == 2:
+            return HttpResponseRedirect(reverse("inventory:export_odi_report"))
 
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
@@ -1618,6 +1632,19 @@ def export_batch_xml(request, sections):
     raise Http404
 
     # return HttpResponseRedirect(reverse("inventory:report_search"))
+
+
+@login_required()
+def export_odi_report(request):
+    # print(trip)
+    file_url = reports.generate_odi_report()
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="ODI Report {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
 
 
 # def capacity_export_spreadsheet(request, fy=None, orgs=None):

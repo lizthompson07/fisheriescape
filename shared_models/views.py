@@ -1,16 +1,20 @@
 from abc import ABC
 
-from django.utils.translation import gettext as _
+from django.core.exceptions import ImproperlyConfigured
+from django.utils.translation import gettext_lazy as _
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView, ListView
+from django.views import View
+from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView, ListView, FormView
+from django.views.generic.detail import SingleObjectMixin, DetailView
 from django_filters.views import FilterView
 
 ###
 from . import models
 from . import forms
+from .mixins import CommonMixin, CommonFormMixin, CommonListMixin, CommonPopoutFormMixin
 
 
 class CloserTemplateView(TemplateView):
@@ -29,6 +33,366 @@ def in_admin_group(user):
             return True
 
 
+class CommonTemplateView(TemplateView, CommonMixin):
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+# CommonCreate Extends the UserPassesTestMixin used to determine if a user has
+# has the correct privileges to interact with Creation Views
+class CommonCreateView(CommonFormMixin, CreateView):
+    submit_text = None
+
+    # default template to use to create an update
+    #  shared_entry_form.html contains the common navigation elements at the top of the template
+    template_name = 'shared_models/shared_entry_form.html'
+
+    def get_h1(self):
+        if self.h1:
+            return self.h1
+        else:
+            return _("New {}".format(self.model._meta.verbose_name.title()))
+
+    def get_submit_text(self):
+        if self.submit_text:
+            return self.submit_text
+        else:
+            return _("Add")
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+class CommonAuthCreateView(UserPassesTestMixin, CommonCreateView):
+    # These are for testing purposes only
+    auth = True
+    login_url = '/accounts/login_required/'
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+    def get_auth(self):
+        return self.auth
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = self.get_auth()
+        return context
+
+
+class CommonUpdateView(CommonFormMixin, UpdateView):
+    submit_text = None
+
+    def get_h1(self):
+        if self.h1:
+            return self.h1
+        else:
+            return _("Edit")
+
+    def get_submit_text(self):
+        if self.submit_text:
+            return self.submit_text
+        else:
+            return _("Save")
+
+    # default template to use to update an update
+    #  shared_entry_form.html contains the common navigation elements at the top of the template
+    template_name = 'shared_models/shared_entry_form.html'
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        context["model_name"] = self.get_object()._meta.verbose_name
+        return context
+
+
+class CommonAuthUpdateView(UserPassesTestMixin, CommonUpdateView):
+    # These are for testing purposes only
+    auth = True
+    login_url = '/accounts/login_required/'
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+    def get_auth(self):
+        return self.auth
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = self.get_auth()
+        return context
+
+
+class CommonDeleteView(CommonFormMixin, DeleteView):
+    template_name = 'shared_models/generic_confirm_delete.html'
+    # set this to false if you do not want the delete button to be greyed out if there are related objects
+    delete_protection = True
+    submit_text = None
+
+    def get_h1(self):
+        if self.h1:
+            return self.h1
+        else:
+            return _("Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
+                self.model._meta.verbose_name,
+                self.get_object(),
+            ))
+
+    def get_submit_text(self):
+        if self.submit_text:
+            return self.submit_text
+        else:
+            return _("Delete")
+
+    def get_related_names(self):
+        """if a related_names list was provided, this will turn the simple list into a more complex list that is ready for template digestion"""
+        my_list = list()
+        field_map_dict = type(self.get_object())._meta.fields_map
+        for field in field_map_dict:
+            # some of these might be M2M fields...
+            temp_related_name = field_map_dict[field].related_name
+
+            if not temp_related_name:
+                related_name = f"{field}_set"
+            elif "+" not in temp_related_name:
+                related_name = field_map_dict[field].related_name
+            else:
+                related_name = None
+
+            if related_name:
+                my_list.append(
+                    {
+                        "title": getattr(type(self.get_object()), related_name).rel.related_model._meta.verbose_name_plural,
+                        "qs": getattr(self.get_object(), related_name).all()
+                    }
+                )
+        return my_list
+
+    def get_delete_protection(self):
+        if not self.delete_protection:
+            return False
+        else:
+            # the user wants delete protection to be turned on
+
+            # go through each related field. If there is a related object, we set set a flag and exit the loop
+            field_map_dict = type(self.get_object())._meta.fields_map
+            for field in field_map_dict:
+                temp_related_name = field_map_dict[field].related_name
+
+                if not temp_related_name:
+                    related_name = f"{field}_set"
+                elif "+" not in temp_related_name:
+                    related_name = field_map_dict[field].related_name
+                else:
+                    related_name = None
+
+                # the second we find a related object, we are done here.
+                if related_name and getattr(self.get_object(), related_name).count():
+                    return True
+            # if we got to this point, delete protection should be set to false, since there are no related objects
+            return False
+
+    def get_active_page_name_crumb(self):
+        if self.active_page_name_crumb:
+            return self.active_page_name_crumb
+        else:
+            return _("Delete Confirmation")
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        context["model_name"] = self.get_object()._meta.verbose_name
+        context["related_names"] = self.get_related_names()
+        context["delete_protection"] = self.get_delete_protection()
+        return context
+
+
+class CommonPopoutUpdateView(CommonPopoutFormMixin, UpdateView):
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+class CommonFilterView(FilterView, CommonListMixin):
+    # default template to use to update an update
+    #  shared_entry_form.html contains the common navigation elements at the top of the template
+    template_name = 'shared_models/shared_filter.html'
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        context["model_name"] = self.get_queryset().model._meta.verbose_name
+        return context
+
+
+class CommonAuthFilterView(UserPassesTestMixin, CommonFilterView):
+    # These are for testing purposes only
+    auth = True
+    login_url = '/accounts/login_required/'
+
+    # this should be overriden in an extending class to determine if a user is authorized to do certain actions
+    def test_func(self):
+        return self.auth
+
+    def get_auth(self):
+        return self.auth
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context["auth"] = self.get_auth()
+        return context
+
+
+class CommonListView(ListView, CommonListMixin):
+    # default template to use to update an update
+    #  shared_entry_form.html contains the common navigation elements at the top of the template
+    template_name = 'shared_models/generic_filter.html'
+
+    def get_h1(self):
+        # take a stab at getting the h1
+        return self.get_queryset().model._meta.verbose_name_plural
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        context["model_name"] = self.get_queryset().model._meta.verbose_name
+        return context
+
+
+class CommonFormView(FormView, CommonFormMixin):
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+class CommonPopoutFormView(CommonPopoutFormMixin, FormView):
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+
+class CommonDetailView(CommonMixin, DetailView):
+
+    def get_context_data(self, **kwargs):
+        # we want to update the context with the context vars added by CommonMixin classes
+        context = super().get_context_data(**kwargs)
+        context.update(super().get_common_context())
+        return context
+
+    def get_h1(self):
+        return str(self.get_object())
+
+
+class CommonFormsetView(TemplateView, CommonFormMixin):
+    queryset = None
+    formset_class = None
+    success_url = None
+    home_url_name = None
+    delete_url_name = None
+    pre_display_fields = ["id", ]
+    post_display_fields = None
+    random_object = None
+
+    # override this if there are authorization requirements
+    def get_queryset(self):
+        return self.queryset
+
+    def get_success_url(self):
+        return self.success_url
+
+    def get_pre_display_fields(self):
+        return self.pre_display_fields
+
+    def get_post_display_fields(self):
+        return self.post_display_fields
+
+    def get_random_object(self):
+        if self.random_object:
+            return self.random_object
+        else:
+            return self.get_queryset().first()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['random_object'] = self.get_random_object()
+        context['delete_url_name'] = self.delete_url_name
+        context['container_class'] = self.container_class
+
+        context.update(super().get_common_context())
+        # overwrite the existing field list to take just the fields being passed in by the formset / form
+        context["field_list"] = [f for f in self.formset_class.form.base_fields]
+        context["pre_display_fields"] = self.get_pre_display_fields()
+        context["post_display_fields"] = self.get_post_display_fields()
+        return context
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        formset = self.formset_class(queryset=queryset.all())
+        return self.render_to_response(self.get_context_data(formset=formset))
+
+    def post(self, request, *args, **kwargs):
+        formset = self.formset_class(request.POST, )
+        if formset.is_valid():
+            formset.save()
+            # do something with the formset.cleaned_data
+            messages.success(self.request, "Items have been successfully updated")
+            return HttpResponseRedirect(self.get_success_url())
+            # return self.form_valid(formset)
+        else:
+            return self.render_to_response(self.get_context_data(formset=formset))
+
+
+class CommonHardDeleteView(View, SingleObjectMixin, ABC):
+    '''a dangerous view; to use when you want to delete an object without any confirmation page; WARNING, this deletes on a GET request!!'''
+    success_url = None
+
+    def get(self, request, *args, **kwargs):
+        my_obj = self.get_object()
+        my_obj.delete()
+        messages.error(self.request, f"{my_obj} has been successfully deleted.")
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_success_url(self):
+        if self.success_url:
+            return self.success_url
+        else:
+            raise ImproperlyConfigured(
+                "No URL to redirect to. Provide a success_url.")
+
+
+#
+##
+###
+####
+######
+####################  SOME COMMON FORMS
+
 class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
     def test_func(self):
@@ -41,461 +405,371 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class IndexTemplateView(AdminRequiredMixin, TemplateView):
-    template_name = 'shared_models/pop_index.html'
+class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
+    template_name = 'shared_models/org_index.html'
+    h1 = "<span class='red-font'><span class='font-weight-bold'>{}:</span> {}</span>".format(_("Warning"), _(
+        "These are shared tables for all of DM Apps."))
+    h2 = _("Please be careful when editing.")
+    active_page_name_crumb = _("DM Apps Shared Settings")
 
 
 # SECTION #
 ###########
 
-class SectionListView(AdminRequiredMixin, ListView):
+class SectionListView(AdminRequiredMixin, CommonListView):
     queryset = models.Section.objects.order_by("division__branch__region", "division__branch", "division", "name")
-    template_name = 'shared_models/generic_list.html'
+    template_name = 'shared_models/org_list.html'
+    field_list = [
+        {"name": "region", },
+        {"name": "branch", },
+        {"name": "division", },
+        {"name": "tname|{}".format(_("section")), },
+        {"name": "abbrev", },
+        {"name": "head", },
+        {"name": "date_last_modified", },
+        {"name": "last_modified_by", },
+    ]
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    home_url_name = "shared_models:index"
+    row_object_url_name = "shared_models:section_edit"
+    new_object_url_name = "shared_models:section_new"
+    container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Sections")
-        context["field_list"] = [
-            "region",
-            "branch",
-            "division",
-            "tname|{}".format(_("section")),
-            "abbrev",
-            "head",
-            "date_last_modified",
-            "last_modified_by",
-        ]
-        context["random_object"] = self.object_list.first()
-        context["model_name"] = "section"
+        context["region"] = models.Region.objects.first()
+        context["branch"] = models.Branch.objects.first()
+        context["division"] = models.Division.objects.first()
+        context["section"] = models.Section.objects.first()
         return context
 
 
-class SectionUpdateView(AdminRequiredMixin, UpdateView):
+class SectionUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Section
-    template_name = 'shared_models/generic_form.html'
+    template_name = 'shared_models/org_form.html'
     form_class = forms.SectionForm
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:section_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_url"] = reverse("shared_models:section_delete", kwargs={"pk": self.get_object().id})
+        return context
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
 
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse_lazy('shared_models:section_list'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Edit Section:")
-        context["model_name"] = "section"
-        context["related_names"] = {
-            "project planning projects": getattr(self.get_object(), "projects").all(),
-            "project planning functional groups": getattr(self.get_object(), "functional_groups").all(),
-            "metadata resources": getattr(self.get_object(), "resources").all(),
-            "travel trip requests": getattr(self.get_object(), "trip_requests").all(),
-            "DM tickets": getattr(self.get_object(), "ticket_set").all(),
-            "user profiles": getattr(self.get_object(), "profile_set").all(),
-        }
-        return context
-
-
-class SectionCreateView(AdminRequiredMixin, CreateView):
+class SectionCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Section
     template_name = 'shared_models/generic_form.html'
     form_class = forms.SectionForm
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:section_list")}
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
 
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse_lazy('shared_models:section_list'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("New Section")
-        context["model_name"] = "section"
-        return context
-
-
-class SectionDeleteView(AdminRequiredMixin, DeleteView):
+class SectionDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Section
     success_url = reverse_lazy('shared_models:section_list')
     template_name = 'shared_models/generic_confirm_delete.html'
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:section_list")}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Delete Section:")
-        context["model_name"] = "section"
-        context["related_names"] = {
-            "project planning projects": getattr(self.get_object(), "projects").all(),
-            "project planning functional groups": getattr(self.get_object(), "functional_groups").all(),
-            "metadata resources": getattr(self.get_object(), "resources").all(),
-            "travel trip requests": getattr(self.get_object(), "trip_requests").all(),
-            "DM tickets": getattr(self.get_object(), "ticket_set").all(),
-            "user profiles": getattr(self.get_object(), "profile_set").all(),
-        }
-        return context
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:section_edit", kwargs={
+            "pk": self.get_object().id})}
 
 
 # DIVISION #
 ############
-class DivisionListView(AdminRequiredMixin, ListView):
-    model = models.Division
-    template_name = 'shared_models/generic_list.html'
+
+
+class DivisionListView(AdminRequiredMixin, CommonListView):
+    queryset = models.Division.objects.order_by("branch__region", "branch", "name")
+    template_name = 'shared_models/org_list.html'
+    field_list = [
+        {"name": "region", },
+        {"name": "branch", },
+        {"name": "tname|{}".format(_("division")), },
+        {"name": "abbrev", },
+        {"name": "head", },
+        {"name": "date_last_modified", },
+        {"name": "last_modified_by", },
+    ]
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    home_url_name = "shared_models:index"
+    row_object_url_name = "shared_models:division_edit"
+    new_object_url_name = "shared_models:division_new"
+    container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Divisions")
-        context["field_list"] = [
-            "region",
-            "branch",
-            "tname|{}".format(_("division")),
-            "abbrev",
-            "head",
-            "date_last_modified",
-            "last_modified_by",
-        ]
-        context["random_object"] = self.object_list.first()
-        context["model_name"] = "division"
+        context["region"] = models.Region.objects.first()
+        context["branch"] = models.Branch.objects.first()
+        context["division"] = models.Division.objects.first()
+        context["section"] = models.Section.objects.first()
         return context
 
 
-class DivisionUpdateView(AdminRequiredMixin, UpdateView):
+class DivisionUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Division
-    template_name = 'shared_models/generic_form.html'
+    template_name = 'shared_models/org_form.html'
     form_class = forms.DivisionForm
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:division_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_url"] = reverse("shared_models:division_delete", kwargs={"pk": self.get_object().id})
+        return context
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
 
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse_lazy('shared_models:division_list'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Division:")
-        context["model_name"] = "division"
-        context["related_names"] = {
-            "sections": getattr(self.get_object(), "sections").all(),
-        }
-        return context
-
-
-class DivisionCreateView(AdminRequiredMixin, CreateView):
+class DivisionCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Division
     template_name = 'shared_models/generic_form.html'
     form_class = forms.DivisionForm
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:division_list")}
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
 
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse_lazy('shared_models:division_list'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("New Division")
-        context["model_name"] = "division"
-        return context
-
-
-class DivisionDeleteView(AdminRequiredMixin, DeleteView):
+class DivisionDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Division
     success_url = reverse_lazy('shared_models:division_list')
     template_name = 'shared_models/generic_confirm_delete.html'
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:division_list")}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Delete Division:")
-        context["model_name"] = "division"
-        context["related_names"] = {
-            "sections": getattr(self.get_object(), "sections").all(),
-        }
-        return context
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:division_edit", kwargs={
+            "pk": self.get_object().id})}
 
 
 # BRANCH #
 ##########
-class BranchListView(AdminRequiredMixin, ListView):
-    model = models.Branch
-    template_name = 'shared_models/generic_list.html'
+
+
+class BranchListView(AdminRequiredMixin, CommonListView):
+    queryset = models.Branch.objects.order_by("region", "name")
+    template_name = 'shared_models/org_list.html'
+    field_list = [
+        {"name": "region", },
+        {"name": "tname|{}".format(_("branch")), },
+        {"name": "abbrev", },
+        {"name": "head", },
+        {"name": "date_last_modified", },
+        {"name": "last_modified_by", },
+    ]
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    home_url_name = "shared_models:index"
+    row_object_url_name = "shared_models:branch_edit"
+    new_object_url_name = "shared_models:branch_new"
+    container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Branches")
-        context["field_list"] = [
-            "region",
-            "tname|{}".format(_("branch")),
-            "abbrev",
-            "head",
-            "date_last_modified",
-            "last_modified_by",
-        ]
-        context["random_object"] = self.object_list.first()
-        context["model_name"] = "branch"
+        context["region"] = models.Region.objects.first()
+        context["branch"] = models.Branch.objects.first()
+        context["division"] = models.Division.objects.first()
+        context["section"] = models.Section.objects.first()
         return context
 
 
-class BranchUpdateView(AdminRequiredMixin, UpdateView):
+class BranchUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Branch
-    template_name = 'shared_models/generic_form.html'
+    template_name = 'shared_models/org_form.html'
     form_class = forms.BranchForm
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_url"] = reverse("shared_models:branch_delete", kwargs={"pk": self.get_object().id})
+        return context
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
 
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse_lazy('shared_models:branch_list'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Branch:")
-        context["model_name"] = "branch"
-        context["related_names"] = {
-            "divisions": getattr(self.get_object(), "divisions").all(),
-        }
-        return context
-
-
-class BranchCreateView(AdminRequiredMixin, CreateView):
+class BranchCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Branch
     template_name = 'shared_models/generic_form.html'
     form_class = forms.BranchForm
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
 
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse_lazy('shared_models:branch_list'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("New Branch")
-        context["model_name"] = "branch"
-        return context
-
-
-class BranchDeleteView(AdminRequiredMixin, DeleteView):
+class BranchDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Branch
     success_url = reverse_lazy('shared_models:branch_list')
     template_name = 'shared_models/generic_confirm_delete.html'
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Delete Division:")
-        context["model_name"] = "division"
-        context["related_names"] = {
-            "divisions": getattr(self.get_object(), "divisions").all(),
-        }
-        return context
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:branch_edit", kwargs={
+            "pk": self.get_object().id})}
 
 
 # REGION #
 ###########
 
-class RegionListView(AdminRequiredMixin, ListView):
-    model = models.Region
-    template_name = 'shared_models/generic_list.html'
+
+class RegionListView(AdminRequiredMixin, CommonListView):
+    queryset = models.Region.objects.order_by("name")
+    template_name = 'shared_models/org_list.html'
+    field_list = [
+        {"name": "region", },
+        {"name": "tname|{}".format(_("branch")), },
+        {"name": "abbrev", },
+        {"name": "head", },
+        {"name": "date_last_modified", },
+        {"name": "last_modified_by", },
+    ]
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    home_url_name = "shared_models:index"
+    row_object_url_name = "shared_models:branch_edit"
+    new_object_url_name = "shared_models:branch_new"
+    container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["title"] = _("Regions")
-        context["field_list"] = [
-            "tname|{}".format(_("region")),
-            "abbrev",
-            "head",
-            "date_last_modified",
-            "last_modified_by",
-        ]
-        context["random_object"] = self.object_list.first()
-        context["model_name"] = "region"
+        context["region"] = models.Region.objects.first()
+        context["branch"] = models.Branch.objects.first()
+        context["division"] = models.Division.objects.first()
+        context["section"] = models.Section.objects.first()
         return context
 
 
-class RegionUpdateView(AdminRequiredMixin, UpdateView):
+class RegionUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Region
-    template_name = 'shared_models/generic_form.html'
+    template_name = 'shared_models/org_form.html'
     form_class = forms.RegionForm
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_url"] = reverse("shared_models:branch_delete", kwargs={"pk": self.get_object().id})
+        return context
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
 
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse_lazy('shared_models:section_list'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Region:")
-        context["model_name"] = "region"
-        context["related_names"] = {
-            "branches": getattr(self.get_object(), "branches").all(),
-            "cosignee codes": getattr(self.get_object(), "cosigneecode_set").all(),
-            "trip meeting leads": getattr(self.get_object(), "meeting_leads").all(),
-            "trip requests": getattr(self.get_object(), "trip_requests").all(),
-        }
-        return context
-
-
-class RegionCreateView(AdminRequiredMixin, CreateView):
+class RegionCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Region
     template_name = 'shared_models/generic_form.html'
     form_class = forms.RegionForm
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
 
-    def form_valid(self, form):
-        form.save()
-        return HttpResponseRedirect(reverse_lazy('shared_models:region_list'))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("New Region")
-        context["model_name"] = "region"
-        return context
-
-
-class RegionDeleteView(AdminRequiredMixin, DeleteView):
+class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Region
-    success_url = reverse_lazy('shared_models:section_list')
+    success_url = reverse_lazy('shared_models:branch_list')
     template_name = 'shared_models/generic_confirm_delete.html'
+    root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = _("Delete Region:")
-        context["model_name"] = "region"
-        context["related_names"] = {
-            "branches": getattr(self.get_object(), "branches").all(),
-            "cosignee codes": getattr(self.get_object(), "cosigneecode_set").all(),
-            "trip meeting leads": getattr(self.get_object(), "meeting_leads").all(),
-            "trip requests": getattr(self.get_object(), "trip_requests").all(),
-        }
-        return context
-
-
-class CommonCommon():
-    # key is used to construct commonly formatted strings, such as used in the get_success_url
-    key = None
-
-    # title to display on the CreateView page
-    title = None
-
-    # an extending class can override this similarly to how the template_name attribute can be overriden
-    # Except in this case the value will be used to include a java_script file at the bottom of the
-    # 'shared_models/shared_entry_form.html' template
-    java_script = None
-
-    # an extending class can override this similarly to how the template_name attribute can be overriden
-    # Except in this case the value will be used to include a nav_menu file at the top of the
-    # 'shared_models/shared_entry_form.html' template
-    nav_menu = None
-
-    # an extending class can override this similarly to how the template_name attribute can be overriden
-    # Except in this case the value will be used to include a site_css file at the top of the
-    # 'shared_models/shared_entry_form.html' template
-    site_css = None
-
-    def get_title(self):
-        if not self.title:
-            raise AttributeError("No title attribute set in the class extending CreateCommon")
-
-        return self.title
-
-    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
-    def get_java_script(self):
-        return self.java_script
-
-    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
-    def get_nav_menu(self):
-        return self.nav_menu
-
-    # Can be overriden in the extending class to do things based on the kwargs passed in from get_context_data
-    def get_site_css(self):
-        return self.site_css
-
-    def get_common_context(self) -> dict:
-        context = dict()
-
-        context["title"] = self.get_title()
-        java_script = self.get_java_script()
-        nav_menu = self.get_nav_menu()
-        site_css = self.get_site_css()
-
-        if java_script:
-            context['java_script'] = java_script
-
-        if nav_menu:
-            context['nav_menu'] = nav_menu
-
-        if site_css:
-            context['site_css'] = site_css
-
-        return context
-
-
-# CommonCreate Extends the UserPassesTestMixin used to determine if a user has
-# has the correct privileges to interact with Creation Views
-class CreateCommon(UserPassesTestMixin, CreateView, CommonCommon, ABC):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
-
-    # default template to use to create an update
-    #  shared_entry_form.html contains the common navigation elements at the top of the template
-    template_name = 'shared_models/shared_entry_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["auth"] = self.test_func()
-
-        context.update(super().get_common_context())
-
-        return context
-
-
-# UpdateCreate Extends the UserPassesTestMixin used to determine if a user has
-# has the correct privileges to interact with Creation Views
-class UpdateCommon(UserPassesTestMixin, UpdateView, CommonCommon, ABC):
-    # this is where the user should be redirected if they're not logged in
-    login_url = '/accounts/login_required/'
-
-    # default template to use to update an update
-    #  shared_entry_form.html contains the common navigation elements at the top of the template
-    template_name = 'shared_models/shared_entry_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["auth"] = self.test_func()
-
-        context.update(super().get_common_context())
-
-        return context
-
-
-class FilterCommon(FilterView, CommonCommon):
-    auth = True
-
-    template_name = 'shared_models/shared_filter.html'
-
-    # override this if there are authorization requirements
-    def test_func(self):
-        return self.auth
-
-    def get_context_data(self, *args, object_list=None, **kwargs):
-        context = super().get_context_data(*args, object_list=object_list, **kwargs)
-
-        # for the most part if the user is authorized then the content is editable
-        # but extending classes can choose to make content not editable even if the user is authorized
-        # Default behaviour for the FilterCommon class is that users are authorized by default to view
-        # Data, but not to create or modify it.
-        context['auth'] = self.test_func()
-        context['editable'] = context['auth']
-
-        context.update(super().get_common_context())
-
-        return context
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:branch_edit", kwargs={
+            "pk": self.get_object().id})}
+#
+#
+# class RegionListView(AdminRequiredMixin, CommonListView):
+#     model = models.Region
+#     template_name = 'shared_models/generic_filter.html'
+#     field_list = [
+#         {"name": "tname|{}".format(_("region")), },
+#         {"name": "abbrev", },
+#         {"name": "head", },
+#         {"name": "date_last_modified", },
+#         {"name": "last_modified_by", },
+#     ]
+#     h1 = _("Regions")
+#     root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["model_name"] = "region"
+#         return context
+#
+#
+# class RegionUpdateView(AdminRequiredMixin, UpdateView):
+#     model = models.Region
+#     template_name = 'shared_models/generic_form.html'
+#     form_class = forms.RegionForm
+#     root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+#
+#     def get_initial(self):
+#         return {"last_modified_by": self.request.user, }
+#
+#     def form_valid(self, form):
+#         form.save()
+#         return HttpResponseRedirect(reverse_lazy('shared_models:section_list'))
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["title"] = _("Region:")
+#         context["model_name"] = "region"
+#         context["related_names"] = {
+#             "branches": getattr(self.get_object(), "branches").all(),
+#             "cosignee codes": getattr(self.get_object(), "cosigneecode_set").all(),
+#             "trip meeting leads": getattr(self.get_object(), "meeting_leads").all(),
+#             "trip requests": getattr(self.get_object(), "trip_requests").all(),
+#         }
+#         return context
+#
+#
+# class RegionCreateView(AdminRequiredMixin, CreateView):
+#     model = models.Region
+#     template_name = 'shared_models/generic_form.html'
+#     form_class = forms.RegionForm
+#     root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+#
+#     def get_initial(self):
+#         return {"last_modified_by": self.request.user, }
+#
+#     def form_valid(self, form):
+#         form.save()
+#         return HttpResponseRedirect(reverse_lazy('shared_models:region_list'))
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["title"] = _("New Region")
+#         context["model_name"] = "region"
+#         return context
+#
+#
+# class RegionDeleteView(AdminRequiredMixin, DeleteView):
+#     model = models.Region
+#     success_url = reverse_lazy('shared_models:section_list')
+#     template_name = 'shared_models/generic_confirm_delete.html'
+#     root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["title"] = _("Delete Region:")
+#         context["model_name"] = "region"
+#         context["related_names"] = {
+#             "branches": getattr(self.get_object(), "branches").all(),
+#             "cosignee codes": getattr(self.get_object(), "cosigneecode_set").all(),
+#             "trip meeting leads": getattr(self.get_object(), "meeting_leads").all(),
+#             "trip requests": getattr(self.get_object(), "trip_requests").all(),
+#         }
+#         return context
