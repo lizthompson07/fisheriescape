@@ -1,53 +1,50 @@
-{% extends 'pop_base.html' %}
-{% load i18n %}
+{% extends "shared_models/generic_base.html" %}
 {% load bootstrap4 %}
-{% load custom_tags %}
+{% load i18n %}
 {% load custom_filters %}
-{% block body %}
+{% load custom_tags %}
 
-    <div class="container">
+{% block subcontent %}
+    <div class="mb-3">
+        {% block pre_form_div %}{% endblock %}
+    </div>
 
-        {% load static %}
-        {# Load js file to allow for popout window #}
-        <h1>
-            {{ title }}{% if object %} {{ object }}{% endif %}
-        </h1>
-
+    {% block form %}
         <form method="post" class="form">
             {% csrf_token %}
 
-            {% for field in form %}
-                {% bootstrap_field field %}
-            {% endfor %}
-
-            <p>
-                <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
-                {% if object %}
-                    {% echo "shared_models:"|add:model_name|add:"_delete" as my_var %}
-                    <a class="btn btn-danger" href="{% url my_var object.id %}">{% trans "Delete" %}</a>
-                {% endif %}
-                <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% trans "Back" %}</a>
-            </p>
-        </form>
-
-
-        {% if object %}
-            <div class="mb-4">
-                <div class="mb-3">
-                    <h3 style="font-weight: bold">This {{ model_name }} is related to the following items in the DM Apps database</h3>
-                </div>
-                {% for name in related_names %}
-                    <h4>{{ name }}</h4>
-                    <ul>
-                        {% for item in related_names|lookup:name %}
-                            <li>{{ item }}</li>
-                        {% empty %}
-                            <em>none :)</em>
-                        {% endfor %}
-                    </ul>
+            {% block form_fields %}
+                {% for field in form %}
+                    {% block form_field %}
+                        {% bootstrap_field field placeholder="" %}
+                    {% endblock %}
                 {% endfor %}
-            </div>
-        {% endif %}
+            {% endblock %}
+
+            {% block form_buttons %}
+                <div class="mt-3 mb-3">
+                    {% trans "Submit" as default_submit_text %}
+                    {% trans "Cancel" as default_cancel_text %}
+                    {% echo request.META.HTTP_REFERER as default_cancel_url %}
+                    <span data-toggle="tooltip" title="{% block submit_btn_tip_text %}{% endblock %}">
+                <input type="submit" class="btn btn-lg {% block submit_btn_class %}btn-warning{% endblock %}"
+                        {% block submit_btn_props %}{% endblock %}
+                       value="{{ submit_text|nz:default_submit_text }}">
+                </span>
+                    <a class="btn btn-lg btn-secondary" href="{{ cancel_url|nz:default_cancel_url }}">
+                        {{ cancel_text|nz:default_cancel_text }}
+                    </a>
+                </div>
+            {% endblock %}
+        </form>
+    {% endblock %}
+
+
+    <div class="mb-3">
+        {% block post_form_div %}{% endblock %}
     </div>
 
+
 {% endblock %}
+
+

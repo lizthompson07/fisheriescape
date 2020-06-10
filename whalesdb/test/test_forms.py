@@ -186,6 +186,80 @@ class TestPrjForm(CommonFormTest):
         self.assert_valid_data()
 
 
+class TestRciForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.RciForm
+        self.test_factory = factory.RciFactory
+
+    @tag('rci', 'form', 'valid_data')
+    def test_rci_valid_data(self):
+        self.assert_valid_data()
+
+    # The Rci form should have a minimum height and width used to resize popup windows
+    @tag('rci', 'form', 'properties')
+    def test_rci_properties(self):
+        form = self.form_class()
+        self.assertTrue(hasattr(form, 'min_height'))
+        self.assertTrue(hasattr(form, 'min_width'))
+
+    # This form has some fields that should be hidden
+    @tag('rci', 'form', 'widgets')
+    def test_rci_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['rec_id'], 'widget'))
+        self.assertIsInstance(form.fields['rec_id'].widget, d_forms.HiddenInput)
+
+
+class TestRecForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.RecForm
+        self.test_factory = factory.RecFactory
+
+    @tag('rec', 'form', 'valid_data')
+    def test_rec_valid_data(self):
+        self.assert_valid_data()
+
+    # This form has some fields that should be hidden
+    @tag('rec', 'form', 'widgets')
+    def test_rec_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['rec_start_date'], 'widget'))
+        self.assertIsInstance(form.fields['rec_start_date'].widget, d_forms.DateInput)
+
+
+class TestReeForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.ReeForm
+        self.test_factory = factory.ReeFactory
+
+    @tag('ree', 'form', 'valid_data')
+    def test_ree_valid_data(self):
+        self.assert_valid_data()
+
+    # The Ree form should have a minimum height and width used to resize popup windows
+    @tag('ree', 'form', 'properties')
+    def test_ree_properties(self):
+        form = self.form_class()
+        self.assertTrue(hasattr(form, 'min_height'))
+        self.assertTrue(hasattr(form, 'min_width'))
+
+    # This form has some fields that should be hidden
+    @tag('ree', 'form', 'widgets')
+    def test_ree_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['rec_id'], 'widget'))
+        self.assertIsInstance(form.fields['rec_id'].widget, d_forms.HiddenInput)
+
+
 class TestRscForm(CommonFormTest):
 
     def setUp(self) -> None:
@@ -216,6 +290,18 @@ class TestRstForm(CommonFormTest):
 
         self.assertTrue(hasattr(form.fields['rsc'], 'widget'))
         self.assertIsInstance(form.fields['rsc'].widget, d_forms.HiddenInput)
+
+
+class TestRttForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.RttForm
+        self.test_factory = factory.RttFactory
+
+    @tag('rtt', 'form', 'valid_data')
+    def test_rtt_valid_data(self):
+        self.assert_valid_data()
 
 
 class TestSteForm(CommonFormTest):

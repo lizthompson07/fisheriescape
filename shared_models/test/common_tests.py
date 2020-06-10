@@ -139,18 +139,21 @@ class CommonTest(TestCase):
                 self.assertIn(expected_template, response.template_name)
             self.client.logout()
 
-    def assert_not_broken(self, test_url, locales=('en', 'fr')):
+    def assert_not_broken(self, test_url, locales=('en', 'fr'), anonymous=True):
         """
         This will test check to see if the test url returns something bad like a 404 or a 500 response
         :param test_url: the url to test
         :param locales: the locales to test
+        :param anonymous: should the test be run anonymously? default is True
         """
+        if anonymous:
+            self.client.logout()
         # perform this test for each locale
         for l in locales:
+            # make sure we use an anonymous user
             activate(l)
             response = self.client.get(test_url)
             self.assertNotIn(response.status_code, [404, 500, ])
-            self.client.logout()
 
     def assert_inheritance(self, test_child_class, test_parent_class):
         """

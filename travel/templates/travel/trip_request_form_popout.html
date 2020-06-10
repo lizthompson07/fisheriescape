@@ -186,9 +186,9 @@
         function refreshUserInfo() {
             myId = $("#id_user").val();
             if (myId == "") {
-                $("#id_first_name").val("");
-                $("#id_last_name").val("");
-                $("#id_email").val("");
+                $("#id_first_name").prop("required", true);
+                $("#id_last_name").prop("required", true);
+                $("#id_email").prop("required", true);
                 $(".disappear-if-user").removeClass("gone");
             } else {
                 $(".disappear-if-user").addClass("gone");

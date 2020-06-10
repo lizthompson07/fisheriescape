@@ -1,9 +1,7 @@
 from collections import OrderedDict
 
 from django.conf import settings
-from django.contrib import messages
 from django.urls import reverse, NoReverseMatch
-from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
 from accounts.models import Announcement
@@ -383,3 +381,4 @@ class IndexView(TemplateView):
         if settings.DEVOPS_BUILD_NUMBER and settings.DEVOPS_BUILD_NUMBER != "":
             context["build_number"] = settings.DEVOPS_BUILD_NUMBER
         return context
+

@@ -4,7 +4,7 @@ from django.conf import settings
 
 from projects import reports
 
-from projects.test import ProjectsFactoryFloor as FactoryFloor
+from projects.test import FactoryFloor as FactoryFloor
 from projects.test.common_tests import CommonProjectTest
 
 from shared_models import models as shared_models

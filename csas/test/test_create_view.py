@@ -2,7 +2,7 @@ from django.test import TestCase, RequestFactory
 from django.urls import reverse_lazy
 from django.contrib.auth.models import AnonymousUser
 
-from csas.views import CsasCreateCommon, RequestEntry
+from csas.views import CsasCommonCreateView, RequestEntry
 from csas.test import csas_common_test as cct
 
 from csas import models, forms
@@ -10,20 +10,20 @@ from csas import models, forms
 from shared_models import views as shared_views
 
 
-# Test the CSAS' extention of the shared_models CreateCommon shared framework
-class CreateCommonTest(cct.CommonTestCase):
+# Test the CSAS' extention of the shared_models CommonCreateView shared framework
+class CommonCreateViewTest(cct.CommonTestCase):
 
     view = None
 
     def setUp(self) -> None:
-        self.view = CsasCreateCommon()
+        self.view = CsasCommonCreateView()
         self.view.title = 'EXAMPLE TITLE'
 
     def test_ceate_template(self):
         self.assertIn("csas/csas_entry_form.html", self.view.get_template_names())
 
     def test_create_extends(self):
-        self.assertIsInstance(self.view, shared_views.CreateCommon)
+        self.assertIsInstance(self.view, shared_views.CommonCreateView)
 
     def test_create_nav_menu(self):
         nav = self.view.get_nav_menu()
@@ -55,9 +55,9 @@ class ReqCreateViewTest(TestCase):
     def setUp(self) -> None:
         self.view = RequestEntry()
 
-    # Make sure the Req creation view is extending the CsasCreateCommon class.
+    # Make sure the Req creation view is extending the CsasCommonCreateView class.
     def test_req_create_extends(self):
-        self.assertIsInstance(self.view, CsasCreateCommon)
+        self.assertIsInstance(self.view, CsasCommonCreateView)
 
     # req should be using the ReqRequest model
     def test_req_create_model(self):
