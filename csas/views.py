@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from shared_models import views as shared_view
 
 
-class FilterCommon(shared_view.FilterView, shared_view.CommonCreateView):
+class FilterCommon(shared_view.CommonFilterView):
     auth = True
     template_name = 'csas/csas_filter.html'
 
