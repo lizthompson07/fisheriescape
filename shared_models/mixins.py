@@ -305,6 +305,13 @@ class CommonListMixin(CommonMixin):
     row_object_url_name = None
     # an optional random object used to populate the table header of the list view
     random_object = None
+    # the text of the "new" button
+    new_btn_text = None
+
+    def get_new_btn_text(self):
+        if self.new_btn_text:
+            return self.new_btn_text
+        return _("New")
 
     def get_row_object_url_name(self):
         return self.row_object_url_name
@@ -336,4 +343,5 @@ class CommonListMixin(CommonMixin):
         context["row_object_url_name"] = self.get_row_object_url_name()
         context["new_object_url"] = self.get_new_object_url()
         context["random_object"] = self.get_random_object()
+        context["new_btn_text"] = self.get_new_btn_text()
         return context
