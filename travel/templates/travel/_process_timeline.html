@@ -1,6 +1,8 @@
 {% load i18n %}
 
-
+<h2 class="center-col">
+    {% trans "An Overview of the Travel App" %}
+</h2>
 {% with "" as w %}
     {% if is_adm_admin %}
 
@@ -16,26 +18,19 @@
                 <p>
                     {% blocktrans %}
                         Travel requests can be submitted up to <b>180 days in advance of any potential trip</b>, regardless of the purpose
-                        and
-                        across
-                        fiscal
-                        years.
+                        and across fiscal years.
                     {% endblocktrans %}
                 </p>
                 <p>
                     {% blocktrans %}
                         Requests to participate in <b>conferences</b> must be submitted at least <b>90 days before</b> the registration or
-                        abstract
-                        deadline
-                        (whichever is earlier). No requests will be accepted after the review process has started.
+                        abstract deadline (whichever is earlier). No requests will be accepted after the review process has started.
                     {% endblocktrans %}
                 </p>
                 <p>
                     {% blocktrans %}
                         Requests for <b> all other types </b> of travel (i.e. not related to a conference) must be submitted at least
-                        <b>60 days
-                            prior </b> to the date
-                        of travel. Late requests will only be considered in very exceptional circumstances.
+                        <b>60 days prior </b> to the date of travel. Late requests will only be considered in very exceptional circumstances.
                     {% endblocktrans %}
                 </p>
             </div>
