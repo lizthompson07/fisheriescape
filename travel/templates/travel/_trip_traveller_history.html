@@ -54,7 +54,28 @@
                                                 </td>
                                             </tr>
 
-                                            {#                                            SMART ONES#}
+                                        {% elif field == "start_date" %}
+
+                                            <tr>
+                                                <th>{% get_verbose_label d.trip_request field %}</th>
+                                                <td>
+                                                    {{ d.trip_request.start_date|date }} (compared to start date of trip
+                                                    &rarr; {{ trip.start_date|date }})
+                                                </td>
+                                            </tr>
+                                        {% elif field == "end_date" %}
+
+                                            <tr>
+                                                <th>{% get_verbose_label d.trip_request field %}</th>
+                                                <td>
+                                                    {{ d.trip_request.end_date|date }} (compared to end date of trip
+                                                    &rarr; {{ trip.end_date|date }})
+                                                </td>
+                                            </tr>
+
+
+                                            {# SMART ONES#}
+
                                         {% elif field == "objective_of_event" %}
 
                                             <tr>

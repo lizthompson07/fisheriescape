@@ -390,42 +390,28 @@ class Conference(models.Model):
         """
         my_dict = {}
 
-        # get a trip list that will be used to get a list of users (sigh...)
-        # my_trip_list = self.children_requests.all() if self.is_group_request else Trip.objects.filter(pk=self.id)
-
-        # get the fiscal year of the trip
-        fy = self.fiscal_year
-
         for traveller in self.total_traveller_list:
+            my_dict[traveller] = {}
             total_list = []
-            fy_list = []
 
             # if this is not a real User instance, there is nothing to do.
             try:
-
                 # there are two things we have to do to get this list...
                 # 1) get all non group travel
                 qs = traveller.user_trip_requests.filter(trip__is_adm_approval_required=True).filter(is_group_request=False)
-                total_list.extend([trip for trip in qs])
-                fy_list.extend([trip for trip in qs.filter(fiscal_year=fy)])
+                total_list.extend([trip.id for trip in qs])
 
                 # 2) get all group travel - the trick part is that we have to grab the parent trip
                 qs = traveller.user_trip_requests.filter(parent_request__trip__is_adm_approval_required=True)
-                total_list.extend([trip_request.parent_request for trip_request in qs])
-                fy_list.extend([trip_request.parent_request for trip_request in qs.filter(fiscal_year=fy)])
+                total_list.extend([trip_request.parent_request.id for trip_request in qs])
 
-                my_dict[traveller] = {}
-                my_dict[traveller]["total_list"] = list(set(total_list))
-                my_dict[traveller]["fy_list"] = list(set(fy_list))
-
+                my_dict[traveller]["total_list"] = TripRequest.objects.filter(id__in=total_list).order_by("-start_date")
 
             except AttributeError:
                 # This is the easy part
-                my_dict[traveller] = {}
                 my_dict[traveller]["total_list"] = "---"
-                my_dict[traveller]["fy_list"] = "---"
 
-            # also, let's get the trip request for the traveller. We will want the
+            # also, let's get the trip request for the traveller. if group request, we will want the child record
             for tr in self.get_connected_requests():
                 if type(traveller) is AuthUser:
                     if traveller in tr.travellers:
