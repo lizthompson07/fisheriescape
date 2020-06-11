@@ -5,8 +5,6 @@
 </h2>
 {% with "" as w %}
     {% if is_adm_admin %}
-
-
         <div class="mb-3 mt-5 center-col">
             <h3>{% trans "Submission Deadlines" %} </h3>
             <p class="">
@@ -30,27 +28,28 @@
                 <p>
                     {% blocktrans %}
                         Requests for <b> all other types </b> of travel (i.e. not related to a conference) must be submitted at least
-                        <b>60 days prior </b> to the date of travel. Late requests will only be considered in very exceptional circumstances.
+                        <b>60 days prior </b> to the date of travel. Late requests will only be considered in very exceptional
+                        circumstances.
                     {% endblocktrans %}
                 </p>
             </div>
         </div>
 
-    {% endif %}
 
-    <div class="mb-3 mt-3 center-col">
-        <h3>{% trans "Service Standards" %}</h3>
-    </div>
-    <div class="container" style="padding-right: {{ w }};padding-left: {{ w }}">
-        <p class="text-black">
-            {% blocktrans %}
-                All decisions regarding travel will be communicated at least 14 days before:
-                The trip start date (for training, field work, or operational trips)
-                <b>OR</b>
-                The conference abstract or registration deadline – whichever is earliest
-            {% endblocktrans %}
-        </p>
-    </div>
+        <div class="mb-3 mt-3 center-col">
+            <h3>{% trans "Service Standards" %}</h3>
+        </div>
+        <div class="container" style="padding-right: {{ w }};padding-left: {{ w }}">
+            <p class="text-black">
+                {% blocktrans %}
+                    All decisions regarding travel will be communicated at least 14 days before:
+                    The trip start date (for training, field work, or operational trips)
+                    <b>OR</b>
+                    The conference abstract or registration deadline – whichever is earliest
+                {% endblocktrans %}
+            </p>
+        </div>
+    {% endif %}
 
 
     <div id="app">
