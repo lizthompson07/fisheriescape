@@ -42,19 +42,8 @@
                                     </tr>
 
                                     {% for field in traveller_field_list %}
-                                        {% if field == "role" %}
 
-                                            <tr>
-                                                <th>{% get_verbose_label d.trip_request field %}</th>
-                                                <td>
-                                                    {{ d.trip_request.role|nz:"n/a" }}
-                                                    {% if d.trip_request.role_of_participant %}
-                                                        &mdash; {{ d.trip_request.role_of_participant }}
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-
-                                        {% elif field == "start_date" %}
+                                        {% if field == "start_date" %}
 
                                             <tr>
                                                 <th>{% get_verbose_label d.trip_request field %}</th>

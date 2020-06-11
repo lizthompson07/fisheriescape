@@ -7,7 +7,7 @@ from django.contrib.auth.models import User as AuthUser
 from django.db import models
 from django.db.models import Q, Sum
 from django.dispatch import receiver
-from django.template.defaultfilters import pluralize
+from django.template.defaultfilters import pluralize, date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -130,6 +130,7 @@ class Status(SimpleLookup):
     @property
     def status_colored_span(self):
         return mark_safe(f'<span style="background-color:{self.color}">{self.tname}</span>')
+
 
 class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
@@ -536,6 +537,25 @@ class TripRequest(models.Model):
                                    verbose_name=_("created by"))
 
     @property
+    def dates(self):
+        my_str = date(self.start_date)
+        if self.end_date:
+            my_str += f" &rarr; {date(self.end_date)}"
+        return mark_safe(my_str)
+
+    @property
+    def to_from(self):
+        my_str = f"{self.departure_location} &rarr; {self.smart_destination}"
+        return mark_safe(my_str)
+
+    @property
+    def long_role(self):
+        mystr = str(self.role)
+        if self.role_of_participant:
+            mystr += f" &mdash; {self.role_of_participant}"
+        return mark_safe(mystr)
+
+    @property
     def admin_notes_html(self):
         return textile.textile(self.admin_notes)
 
@@ -841,15 +861,15 @@ class TripRequest(models.Model):
             return f'{self.first_name} {self.last_name}'
 
     @property
-    def dates(self):
-        my_str = "{}".format(
-            self.start_date.strftime("%Y-%m-%d"),
-        )
-        if self.end_date:
-            my_str += " &rarr; {}".format(
-                self.end_date.strftime("%Y-%m-%d"),
-            )
-        return my_str
+    def requester_info(self):
+        mystr = ""
+        if not self.is_public_servant:
+            mystr += _("Company: ") + nz(self.company_name, "<span class='red-font'>missing company name</span>") + "<br>"
+        mystr += _("Address: ") + nz(self.address, "<span class='red-font'>missing address</span>") + "<br>"
+        mystr += _("Phone: ") + nz(self.phone, "<span class='red-font'>missing phone</span>") + "<br>"
+        mystr += _("Email: ") + nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
+                                   "<span class='red-font'>missing email address</span>") + "<br>"
+        return mark_safe(mystr)
 
     @property
     def smart_status(self):
@@ -874,6 +894,10 @@ class TripRequest(models.Model):
     @property
     def smart_reviewers(self):
         return self.parent_request.reviewers if self.parent_request else self.reviewers
+
+    @property
+    def smart_destination(self):
+        return self.parent_request.destination if self.parent_request else self.destination
 
     @property
     def smart_recommendation_notes(self):
