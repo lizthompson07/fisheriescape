@@ -75,6 +75,13 @@
             </h4>
         </div>
 
+        {# Warnings #}
+        <div class="mb-3">
+            {% autoescape off %}
+                {% bootstrap_messages size='small' %}
+            {% endautoescape %}
+        </div>
+
         <div class="mb-3 text" style="font-size: 16px;">
             <p>
                 {% blocktrans %}
@@ -192,15 +199,12 @@
                             </div>
                         {% endif %}
 
-                        <br>
-                        <hr>
+                        <div class="mb-5 mt-5">
+                            <hr>
+                        </div>
 
-                        <br>
-                        <br>
                         <div class="mt-5">
-                            <h2 class="center-col">
-                                {% trans "An Overview of the Travel App" %}
-                            </h2>
+
                             {% include "travel/_process_timeline.html" %}
                         </div>
 
@@ -306,11 +310,6 @@
                 </div>
 
             </div>
-        </div>
-        <div class="mb-3">
-            {% autoescape off %}
-                {% bootstrap_messages size='small' %}
-            {% endautoescape %}
         </div>
 
 
