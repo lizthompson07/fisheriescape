@@ -1,4 +1,4 @@
-{% extends "projects/base.html" %}
+{% extends "projects/list.html" %}
 {% load static %}
 {% load humanize %}
 {% load custom_filters %}
@@ -6,42 +6,26 @@
 {% load verbose_names %}
 {% load bootstrap4 %}
 
-{% block content %}
+{% block title_area %}
+    {{ get_current_language }}
+    <div class="mb-3">
+        <h1>
+            {% blocktrans with name=user.first_name %}
+                {{ name }}'s Project List
+            {% endblocktrans %}
+            {% if fy %}
+                ({{ fy }})
+            {% endif %}
+        </h1>
+    </div>
+{% endblock %}
+
+{% block subcontent %}
     {% get_current_language as LANG %}
 
-    <style>
-        table, td {
-            font-size: 14px;
-        }
-    </style>
-
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url 'projects:index' %}">
-                    {% trans "Home" %}
-                </a>
-            </li>
-
-            <li class="breadcrumb-item active" aria-current="page">
-                {% trans "My Projects" %}
-            </li>
-            {#            <li class="breadcrumb-item"><a href="{% url 'diets:index' %}">Home</a></li>#}
-        </ol>
-    </nav>
 
     <div class="container-fluid">
-        {{ get_current_language }}
-        <div class="mb-3">
-            <h1>
-                {% blocktrans with name=user.first_name %}
-                    {{ name }}'s Project List
-                {% endblocktrans %}
-                {% if fy %}
-                    ({{ fy }})
-                {% endif %}
-            </h1>
-        </div>
+
         <div class="row">
             <div class="col">
                 <form class="form" action="." method="get" id="filter-form">
@@ -169,4 +153,4 @@
     <script type="application/javascript">
         $("#fy").text($("#id_year option:selected").text())
     </script>
-{% endblock content %}
+{% endblock %}

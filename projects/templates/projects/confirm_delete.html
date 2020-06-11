@@ -1,4 +1,8 @@
-{% extends "shared_models/generic_form.html" %}
+{% extends "shared_models/generic_confirm_delete.html" %}
+
+{% block jquery_import %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% endblock %}
 
 {% block bug_create %}
     {% include "projects/base/_bug_url.html" %}
@@ -21,4 +25,5 @@
 {% block left_auth %}
     {% include "projects/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
+
 

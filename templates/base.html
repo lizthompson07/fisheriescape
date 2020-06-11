@@ -18,10 +18,12 @@
 
     {# Ignore this if in PROD mode   #}
     {% if not DB_MODE == 'PROD' %}
-        <div class="center-col {% if DB_MODE == "DEV" %}dev-mode{% elif DB_MODE == "TEST" %}test-mode{% else %}major-error{% endif %}">
-            WORKING IN {{ DB_MODE }} MODE: you are connected to [<var>{{ DB_NAME }}</var>] on host [<var>{{ DB_HOST }}</var>].
-            {% if USE_LOCAL_DB %}You are connected a local SQLITE database{% endif %}
-        </div>
+        <nav class="navbar navbar-expand-lg navbar-dark justify-content-center py-0 fixed-bottom shadow flex-md-nowrap">
+            <div class="justify-content-center {% if DB_MODE == "DEV" %}dev-mode{% elif DB_MODE == "TEST" %}test-mode{% else %}major-error{% endif %}">
+                WORKING IN {{ DB_MODE }} MODE: you are connected to [<var>{{ DB_NAME }}</var>] on host [<var>{{ DB_HOST }}</var>].
+                {% if USE_LOCAL_DB %}You are connected a local SQLITE database{% endif %}
+            </div>
+        </nav>
     {% endif %}
 
     <div class="gone" id="browser-warning">

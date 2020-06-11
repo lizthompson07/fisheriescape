@@ -1,17 +1,17 @@
 {% extends "shared_models/generic_formset.html" %}
 
 {% block bug_create %}
-    {% include "projects/_bug_url.html" %}
+    {% include "projects/base/_bug_url.html" %}
 {% endblock bug_create %}
 
 {% block title %}
-    {% include "projects/_app_title.html" %}
+    {% include "projects/base/_app_title.html" %}
     {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock title %}
 
 {% block header %}
     {{ block.super }}
-    {% include "projects/_style.html" %}
+    {% include "projects/base/_style.html" %}
 {% endblock %}
 
 {% block body %}
@@ -19,5 +19,5 @@
 {% endblock body %}
 
 {% block left_auth %}
-    {% include "projects/_nav.html" %}
+    {% include "projects/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
