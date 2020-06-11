@@ -98,8 +98,11 @@
             padding-top: 48px; /* Space for fixed navbar */
         }
 
-    </style>
+        .my-title-font {
+            font-family: 'Anton', sans-serif;
+        }
 
+    </style>
 {% endblock %}
 
 {% block title %}
@@ -109,9 +112,10 @@
 {% block body %}
     <div class="container-fluid">
         <div class="row">
-            <nav class="col-3 sidebar bg-light  d-none d-md-block">
+            <nav class="col-md-3 d-none d-md-block bg-light sidebar">
                 <div class="sidebar-sticky">
                     <br>
+
 
                     {% for a in announcements %}
                         <div class="alert {{ a.alert_type }}" role="alert">
@@ -127,10 +131,11 @@
 
             <div role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 py-4">
                 <div class="">
-
                     <div class="container-fluid">
+
+
                         {% if not user.is_authenticated %}
-                            <div class="mb-3 mt-4 center-col">
+                            <div class="mb-3center-col">
 
                                 {% url 'accounts:login' as sign_in_url %}
                                 {% url 'accounts:signup' as sign_up_url %}
