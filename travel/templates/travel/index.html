@@ -54,6 +54,11 @@
         .nav-tabs {
             font-size: 16px;
         }
+
+        .text {
+            color: grey;
+            font-size: 16px;
+        }
     </style>
 
     <div class="container">
@@ -70,11 +75,13 @@
             </h4>
         </div>
 
-        <div class="mb-3 center-col" style="font-size: 16px">
+        <div class="mb-3 text" style="font-size: 16px;">
             <p>
-                {% trans "This application process supersedes existing mechanisms for requesting travel requiring RDG or EOS ADM approval." %}
-                <br>
-                <br>
+                {% blocktrans %}
+                    This application process supersedes existing mechanisms for requesting travel requiring RDG or EOS ADM approval.
+                {% endblocktrans %}
+            </p>
+            <p>
                 {% blocktrans %}
                     A travel request can have multiple travellers from various sectors (e.g., public, academic, private), however, only a
                     Fisheries and Oceans employee with a valid Government of Canada email address can initiate and submit a travel request.
@@ -82,6 +89,15 @@
                     addition, the travel request should already have confirmed or anticipated funding available to support the travel.
                 {% endblocktrans %}
             </p>
+            <p>
+                {% blocktrans %}
+                    Please ensure your travel request is properly completed and submitted on time to allow for efficient and appropriate
+                    review. Incomplete applications will not be evaluated. You can check the status of your travel request by going to the
+                    home page
+                    and selecting “view your request”.
+                {% endblocktrans %}
+            </p>
+
         </div>
 
 
@@ -155,6 +171,7 @@
                                 <a href="{{ request_list_url }}"
                                    class="btn btn-lg btn-outline-primary  mx-3">
                                     {% trans "View Your Requests" %}
+                                    ({{ user_trip_requests }})
                                 </a>
                             {% endif %}
 
@@ -270,7 +287,8 @@
                                         {# ADM hit list stuff #}
                                         {% if dict.adm_trips_ready %}
 
-                                            <a href="{% url 'travel:trip_list' "adm-hit-list" %}" class="btn btn-lg btn-outline-primary mx-3">
+                                            <a href="{% url 'travel:trip_list' "adm-hit-list" %}"
+                                               class="btn btn-lg btn-outline-primary mx-3">
                                                 The ADMO Net
                                                 (<span class="red-font blink-me">{{ dict.adm_trips_ready }}</span>)
                                             </a>

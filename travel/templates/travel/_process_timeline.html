@@ -4,14 +4,15 @@
 {% with "" as w %}
     {% if is_adm_admin %}
 
+
         <div class="mb-3 mt-5 center-col">
             <h3>{% trans "Submission Deadlines" %} </h3>
-            <h4>
+            <p class="">
                 (currently visible only to ADM admin group)
-            </h4>
+            </p>
         </div>
         <div class="container" style="padding-right: {{ w }};padding-left: {{ w }}">
-            <div style="font-size: 16px">
+            <div class="text">
                 <p>
                     {% blocktrans %}
                         Travel requests can be submitted up to <b>180 days in advance of any potential trip</b>, regardless of the purpose
@@ -46,7 +47,7 @@
         <h3>{% trans "Service Standards" %}</h3>
     </div>
     <div class="container" style="padding-right: {{ w }};padding-left: {{ w }}">
-        <p style="font-size: 16px">
+        <p class="text">
             {% blocktrans %}
                 All decisions regarding travel will be communicated at least 14 days before:
                 The trip start date (for training, field work, or operational trips)
@@ -108,17 +109,6 @@
             </div>
         </v-app>
 
-        <div class="container" style="padding-right: {{ w }};padding-left: {{ w }}">
-            <p style="font-size: 16px">
-                {% blocktrans %}
-                    Please ensure your travel request is properly completed and submitted on time to allow for efficient and appropriate
-                    review.
-                    Incomplete applications will not be evaluated. You can check the status of your travel request by going to the home page
-                    and
-                    selecting “view your request”.
-                {% endblocktrans %}
-            </p>
-        </div>
     </div>
 
 
