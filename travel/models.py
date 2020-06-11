@@ -127,6 +127,9 @@ class Status(SimpleLookup):
     class Meta:
         ordering = ['used_for', 'order', 'name', ]
 
+    @property
+    def status_colored_span(self):
+        return mark_safe(f'<span style="background-color:{self.color}">{self.tname}</span>')
 
 class Conference(models.Model):
     name = models.CharField(max_length=255, unique=True, verbose_name=_("trip title (English)"))
@@ -382,6 +385,8 @@ class Conference(models.Model):
         """
         This method is used to return a dictionary of users attending a trip, as well as the number of
         trips or international meetings they have attended.
+
+        UPDATE: this will also be a way to get to a trip request from a traveller
         """
         my_dict = {}
 
@@ -413,11 +418,23 @@ class Conference(models.Model):
                 my_dict[traveller]["total_list"] = list(set(total_list))
                 my_dict[traveller]["fy_list"] = list(set(fy_list))
 
+
             except AttributeError:
                 # This is the easy part
                 my_dict[traveller] = {}
                 my_dict[traveller]["total_list"] = "---"
                 my_dict[traveller]["fy_list"] = "---"
+
+            # also, let's get the trip request for the traveller. We will want the
+            for tr in self.get_connected_requests():
+                if type(traveller) is AuthUser:
+                    if traveller in tr.travellers:
+                        my_dict[traveller]["trip_request"] = tr
+                else:
+                    for name in tr.traveller_names:
+                        if name in traveller:
+                            my_dict[traveller]["trip_request"] = tr
+                            break
         return my_dict
 
     @property
@@ -745,6 +762,13 @@ class TripRequest(models.Model):
             return [self.user]
 
     @property
+    def traveller_names(self):
+        if self.is_group_request:
+            return [tr.requester_name for tr in self.children_requests.all()]
+        else:
+            return [self.requester_name]
+
+    @property
     def purpose_long(self):
         my_str = ""
         if self.role_of_participant:
@@ -844,6 +868,18 @@ class TripRequest(models.Model):
     @property
     def smart_status(self):
         return self.parent_request.status if self.parent_request else self.status
+
+    @property
+    def smart_objective_of_event(self):
+        return self.parent_request.objective_of_event if self.parent_request else self.objective_of_event
+
+    @property
+    def smart_benefit_to_dfo(self):
+        return self.parent_request.benefit_to_dfo if self.parent_request else self.benefit_to_dfo
+
+    @property
+    def smart_funding_source(self):
+        return self.parent_request.funding_source if self.parent_request else self.funding_source
 
     @property
     def smart_section(self):
