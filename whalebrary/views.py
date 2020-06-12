@@ -299,40 +299,44 @@ class ItemDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 
 # # LOCATION # #
 
-class LocationListView(WhalebraryAdminAccessRequired, FilterView):
-    template_name = "whalebrary/location_list.html"
+class LocationListView(WhalebraryAdminAccessRequired, CommonFilterView):
+    template_name = "whalebrary/list.html"
+    h1 = "Location List"
     filterset_class = filters.LocationFilter
+    home_url_name = "whalebrary:index"
+    # container_class = "container-fluid"
+    row_object_url_name = "whalebrary:location_detail"
+    new_btn_text = "New Location"
+
     queryset = models.Location.objects.annotate(
         search_term=Concat('location', 'address', output_field=TextField()))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Location.objects.first()
-        context["field_list"] = [
-            'id',
-            'location',
-            'address',
-            'container',
-            'container_space',
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'address', "class": "", "width": ""},
+        {"name": 'container', "class": "", "width": ""},
+        {"name": 'container_space', "class": "", "width": ""},
 
-        ]
-        return context
+    ]
+
+    def get_new_object_url(self):
+        return reverse("whalebrary:location_new", kwargs=self.kwargs)
 
 
-class LocationDetailView(WhalebraryAdminAccessRequired, DetailView):
+class LocationDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
     model = models.Location
+    field_list = [
+        'id',
+        'location',
+        'address',
+        'container',
+        'container_space',
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'id',
-            'location',
-            'address',
-            'container',
-            'container_space',
-
-        ]
-        return context
+    ]
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Location List"), "url": reverse_lazy("whalebrary:location_list")}
+    # container_class = "container-fluid"
 
 
 class LocationUpdateView(WhalebraryAdminAccessRequired, UpdateView):

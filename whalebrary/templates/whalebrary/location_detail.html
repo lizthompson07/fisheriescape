@@ -1,31 +1,17 @@
-{% extends "whalebrary/whalebrary_base.html" %}
+{% extends "whalebrary/base.html" %}
 {% load static %}
 {% load verbose_names %}
-{% block content %}
-
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:location_list' %}">Location List</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
-        </ol>
-    </nav>
 
 
-    <style type="text/css">
-        .label {
-            font-weight: bold;
-        }
-    </style>
+{% block subcontent %}
 
-    <div class="container">
-        <br>
-        <h1>{{ object }}</h1>
-        <p>
+    <div class="mb-4">
+        <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'whalebrary:location_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'whalebrary:location_delete' object.id %}">Delete</a>
             <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
-        </p>
+        </div>
+    </div>
         <p>
             <a href="{% url 'whalebrary:report_container' location.id %}" class="btn btn-sm btn-primary">See all items at this location</a>
         </p>
@@ -43,4 +29,4 @@
     </div>
 
 
-{% endblock content %}
+{% endblock %}
