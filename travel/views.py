@@ -275,7 +275,10 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         context["is_admin"] = in_travel_admin_group(self.request.user)
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
         context["tab_dict"] = tab_dict
-
+        context["processes"] = [
+            models.ProcessStep.objects.filter(stage=1),
+            models.ProcessStep.objects.filter(stage=2)
+        ]
         return context
 
 
@@ -2030,7 +2033,7 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
             # make a list of child requests whose parents are in the same status categories
             child_list = [child_tr.id for parent_tr in trip.trip_requests.filter(is_group_request=True, status_id__in=[14, 15, 10, 11]) for
                           child_tr in parent_tr.children_requests.all()]
-            #extend the list
+            # extend the list
             tr_id_list.extend(child_list)
             # get a QS from the work done above
             trip_requests = models.TripRequest.objects.filter(id__in=tr_id_list)
@@ -2472,6 +2475,21 @@ class ReasonFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
 class ReasonHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.Reason
     success_url = reverse_lazy("travel:manage_reasons")
+
+
+class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+    template_name = 'travel/formset.html'
+    h1 = "Manage Process Steps"
+    queryset = models.ProcessStep.objects.all()
+    formset_class = forms.ProcessStepFormset
+    success_url = reverse_lazy("travel:manage_process_steps")
+    home_url_name = "travel:index"
+    delete_url_name = "travel:delete_process_step"
+
+
+class ProcessStepHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ProcessStep
+    success_url = reverse_lazy("travel:manage_process_steps")
 
 
 # Default Reviewer Settings

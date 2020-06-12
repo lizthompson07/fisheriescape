@@ -56,6 +56,14 @@ class NJCRates(SimpleLookup):
         ordering = ['id', ]
 
 
+class ProcessStep(Lookup):
+    stage_choices = (
+        (1, _("Travel request process outline")),
+        (2, _("Review process outline")),
+    )
+    stage = models.IntegerField(blank=True, null=True, choices=stage_choices)
+
+
 class CostCategory(SimpleLookup):
     order = models.IntegerField(blank=True, null=True)
 
@@ -365,7 +373,8 @@ class Conference(models.Model):
         # group requests
         my_id_list.extend(
             [trip_request.id for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(parent_request__status_id__in=[10, 22, 8])).filter(~Q(status_id=10))])
+             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(parent_request__status_id__in=[10, 22, 8])).filter(
+                 ~Q(status_id=10))])
         return TripRequest.objects.filter(id__in=my_id_list)
 
     @property
@@ -852,6 +861,7 @@ class TripRequest(models.Model):
             if r.status_id == 2 and r.comments:
                 my_str += f'<u>{r.user}</u>: {r.comments}<br>'
         return mark_safe(my_str)
+
 
 class TripRequestCost(models.Model):
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs",
