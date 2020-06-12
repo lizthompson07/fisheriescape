@@ -18,7 +18,8 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 from django_filters.views import FilterView
 from django.utils import timezone
 
-from shared_models.views import CommonPopoutFormView, CommonListView, CommonFilterView, CommonDetailView, CommonDeleteView
+from shared_models.views import CommonPopoutFormView, CommonListView, CommonFilterView, CommonDetailView, \
+    CommonDeleteView, CommonCreateView, CommonUpdateView
 from . import models
 from . import forms
 from . import filters
@@ -247,19 +248,36 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
         ]
 
 
-class ItemUpdateView(WhalebraryEditRequiredMixin, UpdateView):
+class ItemUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     model = models.Item
     form_class = forms.ItemForm
+    template_name = 'whalebrary/form.html'
+    cancel_text = _("Cancel")
+    home_url_name = "whalebrary:index"
 
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Item record successfully updated for : {my_object}"))
         return super().form_valid(form)
 
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        return my_object
 
-class ItemCreateView(WhalebraryEditRequiredMixin, CreateView):
+    def get_h1(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:item_detail", kwargs=self.kwargs)}
+
+class ItemCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Item
     form_class = forms.ItemForm
+    template_name = 'whalebrary/form.html'
+    home_url_name = "whalebrary:index"
+    h1 = gettext_lazy("Add New Item")
+    parent_crumb = {"title": gettext_lazy("Item List"), "url": reverse_lazy("whalebrary:item_list")}
 
     def form_valid(self, form):
         my_object = form.save()
