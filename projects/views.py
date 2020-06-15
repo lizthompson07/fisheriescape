@@ -511,7 +511,7 @@ class CloserTemplateView(TemplateView):
     template_name = 'projects/close_me.html'
 
 
-class IndexTemplateView(TemplateView, LoginRequiredMixin):
+class IndexTemplateView(LoginRequiredMixin, TemplateView):
     template_name = 'projects/index.html'
 
     def get_context_data(self, **kwargs):
@@ -795,7 +795,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Project
     template_name = 'projects/project_detail.html'
     home_url_name = "projects:index"
-    parent_crumb = {"title":_("My Projects"), "url": reverse_lazy("projects:my_project_list")}
+    parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects:my_project_list")}
 
     def get_active_page_name_crumb(self):
         return str(self.get_object())
@@ -897,7 +897,6 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonPopoutUpdateView):
             print("no end date...")
 
         return my_dict
-
 
 
 class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
@@ -1893,6 +1892,21 @@ class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("projects:manage_themes")
     home_url_name = "projects:index"
     delete_url_name = "projects:delete_theme"
+
+
+class UpcomingDateHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.UpcomingDate
+    success_url = reverse_lazy("projects:manage-upcoming-dates")
+
+
+class UpcomingDateFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/formset.html'
+    h1 = "Manage Upcoming Dates"
+    queryset = models.UpcomingDate.objects.all()
+    formset_class = forms.UpcomingDateFormset
+    success_url = reverse_lazy("projects:manage-upcoming-dates")
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete-upcoming-date"
 
 
 class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
