@@ -185,12 +185,6 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
             else:
                 my_status = str(tr.status)
 
-            # TRIP NAME
-            if tr.parent_request:
-                my_trip_name = str(tr.parent_request.trip) if tr.parent_request.trip else "n/a"
-            else:
-                my_trip_name = str(tr.trip) if tr.trip else "n/a"
-
             # DESTINATION
             if tr.parent_request:
                 my_dest = str(tr.parent_request.destination) if tr.parent_request.destination else "n/a"
@@ -225,8 +219,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 my_name,
                 str(tr.region) if tr.region else "n/a",
                 my_role,
-                str(tr.reason) if tr.reason else "n/a",
-                my_trip_name,
+                str(tr.smart_trip.trip_subcategory),
+                str(tr.smart_trip),
                 my_dest,
                 my_start,
                 my_end,
