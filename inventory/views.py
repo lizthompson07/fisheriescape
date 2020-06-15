@@ -197,7 +197,7 @@ class MyResourceListView(LoginRequiredMixin, ListView):
             # "section",
             "roles|Role(s)",
             "last_certification|Previous time certified",
-            "completedness_rating|Completedness rating",
+            "completedness_rating|Completeness rating",
             "open_data|Published to Open Data",
             "external_links|External links",
         ]
