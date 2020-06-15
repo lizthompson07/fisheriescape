@@ -92,13 +92,13 @@ class UtilsTest(CommonTest):
         # setting parent of child trip to user should NOT increase by 1, since this is the same trip as the parent trip...
         child_request.user = reg_user
         child_request.save()
-        self.assertIn(child_request, utils.get_related_trips(reg_user))
+        self.assertNotIn(child_request, utils.get_related_trips(reg_user))
         self.assertEqual(utils.get_related_trips(reg_user).count(), 2)
 
         # setting parent of child trip to user should increase by 1...
         child_request1.user = reg_user
         child_request1.save()
-        self.assertIn(child_request1, utils.get_related_trips(reg_user))
+        self.assertIn(child_request1.parent_request, utils.get_related_trips(reg_user))
         self.assertEqual(utils.get_related_trips(reg_user).count(), 3)
 
         # setting created_by of random trip to user should increase by 1...
