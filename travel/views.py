@@ -290,7 +290,7 @@ request_field_list = [
     'dates|{}'.format(_("Travel dates")),
     'objective_of_event',
     'benefit_to_dfo',
-    'reason',
+    # 'reason',
     'long_role|{}'.format(_("Role of participant")),
     'multiple_conferences_rationale',
     'late_justification',
@@ -316,7 +316,7 @@ traveller_field_list = [
     'start_date',
     'end_date',
     'departure_location',
-    'reason',
+    # 'reason',
     'long_role|{}'.format("Role of participant"),
     'multiple_conferences_rationale',
     'funding_source',
@@ -354,7 +354,7 @@ request_child_field_list = [
     'is_research_scientist|{}'.format(_("RES?")),
     'dates|{}'.format(_("Travel dates")),
     'departure_location',
-    'reason',
+    # 'reason',
     'role',
     # 'role_of_participant',
     'total_cost|{}'.format(_("Total cost")),
@@ -2480,20 +2480,6 @@ class TripSubcategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteVi
     model = models.TripSubcategory
     success_url = reverse_lazy("travel:manage_trip_subcategories")
 
-
-class ReasonFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
-    template_name = 'travel/formset.html'
-    h1 = "Manage Trip Reasons"
-    queryset = models.Reason.objects.all()
-    formset_class = forms.ReasonFormset
-    success_url = reverse_lazy("travel:manage_reasons")
-    home_url_name = "travel:index"
-    delete_url_name = "travel:delete_reason"
-
-
-class ReasonHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
-    model = models.Reason
-    success_url = reverse_lazy("travel:manage_reasons")
 
 
 class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):

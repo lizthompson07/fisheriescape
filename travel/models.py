@@ -497,7 +497,6 @@ class TripRequest(models.Model):
     is_group_request = models.BooleanField(default=False,
                                            verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
     # purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
-    reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, null=True, verbose_name=_("trip"), related_name="trip_requests")
 
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True,
@@ -874,6 +873,10 @@ class TripRequest(models.Model):
     @property
     def smart_status(self):
         return self.parent_request.status if self.parent_request else self.status
+
+    @property
+    def smart_trip(self):
+        return self.parent_request.trip if self.parent_request else self.trip
 
     @property
     def smart_objective_of_event(self):
