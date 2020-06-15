@@ -1,7 +1,7 @@
 {% load verbose_names %}
 {% load i18n %}
 
- <div class="card border border-dark my-1" id="id_channels">
+ <div class="card border border-dark my-1">
     <div class="card-header h5">
         <div class="row align-items-center">
             <span class="col">
@@ -13,7 +13,7 @@
         </div>
     </div>
     <div class="card-body collapse" id="fs-list-channels">
-        <div class="card-text">
+        <div class="card-text" id="id_channels">
             <table class="table">
                 <thead>
                 <tr><th>{% trans 'Name' %}</th><th>{% trans 'Size (Gb)' %}</th><th>{% trans 'Gain' %}</th><th>{% trans 'Volts' %}</th></tr></thead>
@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<div class="card border border-dark my-1" id="id_events">
+<div class="card border border-dark my-1">
     <div class="card-header h5">
         <div class="row align-items-center">
             <span class="col">
@@ -39,7 +39,7 @@
         </div>
     </div>
     <div class="card-body collapse" id="fs-list-events">
-        <div class="card-text">
+        <div class="card-text" id="id_events">
             <ul>
             {% for ree in rec.events.all %}
             <li>{{ree.ret_id.ret_name}} : {{ree.rec_id}}</li>
