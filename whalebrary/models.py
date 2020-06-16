@@ -414,6 +414,7 @@ class Transaction(models.Model):
     def get_absolute_url(self):
         return reverse("whalebrary:transaction_detail", kwargs={"pk": self.id})
 
+
     # from https://github.com/ccnmtl/dmt/blob/master/dmt/main/models.py
     # def reassign(self, user, assigned_to, comment):
     #     self.assigned_user = assigned_to.user

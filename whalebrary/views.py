@@ -342,12 +342,25 @@ class LocationDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
 class LocationUpdateView(WhalebraryAdminAccessRequired, UpdateView):
     model = models.Location
     form_class = forms.LocationForm
+    template_name = 'whalebrary/form.html'
+    cancel_text = _("Cancel")
+    home_url_name = "whalebrary:index"
 
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Location record successfully updated for : {my_object}"))
         return super().form_valid(form)
 
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_h1(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:location_detail", kwargs=self.kwargs)}
 
 class LocationCreateView(WhalebraryAdminAccessRequired, CreateView):
     model = models.Location
