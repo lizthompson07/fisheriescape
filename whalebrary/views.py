@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.utils.translation.trans_null import gettext_lazy
@@ -258,7 +260,7 @@ class ItemUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Item record successfully updated for : {my_object}"))
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse("whalebrary:item_detail", kwargs=self.kwargs))
 
     def get_active_page_name_crumb(self):
         my_object = self.get_object()
@@ -270,6 +272,11 @@ class ItemUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
 
     def get_parent_crumb(self):
         return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:item_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        kwargs = deepcopy(self.kwargs)
+        del kwargs["pk"]
+        return {"title": _("Item List"), "url": reverse("whalebrary:item_list", kwargs=kwargs)}
 
 class ItemCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Item
@@ -339,7 +346,7 @@ class LocationDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
     # container_class = "container-fluid"
 
 
-class LocationUpdateView(WhalebraryAdminAccessRequired, UpdateView):
+class LocationUpdateView(WhalebraryAdminAccessRequired, CommonUpdateView):
     model = models.Location
     form_class = forms.LocationForm
     template_name = 'whalebrary/form.html'
@@ -349,7 +356,7 @@ class LocationUpdateView(WhalebraryAdminAccessRequired, UpdateView):
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Location record successfully updated for : {my_object}"))
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse("whalebrary:location_detail", kwargs=self.kwargs))
 
     def get_active_page_name_crumb(self):
         my_object = self.get_object()
@@ -362,9 +369,18 @@ class LocationUpdateView(WhalebraryAdminAccessRequired, UpdateView):
     def get_parent_crumb(self):
         return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:location_detail", kwargs=self.kwargs)}
 
-class LocationCreateView(WhalebraryAdminAccessRequired, CreateView):
+    def get_grandparent_crumb(self):
+        kwargs = deepcopy(self.kwargs)
+        del kwargs["pk"]
+        return {"title": _("Location List"), "url": reverse("whalebrary:location_list", kwargs=kwargs)}
+
+class LocationCreateView(WhalebraryAdminAccessRequired, CommonCreateView):
     model = models.Location
     form_class = forms.LocationForm
+    template_name = 'whalebrary/form.html'
+    home_url_name = "whalebrary:index"
+    h1 = gettext_lazy("Add New Location")
+    parent_crumb = {"title": gettext_lazy("Location List"), "url": reverse_lazy("whalebrary:location_list")}
 
     def form_valid(self, form):
         my_object = form.save()
@@ -372,47 +388,55 @@ class LocationCreateView(WhalebraryAdminAccessRequired, CreateView):
         return super().form_valid(form)
 
 
-class LocationDeleteView(WhalebraryAdminAccessRequired, DeleteView):
+class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
     model = models.Location
     permission_required = "__all__"
     success_url = reverse_lazy('whalebrary:location_list')
     success_message = 'The location file was successfully deleted!'
+    template_name = 'whalebrary/confirm_delete.html'
+    home_url_name = "whalebrary:index"
+    grandparent_crumb = {"title": gettext_lazy("Location List"), "url": reverse_lazy("whalebrary:location_list")}
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("whalebrary:location_detail", kwargs=self.kwargs)}
 
     ##TRANSACTION##
 
 
-class TransactionListView(WhalebraryAccessRequired, FilterView):
-    template_name = "whalebrary/transaction_list.html"
+class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
+    template_name = "whalebrary/list.html"
+    h1 = "Transaction List"
     filterset_class = filters.TransactionFilter
-    queryset = models.Transaction.objects.annotate(
-        search_term=Concat('id', 'item', 'quantity', 'status', 'date', 'lent_to', 'return_date', 'order_number',
-                           'purchased_by', 'reason', 'incident', 'audit', 'location',
-                           'bin_id', output_field=TextField()))
+    home_url_name = "whalebrary:index"
+    # container_class = "container-fluid"
+    row_object_url_name = "whalebrary:transaction_detail"
+    new_btn_text = "New Transaction"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Transaction.objects.first()
-        context["field_list"] = [
-            'id',
-            'item',
-            'quantity',
-            'status',
-            'date',
-            'lent_to',
-            'return_date',
-            'order_number',
-            'purchased_by',
-            'reason',
-            'incident',
-            'audit',
-            'location',
-            'bin_id',
-        ]
-        return context
+    queryset = models.Transaction.objects.annotate(
+        search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name',
+                           'return_date', 'order_number', 'purchased_by', 'reason', 'incident__name', 'audit__date',
+                           'location__location', 'bin_id', output_field=TextField()))
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'item', "class": "", "width": "100px"},
+        {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": "75px"},
+        {"name": 'date', "class": "", "width": "100px"},
+        {"name": 'lent_to', "class": "", "width": ""},
+        {"name": 'return_date', "class": "", "width": ""},
+        {"name": 'order_number', "class": "", "width": ""},
+        {"name": 'purchased_by', "class": "", "width": ""},
+        {"name": 'reason', "class": "", "width": "200px"},
+        {"name": 'incident', "class": "", "width": ""},
+        {"name": 'audit', "class": "", "width": ""},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'bin_id', "class": "", "width": ""},
+
+    ]
+
+    def get_new_object_url(self):
+        return reverse("whalebrary:transaction_new", kwargs=self.kwargs)
 
 
 class TransactionDetailView(WhalebraryAccessRequired, DetailView):

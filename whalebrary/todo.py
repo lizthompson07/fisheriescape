@@ -1,6 +1,7 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
+# TODO CommonUpdateView -- gives url error when trying to update -- fixed w redirect -- but how to get success message now?
 # TODO now if there is no location set item_detail view shows an error because of _transaction.html -- fix this (if elseif?)
 # TODO DeleteView - shows all related now, but is there a way to get it to prompt and then delete all? Is that from models with cascade?
 # TODO redo all views possible with common templates format
