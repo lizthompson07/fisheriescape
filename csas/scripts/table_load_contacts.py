@@ -1,5 +1,4 @@
 import csv
-import string
 import MySQLdb
 
 mydb = MySQLdb.connect(host='localhost',

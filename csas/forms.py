@@ -30,6 +30,19 @@ class RequestForm(forms.ModelForm):
         # self.fields['adviser_submission'].widgets = forms.DateField(help_text="Select date")
 
 
+class RequestFormCSAS(forms.ModelForm):
+    class Meta:
+        model = models.ReqRequestCSAS
+
+        exclude = []
+        widgets = {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.fields['program_contact'].widgets = forms.Select(choices=models.ConContact.objects.all())
+        # self.fields['adviser_submission'].widgets = forms.DateField(help_text="Select date")
+
+
 class ContactForm(forms.ModelForm):
     class Meta:
         model = models.ConContact
