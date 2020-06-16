@@ -11,7 +11,7 @@ class ContactFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.ConContact
-        fields = ['last_name', 'first_name', 'contact_type', 'region']
+        fields = ['last_name', 'first_name', 'contact_type', 'region', 'role', 'expertise']
 
 
 class MeetingFilter(django_filters.FilterSet):
@@ -72,16 +72,12 @@ class PublicationFilter(django_filters.FilterSet):
 
 
 class RequestFilter(django_filters.FilterSet):
-    # start_date = django_filters.ChoiceFilter(field_name='start_date', lookup_expr='exact')
-    region = django_filters.ChoiceFilter(field_name='region', lookup_expr='exact')
     title = django_filters.CharFilter(field_name='title', lookup_expr='icontains')
     client_name = django_filters.CharFilter(field_name='client_name', lookup_expr='icontains')
 
     class Meta:
         model = models.ReqRequest
-        # fields = ['start_date', 'title_en', 'process_type', 'lead_region']
-        fields = ['region', 'client_sector', 'title', 'client_name', 'funding']
-        # fields = {'finding': ['Yes', 'No'],}
+        fields = ['title', 'region', 'client_sector', 'client_name', 'priority_id', 'funding']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

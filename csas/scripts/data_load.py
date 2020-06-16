@@ -1,3 +1,5 @@
+from typing import List
+
 from csas.models import CohHonorific, LanLanguage, CotType, NotNotificationPreference, SecSector, RolRole
 from csas import models
 ###################################################################################################
@@ -28,6 +30,25 @@ load_lookup(models.RepPriority, priorities)
 # Load the (Request) proposed timing model
 timings = [['By quarter ', ' By quarter(fr)'], ['By month ', ' By month(fr)'], ]
 load_lookup(models.RetTiming, timings)
+
+
+# Load the (Request) status model
+req_status = [['Withdrawn ', ' Withdrawn(fr)'], ['CSAS Office Reviewing ', ' CSAS Office Reviewing(fr)'],
+              ['RDS Reviewing ', ' RDS Reviewing(fr)'], ['Decision Made ', ' Decision Made(fr)'], ]
+load_lookup(models.ResStatus, req_status)
+
+
+# Load the (Request) decision model
+decision = [['On ', ' On(fr)'], ['Off ', ' Off(fr)'], ['Tentative ', ' Tentative(fr)'], ]
+load_lookup(models.RedDecision, decision)
+
+
+# Load the (Request) decision explanation model
+decision_exp = [['Planned Deferred (lower priority) ', ' Planned Deferred (lower priority)(fr)'],
+                ['Client Withdrawal ', ' Client Withdrawal(fr)'],
+                ['Capacity Issues (e.g., no science staff) ', 'Capacity Issues (e.g., no science staff)(fr)'],
+                ['Unexpected Delays/Unforeseen Circumstances )', ' Unexpected Delays/Unforeseen Circumstances(fr)'], ]
+load_lookup(models.RdeDecisionExplanation, decision_exp)
 
 
 # Load the honorific model

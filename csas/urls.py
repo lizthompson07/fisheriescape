@@ -11,10 +11,18 @@ urlpatterns = [
 
     # for Requests
     path('request/',                               views.RequestList.as_view(),        name="list_req"),
+
     path('request/new/',                           views.RequestEntry.as_view(),       name="create_req"),
+    path('request_CSAS/new/',                      views.RequestEntryCSAS.as_view(),   name="create_req_CSAS"),
+
     path('request/update/<int:pk>/',               views.RequestUpdate.as_view(),      name="update_req"),
     path('request/update/<int:pk>/<str:pop>/',     views.RequestUpdate.as_view(),      name="update_req"),
+
+    path('request_CSAS/update/<int:pk>/',           views.RequestUpdateCSAS.as_view(),     name="update_req_CSAS"),
+    path('request_CSAS/update/<int:pk>/<str:pop>/', views.RequestUpdateCSAS.as_view(),     name="update_req_CSAS"),
+
     path('request/details/<int:pk>/',              views.RequestDetails.as_view(),     name="details_req"),
+    path('request_CSAS/details/<int:pk>/',         views.RequestDetailsCSAS.as_view(),     name="details_req_CSAS"),
 
     # for Meetings
     path('meeting/',                           views.MeetingList.as_view(),           name="list_met"),
