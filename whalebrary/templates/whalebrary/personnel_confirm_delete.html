@@ -1,19 +1,10 @@
-{% extends "whalebrary/whalebrary_base.html" %}
+{% extends "whalebrary/base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 
-{% block content %}
+{% block subcontent %}
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:personnel_list' %}">Personnel List</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:personnel_detail' object.id %}">{{object}}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Delete</li>
-        </ol>
-    </nav>
-
-    <div class="container">
+     <div class="container">
 
         <h1>Are you sure you want to delete <em>{{ object }}</em> from the database?</h1>
         <p>(You will not be able to delete this object if is attached to another record.)</p>
@@ -29,4 +20,4 @@
     </div>
 
 
-{% endblock content %}
+{% endblock %}

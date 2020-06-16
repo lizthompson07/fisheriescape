@@ -1,17 +1,8 @@
-{% extends "whalebrary/whalebrary_base.html" %}
+{% extends "whalebrary/base.html" %}
 {% load static %}
 {% load bootstrap4 %}
 
-{% block content %}
-
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:incident_list' %}">Incident List</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:incident_detail' object.id %}">{{object}}</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Delete</li>
-        </ol>
-    </nav>
+{% block subcontent %}
 
     <div class="container">
 
@@ -29,4 +20,4 @@
     </div>
 
 
-{% endblock content %}
+{% endblock %}

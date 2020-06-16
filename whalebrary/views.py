@@ -439,52 +439,70 @@ class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
         return reverse("whalebrary:transaction_new", kwargs=self.kwargs)
 
 
-class TransactionDetailView(WhalebraryAccessRequired, DetailView):
+class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
     model = models.Transaction
+    field_list = [
+        'id',
+        'item',
+        'quantity',
+        'status',
+        'date',
+        'lent_to',
+        'return_date',
+        'order_number',
+        'purchased_by',
+        'reason',
+        'incident',
+        'audit',
+        'location',
+        'bin_id',
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'id',
-            'item',
-            'quantity',
-            'status',
-            'date',
-            'lent_to',
-            'return_date',
-            'order_number',
-            'purchased_by',
-            'reason',
-            'incident',
-            'audit',
-            'location',
-            'bin_id',
-        ]
-
-        return context
+    ]
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
+    # container_class = "container-fluid"
 
 
-class TransactionUpdateView(WhalebraryEditRequiredMixin, UpdateView):
-    model = models.Transaction
-    form_class = forms.TransactionForm
+class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
+    model = models.Location
+    form_class = forms.LocationForm
+    home_url_name = "whalebrary:index"
+    # template_name = 'whalebrary/form.html'
+    # cancel_text = _("Cancel")
 
     def get_template_names(self):
-        return "whalebrary/transaction_form_popout.html" if self.kwargs.get("pop") else "whalebrary/transaction_form.html"
+        return "whalebrary/transaction_form_popout.html" if self.kwargs.get("type") == "pop" else "whalebrary/transaction_form.html"
 
     def get_form_class(self):
-        return forms.TransactionForm1 if self.kwargs.get("pop") else forms.TransactionForm
+        return forms.TransactionForm1 if self.kwargs.get("type") == "pop" else forms.TransactionForm
+
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_h1(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:transaction_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        kwargs = deepcopy(self.kwargs)
+        del kwargs["pk"]
+        return {"title": _("Transaction List"), "url": reverse("whalebrary:transaction_list", kwargs=kwargs)}
 
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Transaction record successfully updated for : {my_object}"))
-        success_url = reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:transaction_detail',
+        success_url = reverse_lazy('shared_models:close_me') if self.kwargs.get("type") == "pop" else reverse_lazy('whalebrary:transaction_detail',
                                                                                                          kwargs={"pk": my_object.id})
         return HttpResponseRedirect(success_url)
 
 
-class TransactionCreateView(WhalebraryEditRequiredMixin, CreateView):
+class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Transaction
-    form_class = forms.TransactionForm
+    home_url_name = "whalebrary:index"
 
     def get_template_names(self):
         return "whalebrary/transaction_form_popout.html" if self.kwargs.get("pk") else "whalebrary/transaction_form.html"
@@ -502,20 +520,35 @@ class TransactionCreateView(WhalebraryEditRequiredMixin, CreateView):
         return {'item': self.kwargs.get('pk')}
 
 
-class TransactionDeleteView(WhalebraryEditRequiredMixin, DeleteView):
+class TransactionDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     model = models.Transaction
     permission_required = "__all__"
-    success_message = 'The transaction was successfully deleted!'
+    home_url_name = "whalebrary:index"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("whalebrary:transaction_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        kwargs = deepcopy(self.kwargs)
+        del kwargs["pk"]
+        return {"title": _("Transaction List"), "url": reverse("whalebrary:transaction_list", kwargs=kwargs)}
 
     def get_template_names(self):
-        return "whalebrary/generic_confirm_delete_popout.html" if self.kwargs.get("pop") else "whalebrary/transaction_confirm_delete.html"
+        return 'shared_models/generic_popout_form.html' if self.kwargs.get(
+            'type') == "pop" else 'whalebrary/confirm_delete.html'
 
-    def delete(self, request, *args, **kwargs):
-        my_object = self.get_object()
-        my_object.delete()
-        messages.success(self.request, self.success_message)
-        return HttpResponseRedirect(
-            reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:transaction_list'))
+    def get_success_url(self):
+        return reverse('shared_models:close_me') if self.kwargs.get(
+            'type') == "pop" else self.get_grandparent_crumb().get("url")
+
+
+    # def delete(self, request, *args, **kwargs):
+    #     my_object = self.get_object()
+    #     my_object.delete()
+    #     messages.success(self.request, self.success_message)
+    #     return HttpResponseRedirect(
+    #         reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:transaction_list'))
+
 
     ##BULK TRANSACTION##
 
@@ -591,78 +624,102 @@ class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, DeleteView):
     ## PERSONNEL ##
 
 
-class PersonnelListView(WhalebraryAdminAccessRequired, FilterView):
+class PersonnelListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/personnel_list.html"
+    h1 = "Personnel List"
     filterset_class = filters.PersonnelFilter
+    home_url_name = "whalebrary:index"
+    # container_class = "container-fluid"
+    row_object_url_name = "whalebrary:personnel_detail"
+    new_btn_text = "New Personnel"
+
     queryset = models.Personnel.objects.annotate(
-        search_term=Concat('id', 'first_name', 'last_name', 'organisation', 'email', 'phone', 'exp_level',
-                           output_field=TextField()))
+        search_term=Concat('id', 'first_name', 'last_name', 'organisation__name', 'email', 'phone',
+                           'exp_level__name', output_field=TextField()))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Personnel.objects.first()
-        context["field_list"] = [
-            'id',
-            'first_name',
-            'last_name',
-            'organisation',
-            'email',
-            'phone',
-            'exp_level',
-            'training',
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'first_name', "class": "", "width": ""},
+        {"name": 'last_name', "class": "", "width": ""},
+        {"name": 'organisation', "class": "", "width": ""},
+        {"name": 'email', "class": "", "width": ""},
+        {"name": 'phone', "class": "", "width": ""},
+        {"name": 'exp_level', "class": "", "width": ""},
+        {"name": 'training', "class": "", "width": ""},
+    ]
 
-        ]
-        return context
+    def get_new_object_url(self):
+        return reverse("whalebrary:personnel_new", kwargs=self.kwargs)
 
-
-class PersonnelDetailView(WhalebraryAdminAccessRequired, DetailView):
+class PersonnelDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
     model = models.Personnel
+    field_list = [
+        'id',
+        'first_name',
+        'last_name',
+        'organisation',
+        'email',
+        'phone',
+        'exp_level',
+        'training',
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'id',
-            'first_name',
-            'last_name',
-            'organisation',
-            'email',
-            'phone',
-            'exp_level',
-            'training',
+    ]
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Personnel List"), "url": reverse_lazy("whalebrary:personnel_list")}
+    # container_class = "container-fluid"
 
-        ]
-        return context
-
-
-class PersonnelUpdateView(WhalebraryAdminAccessRequired, UpdateView):
+class PersonnelUpdateView(WhalebraryAdminAccessRequired, CommonUpdateView):
     model = models.Personnel
     form_class = forms.PersonnelForm
+    template_name = 'whalebrary/form.html'
+    cancel_text = _("Cancel")
+    home_url_name = "whalebrary:index"
 
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Personnel record successfully updated for : {my_object}"))
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse("whalebrary:personnel_detail", kwargs=self.kwargs))
 
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        return my_object
 
-class PersonnelCreateView(WhalebraryAdminAccessRequired, CreateView):
+    def get_h1(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:personnel_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        kwargs = deepcopy(self.kwargs)
+        del kwargs["pk"]
+        return {"title": _("Personnel List"), "url": reverse("whalebrary:personnel_list", kwargs=kwargs)}
+
+class PersonnelCreateView(WhalebraryAdminAccessRequired, CommonCreateView):
     model = models.Personnel
     form_class = forms.PersonnelForm
+    template_name = 'whalebrary/form.html'
+    home_url_name = "whalebrary:index"
+    h1 = gettext_lazy("Add New Personnel")
+    parent_crumb = {"title": gettext_lazy("Personnel List"), "url": reverse_lazy("whalebrary:personnel_list")}
 
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Personnel record successfully created for : {my_object}"))
         return super().form_valid(form)
 
-
-class PersonnelDeleteView(WhalebraryAdminAccessRequired, DeleteView):
+class PersonnelDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
     model = models.Personnel
     permission_required = "__all__"
     success_url = reverse_lazy('whalebrary:personnel_list')
     success_message = 'The personnel file was successfully deleted!'
+    template_name = 'whalebrary/confirm_delete.html'
+    home_url_name = "whalebrary:index"
+    grandparent_crumb = {"title": gettext_lazy("Personnel List"), "url": reverse_lazy("whalebrary:personnel_list")}
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("whalebrary:personnel_detail", kwargs=self.kwargs)}
 
     ## SUPPLIER ##
 
@@ -855,91 +912,115 @@ class FileDeleteView(WhalebraryEditRequiredMixin, DeleteView):
     ## INCIDENT ##
 
 
-class IncidentListView(WhalebraryAccessRequired, FilterView):
+class IncidentListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/incident_list.html"
+    h1 = "Incident List"
     filterset_class = filters.IncidentFilter
+    home_url_name = "whalebrary:index"
+    # container_class = "container-fluid"
+    row_object_url_name = "whalebrary:incident_detail"
+    new_btn_text = "New Incident"
+
     queryset = models.Incident.objects.annotate(
         search_term=Concat('id', 'name', 'species_count', 'submitted', 'first_report', 'location', 'region', output_field=TextField()))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Incident.objects.first()
-        context["field_list"] = [
-            'id',
-            'name',
-            'species_count',
-            'submitted',
-            'first_report',
-            'location',
-            'region',
-            'incident_type',
-            'exam',
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'name', "class": "", "width": ""},
+        {"name": 'species_count', "class": "", "width": ""},
+        {"name": 'submitted', "class": "", "width": ""},
+        {"name": 'first_report', "class": "", "width": ""},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 'incident_type', "class": "", "width": ""},
+        {"name": 'exam', "class": "", "width": ""},
+    ]
 
-        ]
-        return context
+    def get_new_object_url(self):
+        return reverse("whalebrary:incident_new", kwargs=self.kwargs)
 
-
-class IncidentDetailView(WhalebraryAccessRequired, DetailView):
+class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     model = models.Incident
+    field_list = [
+        'id',
+        'name',
+        'species_count',
+        'submitted',
+        'first_report',
+        'lat',
+        'long',
+        'location',
+        'region',
+        'species',
+        'sex',
+        'age_group',
+        'incident_type',
+        'gear_presence',
+        'gear_desc',
+        'exam',
+        'necropsy',
+        'results',
+        'photos',
+        'data_folder',
+        'comments',
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'id',
-            'name',
-            'species_count',
-            'submitted',
-            'first_report',
-            'lat',
-            'long',
-            'location',
-            'region',
-            'species',
-            'sex',
-            'age_group',
-            'incident_type',
-            'gear_presence',
-            'gear_desc',
-            'exam',
-            'necropsy',
-            'results',
-            'photos',
-            'data_folder',
-            'comments',
+    ]
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
+    # container_class = "container-fluid"
 
-        ]
-        return context
-
-
-class IncidentUpdateView(WhalebraryEditRequiredMixin, UpdateView):
+class IncidentUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     model = models.Incident
     form_class = forms.IncidentForm
+    template_name = 'whalebrary/form.html'
+    cancel_text = _("Cancel")
+    home_url_name = "whalebrary:index"
 
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Incident record successfully updated for : {my_object}"))
-        return super().form_valid(form)
+        return HttpResponseRedirect(reverse("whalebrary:incident_detail", kwargs=self.kwargs))
 
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        return my_object
 
-class IncidentCreateView(WhalebraryEditRequiredMixin, CreateView):
+    def get_h1(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:incident_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        kwargs = deepcopy(self.kwargs)
+        del kwargs["pk"]
+        return {"title": _("Incident List"), "url": reverse("whalebrary:incident_list", kwargs=kwargs)}
+
+class IncidentCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Incident
     form_class = forms.IncidentForm
+    template_name = 'whalebrary/form.html'
+    home_url_name = "whalebrary:index"
+    h1 = gettext_lazy("Add New Incident")
+    parent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
 
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Incident record successfully created for : {my_object}"))
         return super().form_valid(form)
 
-
-class IncidentDeleteView(WhalebraryEditRequiredMixin, DeleteView):
+class IncidentDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     model = models.Incident
     permission_required = "__all__"
     success_url = reverse_lazy('whalebrary:incident_list')
     success_message = 'The incident file was successfully deleted!'
+    template_name = 'whalebrary/confirm_delete.html'
+    home_url_name = "whalebrary:index"
+    grandparent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
 
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("whalebrary:incident_detail", kwargs=self.kwargs)}
 
     ## REPORTS ##
 

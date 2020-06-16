@@ -1,43 +1,27 @@
-{% extends "whalebrary/whalebrary_base.html" %}
+{% extends "whalebrary/base.html" %}
 {% load static %}
 {% load verbose_names %}
-{% block content %}
+{% load i18n %}
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:personnel_list' %}">Personnel List</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
-        </ol>
-    </nav>
+{% block subcontent %}
 
-
-    <style type="text/css">
-        .label {
-            font-weight: bold;
-        }
-    </style>
-
-    <div class="container">
-        <br>
-        <h1>{{ object }}</h1>
-        <p>
+    <div class="mb-4">
+        <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'whalebrary:personnel_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'whalebrary:personnel_delete' object.id %}">Delete</a>
             <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
-        </p>
-
-        <br><br>
+        </div>
+    </div>
 
         <div class="row">
-            <div class="col-3">
+            <div class="col-4">
+                <table class="table table-sm table-striped">
                 {% for field in field_list %}
-                    {% verbose_field_display object field %}
+                    {% verbose_td_display object field %}
                 {% endfor %}
+                </table>
             </div>
         </div>
 
-    </div>
 
-
-{% endblock content %}
+{% endblock %}

@@ -1,18 +1,28 @@
-{% extends "whalebrary/base.html" %}
+{% extends "whalebrary/form.html" %}
 {% load static %}
 {% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
 
-{% block subcontent %}
+{% block header %}
+    {{ block.super }}
+    <style>
+        input.cost {
+            font-size: small;
+            width: 100%;
+        }
 
-    <div class="container">
+        select.chosen-select-contains:invalid {
+            height: 0px !important;
+            opacity: 0 !important;
+            position: absolute !important;
+            display: flex !important;
+        }
+    </style>
 
-        {% if object.id %}
-            <h1>{{ object }}</h1>
-        {% else %}
-            New Item
-        {% endif %}
+{% endblock %}
 
-        <br><br>
+{% block form %}
 
         <form method="post" class="form">
             {% csrf_token %}
@@ -34,7 +44,5 @@
 
             {% endbuttons %}
         </form>
-
-    </div>
 
 {% endblock %}

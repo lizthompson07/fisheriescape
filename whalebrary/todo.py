@@ -1,8 +1,11 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
+# TODO "pop" views not working now - looks like integrated into one URL? How to do?
+# TODO After editing (commonupdateview) the detail page has a space at the top, but on reload it goes away again
 # TODO CommonUpdateView -- gives url error when trying to update -- fixed w redirect -- but how to get success message now?
 # TODO now if there is no location set item_detail view shows an error because of _transaction.html -- fix this (if elseif?)
+# TODO personnel_list.html -- colour coding doesn't work for experience level
 # TODO DeleteView - shows all related now, but is there a way to get it to prompt and then delete all? Is that from models with cascade?
 # TODO redo all views possible with common templates format
 # TODO Figure out how to use generic_popout_form (have done this with the confirm_delete_popout)

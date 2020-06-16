@@ -1,4 +1,8 @@
 {% extends "pop_base.html" %}
+
+{% block jquery_import %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>{% endblock %}
+
 {% load bootstrap4 %}
 {% load i18n %}
 {% load static %}
@@ -9,11 +13,9 @@
 
 <!--from pop_base.html-->
 
-    <link rel="stylesheet" href="{% static 'css/master.css' %}">
+<!--    <link rel="stylesheet" href="{% static 'css/master.css' %}">-->
 
-
-    <div class="indent-med">
-
+    <div class="container mb-3">
         <h3>
             {% if object %}
                 {% trans "Editing Transaction:" %} {{ object }}
@@ -39,8 +41,6 @@
                 </a>
             {% endbuttons %}
         </form>
-
-
     </div>
 
 {% endblock %}
