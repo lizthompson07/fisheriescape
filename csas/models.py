@@ -507,8 +507,16 @@ class RetTiming(shared_models.Lookup):
     pass
 
 
-class RedDecision(models.Model):
-    name = models.CharField(max_length=100)
+class RedDecision(shared_models.Lookup):
+    pass
+
+
+class ResStatus(shared_models.Lookup):
+    pass
+
+
+class RdeDecisionExplanation(shared_models.Lookup):
+    pass
 
 
 class ReqRequest(models.Model):
@@ -516,7 +524,8 @@ class ReqRequest(models.Model):
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     in_year_request = models.BooleanField(verbose_name=_("In-Year Request"))
     # region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
-    region = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING, blank=True, null=True)
+    region = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING, blank=True, null=True,
+                               verbose_name=_("Region"))
     client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
     client_name = models.CharField(max_length=100, verbose_name=_("Client Name"))
     client_title = models.CharField(max_length=100, verbose_name=_("Client Title"))
@@ -553,6 +562,24 @@ class ReqRequest(models.Model):
     class Meta:
         ordering = ['-id']
 
+
+class ReqRequestCSAS(models.Model):
+    request = models.OneToOneField(ReqRequest, on_delete=models.DO_NOTHING, primary_key=True)
+    # status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, blank=True, null=True,
+    #                            verbose_name=_("Status"))
+    status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
+    trans_title = models.CharField(max_length=255, verbose_name=_("Translated Title"))
+    decision = models.ForeignKey(RedDecision, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                 verbose_name=_("Decision"))
+    decision_exp = models.ForeignKey(RdeDecisionExplanation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                     verbose_name=_("Decision Explanation"))
+    decision_date = models.DateField(null=True, blank=True, verbose_name=_("Decision Date"))
+
+    # def __str__(self):
+    #     return "{}".format(self.request)
+
+    # class Meta:
+    #     ordering = ['-request']
 
 # End of models.py
 # ----------------------------------------------------------------------------------------------------

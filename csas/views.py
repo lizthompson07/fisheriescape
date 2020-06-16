@@ -279,6 +279,15 @@ class RequestEntry(CsasCreateCommon):
         return reverse_lazy('csas:details_req', args=(self.object.pk,))
 
 
+class RequestEntryCSAS(CsasCreateCommon):
+    title = _('New Request CSAS Entry')
+    model = models.ReqRequestCSAS
+    form_class = forms.RequestFormCSAS
+
+    def get_success_url(self):
+        return reverse_lazy('csas:details_req_CSAS', args=(self.object.pk,))
+
+
 class RequestUpdate(CsasUpdateCommon):
     title = _('Update Request')
     model = models.ReqRequest
@@ -300,12 +309,32 @@ class RequestUpdate(CsasUpdateCommon):
         return context
 
 
+class RequestUpdateCSAS(CsasUpdateCommon):
+    title = _('Update Request CSAS')
+    model = models.ReqRequestCSAS
+    form_class = forms.RequestFormCSAS
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_req_CSAS', args=(self.object.pk,))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+
+        return context
+
+
 class RequestList(CsasListCommon):
     key = 'req'
     title = _('Request List')
     model = models.ReqRequest
     filterset_class = filters.RequestFilter
-    fields = ['id', 'title', 'region', 'client_sector', 'client_name', 'funding']
+    fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'client_email', 'funding']
 
 
 class RequestDetails(DetailsCommon):
@@ -316,6 +345,13 @@ class RequestDetails(DetailsCommon):
               'client_title', 'client_email', 'issue', 'priority', 'rationale', 'proposed_timing',
               'rationale_for_timing', 'funding', 'funding_notes', 'science_discussion', 'science_discussion_notes',
               'adviser_submission', 'rd_submission', 'decision_date', ]
+
+
+class RequestDetailsCSAS(DetailsCommon):
+    key = 'req_CSAS'
+    title = _('Request Status Details')
+    model = models.ReqRequestCSAS
+    fields = ['id',  'request', 'status', 'trans_title', 'decision', 'decision_exp', 'decision_date', ]
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -355,7 +391,7 @@ class ContactList(CsasListCommon):
     title = _('Contact List')
     model = models.ConContact
     filterset_class = filters.ContactFilter
-    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'email', 'phone']
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
 
 
 class ContactDetails(DetailsCommon):

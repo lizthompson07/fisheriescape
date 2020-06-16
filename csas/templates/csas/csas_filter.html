@@ -18,6 +18,10 @@
                 <div class="row">
                     <div class="col-lg">
                         <h1>{% trans title %}</h1>
+                        {# ======================================= #}
+                        <h1>{% trans key %}</h1>
+                        <h1>{{csas_admin}}</h1>
+                        {# ======================================= #}
                     </div>
                     <div class="col-1 pt-1">
                         {# if the user is authenticated and has permissions show the add button #}
@@ -132,6 +136,15 @@
                                                href="{% url ''|add:update_url obj.pk %}"
                                                title="{% trans 'Update' %}">{% trans 'Update' %}</a>
                                     {% endif %}
+                                    {% endif %}
+                                    {% if key == 'req' and csas_admin %}
+                                        <a class="btn btn-secondary btn-sm"
+                                           href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">{% trans 'Status' %}</a>
+                                        <a class="btn btn-secondary btn-sm"
+                                           href="{% url ''|add:'csas:create_req_CSAS' %}">{% trans 'Status Update' %}</a>
+                                    {% elif key == 'req' and auth %}
+                                        <a class="btn btn-secondary btn-sm"
+                                           href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">{% trans 'Status' %}</a>
                                     {% endif %}
                                 </td>
                             {% endif %}
