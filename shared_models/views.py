@@ -220,6 +220,11 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
 
 
 class CommonPopoutUpdateView(CommonPopoutFormMixin, UpdateView):
+    def get_h1(self):
+        if self.h1:
+            return self.h1
+        else:
+            return gettext("Edit")
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
