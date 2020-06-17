@@ -2,8 +2,18 @@ import os
 
 from django.core import serializers
 from django.core.files import File
-
+import uuid
 from .import models
+
+def save_and_add_uuid():
+    model_list = [models.Region, models.Branch, models.Division, models.Section, models.Province]
+
+    for model in model_list:
+        for obj in model.objects.all():
+            if not obj.uuid:
+                obj.uuid = uuid.uuid4()
+                obj.save()
+
 
 def pad_codes():
     for port in models.Port.objects.all():
