@@ -4,19 +4,6 @@
 
 {% block content %}
     <style>
-        table.table-bordered {
-            border: 1px solid blue;
-            margin-top: 20px;
-        }
-
-        table.table-bordered > tbody > tr > th {
-            border: 1px solid blue;
-        }
-
-        table.table-bordered > tbody > tr > td {
-            border: 1px solid blue;
-        }
-
         .btn1 {
             width: 200px
         }
@@ -114,7 +101,7 @@
                                     {% if section not in user.shared_models_sections.all %}
                                         <li>
                                             <a href="{% url 'projects:section_project_list' section.id %}">
-                                                {{ section.full_name }}
+                                                {{ section.full_name_ver1 }}
                                             </a>
                                         </li>
                                     {% endif %}
@@ -126,90 +113,10 @@
                     {% endif %}
                 {% endif %}
             </div>
-            <div class="col-5">
-                <div class="card" style="width: 100%; background: #ffd738;">
-                    <div class="card-body">
-                        <h4 class="card-title">
-                            {% blocktrans with '2020-2021' as y %}
-                                {{ y }} Timelines
-                            {% endblocktrans %}
-                        </h4>
-                        <table class="table table-bordered card-text">
-                            <tr>
-                                <th rowspan="2">{% trans "Phase" %}</th>
-                                <th colspan="2" class="center-col">{% trans "Region specific date" %}</th>
-                            </tr>
-                            <tr>
-                                <th class="center-col">{% trans "Gulf" %}</th>
-                                <th class="center-col">{% trans "Maritimes" %}</th>
-                            </tr>
-                            <tr>
-                                <td>
-                                    {% trans "Official launch of project planning. Start building projects in app." %}
-                                </td>
-                                <td class="center-col" style="width: 20%;">{% trans "Nov 1" %}</td>
-                                <td class="center-col" style="width: 20%;">{% trans "Nov 4" %}</td>
-                            </tr>
-                            <tr>
-                                <td class="red-font">
-                                    {% trans "Submission deadline for core projects." %}
-                                </td>
-                                <td class="center-col red-font">{% trans "Dec 2" %}</td>
-                                <td class="center-col red-font">{% trans "Dec 18" %}</td>
-                            </tr>
-                            <tr>
-                                <td class="">
-                                    {% trans "Review of core projects." %}
-                                </td>
-                                <td class="center-col">{% trans "Dec 5-6" %}</td>
-                                <td class="center-col">{% trans "Feb 20" %}</td>
-                            </tr>
-                            <tr>
-                                <td class="red-font">
-                                    {% trans "Submission deadline for flex projects." %}
-                                </td>
-                                <td class="center-col red-font">{% trans "Jan 6" %}</td>
-                                <td class="center-col red-font">{% trans "TBD" %}</td>
-                            </tr>
-                            <tr>
-                                <td class="">
-                                    {% trans "Review of flex projects." %}
-                                </td>
-                                <td class="center-col">{% trans "Jan 16-17" %}</td>
-                                <td class="center-col">{% trans "TBD" %}</td>
-                            </tr>
-                            <tr>
-                                <td class="">
-                                    {% trans "Review final versions of program descriptions, budgets and deliverables for fiscal 2020-2021." %}
-                                </td>
-                                <td class="center-col">{% trans "Mar 17" %}</td>
-                                <td class="center-col">{% trans "TBD" %}</td>
-                            </tr>
-                        </table>
 
-                        <br>
-                        <h4 class="card-title">
-                            {% trans "Reference Materials:" %}
-                        </h4>
-                        <ul>
-                            <li>
-                                <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
-                                &nbsp;
-                                <a class="" href="{% static 'projects/Project Planning Guidance_Nov2019.pdf' %}">
-                                    {% trans "Guidance for Entering New Projects (Maritimes)" %}
-                                </a>
-                            </li>
-                            <li>
-                                <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px"> &nbsp;
-                                <a class="" href="{% static 'projects/Project Planning Priorities_Nov2019.pdf' %}">
-                                    {% trans "Project Planning Priorities (Maritimes)" %}
-                                </a>
-                            </li>
 
-                        </ul>
-
-                    </div>
-                </div>
+            <div class="col-7">
+                {% include "projects/_upcoming_dates.html" %}
             </div>
         </div>
 

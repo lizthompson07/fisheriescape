@@ -1,0 +1,130 @@
+{% load i18n %}
+{% load static %}
+{% load verbose_names %}
+{% load humanize %}
+<style>
+    .card {
+        background-color: #ebebeb;
+    }
+</style>
+
+<div class="card">
+    <div class="card-body">
+        {% if upcoming_dates.count %}
+
+
+            <h4 class="card-title">
+                {% trans "Upcoming Dates" %}
+            </h4>
+
+            <table class="table table-sm table-striped">
+                <thead>
+                {% for field in upcoming_dates_field_list %}
+                    {% if field == "date" %}
+                        <th style="width: 150px">
+                            {% get_verbose_label upcoming_dates.first field %}
+                        </th>
+                    {% else %}
+                        <th>
+                            {% get_verbose_label upcoming_dates.first field %}
+                        </th>
+                    {% endif %}
+                {% endfor %}
+                </thead>
+                <tbody>
+                {% for upcoming_date  in upcoming_dates %}
+                    <tr {% if upcoming_date.is_deadline %}class="red-font"{% endif %}>
+                        {% for field in upcoming_dates_field_list %}
+
+                            <td>
+                                {% if field == "date" %}
+                                    {{ upcoming_date.date|date }}<br>
+                                    ({{ upcoming_date.date|timeuntil }})
+
+                                {% else %}
+                                    {% get_field_value upcoming_date field %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+                {##}
+                {##}
+                {#            <tr>#}
+                {#                <th rowspan="2">{% trans "Phase" %}</th>#}
+                {#                <th colspan="2" class="center-col">{% trans "Region specific date" %}</th>#}
+                {#            </tr>#}
+                {#            <tr>#}
+                {#                <th class="center-col">{% trans "Gulf" %}</th>#}
+                {#                <th class="center-col">{% trans "Maritimes" %}</th>#}
+                {#            </tr>#}
+                {#            <tr>#}
+                {#                <td>#}
+                {#                    {% trans "Official launch of project planning. Start building projects in app." %}#}
+                {#                </td>#}
+                {#                <td class="center-col" style="width: 20%;">{% trans "Nov 1" %}</td>#}
+                {#                <td class="center-col" style="width: 20%;">{% trans "Nov 4" %}</td>#}
+                {#            </tr>#}
+                {#            <tr>#}
+                {#                <td class="red-font">#}
+                {#                    {% trans "Submission deadline for core projects." %}#}
+                {#                </td>#}
+                {#                <td class="center-col red-font">{% trans "Dec 2" %}</td>#}
+                {#                <td class="center-col red-font">{% trans "Dec 18" %}</td>#}
+                {#            </tr>#}
+                {#            <tr>#}
+                {#                <td class="">#}
+                {#                    {% trans "Review of core projects." %}#}
+                {#                </td>#}
+                {#                <td class="center-col">{% trans "Dec 5-6" %}</td>#}
+                {#                <td class="center-col">{% trans "Feb 20" %}</td>#}
+                {#            </tr>#}
+                {#            <tr>#}
+                {#                <td class="red-font">#}
+                {#                    {% trans "Submission deadline for flex projects." %}#}
+                {#                </td>#}
+                {#                <td class="center-col red-font">{% trans "Jan 6" %}</td>#}
+                {#                <td class="center-col red-font">{% trans "TBD" %}</td>#}
+                {#            </tr>#}
+                {#            <tr>#}
+                {#                <td class="">#}
+                {#                    {% trans "Review of flex projects." %}#}
+                {#                </td>#}
+                {#                <td class="center-col">{% trans "Jan 16-17" %}</td>#}
+                {#                <td class="center-col">{% trans "TBD" %}</td>#}
+                {#            </tr>#}
+                {#            <tr>#}
+                {#                <td class="">#}
+                {#                    {% trans "Review final versions of program descriptions, budgets and deliverables for fiscal 2020-2021." %}#}
+                {#                </td>#}
+                {#                <td class="center-col">{% trans "Mar 17" %}</td>#}
+                {#                <td class="center-col">{% trans "TBD" %}</td>#}
+                {#            </tr>#}
+            </table>
+        {% endif %}
+
+        <br>
+        <h4 class="card-title">
+            {% trans "Reference Materials:" %}
+        </h4>
+        <ul>
+            <li>
+                <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                &nbsp;
+                <a class="" href="{% static 'projects/Project Planning Guidance_Nov2019.pdf' %}">
+                    {% trans "Guidance for Entering New Projects (Maritimes)" %}
+                </a>
+            </li>
+            <li>
+                <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px"> &nbsp;
+                <a class="" href="{% static 'projects/Project Planning Priorities_Nov2019.pdf' %}">
+                    {% trans "Project Planning Priorities (Maritimes)" %}
+                </a>
+            </li>
+
+        </ul>
+
+    </div>
+</div>
