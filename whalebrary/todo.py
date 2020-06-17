@@ -1,18 +1,18 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
-# TODO "pop" views not working now - looks like integrated into one URL? How to do?
-# TODO After editing (commonupdateview) the detail page has a space at the top, but on reload it goes away again
-# TODO CommonUpdateView -- gives url error when trying to update -- fixed w redirect -- but how to get success message now?
 # TODO now if there is no location set item_detail view shows an error because of _transaction.html -- fix this (if elseif?)
 # TODO personnel_list.html -- colour coding doesn't work for experience level
-# TODO DeleteView - shows all related now, but is there a way to get it to prompt and then delete all? Is that from models with cascade?
 # TODO redo all views possible with common templates format
-# TODO Figure out how to use generic_popout_form (have done this with the confirm_delete_popout)
 # TODO View for items of similar and all sizes (tyvek, gloves, batteries) showing all quantity
 # TODO make View for On Order items that you can change status, add location etc all at once for all on order items
 # TODO if status=lent out, automatically set Location = lent out
 # TODO reports view - if no items in container, don't display table and display message instead (like with _summary pages)
+
+### TICKETED FOR DAVID AND/OR PATRICK
+# TODO After editing (commonupdateview) the detail page has a space at the top, but on reload it goes away again -- submit dev ticket
+# TODO CommonUpdateView -- gives url error when trying to update -- fixed w redirect -- but how to get success message now?
+# TODO DeleteView - shows all related now, but is there a way to get it to prompt and then delete all? Is that from models with cascade? --submit dev ticket
 
 ### LARGER ITEMS - PRIORITY
 # TODO Testing Units so Dev version can be deployed
@@ -56,4 +56,5 @@
 # TODO from location_detail page add link to be able to generate report for that location directly (without having to go to reports) (have to separate for containers and not)
 # TODO Ask David if "clear" button can be added to generic_filter
 # TODO what if you want to overwrite the name of the 'new' button from generic_filter.html? do you have to copy the whole block?
+# TODO "pop" views not working now - looks like integrated into one URL? How to do?
 
