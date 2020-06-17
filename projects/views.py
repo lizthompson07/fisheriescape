@@ -546,6 +546,7 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
             context["section_list"] = section_list
         context["reference_materials"] = models.ReferenceMaterial.objects.all()
         context["upcoming_dates"] = models.UpcomingDate.objects.filter(date__gte=timezone.now()).order_by("date")
+        context["past_dates"] = models.UpcomingDate.objects.filter(date__lt=timezone.now()).order_by("date")
         context["upcoming_dates_field_list"] = [
             "date",
             "region",
