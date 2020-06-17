@@ -220,8 +220,7 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
 
 
 class CommonPopoutDeleteView(CommonPopoutFormMixin, CommonDeleteView):
-    template_name = 'shared_models/generic_popout_form.html'
-    pass
+    template_name = 'shared_models/generic_popout_confirm_delete.html'
 
 
 class CommonPopoutUpdateView(CommonPopoutFormMixin, UpdateView):
