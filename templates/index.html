@@ -105,6 +105,11 @@
     </style>
 {% endblock %}
 
+
+{% block alerts %}
+
+{% endblock %}
+
 {% block title %}
     {% trans 'DM Apps' %}
 {% endblock title %}
@@ -132,7 +137,19 @@
             <div role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 py-4">
                 <div class="">
                     <div class="container-fluid">
-
+                        {% load bootstrap4 %}
+                        {% autoescape off %}
+                            {% for message in messages %}
+                                <div class="row justify-content-center">
+                                    <div style="width: 70%" class="{{ message|bootstrap_message_classes }} alert-dismissible fade show"
+                                         role="alert">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="{% trans 'close' %}">&#215;
+                                        </button>
+                                        {{ message }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endautoescape %}
 
                         {% if not user.is_authenticated %}
                             <div class="mb-3 center-col">

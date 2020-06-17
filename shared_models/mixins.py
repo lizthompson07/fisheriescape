@@ -257,8 +257,8 @@ class CommonFormMixin(CommonMixin):
         if self.success_url:
             return self.success_url
         # if there is no success url provided, a reasonable guess would be to go back to the parent url
-        elif self.parent_crumb:
-            return self.parent_crumb.get("url")
+        elif self.get_parent_crumb():
+            return self.get_parent_crumb().get("url")
 
     def get_common_context(self):
         context = super().get_common_context()
