@@ -219,6 +219,11 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
         return context
 
 
+class CommonPopoutDeleteView(CommonPopoutFormMixin, CommonDeleteView):
+    template_name = 'shared_models/generic_popout_form.html'
+    pass
+
+
 class CommonPopoutUpdateView(CommonPopoutFormMixin, UpdateView):
     def get_h1(self):
         if self.h1:
