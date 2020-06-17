@@ -4,8 +4,6 @@ from . import views
 app_name = 'tickets'
 
 urlpatterns = [
-    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
-
     # Tickets #
     ###########
     path('', views.index_router, name="router"),
