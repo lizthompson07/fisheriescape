@@ -7,7 +7,7 @@ from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.utils import timezone
 from django.urls import reverse_lazy, reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 from django.views.generic import TemplateView, UpdateView, DeleteView, CreateView, DetailView, ListView
 from django_filters.views import FilterView
 from shutil import copyfile
@@ -15,8 +15,8 @@ from github import Github
 
 import os
 
-
 from dm_apps.utils import custom_send_mail
+from shared_models.views import CommonFilterView, CommonDetailView, CommonUpdateView, CommonDeleteView, CommonCreateView
 from . import models
 from . import forms
 from . import filters
@@ -39,66 +39,55 @@ def index_router(request):
         return HttpResponseRedirect(reverse("tickets:list"))
 
 
-# Create your views here.
-class CloserTemplateView(TemplateView):
-    template_name = 'tickets/close_me.html'
-
-
 # Ticket #
 ##########
-class TicketListView(LoginRequiredMixin, FilterView):
+class TicketListView(LoginRequiredMixin, CommonFilterView):
     filterset_class = filters.TicketFilter
-    template_name = "tickets/ticket_list.html"
+    template_name = "tickets/list.html"
     queryset = models.Ticket.objects.annotate(
         search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
+    h1 = gettext_lazy("Data Management Tickets")
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context["my_object"] = models.Ticket.objects.first()
-        context["list_name"] = "all"
-        context["field_list"] = [
-            'id',
-            # 'date_modified',
-            'priority',
-            'dm_assigned',
-            'app_display|app',
-            'title',
-            'request_type',
-            'section',
-            'status',
-            'primary_contact',
-            'sd_ref_number',
-        ]
-        return context
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'priority', "class": "", "width": ""},
+        {"name": 'dm_assigned', "class": "", "width": ""},
+        {"name": 'app_display|app', "class": "", "width": ""},
+        {"name": 'title', "class": "", "width": ""},
+        {"name": 'request_type', "class": "", "width": ""},
+        {"name": 'section', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'primary_contact', "class": "", "width": ""},
+        {"name": 'sd_ref_number', "class": "", "width": ""},
+    ]
 
 
-class MyTicketListView(LoginRequiredMixin, FilterView):
+class MyTicketListView(LoginRequiredMixin, CommonFilterView):
     filterset_class = filters.MyTicketFilter
-    template_name = "tickets/ticket_list.html"
+    template_name = "tickets/list.html"
+    new_object_url_name = "tickets:create"
+    row_object_url_name = "tickets:detail"
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'priority', "class": "", "width": ""},
+        {"name": 'dm_assigned', "class": "", "width": ""},
+        {"name": 'app_display|app', "class": "", "width": ""},
+        {"name": 'title', "class": "", "width": ""},
+        {"name": 'request_type', "class": "", "width": ""},
+        {"name": 'section', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'primary_contact', "class": "", "width": ""},
+        {"name": 'sd_ref_number', "class": "", "width": ""},
+    ]
+
+    def get_h1(self):
+        return f"{self.request.user.first_name}'s Tickets"
 
     def get_queryset(self):
         return models.Ticket.objects.filter(primary_contact=self.request.user).annotate(
             search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context["my_object"] = models.Ticket.objects.first()
-        context["list_name"] = "my"
-        context["field_list"] = [
-            'id',
-            # 'date_modified',
-            'priority',
-            'dm_assigned',
-            'app_display|app',
-            'title',
-            'request_type',
-            'section',
-            'status',
-            'primary_contact',
-            'sd_ref_number',
-        ]
-        return context
-
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
         if kwargs["data"] is None:
@@ -106,31 +95,30 @@ class MyTicketListView(LoginRequiredMixin, FilterView):
         return kwargs
 
 
-class MyAssignedTicketListView(LoginRequiredMixin, FilterView):
+class MyAssignedTicketListView(LoginRequiredMixin, CommonFilterView):
     filterset_class = filters.MyTicketFilter
-    template_name = "tickets/ticket_list.html"
+    template_name = "tickets/list.html"
+    new_object_url_name = "tickets:create"
+    row_object_url_name = "tickets:detail"
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'primary_contact', "class": "", "width": ""},
+        {"name": 'priority', "class": "", "width": ""},
+        {"name": 'dm_assigned', "class": "", "width": ""},
+        {"name": 'app_display|app', "class": "", "width": ""},
+        {"name": 'title', "class": "", "width": ""},
+        {"name": 'request_type', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'github_issue_number', "class": "", "width": ""},
+    ]
+
+    def get_h1(self):
+        return f"Tickets Assigned to {self.request.user.first_name}"
 
     def get_queryset(self):
         return models.Ticket.objects.filter(dm_assigned=self.request.user.id).annotate(
             search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context["my_object"] = models.Ticket.objects.first()
-        context["list_name"] = "assigned"
-        context["field_list"] = [
-            'id',
-            'primary_contact',
-            'priority',
-            'dm_assigned',
-            'app_display|App',
-            'title',
-            'request_type',
-            'status',
-            'github_issue_number',
-        ]
-        return context
-
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
         if kwargs["data"] is None:
@@ -138,12 +126,10 @@ class MyAssignedTicketListView(LoginRequiredMixin, FilterView):
         return kwargs
 
 
-class TicketDetailView(LoginRequiredMixin, DetailView):
+class TicketDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Ticket
-
+    home_url_name = "tickets:router"
     template_name = "tickets/ticket_detail.html"
-
-    # form_class = forms.TicketDetailForm
 
     def get_context_data(self, **kwargs):
         context = super(TicketDetailView, self).get_context_data(**kwargs)
@@ -224,7 +210,7 @@ def mark_ticket_active(request, ticket):
     return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': ticket}))
 
 
-class TicketUpdateView(LoginRequiredMixin, UpdateView):
+class TicketUpdateView(LoginRequiredMixin, CommonUpdateView):
     model = models.Ticket
     template_name = "tickets/ticket_form.html"
 
@@ -249,22 +235,19 @@ class TicketUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-class TicketDeleteView(LoginRequiredMixin, DeleteView):
+class TicketDeleteView(LoginRequiredMixin, CommonDeleteView):
     model = models.Ticket
     success_url = reverse_lazy('tickets:list')
 
 
-class TicketCreateView(LoginRequiredMixin, CreateView):
+class TicketCreateView(LoginRequiredMixin, CommonCreateView):
     model = models.Ticket
-
     form_class = forms.TicketForm
+    template_name = 'tickets/ticket_form.html'
+    home_url_name = "tickets:router"
 
     def get_initial(self):
         return {'primary_contact': self.request.user}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
 
     def form_valid(self, form):
         self.object = form.save()
@@ -407,7 +390,7 @@ class FileCreateView(LoginRequiredMixin, CreateView):
             recipient_list=email.to_list
         )
 
-        return HttpResponseRedirect(reverse('tickets:close_me'))
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
 class FileUpdateView(LoginRequiredMixin, UpdateView):
@@ -436,7 +419,7 @@ class FileDeleteView(LoginRequiredMixin, DeleteView):
     # form_class = forms.StudentCreateForm
 
     def get_success_url(self):
-        return reverse_lazy('tickets:close_me')
+        return reverse_lazy('shared_models:close_me')
 
 
 def add_generic_file(request, ticket, type):
@@ -517,7 +500,7 @@ class FollowUpCreateView(LoginRequiredMixin, CreateView):
             )
             self.object.github_id = my_comment.id
             self.object.save()
-        return HttpResponseRedirect(reverse('tickets:close_me'))
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
 class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
@@ -544,7 +527,6 @@ class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
             recipient_list=email.to_list
         )
 
-
         # github
         if self.object.ticket.github_issue_number:
             # If a github issue number exists, create this follow up as a comment
@@ -557,7 +539,7 @@ class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
             )
             self.object.github_id = my_comment.id
             self.object.save()
-        return HttpResponseRedirect(reverse('tickets:close_me'))
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
 class FollowUpDeleteView(LoginRequiredMixin, DeleteView):
@@ -567,7 +549,7 @@ class FollowUpDeleteView(LoginRequiredMixin, DeleteView):
     # form_class = forms.StudentCreateForm
 
     def get_success_url(self):
-        return reverse_lazy('tickets:close_me')
+        return reverse_lazy('shared_models:close_me')
 
     def delete(self, request, *args, **kwargs):
         # If a github comment id exists, delete the comment on github as well
