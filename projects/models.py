@@ -20,7 +20,7 @@ from dm_apps import custom_widgets
 from . import emails
 
 # Choices for language
-from shared_models.models import SimpleLookup
+from shared_models.models import SimpleLookup, Lookup
 
 ENG = 1
 FRE = 2
@@ -125,6 +125,13 @@ class Program(models.Model):
 
     class Meta:
         ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
+
+
+class UpcomingDate(Lookup):
+    date = models.DateField()
+
+    class Meta:
+        ordering = ["-date", ]
 
 
 class FunctionalGroup(SimpleLookup):
