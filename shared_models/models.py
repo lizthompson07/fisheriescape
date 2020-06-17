@@ -352,7 +352,7 @@ class Vessel(models.Model):
 class Cruise(models.Model):
     institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True)
     mission_number = models.CharField(max_length=255, unique=True)
-    mission_name = models.CharField(max_length=255, unique=True)
+    mission_name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, null=True, blank=True)
     chief_scientist = models.CharField(max_length=255)
     samplers = models.CharField(max_length=255, null=True, blank=True)

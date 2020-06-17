@@ -54,11 +54,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='cruise',
-            name='mission_name',
-            field=models.CharField(max_length=255, unique=True),
-        ),
-        migrations.AlterField(
-            model_name='cruise',
             name='mission_number',
             field=models.CharField(max_length=255, unique=True),
         ),
