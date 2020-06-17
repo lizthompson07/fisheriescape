@@ -14,7 +14,7 @@ from django_filters.views import FilterView
 ###
 from . import models
 from . import forms
-from .mixins import CommonMixin, CommonFormMixin, CommonListMixin, CommonPopoutFormMixin
+from .mixins import CommonMixin, CommonFormMixin, CommonListMixin, CommonPopoutFormMixin, CommonPopoutMixin
 
 
 class CloserTemplateView(TemplateView):
@@ -239,6 +239,11 @@ class CommonPopoutDeleteView(CommonPopoutFormMixin, CommonDeleteView):
     template_name = 'shared_models/generic_popout_confirm_delete.html'
 
 
+class CommonPopoutCreateView(CommonPopoutFormMixin, CommonCreateView):
+    template_name = 'shared_models/generic_popout_form.html'
+
+
+
 class CommonPopoutUpdateView(CommonPopoutFormMixin, UpdateView):
     def get_h1(self):
         if self.h1:
@@ -333,6 +338,11 @@ class CommonDetailView(CommonMixin, DetailView):
 
     def get_h1(self):
         return str(self.get_object())
+
+
+class CommonPopoutDetailView(CommonPopoutMixin, CommonDetailView):
+    template_name = 'shared_models/generic_popout_detail.html'
+
 
 
 class CommonFormsetView(TemplateView, CommonFormMixin):

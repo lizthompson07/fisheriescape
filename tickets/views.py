@@ -16,7 +16,8 @@ from github import Github
 import os
 
 from dm_apps.utils import custom_send_mail
-from shared_models.views import CommonFilterView, CommonDetailView, CommonUpdateView, CommonDeleteView, CommonCreateView
+from shared_models.views import CommonFilterView, CommonDetailView, CommonUpdateView, CommonDeleteView, CommonCreateView, \
+    CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonPopoutDetailView
 from . import models
 from . import forms
 from . import filters
@@ -47,7 +48,7 @@ class TicketListView(LoginRequiredMixin, CommonFilterView):
     queryset = models.Ticket.objects.annotate(
         search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
     h1 = gettext_lazy("Data Management Tickets")
-
+    container_class = "container-fluid"
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'priority', "class": "", "width": ""},
@@ -67,7 +68,7 @@ class MyTicketListView(LoginRequiredMixin, CommonFilterView):
     template_name = "tickets/list.html"
     new_object_url_name = "tickets:create"
     row_object_url_name = "tickets:detail"
-
+    container_class = "container-fluid"
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'priority', "class": "", "width": ""},
@@ -100,6 +101,7 @@ class MyAssignedTicketListView(LoginRequiredMixin, CommonFilterView):
     template_name = "tickets/list.html"
     new_object_url_name = "tickets:create"
     row_object_url_name = "tickets:detail"
+    container_class = "container-fluid"
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'primary_contact', "class": "", "width": ""},
@@ -237,7 +239,8 @@ class TicketUpdateView(LoginRequiredMixin, CommonUpdateView):
 
 class TicketDeleteView(LoginRequiredMixin, CommonDeleteView):
     model = models.Ticket
-    success_url = reverse_lazy('tickets:list')
+    success_url = reverse_lazy('tickets:router')
+    template_name = "tickets/confirm_delete.html"
 
 
 class TicketCreateView(LoginRequiredMixin, CommonCreateView):
@@ -278,11 +281,11 @@ class TicketCreateView(LoginRequiredMixin, CommonCreateView):
             return HttpResponseRedirect(self.get_success_url())
 
 
-class TicketCreateViewPopout(LoginRequiredMixin, CreateView):
+class TicketCreateViewPopout(LoginRequiredMixin, CommonPopoutCreateView):
     model = models.Ticket
-
     form_class = forms.FeedbackForm
-    template_name = "tickets/ticket_form_popout.html"
+
+    # template_name = "tickets/ticket_form_popout.html"
 
     def get_initial(self):
         my_dict = {
@@ -315,62 +318,30 @@ class TicketCreateViewPopout(LoginRequiredMixin, CreateView):
             from_email=email.from_email,
             recipient_list=email.to_list
         )
+        return HttpResponseRedirect(reverse_lazy('tickets:confirm'))
 
-        return HttpResponseRedirect(reverse_lazy('tickets:detail_pop', kwargs={"pk": self.object.id}))
+
+class TicketConfirmationTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = "tickets/ticket_confirmation.html"
 
 
-class TicketDetailViewPopout(LoginRequiredMixin, DetailView):
+class TicketNoteUpdateView(LoginRequiredMixin, CommonUpdateView):
     model = models.Ticket
-    template_name = "tickets/ticket_detail_popout.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['email'] = emails.TicketResolvedEmail(self.object)
-        context["field_group_1"] = [
-            "app",
-            "priority",
-            "request_type",
-        ]
-
-        context["field_group_2"] = [
-            "financial_coding",
-            "description",
-            "notes_html",
-            "people_notes",
-        ]
-
-        context["field_group_3"] = [
-            "date_opened",
-            "date_modified",
-            "date_closed",
-            "resolved_email_date",
-        ]
-
-        context["field_group_4"] = [
-            "sd_ref_number",
-            "sd_ticket_url",
-            "sd_primary_contact",
-            "sd_description",
-            "sd_date_logged",
-        ]
-        return context
-
-
-class TicketNoteUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Ticket
-    template_name = "tickets/ticket_note_form.html"
-
     form_class = forms.TicketNoteForm
+    template_name = 'tickets/form.html'
+    home_url_name = "tickets:router"
+    h1 = "Edit notes"
+
+    def get_parent_crumb(self):
+        return {"title":self.get_object(), "url": reverse("tickets:detail" , args=[self.get_object().id])}
 
 
 # Files #
 #########
 
-class FileCreateView(LoginRequiredMixin, CreateView):
+class FileCreateView(LoginRequiredMixin, CommonPopoutCreateView):
     model = models.File
-    # fields = '__all__'
-    template_name = 'tickets/file_form_popout.html'
-
+    is_multipart_form_data = True
     form_class = forms.FileForm
 
     def get_initial(self):
@@ -393,33 +364,25 @@ class FileCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
-class FileUpdateView(LoginRequiredMixin, UpdateView):
+class FileUpdateView(LoginRequiredMixin, CommonPopoutUpdateView):
     model = models.File
-    fields = '__all__'
+    form_class = forms.FileForm
     template_name = 'tickets/file_form_popout.html'
-    # form_class = forms.StudentCreateForm
+    is_multipart_form_data = True
 
 
-class FileDetailView(LoginRequiredMixin, UpdateView):
+class FileDetailView(LoginRequiredMixin, CommonPopoutDetailView):
     model = models.File
-    fields = '__all__'
     template_name = 'tickets/file_detail_popout.html'
+    field_list = [
+        'caption',
+        "date_created",
+        "file",
+    ]
 
-    # form_class = forms.TagForm
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class FileDeleteView(LoginRequiredMixin, DeleteView):
+class FileDeleteView(LoginRequiredMixin, CommonPopoutDeleteView):
     model = models.File
-    template_name = 'tickets/file_confirm_delete_popout.html'
-
-    # form_class = forms.StudentCreateForm
-
-    def get_success_url(self):
-        return reverse_lazy('shared_models:close_me')
 
 
 def add_generic_file(request, ticket, type):
@@ -457,17 +420,15 @@ def add_generic_file(request, ticket, type):
 # Follow ups #
 ##############
 
-class FollowUpCreateView(LoginRequiredMixin, CreateView):
+class FollowUpCreateView(LoginRequiredMixin, CommonPopoutCreateView):
     model = models.FollowUp
-    # fields = '__all__'
-    template_name = 'tickets/followup_form_popout.html'
-
     form_class = forms.FollowUpForm
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context["ticket"] = models.Ticket.objects.get(pk=self.kwargs["ticket"])
-        return context
+    def get_h3(self):
+        ticket = models.Ticket.objects.get(pk=self.kwargs['ticket'])
+        if ticket.github_issue_number and self.request.is_staff:
+            return f'HEADS UP: this follow-up will be created as a github comment on issue { ticket.github_issue_number }'
+
 
     def get_initial(self):
         ticket = models.Ticket.objects.get(pk=self.kwargs['ticket'])
@@ -503,10 +464,13 @@ class FollowUpCreateView(LoginRequiredMixin, CreateView):
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
-class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
+class FollowUpUpdateView(LoginRequiredMixin, CommonPopoutUpdateView):
     model = models.FollowUp
-    template_name = 'tickets/followup_form_popout.html'
     form_class = forms.FollowUpForm
+
+    def get_h3(self):
+        if self.get_object().ticket.github_issue_number and self.request.is_staff:
+            return f'HEADS UP: this follow-up will be updated as a github comment on issue { self.get_object().github_issue_number }'
 
     def get_initial(self):
         return {
@@ -542,14 +506,8 @@ class FollowUpUpdateView(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
-class FollowUpDeleteView(LoginRequiredMixin, DeleteView):
+class FollowUpDeleteView(LoginRequiredMixin, CommonPopoutDeleteView):
     model = models.FollowUp
-    template_name = 'tickets/followup_confirm_delete_popout.html'
-
-    # form_class = forms.StudentCreateForm
-
-    def get_success_url(self):
-        return reverse_lazy('shared_models:close_me')
 
     def delete(self, request, *args, **kwargs):
         # If a github comment id exists, delete the comment on github as well
