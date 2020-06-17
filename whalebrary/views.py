@@ -465,13 +465,10 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
 
 class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     model = models.Transaction
+    form_class = forms.TransactionForm
     home_url_name = "whalebrary:index"
-
-    def get_template_names(self):
-        return "shared_models/generic_popout_form.html" if self.kwargs.get("pop") else "whalebrary/transaction_form.html"
-
-    def get_form_class(self):
-        return forms.TransactionForm1 if self.kwargs.get("pop") else forms.TransactionForm
+    template_name = "whalebrary/form.html"
+    cancel_text = _("Cancel")
 
     def get_active_page_name_crumb(self):
         my_object = self.get_object()
@@ -490,15 +487,13 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Transaction record successfully updated for : {my_object}"))
-        success_url = reverse_lazy('shared_models:close_me') if self.kwargs.get("type") == "pop" else reverse_lazy('whalebrary:transaction_detail',
-                                                                                                         kwargs={"pk": my_object.id})
-        return HttpResponseRedirect(success_url)
-
+        return HttpResponseRedirect(reverse("whalebrary:transaction_detail", kwargs=self.kwargs))
 
 
 class TransactionUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
     model = models.Transaction
     form_class = forms.TransactionForm1
+
 
 class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Transaction
