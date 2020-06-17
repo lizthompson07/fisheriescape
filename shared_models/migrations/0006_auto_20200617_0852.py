@@ -53,11 +53,6 @@ class Migration(migrations.Migration):
         #     field=models.CharField(blank=True, max_length=255, null=True, verbose_name='name (fr)'),
         # ),
         migrations.AlterField(
-            model_name='cruise',
-            name='mission_number',
-            field=models.CharField(max_length=255, unique=True),
-        ),
-        migrations.AlterField(
             model_name='division',
             name='date_last_modified',
             field=models.DateTimeField(auto_now=True, default=django.utils.timezone.now, verbose_name='date last modified'),
