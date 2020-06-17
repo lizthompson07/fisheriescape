@@ -33,14 +33,14 @@ urlpatterns = [
     path('transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="transaction_edit"),
     path('transaction/<int:pk>/edit/pop/<int:pop>/', views.TransactionUpdatePopoutView.as_view(), name="transaction_edit"),
-    path('transaction/<int:pk>/delete/pop/<int:pop>/', views.TransactionDeleteView.as_view(), name="transaction_delete"),
+    path('transaction/<int:pk>/delete/pop/<int:pop>/', views.TransactionDeletePopoutView.as_view(), name="transaction_delete"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="transaction_delete"),
 
 # BULK TRANSACTIONS #
 
     path('bulk_transaction_list/', views.BulkTransactionListView.as_view(), name="bulk_transaction_list"),
     # path('bulk_transaction_detail/<int:pk>/view/', views.BulkTransactionDetailView.as_view(), name="bulk_transaction_detail"),
-    path('transaction/<int:pk>/delete/', views.BulkTransactionDeleteView.as_view(), name="bulk_transaction_delete"),
+    path('bulk_transaction/<int:pk>/delete/', views.BulkTransactionDeleteView.as_view(), name="bulk_transaction_delete"),
 
 # LOCATION #
 

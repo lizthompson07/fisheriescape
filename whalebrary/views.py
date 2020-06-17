@@ -21,7 +21,7 @@ from django_filters.views import FilterView
 from django.utils import timezone
 
 from shared_models.views import CommonPopoutFormView, CommonListView, CommonFilterView, CommonDetailView, \
-    CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView
+    CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutDeleteView
 from . import models
 from . import forms
 from . import filters
@@ -518,24 +518,18 @@ class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
 class TransactionDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     model = models.Transaction
     permission_required = "__all__"
+    success_url = reverse_lazy('whalebrary:transaction_list')
+    template_name = 'whalebrary/confirm_delete.html'
     home_url_name = "whalebrary:index"
+    grandparent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("whalebrary:transaction_detail", kwargs=self.kwargs)}
 
-    def get_grandparent_crumb(self):
-        kwargs = deepcopy(self.kwargs)
-        del kwargs["pk"]
-        return {"title": _("Transaction List"), "url": reverse("whalebrary:transaction_list", kwargs=kwargs)}
 
-    def get_template_names(self):
-        return 'shared_models/generic_popout_form.html' if self.kwargs.get(
-            'type') == "pop" else 'whalebrary/confirm_delete.html'
-
-    def get_success_url(self):
-        return reverse('shared_models:close_me') if self.kwargs.get(
-            'type') == "pop" else self.get_grandparent_crumb().get("url")
-
+class TransactionDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
+    model = models.Transaction
+    delete_protection = False
 
     # def delete(self, request, *args, **kwargs):
     #     my_object = self.get_object()
