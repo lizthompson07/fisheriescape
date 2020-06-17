@@ -11,47 +11,47 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # migrations.AddField(
-        #     model_name='branch',
-        #     name='uuid',
-        #     field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
-        # ),
-        # migrations.AddField(
-        #     model_name='division',
-        #     name='uuid',
-        #     field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
-        # ),
-        # migrations.AddField(
-        #     model_name='province',
-        #     name='uuid',
-        #     field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
-        # ),
-        # migrations.AddField(
-        #     model_name='region',
-        #     name='uuid',
-        #     field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
-        # ),
-        # migrations.AddField(
-        #     model_name='section',
-        #     name='uuid',
-        #     field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
-        # ),
-        # migrations.AlterField(
-        #     model_name='branch',
-        #     name='date_last_modified',
-        #     field=models.DateTimeField(auto_now=True, default=django.utils.timezone.now, verbose_name='date last modified'),
-        #     preserve_default=False,
-        # ),
-        # migrations.AlterField(
-        #     model_name='branch',
-        #     name='name',
-        #     field=models.CharField(max_length=255, verbose_name='name (en)'),
-        # ),
-        # migrations.AlterField(
-        #     model_name='branch',
-        #     name='nom',
-        #     field=models.CharField(blank=True, max_length=255, null=True, verbose_name='name (fr)'),
-        # ),
+        migrations.AddField(
+            model_name='branch',
+            name='uuid',
+            field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
+        ),
+        migrations.AddField(
+            model_name='division',
+            name='uuid',
+            field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
+        ),
+        migrations.AddField(
+            model_name='province',
+            name='uuid',
+            field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
+        ),
+        migrations.AddField(
+            model_name='region',
+            name='uuid',
+            field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
+        ),
+        migrations.AddField(
+            model_name='section',
+            name='uuid',
+            field=models.UUIDField(blank=True, editable=False, null=True, unique=True),
+        ),
+        migrations.AlterField(
+            model_name='branch',
+            name='date_last_modified',
+            field=models.DateTimeField(auto_now=True, default=django.utils.timezone.now, verbose_name='date last modified'),
+            preserve_default=False,
+        ),
+        migrations.AlterField(
+            model_name='branch',
+            name='name',
+            field=models.CharField(max_length=255, verbose_name='name (en)'),
+        ),
+        migrations.AlterField(
+            model_name='branch',
+            name='nom',
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='name (fr)'),
+        ),
         migrations.AlterField(
             model_name='division',
             name='date_last_modified',
