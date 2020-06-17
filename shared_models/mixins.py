@@ -272,13 +272,26 @@ class CommonFormMixin(CommonMixin):
         return context
 
 
+class CommonPopoutMixin(CommonFormMixin):
+    '''
+    NOTE: This should come before the View class in order to work properly
+    '''
+    width = 900
+    height = 650
+
+    def get_common_context(self):
+        context = super().get_common_context()
+        # set the width and the height of the popout form
+        context['width'] = self.width
+        context['height'] = self.height
+        return context
+
+
 class CommonPopoutFormMixin(CommonFormMixin):
     '''
     This can be added to a FormView (+Update, Create, Delete etc...) if you want to make it a popout
     NOTE: This should come before the View class in order to work properly
     '''
-    width = 900
-    height = 650
     success_url = None
     template_name = 'shared_models/generic_popout_form.html'
 
@@ -287,13 +300,6 @@ class CommonPopoutFormMixin(CommonFormMixin):
             return self.success_url
         else:
             return reverse_lazy("shared_models:close_me")
-
-    def get_common_context(self):
-        context = super().get_common_context()
-        # set the width and the height of the popout form
-        context['width'] = self.width
-        context['height'] = self.height
-        return context
 
 
 class CommonListMixin(CommonMixin):
