@@ -26,6 +26,7 @@ class TestAllFormsets(CommonTest):
             "manage_levels",
             "manage_programs",
             "manage_themes",
+            "manage-upcoming-dates",
         ]
 
         self.test_urls = [reverse_lazy("projects:" + name) for name in self.test_url_names]
@@ -40,6 +41,7 @@ class TestAllFormsets(CommonTest):
             views.LevelFormsetView,
             views.ProgramFormsetView,
             views.ThemeFormsetView,
+            views.UpcomingDateFormsetView,
         ]
         self.expected_template = 'projects/formset.html'
         self.user = self.get_and_login_user(in_group="projects_admin")
@@ -77,6 +79,7 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.Level, "url_name": "delete_level", "view": views.LevelHardDeleteView},
             {"model": models.Program, "url_name": "delete_program", "view": views.ProgramHardDeleteView},
             {"model": models.Theme, "url_name": "delete_theme", "view": views.ThemeHardDeleteView},
+            {"model": models.UpcomingDate, "url_name": "delete-coming-date", "view": views.UpcomingDateHardDeleteView},
         ]
         self.test_dicts = list()
 
@@ -96,6 +99,8 @@ class TestAllHardDeleteViews(CommonTest):
                 obj = m.objects.create(field_name=faker.word(), eng_text=faker.word())
             elif m == models.Program:
                 obj = m.objects.create(regional_program_name_eng=faker.word(), is_core=True)
+            elif m == models.UpcomingDate:
+                obj = m.objects.create(description_en=faker.catch_phrase())
             else:
                 obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
