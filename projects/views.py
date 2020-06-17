@@ -511,8 +511,10 @@ class CloserTemplateView(TemplateView):
     template_name = 'projects/close_me.html'
 
 
-class IndexTemplateView(LoginRequiredMixin, TemplateView):
+class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
     template_name = 'projects/index.html'
+    h1 = gettext_lazy("DFO Science Project Planning")
+    active_page_name_crumb = gettext_lazy("Home")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -542,10 +544,11 @@ class IndexTemplateView(LoginRequiredMixin, TemplateView):
                     [s for s in section_id_list if shared_models.Section.objects.get(pk=s).projects.count() > 0])
                 section_list = shared_models.Section.objects.filter(id__in=section_id_set)
             context["section_list"] = section_list
+        context["reference_materials"] = models.ReferenceMaterial.objects.all()
         context["upcoming_dates"] = models.UpcomingDate.objects.filter(date__gte=timezone.now()).order_by("date")
         context["upcoming_dates_field_list"] = [
             "date",
-            "tname|{}".format("name"),
+            "region",
             "tdescription|{}".format("description"),
         ]
         return context
