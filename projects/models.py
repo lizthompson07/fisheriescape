@@ -129,6 +129,7 @@ class Program(models.Model):
 
 class UpcomingDate(Lookup):
     date = models.DateField()
+    is_deadline = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-date", ]
