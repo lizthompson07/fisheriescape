@@ -21,7 +21,7 @@ from django_filters.views import FilterView
 from django.utils import timezone
 
 from shared_models.views import CommonPopoutFormView, CommonListView, CommonFilterView, CommonDetailView, \
-    CommonDeleteView, CommonCreateView, CommonUpdateView
+    CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView
 from . import models
 from . import forms
 from . import filters
@@ -464,17 +464,14 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
 
 
 class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
-    model = models.Location
-    form_class = forms.LocationForm
+    model = models.Transaction
     home_url_name = "whalebrary:index"
-    # template_name = 'whalebrary/form.html'
-    # cancel_text = _("Cancel")
 
     def get_template_names(self):
-        return "whalebrary/transaction_form_popout.html" if self.kwargs.get("type") == "pop" else "whalebrary/transaction_form.html"
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pop") else "whalebrary/transaction_form.html"
 
     def get_form_class(self):
-        return forms.TransactionForm1 if self.kwargs.get("type") == "pop" else forms.TransactionForm
+        return forms.TransactionForm1 if self.kwargs.get("pop") else forms.TransactionForm
 
     def get_active_page_name_crumb(self):
         my_object = self.get_object()
@@ -488,9 +485,7 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
         return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:transaction_detail", kwargs=self.kwargs)}
 
     def get_grandparent_crumb(self):
-        kwargs = deepcopy(self.kwargs)
-        del kwargs["pk"]
-        return {"title": _("Transaction List"), "url": reverse("whalebrary:transaction_list", kwargs=kwargs)}
+        return {"title": _("Transaction List"), "url": reverse("whalebrary:transaction_list")}
 
     def form_valid(self, form):
         my_object = form.save()
@@ -499,6 +494,11 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
                                                                                                          kwargs={"pk": my_object.id})
         return HttpResponseRedirect(success_url)
 
+
+
+class TransactionUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
+    model = models.Transaction
+    form_class = forms.TransactionForm1
 
 class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Transaction
