@@ -1,6 +1,9 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
+# TODO parent crums logic for ItemTransactionListView -- how
+# TODO Parent_crumb logic for TransactionDetailView -- how to get the previous page url if two different urls point to same place?
+# TODO see bulk_transaction_list.html -- need another block between table_header and table possibly to cut down repeating? Ask David
 # TODO now if there is no location set item_detail view shows an error because of _transaction.html -- fix this (if elseif?)
 # TODO personnel_list.html -- colour coding doesn't work for experience level
 # TODO redo all views possible with common templates format

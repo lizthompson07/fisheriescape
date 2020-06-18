@@ -223,8 +223,19 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'bin_id', "class": "", "width": ""},
     ]
     home_url_name = "whalebrary:index"
-    container_class = "container-fluid"
     row_object_url_name = "whalebrary:transaction_detail"
+
+    # def get_active_page_name_crumb(self):
+    #     my_object = self.get_object()
+    #     return my_object
+
+    # def get_parent_crumb(self):
+    #     return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:item_detail", kwargs=self.kwargs)}
+    #
+    # def get_grandparent_crumb(self):
+    #     kwargs = deepcopy(self.kwargs)
+    #     del kwargs["pk"]
+    #     return {"title": _("Item List"), "url": reverse("whalebrary:item_list", kwargs=kwargs)}
 
     def get_new_object_url(self):
         return reverse("whalebrary:transaction_new", kwargs=self.kwargs)
@@ -235,6 +246,7 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
         search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name', 'return_date', 'order_number',
                            'purchased_by', 'reason', 'incident__name', 'audit__date', 'location__location',
                            'bin_id', output_field=TextField()))
+
     def get_h1(self):
         item_name = models.Item.objects.get(pk=self.kwargs.get('pk'))
         h1 = _("Detailed Transactions for ") + f' {str(item_name)}'
@@ -459,8 +471,10 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
 
     ]
     home_url_name = "whalebrary:index"
-    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
-    # container_class = "container-fluid"
+
+    def get_parent_crumb(self):
+        parent_crumb_url = ""
+        return {"title": self.get_object(), "url": parent_crumb_url}
 
 
 class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
@@ -498,9 +512,10 @@ class TransactionUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdat
 class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Transaction
     home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
 
     def get_template_names(self):
-        return "whalebrary/transaction_form_popout.html" if self.kwargs.get("pk") else "whalebrary/transaction_form.html"
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
 
     def get_form_class(self):
         return forms.TransactionForm1 if self.kwargs.get("pk") else forms.TransactionForm
@@ -531,40 +546,34 @@ class TransactionDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDelet
     model = models.Transaction
     delete_protection = False
 
-    # def delete(self, request, *args, **kwargs):
-    #     my_object = self.get_object()
-    #     my_object.delete()
-    #     messages.success(self.request, self.success_message)
-    #     return HttpResponseRedirect(
-    #         reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:transaction_list'))
-
 
     ##BULK TRANSACTION##
 
 
-class BulkTransactionListView(WhalebraryAdminAccessRequired, FilterView):
-    filterset_class = filters.BulkTransactionFilter
+class BulkTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = 'whalebrary/bulk_transaction_list.html'
+    filterset_class = filters.BulkTransactionFilter
+    h1 = "Item Quantities and Statuses"
+    home_url_name = "whalebrary:index"
+    row_object_url_name = "whalebrary:transaction_detail"
+
     queryset = models.Transaction.objects.annotate(
-        search_term=Concat('id', 'item__item_name', 'quantity', 'status', 'date', 'lent_to', 'return_date', 'location', 'bin_id',
+        search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name',
+                           'return_date', 'location__location', 'bin_id',
                            output_field=TextField()))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Transaction.objects.first()
-        context["field_list"] = [
-            'id',
-            'item',
-            'quantity',
-            'status',
-            'date',
-            'lent_to',
-            'return_date',
-            'location',
-            'bin_id',
-        ]
-        return context
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'item', "class": "", "width": "100px"},
+        {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": "75px"},
+        {"name": 'date', "class": "", "width": "100px"},
+        {"name": 'lent_to', "class": "", "width": ""},
+        {"name": 'return_date', "class": "", "width": ""},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'bin_id', "class": "", "width": ""},
 
+    ]
 
 # from https://github.com/ccnmtl/dmt/blob/master/dmt/main/views.py#L614
 # class BulkTransactionDetailView(WhalebraryAdminAccessRequired, DetailView):
@@ -600,15 +609,14 @@ class BulkTransactionListView(WhalebraryAdminAccessRequired, FilterView):
 #             reverse('bulk_transaction_detail', args=args, kwargs=kwargs))
 
 
-class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, DeleteView):
+class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
     model = models.Transaction
     permission_required = "__all__"
     success_url = reverse_lazy('whalebrary:bulk_transaction_list')
-    success_message = 'The transaction was successfully deleted!'
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+    # success_message = 'The transaction was successfully deleted!'
+    template_name = 'whalebrary/confirm_delete.html'
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Item Quantities and Statuses"), "url": reverse_lazy("whalebrary:bulk_transaction_list")}
 
     ## PERSONNEL ##
 

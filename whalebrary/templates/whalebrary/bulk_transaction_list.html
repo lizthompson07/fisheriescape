@@ -1,86 +1,63 @@
-{% extends "whalebrary/whalebrary_base.html" %}
-{% load static %}
-{% load bootstrap4 %}
-{% load el_pagination_tags %}
+{% extends "whalebrary/list.html" %}
 {% load verbose_names %}
+{% load static %}
+{% load i18n %}
+{% load el_pagination_tags %}
+{% load custom_filters %}
+{% load custom_tags %}
 
-{% block content %}
-    <style>
-        table, td, th {
-            font-size: small;
-        {#border: 1px solid black;#}
-        }
+<!--This is a custom block to add formatting to one field in the table-->
+<!--I want to add programming that does a count of object returned in filter, and then each line has a delete option-->
 
-        thead, th {
-            font-weight: bold;
-        }
-    </style>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'whalebrary:index' %}">Home</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Bulk Inventory Updates</li>
-        </ol>
-    </nav>
-
-    <div class="indent-med">
-
-        <h1 class="big-header">Item Quantities and Statuses </h1>
-        <p>TOTAL: {{ object_list.count }}</p>
-
-        <form class="form" action="." method="get">
-            <div class="row">
-                {% for field in filter.form %}
-                    <div class="col-5">
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    </div>
-                {% endfor %}
-                <div class="col-3">
-                    <br>
-                    <input type="submit" value="Filter" class="btn btn-sm btn-warning">
-                    <a href="." class="btn btn-sm btn-info">Clear</a>
-                </div>
-            </div>
-        </form>
-
-        <div class="row">
-            <div class="col-8">
-
-                Total projects = {{ filter.qs.count }}<br><br>
-                {% paginate 20 filter.qs as filter_list %}
-                {% show_pages %} <b><em>(ordered by creation date)</em></b>
-
-                <table class="table table-hover table-sm sortable">
-                    <thead>
-                        {% for field in field_list %}
-                            <th scope="col">{% get_verbose_label filter.qs.first field %}</th>
-                        {% endfor %}
-                    </thead>
-                    <tbody>
-
-
-                    {% for object in filter_list %}
-                        <tr>
-                            {% for field in field_list %}
-                                <td>
-                                    {% get_field_value object field %}
-                                </td>
-                            {% endfor %}
-                            <td>
-                                <a class="delete-me" href="{% url 'whalebrary:bulk_transaction_delete' object.id %}">
-                                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                                         title="Delete">
-                                </a>
-                            </td>
-
-                        </tr>
-                    {% endfor %}
-                    <br>
-                    </tbody>
-                </table>
-            </div>
+{% block table_header %}
+<h4><span style="background-color:orange">TOTAL: {{ object_list.count }}</span></h4>
+    <div class="row">
+        <div class="col">
+            {% trans "(click on a header to sort table)" %}
         </div>
-
-
+        <div class="col" style="text-align: center">
+            {% if paginate_by %}
+                {% show_pages %}
+            {% endif %}
+            {% if filter %}
+                {% if filter_list %}
+                    <em>{% trans 'displaying' %} {{ filter_list.count }} {% trans 'of' %} {{ filter.qs.count }}</em>
+                {% else %}
+                    <em>{% trans 'displaying' %} {{ filter.qs.count }} {% trans 'of' %} {{ object_list.count }}</em>
+                {% endif %}
+            {% else %}
+                <em>{% trans 'displaying' %} {{ object_list.count }} {% trans "records." %}</em>
+            {% endif %}
+        </div>
+        {% if new_object_url %}
+            {% trans 'New' as default_new_btn_text %}
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+                <a href="{{ new_object_url }}" class="btn btn-sm btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
+            </div>
+        {% endif %}
     </div>
+{% endblock %}
 
-{% endblock content %}
+
+
+{% block table_tr %}
+    {% url row_object_url_name object.id as my_url %}
+    <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
+        {% for field in field_list %}
+            <td class="{{ field.class }}">
+                {% block table_td %}
+                    {% get_field_value object field.name safe=True %}
+                {% endblock %}
+            </td>
+        {% endfor %}
+            <td>
+                <a class="delete-me" href="{% url 'whalebrary:bulk_transaction_delete' object.id %}">
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                         title="Delete">
+                </a>
+            </td>
+    </tr>
+{% endblock %}
+
+
+
