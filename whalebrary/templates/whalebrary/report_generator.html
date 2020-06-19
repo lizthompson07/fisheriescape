@@ -1,58 +1,9 @@
-{% extends "whalebrary/whalebrary_base.html" %}}
+{% extends "whalebrary/base.html" %}}
 {% load static %}
 {% load bootstrap4 %}
 
 
-{% block content %}
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-        .loader {
-            border: 16px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 16px solid #3498db;
-            width: 120px;
-            height: 120px;
-            -webkit-animation: spin 2s linear infinite; /* Safari */
-            animation: spin 2s linear infinite;
-        }
-
-        /* Safari */
-        @-webkit-keyframes spin {
-            0% {
-                -webkit-transform: rotate(0deg);
-            }
-            100% {
-                -webkit-transform: rotate(360deg);
-            }
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-</style>
-
-<link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen"
-      type="text/css">
-<style>
-        .ms-container {
-            width: 700px;
-        }
-
-</style>
-
-{# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
-<div class="container">
-    <div class="jumbotron">
-        <h1>Please enter the Report Details:</h1>
-    </div>
-</div>
+{% block subcontent %}
 
 <div class="container">
     <form method="post">

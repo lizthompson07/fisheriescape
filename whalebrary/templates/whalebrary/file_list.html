@@ -1,0 +1,28 @@
+{% extends "whalebrary/list.html" %}
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load verbose_names %}
+
+<!--This is a custom block to add formatting to one field in the table-->
+<!--I want to have programming that adds a field to view the pdf from the list-->
+
+{% block table_tr %}
+    <tr>
+        {% for field in field_list %}
+            <td class="{{ field.class }}">
+                {% block table_td %}
+                    {% get_field_value object field.name safe=True %}
+                {% endblock %}
+            </td>
+        {% endfor %}
+        {% for obj in object.files.all %}
+            <td>
+                <a href="{{ obj.file.url }}" >
+                    <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
+                </a>
+            </td>
+        {% endfor %}
+    </tr>
+{% endblock %}
+

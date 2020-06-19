@@ -21,7 +21,7 @@ from django_filters.views import FilterView
 from django.utils import timezone
 
 from shared_models.views import CommonPopoutFormView, CommonListView, CommonFilterView, CommonDetailView, \
-    CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutDeleteView
+    CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonFormView
 from . import models
 from . import forms
 from . import filters
@@ -225,6 +225,8 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     home_url_name = "whalebrary:index"
     row_object_url_name = "whalebrary:transaction_detail"
 
+### how to get it to go to a crumb if there might be two different previous ones and how to select
+
     # def get_active_page_name_crumb(self):
     #     my_object = self.get_object()
     #     return my_object
@@ -250,7 +252,6 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     def get_h1(self):
         item_name = models.Item.objects.get(pk=self.kwargs.get('pk'))
         h1 = _("Detailed Transactions for ") + f' {str(item_name)}'
-        return h1
 
         # context for _item_summary.html
         context["random_item"] = models.Item.objects.first()
@@ -546,6 +547,9 @@ class TransactionDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDelet
     model = models.Transaction
     delete_protection = False
 
+## TODO I want to write a function that will 1) affect the specific line item in the transaction table 2) record the change in quantity for that line and create a new transaction with that amount
+## I think to do this I need to change models:
+## Quantity + Location = pool of unique quantity // Transaction = takes or adds to unique Q + L pool
 
     ##BULK TRANSACTION##
 
@@ -744,68 +748,91 @@ class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
         context["suppliers"] = models.Supplier.objects.all()
         return context
 
-class SupplierListView(WhalebraryAccessRequired, FilterView):
-    template_name = "whalebrary/supplier_list.html"
+class SupplierListView(WhalebraryAccessRequired, CommonFilterView):
+    template_name = "whalebrary/list.html"
+    h1 = "Supplier List"
     filterset_class = filters.SupplierFilter
+    home_url_name = "whalebrary:index"
+    row_object_url_name = "whalebrary:supplier_detail"
+    new_btn_text = "New Supplier"
+
     queryset = models.Supplier.objects.annotate(
         search_term=Concat('id', 'supplier_name', 'contact_number', 'email', 'website', 'comments',
                            output_field=TextField()))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Supplier.objects.first()
-        context["field_list"] = [
-            'id',
-            'supplier_name',
-            'contact_number',
-            'email',
-            'website',
-            'comments',
-
-        ]
-        return context
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'supplier_name', "class": "", "width": ""},
+        {"name": 'contact_number', "class": "", "width": ""},
+        {"name": 'email', "class": "", "width": ""},
+        {"name": 'website', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
 
 
-class SupplierDetailView(WhalebraryAccessRequired, DetailView):
+    ]
+
+    def get_new_object_url(self):
+        return reverse("whalebrary:supplier_new", kwargs=self.kwargs)
+
+class SupplierDetailView(WhalebraryAccessRequired, CommonDetailView):
     model = models.Supplier
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["field_list"] = [
-            'id',
-            'supplier_name',
-            'contact_number',
-            'email',
-            'website',
-            'comments',
-        ]
-        return context
+    field_list = [
+        'id',
+        'supplier_name',
+        'contact_number',
+        'email',
+        'website',
+        'comments',
 
+    ]
 
-class SupplierUpdateView(WhalebraryEditRequiredMixin, UpdateView):
+    home_url_name = "whalebrary:index"
+
+    def get_parent_crumb(self):
+        parent_crumb_url = ""
+        return {"title": self.get_object(), "url": parent_crumb_url}
+
+class SupplierUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     model = models.Supplier
     form_class = forms.SupplierForm
+    home_url_name = "whalebrary:index"
+    template_name = "whalebrary/form.html"
+    cancel_text = _("Cancel")
 
-    def get_template_names(self):
-        return "whalebrary/supplier_form_popout.html" if self.kwargs.get("pop") else "whalebrary/supplier_form.html"
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        return my_object
 
-    def get_form_class(self):
-        return forms.SupplierForm1 if self.kwargs.get("pop") else forms.SupplierForm
+    def get_h1(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()),
+                "url": reverse_lazy("whalebrary:supplier_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        return {"title": _("Supplier List"), "url": reverse("whalebrary:supplier_list")}
 
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Supplier record successfully updated for : {my_object}"))
-        success_url = reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:supplier_detail',
-                                                                                                         kwargs={"pk": my_object.id})
-        return HttpResponseRedirect(success_url)
+        return HttpResponseRedirect(reverse("whalebrary:supplier_detail", kwargs=self.kwargs))
 
 
-class SupplierCreateView(WhalebraryEditRequiredMixin, CreateView):
+class SupplierUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
     model = models.Supplier
-    form_class = forms.SupplierForm
+    form_class = forms.SupplierForm1
+
+
+class SupplierCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Supplier
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Supplier List"), "url": reverse_lazy("whalebrary:supplier_list")}
 
     def get_template_names(self):
-        return "whalebrary/supplier_form_popout.html" if self.kwargs.get("pk") else "whalebrary/supplier_form.html"
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
 
     def get_form_class(self):
         return forms.SupplierForm1 if self.kwargs.get("pk") else forms.SupplierForm
@@ -814,7 +841,7 @@ class SupplierCreateView(WhalebraryEditRequiredMixin, CreateView):
         my_object = form.save()
         messages.success(self.request, _(f"Supplier record successfully created for : {my_object}"))
 
-        # if there's a pk argumentm this means user is calling from item_detail page and
+        # if there's a pk argument, this means user is calling from item_detail page and
         if self.kwargs.get("pk"):
             my_item = models.Item.objects.get(pk=self.kwargs.get("pk"))
             my_item.suppliers.add(my_object)
@@ -826,28 +853,52 @@ class SupplierCreateView(WhalebraryEditRequiredMixin, CreateView):
         return {'item': self.kwargs.get('pk')}
 
 
-class SupplierDeleteView(WhalebraryEditRequiredMixin, DeleteView):
+class SupplierDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     model = models.Supplier
     permission_required = "__all__"
-    success_message = 'The supplier file was successfully deleted!'
+    success_url = reverse_lazy('whalebrary:supplier_list')
+    template_name = 'whalebrary/confirm_delete.html'
+    home_url_name = "whalebrary:index"
+    grandparent_crumb = {"title": gettext_lazy("Supplier List"), "url": reverse_lazy("whalebrary:supplier_list")}
 
-    def get_template_names(self):
-        return "whalebrary/generic_confirm_delete_popout.html" if self.kwargs.get("pop") else "whalebrary/supplier_confirm_delete.html"
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("whalebrary:supplier_detail", kwargs=self.kwargs)}
 
-    def delete(self, request, *args, **kwargs):
-        my_object = self.get_object()
-        my_object.delete()
-        messages.success(self.request, self.success_message)
-        return HttpResponseRedirect(
-            reverse_lazy('shared_models:close_me') if self.kwargs.get("pop") else reverse_lazy('whalebrary:supplier_list'))
+class SupplierDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
+    model = models.Supplier
+    delete_protection = False
 
     ## ITEM FILE UPLOAD ##
 
+class FileListView(WhalebraryAccessRequired, CommonFilterView):
+    template_name = "whalebrary/file_list.html"
+    h1 = "File List"
+    filterset_class = filters.FileFilter
+    home_url_name = "whalebrary:index"
+    # row_object_url_name = "whalebrary:file_detail"
+    # new_btn_text = "New File"
 
-class FileCreateView(WhalebraryEditRequiredMixin, CreateView):
+    queryset = models.File.objects.annotate(
+        search_term=Concat('id', 'item__item_name', 'caption', 'file', 'date_uploaded', output_field=TextField()))
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'item', "class": "", "width": "100px"},
+        {"name": 'caption', "class": "", "width": ""},
+        {"name": 'file', "class": "", "width": "75px"},
+        {"name": 'date_uploaded', "class": "", "width": "100px"},
+
+    ]
+
+    # def get_new_object_url(self):
+    #     return reverse("whalebrary:transaction_new", kwargs=self.kwargs)
+
+
+class FileCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.File
     template_name = 'whalebrary/file_form_popout.html'
     form_class = forms.FileForm
+    # home_url_name = "whalebrary:index"
 
     def form_valid(self, form):
         my_object = form.save()
@@ -860,29 +911,22 @@ class FileCreateView(WhalebraryEditRequiredMixin, CreateView):
             'item': item,
         }
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["editable"] = True
-        context["item"] = models.Item.objects.get(pk=self.kwargs.get("item"))
-        return context
-
 
 class FileUpdateView(WhalebraryEditRequiredMixin, UpdateView):
     model = models.File
     template_name = 'whalebrary/file_form_popout.html'
     form_class = forms.FileForm
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = True
-        return context
+    cancel_text = _("Cancel")
+    # home_url_name = "whalebrary:index"
 
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"File record successfully updated for : {my_object}"))
         success_url = reverse_lazy('shared_models:close_me')
         return HttpResponseRedirect(success_url)
+
+
+## I don't think next this view is currently being used; might expand and use
 
 
 class FileDetailView(FileUpdateView):
@@ -892,19 +936,10 @@ class FileDetailView(FileUpdateView):
         return context
 
 
-class FileDeleteView(WhalebraryEditRequiredMixin, DeleteView):
+class FileDeleteView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.File
-    permission_required = "__all__"
-    success_message = 'The file was successfully deleted!'
+    delete_protection = False
 
-    def get_template_names(self):
-        return "whalebrary/generic_confirm_delete_popout.html"
-
-    def delete(self, request, *args, **kwargs):
-        my_object = self.get_object()
-        my_object.delete()
-        messages.success(self.request, self.success_message)
-        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
     ## INCIDENT ##
 
@@ -1022,9 +1057,9 @@ class IncidentDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     ## REPORTS ##
 
 
-class ReportGeneratorFormView(WhalebraryAccessRequired, FormView):
+class ReportGeneratorFormView(WhalebraryAccessRequired, CommonFormView):
     template_name = 'whalebrary/report_generator.html'
-
+    h1 = "Please enter the report details:"
     form_class = forms.ReportGeneratorForm
 
     def get_initial(self):
@@ -1034,9 +1069,9 @@ class ReportGeneratorFormView(WhalebraryAccessRequired, FormView):
         except KeyError:
             print("no report")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     return context
 
     def form_valid(self, form):
 
@@ -1063,53 +1098,57 @@ class ReportGeneratorFormView(WhalebraryAccessRequired, FormView):
             return HttpResponseRedirect(reverse("whalebrary:report_generator"))
 
 
-class ContainerSummaryListView(WhalebraryAccessRequired, ListView):
+class ContainerSummaryListView(WhalebraryAccessRequired, CommonListView):
     template_name = 'whalebrary/report_container_summary.html'
+    home_url_name = "whalebrary:index"
+    # row_object_url_name = "whalebrary:item_detail"
+    parent_crumb = {"title": gettext_lazy("Report Generator"), "url": reverse_lazy("whalebrary:report_generator")}
 
     def get_queryset(self, **kwargs):
         qs = models.Transaction.objects.filter(location_id=self.kwargs['location'])
         return qs
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Transaction.objects.first()
+    def get_h1(self):
+        location = models.Location.objects.get(pk=self.kwargs.get("location"))
+        h1 = _("Container Summary for ") + f' {str(location)}'
+        return h1
 
-        context["field_list"] = [
-            'item',
-            'quantity',
-            'status',
-            'date',
-            'lent_to',
-            'return_date',
-            'last_audited',
-            'last_audited_by',
-        ]
+    field_list = [
+        {"name": 'item', "class": "", "width": ""},
+        {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'date', "class": "", "width": ""},
+        {"name": 'lent_to', "class": "", "width": ""},
+        {"name": 'return_date', "class": "", "width": ""},
+        {"name": 'last_audited', "class": "", "width": ""},
+        {"name": 'last_audited_by', "class": "", "width": ""},
+    ]
 
-        return context
-
-
-class SizedItemSummaryListView(WhalebraryAccessRequired, ListView):
+class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
     template_name = 'whalebrary/report_sized_item_summary.html'
+    home_url_name = "whalebrary:index"
+    # row_object_url_name = "whalebrary:item_detail"
+    parent_crumb = {"title": gettext_lazy("Report Generator"), "url": reverse_lazy("whalebrary:report_generator")}
+    h1 = "temp"
 
     def get_queryset(self, **kwargs):
         qs = models.Transaction.objects.filter(item__item_name__iexact=self.kwargs['item_name'])
         return qs
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Transaction.objects.first()
+    # def get_h1(self):
+    #     item_name = models.Item.objects.get(pk=self.kwargs.get("item_name"))
+    #     h1 = _("Sized Item Summary for ") + f' {str(item_name)}'
+    #     return h1
 
-        context["field_list"] = [
-            'item',
-            'quantity',
-            'status',
-            'date',
-            'lent_to',
-            'return_date',
-            'last_audited',
-            'last_audited_by',
-            'location',
-            'bin_id',
-        ]
-
-        return context
+    field_list = [
+        {"name": 'item', "class": "", "width": ""},
+        {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
+        {"name": 'date', "class": "", "width": ""},
+        {"name": 'lent_to', "class": "", "width": ""},
+        {"name": 'return_date', "class": "", "width": ""},
+        {"name": 'last_audited', "class": "", "width": ""},
+        {"name": 'last_audited_by', "class": "", "width": ""},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'bin_id', "class": "", "width": ""},
+    ]

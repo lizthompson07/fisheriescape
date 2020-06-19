@@ -48,9 +48,6 @@ class BulkTransactionFilter(django_filters.FilterSet):
 
 
 class LocationFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
-                                            lookup_expr='icontains', widget=forms.TextInput())
-class LocationFilter(django_filters.FilterSet):
     class Meta:
         model = models.Location
         fields = {
@@ -70,6 +67,10 @@ class PersonnelFilter(django_filters.FilterSet):
 
 class SupplierFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+
+class FileFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Files (any part of name...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
 
 class IncidentFilter(django_filters.FilterSet):

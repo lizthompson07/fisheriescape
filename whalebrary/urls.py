@@ -65,12 +65,13 @@ urlpatterns = [
     path('supplier/new/', views.SupplierCreateView.as_view(), name="supplier_new"),
     path('item/<int:pk>/supplier/new/', views.SupplierCreateView.as_view(), name="supplier_new"),
     path('supplier/<int:pk>/edit/', views.SupplierUpdateView.as_view(), name="supplier_edit"),
-    path('supplier/<int:pk>/edit/pop/<int:pop>/', views.SupplierUpdateView.as_view(), name="supplier_edit"),
-    path('supplier/<int:pk>/delete/pop/<int:pop>/', views.SupplierDeleteView.as_view(), name="supplier_delete"),
+    path('supplier/<int:pk>/edit/pop/<int:pop>/', views.SupplierUpdatePopoutView.as_view(), name="supplier_edit"),
+    path('supplier/<int:pk>/delete/pop/<int:pop>/', views.SupplierDeletePopoutView.as_view(), name="supplier_delete"),
     path('supplier/<int:pk>/delete/', views.SupplierDeleteView.as_view(), name="supplier_delete"),
 
 # ITEM FILES #
 
+    path('file_list/', views.FileListView.as_view(), name="file_list"),
     path('item/<int:item>/file/new/', views.FileCreateView.as_view(), name="file_new"),
     path('file/<int:pk>/view/', views.FileDetailView.as_view(), name="file_detail"),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name="file_edit"),
