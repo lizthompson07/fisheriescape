@@ -10,12 +10,7 @@
     {% verbose_td_display object "resource_type" %}
     {% verbose_td_display object "section" %}
     {% verbose_td_display object "status" %}
-    <tr>
-        <th style="width: 150px">Time period <br>(yyyy-mm-dd)</th>
-        <td>
-            {{ object.time_period }}
-        </td>
-    </tr>
+    {% verbose_td_display object "time_period|time period" %}
     {% verbose_td_display object "storage_envr_notes" to_html=True %}
     {% verbose_td_display object "notes" to_html=True %}
     {% verbose_td_display object "fgp_url" url=True %}
@@ -27,7 +22,8 @@
     <tr>
         <th style="width: 150px">Last modification by</th>
         <td>
-            {{ object.last_modified_by }} on {{ object.date_last_modified }}
+            {{ object.last_modified_by }}
+{#            on {{ object.date_last_modified }}#}
         </td>
     </tr>
 </table>
