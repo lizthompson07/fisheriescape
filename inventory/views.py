@@ -86,11 +86,6 @@ class InventoryDMRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-# Create your views here.
-class CloserTemplateView(TemplateView):
-    template_name = 'inventory/close_me.html'
-
-
 # RESOURCE #
 ############
 
@@ -642,7 +637,7 @@ class PersonCreateViewPopout(LoginRequiredMixin, FormView):
         new_person.save()
 
         # finally close the form
-        return HttpResponseRedirect(reverse_lazy('inventory:close_me'))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1042,7 +1037,7 @@ class PublicationCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        return HttpResponseRedirect(reverse('inventory:close_me'))
+        return HttpResponseRedirect(reverse('shared_models:close_me'))
 
 
 # XML GOODNESS #
