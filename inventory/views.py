@@ -258,7 +258,7 @@ class ResourceDetailPDFView(PDFTemplateView):
         'time_period|time period',
         'security_classification',
         'storage_envr_notes',
-        'distribution_format',
+        'distribution_formats',
         'data_char_set',
         'spat_representation',
         'spat_ref_system',

@@ -101,7 +101,6 @@ class ResourceForm(forms.ModelForm):
             'completedness_rating',
             'completedness_report',
             'translation_needed',
-            'distribution_format',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
