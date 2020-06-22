@@ -23,14 +23,6 @@ class TestIndexTemplateView(CommonTest):
         self.assert_not_broken(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
-    @tag("view_name", "context")
-    def test_context(self):
-        context_vars = [
-            "upcoming_dates",
-            "upcoming_dates_field_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
 
 class TestOpenDataDashboardTemplateView(CommonTest):
     def setUp(self):
