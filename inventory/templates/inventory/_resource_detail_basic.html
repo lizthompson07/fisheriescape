@@ -13,9 +13,7 @@
     <tr>
         <th style="width: 150px">Time period <br>(yyyy-mm-dd)</th>
         <td>
-            From: {{ object.time_start_year|default_if_none:"--" }}-{{ object.time_start_month|default_if_none:"--" }}-{{ object.time_start_day|default_if_none:"--" }}
-            <br>
-            To: {{ object.time_end_year|default_if_none:"--" }}-{{ object.time_end_month|default_if_none:"--" }}-{{ object.time_end_day|default_if_none:"--" }}
+            {{ object.time_period }}
         </td>
     </tr>
     {% verbose_td_display object "storage_envr_notes" to_html=True %}
