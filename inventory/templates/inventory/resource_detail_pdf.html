@@ -98,6 +98,24 @@
     </tr>
     <tr>
         <th>
+            Citations
+        </th>
+        <td>
+            <ul>
+                {% if object.citations.count == 0 %}
+                    <em>No citations</em>
+                {% else %}
+                    {% for item in object.citations.all %}
+                        <li style="font-size: small;">
+                            {{ item.short_citation_html|safe }}
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <th>
             Related Records
         </th>
         <td>
