@@ -870,9 +870,10 @@ def construct(my_resource, pretty=True):
     MD_Distribution = SubElement(distributionInfo, 'gmd:MD_Distribution')
 
     # distribution Format
-    MD_Format = SubElement(SubElement(MD_Distribution, 'gmd:distributionFormat '), "gmd:MD_Format")
-    charstring(MD_Format, 'gmd:name', my_resource.distribution_format)
-    charstring(MD_Format, 'gmd:version', "n/a")
+    for df in my_resource.distribution_formats.all():
+        MD_Format = SubElement(SubElement(MD_Distribution, 'gmd:distributionFormat '), "gmd:MD_Format")
+        charstring(MD_Format, 'gmd:name', df.name)
+        charstring(MD_Format, 'gmd:version', "n/a")
 
     # distributor
     distributor = SubElement(MD_Distribution, 'gmd:distributor')
@@ -924,7 +925,6 @@ def verify(resource):
         'south_bounding',
         'east_bounding',
         'north_bounding',
-        'distribution_format',
 
         # bilingual fields
         '?title_',
@@ -952,6 +952,7 @@ def verify(resource):
         'certification_history|',
         'data_resources|',
         'web_services|',
+        'distribution_formats|',
 
         # will check all keywords associated with resource
         '*keyword.text_value_',  # special keywords function will be called
