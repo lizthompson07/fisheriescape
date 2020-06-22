@@ -329,6 +329,7 @@ class CommonPopoutFormView(CommonPopoutFormMixin, FormView):
 
 
 class CommonDetailView(CommonMixin, DetailView):
+    template_name = 'shared_models/generic_detail.html'
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
