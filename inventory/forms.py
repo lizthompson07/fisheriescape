@@ -101,6 +101,7 @@ class ResourceForm(forms.ModelForm):
             'completedness_rating',
             'completedness_report',
             'translation_needed',
+            'distribution_format',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
@@ -121,6 +122,7 @@ class ResourceForm(forms.ModelForm):
             "qc_process_descr_fre": forms.Textarea(attrs={"rows": 5}),
             "storage_envr_notes": forms.Textarea(attrs={"rows": 5}),
             "parameters_collected_eng": forms.Textarea(attrs={"rows": 5}),
+            "distribution_formats": forms.SelectMultiple(attrs=chosen_js),
             "parameters_collected_fre": forms.Textarea(attrs={"rows": 5}),
             "additional_credit": forms.Textarea(attrs={"rows": 5}),
             "analytic_software": forms.Textarea(attrs={"rows": 5}),
@@ -156,7 +158,7 @@ class ResourceForm(forms.ModelForm):
             'security_use_limitation_eng',
             'security_use_limitation_fre',
             'security_classification',
-            'distribution_format',
+            'distribution_formats',
             'data_char_set',
             'spat_representation',
             'spat_ref_system',
