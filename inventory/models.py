@@ -2,10 +2,13 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template.defaultfilters import default_if_none
 from django.urls import reverse
 from django.utils import timezone
 import os
 import uuid
+
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from lib.functions.custom_functions import truncate, fiscal_year
@@ -19,8 +22,6 @@ LANGUAGE_CHOICES = (
     (ENG, 'English'),
     (FRE, 'French'),
 )
-
-
 
 
 class Location(models.Model):
@@ -424,6 +425,12 @@ class Resource(models.Model):
             my_str = "no title"
 
         return my_str
+
+    @property
+    def time_period(self):
+        return mark_safe(f"FROM: {default_if_none(self.time_start_year, '--')} / {default_if_none(self.time_start_month, '--')} / "
+                         f"{default_if_none(self.time_start_day, '--')}<br>TO: {default_if_none(self.time_end_year, '--')} / "
+                         f"{default_if_none(self.time_end_month, '--')} / {default_if_none(self.time_end_day, '--')}")
 
     def save(self, *args, **kwargs):
         if self.uuid is None:
