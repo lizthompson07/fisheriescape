@@ -16,6 +16,8 @@ from shared_models import models as shared_models
 from dm_apps import custom_widgets
 
 # Choices for language
+from shared_models.models import SimpleLookup
+
 ENG = 1
 FRE = 2
 LANGUAGE_CHOICES = (
@@ -305,6 +307,10 @@ class Citation(models.Model):
         return title
 
 
+class DistributionFormat(SimpleLookup):
+    pass
+
+
 class Resource(models.Model):
     # distribution_format choices
     from . import data_distribution_formats
@@ -347,6 +353,7 @@ class Resource(models.Model):
                                                 null=True)
     storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes")
     distribution_format = models.CharField(max_length=255, blank=True, null=True, choices=DISTRIBUTION_FORMAT_CHOICES)
+    distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
     data_char_set = models.ForeignKey(CharacterSet, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       verbose_name="Data character set")
     spat_representation = models.ForeignKey(SpatialRepresentationType, on_delete=models.DO_NOTHING, blank=True,
