@@ -5,7 +5,6 @@ from django.contrib.auth import views as auth_views
 app_name = 'inventory'
 
 urlpatterns = [
-    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
 
     # RESOURCE #
     ############
