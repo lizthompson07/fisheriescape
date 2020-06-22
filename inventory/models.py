@@ -312,10 +312,6 @@ class DistributionFormat(SimpleLookup):
 
 
 class Resource(models.Model):
-    # distribution_format choices
-    from . import data_distribution_formats
-    DISTRIBUTION_FORMAT_CHOICES = data_distribution_formats.DISTRIBUTION_FORMAT_CHOICES
-
     uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID", unique=True)
     resource_type = models.ForeignKey(ResourceType, on_delete=models.DO_NOTHING, blank=True, null=True)
     # section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
@@ -352,7 +348,6 @@ class Resource(models.Model):
     security_classification = models.ForeignKey(SecurityClassification, on_delete=models.DO_NOTHING, blank=True,
                                                 null=True)
     storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes")
-    distribution_format = models.CharField(max_length=255, blank=True, null=True, choices=DISTRIBUTION_FORMAT_CHOICES)
     distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
     data_char_set = models.ForeignKey(CharacterSet, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       verbose_name="Data character set")
