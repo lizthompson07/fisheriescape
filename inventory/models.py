@@ -205,7 +205,7 @@ class Keyword(models.Model):
     @property
     def non_hierarchical_name_fr(self):
         # if the keyword can be split by " > " then take the last item in the list
-        if len(self.text_value_fre.split(" > ")) > 1:
+        if self.text_value_fre and len(self.text_value_fre.split(" > ")) > 1:
             return self.text_value_fre.split(" > ")[-1]
         else:
             return self.text_value_fre
