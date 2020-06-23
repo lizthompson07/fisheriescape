@@ -2,10 +2,13 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.template.defaultfilters import default_if_none
 from django.urls import reverse
 from django.utils import timezone
 import os
 import uuid
+
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from lib.functions.custom_functions import truncate, fiscal_year
@@ -13,14 +16,14 @@ from shared_models import models as shared_models
 from dm_apps import custom_widgets
 
 # Choices for language
+from shared_models.models import SimpleLookup
+
 ENG = 1
 FRE = 2
 LANGUAGE_CHOICES = (
     (ENG, 'English'),
     (FRE, 'French'),
 )
-
-
 
 
 class Location(models.Model):
@@ -202,7 +205,7 @@ class Keyword(models.Model):
     @property
     def non_hierarchical_name_fr(self):
         # if the keyword can be split by " > " then take the last item in the list
-        if len(self.text_value_fre.split(" > ")) > 1:
+        if self.text_value_fre and len(self.text_value_fre.split(" > ")) > 1:
             return self.text_value_fre.split(" > ")[-1]
         else:
             return self.text_value_fre
@@ -304,11 +307,11 @@ class Citation(models.Model):
         return title
 
 
-class Resource(models.Model):
-    # distribution_format choices
-    from . import data_distribution_formats
-    DISTRIBUTION_FORMAT_CHOICES = data_distribution_formats.DISTRIBUTION_FORMAT_CHOICES
+class DistributionFormat(SimpleLookup):
+    pass
 
+
+class Resource(models.Model):
     uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID", unique=True)
     resource_type = models.ForeignKey(ResourceType, on_delete=models.DO_NOTHING, blank=True, null=True)
     # section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
@@ -345,7 +348,7 @@ class Resource(models.Model):
     security_classification = models.ForeignKey(SecurityClassification, on_delete=models.DO_NOTHING, blank=True,
                                                 null=True)
     storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes")
-    distribution_format = models.CharField(max_length=255, blank=True, null=True, choices=DISTRIBUTION_FORMAT_CHOICES)
+    distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
     data_char_set = models.ForeignKey(CharacterSet, on_delete=models.DO_NOTHING, blank=True, null=True,
                                       verbose_name="Data character set")
     spat_representation = models.ForeignKey(SpatialRepresentationType, on_delete=models.DO_NOTHING, blank=True,
@@ -424,6 +427,12 @@ class Resource(models.Model):
             my_str = "no title"
 
         return my_str
+
+    @property
+    def time_period(self):
+        return mark_safe(f"FROM: {default_if_none(self.time_start_year, '--')} / {default_if_none(self.time_start_month, '--')} / "
+                         f"{default_if_none(self.time_start_day, '--')}<br>TO: {default_if_none(self.time_end_year, '--')} / "
+                         f"{default_if_none(self.time_end_month, '--')} / {default_if_none(self.time_end_day, '--')}")
 
     def save(self, *args, **kwargs):
         if self.uuid is None:

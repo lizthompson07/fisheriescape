@@ -5,39 +5,12 @@
 {% load custom_filters %}
 {% load i18n %}
 
-{% block title %}
-{{object.project_title}}
-{% endblock %}
 
-{% block content %}
+{% block subcontent %}
 
-    <style>
-        .label {
-            font-weight: bold;
-        }
-    </style>
-
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'projects:index' %}">
-                {% trans "Home" %}
-            </a></li>
-            <li class="breadcrumb-item"><a href="{% url 'projects:my_project_list' %}">
-                {% trans "My Projects" %}
-            </a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
-        </ol>
-    </nav>
 
     <div class="container">
 
-        <h1>{{ object }} -
-            {% if not object.submitted %}
-                <span class="red-font">
-                {% trans "UNSUBMITTED" %}
-                </span>
-            {% endif %}
-        </h1>
 
         <a class="btn btn-outline-dark btn-sm float-right" href="{% url 'projects:project_print' object.id %}">
             {% trans "Export PDF" %} &nbsp;
@@ -74,11 +47,7 @@
 
         {% include "projects/_project_content.html" %}
 
-
     </div>
 
 
-
-
-
-{% endblock content %}
+{% endblock %}

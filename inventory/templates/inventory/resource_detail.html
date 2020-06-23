@@ -1,4 +1,4 @@
-{% extends "inventory/inventory_base.html" %}
+{% extends "inventory/base.html" %}
 {% load static %}
 {% load verbose_names %}
 {% load custom_filters %}
@@ -88,10 +88,7 @@
 
 
                 <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
-                    View Completedness Report
-                </a>
-                <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap">
-                    Export as XML (HNAP)
+                    View Completeness Report
                 </a>
 
                 {% if object.flagged_4_publication %}
@@ -105,7 +102,12 @@
                         Flag for {% if object.fgp_publication_date %}Re-publication{% else %}Publication{% endif %}
                     </a>
                 {% endif %}
-
+                <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap" title="export as HNAP xml">
+                    <img src="{% static 'img/icons/xml.svg' %}" alt="" width="20px">
+                </a>
+                <a class="{{ my_btn }}" href="{% url 'inventory:resource_pdf' object.id %}">
+                    <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                </a>
                 {% for group in user.groups.all %}
                     {% if group.id == 13 %}
                         <a class="btn btn-sm btn-outline-danger" href="{% url 'inventory:resource_delete' object.id %}">

@@ -13,8 +13,7 @@
 
         .card, .jumbotron {
             background-color: rgba(255, 255, 255, 1);
-            border: black solid 1px;
-            margin-left: 25px;
+        {#border: black solid 1px;#} margin-left: 25px;
             margin-right: 25px;
             border-radius: 25px;
         }
@@ -38,6 +37,11 @@
 
         }
 
+        .btn-special {
+            border: 1px grey solid;
+            border-radius: 25px;
+        }
+
         .subtitle, .subtitle-success {
             font-size: 16px;
             font-weight: bold;
@@ -50,22 +54,62 @@
         .nav-tabs {
             font-size: 16px;
         }
+
+        .text {
+            color: grey;
+            font-size: 16px;
+        }
+
+        .text-black {
+            font-size: 16px;
+        }
     </style>
 
     <div class="container">
 
     <div class="jumbotron py-3 mx-0">
-        <h1 class="three-em center-col">
-            {% trans "DFO Science Travel Management System" %}
-        </h1>
-        <h4 class="center-col">
-            <em>
-                {% trans '"Get Your Pre-approval to Travel Today!!"' %}
-            </em>
-        </h4>
+        <div class="mb-5">
+            <h1 class="three-em center-col">
+                {% trans "DFO Science Travel Management System" %}
+            </h1>
+            <h4 class="center-col">
+                <em>
+                    {% trans '"Get Your Pre-approval to Travel Today!!"' %}
+                </em>
+            </h4>
+        </div>
 
-        <br>
-        <br>
+        {# Warnings #}
+        <div class="mb-3">
+            {% autoescape off %}
+                {% bootstrap_messages size='small' %}
+            {% endautoescape %}
+        </div>
+
+        <div class="mb-3 text" style="font-size: 16px;">
+            <p>
+                {% blocktrans %}
+                    This application process supersedes existing mechanisms for requesting travel requiring RDG or EOS ADM approval.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    A travel request can have multiple travellers from various sectors (e.g., public, academic, private), however, only a
+                    Fisheries and Oceans employee with a valid Government of Canada email address can initiate and submit a travel request.
+                    In
+                    addition, the travel request should already have confirmed or anticipated funding available to support the travel.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Please ensure your travel request is properly completed and submitted on time to allow for efficient and appropriate
+                    review. Incomplete applications will not be evaluated. You can check the status of your travel request by going to the
+                    home page
+                    and selecting “view your request”.
+                {% endblocktrans %}
+            </p>
+
+        </div>
 
 
         {% url 'travel:request_new' "my" as request_new_url %}
@@ -106,11 +150,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link" data-toggle="tab"
                                            href="#region_{{ region|slugify }}">
-                                            {#                                                {% if region.abbrev %}#}
-                                            {#                                                    {{ region.abbrev }}#}
-                                            {#                                                {% else %}#}
                                             {{ region }}
-                                            {#                                                {% endif %}#}
                                             {% if dict.things_to_deal_with %}
                                                 (<span class="red-font blink-me">{{ dict.things_to_deal_with }}</span>)
                                             {% endif %}
@@ -132,46 +172,24 @@
                     {# Traveller Pane #}
                     <div id="traveller" class="container tab-pane fade active show"><br>
 
-                        <div class="row mb-3">
+                        <div class="btns mb-3 center-col">
 
+                            <a href="{{ request_new_url }}" class="btn btn-lg btn-outline-primary mx-3">
+                                {% trans "Create a New Request" %}
+                            </a>
 
-                            <div class="card" style="width: {{ width1 }};">
-                                <div class="card-body">
-                                    <h5 class="card-title">{% trans "Create a New Request" %}</h5>
-                                    <p class="card-text">{% trans "Create a new individual or group request to travel" %}</p>
-                                    <div class="center-col">
-                                        <a href="{{ request_new_url }}" class="btn btn-primary">{% trans "Go" %}</a>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {% if user.user_trip_requests.count > 0 %}
-                                {#                                    {% echo event_list_url|add:"?user=" as your_url %}#}
-
-                                <div class="card" style="width: {{ width1 }};">
-                                    <div class="card-body">
-                                        <h5 class="card-title">{% trans "View Your Requests" %}
-                                            ({{ user_trip_requests }})</h5>
-                                        <p class="card-text">{% trans "View trips requests that you have created or on which you are a traveller." %}</p>
-                                        <div class="center-col">
-                                            <a href="{{ request_list_url }}" class="btn btn-primary">{% trans "Go" %}</a>
-                                        </div>
-                                    </div>
-                                </div>
+                            {% if user_trip_requests > 0 %}
+                                <a href="{{ request_list_url }}"
+                                   class="btn btn-lg btn-outline-primary  mx-3">
+                                    {% trans "View Your Requests" %}
+                                    ({{ user_trip_requests }})
+                                </a>
                             {% endif %}
 
-
-
-                            <div class="card" style="width: {{ width1 }};">
-                                <div class="card-body">
-                                    <h5 class="card-title">{% trans "Browse Upcoming Trips" %}</h5>
-                                    <p class="card-text">{% trans "View a list of upcoming trips in the systems." %}</p>
-                                    <div class="center-col">
-                                        <a href="{% url 'travel:trip_list' "upcoming" %}" class="btn btn-primary">{% trans "Go" %}</a>
-                                    </div>
-                                </div>
-                            </div>
-
+                            <a href="{% url 'travel:trip_list' "upcoming" %}"
+                               class="btn btn-lg btn-outline-primary mx-3">
+                                {% trans "Browse Upcoming Trips" %}
+                            </a>
 
                         </div>
 
@@ -185,86 +203,45 @@
                             </div>
                         {% endif %}
 
+                        <div class="mb-5 mt-5">
+                            <hr>
+                        </div>
+
+                        <div class="mt-5">
+
+                            {% include "travel/_process_timeline.html" %}
+                        </div>
+
                     </div>
 
                     {# Reviewer Pane #}
 
                     <div id="reviewer" class="container tab-pane fade"><br>
 
-                        <h2 class="">{% trans "Your Reviews" %}</h2>
-                        <p class="card-text">{% trans "View and manage trips and/or trip requests for which you are a reviewer" %}</p>
-                        <div class="row">
+
+                        <div class="btns mb-3 center-col">
+
+                            <h2 class="">{% trans "Your Reviews" %}</h2>
+                            <p class="card-text">{% trans "View and manage trips and/or trip requests for which you are a reviewer" %}</p>
                             {% if is_trip_reviewer %}
                                 {% if trip_reviews_waiting %}
-                                    <div class="card" style="width: {{ width3 }};">
-                                        <div class="card-body">
-                                            <h5 class="card-title">
-                                                {% trans "Trips Awaiting Review" %}
-                                                (<span class="red-font blink-me">{{ trip_reviews_waiting }}</span>)
-                                            </h5>
-                                            <p class="card-text">{% trans "View a list of trips for which you are the active reviewer." %}</p>
-                                            <div class="center-col">
-                                                <a href="{{ active_trip_reviews_list_url }}"
-                                                   class="btn btn-primary {{ disabled_text }}">
-                                                    {% trans "Go" %}
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endif %}
 
-                                {#                                        <div class="card" style="width: {{ width1 }};">#}
-                                {#                                            <div class="card-body">#}
-                                {#                                                <h5 class="card-title">#}
-                                {#                                                    {% trans "Tagged Trips" %}#}
-                                {#                                                </h5>#}
-                                {#                                                <p class="card-text">{% trans "View a list of trips for which you have been tagged as a reviewer." %}</p>#}
-                                {#                                                <div class="center-col">#}
-                                {##}
-                                {#                                                <span data-toggle="tooltip" title="{{ tip_msg }}">#}
-                                {#                                            <a href="{{ all_trip_reviews_list_url }}" class="btn btn-primary">#}
-                                {#                                                {% trans "Go" %}#}
-                                {#                                            </a>#}
-                                {#                                            </span>#}
-                                {#                                                </div>#}
-                                {#                                            </div>#}
-                                {#                                        </div>#}
+                                    <a href="{{ active_trip_reviews_list_url }}"
+                                       class="btn btn-lg btn-outline-primary mx-3 {{ disabled_text }}">
+                                        {% trans "Trips Awaiting Review" %}
+                                        (<span class="red-font blink-me">{{ trip_reviews_waiting }}</span>)
+                                    </a>
+                                {% endif %}
                             {% endif %}
 
                             {% if is_tr_reviewer %}
                                 {% if tr_reviews_waiting %}
-
-                                    <div class="card" style="width: {{ width3 }};">
-                                        <div class="card-body">
-                                            <h5 class="card-title">
-                                                {% trans "Requests Awaiting Review" %}
-                                                (<span class="red-font blink-me">{{ tr_reviews_waiting }}</span>)
-                                            </h5>
-                                            <p class="card-text">{% trans "View a list of requests for which you are the active reviewer." %}</p>
-                                            <div class="center-col">
-                                                <a href="{{ active_tr_reviews_list_url }}"
-                                                   class="btn btn-primary {{ disabled_text }}">
-                                                    {% trans "Go" %}
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <a href="{{ active_tr_reviews_list_url }}"
+                                       class="btn btn-lg btn-outline-primary mx-3 {{ disabled_text }}">
+                                        {% trans "Requests Awaiting Review" %}
+                                        (<span class="red-font blink-me">{{ tr_reviews_waiting }}</span>)
+                                    </a>
                                 {% endif %}
-
-                                {#                                        <div class="card" style="width: {{ width1 }};">#}
-                                {#                                            <div class="card-body">#}
-                                {#                                                <h5 class="card-title">#}
-                                {#                                                    {% trans "Tagged Requests" %}#}
-                                {#                                                </h5>#}
-                                {#                                                <p class="card-text">{% trans "View a list of requests for which you have been tagged as a reviewer." %}</p>#}
-                                {#                                                <div class="center-col">#}
-                                {##}
-                                {#                                                    <a href="{{ all_tr_reviews_list_url }}" class="btn btn-primary">#}
-                                {#                                                        {% trans "Go" %}#}
-                                {#                                                    </a>#}
-                                {#                                                </div>#}
-                                {#                                            </div>#}
-                                {#                                        </div>#}
                             {% endif %}
                         </div>
                     </div>
@@ -273,134 +250,59 @@
                         {% with tab_dict|lookup:region as dict %}
                             <div id="region_{{ region|slugify }}" class="container tab-pane fade"><br>
 
-                                <h2 class="card-title">
-                                    {% if region.id %}
-                                        {% blocktrans with region as r %}
-                                            {{ r }} Region - Admin
-                                        {% endblocktrans %}
-                                    {% else %}
-                                        {{ region }} - Admin
-                                    {% endif %}
-                                </h2>
-                                <h4 class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</h4>
 
+                                <div class="btns mb-3 center-col">
+                                    <h2 class="card-title">
+                                        {% if region.id %}
+                                            {% blocktrans with region as r %}
+                                                {{ r }} Region - Admin
+                                            {% endblocktrans %}
+                                        {% else %}
+                                            {{ region }} - Admin
+                                        {% endif %}
+                                    </h2>
+                                    <p class="card-text">{% trans "Perform tasks reserved for travel app administrators" %}</p>
 
-                                <div class="row mb-4">
-                                    {% if not "ADM" in region %}
-                                        {#  regional trip requests #}
-                                        {#                                            <div class="card" style="width: {{ width1 }};">#}
-                                        {#                                                <div class="card-body">#}
-                                        {#                                                    <h5 class="card-title">#}
-                                        {#                                                        {% trans "Trips and Requests" %}#}
-                                        {#                                                    </h5>#}
-                                        {#                                                    <p class="card-text">#}
-                                        {#                                                        {% trans "View all trips and trip requests that are linked to this region." %}#}
-                                        {#                                                    </p>#}
-                                        {#                                                    <div class="center-col">#}
-                                        {#                                                        {% with region.id|tostring as region_str %}#}
-                                        {#                                                            <a href="{% url 'travel:trip_list' "region-"|add:region_str %}"#}
-                                        {#                                                               class="btn btn-primary">{% trans "Trips" %}#}
-                                        {#                                                            </a>#}
-                                        {#                                                            <a href="{% url 'travel:request_list' "region-"|add:region_str %}"#}
-                                        {#                                                               class="btn btn-primary">{% trans "Requests" %}#}
-                                        {#                                                            </a>#}
-                                        {#                                                        {% endwith %}#}
-                                        {#                                                    </div>#}
-                                        {#                                                </div>#}
-                                        {#                                            </div>#}
-                                    {% endif %}
-
-                                    {# ADM stuff #}
                                     {% if not "ADM" in region %}
                                         {% if dict.adm_number_waiting %}
-
-                                            <div class="card" style="width: {{ width2 }};">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">
-                                                        {% trans "Requests Awaiting ADM" %}
-                                                        (<span class="red-font blink-me">{{ dict.adm_number_waiting }}</span>)
-                                                    </h5>
-                                                    <p class="card-text">{% trans "list of regional requests awaiting ADM approval." %}</p>
-                                                    <div class="center-col">
-                                                        <a href="{{ dict.adm_approval_list_url }}" class="btn btn-primary">
-                                                            {% trans "Go" %}
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <a href="{{ dict.adm_approval_list_url }}" class="btn btn-lg btn-outline-primary mx-3">
+                                                {% trans "Requests Awaiting ADM" %}
+                                                (<span class="red-font blink-me">{{ dict.adm_number_waiting }}</span>)
+                                            </a>
                                         {% endif %}
                                     {% endif %}
-
 
                                     {# RDG stuff #}
                                     {% if not "ADM" in region %}
                                         {% if dict.rdg_number_waiting %}
-                                            <div class="card" style="width: {{ width2 }};">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">
-                                                        {% trans "Requests Awaiting RDG" %}
-                                                        (<span class="red-font blink-me">{{ dict.rdg_number_waiting }}</span>)
-                                                    </h5>
-                                                    <p class="card-text">{% trans "list of regional requests awaiting RDG approval." %}</p>
-                                                    <div class="center-col">
-                                                        <a href="{{ dict.rdg_approval_list_url }}" class="btn btn-primary">
-                                                            {% trans "Go" %}
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <a href="{{ dict.rdg_approval_list_url }}" class="btn btn-lg btn-outline-primary mx-3">
+                                                {% trans "Requests Awaiting RDG" %}
+                                                (<span class="red-font blink-me">{{ dict.rdg_number_waiting }}</span>)
+                                            </a>
                                         {% endif %}
                                     {% endif %}
 
+
                                     {# Verification #}
                                     {% if dict.unverified_trips %}
-                                        <div class="card" style="width: {{ width1 }};">
-                                            <div class="card-body">
-                                                <h5 class="card-title">
-                                                    {% trans "Trip Verifications" %}
-                                                    (<span class="red-font blink-me">{{ dict.unverified_trips }}</span>)
-                                                </h5>
-                                                <p class="card-text">{% trans "list of trips that require verification." %}</p>
-                                                <div class="center-col">
-                                                    <a href="{{ dict.trip_verification_list_url }}" class="btn btn-primary">
-                                                        {% trans "Go" %}
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <a href="{{ dict.trip_verification_list_url }}" class="btn btn-lg btn-outline-primary mx-3">
+                                            {% trans "Trip Verifications" %}
+                                            (<span class="red-font blink-me">{{ dict.unverified_trips }}</span>)
+                                        </a>
                                     {% endif %}
 
                                     {% if "ADM" in region %}
                                         {# ADM hit list stuff #}
                                         {% if dict.adm_trips_ready %}
-                                            <div class="card" style="width: {{ width1 }};">
-                                                <div class="card-body">
-                                                    <h5 class="card-title">
-                                                        {#                                                            {% trans 'Eligible for Review' %}<br> #}
-                                                        The ADMO Net
-                                                        (<span class="red-font blink-me">{{ dict.adm_trips_ready }}</span>)
-                                                    </h5>
-                                                    <p class="card-text">{% trans "A list of trips eligible for the ADM review process to begin'." %}</p>
-                                                    <div class="center-col">
-                                                        <a href="{% url 'travel:trip_list' "adm-hit-list" %}"
-                                                           class="btn btn-primary">
-                                                            {% trans "Go" %}
-                                                        </a>
-                                                    </div>
-                                                </div>
-                                            </div>
+
+                                            <a href="{% url 'travel:trip_list' "adm-hit-list" %}"
+                                               class="btn btn-lg btn-outline-primary mx-3">
+                                                The ADMO Net
+                                                (<span class="red-font blink-me">{{ dict.adm_trips_ready }}</span>)
+                                            </a>
+
                                         {% endif %}
 
-                                        {#                                            <div class="card" style="width: {{ width1 }};">#}
-                                        {#                                                <div class="card-body">#}
-                                        {#                                                    <h5 class="card-title">{% trans "Browse all Trips" %}</h5>#}
-                                        {#                                                    <p class="card-text">{% trans "View a full list of current and historical trips in the systems." %}</p>#}
-                                        {#                                                    <div class="center-col">#}
-                                        {#                                                        <a href="{% url 'travel:trip_list' 'adm-all' %}"#}
-                                        {#                                                           class="btn btn-primary">{% trans "Go" %}</a>#}
-                                        {#                                                    </div>#}
-                                        {#                                                </div>#}
-                                        {#                                            </div>#}
                                     {% endif %}
 
                                 </div>
@@ -413,23 +315,14 @@
 
             </div>
         </div>
-        <div class="mb-3">
-            {% autoescape off %}
-                {% bootstrap_messages size='small' %}
-            {% endautoescape %}
-        </div>
 
 
     </div>
-    <div class="jumbotron py-3 mx-0" style="background-color:white;">
-
-        <h2 class="three-em center-col">
-            {% trans "An Overview of the Travel App" %}
-        </h2>
-
-        {% include "travel/_process_timeline.html" %}
-
-    </div>
+    {#    <div class="jumbotron py-3 mx-0" style="background-color:white;">#}
+    {##}
+    {#       #}
+    {##}
+    {#    </div>#}
 
 
 

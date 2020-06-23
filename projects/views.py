@@ -17,7 +17,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
@@ -25,7 +25,8 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
-from shared_models.views import CommonHardDeleteView, CommonFormsetView, CommonTemplateView, CommonFormView
+from shared_models.views import CommonHardDeleteView, CommonFormsetView, CommonTemplateView, CommonFormView, CommonCreateView, \
+    CommonDetailView, CommonFilterView, CommonPopoutUpdateView, CommonDeleteView, CommonUpdateView
 from . import models
 from . import forms
 from . import emails
@@ -510,8 +511,10 @@ class CloserTemplateView(TemplateView):
     template_name = 'projects/close_me.html'
 
 
-class IndexTemplateView(TemplateView, LoginRequiredMixin):
+class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
     template_name = 'projects/index.html'
+    h1 = gettext_lazy("DFO Science Project Planning")
+    active_page_name_crumb = gettext_lazy("Home")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -541,18 +544,25 @@ class IndexTemplateView(TemplateView, LoginRequiredMixin):
                     [s for s in section_id_list if shared_models.Section.objects.get(pk=s).projects.count() > 0])
                 section_list = shared_models.Section.objects.filter(id__in=section_id_set)
             context["section_list"] = section_list
-
-        # messages.warning(self.request,
-        #               mark_safe(_("<b class='red-font blink-me'>PLEASE NOTE: This database is currently being updated. Please refrain from entering new data until this message is no longer present from the home page.</b>")))
-
+        context["reference_materials"] = models.ReferenceMaterial.objects.all()
+        context["upcoming_dates"] = models.UpcomingDate.objects.filter(date__gte=timezone.now()).order_by("date")
+        context["past_dates"] = models.UpcomingDate.objects.filter(date__lt=timezone.now()).order_by("date")
+        context["upcoming_dates_field_list"] = [
+            "date",
+            "region",
+            "tdescription|{}".format("description"),
+        ]
         return context
 
 
 # PROJECTS #
 ############
-class MyProjectListView(LoginRequiredMixin, FilterView):
+class MyProjectListView(LoginRequiredMixin, CommonFilterView):
     template_name = 'projects/my_project_list.html'
     filterset_class = filters.MyProjectFilter
+    h1 = gettext_lazy("My projects")
+    home_url_name = "projects:index"
+    container_class = "container-fluid"
 
     def get_queryset(self):
         return models.Project.objects.filter(staff_members__user=self.request.user).order_by("-year", "project_title")
@@ -602,9 +612,14 @@ class MyProjectListView(LoginRequiredMixin, FilterView):
         return context
 
 
-class SectionListView(LoginRequiredMixin, FilterView):
+class SectionListView(LoginRequiredMixin, CommonFilterView):
     template_name = 'projects/section_project_list.html'
     filterset_class = filters.SectionFilter
+    home_url_name = "projects:index"
+    container_class = "container-fluid"
+
+    def get_h1(self):
+        return self.get_queryset().first().section
 
     def get_queryset(self):
         return models.Project.objects.filter(section_id=self.kwargs.get("section")).order_by('-year',
@@ -755,12 +770,15 @@ class MySectionListView(LoginRequiredMixin, FilterView):
         return context
 
 
-class ProjectListView(LoginRequiredMixin, FilterView):
+class ProjectListView(LoginRequiredMixin, CommonFilterView):
     template_name = 'projects/project_list.html'
     queryset = models.Project.objects.filter(
         is_hidden=False, submitted=True,
     ).order_by('-year', 'section__division', 'section', 'project_title')
     filterset_class = filters.ProjectFilter
+    home_url_name = "projects:index"
+    container_class = "container-fluid"
+    h1 = gettext_lazy("Projects")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -779,8 +797,20 @@ class ProjectListView(LoginRequiredMixin, FilterView):
         return context
 
 
-class ProjectDetailView(LoginRequiredMixin, DetailView):
+class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Project
+    template_name = 'projects/project_detail.html'
+    home_url_name = "projects:index"
+    parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects:my_project_list")}
+
+    def get_active_page_name_crumb(self):
+        return str(self.get_object())
+
+    def get_h1(self):
+        mystr = str(self.get_object())
+        if not self.get_object().submitted:
+            mystr += ' <span class="red-font">{}</span>'.format(_("UNSUBMITTED"))
+        return mystr
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -844,10 +874,11 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-class ProjectUpdateView(CanModifyProjectRequiredMixin, UpdateView):
+class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonPopoutUpdateView):
     model = models.Project
     form_class = forms.ProjectForm
     template_name = 'projects/project_form_popout.html'
+    h1 = gettext_lazy("Edit project details")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -873,14 +904,27 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 
         return my_dict
 
-    def form_valid(self, form):
-        my_object = form.save()
-        return HttpResponseRedirect(reverse("shared_models:close_me"))
 
-
-class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, UpdateView):
+class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
     model = models.Project
     form_class = forms.ProjectSubmitForm
+    home_url_name = "projects:index"
+    submit_text = gettext_lazy("Submit")
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("projects:project_detail", args=[self.get_object().id])}
+
+    def get_active_page_name_crumb(self):
+        if self.get_object().submitted:
+            return _("Un-submit")
+        else:
+            return _("Submit")
+
+    def get_h1(self):
+        if self.get_object().submitted:
+            return _("Are you sure you want to unsubmit the this project?")
+        else:
+            return _("Are you sure you want to submit the following project?")
 
     def get_template_names(self):
         if self.kwargs.get("pop"):
@@ -994,9 +1038,11 @@ class ProjectRecommendationUpdateView(CanModifyProjectRequiredMixin, UpdateView)
         return HttpResponseRedirect(reverse('projects:close_me'))
 
 
-class ProjectCreateView(LoginRequiredMixin, CreateView):
+class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
     model = models.Project
     form_class = forms.NewProjectForm
+    home_url_name = "projects:index"
+    template_name = 'projects/project_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1042,19 +1088,19 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         return {'last_modified_by': self.request.user}
 
 
-class ProjectDeleteView(CanModifyProjectRequiredMixin, DeleteView):
+class ProjectDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     model = models.Project
-    success_message = _('The project was successfully deleted!')
+    delete_protection = False
+    home_url_name = "projects:index"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("projects:project_detail", args=[self.get_object().id])}
 
     def get_template_names(self):
         if self.kwargs.get("pop"):
             return "projects/project_action_form_popout.html"
         else:
-            return "projects/project_confirm_delete.html"
-
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+            return "projects/confirm_delete.html"
 
     def get_success_url(self):
         if self.kwargs.get("pop"):
@@ -1062,18 +1108,10 @@ class ProjectDeleteView(CanModifyProjectRequiredMixin, DeleteView):
         else:
             return reverse_lazy('projects:my_project_list')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.kwargs.get("pop"):
-            context["delete_message"] = _(
-                "Are you certain you want to delete this project? <br><br> This action is permanent.")
-            context["action"] = _("Delete")
-            context["btn_color"] = "danger"
-        return context
-
 
 class ProjectCloneUpdateView(ProjectUpdateView):
     template_name = 'projects/project_form.html'
+    h1 = gettext_lazy("Please enter the new project details...")
 
     def test_func(self):
         if self.request.user.id:
@@ -1862,6 +1900,21 @@ class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
     delete_url_name = "projects:delete_theme"
 
 
+class UpcomingDateHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.UpcomingDate
+    success_url = reverse_lazy("projects:manage-upcoming-dates")
+
+
+class UpcomingDateFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects/formset.html'
+    h1 = "Manage Upcoming Dates"
+    queryset = models.UpcomingDate.objects.all()
+    formset_class = forms.UpcomingDateFormset
+    success_url = reverse_lazy("projects:manage-upcoming-dates")
+    home_url_name = "projects:index"
+    delete_url_name = "projects:delete-upcoming-date"
+
+
 class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
     template_name = 'projects/admin_staff_list.html'
     queryset = models.Staff.objects.filter(user__isnull=True).order_by('-project__year', 'project__section__division',
@@ -1969,7 +2022,7 @@ class ProjectApprovalFormsetView(AdminRequiredMixin, CommonFormsetView):
     template_name = 'projects/formset.html'
     formset_class = forms.ProjectApprovalFormset
     home_url_name = "projects:index"
-    parent_crumb = {"title":_("Find Projects to Approve"), "url": reverse_lazy("projects:admin_project_approval_search")}
+    parent_crumb = {"title": _("Find Projects to Approve"), "url": reverse_lazy("projects:admin_project_approval_search")}
     pre_display_fields = ["id", "project_title", "total_cost|total budget requested"]
     post_display_fields = ["notification_email_sent", ]
 
@@ -2996,9 +3049,13 @@ class PDFCostSummaryReport(PDFReportTemplate):
 
 # EXTRAS #
 ##########
-class IWGroupList(LoginRequiredMixin, FormView):
+class IWGroupList(LoginRequiredMixin, CommonFormView):
     template_name = 'projects/iw_group_list.html'
     form_class = forms.IWForm
+    active_page_name_crumb = gettext_lazy("Functional Group Summary")
+    home_url_name = "projects:index"
+    h1 = "dud"
+    container_class = "container-fluid"
 
     def get_initial(self):
         my_init_dict = dict()
@@ -3182,8 +3239,9 @@ class IWGroupList(LoginRequiredMixin, FormView):
         }))
 
 
-class IWProjectList(ManagerOrAdminRequiredMixin, TemplateView):
+class IWProjectList(ManagerOrAdminRequiredMixin, CommonTemplateView):
     template_name = 'projects/iw_project_list.html'
+    h1 = "temp"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

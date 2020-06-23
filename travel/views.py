@@ -58,11 +58,6 @@ def get_file(request, file):
     return response
 
 
-# Create your views here.
-class CloserTemplateView(TemplateView):
-    template_name = 'travel/close_me.html'
-
-
 def get_conf_details(request):
     conf_dict = {}
     for conf in models.Conference.objects.all():
@@ -284,63 +279,73 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
 
 request_field_list = [
     'fiscal_year',
-    'status_string|{}'.format(_("Request status")),
-    'user',
-    'section',
-    'first_name',
-    'last_name',
-    'address',
-    'phone',
-    'email',
-    'is_public_servant',
-    'company_name',
-    'region',
-    'departure_location',
-    'destination',
-    'start_date',
-    'end_date',
-    'reason',
     'trip',
-
-    'role',
-    'role_of_participant',
+    'requester_name|{}'.format(_("Traveller name")),
+    'requester_info|{}'.format(_("Traveller information")),
+    'is_public_servant',
+    'status_string|{}'.format(_("Request status")),
+    'section',
+    'region',
+    'to_from|{}'.format(_("Departure location / Destination")),
+    'dates|{}'.format(_("Travel dates")),
     'objective_of_event',
     'benefit_to_dfo',
+    # 'reason',
+    'long_role|{}'.format(_("Role of participant")),
     'multiple_conferences_rationale',
     'late_justification',
     'bta_attendees',
-    'notes',
-    # 'cost_table|{}'.format(_("DFO costs")),
-    'total_request_cost|{}'.format(_("Total costs")),
     'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
+    'funding_source',
     'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
     'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
+    'total_request_cost|{}'.format(_("Total costs")),
     'original_submission_date',
     'processing_time|{}'.format(_("Processing time")),
     'created_by',
+    'notes',
+]
+
+traveller_field_list = [
+    'requester_info|{}'.format(_("Traveller information")),
+    'is_public_servant',
+    'region',
+    'is_research_scientist|{}'.format(_("RES?")),
+    'objective_of_event',
+    'benefit_to_dfo',
+    'start_date',
+    'end_date',
+    'departure_location',
+    # 'reason',
+    'long_role|{}'.format("Role of participant"),
+    'multiple_conferences_rationale',
+    'funding_source',
+    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
+    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
+    'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
+    'total_request_cost|{}'.format(_("Total costs")),
 ]
 
 request_group_field_list = [
     'fiscal_year',
+    'trip',
+    'requester_name|{}'.format(_("Organizer name")),
     'status_string|{}'.format(_("Request status")),
-    'user',
     'section',
     'destination',
-    'trip',
 
     'objective_of_event',
     'benefit_to_dfo',
-    'multiple_attendee_rationale',
-    'funding_source',
     'bta_attendees',
     'late_justification',
-    'notes',
+    'funding_source',
     'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
-    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
     'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
+    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
     'total_request_cost|{}'.format(_("Total cost")),
     'original_submission_date',
     'processing_time|{}'.format(_("Processing time")),
+    'notes',
 ]
 
 request_child_field_list = [
@@ -349,12 +354,11 @@ request_child_field_list = [
     'is_research_scientist|{}'.format(_("RES?")),
     'dates|{}'.format(_("Travel dates")),
     'departure_location',
-    'reason',
+    # 'reason',
     'role',
     # 'role_of_participant',
     'total_cost|{}'.format(_("Total cost")),
     'non_dfo_costs|{}'.format(_("non-DFO funding")),
-
 ]
 
 reviewer_field_list = [
@@ -466,6 +470,8 @@ class TripRequestDetailView(TravelAccessRequiredMixin, CommonDetailView):
         my_request_child_field_list = deepcopy(request_child_field_list)
         context["child_field_list"] = my_request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
+        context["traveller_field_list"] = traveller_field_list
+
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
         context['help_text_dict'] = get_help_text_dict()
@@ -838,6 +844,8 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
         context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
         context["child_field_list"] = request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
+        context["traveller_field_list"] = traveller_field_list
+
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
         context['help_text_dict'] = get_help_text_dict()
@@ -922,6 +930,8 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         context["field_list"] = request_field_list if not my_object.is_group_request else request_group_field_list
         context["child_field_list"] = request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
+        context["traveller_field_list"] = traveller_field_list
+
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
         context['help_text_dict'] = get_help_text_dict()
@@ -1207,6 +1217,8 @@ class TripRequestReviewerUpdateView(AdminOrApproverRequiredMixin, CommonUpdateVi
         context["field_list"] = request_field_list if not my_object.trip_request.is_group_request else request_group_field_list
         context["child_field_list"] = request_child_field_list
         context["reviewer_field_list"] = reviewer_field_list
+        context["traveller_field_list"] = traveller_field_list
+
         context["conf_field_list"] = conf_field_list
         context["cost_field_list"] = cost_field_list
         context['help_text_dict'] = get_help_text_dict()
@@ -1552,6 +1564,7 @@ class TripDetailView(TravelAccessRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["conf_field_list"] = conf_field_list
         context["reviewer_field_list"] = reviewer_field_list
+        context["traveller_field_list"] = traveller_field_list
         context["trip"] = self.get_object()
         context["can_modify"] = (self.get_object().is_adm_approval_required and in_adm_admin_group(self.request.user)) or (
                 not self.get_object().is_adm_approval_required and in_travel_admin_group(self.request.user))
@@ -1716,6 +1729,8 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["trip"] = self.get_object()
+        context["traveller_field_list"] = traveller_field_list
+
         context["conf_field_list"] = conf_field_list
         context['help_text_dict'] = get_help_text_dict()
         return context
@@ -2015,6 +2030,8 @@ class TripReviewerUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView):
         context["conf_field_list"] = conf_field_list
         context["trip"] = self.get_object().trip
         context["reviewer_field_list"] = reviewer_field_list
+        context["traveller_field_list"] = traveller_field_list
+
         context["report_mode"] = True
         trip = self.get_object().trip
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
@@ -2156,6 +2173,8 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         context = super().get_context_data(**kwargs)
         context["conf_field_list"] = conf_field_list
         context["trip"] = self.get_object()
+        context["traveller_field_list"] = traveller_field_list
+
         context['help_text_dict'] = get_help_text_dict()
         context["report_mode"] = True
         return context
@@ -2461,20 +2480,6 @@ class TripSubcategoryHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteVi
     model = models.TripSubcategory
     success_url = reverse_lazy("travel:manage_trip_subcategories")
 
-
-class ReasonFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
-    template_name = 'travel/formset.html'
-    h1 = "Manage Trip Reasons"
-    queryset = models.Reason.objects.all()
-    formset_class = forms.ReasonFormset
-    success_url = reverse_lazy("travel:manage_reasons")
-    home_url_name = "travel:index"
-    delete_url_name = "travel:delete_reason"
-
-
-class ReasonHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
-    model = models.Reason
-    success_url = reverse_lazy("travel:manage_reasons")
 
 
 class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
