@@ -54,7 +54,7 @@ def get_app_dict(request):
         app_dict["travel"] = {
             "title": _("Travel Management System"),
             "description": _("Management tool to facilitate regional and national travel pre-approvals."),
-            "status": "beta",
+            "status": "production",
             "access": "permission-required",
             "url": reverse('travel:index'),
             "icon_path": 'img/icons/paper-plane.svg',

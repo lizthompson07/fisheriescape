@@ -6,7 +6,23 @@
 {% load verbose_names %}
 {% load bootstrap4 %}
 
-{% block content %}
+{% block title_area %}
+    <div class="row">
+        <div class="col">
+            <h1>
+                {{ fy }} {% trans "Summary of Functional Groups by " %}
+                {{ big_unit }}{% if small_unit %}/{{ small_unit }}{% endif %} ({{ region }})
+            </h1>
+            <h3>
+                {% trans "Recommended Projects" %}
+            </h3>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block subcontent %}
     {% get_current_language as LANG %}
 
     <style>
@@ -57,36 +73,11 @@
         {% trans "Section" as small_unit %}
     {% endif %}
 
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{% url 'projects:index' %}">
-                    {% trans "Home" %}
-                </a>
-            </li>
-
-            <li class="breadcrumb-item active" aria-current="page">
-                {% trans "Functional Group Summary" %} ({{ big_unit }}{% if small_unit %}/{{ small_unit }}{% endif %})
-            </li>
-        </ol>
-    </nav>
 
 
 
     <div class="container-fluid">
         {{ get_current_language }}
-        <div class="row">
-            <div class="col">
-                <h1>
-                    {{ fy }} {% trans "Summary of Functional Groups by " %}
-                    {{ big_unit }}{% if small_unit %}/{{ small_unit }}{% endif %} ({{ region }})
-                </h1>
-                <h3>
-                        {% trans "Recommended Projects" %}
-                </h3>
-            </div>
-
-        </div>
 
         <form class="form" action="." method="post" id="filter-form">
             <div class="row">
@@ -221,7 +212,7 @@
     </div>
 
 
-{% endblock content %}
+{% endblock %}
 
 {% block body_js %}
     <script type="application/javascript">

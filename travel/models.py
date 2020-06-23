@@ -7,7 +7,7 @@ from django.contrib.auth.models import User as AuthUser
 from django.db import models
 from django.db.models import Q, Sum
 from django.dispatch import receiver
-from django.template.defaultfilters import pluralize
+from django.template.defaultfilters import pluralize, date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -126,6 +126,10 @@ class Status(SimpleLookup):
 
     class Meta:
         ordering = ['used_for', 'order', 'name', ]
+
+    @property
+    def status_colored_span(self):
+        return mark_safe(f'<span style="background-color:{self.color}">{self.tname}</span>')
 
 
 class Conference(models.Model):
@@ -382,42 +386,42 @@ class Conference(models.Model):
         """
         This method is used to return a dictionary of users attending a trip, as well as the number of
         trips or international meetings they have attended.
+
+        UPDATE: this will also be a way to get to a trip request from a traveller
         """
         my_dict = {}
 
-        # get a trip list that will be used to get a list of users (sigh...)
-        # my_trip_list = self.children_requests.all() if self.is_group_request else Trip.objects.filter(pk=self.id)
-
-        # get the fiscal year of the trip
-        fy = self.fiscal_year
-
         for traveller in self.total_traveller_list:
+            my_dict[traveller] = {}
             total_list = []
-            fy_list = []
 
             # if this is not a real User instance, there is nothing to do.
             try:
-
                 # there are two things we have to do to get this list...
                 # 1) get all non group travel
                 qs = traveller.user_trip_requests.filter(trip__is_adm_approval_required=True).filter(is_group_request=False)
-                total_list.extend([trip for trip in qs])
-                fy_list.extend([trip for trip in qs.filter(fiscal_year=fy)])
+                total_list.extend([trip.id for trip in qs])
 
                 # 2) get all group travel - the trick part is that we have to grab the parent trip
                 qs = traveller.user_trip_requests.filter(parent_request__trip__is_adm_approval_required=True)
-                total_list.extend([trip_request.parent_request for trip_request in qs])
-                fy_list.extend([trip_request.parent_request for trip_request in qs.filter(fiscal_year=fy)])
+                total_list.extend([trip_request.parent_request.id for trip_request in qs])
 
-                my_dict[traveller] = {}
-                my_dict[traveller]["total_list"] = list(set(total_list))
-                my_dict[traveller]["fy_list"] = list(set(fy_list))
+                my_dict[traveller]["total_list"] = TripRequest.objects.filter(id__in=total_list).order_by("-start_date")
 
             except AttributeError:
                 # This is the easy part
-                my_dict[traveller] = {}
                 my_dict[traveller]["total_list"] = "---"
-                my_dict[traveller]["fy_list"] = "---"
+
+            # also, let's get the trip request for the traveller. if group request, we will want the child record
+            for tr in self.get_connected_requests():
+                if type(traveller) is AuthUser:
+                    if traveller in tr.travellers:
+                        my_dict[traveller]["trip_request"] = tr
+                else:
+                    for name in tr.traveller_names:
+                        if name in traveller:
+                            my_dict[traveller]["trip_request"] = tr
+                            break
         return my_dict
 
     @property
@@ -493,7 +497,6 @@ class TripRequest(models.Model):
     is_group_request = models.BooleanField(default=False,
                                            verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
     # purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
-    reason = models.ForeignKey(Reason, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("reason for travel"))
     trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, null=True, verbose_name=_("trip"), related_name="trip_requests")
 
     departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True,
@@ -531,6 +534,25 @@ class TripRequest(models.Model):
 
     created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="trip_requests_created_by",
                                    verbose_name=_("created by"))
+
+    @property
+    def dates(self):
+        my_str = date(self.start_date)
+        if self.end_date:
+            my_str += f" &rarr; {date(self.end_date)}"
+        return mark_safe(my_str)
+
+    @property
+    def to_from(self):
+        my_str = f"{self.departure_location} &rarr; {self.smart_destination}"
+        return mark_safe(my_str)
+
+    @property
+    def long_role(self):
+        mystr = str(self.role)
+        if self.role_of_participant:
+            mystr += f" &mdash; {self.role_of_participant}"
+        return mark_safe(mystr)
 
     @property
     def admin_notes_html(self):
@@ -745,6 +767,13 @@ class TripRequest(models.Model):
             return [self.user]
 
     @property
+    def traveller_names(self):
+        if self.is_group_request:
+            return [tr.requester_name for tr in self.children_requests.all()]
+        else:
+            return [self.requester_name]
+
+    @property
     def purpose_long(self):
         my_str = ""
         if self.role_of_participant:
@@ -831,19 +860,35 @@ class TripRequest(models.Model):
             return f'{self.first_name} {self.last_name}'
 
     @property
-    def dates(self):
-        my_str = "{}".format(
-            self.start_date.strftime("%Y-%m-%d"),
-        )
-        if self.end_date:
-            my_str += " &rarr; {}".format(
-                self.end_date.strftime("%Y-%m-%d"),
-            )
-        return my_str
+    def requester_info(self):
+        mystr = ""
+        if not self.is_public_servant:
+            mystr += _("Company: ") + nz(self.company_name, "<span class='red-font'>missing company name</span>") + "<br>"
+        mystr += _("Address: ") + nz(self.address, "<span class='red-font'>missing address</span>") + "<br>"
+        mystr += _("Phone: ") + nz(self.phone, "<span class='red-font'>missing phone</span>") + "<br>"
+        mystr += _("Email: ") + nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
+                                   "<span class='red-font'>missing email address</span>") + "<br>"
+        return mark_safe(mystr)
 
     @property
     def smart_status(self):
         return self.parent_request.status if self.parent_request else self.status
+
+    @property
+    def smart_trip(self):
+        return self.parent_request.trip if self.parent_request else self.trip
+
+    @property
+    def smart_objective_of_event(self):
+        return self.parent_request.objective_of_event if self.parent_request else self.objective_of_event
+
+    @property
+    def smart_benefit_to_dfo(self):
+        return self.parent_request.benefit_to_dfo if self.parent_request else self.benefit_to_dfo
+
+    @property
+    def smart_funding_source(self):
+        return self.parent_request.funding_source if self.parent_request else self.funding_source
 
     @property
     def smart_section(self):
@@ -852,6 +897,10 @@ class TripRequest(models.Model):
     @property
     def smart_reviewers(self):
         return self.parent_request.reviewers if self.parent_request else self.reviewers
+
+    @property
+    def smart_destination(self):
+        return self.parent_request.destination if self.parent_request else self.destination
 
     @property
     def smart_recommendation_notes(self):

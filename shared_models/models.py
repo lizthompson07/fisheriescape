@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+import uuid
 
 
 class SimpleLookup(models.Model):
@@ -26,6 +27,13 @@ class SimpleLookup(models.Model):
 
     def __str__(self):
         return self.tname
+
+
+class SimpleLookupWithUUID(SimpleLookup):
+    class Meta:
+        abstract = True
+
+    uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid.uuid4)
 
 
 class Lookup(SimpleLookup):
@@ -58,9 +66,7 @@ class FiscalYear(models.Model):
         ordering = ['id', ]
 
 
-# CONNECTED APPS: masterlist
-# STILL NEED TO CONNECT: camp (needs remapping), grais (needs remapping)
-class Province(models.Model):
+class Province(SimpleLookupWithUUID):
     # Choices for surface_type
     CAN = 'Canada'
     US = 'United States'
@@ -68,26 +74,12 @@ class Province(models.Model):
         (CAN, _('Canada')),
         (US, _('United States')),
     )
-    name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("name (French)"))
     abbrev_eng = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (English)"))
     abbrev_fre = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("abbreviation (French)"))
     country = models.CharField(max_length=25, choices=COUNTRY_CHOICES, verbose_name=_("country"))
     # meta
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     @property
     def tabbrev(self):
@@ -103,52 +95,30 @@ class Province(models.Model):
 
 
 # CONNECTED APPS: masterlist
-class Region(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
+class Region(SimpleLookupWithUUID):
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("RDG / ADM"),
                              related_name="shared_models_regions")
     # meta
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ['name', ]
         verbose_name = _("Region / NCR Sector")
         verbose_name_plural = _("Regions / NCR Sectors")
 
-    @property
-    def tname(self):
-        return str(self)
 
-
-class Branch(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name (French)"))
+class Branch(SimpleLookupWithUUID):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     abbrev = models.CharField(max_length=10, verbose_name=_("abbreviation"))
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, verbose_name=_("region"), related_name="branches")
-    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("regional director / NCR director general"),
+    head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                             verbose_name=_("regional director / NCR director general"),
                              related_name="shared_models_branches")
     # meta
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        super().save(*args, **kwargs)
 
     def __str__(self):
         # check to see if a french value is given
@@ -159,30 +129,16 @@ class Branch(models.Model):
         verbose_name = _("Branch / NCR Directorate")
         verbose_name_plural = _("Branches / NCR Directorates")
 
-    @property
-    def tname(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
-
-class Division(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+class Division(SimpleLookupWithUUID):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
     branch = models.ForeignKey(Branch, on_delete=models.DO_NOTHING, verbose_name=_("branch"), related_name="divisions")
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("division manager / NCR director"),
                              related_name="shared_models_divisions")
     # meta
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        super().save(*args, **kwargs)
 
     def __str__(self):
         # check to see if a french value is given
@@ -193,38 +149,17 @@ class Division(models.Model):
         verbose_name = _("Division / NCR Branch")
         verbose_name_plural = _("Divisions / NCR Branches")
 
-    @property
-    def tname(self):
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
-
 
 # CONNECTED APPS: tickets, travel, projects, inventory
-class Section(models.Model):
-    name = models.CharField(max_length=255, verbose_name=_("name (English)"))
-    nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name (French)"))
+class Section(SimpleLookupWithUUID):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     division = models.ForeignKey(Division, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="sections")
     head = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("section head  / NCR team lead"),
                              related_name="shared_models_sections")
     abbrev = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("abbreviation"))
     # meta
-    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
-
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
@@ -242,8 +177,13 @@ class Section(models.Model):
         return my_str
 
     @property
-    def tname(self):
-        return str(self)
+    def full_name_ver1(self):
+        try:
+
+            my_str = f"{self.tname} ({self.division.branch.region.tname}/{self.division.tname})"
+        except AttributeError:
+            my_str = self.tname
+        return my_str
 
     @property
     def shortish_name(self):
@@ -403,7 +343,7 @@ class Institute(models.Model):
 
 class Vessel(models.Model):
     name = models.CharField(max_length=255)
-    call_sign = models.CharField(max_length=56, null=True, blank=True)
+    call_sign = models.CharField(max_length=56, null=True, blank=True, unique=True)
 
     def __str__(self):
         if self.call_sign:
@@ -420,7 +360,7 @@ class Vessel(models.Model):
 # snowcrab
 class Cruise(models.Model):
     institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True)
-    mission_number = models.CharField(max_length=255)
+    mission_number = models.CharField(max_length=255)  # once we are sure the data is clean, this should be set to `unique`
     mission_name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, null=True, blank=True)
     chief_scientist = models.CharField(max_length=255)

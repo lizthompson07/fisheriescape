@@ -63,22 +63,24 @@
 
                 {% if is_admin or is_adm_admin or is_reviewer %}
 
-                    {# connected trip requests #}
-                    <tr>
-                        <th>{% trans "Connected requests" %}</th>
-                        <td>
-                            {% for obj in trip.trip_requests.all %}
-                                {% url 'travel:request_detail' obj.id "all" as my_url %}
-                                <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}">{{ obj }}</a>
-                                by {{ obj.user }}
-                                (STATUS: <span style="background-color: {{ obj.status.color }}">{{ obj.status }}</span>)
-                                {% if obj.id == triprequest.id %}
-                                    <span class="purple-font text-uppercase font-weight-bold">({% trans "CURRENT TRIP REQUEST" %})</span>
-                                {% endif %}
-                                <br>
-                            {% endfor %}
-                        </td>
-                    </tr>
+                    {% if  is_admin or is_adm_admin %}
+                        {# connected trip requests; only show this to admin people... #}
+                        <tr>
+                            <th>{% trans "Connected requests" %}</th>
+                            <td>
+                                {% for obj in trip.trip_requests.all %}
+                                    {% url 'travel:request_detail' obj.id "all" as my_url %}
+                                    <a href="{% if obj.id != triprequest.id %}{{ my_url }}{% endif %}">{{ obj }}</a>
+                                    by {{ obj.user }}
+                                    (STATUS: <span style="background-color: {{ obj.status.color }}">{{ obj.status }}</span>)
+                                    {% if obj.id == triprequest.id %}
+                                        <span class="purple-font text-uppercase font-weight-bold">({% trans "CURRENT TRIP REQUEST" %})</span>
+                                    {% endif %}
+                                    <br>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endif %}
 
                     {# traveller history #}
                     <tr>
