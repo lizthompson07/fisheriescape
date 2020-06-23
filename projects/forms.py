@@ -619,6 +619,9 @@ class UpcomingDateForm(forms.ModelForm):
     class Meta:
         model = models.UpcomingDate
         fields = "__all__"
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"})
+        }
 
 
 UpcomingDateFormset = modelformset_factory(

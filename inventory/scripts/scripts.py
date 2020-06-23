@@ -38,6 +38,14 @@ def export_fixtures():
 
 
 
+def transfer_dist_formats():
+    for resource in models.Resource.objects.filter(distribution_format__isnull=False):
+        # look for match in other table
+        df = models.DistributionFormat.objects.get(name__iexact=resource.distribution_format)
+        resource.distribution_formats.add(df)
+
+
+
 def resave_all(resources=models.Resource.objects.all()):
     for r in resources:
         xml_export.verify(r)

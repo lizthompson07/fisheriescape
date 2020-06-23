@@ -177,6 +177,15 @@ class Section(SimpleLookupWithUUID):
         return my_str
 
     @property
+    def full_name_ver1(self):
+        try:
+
+            my_str = f"{self.tname} ({self.division.branch.region.tname}/{self.division.tname})"
+        except AttributeError:
+            my_str = self.tname
+        return my_str
+
+    @property
     def shortish_name(self):
         try:
             my_str = "{} - {} - {} - {}".format(self.division.branch.region.abbrev, self.division.branch.abbrev, self.division.abbrev,

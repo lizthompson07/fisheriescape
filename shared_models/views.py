@@ -14,7 +14,7 @@ from django_filters.views import FilterView
 ###
 from . import models
 from . import forms
-from .mixins import CommonMixin, CommonFormMixin, CommonListMixin, CommonPopoutFormMixin
+from .mixins import CommonMixin, CommonFormMixin, CommonListMixin, CommonPopoutFormMixin, CommonPopoutMixin
 
 
 class CloserTemplateView(TemplateView):
@@ -67,6 +67,22 @@ class CommonCreateView(CommonFormMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
         return context
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        if self.success_url:
+            url = self.success_url.format(**self.object.__dict__)
+        else:
+            try:
+                url = self.object.get_absolute_url()
+            except AttributeError:
+                if self.get_parent_crumb():
+                    return self.get_parent_crumb().get("url")
+                else:
+                    raise ImproperlyConfigured(
+                        "No URL to redirect to.  Either provide a url or define"
+                        " a get_absolute_url method on the Model.")
+        return url
 
 
 class CommonAuthCreateView(UserPassesTestMixin, CommonCreateView):
@@ -223,6 +239,11 @@ class CommonPopoutDeleteView(CommonPopoutFormMixin, CommonDeleteView):
     template_name = 'shared_models/generic_popout_confirm_delete.html'
 
 
+class CommonPopoutCreateView(CommonPopoutFormMixin, CommonCreateView):
+    template_name = 'shared_models/generic_popout_form.html'
+
+
+
 class CommonPopoutUpdateView(CommonPopoutFormMixin, UpdateView):
     def get_h1(self):
         if self.h1:
@@ -308,6 +329,7 @@ class CommonPopoutFormView(CommonPopoutFormMixin, FormView):
 
 
 class CommonDetailView(CommonMixin, DetailView):
+    template_name = 'shared_models/generic_detail.html'
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
@@ -317,6 +339,11 @@ class CommonDetailView(CommonMixin, DetailView):
 
     def get_h1(self):
         return str(self.get_object())
+
+
+class CommonPopoutDetailView(CommonPopoutMixin, CommonDetailView):
+    template_name = 'shared_models/generic_popout_detail.html'
+
 
 
 class CommonFormsetView(TemplateView, CommonFormMixin):
