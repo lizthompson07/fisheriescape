@@ -165,11 +165,11 @@ class PublicationFormStatus(forms.ModelForm):
         exclude = []
         widgets = {
             "status_comments": Textarea(attrs={"rows": 2, "cols": 20}),
-            "submitted_by": Textarea(attrs={"rows": 2, "cols": 20}),
-            "appr_by_chair": Textarea(attrs={"rows": 2, "cols": 20}),
-            "appr_by_CSAS": Textarea(attrs={"rows": 2, "cols": 20}),
-            "appr_by_dir": Textarea(attrs={"rows": 2, "cols": 20}),
-            "appr_by": Textarea(attrs={"rows": 2, "cols": 20}),
+            # "submitted_by": Textarea(attrs={"rows": 1, "cols": 20}),
+            # "appr_by_chair": Textarea(attrs={"rows": 2, "cols": 20}),
+            # "appr_by_CSAS": Textarea(attrs={"rows": 2, "cols": 20}),
+            # "appr_by_dir": Textarea(attrs={"rows": 2, "cols": 20}),
+            # "appr_by": Textarea(attrs={"rows": 2, "cols": 20}),
             "notes": Textarea(attrs={"rows": 3, "cols": 20})
         }
 

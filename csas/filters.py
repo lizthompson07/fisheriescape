@@ -59,10 +59,11 @@ class MeetingFilterOtherPars(django_filters.FilterSet):
 
 class PublicationFilter(django_filters.FilterSet):
     series = django_filters.CharFilter(field_name='series', lookup_expr='icontains')
+    title_en = django_filters.CharFilter(field_name='title_en', lookup_expr='icontains')
 
     class Meta:
         model = models.PubPublication
-        fields = ['series', 'lead_region', 'lead_author', 'pub_year']
+        fields = ['series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
