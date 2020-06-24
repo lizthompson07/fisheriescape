@@ -9,17 +9,13 @@
     {% block content %}{% endblock content %}
 {% endblock body %}
 
-{% block left_all %}
-    <li class="nav-item wide-left"><a class="btn btn-dark " href="{% url 'grais:index' %}"> grAIS Home </a></li>
-
-
-
-{% endblock left_all %}
 
 {% block left_unauth %}
 {% endblock left_unauth %}
 
 {% block left_auth %}
+    <li class="nav-item "><a class="nav-link" href="{% url 'grais:index' %}"> Home </a></li>
+
     {# Settings #}
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"

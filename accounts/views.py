@@ -71,7 +71,7 @@ class CloserTemplateView(TemplateView):
 def access_denied(request, message=None):
     my_url = reverse("accounts:request_access")
     a_tag = mark_safe(
-        '<a pop-href="{}" href="#" class="btn btn-sm btn-success request-access-button">{}</a>'.format(my_url, _("Request access")))
+        '<a pop-href="{}" href="#" class="btn btn-sm btn-primary badge request-access-button">{}</a>'.format(my_url, _("Request access")))
     if not message:
         message = _("Sorry, you are not authorized to view this page.")
     denied_message = "{} {}".format(message, a_tag)
