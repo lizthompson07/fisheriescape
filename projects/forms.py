@@ -27,6 +27,7 @@ NULLYESNO_CHOICES = (
     (False, _("No")),
 )
 
+
 class NewProjectForm(forms.ModelForm):
     region = forms.ChoiceField(label=_("Region"))
     division = forms.ChoiceField()
@@ -614,6 +615,22 @@ ThemeFormset = modelformset_factory(
 )
 
 
+class UpcomingDateForm(forms.ModelForm):
+    class Meta:
+        model = models.UpcomingDate
+        fields = "__all__"
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"})
+        }
+
+
+UpcomingDateFormset = modelformset_factory(
+    model=models.UpcomingDate,
+    form=UpcomingDateForm,
+    extra=1,
+)
+
+
 class LevelForm(forms.ModelForm):
     class Meta:
         model = models.Level
@@ -713,10 +730,10 @@ class IWForm(forms.Form):
         self.fields['section'].choices = section_choices
 
 
-
 class ApprovalQueryBuildForm(forms.Form):
     region = forms.ChoiceField(required=False, label="Region", widget=forms.RadioSelect())
     fiscal_year = forms.ChoiceField(required=False)
+
     # division = forms.MultipleChoiceField(required=False, label="Divisions (Leave blank to select all)")
     # section = forms.MultipleChoiceField(required=False, label="Sections (Leave blank to select all)")
 
@@ -728,8 +745,6 @@ class ApprovalQueryBuildForm(forms.Form):
         # self.fields['division'].choices = views.get_division_choices()
         # self.fields["section"].choices = views.get_section_choices()
         self.fields["fiscal_year"].choices = fy_choices
-
-
 
 
 class ProjectApprovalForm(forms.ModelForm):

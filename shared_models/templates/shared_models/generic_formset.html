@@ -135,7 +135,16 @@
             let myColor = $(this).attr("color-value");
             $(this).children().children("input").css("background-color", myColor);
         });
-
+        
+        $("input").change(function () {
+          $(this).css("background-color","#E7EB6C")
+        });
+        $("select").change(function () {
+          $(this).css("background-color","#E7EB6C")
+        });
+        $("textarea").change(function () {
+          $(this).css("background-color","#E7EB6C")
+        });
 
     </script>
 
