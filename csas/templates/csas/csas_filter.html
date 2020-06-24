@@ -19,8 +19,8 @@
                     <div class="col-lg">
                         <h1>{% trans title %}</h1>
                         {# ======================================= #}
-                        <h1>{% trans key %}</h1>
-                        <h1>{{csas_admin}}</h1>
+                        {# <h1>{% trans key %}</h1> #}
+                        {# <h1>{{csas_admin}}</h1>  #}
                         {# ======================================= #}
                     </div>
                     <div class="col-1 pt-1">
@@ -114,13 +114,15 @@
                                 <td><a class="btn btn-secondary btn-sm"
                                        href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>
                                     <a class="btn btn-secondary btn-sm"
-                                       href="{% url ''|add:details_url obj.pk %}">{% trans 'Status' %}</a>
+                                       href="{% url ''|add:'csas:details_pub_status' obj.pk %}">{% trans 'Status' %}</a>
                                     <a class="btn btn-secondary btn-sm"
-                                       href="{% url ''|add:details_url obj.pk %}">{% trans 'Translation Info' %}</a>
+                                       href="{% url ''|add:'csas:details_pub_trans_info' obj.pk %}">{% trans 'Translation Info' %}</a>
                                     <a class="btn btn-secondary btn-sm"
-                                       href="{% url ''|add:details_url obj.pk %}">{% trans 'O&M Costs' %}</a>
+                                       href="{% url ''|add:'csas:details_pub_doc_location' obj.pk %}">{% trans 'Doc Location' %}</a>
                                     <a class="btn btn-secondary btn-sm"
-                                       href="{% url ''|add:details_url obj.pk %}">{% trans 'Media' %}</a>
+                                       href="{% url ''|add:'csas:details_pub_OM_costs' obj.pk %}">{% trans 'O&M Costs' %}</a>
+                                    <a class="btn btn-secondary btn-sm"
+                                       href="{% url ''|add:'csas:details_pub_com_results' obj.pk %}">{% trans 'Com Results' %}</a>
                                  </td>
                             {% else %}
                                 <td><a class="btn btn-secondary btn-sm"
