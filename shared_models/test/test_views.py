@@ -736,7 +736,7 @@ class TestCommonListView(TestCase):
         view.object = models.Region
 
         # without overriding the defaults, h1 and submit_text should have specific values
-        self.assertEqual(view.get_context_data()['h1'], view.get_queryset().model._meta.verbose_name_plural)
+        self.assertEqual(view.get_context_data()['h1'], view.get_queryset().model._meta.verbose_name_plural.title())
 
         # should have a context var called model_name
         self.assertIn("model_name", view.get_context_data())

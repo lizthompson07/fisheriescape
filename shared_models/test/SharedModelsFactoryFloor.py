@@ -5,6 +5,7 @@ from shared_models import models as shared_models
 from django.contrib.auth.hashers import make_password
 
 faker = Faker()
+
 test_password = "test1234"
 
 

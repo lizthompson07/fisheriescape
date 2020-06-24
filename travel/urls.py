@@ -105,8 +105,8 @@ urlpatterns = [
     # path('settings/trip-category/<int:pk>/delete/', views.TripCategoryHardDeleteView.as_view(), name="delete_trip_category"),
     path('settings/trip-subcategories/', views.TripSubcategoryFormsetView.as_view(), name="manage_trip_subcategories"),
     path('settings/trip-subcategory/<int:pk>/delete/', views.TripSubcategoryHardDeleteView.as_view(), name="delete_trip_subcategory"),
-    path('settings/trip-reasons/', views.ReasonFormsetView.as_view(), name="manage_reasons"),
-    path('settings/trip-reasons/<int:pk>/delete/', views.ReasonHardDeleteView.as_view(), name="delete_reason"),
+    # path('settings/trip-reasons/', views.ReasonFormsetView.as_view(), name="manage_reasons"),
+    # path('settings/trip-reasons/<int:pk>/delete/', views.ReasonHardDeleteView.as_view(), name="delete_reason"),
 
     path('settings/process-steps/', views.ProcessStepFormsetView.as_view(), name="manage_process_steps"),
     path('settings/process-step/<int:pk>/delete/', views.ProcessStepHardDeleteView.as_view(), name="delete_process_step"),
