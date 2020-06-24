@@ -3,15 +3,18 @@ from django.utils.translation import activate
 from django.urls import reverse_lazy
 from django.test import tag
 from django.views.generic import DetailView, UpdateView
-from inventory.test import  FactoryFloor
+from easy_pdf.views import PDFTemplateView
+
+from inventory.test import FactoryFloor
 from inventory.test.common_tests import CommonInventoryTest as CommonTest
 from .. import views
+
 
 class TestResourceDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.resource = FactoryFloor.ResourceFactory()
-        self.test_url = reverse_lazy('inventory:resource_detail', kwargs={"pk":self.resource.pk})
+        self.test_url = reverse_lazy('inventory:resource_detail', kwargs={"pk": self.resource.pk})
         self.expected_template = 'inventory/resource_detail.html'
 
     @tag("inventory", 'detail', "view")
@@ -43,7 +46,7 @@ class TestResourceFullDetailView(CommonTest):
     def setUp(self):
         super().setUp()
         self.resource = FactoryFloor.ResourceFactory()
-        self.test_url = reverse_lazy('inventory:resource_full_detail', kwargs={"pk":self.resource.pk})
+        self.test_url = reverse_lazy('inventory:resource_full_detail', kwargs={"pk": self.resource.pk})
         self.expected_template = 'inventory/resource_form.html'
 
     @tag("inventory", 'detail', "view")
@@ -63,3 +66,31 @@ class TestResourceFullDetailView(CommonTest):
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars)
         self.assert_value_of_context_var(self.test_url, "readonly", True)
+
+
+class TestResourceDetailPDFView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ResourceFactory()
+        self.test_url = reverse_lazy('inventory:resource_pdf', args=[self.instance.pk])
+        self.expected_template = 'inventory/resource_detail_pdf.html'
+
+    @tag("resource_pdf", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ResourceDetailPDFView, PDFTemplateView)
+
+    @tag("resource_pdf", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_public_view(test_url=self.test_url)
+
+    @tag("resource_pdf", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+            "now",
+            "object",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars)
+
+

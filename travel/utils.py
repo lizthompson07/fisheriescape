@@ -503,7 +503,7 @@ def get_related_trips(user):
 def get_adm_eligible_trips():
     """returns a qs of trips that are ready for adm review"""
     # start with trips that need adm approval that have not already been reviewed or those that have been cancelled
-    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id__in=[32, 43]))
+    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id__in=[32, 43, 31]))
 
     t_ids = list()
     for t in trips:

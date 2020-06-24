@@ -19,6 +19,7 @@ parser.add_argument('--db-host', help='')
 parser.add_argument('--db-port', help='')
 parser.add_argument('--db-name', help='')
 parser.add_argument('--db-user', help='')
+parser.add_argument('--deployment-stage', help='select one of the following: DEV, TEST, PROD')
 parser.add_argument('--db-password', help='')
 parser.add_argument('--in-pipeline', help='')
 #
@@ -52,7 +53,7 @@ with open(new_file, 'w') as write_file:
     # write_file.write("SENDGRID_API_KEY = {}\n".format(nz(args.sendgrid_api_key, "")))
     #
     # write_file.write("\n# Credentials for Database\n")
-    # write_file.write("DB_MODE = {}\n".format(nz(args.db_mode, "")))
+    write_file.write("DEPLOYMENT_STAGE = {}\n".format(nz(args.deployment_stage, "")))
     write_file.write("DB_HOST = {}\n".format(nz(args.db_host, "")))
     write_file.write("DB_PORT = {}\n".format(nz(args.db_port, "")))
     write_file.write("DB_NAME = {}\n".format(nz(args.db_name, "")))

@@ -18,10 +18,12 @@
 
     {# Ignore this if in PROD mode   #}
     {% if not DB_MODE == 'PROD' %}
-        <div class="center-col {% if DB_MODE == "DEV" %}dev-mode{% elif DB_MODE == "TEST" %}test-mode{% else %}major-error{% endif %}">
-            WORKING IN {{ DB_MODE }} MODE: you are connected to [<var>{{ DB_NAME }}</var>] on host [<var>{{ DB_HOST }}</var>].
-            {% if USE_LOCAL_DB %}You are connected a local SQLITE database{% endif %}
-        </div>
+        <nav class="navbar navbar-expand-lg navbar-dark justify-content-center py-0 fixed-bottom shadow flex-md-nowrap">
+            <div class="justify-content-center {% if DB_MODE == "DEV" %}dev-mode{% elif DB_MODE == "TEST" %}test-mode{% else %}major-error{% endif %}">
+                WORKING IN {{ DB_MODE }} MODE: you are connected to [<var>{{ DB_NAME }}</var>] on host [<var>{{ DB_HOST }}</var>].
+                {% if USE_LOCAL_DB %}You are connected a local SQLITE database{% endif %}
+            </div>
+        </nav>
     {% endif %}
 
     <div class="gone" id="browser-warning">
@@ -40,7 +42,7 @@
 {% block navigation %}
     {# for sites that wish to turn the navigation off, they can by calling this block with show_nav=False. If show_nav is None or True it's displayed #}
     {% if show_nav == None or show_nav %}
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark transparent py-0">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-navy transparent py-0 fixed-top shadow flex-md-nowrap">
             <a class="navbar-brand bigbrand" href="{% url 'index' %}">
                 <img src="{% static 'img/icons/iconfinder_cluster-data-group-organize_2205240 - white.png' %}" width="30"
                      class="d-inline-block align-top" alt="" data-toggle="tooltip" title="{% trans "Data Management Home" %}">
@@ -89,7 +91,7 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropleft" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
                                aria-haspopup="true" aria-expanded="false">
-                                <div class="circle py-0">
+                                <div class="circle py-0 my-0">
                                     {{ user.first_name|slice:1 }}{{ user.last_name|slice:1 }}
                                 </div>
                             </a>
@@ -119,7 +121,7 @@
                         {% include "_language_form.html" %}
                         {% block right_unauth %}{% endblock right_unauth %}
                         <li class="nav-item py-1">
-                            <a class="btn btn-dark" href="{% url 'accounts:login' %}">
+                            <a class="nav-link " href="{% url 'accounts:login' %}">
                                 {% trans 'Sign In' %}
                             </a>
 
@@ -140,7 +142,6 @@
         {% endblock %}
     {% endautoescape %}
 {% endblock %}
-
 {% block body %}{% endblock body %}
 
 {# I moved the jquery import here because if it's "include" from another file #}
