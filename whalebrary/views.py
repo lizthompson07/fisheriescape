@@ -21,7 +21,8 @@ from django_filters.views import FilterView
 from django.utils import timezone
 
 from shared_models.views import CommonPopoutFormView, CommonListView, CommonFilterView, CommonDetailView, \
-    CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonFormView
+    CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutDeleteView, \
+    CommonFormView, CommonHardDeleteView, CommonFormsetView
 from . import models
 from . import forms
 from . import filters
@@ -136,7 +137,6 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
     ]
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Item List"), "url": reverse_lazy("whalebrary:item_list")}
-    # container_class = "container-fluid"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -252,15 +252,16 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     def get_h1(self):
         item_name = models.Item.objects.get(pk=self.kwargs.get('pk'))
         h1 = _("Detailed Transactions for ") + f' {str(item_name)}'
+        return h1
 
-        # context for _item_summary.html
-        context["random_item"] = models.Item.objects.first()
-        context["item_field_list"] = [
-            'item_name',
-            'description',
-            'serial_number',
-
-        ]
+        # # context for _item_summary.html
+        # context["random_item"] = models.Item.objects.first()
+        # context["item_field_list"] = [
+        #     'item_name',
+        #     'description',
+        #     'serial_number',
+        #
+        # ]
 
 
 class ItemUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
@@ -954,7 +955,7 @@ class IncidentListView(WhalebraryAccessRequired, CommonFilterView):
     new_btn_text = "New Incident"
 
     queryset = models.Incident.objects.annotate(
-        search_term=Concat('id', 'name', 'species_count', 'submitted', 'first_report', 'location', 'region', output_field=TextField()))
+        search_term=Concat('id', 'name', 'species_count', 'submitted', 'first_report', 'location', 'region', 'species', output_field=TextField()))
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -964,6 +965,7 @@ class IncidentListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'first_report', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'region', "class": "", "width": ""},
+        {"name": 'species', "class": "", "width": ""},
         {"name": 'incident_type', "class": "", "width": ""},
         {"name": 'exam', "class": "", "width": ""},
     ]
@@ -1152,3 +1154,19 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
         {"name": 'location', "class": "", "width": ""},
         {"name": 'bin_id', "class": "", "width": ""},
     ]
+
+
+
+class LocationHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
+    model = models.Location
+    success_url = reverse_lazy("whalebrary:manage_locations")
+
+
+class LocationFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
+    template_name = 'whalebrary/formset.html'
+    h1 = "Manage Locations"
+    queryset = models.Location.objects.all()
+    formset_class = forms.LocationFormset
+    success_url = reverse_lazy("whalebrary:manage_locations")
+    home_url_name = "whalebrary:index"
+    delete_url_name = "whalebrary:delete_location"

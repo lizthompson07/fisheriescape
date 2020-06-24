@@ -1,4 +1,6 @@
 from django import forms
+from django.forms import modelformset_factory
+
 from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
@@ -33,10 +35,21 @@ class TransactionForm1(forms.ModelForm):
             'return_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
+
+
+
 class LocationForm(forms.ModelForm):
     class Meta:
         model = models.Location
         fields = "__all__"
+
+
+
+LocationFormset = modelformset_factory(
+    model=models.Location,
+    form=LocationForm,
+    extra=1,
+)
 
 
 class PersonnelForm(forms.ModelForm):

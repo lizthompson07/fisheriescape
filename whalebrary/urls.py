@@ -93,5 +93,9 @@ urlpatterns = [
     path('reports/container_summary/location/<int:location>/', views.ContainerSummaryListView.as_view(), name="report_container"),
     path('reports/sized_item_summary/item_name/<slug:item_name>/', views.SizedItemSummaryListView.as_view(), name="report_sized_item"),
 
+
+
+    path('settings/locations/', views.LocationFormsetView.as_view(), name="manage_locations"),
+    path('settings/location/<int:pk>/delete/', views.LocationHardDeleteView.as_view(), name="delete_location"),
 ]
 
