@@ -35,7 +35,7 @@ class FilterCommon(shared_view.CommonFilterView):
         return context
 
 
-class FilterCommonPars(shared_view.FilterView):
+class FilterCommonPars(shared_view.CommonFilterView):
     auth = True
     template_name = 'csas/csas_filter_pars.html'
 
@@ -103,6 +103,7 @@ class CsasListCommonPars(FilterCommonPars):
     fields = []
     create_url = None
     details_url = None
+    list_url = None
     update_url = None
     index_url = None
     creation_form_height = None
@@ -120,6 +121,7 @@ class CsasListCommonPars(FilterCommonPars):
         context['create_url'] = self.create_url if self.create_url else 'csas:create_{}'.format(self.key)
         context['details_url'] = self.details_url if self.details_url else 'csas:details_{}'.format(self.key)
         # context['details_url'] = 'csas:details_met_DFO_pars'
+        context['list_url'] = self.update_url if self.update_url else 'csas:list_{}'.format(self.key)
         context['update_url'] = self.update_url if self.update_url else 'csas:update_{}'.format(self.key)
         context['index_url'] = self.index_url if self.index_url else 'csas:index_{}'.format(self.key)
 
@@ -351,7 +353,7 @@ class RequestDetailsCSAS(DetailsCommon):
     key = 'req_CSAS'
     title = _('Request Status Details')
     model = models.ReqRequestCSAS
-    fields = ['id',  'request', 'status', 'trans_title', 'decision', 'decision_exp', 'decision_date', ]
+    fields = ['request', 'status', 'trans_title', 'decision', 'decision_exp', 'decision_date', ]
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -418,6 +420,7 @@ class MeetingEntry(CsasCreateCommon):
 
 
 class MeetingEntryDocs(CsasCreateCommon):
+    key = 'met_doc'
     title = _('New Meeting Documentation Entry')
     model = models.MetMeetingDocs
     form_class = forms.MeetingFormDocs
@@ -445,24 +448,27 @@ class MeetingEntryOtherPars(CsasCreateCommon):
 
 
 class MeetingEntryOMCosts(CsasCreateCommon3col):
+    key = 'met_OM_costs'
     title = _('New Meeting O&M Costs Entry')
     model = models.MetMeetingOMCosts
     form_class = forms.MeetingFormOMCosts
 
     def get_success_url(self):
-        return reverse_lazy('csas:details_met', args=(self.object.pk,))
+        return reverse_lazy('csas:details_met_OM_costs', args=(self.object.pk,))
 
 
 class MeetingEntryMedia(CsasCreateCommon):
+    key = 'met_media'
     title = _('New Meeting Media Entry')
     model = models.MetMeetingMedia
     form_class = forms.MeetingFormMedia
 
     def get_success_url(self):
-        return reverse_lazy('csas:details_met', args=(self.object.pk,))
+        return reverse_lazy('csas:details_met_media', args=(self.object.pk,))
 
 
 class MeetingUpdate(CsasUpdateCommon):
+    key = 'met'
     title = _('Update Meeting')
     model = models.MetMeeting
     form_class = forms.MeetingForm
@@ -474,7 +480,8 @@ class MeetingUpdate(CsasUpdateCommon):
 
 
 class MeetingUpdateDocs(CsasUpdateCommon):
-    title = _('Update Meeting Details')
+    key = 'met_doc'
+    title = _('Update Meeting Documentation')
     model = models.MetMeetingDocs
     form_class = forms.MeetingFormDocs
 
@@ -507,6 +514,7 @@ class MeetingUpdateOtherPars(CsasUpdateCommon):
 
 
 class MeetingUpdateOMCosts(CsasUpdateCommon):
+    key = 'met_OM_costs'
     title = _('Update Meeting O&M Costs')
     model = models.MetMeetingOMCosts
     form_class = forms.MeetingFormOMCosts
@@ -518,6 +526,7 @@ class MeetingUpdateOMCosts(CsasUpdateCommon):
 
 
 class MeetingUpdateMedia(CsasUpdateCommon):
+    key = 'met_media'
     title = _('Update Meeting Media')
     model = models.MetMeetingMedia
     form_class = forms.MeetingFormMedia
@@ -562,7 +571,7 @@ class MeetingDetails(DetailsCommon):
 
 
 class MeetingDetailsDocs(DetailsCommon):
-    key = 'met'
+    key = 'met_doc'
     title = _('Meeting Documentation')
     model = models.MetMeetingDocs
     fields = ['meeting', 'reference', 'date_submitted', 'date_posted', 'link_en', 'link_fr',
@@ -584,7 +593,7 @@ class MeetingDetailsOtherPars(DetailsCommon):
 
 
 class MeetingDetailsOMCosts(DetailsCommon):
-    key = 'met'
+    key = 'met_OM_costs'
     title = _('Meeting O&M Costs')
     model = models.MetMeetingOMCosts
     fields = ['meeting',
@@ -599,7 +608,7 @@ class MeetingDetailsOMCosts(DetailsCommon):
 
 
 class MeetingDetailsMedia(DetailsCommon):
-    key = 'met'
+    key = 'met_media'
     title = _('Meeting Media')
     model = models.MetMeetingMedia
     fields = ['meeting', 'media_attention', 'media_attention_yes', 'media_attention_no',
@@ -624,7 +633,7 @@ class PublicationEntryStatus(CsasCreateCommon):
     form_class = forms.PublicationFormStatus
 
     def get_success_url(self):
-        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+        return reverse_lazy('csas:details_pub_status', args=(self.object.pk,))
 
 
 class PublicationEntryTransInfo(CsasCreateCommon):
@@ -633,7 +642,7 @@ class PublicationEntryTransInfo(CsasCreateCommon):
     form_class = forms.PublicationFormTransInfo
 
     def get_success_url(self):
-        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+        return reverse_lazy('csas:details_pub_trans_info', args=(self.object.pk,))
 
 
 class PublicationEntryDocLocation(CsasCreateCommon):
@@ -642,7 +651,7 @@ class PublicationEntryDocLocation(CsasCreateCommon):
     form_class = forms.PublicationFormDocLocation
 
     def get_success_url(self):
-        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+        return reverse_lazy('csas:details_pub_doc_location', args=(self.object.pk,))
 
 
 class PublicationEntryOMCosts(CsasCreateCommon):
@@ -651,7 +660,7 @@ class PublicationEntryOMCosts(CsasCreateCommon):
     form_class = forms.PublicationFormOMCosts
 
     def get_success_url(self):
-        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+        return reverse_lazy('csas:details_pub_OM_costs', args=(self.object.pk,))
 
 
 class PublicationEntryComResults(CsasCreateCommon3col):
@@ -660,7 +669,7 @@ class PublicationEntryComResults(CsasCreateCommon3col):
     form_class = forms.PublicationFormComResults
 
     def get_success_url(self):
-        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+        return reverse_lazy('csas:details_pub_com_results', args=(self.object.pk,))
 
 
 class PublicationUpdate(CsasUpdateCommon):
@@ -674,12 +683,67 @@ class PublicationUpdate(CsasUpdateCommon):
         return reverse_lazy('csas:details_pub', args=(self.object.pk,))
 
 
+class PublicationUpdateStatus(CsasUpdateCommon):
+    title = _('Update Publication Status')
+    model = models.PubPublicationStatus
+    form_class = forms.PublicationFormStatus
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_pub_status', args=(self.object.pk,))
+
+
+class PublicationUpdateTransInfo(CsasUpdateCommon):
+    title = _('Update Publication Translation Information')
+    model = models.PubPublicationTransInfo
+    form_class = forms.PublicationFormTransInfo
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_pub_trans_info', args=(self.object.pk,))
+
+
+class PublicationUpdateDocLocation(CsasUpdateCommon):
+    title = _('Update Publication Documentation Location')
+    model = models.PubPublicationDocLocation
+    form_class = forms.PublicationFormDocLocation
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_pub_doc_location', args=(self.object.pk,))
+
+
+class PublicationUpdateOMCosts(CsasUpdateCommon):
+    title = _('Update Publication O&M Costs')
+    model = models.PubPublicationOMCosts
+    form_class = forms.PublicationFormOMCosts
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_pub_OM_costs', args=(self.object.pk,))
+
+
+class PublicationUpdateComResults(CsasUpdateCommon):
+    title = _('Update Publication Communication of Results')
+    model = models.PubPublicationComResults
+    form_class = forms.PublicationFormComResults
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_pub_com_results', args=(self.object.pk,))
+
+
 class PublicationList(CsasListCommon):
     key = 'pub'
     title = _('Publication List')
     model = models.PubPublication
     filterset_class = filters.PublicationFilter
-    fields = ['id', 'series', 'scope', 'lead_region', 'lead_author', 'pub_year']
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
 
 
 class PublicationDetails(DetailsCommon):
@@ -689,6 +753,47 @@ class PublicationDetails(DetailsCommon):
     fields = ['pub_id', 'series', 'lead_region', 'title_en', 'title_fr',  'title_in', 'pub_year',
               'lead_author', 'other_author', 'pub_num', 'pages', 'keywords', 'citation', 'client',
               'description']
+
+
+class PublicationDetailsStatus(DetailsCommon):
+    key = 'pub_status'
+    title = _('Publication Status')
+    model = models.PubPublicationStatus
+    fields = ['publication', 'date_due', 'status', 'status_comments', 'data_submitted', 'submitted_by',
+              'date_appr_by_chair', 'appr_by_chair', 'data_appr_by_CSAS', 'appr_by_CSAS', 'date_appr_by_dir',
+              'appr_by_dir', 'date_num_req', 'date_doc_submitted', 'date_pdf_proof', 'appr_by', 'date_anti',
+              'date_pasted', 'date_modify', 'notes']
+
+
+class PublicationDetailsTransInfo(DetailsCommon):
+    key = 'pub_trans_info'
+    title = _('Publication Translation Info.')
+    model = models.PubPublicationTransInfo
+    fields = ['publication', 'trans_status', 'date_to_trans', 'client_ref_num', 'target_lang',  'trans_ref_num',
+              'urgent_req', 'date_fr_trans', 'invoice_num', 'attach', 'trans_note']
+
+
+class PublicationDetailsDocLocation(DetailsCommon):
+    key = 'pub_doc_location'
+    title = _('Publication Doc. Location')
+    model = models.PubPublicationDocLocation
+    fields = ['publication', 'attach_en_file', 'attach_en_size', 'attach_fr_file', 'attach_fr_size',
+              'url_e', 'url_f', 'dev_link_e', 'dev_link_f', 'lib_cat_e', 'lib_cat_f', 'lib_link_e', 'lib_link_f']
+
+
+class PublicationDetailsOMCosts(DetailsCommon):
+    key = 'pub_OM_costs'
+    title = _('Publication O&M Costs')
+    model = models.PubPublicationOMCosts
+    fields = ['publication', 'trans_funding', 'trans_code', 'trans_estimate', 'trans_cost']
+
+
+class PublicationDetailsComResults(DetailsCommon):
+    key = 'pub_com_results'
+    title = _('Publication Com. of Results')
+    model = models.PubPublicationComResults
+    fields = ['publication', 'media_line_desc', 'media_line_size', 'media_line_atta', 'brief_mate_desc',
+              'brief_mate_size', 'brief_mate_atta', 'other_comm_desc', 'other_comm_size', 'other_comm_atta']
 
 
 # ----------------------------------------------------------------------------------------------------
