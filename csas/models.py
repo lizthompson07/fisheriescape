@@ -25,16 +25,6 @@ class Lookup(models.Model):
 
 
 # ----------------------------------------------------------------------------------------------------
-# Yongcun: This class will be replaced by shared_models.Region, and there are 7 places in "models.py"
-#          need to be changed from MyRegion to shared_models.Region
-#          It's just for temporarily usage on my desktop. Also, "scripts\data_load.py" needs to be
-#          modified accordingly too.
-#
-class MyRegion(shared_models.Lookup):
-    pass
-
-
-# ----------------------------------------------------------------------------------------------------
 # Create models for contacts
 #
 class CohHonorific(shared_models.Lookup):
@@ -75,7 +65,7 @@ class ConContact(models.Model):
     email = models.CharField(max_length=255, verbose_name=_("E-mail"))
     # region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
     #                            verbose_name=_("Region"))
-    region = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING, blank=True, null=True,
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("Region"))
     sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Sector"))
     role = models.ForeignKey(RolRole, on_delete=models.DO_NOTHING,
@@ -153,13 +143,13 @@ class MetMeeting(models.Model):
                                      verbose_name=_("Type of Advisory Process"))
     # lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING,
     #                                 verbose_name=_("Lead Region"))
-    lead_region = models.ForeignKey(MyRegion, blank=True, on_delete=models.DO_NOTHING,
+    lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING,
                                     verbose_name=_("Lead Region"))
     exp_publication = models.ForeignKey(MepMeetingExpectedPublication, null=True, blank=True,
                                         on_delete=models.DO_NOTHING, verbose_name=_("Expected Publication(s)"))
     # other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
     #                                       verbose_name=_("Other Regions"))
-    other_region = models.ManyToManyField(MyRegion, blank=True, related_name="other_regions",
+    other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
                                           verbose_name=_("Other Regions"))
     chair = models.ManyToManyField(ConContact, blank=True, related_name="chairs", verbose_name=_("Chair(s)"))
     csas_contact = models.ManyToManyField(ConContact, blank=True, related_name="csas_contacts",
@@ -304,7 +294,7 @@ class MefMeetingFile(models.Model):
 class MerOtherRegion(models.Model):
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING)
     # region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
-    region = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING)
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING)
 
     def __str__(self):
         return "{}".format(self.meeting)
@@ -348,7 +338,7 @@ class PurPublicationUrgentRequest(shared_models.Lookup):
 class PubPublication(models.Model):
     series = models.ForeignKey(PsePublicationSeries, blank=True, on_delete=models.DO_NOTHING,
                                verbose_name=_("Series"))
-    lead_region = models.ForeignKey(MyRegion, blank=True, on_delete=models.DO_NOTHING,
+    lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING,
                                     verbose_name=_("Lead Region"))
     # lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING,
     #                                 verbose_name=_("Lead Region"))
@@ -477,7 +467,7 @@ class MepExpectedPublication(models.Model):
 class PurOtherRegion(models.Model):
     pub_id = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING)
     # reg_id = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
-    reg_id = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING, blank=True, null=True)
+    reg_id = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
 
 
 class PuaOtherAuthor(models.Model):
@@ -525,7 +515,7 @@ class ReqRequest(models.Model):
     title = models.CharField(max_length=255, verbose_name=_("Title"))
     in_year_request = models.BooleanField(verbose_name=_("In-Year Request"))
     # region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True)
-    region = models.ForeignKey(MyRegion, on_delete=models.DO_NOTHING, blank=True, null=True,
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("Region"))
     client_sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Client Sector"))
     client_name = models.CharField(max_length=100, verbose_name=_("Client Name"))
