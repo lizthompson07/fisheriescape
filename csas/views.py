@@ -297,7 +297,7 @@ class RequestUpdate(CsasUpdateCommon):
 
     # Go to Request Details page after Update a request
     def get_success_url(self):
-        if 'pop' in self.kwargs:
+        if hasattr(self, 'kwargs') and 'pop' in self.kwargs:
             return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_req', args=(self.object.pk,))
 
