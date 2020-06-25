@@ -361,6 +361,7 @@ class Incident(models.Model):
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})
 
+
 class Audit(models.Model):
     date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
                                         verbose_name=_("last audited"))
@@ -375,6 +376,7 @@ class Audit(models.Model):
         else:
             return "{}".format(self.date)
 
+
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
@@ -387,6 +389,8 @@ class Transaction(models.Model):
     # for on order status
     order_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("order number"))
     # for purchased status
+    project = models.ForeignKey(shared_models.Project, blank=True, null=True, on_delete=models.DO_NOTHING, related_name='transactions',
+                                    verbose_name=_("project"))
     purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("purchased by"))
     # for used status
     reason = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("reason"))
@@ -394,7 +398,7 @@ class Transaction(models.Model):
     # auditing
     audit = models.ManyToManyField(Audit, blank=True, verbose_name=_("audits"))
     # location of quantities taken/used/received
-    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions",
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("location stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
 

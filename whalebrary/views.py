@@ -320,6 +320,24 @@ class ItemDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 
 # # LOCATION # #
 
+    ## FORMSET ##
+
+class LocationHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
+    model = models.Location
+    success_url = reverse_lazy("whalebrary:manage_locations")
+
+
+class LocationFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
+    template_name = 'whalebrary/formset.html'
+    h1 = "Manage Locations"
+    queryset = models.Location.objects.all()
+    formset_class = forms.LocationFormset
+    success_url = reverse_lazy("whalebrary:manage_locations")
+    home_url_name = "whalebrary:index"
+    delete_url_name = "whalebrary:delete_location"
+
+    ## CRUD Views ##
+
 class LocationListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
     h1 = "Location List"
@@ -428,7 +446,7 @@ class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
 
     queryset = models.Transaction.objects.annotate(
         search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name',
-                           'return_date', 'order_number', 'purchased_by', 'reason', 'incident__name', 'audit__date',
+                           'return_date', 'order_number', 'purchased_by', 'project__code', 'reason', 'incident__name', 'audit__date',
                            'location__location', 'bin_id', output_field=TextField()))
 
     field_list = [
@@ -441,6 +459,7 @@ class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'return_date', "class": "", "width": ""},
         {"name": 'order_number', "class": "", "width": ""},
         {"name": 'purchased_by', "class": "", "width": ""},
+        {"name": 'project', "class": "", "width": "200px"},
         {"name": 'reason', "class": "", "width": "200px"},
         {"name": 'incident', "class": "", "width": ""},
         {"name": 'audit', "class": "", "width": ""},
@@ -465,6 +484,7 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
         'return_date',
         'order_number',
         'purchased_by',
+        'project',
         'reason',
         'incident',
         'audit',
@@ -1157,16 +1177,4 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
 
 
 
-class LocationHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
-    model = models.Location
-    success_url = reverse_lazy("whalebrary:manage_locations")
 
-
-class LocationFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
-    template_name = 'whalebrary/formset.html'
-    h1 = "Manage Locations"
-    queryset = models.Location.objects.all()
-    formset_class = forms.LocationFormset
-    success_url = reverse_lazy("whalebrary:manage_locations")
-    home_url_name = "whalebrary:index"
-    delete_url_name = "whalebrary:delete_location"
