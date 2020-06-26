@@ -434,6 +434,12 @@ class MeetingEntryDFOPars(CsasCreateCommon):
     model = models.MetMeetingDFOPars
     form_class = forms.MeetingFormDFOPars
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['meeting'] = self.kwargs['met_id']
+
+        return initial
+
     def get_success_url(self):
         return reverse_lazy('csas:details_met_DFO_pars', args=(self.object.pk,))
 
@@ -565,6 +571,8 @@ class MeetingDetails(DetailsCommon):
     key = 'met'
     title = _('Meeting Details')
     model = models.MetMeeting
+    template_name = "csas/csas_details_met.html"
+
     fields = ['id', 'title_en', 'title_fr', 'status', 'status_notes', 'quarter',  'start_date', 'end_date',
               'location', 'scope', 'process_type', 'lead_region', 'other_region', 'chair', 'csas_contact',
               'program_contact', 'exp_publication', 'chair_comments', 'description']
@@ -750,7 +758,7 @@ class PublicationDetails(DetailsCommon):
     key = 'pub'
     title = _('Publication Details')
     model = models.PubPublication
-    fields = ['series', 'lead_region', 'title_en', 'title_fr',  'title_in', 'pub_year',
+    fields = ['id', 'series', 'lead_region', 'title_en', 'title_fr',  'title_in', 'pub_year',
               'lead_author', 'other_author', 'pub_num', 'pages', 'keywords', 'citation', 'client',
               'description']
 
