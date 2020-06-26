@@ -750,7 +750,7 @@ class PublicationDetails(DetailsCommon):
     key = 'pub'
     title = _('Publication Details')
     model = models.PubPublication
-    fields = ['pub_id', 'series', 'lead_region', 'title_en', 'title_fr',  'title_in', 'pub_year',
+    fields = ['series', 'lead_region', 'title_en', 'title_fr',  'title_in', 'pub_year',
               'lead_author', 'other_author', 'pub_num', 'pages', 'keywords', 'citation', 'client',
               'description']
 
