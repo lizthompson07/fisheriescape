@@ -434,6 +434,14 @@ class MeetingEntryDFOPars(CsasCreateCommon):
     model = models.MetMeetingDFOPars
     form_class = forms.MeetingFormDFOPars
 
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if hasattr(self, "kwargs") and 'met_id' in self.kwargs:
+            initial['meeting'] = self.kwargs['met_id']
+
+        return initial
+
     def get_success_url(self):
         return reverse_lazy('csas:details_met_DFO_pars', args=(self.object.pk,))
 
@@ -452,6 +460,14 @@ class MeetingEntryOMCosts(CsasCreateCommon3col):
     title = _('New Meeting O&M Costs Entry')
     model = models.MetMeetingOMCosts
     form_class = forms.MeetingFormOMCosts
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if hasattr(self, "kwargs") and 'met_id' in self.kwargs:
+            initial['meeting'] = self.kwargs['met_id']
+
+        return initial
 
     def get_success_url(self):
         return reverse_lazy('csas:details_met_OM_costs', args=(self.object.pk,))
@@ -565,6 +581,8 @@ class MeetingDetails(DetailsCommon):
     key = 'met'
     title = _('Meeting Details')
     model = models.MetMeeting
+    template_name = "csas/csas_details_met.html"
+
     fields = ['id', 'title_en', 'title_fr', 'status', 'status_notes', 'quarter',  'start_date', 'end_date',
               'location', 'scope', 'process_type', 'lead_region', 'other_region', 'chair', 'csas_contact',
               'program_contact', 'exp_publication', 'chair_comments', 'description']
@@ -597,14 +615,7 @@ class MeetingDetailsOMCosts(DetailsCommon):
     title = _('Meeting O&M Costs')
     model = models.MetMeetingOMCosts
     fields = ['meeting',
-              'hospitality_description', 'hospitality_funding', 'hospitality_total',
-              'travel_description', 'travel_funding', 'travel_total',
-              'venue_description', 'venue_funding', 'venue_total',
-              'interpretation_description', 'interpretation_funding', 'interpretation_total',
-              'office_supplies_description', 'office_supplies_funding', 'office_supplies_total',
-              'rentals_description', 'rentals_funding', 'rentals_total',
-              'contractors_description', 'contractors_funding', 'contractors_total',
-              'planning_description', 'planning_funding', 'planning_total']
+              'description', 'funding', 'total']
 
 
 class MeetingDetailsMedia(DetailsCommon):
@@ -750,7 +761,7 @@ class PublicationDetails(DetailsCommon):
     key = 'pub'
     title = _('Publication Details')
     model = models.PubPublication
-    fields = ['pub_id', 'series', 'lead_region', 'title_en', 'title_fr',  'title_in', 'pub_year',
+    fields = ['id', 'series', 'lead_region', 'title_en', 'title_fr',  'title_in', 'pub_year',
               'lead_author', 'other_author', 'pub_num', 'pages', 'keywords', 'citation', 'client',
               'description']
 

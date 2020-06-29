@@ -118,8 +118,6 @@ class MeetingFormOMCosts(forms.ModelForm):
         model = models.MetMeetingOMCosts
         exclude = []
         widgets = {
-            "p1": Textarea(attrs={"class": "hidden", "rows": 0, "cols": 0}),
-            "p2": Textarea(attrs={"class": "hidden", "rows": 0, "cols": 0}),
         }
 
     def __init__(self, *args, **kwargs):
