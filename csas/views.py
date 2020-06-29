@@ -436,7 +436,9 @@ class MeetingEntryDFOPars(CsasCreateCommon):
 
     def get_initial(self):
         initial = super().get_initial()
-        initial['meeting'] = self.kwargs['met_id']
+
+        if hasattr(self, "kwargs") and 'met_id' in self.kwargs:
+            initial['meeting'] = self.kwargs['met_id']
 
         return initial
 
@@ -458,6 +460,14 @@ class MeetingEntryOMCosts(CsasCreateCommon3col):
     title = _('New Meeting O&M Costs Entry')
     model = models.MetMeetingOMCosts
     form_class = forms.MeetingFormOMCosts
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        if hasattr(self, "kwargs") and 'met_id' in self.kwargs:
+            initial['meeting'] = self.kwargs['met_id']
+
+        return initial
 
     def get_success_url(self):
         return reverse_lazy('csas:details_met_OM_costs', args=(self.object.pk,))
@@ -605,14 +615,7 @@ class MeetingDetailsOMCosts(DetailsCommon):
     title = _('Meeting O&M Costs')
     model = models.MetMeetingOMCosts
     fields = ['meeting',
-              'hospitality_description', 'hospitality_funding', 'hospitality_total',
-              'travel_description', 'travel_funding', 'travel_total',
-              'venue_description', 'venue_funding', 'venue_total',
-              'interpretation_description', 'interpretation_funding', 'interpretation_total',
-              'office_supplies_description', 'office_supplies_funding', 'office_supplies_total',
-              'rentals_description', 'rentals_funding', 'rentals_total',
-              'contractors_description', 'contractors_funding', 'contractors_total',
-              'planning_description', 'planning_funding', 'planning_total']
+              'description', 'funding', 'total']
 
 
 class MeetingDetailsMedia(DetailsCommon):

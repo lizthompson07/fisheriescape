@@ -129,6 +129,10 @@ class MepMeetingExpectedPublication(shared_models.Lookup):
     pass
 
 
+class MccMeetingCostCategory(shared_models.Lookup):
+    pass
+
+
 class MetMeeting(models.Model):
     title_en = models.CharField(max_length=255, verbose_name=_("Meeting Title (English)"))
     title_fr = models.CharField(max_length=255, verbose_name=_("Meeting Title (French)"))
@@ -207,37 +211,15 @@ class MetMeetingOtherPars(models.Model):
 
 
 class MetMeetingOMCosts(models.Model):
-    meeting = models.OneToOneField(MetMeeting, on_delete=models.DO_NOTHING, primary_key=True)
-    p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
-    p2 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
-    hospitality_description = models.CharField(max_length=255, verbose_name=_("Hospitality Description"))
-    hospitality_funding = models.CharField(max_length=255, verbose_name=_("Hospitality Funding Source"))
-    hospitality_total = models.DecimalField(max_digits=8, decimal_places=2,
-                                            verbose_name=_("Hospitality Total O&M Amount"))
-    travel_description = models.CharField(max_length=255, verbose_name=_("Travel Description"))
-    travel_funding = models.CharField(max_length=255, verbose_name=_("Travel Funding Source"))
-    travel_total = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_("Travel Total O&M Amount"))
-    venue_description = models.CharField(max_length=255, verbose_name=_("Venue Description"))
-    venue_funding = models.CharField(max_length=255, verbose_name=_("Venue Funding Source"))
-    venue_total = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_("Venue Total O&M Amount"))
-    interpretation_description = models.CharField(max_length=255, verbose_name=_("Interpretation Description"))
-    interpretation_funding = models.CharField(max_length=255, verbose_name=_("Interpretation Funding Source"))
-    interpretation_total = models.DecimalField(max_digits=8, decimal_places=2,
-                                               verbose_name=_("Interpretation Total O&M Amount"))
-    office_supplies_description = models.CharField(max_length=255, verbose_name=_("Office Supplies Description"))
-    office_supplies_funding = models.CharField(max_length=255, verbose_name=_("Office Supplies Funding Source"))
-    office_supplies_total = models.DecimalField(max_digits=8, decimal_places=2,
-                                                verbose_name=_("Office Supplies Total O&M Amount"))
-    rentals_description = models.CharField(max_length=255, verbose_name=_("Rentals Description"))
-    rentals_funding = models.CharField(max_length=255, verbose_name=_("Rentals Funding Source"))
-    rentals_total = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_("Rentals Total O&M Amount"))
-    contractors_description = models.CharField(max_length=255, verbose_name=_("Contractors/Consultants Description"))
-    contractors_funding = models.CharField(max_length=255, verbose_name=_("Contractors/Consultants Funding Source"))
-    contractors_total = models.DecimalField(max_digits=8, decimal_places=2,
-                                            verbose_name=_("Contractors/Consultants Total O&M Amount"))
-    planning_description = models.CharField(max_length=255, verbose_name=_("Planning Description"))
-    planning_funding = models.CharField(max_length=255, verbose_name=_("Planning Funding Source"))
-    planning_total = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_("Planning Total O&M Amount"))
+    meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING, related_name="meeting_costs",
+                                   verbose_name=_("Meeting"))
+
+    category = models.ForeignKey(MccMeetingCostCategory, blank=False, on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Cost Category"), default=1)
+    # categories (hospitality, travel, vene, interpretation, office, rentals, contractors, planning)
+    description = models.CharField(max_length=255, verbose_name=_("Description"), default="")
+    funding = models.CharField(max_length=255, verbose_name=_("Funding Source"), default="")
+    total = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_("Total O&M Amount"), default=0)
 
     def __str__(self):
         return "{}".format(self.meeting)
