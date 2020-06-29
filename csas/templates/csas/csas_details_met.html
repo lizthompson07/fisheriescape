@@ -20,7 +20,45 @@
         </div>
     {% endfor %}
     </div>
+
     <div class="container card border border-dark text-center mt-2 pt-1">
+        <div class="card-header bg-transparent">
+            <div class="row">
+                <div class="col-lg text-left">
+                    <h3>{% trans 'Meeting Cost' %} {{object.meeting_costs.description}} </h3>
+                </div>
+
+                <div class="col-2 pt-1">
+                    {% if csas_admin %}
+                        <a class="btn btn-secondary" href="#"
+                           onclick="return popitup('{% url 'csas:create_met_OM_costs' object.pk 'pop' %}','popoutWindow')"
+                           title="{% trans 'Add' %}">{% trans 'Add' %}</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body bg-transparent">
+                <table class="table">
+                    <thead><tr><th>Category</th><th>Description</th><th>Funding Source</th><th>Total O&M Amount</th></tr></thead>
+                    <tbody>
+        {# Get all of the meetingDFO participants and iterate over them #}
+        {% for cost in object.meeting_costs.all %}
+                    {# for each participant, get the list of participant names, role, time, cost cat., funding src. and salary #}
+                    <tr>
+                        {# participant names is a many-to-many object so get the participant names similar to how we got #}
+                        {# all of the DFO participants #}
+                        <td class="font-weight-bold">{{ cost.category }}</td>
+                        <td class="font-weight-bold">{{ cost.description }}</td>
+                        <td class="font-weight-bold">{{ cost.funding }}</td>
+                        <td class="font-weight-bold">{{ cost.total }}</td>
+                    </tr>
+        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+   <div class="container card border border-dark text-center mt-2 pt-1">
         <div class="card-header bg-transparent">
             <div class="row">
                 <div class="col-lg text-left">

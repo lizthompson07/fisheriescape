@@ -35,6 +35,7 @@ urlpatterns = [
     path('meeting_DFO_participants/new/<int:met_id>/<str:pop>/', views.MeetingEntryDFOPars.as_view(),   name="create_met_DFO_pars"),
     path('meeting_DFO_participants/new/',           views.MeetingEntryDFOPars.as_view(),   name="create_met_DFO_pars"),
     path('meeting_other_participants/new/',         views.MeetingEntryOtherPars.as_view(), name="create_met_other_pars"),
+    path('meeting_OM_costs/new/<int:met_id>/<str:pop>/', views.MeetingEntryOMCosts.as_view(),   name="create_met_OM_costs"),
     path('meeting_OM_costs/new/',                   views.MeetingEntryOMCosts.as_view(),   name="create_met_OM_costs"),
     path('meeting_media/new/',                      views.MeetingEntryMedia.as_view(),     name="create_met_media"),
 
