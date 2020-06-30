@@ -5,13 +5,15 @@
 # TODO if I change models to have "tag" field instead of all the other fields (project, incident), write script to add all incident names to options in "tag" field M2M
 # TODO parent crums logic for ItemTransactionListView -- how
 # TODO Parent_crumb logic for TransactionDetailView -- how to get the previous page url if two different urls point to same place?
-# TODO see bulk_transaction_list.html -- need another block between table_header and table possibly to cut down repeating? Ask David --- make new branch and propose new block in generic_filter
 # TODO now if there is no location set item_detail view shows an error because of _transaction.html -- fix this (if elseif?)
 # TODO personnel_list.html -- colour coding doesn't work for experience level
 # TODO View for items of similar and all sizes (tyvek, gloves, batteries) showing all quantity -- put totals in summary section of report
 # TODO make View for On Order items that you can change status, add location etc all at once for all on order items
 # TODO if status=lent out, automatically set Location = lent out
 # TODO reports view - if no items in container, don't display table and display message instead (like with _summary pages) -- get template in views
+
+# TODO If M2M is blank have it show the "---" or None like other fields ((see lib/templatetags/verbose_names, make branch off master to try)
+# TODO see bulk_transaction_list.html -- need another block between table_header and table possibly to cut down repeating? Ask David --- make new branch and propose new block in generic_filter
 
 ### TICKETED FOR DAVID AND/OR PATRICK
 # TODO After editing (commonupdateview) the detail page has a space at the top, but on reload it goes away again -- submit dev ticket
@@ -25,7 +27,6 @@
 
 ### OTHER LARGER ITEMS
 # TODO maintenance schedule for certain items (generator, switlik, soundtraps), send email when needed to check?
-# TODO If M2M is blank have it show the "---" or None like other fields ((see lib/templatetags/verbose_names, make branch off master to try)
 # TODO on _lending.html -- add function to delete a lending (call it 'return') and on return log in eventual historical table with returned date
 # TODO Add Bulk Lending View to checkout (change to "lent out") status multiple items of various quantities all on one page -- how to sort so you can find all items you want also?
 # TODO Bulk Check In View to check back in items -- should be easy enough to sort on a person's name and then bulk check back in items you have out
