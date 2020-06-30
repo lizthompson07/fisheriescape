@@ -5,13 +5,13 @@
 <!--I want to have it so that different experience levels show as different colours-->
 
     {% block table_td %}
-        {% if obj.exp_level.id == 1 %}
+        {% if object.exp_level.id == 1 %}
             <span style="background-color:red">{% get_field_value object field.name %}</span>
-        {% elif obj.exp_level.id == 2 %}
+        {% elif object.exp_level.id == 2 %}
             <span style="background-color:yellow">{% get_field_value object field.name %}</span>
-        {% elif obj.exp_level.id == 3 %}
+        {% elif object.exp_level.id == 3 %}
             <span style="background-color:orange">{% get_field_value object field.name %}</span>
-        {% elif obj.exp_level.id == 4 %}
+        {% elif object.exp_level.id == 4 %}
             <span style="background-color:green">{% get_field_value object field.name %}</span>
         {% else %}
          {% get_field_value object field.name safe=True %}

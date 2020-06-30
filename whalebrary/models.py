@@ -401,6 +401,7 @@ class Transaction(models.Model):
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("location stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
+    # use "tag" field with M2M to track instead of "incident" etc.
 
     def __str__(self):
 

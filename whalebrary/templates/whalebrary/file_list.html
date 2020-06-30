@@ -16,13 +16,11 @@
                 {% endblock %}
             </td>
         {% endfor %}
-        {% for obj in object.files.all %}
             <td>
-                <a href="{{ obj.file.url }}" >
+                <a href="{{ object.file.url }}" >
                     <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
                 </a>
             </td>
-        {% endfor %}
     </tr>
 {% endblock %}
 

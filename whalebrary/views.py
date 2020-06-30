@@ -1151,16 +1151,19 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
     home_url_name = "whalebrary:index"
     # row_object_url_name = "whalebrary:item_detail"
     parent_crumb = {"title": gettext_lazy("Report Generator"), "url": reverse_lazy("whalebrary:report_generator")}
-    h1 = "temp"
+    h1 = "Sized Summary"
+
+    def get_template_names(self):
+        # define here if no data is available to get another template
+        pass
 
     def get_queryset(self, **kwargs):
         qs = models.Transaction.objects.filter(item__item_name__iexact=self.kwargs['item_name'])
         return qs
 
-    # def get_h1(self):
-    #     item_name = models.Item.objects.get(pk=self.kwargs.get("item_name"))
-    #     h1 = _("Sized Item Summary for ") + f' {str(item_name)}'
-    #     return h1
+    def get_h2(self):
+        h2 = _("For search term ") + f' "{self.kwargs.get("item_name")}"'
+        return h2
 
     field_list = [
         {"name": 'item', "class": "", "width": ""},
