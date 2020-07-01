@@ -138,16 +138,6 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Item List"), "url": reverse_lazy("whalebrary:item_list")}
 
-    # define a request _quantity.html file -- new location-based summary of totals
-
-    # def test(self, request):
-    #     oh_total_qty = self.get_object().transactions.filter(status=1).values('location__id').annotate(Sum('quantity')).order_by('location__id')
-    #     if oh_total_qty is None:
-    #         oh_total_qty = 0
-    #     else:
-    #         oh_total_qty = oh_total_qty
-    #     return render(request, '_quantity.html', {'oh_total_qty': oh_total_qty})
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -185,22 +175,6 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
 
         context['quantity_avail'] = ohqty - lentqty - usedqty
 
-        # Trying to get quantities by location
-
-        context["oh_qty_field_list"] = [
-            'location',
-            'quantity',
-        ]
-
-        oh_total_qty = self.get_object().transactions.filter(status=1).values('location__location').annotate(dsum=Sum('quantity')).order_by('location__id')
-
-        if oh_total_qty is None:
-            oh_total_qty = 0
-        else:
-            oh_total_qty = oh_total_qty
-
-        context['oh_total_qty'] = oh_total_qty
-
         # context for _supplier.html
         context["random_sup"] = models.Supplier.objects.first()
         context["sup_field_list"] = [
@@ -228,7 +202,6 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         ]
 
         return context
-
 
 class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = 'whalebrary/list.html'
@@ -1165,7 +1138,8 @@ class ContainerSummaryListView(WhalebraryAccessRequired, CommonListView):
         {"name": 'date', "class": "", "width": ""},
         {"name": 'lent_to', "class": "", "width": ""},
         {"name": 'return_date', "class": "", "width": ""},
-        {"name": 'audit', "class": "", "width": ""},
+        {"name": 'last_audited', "class": "", "width": ""},
+        {"name": 'last_audited_by', "class": "", "width": ""},
     ]
 
 class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
@@ -1175,17 +1149,17 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
     parent_crumb = {"title": gettext_lazy("Report Generator"), "url": reverse_lazy("whalebrary:report_generator")}
     h1 = "Sized Summary"
 
-    # def get_template_names(self):
-    #     # define here if no data is available to get another template
-    #     pass
-
-    def get_h2(self):
-        h2 = _("For search term ") + f' "{self.kwargs.get("item_name")}"'
-        return h2
+    def get_template_names(self):
+        # define here if no data is available to get another template
+        pass
 
     def get_queryset(self, **kwargs):
         qs = models.Transaction.objects.filter(item__item_name__iexact=self.kwargs['item_name'])
         return qs
+
+    def get_h2(self):
+        h2 = _("For search term ") + f' "{self.kwargs.get("item_name")}"'
+        return h2
 
     field_list = [
         {"name": 'item', "class": "", "width": ""},
@@ -1194,7 +1168,8 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
         {"name": 'date', "class": "", "width": ""},
         {"name": 'lent_to', "class": "", "width": ""},
         {"name": 'return_date', "class": "", "width": ""},
-        {"name": 'audit', "class": "", "width": ""},
+        {"name": 'last_audited', "class": "", "width": ""},
+        {"name": 'last_audited_by', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'bin_id', "class": "", "width": ""},
     ]

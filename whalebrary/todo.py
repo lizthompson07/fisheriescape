@@ -1,6 +1,8 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
+# TODO on item_list -- add total OH quantity field --
+# TODO Change "list all transactions" view to "all recent transactions"?
 # TODO from item_detail -- remove transactions view and change to total quantities by location
 # TODO if I change models to have "tag" field instead of all the other fields (project, incident), write script to add all incident names to options in "tag" field M2M
 # TODO parent crums logic for ItemTransactionListView -- how
@@ -13,7 +15,7 @@
 # TODO reports view - if no items in container, don't display table and display message instead (like with _summary pages) -- get template in views
 
 # TODO If M2M is blank have it show the "---" or None like other fields ((see lib/templatetags/verbose_names, make branch off master to try)
-# TODO see bulk_transaction_list.html -- need another block between table_header and table possibly to cut down repeating? Ask David --- make new branch and propose new block in generic_filter
+
 
 ### TICKETED FOR DAVID AND/OR PATRICK
 # TODO After editing (commonupdateview) the detail page has a space at the top, but on reload it goes away again -- submit dev ticket
@@ -64,3 +66,4 @@
 # TODO file_list.html how to add the link to the file url now with the block_tr block_td
 # TODO redo all views possible with common templates format
 # TODO look into using ajax for popout close and refresh function -- talk to David -- see Travel app (urls, views, jsonresponse)
+# TODO see bulk_transaction_list.html -- need another block between table_header and table possibly to cut down repeating? Ask David --- make new branch and propose new block in generic_filter

@@ -108,17 +108,8 @@ class ReportGeneratorForm(forms.Form):
         location_choices = [(obj.id, "{}".format(obj.location)) for obj in models.Location.objects.filter(container=True)]
         location_choices.insert(0, (None, "------"))
 
-        # item_name_choices = [
-        #     (1, "Battery"),
-        #     (2, "Gloves"),
-        #     (3, "Tyvek"),
-        #
-        # ]
-
-
-        l = set([item.item_name.lower() for item in models.Item.objects.filter(size__isnull=False)])
-        item_name_choices = [(n, n.title()) for n in l]
-        # item_name_choices = [(obj.id, "{}".format(obj.item_name)) for obj in models.Item.objects.exclude(size__isnull=True)]
+        item_list = set([item.item_name.lower() for item in models.Item.objects.filter(size__isnull=False)])
+        item_name_choices = [(n, n.title()) for n in item_list]
         item_name_choices.insert(0, (None, "------"))
 
         self.fields['report'].choices = report_choices

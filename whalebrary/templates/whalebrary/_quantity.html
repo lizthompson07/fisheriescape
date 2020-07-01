@@ -79,3 +79,65 @@
 <br>
 <br>
 <br>
+
+{{ oh_total_qty }}
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        {% for field in oh_qty_field_list %}
+        <th>
+        {% get_verbose_label random_qty field %}
+        </th>
+        {% endfor %}
+    </tr>
+    {% for field in oh_total_qty %}
+    <tr>
+        <td>{{ field.location__location }}</td>
+        <td>{{ field.dsum }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<!--TODO Add column for borrowing items from a specific location that will add a new transaction and subtract amount from total oh-->
+
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <td>Location 1</td>
+        <td>Location 2</td>
+    </tr>
+    <tbody>
+    {% for key, values in oh_total_qty.items %}
+    <tr>
+        {% for mydict in values %}
+            {% for k, v in mydict.items %}
+            {{k}} {{v}}
+            {% endfor %}
+         {% endfor %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <td>Location 1</td>
+        <td>Location 2</td>
+    </tr>
+
+    {% for key, values in oh_total_qty.items %}
+        {% for k, v in values.1.items %}
+            {{k}} {{v}}
+        {% endfor %}
+    {% endfor %}
+
+</table>
+
+<!--    <tbody>-->
+<!--    {% for key, values in oh_quantity.items %}-->
+<!--    <tr>-->
+<!--        <td>{{key}}</td>-->
+<!--        {% for v in values.items %}-->
+<!--        <td>{{v}}</td>-->
+<!--        {% endfor %}-->
+<!--    </tr>-->
+<!--    {% endfor %}-->
+<!--    -->
+<!--    </tbody>-->
