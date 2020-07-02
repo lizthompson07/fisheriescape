@@ -24,7 +24,7 @@ COPY . /opt/services/djangoapp/src
 
 EXPOSE 8000
 
-COPY init.sh /usr/local/bin/
+COPY ./azure_scripts/init.sh /usr/local/bin/
 	
 RUN chmod u+x /usr/local/bin/init.sh
 ENTRYPOINT ["init.sh"]
