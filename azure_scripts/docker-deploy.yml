@@ -18,13 +18,32 @@ steps:
       DockerRepository: dmappsdevacr
       DockerImageTag: latest
       StartupCommand: init.sh
-      AppSettings: '-WEBSITES_PORT 8000       -AAD_APP_ID "7c0933f3-9e00-4070-bcd8-bb48a4bec0f1"       -AAD_APP_SECRET $(AAD_APP_SECRET)      -AAD_AUTHORITY "https://login.microsoftonline.com/1594fdae-a1d9-4405-915d-011467234338"      -AAD_AUTHORIZE_ENDPOINT "/oauth2/v2.0/authorize"      -AAD_REDIRECT "https://dmapps-dev.azurewebsites.net/accounts/callback"      -AAD_SCOPES  "openid user.read"      -AAD_TOKEN_ENDPOINT "/oauth2/v2.0/token"      -AZURE_STORAGE_ACCOUNT_NAME dmappsdev      -DB_HOST "dmapps-dev-mysql.mysql.database.azure.com"      -DB_MODE DEV      -DB_NAME dmapps_dev      -DB_PASSWORD $(DB_PASSWORD)      -DB_PORT 3306      -DB_USER "dmapps_user@dmapps-dev-mysql"      -DEBUG True      -DEPLOYMENT_STAGE DEV      -SENDGRID_API_KEY $(SENDGRID_API_KEY)      -SITE_FULL_URL "https://dmapps-dev.azurewebsites.net" -ALLOWED_HOST_TO_ADD "dmapps-dev-docker.azurewebsites.net"'
-      #SITE_FROM_EMAIL = "DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca"
-      #SHOW_TICKETING_APP = True
-      #GEODJANGO = False
-      #SECRET_KEY = ***REMOVED***
-      #GITHUB_API_KEY = 0989fc45595121329dac99d32fd09a207a8c41da
-
+      AppSettings: >-
+        -WEBSITES_PORT 8000
+        -AAD_APP_ID "7c0933f3-9e00-4070-bcd8-bb48a4bec0f1"
+        -AAD_APP_SECRET $(AAD_APP_SECRET)
+        -AAD_AUTHORITY "https://login.microsoftonline.com/1594fdae-a1d9-4405-915d-011467234338"
+        -AAD_AUTHORIZE_ENDPOINT "/oauth2/v2.0/authorize"
+        -AAD_REDIRECT "https://dmapps-dev.azurewebsites.net/accounts/callback"
+        -AAD_SCOPES  "openid user.read"
+        -AAD_TOKEN_ENDPOINT "/oauth2/v2.0/token"
+        -AZURE_STORAGE_ACCOUNT_NAME dmappsdev
+        -DB_HOST "dmapps-dev-mysql.mysql.database.azure.com"
+        -DB_MODE DEV
+        -DB_NAME dmapps_dev
+        -DB_PASSWORD $(DB_PASSWORD)
+        -DB_PORT 3306
+        -DB_USER "dmapps_user@dmapps-dev-mysql"
+        -DEBUG True
+        -DEPLOYMENT_STAGE DEV
+        -SENDGRID_API_KEY $(SENDGRID_API_KEY)
+        -SITE_FULL_URL "https://dmapps-dev.azurewebsites.net"
+        -ALLOWED_HOST_TO_ADD "dmapps-dev-docker.azurewebsites.net"'
+        -SITE_FROM_EMAIL "DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca"
+        -SHOW_TICKETING_APP True
+        -GEODJANGO False
+        -SECRET_KEY $(SECRET_KEY)
+        -GITHUB_API_KEY $(GITHUB_API_KEY)
 
 
   - task: AzureAppServiceManage@0
