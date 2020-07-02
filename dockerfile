@@ -14,7 +14,6 @@ RUN python -m pip install --upgrade pip setuptools wheel
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-RUN python create_env_file.py --devops-build-number $(Build.BuildNumber)
 RUN mkdir media
 RUN mkdir media/travel
 RUN mkdir media/travel/temp
