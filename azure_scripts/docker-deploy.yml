@@ -38,7 +38,7 @@ steps:
         -DEPLOYMENT_STAGE DEV
         -SENDGRID_API_KEY $(SENDGRID_API_KEY)
         -SITE_FULL_URL "https://dmapps-dev.azurewebsites.net"
-        -ALLOWED_HOST_TO_ADD "dmapps-dev-docker.azurewebsites.net"'
+        -ALLOWED_HOST_TO_ADD "dmapps-dev-docker.azurewebsites.net"
         -SITE_FROM_EMAIL "DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca"
         -SHOW_TICKETING_APP True
         -GEODJANGO False
