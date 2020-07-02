@@ -1,0 +1,29 @@
+pool:
+  vmImage: 'Ubuntu 18.04'
+
+trigger:
+  - master
+
+variables:
+  MyCustomVar: '"HEre it is!!!!"'
+
+steps:
+  - task: AzureRmWebAppDeployment@4
+    displayName: 'Azure App Service Deploy: dmapps-dev-docker'
+    inputs:
+      azureSubscription: 'SP.DMAPPS-DEV'
+      appType: webAppContainer
+      WebAppName: 'dmapps-dev-docker'
+      DockerNamespace: dmappsdevacr.azurecr.io
+      DockerRepository: dmappsdevacr
+      DockerImageTag: latest
+      StartupCommand: init.sh
+      AppSettings: '-WEBSITES_PORT 8000 -BUILD_NUMBER $(Build.BuildId) -MY_TEST_CONFIG 123456 -DEBUG False -MY_TEST_CONFIG2 $(MyCustomVar)'
+
+
+  - task: AzureAppServiceManage@0
+    displayName: 'restart service'
+    inputs:
+      azureSubscription: 'SP.DMAPPS-DEV'
+      Action: 'Restart Azure App Service'
+      WebAppName: 'dmapps-dev-docker'
