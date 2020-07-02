@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 
 # install dependencies
 RUN python -m pip install --upgrade pip setuptools wheel
-RUN apt install libmysqlclient-dev
+RUN apk add libmysqlclient-dev
 
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
