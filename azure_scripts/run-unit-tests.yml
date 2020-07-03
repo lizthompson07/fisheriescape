@@ -17,9 +17,11 @@ steps:
       pip install -r requirements.txt
       # run migrations and collect static files
       python manage.py migrate
-      run_tests.sh
-    condition: succeededOrFailed()
     workingDirectory: '$(System.DefaultWorkingDirectory)'
-    displayName: 'Install Prerequisites, Run Local Migrations and Run Tests'
+    displayName: 'Install Prerequisites and Run Local Migrations '
 
-
+  - script: |
+      pushd '$(projectRoot)'
+      ./run_tests.sh
+    condition: succeededOrFailed()
+    displayName: 'Run tests'
