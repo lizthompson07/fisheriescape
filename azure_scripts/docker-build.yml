@@ -10,7 +10,7 @@ resources:
 variables:
   azureServiceConnection: 'SP.dmappsdevacr'
   imageRepository: 'dmapps_img'
-  tag: '$(Build.BuildId)'
+  tag: '$(Build.BuildNumber)'
 
 stages:
 - stage: Build
