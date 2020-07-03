@@ -4,9 +4,6 @@ pool:
 trigger:
   - master
 
-variables:
-  MyCustomVar: '"HEre it is!!!!"'
-
 steps:
   - task: AzureRmWebAppDeployment@4
     displayName: 'Azure App Service Deploy: dmapps-dev-docker'
@@ -15,9 +12,9 @@ steps:
       appType: webAppContainer
       WebAppName: 'dmapps-dev-docker'
       DockerNamespace: dmappsdevacr.azurecr.io
-      DockerRepository: dmappsdevacr
+      DockerRepository: dmapps_img
       DockerImageTag: latest
-      StartupCommand: init.sh
+      StartupCommand: azure_scripts/init.sh
       AppSettings: >-
         -WEBSITES_PORT 8000
         -AAD_APP_ID "7c0933f3-9e00-4070-bcd8-bb48a4bec0f1"
@@ -46,9 +43,9 @@ steps:
         -GITHUB_API_KEY $(GITHUB_API_KEY)
 
 
-  - task: AzureAppServiceManage@0
-    displayName: 'restart service'
-    inputs:
-      azureSubscription: 'SP.DMAPPS-DEV'
-      Action: 'Restart Azure App Service'
-      WebAppName: 'dmapps-dev-docker'
+#  - task: AzureAppServiceManage@0
+#    displayName: 'restart service'
+#    inputs:
+#      azureSubscription: 'SP.DMAPPS-DEV'
+#      Action: 'Restart Azure App Service'
+#      WebAppName: 'dmapps-dev-docker'
