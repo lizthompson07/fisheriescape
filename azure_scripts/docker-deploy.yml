@@ -4,9 +4,37 @@ pool:
 trigger:
   - master
 
+
+#Your build pipeline references a secret variable named ‘DB_PASSWORD_DEV_TEST’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+#Your build pipeline references a secret variable named ‘AZURE_STORAGE_SECRET_KEY_DEV’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it secret. See https://go.microsoft.com/fwlink/?linkid=865972
+variables:
+  DB_HOST_DEV_TEST: 'dmapps-dev-mysql.mysql.database.azure.com'
+  DB_PORT: '3306'
+  DB_NAME_DEV: 'dmapps_dev'
+  DB_USER_DEV_TEST: 'pipeline_user@dmapps-dev-mysql'
+  DB_PASSWORD_DEV_TEST: '$(DB_PASSWORD_DEV_TEST)'
+  AZURE_STORAGE_ACCOUNT_NAME_DEV: 'dmappsdev'
+  AZURE_STORAGE_SECRET_KEY_DEV: '$(AZURE_STORAGE_SECRET_KEY_DEV)'
+
 steps:
+  - script: |
+      # install pre-requisites
+      python -m pip install --upgrade pip setuptools wheel
+      sudo apt-get install libmysqlclient-dev
+      pip install -r requirements.txt
+
+      # create env file
+      python create_env_file.py --db-host "$(DB_HOST_DEV_TEST)" --db-port "$(DB_PORT)" --db-name "$(DB_NAME_DEV)" --db-user "$(DB_USER_DEV_TEST)" --db-password "$(DB_PASSWORD_DEV_TEST)" --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME_DEV)" --azure-storage-secret-key "$(AZURE_STORAGE_SECRET_KEY_DEV)" --in-pipeline "True"
+
+      # run migrations and collect static files
+      python manage.py migrate
+      python manage.py collectstatic --no-input
+
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    displayName: 'Run Migrations and Staticfiles'
+
   - task: AzureRmWebAppDeployment@4
-    displayName: 'Azure App Service Deploy: dmapps-dev-docker'
+    displayName: 'Deploy Docker Image'
     inputs:
       azureSubscription: 'SP.DMAPPS-DEV'
       appType: webAppContainer
@@ -28,7 +56,7 @@ steps:
         -DB_HOST "dmapps-dev-mysql.mysql.database.azure.com"
         -DB_MODE DEV
         -DB_NAME dmapps_dev
-        -DB_PASSWORD $(DB_PASSWORD)
+        -DB_PASSWORD $(DB_PASSWORD_DEV_TEST)
         -DB_PORT 3306
         -DB_USER "dmapps_user@dmapps-dev-mysql"
         -DEBUG True
