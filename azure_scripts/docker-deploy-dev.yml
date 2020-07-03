@@ -81,7 +81,7 @@ steps:
         -AZURE_STORAGE_SECRET_KEY $(AZURE_STORAGE_SECRET_KEY)
         -SITE_FULL_URL $(SITE_FULL_URL)
         -SECRET_KEY $(SECRET_KEY)
-        -ALLOWED_HOST_TO_ADD '$(WEB_APP_NAME).azurewebsites.net'
+        -ALLOWED_HOST_TO_ADD $(WEB_APP_NAME).azurewebsites.net
         -SITE_FROM_EMAIL "DoNotReply@Sci-Zone.dfo-mpo.gc.ca"
         -SHOW_TICKETING_APP $(SHOW_TICKETING_APP)
         -GEODJANGO False
@@ -96,3 +96,9 @@ steps:
         -SENDGRID_API_KEY $(SENDGRID_API_KEY)
         -GITHUB_API_KEY $(GITHUB_API_KEY)
 
+  - task: AzureAppServiceManage@0
+    displayName: 'Restart web app service'
+    inputs:
+      azureSubscription: 'SP.DMAPPS-DEV'
+      Action: 'Restart Azure App Service'
+      WebAppName: '$(WEB_APP_NAME)'
