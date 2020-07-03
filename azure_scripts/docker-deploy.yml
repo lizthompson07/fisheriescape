@@ -4,65 +4,40 @@ pool:
 trigger:
   - master
 
-
 steps:
-#  - script: |
-#      # install pre-requisites
-#      python -m pip install --upgrade pip setuptools wheel
-#      sudo apt-get install libmysqlclient-dev
-#      pip install -r requirements.txt
-#
-#      # create env file
-#      python create_env_file.py --db-host "$(DB_HOST_DEV_TEST)" --db-port "$(DB_PORT)" --db-name "$(DB_NAME_DEV)" --db-user "$(DB_USER_DEV_TEST)" --db-password "$(DB_PASSWORD_DEV_TEST)" --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME_DEV)" --azure-storage-secret-key "$(AZURE_STORAGE_SECRET_KEY_DEV)" --in-pipeline "True"
-#
-#      # run migrations and collect static files
-#      python manage.py migrate
-#      python manage.py collectstatic --no-input
-#
-#    workingDirectory: '$(System.DefaultWorkingDirectory)'
-#    displayName: 'Migrations and Staticfiles'
-
   - task: AzureRmWebAppDeployment@4
-      displayName: 'Azure App Service Deploy: dmapps-dev-docker'
-      inputs:
-        azureSubscription: 'SP.DMAPPS-DEV'
-        appType: webAppContainer
-        WebAppName: 'dmapps-dev-docker'
-        DockerNamespace: dmappsdevacr.azurecr.io
-        DockerRepository: dmapps_img
-        DockerImageTag: latest
-        StartupCommand: azure_scripts/init.sh
-        AppSettings: >-
-          -WEBSITES_PORT 8000
-          -AAD_APP_ID "7c0933f3-9e00-4070-bcd8-bb48a4bec0f1"
-          -AAD_APP_SECRET $(AAD_APP_SECRET)
-          -AAD_AUTHORITY "https://login.microsoftonline.com/1594fdae-a1d9-4405-915d-011467234338"
-          -AAD_AUTHORIZE_ENDPOINT "/oauth2/v2.0/authorize"
-          -AAD_REDIRECT "https://dmapps-dev.azurewebsites.net/accounts/callback"
-          -AAD_SCOPES  "openid user.read"
-          -AAD_TOKEN_ENDPOINT "/oauth2/v2.0/token"
-          -AZURE_STORAGE_ACCOUNT_NAME dmappsdev
-          -DB_HOST "dmapps-dev-mysql.mysql.database.azure.com"
-          -DB_MODE DEV
-          -DB_NAME dmapps_dev
-          -DB_PASSWORD $(DB_PASSWORD)
-          -DB_PORT 3306
-          -DB_USER "dmapps_user@dmapps-dev-mysql"
-          -DEBUG True
-          -DEPLOYMENT_STAGE DEV
-          -SENDGRID_API_KEY $(SENDGRID_API_KEY)
-          -SITE_FULL_URL "https://dmapps-dev.azurewebsites.net"
-          -ALLOWED_HOST_TO_ADD "dmapps-dev-docker.azurewebsites.net"
-          -SITE_FROM_EMAIL "DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca"
-          -SHOW_TICKETING_APP True
-          -GEODJANGO False
-          -SECRET_KEY $(SECRET_KEY)
-          -GITHUB_API_KEY $(GITHUB_API_KEY)
-
-
-#  - task: AzureAppServiceManage@0
-#    displayName: 'restart service'
-#    inputs:
-#      azureSubscription: 'SP.DMAPPS-DEV'
-#      Action: 'Restart Azure App Service'
-#      WebAppName: 'dmapps-dev-docker'
+    displayName: 'Azure App Service Deploy: dmapps-dev-docker'
+    inputs:
+      azureSubscription: 'SP.DMAPPS-DEV'
+      appType: webAppContainer
+      WebAppName: 'dmapps-dev-docker'
+      DockerNamespace: dmappsdevacr.azurecr.io
+      DockerRepository: dmapps_img
+      DockerImageTag: latest
+      StartupCommand: init.sh
+      AppSettings: >-
+        -WEBSITES_PORT 8000
+        -AAD_APP_ID "7c0933f3-9e00-4070-bcd8-bb48a4bec0f1"
+        -AAD_APP_SECRET $(AAD_APP_SECRET)
+        -AAD_AUTHORITY "https://login.microsoftonline.com/1594fdae-a1d9-4405-915d-011467234338"
+        -AAD_AUTHORIZE_ENDPOINT "/oauth2/v2.0/authorize"
+        -AAD_REDIRECT "https://dmapps-dev.azurewebsites.net/accounts/callback"
+        -AAD_SCOPES  "openid user.read"
+        -AAD_TOKEN_ENDPOINT "/oauth2/v2.0/token"
+        -AZURE_STORAGE_ACCOUNT_NAME dmappsdev
+        -DB_HOST "dmapps-dev-mysql.mysql.database.azure.com"
+        -DB_MODE DEV
+        -DB_NAME dmapps_dev
+        -DB_PASSWORD $(DB_PASSWORD)
+        -DB_PORT 3306
+        -DB_USER "dmapps_user@dmapps-dev-mysql"
+        -DEBUG True
+        -DEPLOYMENT_STAGE DEV
+        -SENDGRID_API_KEY $(SENDGRID_API_KEY)
+        -SITE_FULL_URL "https://dmapps-dev.azurewebsites.net"
+        -ALLOWED_HOST_TO_ADD "dmapps-dev-docker.azurewebsites.net"
+        -SITE_FROM_EMAIL "DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca"
+        -SHOW_TICKETING_APP True
+        -GEODJANGO False
+        -SECRET_KEY $(SECRET_KEY)
+        -GITHUB_API_KEY $(GITHUB_API_KEY)
