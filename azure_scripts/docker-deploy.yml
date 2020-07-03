@@ -27,7 +27,7 @@ steps:
       pip install -r requirements.txt
 
       # create env file
-      python create_env_file.py --db-host "$(DB_HOST_DEV_TEST)" --db-port "$(DB_PORT)" --db-name "$(DB_NAME_DEV)" --db-user "$(DB_USER_DEV_TEST)" --db-password "$(DB_PASSWORD_DEV_TEST)" --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME_DEV)" --azure-storage-secret-key "$(AZURE_STORAGE_SECRET_KEY_DEV)" --in-pipeline "True"
+      python create_env_file.py --db-host "$(DB_HOST_DEV_TEST)" --db-port "$(DB_PORT)" --db-name "$(DB_NAME_DEV)" --db-user "$(DB_USER_DEV_TEST)" --db-password "$(DB_PASSWORD_DEV_TEST_PIPELINE)" --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME_DEV)" --azure-storage-secret-key "$(AZURE_STORAGE_SECRET_KEY_DEV)" --in-pipeline "True"
 
       # run migrations and collect static files
       python manage.py migrate
@@ -55,10 +55,14 @@ steps:
         -AAD_REDIRECT "https://dmapps-dev.azurewebsites.net/accounts/callback"
         -AAD_SCOPES  "openid user.read"
         -AAD_TOKEN_ENDPOINT "/oauth2/v2.0/token"
+
+        -AZURE_STORAGE_ACCOUNT_NAME dmappsdev
+        -AZURE_STORAGE_SECRET_KEY $(AZURE_STORAGE_SECRET_KEY_DEV)
+
         -DB_HOST "dmapps-dev-mysql.mysql.database.azure.com"
         -DB_MODE DEV
         -DB_NAME dmapps_dev
-        -DB_PASSWORD $(DB_PASSWORD_DEV_TEST)
+        -DB_PASSWORD $(DB_PASSWORD_WEB)
         -DB_PORT 3306
         -DB_USER "dmapps_user@dmapps-dev-mysql"
         -DEBUG True
