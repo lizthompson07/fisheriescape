@@ -1,0 +1,100 @@
+pool:
+  vmImage: 'Ubuntu 18.04'
+
+trigger:
+  - master
+
+# secret vars:
+##############
+# AAD_APP_SECRET
+# DB_PASSWORD_WEB
+# DB_PASSWORD_PIPELINE
+# SECRET_KEY
+# AZURE_STORAGE_SECRET_KEY
+# SENDGRID_API_KEY
+# GITHUB_API_KEY
+###############
+
+variables:
+  AAD_APP_ID: "7c0933f3-9e00-4070-bcd8-bb48a4bec0f1"
+  AZURE_STORAGE_ACCOUNT_NAME: 'dmappsdev'
+  DB_HOST: 'dmapps-dev-mysql.mysql.database.azure.com'
+  DB_MODE: 'DEV'
+  DB_NAME: 'dmapps_dev'
+  DB_USER_PIPELINE: 'pipeline_user@dmapps-dev-mysql'
+  DB_USER_WEB: 'dmapps_user@dmapps-dev-mysql'
+  DEBUG: True
+  DEPLOYMENT_STAGE: 'DEV'
+  SHOW_TICKETING_APP: True
+  SITE_FULL_URL: 'https://dmapps-dev-docker.azurewebsites.net'
+  WEB_APP_NAME: 'dmapps-dev-docker'
+
+steps:
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.8'
+    inputs:
+      versionSpec: 3.8
+
+  - script: |
+      # install pre-requisites
+      python -m pip install --upgrade pip setuptools wheel
+      sudo apt-get install libmysqlclient-dev
+      pip install -r requirements.txt
+
+      # create env file
+      python create_env_file.py --db-host "$(DB_HOST)" \
+      --db-port 3306 \
+      --db-name "$(DB_NAME)" \
+      --db-user "$(DB_USER_PIPELINE)" \
+      --db-password "$(DB_PASSWORD_PIPELINE)" \
+      --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME)" \
+      --azure-storage-secret-key "$(AZURE_STORAGE_SECRET_KEY)" \
+      --in-pipeline "True"
+
+      # run migrations and collect static files
+      python manage.py migrate
+      python manage.py collectstatic --no-input
+
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    displayName: 'Run Migrations and Staticfiles'
+
+  - task: AzureRmWebAppDeployment@4
+    displayName: 'Deploy Docker Image to $(WEB_APP_NAME)'
+    inputs:
+      azureSubscription: 'SP.DMAPPS-DEV'
+      appType: webAppContainer
+      WebAppName: '$(WEB_APP_NAME)'
+      DockerNamespace: dmappsdevacr.azurecr.io
+      DockerRepository: dmapps_img
+      DockerImageTag: latest
+      StartupCommand: init.sh
+      AppSettings: >-
+        -WEBSITES_PORT 8000
+        -AAD_APP_ID $(AAD_APP_ID)
+        -AAD_APP_SECRET $(AAD_APP_SECRET)
+        -AAD_AUTHORITY "https://login.microsoftonline.com/1594fdae-a1d9-4405-915d-011467234338"
+        -AAD_AUTHORIZE_ENDPOINT "/oauth2/v2.0/authorize"
+        -AAD_REDIRECT "https://$(WEB_APP_NAME).azurewebsites.net/accounts/callback"
+        -AAD_SCOPES  "openid user.read"
+        -AAD_TOKEN_ENDPOINT "/oauth2/v2.0/token"
+
+        -AZURE_STORAGE_ACCOUNT_NAME $(AZURE_STORAGE_ACCOUNT_NAME)
+        -AZURE_STORAGE_SECRET_KEY $(AZURE_STORAGE_SECRET_KEY)
+
+        -SITE_FULL_URL $(SITE_FULL_URL)
+        -SECRET_KEY $(SECRET_KEY)
+        -ALLOWED_HOST_TO_ADD '$(WEB_APP_NAME).azurewebsites.net'
+        -SITE_FROM_EMAIL "DoNotReply@Sci-Zone.dfo-mpo.gc.ca"
+        -SHOW_TICKETING_APP $(SHOW_TICKETING_APP)
+        -GEODJANGO False
+        -DEPLOYMENT_STAGE $(DEPLOYMENT_STAGE)
+        -DB_HOST $(DB_HOST)
+        -DB_MODE $(DB_MODE)
+        -DB_NAME $(DB_NAME)
+        -DB_USER $(DB_USER_WEB)
+        -DB_PASSWORD $(DB_PASSWORD_WEB)
+        -DB_PORT 3306
+        -DEBUG $(DEBUG)
+        -SENDGRID_API_KEY $(SENDGRID_API_KEY)
+        -GITHUB_API_KEY $(GITHUB_API_KEY)
+
