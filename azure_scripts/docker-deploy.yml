@@ -12,9 +12,7 @@ variables:
   DB_PORT: '3306'
   DB_NAME_DEV: 'dmapps_dev'
   DB_USER_DEV_TEST: 'pipeline_user@dmapps-dev-mysql'
-  DB_PASSWORD_DEV_TEST: '$(DB_PASSWORD_DEV_TEST)'
   AZURE_STORAGE_ACCOUNT_NAME_DEV: 'dmappsdev'
-  AZURE_STORAGE_SECRET_KEY_DEV: '$(AZURE_STORAGE_SECRET_KEY_DEV)'
 
 steps:
   - script: |
