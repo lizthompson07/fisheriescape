@@ -55,7 +55,6 @@ steps:
         -AAD_REDIRECT "https://dmapps-dev.azurewebsites.net/accounts/callback"
         -AAD_SCOPES  "openid user.read"
         -AAD_TOKEN_ENDPOINT "/oauth2/v2.0/token"
-        -AZURE_STORAGE_ACCOUNT_NAME dmappsdev
         -DB_HOST "dmapps-dev-mysql.mysql.database.azure.com"
         -DB_MODE DEV
         -DB_NAME dmapps_dev
@@ -72,3 +71,6 @@ steps:
         -GEODJANGO False
         -SECRET_KEY $(SECRET_KEY)
         -GITHUB_API_KEY $(GITHUB_API_KEY)
+
+
+#        -AZURE_STORAGE_ACCOUNT_NAME dmappsdev
