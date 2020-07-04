@@ -9,8 +9,8 @@ if IN_PIPELINE:
     print("we are in a pipeline :)")
     account_key = config("AZURE_STORAGE_SECRET_KEY", cast=str, default="")
 else:
-    account_key = config("AZURE_STORAGE_SECRET_KEY", cast=str, default="")
-    # token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
+    # account_key = config("AZURE_STORAGE_SECRET_KEY", cast=str, default="")
+    token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
 
 
 # from https://medium.com/@DawlysD/django-using-azure-blob-storage-to-handle-static-media-assets-from-scratch-90cbbc7d56be
@@ -19,8 +19,8 @@ class AzureMediaStorage(AzureStorage):
     if IN_PIPELINE:
         account_key = account_key
     else:
-        account_key = account_key
-        # token_credential = token_credential
+        # account_key = account_key
+        token_credential = token_credential
 
     azure_container = 'media'
     expiration_secs = None
@@ -31,7 +31,7 @@ class AzureStaticStorage(AzureStorage):
     if IN_PIPELINE:
         account_key = account_key
     else:
-        account_key = account_key
-        # token_credential = token_credential
+        # account_key = account_key
+        token_credential = token_credential
     azure_container = 'static'
     expiration_secs = None
