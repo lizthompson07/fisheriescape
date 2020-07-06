@@ -241,13 +241,10 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'date', "class": "", "width": ""},
         {"name": 'lent_to', "class": "", "width": ""},
         {"name": 'return_date', "class": "orange-font", "width": ""},
-        {"name": 'order_number', "class": "", "width": ""},
-        {"name": 'purchased_by', "class": "", "width": ""},
-        {"name": 'reason', "class": "", "width": ""},
-        {"name": 'incident', "class": "", "width": ""},
         {"name": 'audit', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'bin_id', "class": "", "width": ""},
+        {"name": 'tag', "class": "", "width": ""},
     ]
     home_url_name = "whalebrary:index"
     row_object_url_name = "whalebrary:transaction_detail"
@@ -272,9 +269,8 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     def get_queryset(self, **kwargs):
         my_item = models.Item.objects.get(pk=self.kwargs.get('pk'))
         return my_item.transactions.all().annotate(
-        search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name', 'return_date', 'order_number',
-                           'purchased_by', 'reason', 'incident__name', 'audit__date', 'location__location',
-                           'bin_id', output_field=TextField()))
+        search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name',
+                           'return_date', 'audit__date', 'location__location', 'bin_id', 'tag__tag', output_field=TextField()))
 
     def get_h1(self):
         item_name = models.Item.objects.get(pk=self.kwargs.get('pk'))
@@ -473,8 +469,7 @@ class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
 
     queryset = models.Transaction.objects.annotate(
         search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name',
-                           'return_date', 'order_number', 'purchased_by', 'project__code', 'reason', 'incident__name', 'audit__date',
-                           'location__location', 'bin_id', output_field=TextField()))
+                           'return_date', 'audit__date', 'location__location', 'bin_id', 'tag__tag', output_field=TextField()))
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -484,14 +479,10 @@ class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'date', "class": "", "width": "100px"},
         {"name": 'lent_to', "class": "", "width": ""},
         {"name": 'return_date', "class": "", "width": ""},
-        {"name": 'order_number', "class": "", "width": ""},
-        {"name": 'purchased_by', "class": "", "width": ""},
-        {"name": 'project', "class": "", "width": "200px"},
-        {"name": 'reason', "class": "", "width": "200px"},
-        {"name": 'incident', "class": "", "width": ""},
         {"name": 'audit', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'bin_id', "class": "", "width": ""},
+        {"name": 'tag', "class": "", "width": ""},
 
     ]
 
@@ -509,14 +500,10 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
         'date',
         'lent_to',
         'return_date',
-        'order_number',
-        'purchased_by',
-        'project',
-        'reason',
-        'incident',
         'audit',
         'location',
         'bin_id',
+        'tag',
 
     ]
     home_url_name = "whalebrary:index"

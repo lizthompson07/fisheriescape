@@ -376,6 +376,18 @@ class Audit(models.Model):
         else:
             return "{}".format(self.date)
 
+class Tag(models.Model):
+    tag = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("tag"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
 
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
@@ -386,22 +398,14 @@ class Transaction(models.Model):
     lent_to = models.ForeignKey(Personnel, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions", verbose_name=_("lent to"))
     return_date = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy",
                                        verbose_name=_("expected return date"))
-    # for on order status
-    order_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("order number"))
-    # for purchased status
-    project = models.ForeignKey(shared_models.Project, blank=True, null=True, on_delete=models.DO_NOTHING, related_name='transactions',
-                                    verbose_name=_("project"))
-    purchased_by = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("purchased by"))
-    # for used status
-    reason = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("reason"))
-    incident = models.ManyToManyField(Incident, blank=True, verbose_name=_("incident"))  # if linked to use at an incident
     # auditing
     audit = models.ManyToManyField(Audit, blank=True, verbose_name=_("audits"))
     # location of quantities taken/used/received
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("location stored"))
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
-    # use "tag" field with M2M to track instead of "incident" etc.
+    # use "tag" field with M2M to track things of interest instead of "incident", "project code" etc.
+    tag = models.ManyToManyField(Tag, blank=True, verbose_name=_("tags"))
 
     def __str__(self):
 
