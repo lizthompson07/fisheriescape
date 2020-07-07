@@ -23,6 +23,8 @@ class TransactionForm(forms.ModelForm):
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
             'return_date': forms.DateInput(attrs={'type': 'date'}),
+            'tag': forms.SelectMultiple(attrs=chosen_js),
+
         }
 
 class TransactionForm1(forms.ModelForm):
@@ -33,6 +35,8 @@ class TransactionForm1(forms.ModelForm):
             'item': forms.HiddenInput(),
             'date': forms.DateInput(attrs={'type': 'date'}),
             'return_date': forms.DateInput(attrs={'type': 'date'}),
+            'tag': forms.SelectMultiple(attrs=chosen_js),
+
         }
 
 
@@ -43,14 +47,25 @@ class LocationForm(forms.ModelForm):
         model = models.Location
         fields = "__all__"
 
-
-
 LocationFormset = modelformset_factory(
     model=models.Location,
     form=LocationForm,
     extra=1,
 )
 
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = models.Tag
+        fields = "__all__"
+        widgets = {
+            'tag': forms.SelectMultiple(attrs=chosen_js),
+        }
+
+TagFormset = modelformset_factory(
+    model=models.Tag,
+    form=TagForm,
+    extra=1,
+)
 
 class PersonnelForm(forms.ModelForm):
     class Meta:

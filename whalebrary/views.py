@@ -89,6 +89,39 @@ class WhalebraryEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 def index(request):
     return render(request, 'whalebrary/index.html')
 
+## ADMIN FORMSETS ##
+
+    ## LOCATION ##
+
+class LocationHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
+    model = models.Location
+    success_url = reverse_lazy("whalebrary:manage_locations")
+
+
+class LocationFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
+    template_name = 'whalebrary/formset.html'
+    h1 = "Manage Locations"
+    queryset = models.Location.objects.all()
+    formset_class = forms.LocationFormset
+    success_url = reverse_lazy("whalebrary:manage_locations")
+    home_url_name = "whalebrary:index"
+    delete_url_name = "whalebrary:delete_location"
+
+    ## TAG ##
+
+class TagHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
+    model = models.Tag
+    success_url = reverse_lazy("whalebrary:manage_tags")
+
+
+class TagFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
+    template_name = 'whalebrary/formset.html'
+    h1 = "Manage Tags"
+    queryset = models.Tag.objects.all()
+    formset_class = forms.TagFormset
+    success_url = reverse_lazy("whalebrary:manage_tags")
+    home_url_name = "whalebrary:index"
+    delete_url_name = "whalebrary:delete_tag"
 
 # #
 # # INVENTORY #
@@ -343,23 +376,7 @@ class ItemDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 
 # # LOCATION # #
 
-    ## FORMSET ##
-
-class LocationHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
-    model = models.Location
-    success_url = reverse_lazy("whalebrary:manage_locations")
-
-
-class LocationFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
-    template_name = 'whalebrary/formset.html'
-    h1 = "Manage Locations"
-    queryset = models.Location.objects.all()
-    formset_class = forms.LocationFormset
-    success_url = reverse_lazy("whalebrary:manage_locations")
-    home_url_name = "whalebrary:index"
-    delete_url_name = "whalebrary:delete_location"
-
-    ## CRUD Views ##
+    ## CRUD Views - mark for possible deletion ##
 
 class LocationListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"

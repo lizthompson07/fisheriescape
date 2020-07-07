@@ -10,6 +10,12 @@ urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.index, name="index"),
 
+    # SETTINGS #
+
+    path('settings/locations/', views.LocationFormsetView.as_view(), name="manage_locations"),
+    path('settings/location/<int:pk>/delete/', views.LocationHardDeleteView.as_view(), name="delete_location"),
+    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
+    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
 #     # ITEMS #
 #     ###########
@@ -95,7 +101,6 @@ urlpatterns = [
 
 
 
-    path('settings/locations/', views.LocationFormsetView.as_view(), name="manage_locations"),
-    path('settings/location/<int:pk>/delete/', views.LocationHardDeleteView.as_view(), name="delete_location"),
+
 ]
 

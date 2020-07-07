@@ -382,12 +382,12 @@ class Tag(models.Model):
 
     def __str__(self):
         # check to see if a french value is given
-        if getattr(self, str(_("name"))):
+        if getattr(self, str(_("tag"))):
 
-            return "{}".format(getattr(self, str(_("name"))))
+            return "{}".format(getattr(self, str(_("tag"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.name)
+            return "{}".format(self.tag)
 
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))

@@ -1,14 +1,14 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
+# TODO from item_detail -- remove transactions view and change to total quantities by location
+# TODO personnel_list.html -- colour coding doesn't work for experience level
 # TODO on item_list -- add total OH quantity field --
 # TODO Change "list all transactions" view to "all recent transactions"?
-# TODO from item_detail -- remove transactions view and change to total quantities by location
 # TODO if I change models to have "tag" field instead of all the other fields (project, incident), write script to add all incident names to options in "tag" field M2M
 # TODO parent crums logic for ItemTransactionListView -- how
 # TODO Parent_crumb logic for TransactionDetailView -- how to get the previous page url if two different urls point to same place?
 # TODO now if there is no location set item_detail view shows an error because of _transaction.html -- fix this (if elseif?)
-# TODO personnel_list.html -- colour coding doesn't work for experience level
 # TODO View for items of similar and all sizes (tyvek, gloves, batteries) showing all quantity -- put totals in summary section of report
 # TODO make View for On Order items that you can change status, add location etc all at once for all on order items
 # TODO if status=lent out, automatically set Location = lent out
