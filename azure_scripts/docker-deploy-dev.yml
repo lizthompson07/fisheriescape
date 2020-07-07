@@ -50,7 +50,7 @@ steps:
       DEPLOYMENT_STAGE: 'DEV'
       DockerNamespace: '$(DockerNamespace)'
       DockerRepository: '$(DockerRepository)'
-      GEODJANGO: 'True'
+      GEODJANGO: 'False'
       GITHUB_API_KEY: '$(GITHUB_API_KEY)'
       SECRET_KEY: '$(SECRET_KEY)'
       SENDGRID_API_KEY: '$(SENDGRID_API_KEY)'
