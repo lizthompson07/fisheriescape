@@ -32,7 +32,7 @@ trigger:
 ###############
 
 steps:
-  - template: azure_scripts\docker-deploy-template.yml
+  - template: \azure_scripts\docker-deploy-template.yml
     parameters:
       AAD_APP_ID: '$(AAD_APP_ID)'
       AAD_APP_SECRET: '$(AAD_APP_SECRET)'
