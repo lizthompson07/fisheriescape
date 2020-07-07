@@ -21,8 +21,6 @@ class TransactionForm(forms.ModelForm):
         model = models.Transaction
         fields = "__all__"
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date'}),
-            'return_date': forms.DateInput(attrs={'type': 'date'}),
             'tag': forms.SelectMultiple(attrs=chosen_js),
 
         }
@@ -33,13 +31,9 @@ class TransactionForm1(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'item': forms.HiddenInput(),
-            'date': forms.DateInput(attrs={'type': 'date'}),
-            'return_date': forms.DateInput(attrs={'type': 'date'}),
             'tag': forms.SelectMultiple(attrs=chosen_js),
 
         }
-
-
 
 
 class LocationForm(forms.ModelForm):

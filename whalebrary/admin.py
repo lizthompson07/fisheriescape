@@ -1,5 +1,5 @@
 from django.contrib import admin
-from whalebrary.models import Size, Status, Organisation, Training, Transaction
+from whalebrary.models import Size, Status, Organisation, Training, Order
 
 # Register your models here.
 admin.site.register(Size)
@@ -7,15 +7,18 @@ admin.site.register(Status)
 admin.site.register(Organisation)
 admin.site.register(Training)
 
-# custom function to bulk change status to 'on hand' in django admin for Transaction model
+# custom function to bulk mark received the selected orders in django admin for Order model
 
-def mark_on_hand(modeladmin, request, queryset):
-    queryset.update(status='1')
-mark_on_hand.short_description = "Mark selected items as On Hand"
 
-class TransactionAdmin(admin.ModelAdmin):
-    list_display = ['item', 'quantity', 'status']
+def mark_received(modeladmin, request, queryset):
+    queryset.update(confirm_received=True)
+    mark_received.short_description = "Mark selected items as Received"
+
+
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['item', 'quantity', 'date_ordered', 'confirm_received']
     ordering = ['item']
-    actions = [mark_on_hand]
+    actions = [mark_received]
 
-admin.site.register(Transaction, TransactionAdmin)
+
+admin.site.register(Order, OrderAdmin)

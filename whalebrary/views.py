@@ -188,7 +188,7 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         context["random_qty"] = models.Transaction.objects.first()
         context["qty_field_list"] = [
             'quantity',
-            'status',
+            'category',
             'location',
             'bin_id',
         ]
@@ -197,42 +197,44 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         # TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType' -- have to add a case where there is
         # no info yet in those fields? -- fixed it I think~!!! WOOOOH
 
-        ohqty = self.get_object().transactions.filter(status=1).aggregate(dsum=Sum('quantity')).get('dsum')
-        lentqty = self.get_object().transactions.filter(status=3).aggregate(dsum=Sum('quantity')).get('dsum')
-        usedqty = self.get_object().transactions.filter(status=4).aggregate(dsum=Sum('quantity')).get('dsum')
+# TODO need to update this now with model changes
+        # ohqty = self.get_object().transactions.filter(status=1).aggregate(dsum=Sum('quantity')).get('dsum')
+        # lentqty = self.get_object().transactions.filter(status=3).aggregate(dsum=Sum('quantity')).get('dsum')
+        # usedqty = self.get_object().transactions.filter(status=4).aggregate(dsum=Sum('quantity')).get('dsum')
+        #
+        # if ohqty is None:
+        #     ohqty = 0
+        # else:
+        #     ohqty = ohqty
+        #
+        # if lentqty is None:
+        #     lentqty = 0
+        # else:
+        #     lentqty = lentqty
+        #
+        # if usedqty is None:
+        #     usedqty = 0
+        # else:
+        #     usedqty = usedqty
+        #
+        # context['quantity_avail'] = ohqty - lentqty - usedqty
+        #
+        # # Trying to get quantities by location
+        #
+        # context["oh_qty_field_list"] = [
+        #     'location',
+        #     'quantity',
+        # ]
 
-        if ohqty is None:
-            ohqty = 0
-        else:
-            ohqty = ohqty
-
-        if lentqty is None:
-            lentqty = 0
-        else:
-            lentqty = lentqty
-
-        if usedqty is None:
-            usedqty = 0
-        else:
-            usedqty = usedqty
-
-        context['quantity_avail'] = ohqty - lentqty - usedqty
-
-        # Trying to get quantities by location
-
-        context["oh_qty_field_list"] = [
-            'location',
-            'quantity',
-        ]
-
-        oh_total_qty = self.get_object().transactions.filter(status=1).values('location__location').annotate(dsum=Sum('quantity')).order_by('location__id')
-
-        if oh_total_qty is None:
-            oh_total_qty = 0
-        else:
-            oh_total_qty = oh_total_qty
-
-        context['oh_total_qty'] = oh_total_qty
+ ##TODO make this a prop in models and look at aggregate vs annotate again
+        # oh_total_qty = self.get_object().transactions.filter(status=1).values('location__location').annotate(dsum=Sum('quantity')).order_by('location__id')
+        #
+        # if oh_total_qty is None:
+        #     oh_total_qty = 0
+        # else:
+        #     oh_total_qty = oh_total_qty
+        #
+        # context['oh_total_qty'] = oh_total_qty
 
         # context for _supplier.html
         context["random_sup"] = models.Supplier.objects.first()
@@ -244,12 +246,11 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         ]
 
         # context for _lending.html
+# TODO fix this with new model
         context["random_lend"] = models.Transaction.objects.first()
         context["lend_field_list"] = [
-            'lent_to',
             'quantity',
-            'date',
-            'return_date',
+            'comments',
         ]
 
         # context for _files.html
@@ -270,14 +271,15 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     field_list = [
         {"name": 'item', "class": "", "width": ""},
         {"name": 'quantity', "class": "", "width": ""},
-        {"name": 'status', "class": "", "width": ""},
-        {"name": 'date', "class": "", "width": ""},
-        {"name": 'lent_to', "class": "", "width": ""},
-        {"name": 'return_date', "class": "orange-font", "width": ""},
+        {"name": 'category', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
         {"name": 'audit', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'bin_id', "class": "", "width": ""},
         {"name": 'tag', "class": "", "width": ""},
+        {"name": 'created_at', "class": "", "width": ""},
+        {"name": 'created_by', "class": "", "width": ""},
+        {"name": 'updated_at', "class": "", "width": ""},
     ]
     home_url_name = "whalebrary:index"
     row_object_url_name = "whalebrary:transaction_detail"
@@ -302,8 +304,9 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
     def get_queryset(self, **kwargs):
         my_item = models.Item.objects.get(pk=self.kwargs.get('pk'))
         return my_item.transactions.all().annotate(
-        search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name',
-                           'return_date', 'audit__date', 'location__location', 'bin_id', 'tag__tag', output_field=TextField()))
+            search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'comments',
+                               'audit__date', 'location__location', 'bin_id', 'tag__tag',
+                               'created_at', 'created_by', 'updated_at', output_field=TextField()))
 
     def get_h1(self):
         item_name = models.Item.objects.get(pk=self.kwargs.get('pk'))
@@ -485,22 +488,22 @@ class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
     new_btn_text = "New Transaction"
 
     queryset = models.Transaction.objects.annotate(
-        search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name',
-                           'return_date', 'audit__date', 'location__location', 'bin_id', 'tag__tag', output_field=TextField()))
+        search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'comments',
+                           'audit__date', 'location__location', 'bin_id', 'tag__tag',
+                           'created_at', 'created_by', 'updated_at', output_field=TextField()))
 
     field_list = [
-        {"name": 'id', "class": "", "width": ""},
-        {"name": 'item', "class": "", "width": "100px"},
+        {"name": 'item', "class": "", "width": ""},
         {"name": 'quantity', "class": "", "width": ""},
-        {"name": 'status', "class": "", "width": "75px"},
-        {"name": 'date', "class": "", "width": "100px"},
-        {"name": 'lent_to', "class": "", "width": ""},
-        {"name": 'return_date', "class": "", "width": ""},
+        {"name": 'category', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
         {"name": 'audit', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'bin_id', "class": "", "width": ""},
         {"name": 'tag', "class": "", "width": ""},
-
+        {"name": 'created_at', "class": "", "width": ""},
+        {"name": 'created_by', "class": "", "width": ""},
+        {"name": 'updated_at', "class": "", "width": ""},
     ]
 
     def get_new_object_url(self):
@@ -513,14 +516,15 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
         'id',
         'item',
         'quantity',
-        'status',
-        'date',
-        'lent_to',
-        'return_date',
+        'category',
+        'comments',
         'audit',
         'location',
         'bin_id',
         'tag',
+        'created_at',
+        'created_by',
+        'updated_at',
 
     ]
     home_url_name = "whalebrary:index"
@@ -614,18 +618,14 @@ class BulkTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
     row_object_url_name = "whalebrary:transaction_detail"
 
     queryset = models.Transaction.objects.annotate(
-        search_term=Concat('id', 'item__item_name', 'quantity', 'status__name', 'date', 'lent_to__first_name',
-                           'return_date', 'location__location', 'bin_id',
+        search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'location__location', 'bin_id',
                            output_field=TextField()))
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'item', "class": "", "width": "100px"},
         {"name": 'quantity', "class": "", "width": ""},
-        {"name": 'status', "class": "", "width": "75px"},
-        {"name": 'date', "class": "", "width": "100px"},
-        {"name": 'lent_to', "class": "", "width": ""},
-        {"name": 'return_date', "class": "", "width": ""},
+        {"name": 'category', "class": "", "width": "75px"},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'bin_id', "class": "", "width": ""},
 
@@ -704,6 +704,7 @@ class PersonnelListView(WhalebraryAdminAccessRequired, CommonFilterView):
     def get_new_object_url(self):
         return reverse("whalebrary:personnel_new", kwargs=self.kwargs)
 
+
 class PersonnelDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
     model = models.Personnel
     field_list = [
@@ -720,6 +721,7 @@ class PersonnelDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Personnel List"), "url": reverse_lazy("whalebrary:personnel_list")}
     # container_class = "container-fluid"
+
 
 class PersonnelUpdateView(WhalebraryAdminAccessRequired, CommonUpdateView):
     model = models.Personnel
@@ -749,6 +751,7 @@ class PersonnelUpdateView(WhalebraryAdminAccessRequired, CommonUpdateView):
         del kwargs["pk"]
         return {"title": _("Personnel List"), "url": reverse("whalebrary:personnel_list", kwargs=kwargs)}
 
+
 class PersonnelCreateView(WhalebraryAdminAccessRequired, CommonCreateView):
     model = models.Personnel
     form_class = forms.PersonnelForm
@@ -776,6 +779,7 @@ class PersonnelDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
 
     ## SUPPLIER ##
 
+
 def add_supplier_to_item(request, supplier, item):
     """simple function to add supplier to item"""
     my_item = models.Item.objects.get(pk=item)
@@ -783,12 +787,14 @@ def add_supplier_to_item(request, supplier, item):
     my_item.suppliers.add(my_supplier)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
+
 def remove_supplier_from_item(request, supplier, item):
     """simple function to remove supplier from item"""
     my_item = models.Item.objects.get(pk=item)
     my_supplier = models.Supplier.objects.get(pk=supplier)
     my_item.suppliers.remove(my_supplier)
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+
 
 class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
     h1 = gettext_lazy("Please select a supplier to add to item")
@@ -799,6 +805,7 @@ class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
         context = super().get_context_data(**kwargs)
         context["suppliers"] = models.Supplier.objects.all()
         return context
+
 
 class SupplierListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
@@ -826,6 +833,7 @@ class SupplierListView(WhalebraryAccessRequired, CommonFilterView):
     def get_new_object_url(self):
         return reverse("whalebrary:supplier_new", kwargs=self.kwargs)
 
+
 class SupplierDetailView(WhalebraryAccessRequired, CommonDetailView):
     model = models.Supplier
 
@@ -844,6 +852,7 @@ class SupplierDetailView(WhalebraryAccessRequired, CommonDetailView):
     def get_parent_crumb(self):
         parent_crumb_url = ""
         return {"title": self.get_object(), "url": parent_crumb_url}
+
 
 class SupplierUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     model = models.Supplier
@@ -916,11 +925,13 @@ class SupplierDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("whalebrary:supplier_detail", kwargs=self.kwargs)}
 
+
 class SupplierDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.Supplier
     delete_protection = False
 
     ## ITEM FILE UPLOAD ##
+
 
 class FileListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/file_list.html"
@@ -1024,6 +1035,7 @@ class IncidentListView(WhalebraryAccessRequired, CommonFilterView):
     def get_new_object_url(self):
         return reverse("whalebrary:incident_new", kwargs=self.kwargs)
 
+
 class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     model = models.Incident
     field_list = [
@@ -1054,6 +1066,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     parent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
     # container_class = "container-fluid"
 
+
 class IncidentUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     model = models.Incident
     form_class = forms.IncidentForm
@@ -1082,6 +1095,7 @@ class IncidentUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
         del kwargs["pk"]
         return {"title": _("Incident List"), "url": reverse("whalebrary:incident_list", kwargs=kwargs)}
 
+
 class IncidentCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Incident
     form_class = forms.IncidentForm
@@ -1094,6 +1108,7 @@ class IncidentCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
         my_object = form.save()
         messages.success(self.request, _(f"Incident record successfully created for : {my_object}"))
         return super().form_valid(form)
+
 
 class IncidentDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     model = models.Incident
@@ -1165,12 +1180,12 @@ class ContainerSummaryListView(WhalebraryAccessRequired, CommonListView):
     field_list = [
         {"name": 'item', "class": "", "width": ""},
         {"name": 'quantity', "class": "", "width": ""},
-        {"name": 'status', "class": "", "width": ""},
-        {"name": 'date', "class": "", "width": ""},
-        {"name": 'lent_to', "class": "", "width": ""},
-        {"name": 'return_date', "class": "", "width": ""},
+        {"name": 'category', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
         {"name": 'audit', "class": "", "width": ""},
+        {"name": 'tag', "class": "", "width": ""},
     ]
+
 
 class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
     template_name = 'whalebrary/report_sized_item_summary.html'
@@ -1194,11 +1209,10 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
     field_list = [
         {"name": 'item', "class": "", "width": ""},
         {"name": 'quantity', "class": "", "width": ""},
-        {"name": 'status', "class": "", "width": ""},
-        {"name": 'date', "class": "", "width": ""},
-        {"name": 'lent_to', "class": "", "width": ""},
-        {"name": 'return_date', "class": "", "width": ""},
+        {"name": 'category', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
         {"name": 'audit', "class": "", "width": ""},
+        {"name": 'tag', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
         {"name": 'bin_id', "class": "", "width": ""},
     ]

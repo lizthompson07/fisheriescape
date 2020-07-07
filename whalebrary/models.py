@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 from lib.functions.custom_functions import nz
 import os
+from django.contrib.auth.models import User as AuthUser
 
 
 class Category(models.Model):
@@ -376,6 +377,7 @@ class Audit(models.Model):
         else:
             return "{}".format(self.date)
 
+
 class Tag(models.Model):
     tag = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("tag"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
@@ -389,15 +391,27 @@ class Tag(models.Model):
         else:
             return "{}".format(self.tag)
 
+
+class TransactionCategory(models.Model):
+    type = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("tag"))
+    description = models.CharField(max_length=255, null=True, verbose_name=_("description"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("type"))):
+
+            return "{}".format(getattr(self, str(_("type"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.type)
+
+
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
-    quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("status"))
-    date = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy", verbose_name=_("date"))
-    # for lent out status
-    lent_to = models.ForeignKey(Personnel, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="transactions", verbose_name=_("lent to"))
-    return_date = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy",
-                                       verbose_name=_("expected return date"))
+    quantity = models.PositiveIntegerField(null=True, blank=True, verbose_name=_("quantity"))
+    category = models.ForeignKey(TransactionCategory, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("transaction category"))
+    # can use for who lent to, etc
+    comments = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("comments"))
     # auditing
     audit = models.ManyToManyField(Audit, blank=True, verbose_name=_("audits"))
     # location of quantities taken/used/received
@@ -406,6 +420,10 @@ class Transaction(models.Model):
     bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
     # use "tag" field with M2M to track things of interest instead of "incident", "project code" etc.
     tag = models.ManyToManyField(Tag, blank=True, verbose_name=_("tags"))
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
 
     def __str__(self):
 
@@ -443,3 +461,21 @@ class Transaction(models.Model):
 
     def get_fullname(self):
         return self.item or self.id
+
+
+class Order(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="orders", verbose_name=_("item"))
+    quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
+    date_ordered = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy", verbose_name=_("date"))
+    date_received = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy", verbose_name=_("date"))
+    confirm_received = models.BooleanField(default=False, verbose_name=_("order received"))
+    transaction = models.OneToOneField(Transaction, on_delete=models.DO_NOTHING, related_name="orders", verbose_name=_("transaction"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("id"))):
+
+            return "{}".format(getattr(self, str(_("id"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.id)
