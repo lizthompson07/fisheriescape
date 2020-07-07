@@ -4,6 +4,7 @@ import os
 from copy import deepcopy
 
 from azure.storage.blob import BlockBlobService
+from decouple import config
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -48,6 +49,8 @@ def get_file(request, file):
         AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
         token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
         blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
+        # account_key = config("AZURE_STORAGE_SECRET_KEY", cast=str, default="")
+        # blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, account_key=account_key)
         blob_file = blobService.get_blob_to_bytes("media", blob_name)
         response = HttpResponse(blob_file.content, content_type='application/zip')
         response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
