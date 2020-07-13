@@ -45,3 +45,18 @@ class URLTest(TestCase):
 
     def test_req_update_pop_url(self):
         self.assert_basic_url('csas:update_req', 'csas/request/update/1/pop/', views.RequestUpdate, [1, 'pop'])
+
+    # Test that the URL for the view exists
+    def test_coh_list_url(self):
+        # test the CohHonorific url
+        self.assert_basic_url('csas:list_coh', 'csas/lookup/coh/', views.CohList)
+
+    # Test that the URL for the view exists
+    def test_coh_create_url(self):
+        # test the CohHonorific url
+        self.assert_basic_url('csas:create_coh', 'csas/create/coh/pop/', views.CreateCohView, ['pop'])
+
+    # Test that the URL for the view exists
+    def test_coh_update_url(self):
+        # test the CohHonorific url
+        self.assert_basic_url('csas:update_coh', 'csas/update/coh/1/pop/', views.UpdateCohView, [1, 'pop'])

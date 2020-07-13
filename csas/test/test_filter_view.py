@@ -4,8 +4,8 @@ from django.contrib.auth.models import AnonymousUser
 
 from shared_models import views as shared_views
 
-from csas.test import csas_common_test as cct
-from csas.views import CsasListCommon
+from csas.test import csas_common_test as cct, test_urls as urt
+from csas.views import CsasListCommon, CohList
 
 from csas import models
 
@@ -84,3 +84,24 @@ class CommonListTest(cct.CommonTestCase):
 
         # should be true with a csas user logged in
         self.assertTrue(context['auth'])
+
+
+# Used for testing listing values from models extending the Lookup model
+class CommonCohListTest(cct.CommonTestCase):
+
+    def setUp(self) -> None:
+        self.view = CohList()
+
+    # Make sure the view is extending the expected classes
+    def test_Coh_list_extends(self):
+        self.assertIsInstance(self.view, CohList)
+
+    # Test that given a key the lookup view will return the proper model
+    def test_Coh_list_get_model(self):
+        # have to initialize the view as though Django did it.
+        req_factory = RequestFactory()
+        request = req_factory.get(reverse_lazy("csas:list_coh"))
+
+        view = cct.setup_view(self.view, request)
+
+        self.assertIs(view.model, models.CohHonorific)
