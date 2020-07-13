@@ -149,7 +149,8 @@ class ItemListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'category', "class": "red-font", "width": ""},
         {"name": 'gear_type', "class": "", "width": ""},
         {"name": 'suppliers', "class": "", "width": ""},
-        {"name": 'testname', "class": "", "width": ""},
+        {"name": 'total_oh_quantity|{}'.format(gettext_lazy("Total on hand quantity")), "class": "", "width": ""},
+
     ]
 
     def get_new_object_url(self):
@@ -171,16 +172,6 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Item List"), "url": reverse_lazy("whalebrary:item_list")}
 
-    # define a request _quantity.html file -- new location-based summary of totals
-
-    # def test(self, request):
-    #     oh_total_qty = self.get_object().transactions.filter(status=1).values('location__id').annotate(Sum('quantity')).order_by('location__id')
-    #     if oh_total_qty is None:
-    #         oh_total_qty = 0
-    #     else:
-    #         oh_total_qty = oh_total_qty
-    #     return render(request, '_quantity.html', {'oh_total_qty': oh_total_qty})
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -193,32 +184,8 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
             'bin_id',
         ]
 
-        # now when you create a new item you get this error:   context['quantity_avail'] = ohqty - lentqty
-        # TypeError: unsupported operand type(s) for -: 'NoneType' and 'NoneType' -- have to add a case where there is
-        # no info yet in those fields? -- fixed it I think~!!! WOOOOH
-
 # TODO need to update this now with model changes
-        # ohqty = self.get_object().transactions.filter(status=1).aggregate(dsum=Sum('quantity')).get('dsum')
-        # lentqty = self.get_object().transactions.filter(status=3).aggregate(dsum=Sum('quantity')).get('dsum')
-        # usedqty = self.get_object().transactions.filter(status=4).aggregate(dsum=Sum('quantity')).get('dsum')
-        #
-        # if ohqty is None:
-        #     ohqty = 0
-        # else:
-        #     ohqty = ohqty
-        #
-        # if lentqty is None:
-        #     lentqty = 0
-        # else:
-        #     lentqty = lentqty
-        #
-        # if usedqty is None:
-        #     usedqty = 0
-        # else:
-        #     usedqty = usedqty
-        #
-        # context['quantity_avail'] = ohqty - lentqty - usedqty
-        #
+
         # # Trying to get quantities by location
         #
         # context["oh_qty_field_list"] = [
@@ -242,6 +209,16 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
             'supplier_name',
             'contact_number',
             'email',
+
+        ]
+
+        # context for _order.html
+        context["random_ord"] = models.Order.objects.first()
+        context["ord_field_list"] = [
+            'id',
+            'quantity',
+            'date_ordered',
+            'date_received',
 
         ]
 
@@ -674,6 +651,136 @@ class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView)
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Item Quantities and Statuses"), "url": reverse_lazy("whalebrary:bulk_transaction_list")}
 
+    ## ORDER ##
+
+class OrderListView(WhalebraryAccessRequired, CommonFilterView):
+    template_name = "whalebrary/list.html"
+    h1 = "Order List"
+    filterset_class = filters.OrderFilter
+    home_url_name = "whalebrary:index"
+    row_object_url_name = "whalebrary:order_detail"
+    new_btn_text = "New Order"
+
+    queryset = models.Order.objects.annotate(
+        search_term=Concat('id', 'item__item_name', 'quantity', 'date_ordered', 'date_received', 'confirm_received', 'transaction__id',
+                           output_field=TextField()))
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'item', "class": "", "width": ""},
+        {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'date_ordered', "class": "", "width": ""},
+        {"name": 'date_received', "class": "", "width": ""},
+        {"name": 'confirm_received', "class": "", "width": ""},
+        {"name": 'transaction', "class": "", "width": ""},
+
+    ]
+
+    def get_new_object_url(self):
+        return reverse("whalebrary:order_new", kwargs=self.kwargs)
+
+
+class OrderDetailView(WhalebraryAccessRequired, CommonDetailView):
+    model = models.Order
+    field_list = [
+        'id',
+        'item',
+        'quantity',
+        'date_ordered',
+        'date_received',
+        'confirm_received',
+        'transaction',
+
+    ]
+    home_url_name = "whalebrary:index"
+
+    def get_h1(self):
+        order_num = models.Order.objects.get(pk=self.kwargs.get('pk'))
+        h1 = _("Order # ") + f' {str(order_num)}'
+        return h1
+
+    def get_parent_crumb(self):
+        parent_crumb_url = ""
+        return {"title": self.get_object(), "url": parent_crumb_url}
+
+
+class OrderUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
+    model = models.Order
+    form_class = forms.OrderForm
+    home_url_name = "whalebrary:index"
+    template_name = "whalebrary/form.html"
+    cancel_text = _("Cancel")
+
+    def get_active_page_name_crumb(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_h1(self):
+        my_object = self.get_object()
+        return my_object
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()),
+                "url": reverse_lazy("whalebrary:order_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        return {"title": _("Order List"), "url": reverse("whalebrary:order_list")}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Order record successfully updated for : {my_object}"))
+        return HttpResponseRedirect(reverse("whalebrary:order_detail", kwargs=self.kwargs))
+
+
+class OrderUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
+    model = models.Order
+    form_class = forms.OrderForm1
+
+
+class OrderCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Order
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Order List"), "url": reverse_lazy("whalebrary:order_list")}
+
+    def get_template_names(self):
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+
+    def get_form_class(self):
+        return forms.OrderForm1 if self.kwargs.get("pk") else forms.OrderForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Order record successfully created for : {my_object}"))
+
+        # if there's a pk argument, this means user is calling from item_detail page and
+        if self.kwargs.get("pk"):
+            my_item = models.Item.objects.get(pk=self.kwargs.get("pk"))
+            my_item.orders.add(my_object)
+            return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('whalebrary:order_list'))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk')}
+
+
+class OrderDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
+    model = models.Order
+    permission_required = "__all__"
+    success_url = reverse_lazy('whalebrary:order_list')
+    template_name = 'whalebrary/confirm_delete.html'
+    home_url_name = "whalebrary:index"
+    grandparent_crumb = {"title": gettext_lazy("Order List"), "url": reverse_lazy("whalebrary:order_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("whalebrary:order_detail", kwargs=self.kwargs)}
+
+
+class OrderDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
+    model = models.Order
+    delete_protection = False
+
+
     ## PERSONNEL ##
 
 
@@ -788,14 +895,6 @@ def add_supplier_to_item(request, supplier, item):
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
-def remove_supplier_from_item(request, supplier, item):
-    """simple function to remove supplier from item"""
-    my_item = models.Item.objects.get(pk=item)
-    my_supplier = models.Supplier.objects.get(pk=supplier)
-    my_item.suppliers.remove(my_supplier)
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-
-
 class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
     h1 = gettext_lazy("Please select a supplier to add to item")
     form_class = forms.IncidentForm  # just a temp placeholder until we create a CommonPopoutTemplateView
@@ -805,6 +904,14 @@ class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
         context = super().get_context_data(**kwargs)
         context["suppliers"] = models.Supplier.objects.all()
         return context
+
+
+def remove_supplier_from_item(request, supplier, item):
+    """simple function to remove supplier from item"""
+    my_item = models.Item.objects.get(pk=item)
+    my_supplier = models.Supplier.objects.get(pk=supplier)
+    my_item.suppliers.remove(my_supplier)
+    return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
 class SupplierListView(WhalebraryAccessRequired, CommonFilterView):
@@ -929,6 +1036,7 @@ class SupplierDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 class SupplierDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.Supplier
     delete_protection = False
+
 
     ## ITEM FILE UPLOAD ##
 

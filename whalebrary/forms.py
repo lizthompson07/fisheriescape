@@ -5,6 +5,7 @@ from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
+attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 
 class ItemForm(forms.ModelForm):
     class Meta:
@@ -35,6 +36,27 @@ class TransactionForm1(forms.ModelForm):
 
         }
 
+class OrderForm(forms.ModelForm):
+    class Meta:
+        model = models.Order
+        fields = "__all__"
+        widgets = {
+            'date_ordered': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'date_received': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+
+        }
+
+class OrderForm1(forms.ModelForm):
+    class Meta:
+        model = models.Order
+        fields = "__all__"
+        widgets = {
+            'item': forms.HiddenInput(),
+            'date_ordered': forms.DateInput(
+                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'date_received': forms.DateInput(
+                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+        }
 
 class LocationForm(forms.ModelForm):
     class Meta:

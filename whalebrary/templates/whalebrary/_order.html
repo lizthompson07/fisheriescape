@@ -1,0 +1,75 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load verbose_names %}
+{% load custom_filters %}
+
+<div class="">
+    <h3>
+        {% trans "Active orders:" %}
+    </h3>
+    <div class="btn-group">
+        <h3>
+        <span class="badge badge-info">
+        {% trans "Quantity Currently Available:" %}
+            {{ order.active_orders }}
+<!--figure out how to add a bit more space inside nested span between -->
+                <a class="badge badge-danger" href="{% url 'whalebrary:order_list' %}">List</a>
+       </span>
+       </h3>
+       </div>
+</div>
+
+{% if object.orders.count == 0 %}
+    <em>
+        {% trans "No orders have been made for this entry" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            {% for field in ord_field_list %}
+            <th>
+
+            {% get_verbose_label random_ord field %}
+            </th>
+            {% endfor %}
+        </tr>
+        <tbody>
+        {% for obj in object.orders.all %}
+            <tr>
+            {% for field in ord_field_list %}
+                {% if field == "id" %}
+                    <td>
+                        <a href="{% url 'whalebrary:order_detail' obj.id %}">{{obj.id}}</a>
+                     </td>
+                {% else %}
+                    <td>
+                    {% get_field_value obj field %}
+                    </td>
+                {% endif %}
+            {% endfor %}
+            <td>
+                <a href="#"
+                   pop-href="{% url 'whalebrary:order_edit' obj.id 1 %}">
+                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                   pop-href="{% url 'whalebrary:order_delete' obj.id 1 %}">
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                </a>
+            </td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+{% endif %}
+<a class="" href="#" pop-href="{% url 'whalebrary:order_new' object.id %}">
+    {% trans "(Add Order)" %}
+</a>
+<br>
+<br>
+<br>

@@ -12,7 +12,7 @@
         <h3>
         <span class="badge badge-info">
         {% trans "Quantity Currently Available:" %}
-            {{ quantity_avail }}
+            {{ item.total_oh_quantity }}
 <!--figure out how to add a bit more space inside nested span between -->
                 <a class="badge badge-danger" href="{% url 'whalebrary:item_transaction_detail' object.id %}">Details</a>
        </span>
@@ -61,13 +61,6 @@
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
                 </a>
             </td>
-<!--            <td>-->
-<!--                <a href="#"-->
-<!--                   pop-href="{% url 'whalebrary:location_detail' obj.location.id %}">-->
-<!--                    <img src="{% static "/admin/img/icon-viewlink.svg" %}" data-toggle="tooltip" title="Location">-->
-<!--                </a>-->
-<!--            </td>-->
-
             </tr>
         {% endfor %}
 
@@ -80,6 +73,7 @@
 <br>
 <br>
 <br>
+
 
 {{ oh_total_qty }}
 <table class="table table-hover table-sm" style="width: auto">

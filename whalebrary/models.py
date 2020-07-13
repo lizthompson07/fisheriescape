@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.urls import reverse
 from django.utils import timezone
 from django.dispatch import receiver
@@ -52,6 +52,7 @@ class Owner(models.Model):
         else:
             return "{}".format(self.name)
 
+
 class Size(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("size"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("taille"))
@@ -64,6 +65,7 @@ class Size(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             return "{}".format(self.name)
+
 
 class Supplier(models.Model):
     supplier_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("supplier"))
@@ -84,6 +86,7 @@ class Supplier(models.Model):
 
     def get_absolute_url(self):
         return reverse("whalebrary:supplier_detail", kwargs={"pk": self.id})
+
 
 class Item(models.Model):
     item_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("name of item"))
@@ -120,13 +123,26 @@ class Item(models.Model):
 
     @property
     def lent_out_quantities(self):
-        """find all status=3 (lent out) transactions"""
-        return self.transactions.filter(status=3)
+        """find all category=3 (lent out) transactions"""
+        return self.transactions.filter(category=3)
         # same as:
         # return Transaction.objects.filter(item=self, statuses=3)
 
+    @property
+    def total_oh_quantity(self):
+        """find total quantity for item regardless of location"""
+        object_list = self.transactions.filter(category=1)
+        purchase_qty = sum([item.quantity for item in object_list])
+
+        object_list2 = self.transactions.filter(Q(category=2) | Q(category=3))
+        removed_quantity = sum([item.quantity for item in object_list2])
+
+        oh_total_quantity = purchase_qty - removed_quantity
+        return oh_total_quantity
+
     def get_absolute_url(self):
         return reverse("whalebrary:item_detail", kwargs={"pk": self.id})
+
 
 class Location(models.Model):
     location = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("location"))
@@ -424,7 +440,6 @@ class Transaction(models.Model):
     created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
 
-
     def __str__(self):
 
         # check to see if a french value is given
@@ -466,10 +481,10 @@ class Transaction(models.Model):
 class Order(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="orders", verbose_name=_("item"))
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
-    date_ordered = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy", verbose_name=_("date"))
-    date_received = models.DateTimeField(blank=True, null=True, help_text="Format: mm/dd/yyyy", verbose_name=_("date"))
+    date_ordered = models.DateTimeField(blank=True, null=True, verbose_name=_("order date"))
+    date_received = models.DateTimeField(blank=True, null=True, verbose_name=_("received date"))
     confirm_received = models.BooleanField(default=False, verbose_name=_("order received"))
-    transaction = models.OneToOneField(Transaction, on_delete=models.DO_NOTHING, related_name="orders", verbose_name=_("transaction"))
+    transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="orders", verbose_name=_("transaction"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -479,3 +494,8 @@ class Order(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             return "{}".format(self.id)
+
+    @property
+    def active_orders(self):
+        """find all order that have not been received"""
+        return self.Order.filter(confirm_received=0)

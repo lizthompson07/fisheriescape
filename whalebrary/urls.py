@@ -17,8 +17,8 @@ urlpatterns = [
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
-#     # ITEMS #
-#     ###########
+    # ITEMS #
+
     path('item_list/', views.ItemListView.as_view(), name="item_list"),
     path('item/<int:pk>/transaction-list/', views.ItemTransactionListView.as_view(),
          name="item_transaction_detail"),
@@ -42,13 +42,24 @@ urlpatterns = [
     path('transaction/<int:pk>/delete/pop/<int:pop>/', views.TransactionDeletePopoutView.as_view(), name="transaction_delete"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="transaction_delete"),
 
-# BULK TRANSACTIONS #
+    # BULK TRANSACTIONS #
 
     path('bulk_transaction_list/', views.BulkTransactionListView.as_view(), name="bulk_transaction_list"),
     # path('bulk_transaction_detail/<int:pk>/view/', views.BulkTransactionDetailView.as_view(), name="bulk_transaction_detail"),
     path('bulk_transaction/<int:pk>/delete/', views.BulkTransactionDeleteView.as_view(), name="bulk_transaction_delete"),
 
-# LOCATION #
+    # ORDER #
+
+    path('order_list/', views.OrderListView.as_view(), name="order_list"),
+    path('order_detail/<int:pk>/view/', views.OrderDetailView.as_view(), name="order_detail"),
+    path('order/new/', views.OrderCreateView.as_view(), name="order_new"),
+    path('item/<int:pk>/order/new/', views.OrderCreateView.as_view(), name="order_new"),
+    path('order/<int:pk>/edit/', views.OrderUpdateView.as_view(), name="order_edit"),
+    path('order/<int:pk>/edit/pop/<int:pop>/', views.OrderUpdatePopoutView.as_view(), name="order_edit"),
+    path('order/<int:pk>/delete/pop/<int:pop>/', views.OrderDeletePopoutView.as_view(), name="order_delete"),
+    path('order/<int:pk>/delete/', views.OrderDeleteView.as_view(), name="order_delete"),
+
+    # LOCATION #
 
     path('location_list/', views.LocationListView.as_view(), name="location_list"),
     path('location_detail/<int:pk>/view/', views.LocationDetailView.as_view(), name="location_detail"),
@@ -56,7 +67,7 @@ urlpatterns = [
     path('location/<int:pk>/edit/', views.LocationUpdateView.as_view(), name="location_edit"),
     path('location/<int:pk>/delete/', views.LocationDeleteView.as_view(), name="location_delete"),
 
-# PERSONNEL #
+    # PERSONNEL #
 
     path('personnel_list/', views.PersonnelListView.as_view(), name="personnel_list"),
     path('personnel_detail/<int:pk>/view/', views.PersonnelDetailView.as_view(), name="personnel_detail"),
@@ -64,7 +75,7 @@ urlpatterns = [
     path('personnel/<int:pk>/edit/', views.PersonnelUpdateView.as_view(), name="personnel_edit"),
     path('personnel/<int:pk>/delete/', views.PersonnelDeleteView.as_view(), name="personnel_delete"),
 
-# SUPPLIER #
+    # SUPPLIER #
 
     path('supplier_list/', views.SupplierListView.as_view(), name="supplier_list"),
     path('supplier_detail/<int:pk>/view/', views.SupplierDetailView.as_view(), name="supplier_detail"),
@@ -75,7 +86,7 @@ urlpatterns = [
     path('supplier/<int:pk>/delete/pop/<int:pop>/', views.SupplierDeletePopoutView.as_view(), name="supplier_delete"),
     path('supplier/<int:pk>/delete/', views.SupplierDeleteView.as_view(), name="supplier_delete"),
 
-# ITEM FILES #
+    # ITEM FILES #
 
     path('file_list/', views.FileListView.as_view(), name="file_list"),
     path('item/<int:item>/file/new/', views.FileCreateView.as_view(), name="file_new"),
@@ -84,7 +95,7 @@ urlpatterns = [
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name="file_delete"),
 
 
-# INCIDENT #
+    # INCIDENT #
 
     path('incident_list/', views.IncidentListView.as_view(), name="incident_list"),
     path('incident_detail/<int:pk>/view/', views.IncidentDetailView.as_view(), name="incident_detail"),
@@ -92,7 +103,7 @@ urlpatterns = [
     path('incident/<int:pk>/edit/', views.IncidentUpdateView.as_view(), name="incident_edit"),
     path('incident/<int:pk>/delete/', views.IncidentDeleteView.as_view(), name="incident_delete"),
 
-# REPORTS #
+    # REPORTS #
 
     path('reports/generator/', views.ReportGeneratorFormView.as_view(), name="report_generator"),
     path('reports/generator/<int:report_number>/', views.ReportGeneratorFormView.as_view(), name="report_generator"),
