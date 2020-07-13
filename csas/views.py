@@ -808,6 +808,51 @@ class PublicationDetailsComResults(DetailsCommon):
 
 
 # ----------------------------------------------------------------------------------------------------
+# Lookup model views
+# ----------------------------------------------------------------------------------------------------
+class CsasLookupList(CsasListCommon):
+    fields = ['id', 'name', 'nom']
+
+    def get_context_data(self, *args, object_list=None, **kwargs):
+        context = super().get_context_data(*args, object_list, **kwargs)
+        context['details_url'] = None
+        if self.key:
+            if self.key == 'coh':
+                context['update_url'] = 'csas:update_coh'
+                context['create_url'] = 'csas:create_coh'
+
+        context['pop'] = True
+
+        return context
+
+
+class CohMixin():
+    key = 'coh'
+    model = models.CohHonorific
+    title = _("Honorific")
+    fields = ['name', 'nom', 'description_en', 'description_fr']
+
+
+class CohList(CohMixin, CsasLookupList):
+    pass
+
+
+class UpdateCohView(CohMixin, CsasUpdateCommon):
+
+    def get_success_url(self):
+        if "pop" in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:list_coh')
+
+
+class CreateCohView(CohMixin, CsasCreateCommon):
+
+    def get_success_url(self):
+        if "pop" in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:list_coh')
+
+# ----------------------------------------------------------------------------------------------------
 
 
 class CommonLookup(CreateView):
@@ -816,8 +861,10 @@ class CommonLookup(CreateView):
     success_url = reverse_lazy('csas:close_me')
 
 
-class HonorificView(CommonLookup):
+class HonorificView(CsasCreateCommon):
     model = models.CohHonorific
+
+
 
 
 class LanguageView(CommonLookup):

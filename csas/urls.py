@@ -107,8 +107,15 @@ urlpatterns = [
     path('contacts/details/<int:pk>/',             views.ContactDetails.as_view(),     name="details_con"),
 
     path('close/',                                 views.CloserTemplateView.as_view(), name="close_me"),
-    path('create/honorific/',                      views.HonorificView.as_view(),      name="create_coh"),
-    path('create/language/',                       views.LanguageView.as_view(),       name="create_lan")
+    # path('create/honorific/',                      views.HonorificView.as_view(),      name="create_coh"),
+    path('create/language/',                       views.LanguageView.as_view(),       name="create_lan"),
+
+    # --------------------------------------------------------------------------------------------- #
+    # Lookup URLs
+    # --------------------------------------------------------------------------------------------- #
+    path('lookup/coh/', views.CohList.as_view(), name="list_coh"),
+    path('create/coh/<str:pop>/', views.CreateCohView.as_view(), name="create_coh"),
+    path('update/coh/<int:pk>/<str:pop>/', views.UpdateCohView.as_view(), name="update_coh"),
 
     # path('search/', views.SearchFormView.as_view(), name="sample_search"),
     # path('dataflow/', views.DataFlowTemplateView.as_view(), name ="dataflow" ),
