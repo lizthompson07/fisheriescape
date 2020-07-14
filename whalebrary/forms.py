@@ -54,8 +54,8 @@ class OrderForm1(forms.ModelForm):
             'item': forms.HiddenInput(),
             'date_ordered': forms.DateInput(
                 attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
-            'date_received': forms.DateInput(
-                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'date_received': forms.HiddenInput(),
+            'transaction': forms.HiddenInput(),
         }
 
 class LocationForm(forms.ModelForm):

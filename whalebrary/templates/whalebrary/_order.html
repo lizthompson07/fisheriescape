@@ -10,11 +10,8 @@
     </h3>
     <div class="btn-group">
         <h3>
-        <span class="badge badge-info">
-        {% trans "Quantity Currently Available:" %}
-            {{ order.active_orders }}
-<!--figure out how to add a bit more space inside nested span between -->
-                <a class="badge badge-danger" href="{% url 'whalebrary:order_list' %}">List</a>
+        <span class="badge badge-warning">
+            <a class="" href="#" pop-href="{% url 'whalebrary:order_new' object.id %}">{% trans "Create New Order" %}</a>
        </span>
        </h3>
        </div>
@@ -42,7 +39,11 @@
                 {% if field == "id" %}
                     <td>
                         <a href="{% url 'whalebrary:order_detail' obj.id %}">{{obj.id}}</a>
-                     </td>
+                    </td>
+                {% elif field == "cost" %}
+                    <td>
+                        {% get_field_value obj field format="currency" nullmark="n/a"%}
+                    </td>
                 {% else %}
                     <td>
                     {% get_field_value obj field %}
@@ -51,14 +52,8 @@
             {% endfor %}
             <td>
                 <a href="#"
-                   pop-href="{% url 'whalebrary:order_edit' obj.id 1 %}">
-                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
-                </a>
-            </td>
-            <td>
-                <a href="#"
-                   pop-href="{% url 'whalebrary:order_delete' obj.id 1 %}">
-                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                   pop-href="{% url 'whalebrary:order_list' %}">
+                    <img src="{% static "/admin/img/icon-unknown.svg" %}" data-toggle="tooltip" title="Mark received">
                 </a>
             </td>
             </tr>
@@ -67,9 +62,6 @@
         </tbody>
     </table>
 {% endif %}
-<a class="" href="#" pop-href="{% url 'whalebrary:order_new' object.id %}">
-    {% trans "(Add Order)" %}
-</a>
 <br>
 <br>
 <br>

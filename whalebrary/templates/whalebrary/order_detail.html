@@ -18,7 +18,11 @@
             <div class="col-3">
                 <table class="table table-sm table-striped">
                     {% for field in field_list %}
-                        {% verbose_td_display object field %}
+                        {% if field == "cost" %}
+                            {% verbose_td_display object field format="currency" nullmark="n/a"%}
+                        {% else %}
+                            {% verbose_td_display object field %}
+                        {% endif %}
                     {% endfor %}
                 </table>
         </div>
@@ -26,3 +30,4 @@
 
 
 {% endblock %}
+

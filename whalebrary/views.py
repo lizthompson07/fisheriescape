@@ -156,6 +156,7 @@ class ItemListView(WhalebraryAccessRequired, CommonFilterView):
     def get_new_object_url(self):
         return reverse("whalebrary:item_new", kwargs=self.kwargs)
 
+
 class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
     model = models.Item
     field_list = [
@@ -181,27 +182,15 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
             'quantity',
             'category',
             'location',
-            'bin_id',
+
         ]
 
-# TODO need to update this now with model changes
-
-        # Trying to get quantities by location
+        # context for location specific info on _quantity.html
 
         context["oh_qty_field_list"] = [
             'location',
             'quantity',
         ]
-
- ##TODO make this a prop in models and look at aggregate vs annotate again
-        # oh_total_qty = self.get_object().transactions.filter(status=1).values('location__location').annotate(dsum=Sum('quantity')).order_by('location__id')
-        #
-        # if oh_total_qty is None:
-        #     oh_total_qty = 0
-        # else:
-        #     oh_total_qty = oh_total_qty
-        #
-        # context['oh_total_qty'] = oh_total_qty
 
         # context for _supplier.html
         context["random_sup"] = models.Supplier.objects.first()
@@ -217,6 +206,7 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         context["ord_field_list"] = [
             'id',
             'quantity',
+            'cost',
             'date_ordered',
             'date_received',
 
@@ -227,6 +217,7 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         context["random_lend"] = models.Transaction.objects.first()
         context["lend_field_list"] = [
             'quantity',
+            'location',
             'comments',
         ]
 
@@ -252,7 +243,6 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'audit', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
-        {"name": 'bin_id', "class": "", "width": ""},
         {"name": 'tag', "class": "", "width": ""},
         {"name": 'created_at', "class": "", "width": ""},
         {"name": 'created_by', "class": "", "width": ""},
@@ -282,7 +272,7 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
         my_item = models.Item.objects.get(pk=self.kwargs.get('pk'))
         return my_item.transactions.all().annotate(
             search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'comments',
-                               'audit__date', 'location__location', 'bin_id', 'tag__tag',
+                               'audit__date', 'location__location', 'tag__tag',
                                'created_at', 'created_by', 'updated_at', output_field=TextField()))
 
     def get_h1(self):
@@ -373,6 +363,7 @@ class LocationListView(WhalebraryAdminAccessRequired, CommonFilterView):
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
+        {"name": 'bin_id', "class": "", "width": ""},
         {"name": 'address', "class": "", "width": ""},
         {"name": 'container', "class": "", "width": ""},
         {"name": 'container_space', "class": "", "width": ""},
@@ -388,6 +379,7 @@ class LocationDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
     field_list = [
         'id',
         'location',
+        'bin_id',
         'address',
         'container',
         'container_space',
@@ -454,6 +446,17 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
 
     ##TRANSACTION##
 
+#TODO finish this logic and add proper url and link in _lending.html
+
+# def lending_return_item(request, item, transaction):
+#     """simple function to mark order received and create transaction"""
+#     my_item = models.Item.objects.get(pk=item)
+#     my_transaction = models.Transaction.objects.get(pk=transaction)
+#     """
+#     logic needed: on clicking it should:
+#     1) return the item to inventory -- but how do I want this to happen? just change category from 'lend' to 'purchase' or do I need another category? 'return'
+#     """
+#     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
@@ -466,7 +469,7 @@ class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
 
     queryset = models.Transaction.objects.annotate(
         search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'comments',
-                           'audit__date', 'location__location', 'bin_id', 'tag__tag',
+                           'audit__date', 'location__location', 'tag__tag',
                            'created_at', 'created_by', 'updated_at', output_field=TextField()))
 
     field_list = [
@@ -476,7 +479,6 @@ class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'audit', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
-        {"name": 'bin_id', "class": "", "width": ""},
         {"name": 'tag', "class": "", "width": ""},
         {"name": 'created_at', "class": "", "width": ""},
         {"name": 'created_by', "class": "", "width": ""},
@@ -497,7 +499,6 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
         'comments',
         'audit',
         'location',
-        'bin_id',
         'tag',
         'created_at',
         'created_by',
@@ -595,7 +596,7 @@ class BulkTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
     row_object_url_name = "whalebrary:transaction_detail"
 
     queryset = models.Transaction.objects.annotate(
-        search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'location__location', 'bin_id',
+        search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'location__location',
                            output_field=TextField()))
 
     field_list = [
@@ -604,7 +605,6 @@ class BulkTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'quantity', "class": "", "width": ""},
         {"name": 'category', "class": "", "width": "75px"},
         {"name": 'location', "class": "", "width": ""},
-        {"name": 'bin_id', "class": "", "width": ""},
 
     ]
 
@@ -653,8 +653,22 @@ class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView)
 
     ## ORDER ##
 
+#TODO finish this logic and add proper url and link in _order.html
+
+# def mark_order_received(request, order, item, transaction):
+#     """simple function to mark order received and create transaction"""
+#     my_item = models.Item.objects.get(pk=item)
+#     my_order = models.Order.objects.get(pk=order)
+#     """
+#     logic needed: on clicking it should:
+#     1) change received_date=datetime.datetime.now()
+#     2) create a transaction with the relevant details and category=1 -- 2b) need this to popup a form to populate?
+#     3) change the icon on the item_detail page to /admin/img/icon-yes.svg
+#     """
+#     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
 class OrderListView(WhalebraryAccessRequired, CommonFilterView):
-    template_name = "whalebrary/list.html"
+    template_name = "whalebrary/order_list.html"
     h1 = "Order List"
     filterset_class = filters.OrderFilter
     home_url_name = "whalebrary:index"
@@ -662,16 +676,16 @@ class OrderListView(WhalebraryAccessRequired, CommonFilterView):
     new_btn_text = "New Order"
 
     queryset = models.Order.objects.annotate(
-        search_term=Concat('id', 'item__item_name', 'quantity', 'date_ordered', 'date_received', 'confirm_received', 'transaction__id',
+        search_term=Concat('id', 'item__item_name', 'quantity', 'cost', 'date_ordered', 'date_received', 'transaction__id',
                            output_field=TextField()))
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'item', "class": "", "width": ""},
         {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'cost', "class": "", "width": ""},
         {"name": 'date_ordered', "class": "", "width": ""},
         {"name": 'date_received', "class": "", "width": ""},
-        {"name": 'confirm_received', "class": "", "width": ""},
         {"name": 'transaction', "class": "", "width": ""},
 
     ]
@@ -686,9 +700,9 @@ class OrderDetailView(WhalebraryAccessRequired, CommonDetailView):
         'id',
         'item',
         'quantity',
+        'cost',
         'date_ordered',
         'date_received',
-        'confirm_received',
         'transaction',
 
     ]
@@ -1322,7 +1336,6 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
         {"name": 'audit', "class": "", "width": ""},
         {"name": 'tag', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
-        {"name": 'bin_id', "class": "", "width": ""},
     ]
 
 

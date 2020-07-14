@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Sum, Q, Count
@@ -148,7 +150,7 @@ class Item(models.Model):
     @property
     def oh_quantity_by_location(self):
         """find total quantity available for item at each location"""
-        location_list = self.transactions.all().values("location").distinct()
+        location_list = self.transactions.all().values("location").distinct().order_by("location")
         my_dict = dict()
         for l in location_list:
             location = Location.objects.get(pk=l["location"])
@@ -161,6 +163,7 @@ class Item(models.Model):
 
 class Location(models.Model):
     location = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("location"))
+    bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
     address = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("address"))
     container = models.BooleanField(default=False,
                                     verbose_name=_("is this item a container with more items inside it?"))
@@ -171,10 +174,18 @@ class Location(models.Model):
         # check to see if a french value is given
         if getattr(self, str(_("location"))):
 
-            return "{}".format(getattr(self, str(_("location"))))
+            my_str = "{}".format(getattr(self, str(_("location"))))
         # if there is no translated term, just pull from the english field
         else:
-            return "{}".format(self.location)
+            my_str = "{}".format(self.location)
+
+        if self.bin_id:
+            my_str += f' (bin # {self.bin_id})'
+        return my_str
+
+    @property
+    def binlocation(self):
+        return str(self)
 
     def get_absolute_url(self):
         return reverse("whalebrary:location_detail", kwargs={"pk": self.id})
@@ -449,7 +460,6 @@ class Transaction(models.Model):
     # location of quantities taken/used/received
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("location stored"))
-    bin_id = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("bin id"))
     # use "tag" field with M2M to track things of interest instead of "incident", "project code" etc.
     tag = models.ManyToManyField(Tag, blank=True, verbose_name=_("tags"))
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -496,9 +506,9 @@ class Transaction(models.Model):
 class Order(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="orders", verbose_name=_("item"))
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
-    date_ordered = models.DateTimeField(blank=True, null=True, verbose_name=_("order date"))
+    cost = models.FloatField(blank=True, null=True, verbose_name=_("order cost"))
+    date_ordered = models.DateTimeField(default=datetime.now(), verbose_name=_("order date"))
     date_received = models.DateTimeField(blank=True, null=True, verbose_name=_("received date"))
-    confirm_received = models.BooleanField(default=False, verbose_name=_("order received"))  # remove this, or make javascript
     transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="orders",
                                        verbose_name=_("transaction"))
 
@@ -514,4 +524,4 @@ class Order(models.Model):
     @property
     def active_orders(self):
         """find all order that have not been received"""
-        return self.orders.filter(confirm_received=False).count()
+        return self.orders.filter(date_received=0).count()

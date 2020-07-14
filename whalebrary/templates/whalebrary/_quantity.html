@@ -6,7 +6,7 @@
 
 <div class="">
   <h3>
-    {% trans "Transaction Snapshot:" %}
+    {% trans "Storage Snapshot:" %}
   </h3>
   <div class="btn-group">
     <h3>
@@ -38,7 +38,9 @@
     <tbody>
     {% for location in item.oh_quantity_by_location %}
       <tr>
-        <th>{{ location }}</th>
+        <td>
+          <a href="{% url 'whalebrary:location_detail' location.id %}">{{ location }}</a>
+        </td>
         <td>{{ item.oh_quantity_by_location|lookup:location }}</td>
       </tr>
     {% endfor %}
