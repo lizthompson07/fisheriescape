@@ -5,49 +5,49 @@
 {% load custom_filters %}
 
 <div class="">
+  <h3>
+    {% trans "Transaction Snapshot:" %}
+  </h3>
+  <div class="btn-group">
     <h3>
-        {% trans "Transaction Snapshot:" %}
-    </h3>
-    <div class="btn-group">
-        <h3>
         <span class="badge badge-info">
         {% trans "Quantity Currently Available:" %}
             {{ item.total_oh_quantity }}
 
-<!--figure out how to add a bit more space inside nested span between -->
+          <!--figure out how to add a bit more space inside nested span between -->
                 <a class="badge badge-danger" href="{% url 'whalebrary:item_transaction_detail' object.id %}">Details</a>
        </span>
-       </h3>
-       </div>
+    </h3>
+  </div>
 </div>
 
 {% if object.transactions.count == 0 %}
-    <em>
-        {% trans "No transactions have been added to this entry" %}
-    </em><br>
+  <em>
+    {% trans "No transactions have been added to this entry" %}
+  </em><br>
 {% else %}
 
-    <table class="table table-hover table-sm" style="width: auto">
-        <tr>
-            {% for field in oh_qty_field_list %}
-            <th>
-            {% get_verbose_label random_qty field %}
-            </th>
-            {% endfor %}
-        </tr>
-        <tbody>
-        {% for x in item.oh_quantity_by_location %}
-        <tr>
-            <td>{{ x.location__location }}</td>
-            <td>{{ x.dsum }}</td>
-        </tr>
-        {% endfor %}
+  <table class="table table-hover table-sm" style="width: auto">
+    <tr>
+      {% for field in oh_qty_field_list %}
+        <th>
+          {% get_verbose_label random_qty field %}
+        </th>
+      {% endfor %}
+    </tr>
+    <tbody>
+    {% for location in item.oh_quantity_by_location %}
+      <tr>
+        <th>{{ location }}</th>
+        <td>{{ item.oh_quantity_by_location|lookup:location }}</td>
+      </tr>
+    {% endfor %}
 
-        </tbody>
-    </table>
+    </tbody>
+  </table>
 {% endif %}
 <a class="" href="#" pop-href="{% url 'whalebrary:transaction_new' object.id %}">
-    {% trans "(Add Inventory)" %}
+  {% trans "(Add Inventory)" %}
 </a>
 <br>
 <br>

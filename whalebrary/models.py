@@ -74,7 +74,6 @@ class Supplier(models.Model):
     website = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("website"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
 
-
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("supplier_name"))):
@@ -94,7 +93,8 @@ class Item(models.Model):
     serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("serial number"))
     owner = models.ForeignKey(Owner, on_delete=models.DO_NOTHING, related_name="items",
                               verbose_name=_("owner of equipment"))
-    size = models.ForeignKey(Size, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="items", verbose_name=_("size (if applicable)"))
+    size = models.ForeignKey(Size, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="items",
+                             verbose_name=_("size (if applicable)"))
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name="items",
                                  verbose_name=_("category of equipment"))
     gear_type = models.ForeignKey(GearType, on_delete=models.DO_NOTHING, related_name="items",
@@ -128,30 +128,32 @@ class Item(models.Model):
         # same as:
         # return Transaction.objects.filter(item=self, statuses=3)
 
+    def get_oh_quantity(self, location=None):
+        """find total quantity for item regardless of location"""
+        if not location:
+            purchase_qty = sum([item.quantity for item in self.transactions.filter(category=1)])
+            removed_quantity = sum([item.quantity for item in self.transactions.filter(category__in=[2, 3])])
+            qty = purchase_qty - removed_quantity
+        else:
+            purchase_qty = sum([item.quantity for item in self.transactions.filter(category=1, location=location)])
+            removed_quantity = sum([item.quantity for item in self.transactions.filter(category__in=[2, 3], location=location)])
+            qty = purchase_qty - removed_quantity
+        return qty
+
     @property
     def total_oh_quantity(self):
         """find total quantity for item regardless of location"""
-        object_list = self.transactions.filter(category=1)
-        purchase_qty = sum([item.quantity for item in object_list])
-
-        object_list2 = self.transactions.filter(category__in=[2, 3])
-        removed_quantity = sum([item.quantity for item in object_list2])
-
-        oh_total_quantity = purchase_qty - removed_quantity
-        return oh_total_quantity
-
+        return self.get_oh_quantity()
 
     @property
     def oh_quantity_by_location(self):
         """find total quantity available for item at each location"""
-        object_list = self.transactions.filter(category=1).values('location__location').order_by('location__id').annotate(dsum=Sum('quantity'))
-
-        if object_list is None:
-            object_list = 0
-        else:
-            object_list = object_list
-
-        return object_list
+        location_list = self.transactions.all().values("location").distinct()
+        my_dict = dict()
+        for l in location_list:
+            location = Location.objects.get(pk=l["location"])
+            my_dict[location] = self.get_oh_quantity(location)
+        return my_dict
 
     def get_absolute_url(self):
         return reverse("whalebrary:item_detail", kwargs={"pk": self.id})
@@ -394,7 +396,7 @@ class Incident(models.Model):
 
 class Audit(models.Model):
     date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                        verbose_name=_("last audited"))
+                                verbose_name=_("last audited"))
     last_audited_by = models.ForeignKey(Personnel, on_delete=models.DO_NOTHING, verbose_name=_("last audited by"))
 
     def __str__(self):
@@ -438,7 +440,8 @@ class TransactionCategory(models.Model):
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
     quantity = models.PositiveIntegerField(null=True, blank=True, verbose_name=_("quantity"))
-    category = models.ForeignKey(TransactionCategory, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("transaction category"))
+    category = models.ForeignKey(TransactionCategory, on_delete=models.DO_NOTHING, related_name="transactions",
+                                 verbose_name=_("transaction category"))
     # can use for who lent to, etc
     comments = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("comments"))
     # auditing
@@ -469,7 +472,6 @@ class Transaction(models.Model):
     def get_absolute_url(self):
         return reverse("whalebrary:transaction_detail", kwargs={"pk": self.id})
 
-
     # from https://github.com/ccnmtl/dmt/blob/master/dmt/main/models.py
     # def reassign(self, user, assigned_to, comment):
     #     self.assigned_user = assigned_to.user
@@ -496,8 +498,9 @@ class Order(models.Model):
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
     date_ordered = models.DateTimeField(blank=True, null=True, verbose_name=_("order date"))
     date_received = models.DateTimeField(blank=True, null=True, verbose_name=_("received date"))
-    confirm_received = models.BooleanField(default=False, verbose_name=_("order received")) #remove this, or make javascript
-    transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="orders", verbose_name=_("transaction"))
+    confirm_received = models.BooleanField(default=False, verbose_name=_("order received"))  # remove this, or make javascript
+    transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="orders",
+                                       verbose_name=_("transaction"))
 
     def __str__(self):
         # check to see if a french value is given
