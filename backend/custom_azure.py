@@ -1,4 +1,5 @@
 from decouple import config
+from django.conf import settings
 from msrestazure.azure_active_directory import MSIAuthentication
 from storages.backends.azure_storage import AzureStorage
 
@@ -33,5 +34,8 @@ class AzureStaticStorage(AzureStorage):
     else:
         # account_key = account_key
         token_credential = token_credential
-    azure_container = 'static'
+    azure_container = '$web'
     expiration_secs = None
+
+    def url(self, name, expire=None):
+        return settings.STATIC_URL + self._get_valid_path(name)
