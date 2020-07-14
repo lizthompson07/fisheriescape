@@ -31,6 +31,7 @@ class FilterCommon(shared_view.CommonFilterView):
         if self.request.user:
             context['auth'] = utils.csas_authorized(self.request.user)
             context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
 
         return context
 
@@ -51,6 +52,7 @@ class FilterCommonPars(shared_view.CommonFilterView):
         if self.request.user:
             context['auth'] = utils.csas_authorized(self.request.user)
             context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
 
         return context
 
@@ -205,6 +207,7 @@ class DetailsCommon(DetailView):
         if self.request.user:
             context['auth'] = utils.csas_authorized(self.request.user)
             context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
 
         # If you don't provide specific list and update urls by setting list_url and/or update_url
         # in the extending class, then Common Details will use the provided key to create the url for you
@@ -231,7 +234,15 @@ class IndexTemplateView(TemplateView):
         if self.request.user:
             context['auth'] = utils.csas_authorized(self.request.user)
             context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
 
+        context['lookups'] = [
+            {
+                'title': _("Honorific"),
+                'list_url': 'csas:list_coh',
+                'create_url': 'csas:create_coh',
+            },
+        ]
         return context
 
 
@@ -246,6 +257,7 @@ class IndexMeetingView(TemplateView):
         if self.request.user:
             context['auth'] = utils.csas_authorized(self.request.user)
             context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
 
         return context
 
@@ -261,6 +273,7 @@ class IndexPublicationView(TemplateView):
         if self.request.user:
             context['auth'] = utils.csas_authorized(self.request.user)
             context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
 
         return context
 
@@ -307,6 +320,7 @@ class RequestUpdate(CsasUpdateCommon):
         if self.request.user:
             context['auth'] = utils.csas_authorized(self.request.user)
             context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
 
         return context
 
@@ -327,6 +341,7 @@ class RequestUpdateCSAS(CsasUpdateCommon):
         if self.request.user:
             context['auth'] = utils.csas_authorized(self.request.user)
             context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
 
         return context
 
@@ -384,6 +399,7 @@ class ContactUpdate(CsasUpdateCommon):
         if self.request.user:
             context['auth'] = utils.csas_authorized(self.request.user)
             context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
 
         return context
 
@@ -826,31 +842,41 @@ class CsasLookupList(CsasListCommon):
         return context
 
 
+class UpdateLookupView(CsasUpdateCommon):
+
+    def get_success_url(self):
+        if "pop" in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return super().get_success_url()
+
+
+class CreateLookupView(CsasCreateCommon):
+
+    def get_success_url(self):
+        if "pop" in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return super().get_success_url()
+
+
 class CohMixin():
     key = 'coh'
     model = models.CohHonorific
     title = _("Honorific")
     fields = ['name', 'nom', 'description_en', 'description_fr']
+    success_url = reverse_lazy("csas:list_coh")
 
 
 class CohList(CohMixin, CsasLookupList):
     pass
 
 
-class UpdateCohView(CohMixin, CsasUpdateCommon):
-
-    def get_success_url(self):
-        if "pop" in self.kwargs:
-            return reverse_lazy('shared_models:close_me')
-        return reverse_lazy('csas:list_coh')
+class UpdateCohView(CohMixin, UpdateLookupView):
+    pass
 
 
-class CreateCohView(CohMixin, CsasCreateCommon):
+class CreateCohView(CohMixin, CreateLookupView):
+    pass
 
-    def get_success_url(self):
-        if "pop" in self.kwargs:
-            return reverse_lazy('shared_models:close_me')
-        return reverse_lazy('csas:list_coh')
 
 # ----------------------------------------------------------------------------------------------------
 

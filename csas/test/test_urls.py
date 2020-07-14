@@ -57,6 +57,11 @@ class URLTest(TestCase):
         self.assert_basic_url('csas:create_coh', 'csas/create/coh/pop/', views.CreateCohView, ['pop'])
 
     # Test that the URL for the view exists
+    def test_coh_create_url(self):
+        # test the CohHonorific url
+        self.assert_basic_url('csas:create_coh', 'csas/create/coh/', views.CreateCohView)
+
+    # Test that the URL for the view exists
     def test_coh_update_url(self):
         # test the CohHonorific url
         self.assert_basic_url('csas:update_coh', 'csas/update/coh/1/pop/', views.UpdateCohView, [1, 'pop'])
