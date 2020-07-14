@@ -13,6 +13,7 @@
         <span class="badge badge-info">
         {% trans "Quantity Currently Available:" %}
             {{ item.total_oh_quantity }}
+
 <!--figure out how to add a bit more space inside nested span between -->
                 <a class="badge badge-danger" href="{% url 'whalebrary:item_transaction_detail' object.id %}">Details</a>
        </span>
@@ -28,40 +29,18 @@
 
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
-            {% for field in qty_field_list %}
+            {% for field in oh_qty_field_list %}
             <th>
-
             {% get_verbose_label random_qty field %}
             </th>
             {% endfor %}
         </tr>
         <tbody>
-        {% for obj in object.transactions.all %}
-            <tr>
-            {% for field in qty_field_list %}
-                {% if field == "location" %}
-                    <td>
-                        <a href="{% url 'whalebrary:location_detail' obj.location.id %}">{{obj.location}}</a>
-                     </td>
-                {% else %}
-                    <td>
-                    {% get_field_value obj field %}
-                    </td>
-                {% endif %}
-            {% endfor %}
-            <td>
-                <a href="#"
-                   pop-href="{% url 'whalebrary:transaction_edit' obj.id 1 %}">
-                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
-                </a>
-            </td>
-            <td>
-                <a href="#"
-                   pop-href="{% url 'whalebrary:transaction_delete' obj.id 1 %}">
-                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
-                </a>
-            </td>
-            </tr>
+        {% for x in item.oh_quantity_by_location %}
+        <tr>
+            <td>{{ x.location__location }}</td>
+            <td>{{ x.dsum }}</td>
+        </tr>
         {% endfor %}
 
         </tbody>
@@ -74,22 +53,3 @@
 <br>
 <br>
 
-
-{{ oh_total_qty }}
-<table class="table table-hover table-sm" style="width: auto">
-    <tr>
-        {% for field in oh_qty_field_list %}
-        <th>
-        {% get_verbose_label random_qty field %}
-        </th>
-        {% endfor %}
-    </tr>
-    {% for field in oh_total_qty %}
-    <tr>
-        <td>{{ field.location__location }}</td>
-        <td>{{ field.dsum }}</td>
-    </tr>
-    {% endfor %}
-</table>
-<!--TODO Add column for borrowing items from a specific location that will add a new transaction and subtract amount from total oh-->
-<!--TODO at link on field.location__location that leads to view that shows if there are multiple bins where item is stored at that location-->

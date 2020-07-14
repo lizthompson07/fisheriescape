@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Sum, Q
+from django.db.models import Sum, Q, Count
 from django.urls import reverse
 from django.utils import timezone
 from django.dispatch import receiver
@@ -134,11 +134,24 @@ class Item(models.Model):
         object_list = self.transactions.filter(category=1)
         purchase_qty = sum([item.quantity for item in object_list])
 
-        object_list2 = self.transactions.filter(Q(category=2) | Q(category=3))
+        object_list2 = self.transactions.filter(category__in=[2, 3])
         removed_quantity = sum([item.quantity for item in object_list2])
 
         oh_total_quantity = purchase_qty - removed_quantity
         return oh_total_quantity
+
+
+    @property
+    def oh_quantity_by_location(self):
+        """find total quantity available for item at each location"""
+        object_list = self.transactions.filter(category=1).values('location__location').order_by('location__id').annotate(dsum=Sum('quantity'))
+
+        if object_list is None:
+            object_list = 0
+        else:
+            object_list = object_list
+
+        return object_list
 
     def get_absolute_url(self):
         return reverse("whalebrary:item_detail", kwargs={"pk": self.id})
@@ -483,7 +496,7 @@ class Order(models.Model):
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
     date_ordered = models.DateTimeField(blank=True, null=True, verbose_name=_("order date"))
     date_received = models.DateTimeField(blank=True, null=True, verbose_name=_("received date"))
-    confirm_received = models.BooleanField(default=False, verbose_name=_("order received"))
+    confirm_received = models.BooleanField(default=False, verbose_name=_("order received")) #remove this, or make javascript
     transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="orders", verbose_name=_("transaction"))
 
     def __str__(self):
@@ -498,4 +511,4 @@ class Order(models.Model):
     @property
     def active_orders(self):
         """find all order that have not been received"""
-        return self.Order.filter(confirm_received=0)
+        return self.orders.filter(confirm_received=False).count()

@@ -186,12 +186,12 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
 
 # TODO need to update this now with model changes
 
-        # # Trying to get quantities by location
-        #
-        # context["oh_qty_field_list"] = [
-        #     'location',
-        #     'quantity',
-        # ]
+        # Trying to get quantities by location
+
+        context["oh_qty_field_list"] = [
+            'location',
+            'quantity',
+        ]
 
  ##TODO make this a prop in models and look at aggregate vs annotate again
         # oh_total_qty = self.get_object().transactions.filter(status=1).values('location__location').annotate(dsum=Sum('quantity')).order_by('location__id')

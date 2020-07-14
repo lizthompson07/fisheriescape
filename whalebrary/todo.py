@@ -1,10 +1,11 @@
 # these should all be bilingual exports
 
 ### SMALLER ITEMS
+# TODO Change "list all transactions" view to "all recent transactions"?
+
 # TODO from item_detail -- remove transactions view and change to total quantities by location
 # TODO personnel_list.html -- colour coding doesn't work for experience level
 # TODO on item_list -- add total OH quantity field --
-# TODO Change "list all transactions" view to "all recent transactions"?
 # TODO if I change models to have "tag" field instead of all the other fields (project, incident), write script to add all incident names to options in "tag" field M2M
 # TODO parent crums logic for ItemTransactionListView -- how
 # TODO Parent_crumb logic for TransactionDetailView -- how to get the previous page url if two different urls point to same place?
