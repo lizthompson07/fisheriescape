@@ -114,6 +114,7 @@ urlpatterns = [
     # Lookup URLs
     # --------------------------------------------------------------------------------------------- #
     path('lookup/coh/', views.CohList.as_view(), name="list_coh"),
+    path('create/coh/', views.CreateCohView.as_view(), name="create_coh"),
     path('create/coh/<str:pop>/', views.CreateCohView.as_view(), name="create_coh"),
     path('update/coh/<int:pk>/<str:pop>/', views.UpdateCohView.as_view(), name="update_coh"),
 
