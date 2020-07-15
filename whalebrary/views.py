@@ -1,29 +1,34 @@
+import csv
+
 from copy import deepcopy
+from datetime import date
+from io import StringIO
 
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.utils.translation.trans_null import gettext_lazy
+from idna import unicode
+from unicodecsv import UnicodeWriter
 
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from django.utils.safestring import mark_safe
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.db.models import Count, TextField, F, Sum
-from django.db.models.functions import Concat
+from django.db.models.functions import Concat, datetime
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
 from django.utils import timezone
-
 from shared_models.views import CommonPopoutFormView, CommonListView, CommonFilterView, CommonDetailView, \
     CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutDeleteView, \
     CommonFormView, CommonHardDeleteView, CommonFormsetView
-from . import models
+from . import models, admin
 from . import forms
 from . import filters
 from . import reports
@@ -124,10 +129,50 @@ class TagFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
     delete_url_name = "whalebrary:delete_tag"
 
 # #
-# # INVENTORY #
+# # ITEM #
 # # ###########
 # #
 #
+
+
+# @permission_required(WhalebraryAdminAccessRequired)
+def inventory_download(request):
+    items = models.Item.objects.all()
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=inventory' + str(date.today())+'.csv'
+
+    writer = csv.writer(response, delimiter=',')
+    writer.writerow([
+        'id',
+        'item_name',
+        'oh quantity',
+        'description',
+        'serial_number',
+        'owner',
+        'size',
+        'category',
+        'gear_type',
+        'suppliers',
+    ])
+
+    for obj in items:
+        writer.writerow([
+            obj.id,
+            obj.item_name,
+            obj.total_oh_quantity,
+            obj.description,
+            obj.serial_number,
+            obj.owner,
+            obj.size,
+            obj.category,
+            obj.gear_type,
+            ', '.join([obj.supplier_name for obj in obj.suppliers.all()]),
+        ])
+
+    return response
+
+
 class ItemListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/item_list.html"
     h1 = "Item List"

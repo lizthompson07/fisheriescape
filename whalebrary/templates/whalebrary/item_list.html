@@ -1,8 +1,41 @@
 {% extends "whalebrary/list.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load el_pagination_tags %}
 {% load verbose_names %}
-
 <!--This is a custom block to add formatting to one field in the table-->
 <!--I want to add programming that changes the 'quantity' colour to red/green based on status-->
+
+    {% block table_header %}
+        <div class="row">
+            <div class="col">
+                {% trans "(click on a header to sort table)" %}
+            </div>
+            <div class="col" style="text-align: center">
+                {% if paginate_by %}
+                    {% show_pages %}
+                {% endif %}
+                {% if filter %}
+                    {% if filter_list %}
+                        <em>{% trans 'displaying' %} {{ filter_list.count }} {% trans 'of' %} {{ filter.qs.count }}</em>
+                    {% else %}
+                        <em>{% trans 'displaying' %} {{ filter.qs.count }} {% trans 'of' %} {{ object_list.count }}</em>
+                    {% endif %}
+                {% else %}
+                    <em>{% trans 'displaying' %} {{ object_list.count }} {% trans "records." %}</em>
+                {% endif %}
+            </div>
+                <div class="col" style="text-align: right; padding-bottom: 10px">
+                    <a href="{% url 'whalebrary:inventory_download' %}" class="btn btn-sm btn-success">Export to .csv</a>
+            {% if new_object_url %}
+                {% trans 'New' as default_new_btn_text %}
+                    <a href="{{ new_object_url }}" class="btn btn-sm btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
+                </div>
+            {% endif %}
+        </div>
+    {% endblock %}
 
     {% block table_td %}
         {% if field.name == "testname" %}

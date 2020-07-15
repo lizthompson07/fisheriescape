@@ -29,6 +29,7 @@ urlpatterns = [
     path('supplier/<int:supplier>/to/item/<int:item>/', views.add_supplier_to_item, name="add_supplier_to_item"),
     path('item/<int:item>/add-suppliers', views.AddSuppliersToItemView.as_view(), name="item_suppliers_list"),
     path('supplier/<int:supplier>/from/item/<int:item>/', views.remove_supplier_from_item, name="remove_supplier_from_item"),
+    path('item_list/download-csv', views.inventory_download, name="inventory_download"),
 
     # TRANSACTIONS #
 
