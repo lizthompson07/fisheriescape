@@ -894,11 +894,11 @@ class CohList(CohMixin, CsasLookupList):
     pass
 
 
-class UpdateCohView(CommonCsasAuthLookup, CohMixin, CsasCreateCommon):
+class UpdateCohView(CommonCsasAuthLookup, CohMixin, CsasUpdateCommon):
     pass
 
 
-class CreateCohView(CommonCsasAuthLookup, CohMixin, CsasUpdateCommon):
+class CreateCohView(CommonCsasAuthLookup, CohMixin, CsasCreateCommon):
     pass
 
 
@@ -914,11 +914,11 @@ class SttList(SttMixin, CsasLookupList):
     pass
 
 
-class UpdateSttView(CommonCsasAuthLookup, SttMixin, CsasCreateCommon):
+class UpdateSttView(CommonCsasAuthLookup, SttMixin, CsasUpdateCommon):
     pass
 
 
-class CreateSttView(CommonCsasAuthLookup, SttMixin, CsasUpdateCommon):
+class CreateSttView(CommonCsasAuthLookup, SttMixin, CsasCreateCommon):
     pass
 
 
@@ -934,11 +934,11 @@ class MeqList(MeqMixin, CsasLookupList):
     pass
 
 
-class UpdateMeqView(CommonCsasAuthLookup, MeqMixin, CsasCreateCommon):
+class UpdateMeqView(CommonCsasAuthLookup, MeqMixin, CsasUpdateCommon):
     pass
 
 
-class CreateMeqView(CommonCsasAuthLookup, MeqMixin, CsasUpdateCommon):
+class CreateMeqView(CommonCsasAuthLookup, MeqMixin, CsasCreateCommon):
     pass
 
 
@@ -954,11 +954,11 @@ class LocList(LocMixin, CsasLookupList):
     pass
 
 
-class UpdateLocView(CommonCsasAuthLookup, LocMixin, CsasCreateCommon):
+class UpdateLocView(CommonCsasAuthLookup, LocMixin, CsasUpdateCommon):
     pass
 
 
-class CreateLocView(CommonCsasAuthLookup, LocMixin, CsasUpdateCommon):
+class CreateLocView(CommonCsasAuthLookup, LocMixin, CsasCreateCommon):
     pass
 
 
@@ -974,11 +974,11 @@ class AptList(AptMixin, CsasLookupList):
     pass
 
 
-class UpdateAptView(CommonCsasAuthLookup, AptMixin, CsasCreateCommon):
+class UpdateAptView(CommonCsasAuthLookup, AptMixin, CsasUpdateCommon):
     pass
 
 
-class CreateAptView(CommonCsasAuthLookup, AptMixin, CsasUpdateCommon):
+class CreateAptView(CommonCsasAuthLookup, AptMixin, CsasCreateCommon):
     pass
 
 
@@ -994,11 +994,11 @@ class ScpList(ScpMixin, CsasLookupList):
     pass
 
 
-class UpdateScpView(CommonCsasAuthLookup, ScpMixin, CsasCreateCommon):
+class UpdateScpView(CommonCsasAuthLookup, ScpMixin, CsasUpdateCommon):
     pass
 
 
-class CreateScpView(CommonCsasAuthLookup, ScpMixin, CsasUpdateCommon):
+class CreateScpView(CommonCsasAuthLookup, ScpMixin, CsasCreateCommon):
     pass
 # ----------------------------------------------------------------------------------------------------
 
