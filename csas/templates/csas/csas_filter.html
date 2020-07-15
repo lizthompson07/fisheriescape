@@ -128,7 +128,7 @@
                                 <td><a class="btn btn-secondary btn-sm"
                                        href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>
                                     {# if the update url contains /pop/ then open the url in a popup window #}
-                                    {% if key == 'req' and auth %}
+                                    {% if key == 'req' and auth or csas_admin %}
                                         {% if '/pop/' in update_url %}
                                             <a class="btn btn-secondary btn-sm"
                                                href="#" onclick="return pop('{% url ''|add:update_url obj.pk 'pop' %}', 'details_table')"
@@ -139,6 +139,7 @@
                                                title="{% trans 'Update' %}">{% trans 'Update' %}</a>
                                         {% endif %}
                                     {% endif %}
+
                                     {% if key == 'req' and csas_admin %}
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">{% trans 'Status' %}</a>

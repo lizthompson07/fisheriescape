@@ -7,93 +7,293 @@
 
 {% block field_override %}
     <h2>{{ object.prj_name }}</h2>
-    <style>
-        .mymdb-masthead {
-           background-color: #EEEEEE;
-           margin-bottom: 1em;
+    <style>.mymdb-masthead {
+               background-color: #EEEEEE;
+           }
     </style>
+
+    {# ----- Meeting Details ----- #}
     {% for field in fields %}
         <div class="row" >
-            <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span>
-                                   <span>{% get_field_value object field%}</span>
+            <div class="container">
+                <span style="color:black" class="font-weight-bold"> {% get_verbose_label object field %} :</span>
+                <span style="color:brown"> {% get_field_value object field%}</span>
             </div>
         </div>
     {% endfor %}
+
     </div>
 
-    <div class="container card border border-dark text-center mt-2 pt-1">
+    {# ----- Confirmed Documentation ----- #}
+    <div class="container card border border-dark text-left mt-2 pt-1">
         <div class="card-header bg-transparent">
             <div class="row">
-                <div class="col-lg text-left">
-                    <h3>{% trans 'Meeting Cost' %} {{object.meeting_costs.description}} </h3>
+                <div class="col-lg text-center">
+                    <h1>{% trans 'Confirmed Documentation' %}</h1>
                 </div>
 
-                <div class="col-2 pt-1">
-                    {% if csas_admin %}
-                        <a class="btn btn-secondary" href="#"
-                           onclick="return popitup('{% url 'csas:create_met_OM_costs' object.pk 'pop' %}','popoutWindow')"
-                           title="{% trans 'Add' %}">{% trans 'Add' %}</a>
-                    {% endif %}
-                </div>
+                {# <div class="col-2 pt-1">    #}
+                {#     adding new participants #}
+                {# </div>                      #}
             </div>
             <div class="card-body bg-transparent">
-                <table class="table">
-                    <thead><tr><th>Category</th><th>Description</th><th>Funding Source</th><th>Total O&M Amount</th></tr></thead>
+                <table class="table" style="background-color:#f2f2f2">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Date Submitted</th>
+                            <th>Date Posted</th>
+                            <th>Link</th>
+                            <th>Link(fr)</th>
+                            <th>Attachment</th>
+                            <th>attachment(fr)</th>
+                            <th>
+                                {% if csas_admin %}
+                                    <a class="btn btn-secondary" href="#"
+                                       onclick="return popitup('{% url 'csas:create_met_doc' object.pk 'pop' %}','popoutWindow')"
+                                       title="{% trans 'Add' %}">{% trans '+' %}</a>
+                                {% endif %}
+                            </th>
+                        </tr>
+                    </thead>
                     <tbody>
-        {# Get all of the meetingDFO participants and iterate over them #}
-        {% for cost in object.meeting_costs.all %}
-                    {# for each participant, get the list of participant names, role, time, cost cat., funding src. and salary #}
-                    <tr>
-                        {# participant names is a many-to-many object so get the participant names similar to how we got #}
-                        {# all of the DFO participants #}
-                        <td class="font-weight-bold">{{ cost.category }}</td>
-                        <td class="font-weight-bold">{{ cost.description }}</td>
-                        <td class="font-weight-bold">{{ cost.funding }}</td>
-                        <td class="font-weight-bold">{{ cost.total }}</td>
-                    </tr>
-        {% endfor %}
+                        {# Get all of the meetingDFO participants and iterate over them #}
+                        {% for doc in object.meeting_docs.all %}
+                            {# for each participant, get the list of participant names, role, time, cost cat., funding src. and salary #}
+                            <tr>
+                                {# participant names is a many-to-many object so get the participant names similar to how we got #}
+                                {# all of the DFO participants #}
+                                <td style="color:brown">{{ doc.reference }}</td>
+                                <td style="color:brown">{{ doc.date_submitted }}</td>
+                                <td style="color:brown">{{ doc.date_posted }}</td>
+                                <td style="color:brown">{{ doc.link_en }}</td>
+                                <td style="color:brown">{{ doc.link_fr }}</td>
+                                <td style="color:brown">{{ doc.attachment_en }}</td>
+                                <td style="color:brown">{{ doc.attachment_fr }}</td>
+                                <td>
+                                    {# if the update url contains /pop/ then open the url in a popup window #}
+                                    {% if csas_admin %}
+                                        {% if '/pop/' in update_url %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="#" onclick="return pop('{% url ''|add:'csas:update_met_doc' doc.pk 'pop' %}', 'details_table')"
+                                               title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% else %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="{% url ''|add:'csas:update_met_doc' doc.pk %}"
+                                               title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-   <div class="container card border border-dark text-center mt-2 pt-1">
+    {# ----- DFO Meeting Participants ----- #}
+    <br>
+    <div class="container card border border-dark text-left mt-2 pt-1">
         <div class="card-header bg-transparent">
             <div class="row">
-                <div class="col-lg text-left">
-                    <h3>DFO Participants</h3>
+                <div class="col-lg text-center">
+                    <h1>DFO Meeting Participants</h1>
                 </div>
 
-                <div class="col-2 pt-1">
-                    {% if csas_admin %}
-                        <a class="btn btn-secondary" href="#"
-                           onclick="return popitup('{% url 'csas:create_met_DFO_pars' object.pk 'pop' %}','popoutWindow')"
-                           title="{% trans 'Add' %}">{% trans 'Add' %}</a>
-                    {% endif %}
-                </div>
+                {# <div class="col-2 pt-1">    #}
+                {#     adding new participants #}
+                {# </div>                      #}
             </div>
+
             <div class="card-body bg-transparent">
-                <table class="table">
-                    <thead><tr><th>Name</th><th>Role</th><th>Time</th><th>Cost Cat.</th><th>Funding Src.</th><th>Total Salary</th></tr></thead>
+                <table class="table" style="background-color:#f2f2f2">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Time (Weeks)</th>
+                            <th>Cost Category</th>
+                            <th>Funding Source</th>
+                            <th>Total Salary Amount</th>
+                            <th>
+                                {% if csas_admin %}
+                                    <a class="btn btn-secondary" href="#"
+                                       onclick="return popitup('{% url 'csas:create_met_DFO_pars' object.pk 'pop' %}','popoutWindow')"
+                                       title="{% trans 'Add' %}">{% trans '+' %}</a>
+                                {% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+
                     <tbody>
-        {# Get all of the meetingDFO participants and iterate over them #}
-        {% for par in object.meetingDFO.all %}
-                    {# for each participant, get the list of participant names, role, time, cost cat., funding src. and salary #}
-                    <tr>
-                        {# participant names is a many-to-many object so get the participant names similar to how we got #}
-                        {# all of the DFO participants #}
-                        <td>{% for par_name in par.name.all %}{{par_name}}{% endfor %}</td>
-                        <td class="font-weight-bold">{{ par.role }}</td>
-                        <td class="font-weight-bold">{{ par.time }}</td>
-                        <td class="font-weight-bold">{{ par.cost_category }}</td>
-                        <td class="font-weight-bold">{{ par.funding_source }}</td>
-                        <td class="font-weight-bold">{{ par.total_salary }}</td>
-                    </tr>
-        {% endfor %}
+                        {# Get all of the meetingDFO participants and iterate over them #}
+                        {% for par in object.meetingDFO.all %}
+                            {# for each participant, get the list of participant names, role, time, cost cat., funding src. and salary #}
+                            <tr>
+                                {# participant names is a many-to-many object so get the participant names similar to how we got #}
+                                {# all of the DFO participants #}
+                                <td style="color:brown">{% for par_name in par.name.all %}{{par_name}}{% endfor %}</td>
+                                <td style="color:brown">{{ par.role }}</td>
+                                <td style="color:brown">{{ par.time }}</td>
+                                <td style="color:brown">{{ par.cost_category }}</td>
+                                <td style="color:brown">{{ par.funding_source }}</td>
+                                <td style="color:brown">{{ par.total_salary }}</td>
+
+                                <td>
+                                    {# if the update url contains /pop/ then open the url in a popup window #}
+                                    {% if csas_admin %}
+                                        {% if '/pop/' in update_url %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="#" onclick="return pop('{% url ''|add:'csas:update_met_DFO_pars' par.pk 'pop' %}', 'details_table')"
+                                               title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% else %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="{% url ''|add:'csas:update_met_DFO_pars' par.pk %}"
+                                               title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    {# ----- Other Meeting Participants ----- #}
+    <br>
+    <div class="container card border border-dark text-left mt-2 pt-1">
+        <div class="card-header bg-transparent">
+            <div class="row">
+                <div class="col-lg text-center">
+                    <h1>Other Meeting Participants</h1>
+                </div>
+
+                {# <div class="col-2 pt-1">    #}
+                {#     adding new participants #}
+                {# </div>                      #}
+            </div>
+
+            <div class="card-body bg-transparent">
+                <table class="table" style="background-color:#f2f2f2">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Affiliation</th>
+                            <th>Invited</th>
+                            <th>Attended</th>
+                            <th>
+                                {% if csas_admin %}
+                                    <a class="btn btn-secondary" href="#"
+                                       onclick="return popitup('{% url 'csas:create_met_other_pars' object.pk 'pop' %}','popoutWindow')"
+                                       title="{% trans 'Add' %}">{% trans '+' %}</a>
+                                {% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {# Get all of the meetingDFO participants and iterate over them #}
+                        {% for par in object.meetingOther.all %}
+                            {# for each participant, get the list of participant names, role, time, cost cat., funding src. and salary #}
+                            <tr>
+                                {# participant names is a many-to-many object so get the participant names similar to how we got #}
+                                {# all of the DFO participants #}
+                                <td style="color:brown">{% for par_name in par.name.all %}{{par_name}}{% endfor %}</td>
+                                <td style="color:brown">{{ par.role }}</td>
+                                <td style="color:brown">{{ par.affiliation }}</td>
+                                <td style="color:brown">{{ par.invited }}</td>
+                                <td style="color:brown">{{ par.attended }}</td>
+
+                                <td>
+                                    {# if the update url contains /pop/ then open the url in a popup window #}
+                                    {% if csas_admin %}
+                                        {% if '/pop/' in update_url %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="#" onclick="return pop('{% url ''|add:'csas:update_met_DFO_pars' par.pk 'pop' %}', 'details_table')"
+                                               title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% else %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="{% url ''|add:'csas:update_met_DFO_pars' par.pk %}"
+                                               title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# ----- Meeting O&M Costs ----- #}
+    <br>
+    <div class="container card border border-dark text-left mt-2 pt-1">
+        <div class="card-header bg-transparent">
+            <div class="row">
+                <div class="col-lg text-center">
+                    <h1>{% trans 'Meeting O&M Cost' %} {{object.meeting_costs.description}} </h1>
+                </div>
+
+                {# <div class="col-2 pt-1">    #}
+                {#     adding new participants #}
+                {# </div>                      #}
+            </div>
+            <div class="card-body bg-transparent">
+                <table class="table" style="background-color:#f2f2f2">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Funding Source</th>
+                            <th>Total O&M Amount</th>
+                            <th>
+                                {% if csas_admin %}
+                                    <a class="btn btn-secondary" href="#"
+                                       onclick="return popitup('{% url 'csas:create_met_OM_costs' object.pk 'pop' %}','popoutWindow')"
+                                       title="{% trans 'Add' %}">{% trans '+' %}</a>
+                                {% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {# Get all of the meetingDFO participants and iterate over them #}
+                        {% for cost in object.meeting_costs.all %}
+                            {# for each participant, get the list of participant names, role, time, cost cat., funding src. and salary #}
+                            <tr>
+                                {# participant names is a many-to-many object so get the participant names similar to how we got #}
+                                {# all of the DFO participants #}
+                                <td style="color:brown">{{ cost.category }}</td>
+                                <td style="color:brown">{{ cost.description }}</td>
+                                <td style="color:brown">{{ cost.funding }}</td>
+                                <td style="color:brown">{{ cost.total }}</td>
+                                <td>
+                                    {# if the update url contains /pop/ then open the url in a popup window #}
+                                    {% if csas_admin %}
+                                        {% if '/pop/' in update_url %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="#" onclick="return pop('{% url ''|add:'csas:update_met_DFO_pars' par.pk 'pop' %}', 'details_table')"
+                                               title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% else %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="{% url ''|add:'csas:update_met_OM_costs' cost.pk %}"
+                                               title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {# ----- Meeting Media ----- #}
+    <br>
+
 {% endblock field_override %}
