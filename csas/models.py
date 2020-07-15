@@ -176,7 +176,8 @@ class MetMeeting(models.Model):
 
 
 class MetMeetingDocs(models.Model):
-    meeting = models.OneToOneField(MetMeeting, on_delete=models.DO_NOTHING, primary_key=True)
+    meeting = models.ManyToManyField(MetMeeting, blank=True, related_name="meeting_docs", verbose_name=_('Meeting'))
+    # meeting = models.OneToOneField(MetMeeting, on_delete=models.DO_NOTHING, related_name="meeting_doc", primary_key=True)
     reference = models.ForeignKey(MdfMeetingDocsRef, blank=True, on_delete=models.DO_NOTHING,
                                   verbose_name=_("Terms of Reference"))
     date_submitted = models.DateField(null=True, blank=True, default='0001-01-01',
@@ -216,7 +217,7 @@ class MetMeetingOMCosts(models.Model):
 
     category = models.ForeignKey(MccMeetingCostCategory, blank=False, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Cost Category"), default=1)
-    # categories (hospitality, travel, vene, interpretation, office, rentals, contractors, planning)
+    # categories (hospitality, travel, venue, interpretation, office, rentals, contractors, planning)
     description = models.CharField(max_length=255, verbose_name=_("Description"), default="")
     funding = models.CharField(max_length=255, verbose_name=_("Funding Source"), default="")
     total = models.DecimalField(max_digits=8, decimal_places=2, verbose_name=_("Total O&M Amount"), default=0)
@@ -226,7 +227,8 @@ class MetMeetingOMCosts(models.Model):
 
 
 class MetMeetingMedia(models.Model):
-    meeting = models.OneToOneField(MetMeeting, on_delete=models.DO_NOTHING, primary_key=True)
+    meeting = models.ManyToManyField(MetMeeting, blank=True, related_name="meeting_media", verbose_name=_('Meeting'))
+    # meeting = models.OneToOneField(MetMeeting, on_delete=models.DO_NOTHING, primary_key=True)
     media_attention = models.BooleanField(default=False, verbose_name=_("Is Media Attention Anticipated"))
     media_attention_yes = models.TextField(null=True, blank=True, verbose_name=_("Why Media Attention Anticipated"))
     media_attention_no = models.TextField(null=True, blank=True, verbose_name=_("Why Media Attention Not Anticipated"))

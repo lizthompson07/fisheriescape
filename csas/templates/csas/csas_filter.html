@@ -148,14 +148,26 @@
                                 {% if update_url and auth %}
                                 <td>
                                     {# if the update url contains /pop/ then open the url in a popup window #}
-                                    {% if '/pop/' in update_url %}
-                                        <a class="btn btn-secondary btn-sm"
-                                           href="#" onclick="return pop('{% url ''|add:update_url obj.pk 'pop' %}', 'details_table')"
-                                           title="{% trans 'Update' %}">{% trans 'Update' %}</a>
-                                    {% else %}
-                                        <a class="btn btn-secondary btn-sm"
-                                               href="#" onclick="return pop('{% url ''|add:update_url obj.pk 'pop' %}' )"
+                                    {% if key == 'req' and auth or csas_admin %}
+                                        {% if '/pop/' in update_url %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="#" onclick="return pop('{% url ''|add:update_url obj.pk 'pop' %}', 'details_table')"
                                                title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% else %}
+                                            <a class="btn btn-secondary btn-sm"
+                                               href="{% url ''|add:update_url obj.pk %}"
+                                               title="{% trans 'Update' %}">{% trans 'Update' %}</a>
+                                        {% endif %}
+                                    {% endif %}
+
+                                    {% if key == 'req' and csas_admin %}
+                                        <a class="btn btn-secondary btn-sm"
+                                           href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">{% trans 'Status' %}</a>
+                                        <a class="btn btn-secondary btn-sm"
+                                           href="{% url ''|add:'csas:create_req_CSAS' %}">{% trans 'Status Update' %}</a>
+                                    {% elif key == 'req' and auth %}
+                                        <a class="btn btn-secondary btn-sm"
+                                           href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">{% trans 'Status' %}</a>
                                     {% endif %}
                                 </td>
                                 {% endif %}

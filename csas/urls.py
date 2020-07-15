@@ -18,7 +18,6 @@ urlpatterns = [
 
     path('request/update/<int:pk>/',                views.RequestUpdate.as_view(),        name="update_req"),
     path('request/update/<int:pk>/<str:pop>/',      views.RequestUpdate.as_view(),        name="update_req"),
-
     path('request_CSAS/update/<int:pk>/',           views.RequestUpdateCSAS.as_view(),    name="update_req_CSAS"),
     path('request_CSAS/update/<int:pk>/<str:pop>/', views.RequestUpdateCSAS.as_view(),    name="update_req_CSAS"),
 
@@ -26,36 +25,34 @@ urlpatterns = [
     path('request_CSAS/details/<int:pk>/',          views.RequestDetailsCSAS.as_view(),   name="details_req_CSAS"),
 
     # for Meetings
-    path('meeting/',                                views.MeetingList.as_view(),           name="list_met"),
-    path('meeting_DFO_participants/',               views.MeetingListDFOPars.as_view(),    name="list_met_DFO_pars"),
-    path('meeting_other_participants/',             views.MeetingListOtherPars.as_view(),  name="list_met_other_pars"),
+    path('meeting/',                    views.MeetingList.as_view(),          name="list_met"),
+    path('meeting_DFO_participants/',   views.MeetingListDFOPars.as_view(),   name="list_met_DFO_pars"),
+    path('meeting_other_participants/', views.MeetingListOtherPars.as_view(), name="list_met_other_pars"),
 
-    path('meeting/new/',                            views.MeetingEntry.as_view(),          name="create_met"),
-    path('meeting_docs/new/',                       views.MeetingEntryDocs.as_view(),      name="create_met_doc"),
-    path('meeting_DFO_participants/new/<int:met_id>/<str:pop>/', views.MeetingEntryDFOPars.as_view(),   name="create_met_DFO_pars"),
-    path('meeting_DFO_participants/new/',           views.MeetingEntryDFOPars.as_view(),   name="create_met_DFO_pars"),
-    path('meeting_other_participants/new/',         views.MeetingEntryOtherPars.as_view(), name="create_met_other_pars"),
-    path('meeting_OM_costs/new/<int:met_id>/<str:pop>/', views.MeetingEntryOMCosts.as_view(),   name="create_met_OM_costs"),
-    path('meeting_OM_costs/new/',                   views.MeetingEntryOMCosts.as_view(),   name="create_met_OM_costs"),
-    path('meeting_media/new/',                      views.MeetingEntryMedia.as_view(),     name="create_met_media"),
+    path('meeting/new/',                                           views.MeetingEntry.as_view(),          name="create_met"),
+    path('meeting_docs/new/<int:met_id>/<str:pop>/',               views.MeetingEntryDocs.as_view(),      name="create_met_doc"),
+    path('meeting_docs/new/',                                      views.MeetingEntryDocs.as_view(),      name="create_met_doc"),
+    path('meeting_DFO_participants/new/<int:met_id>/<str:pop>/',   views.MeetingEntryDFOPars.as_view(),   name="create_met_DFO_pars"),
+    path('meeting_DFO_participants/new/',                          views.MeetingEntryDFOPars.as_view(),   name="create_met_DFO_pars"),
+    path('meeting_other_participants/new/<int:met_id>/<str:pop>/', views.MeetingEntryOtherPars.as_view(), name="create_met_other_pars"),
+    path('meeting_other_participants/new/',                        views.MeetingEntryOtherPars.as_view(), name="create_met_other_pars"),
+    path('meeting_OM_costs/new/<int:met_id>/<str:pop>/',           views.MeetingEntryOMCosts.as_view(),   name="create_met_OM_costs"),
+    path('meeting_OM_costs/new/',                                  views.MeetingEntryOMCosts.as_view(),   name="create_met_OM_costs"),
+    path('meeting_media/new/<int:met_id>/<str:pop>/',              views.MeetingEntryMedia.as_view(),     name="create_met_media"),
+    path('meeting_media/new/',                                     views.MeetingEntryMedia.as_view(),     name="create_met_media"),
 
-    path('meeting/update/<int:pk>/<str:pop>/',      views.MeetingUpdate.as_view(),         name="update_met"),
-    path('meeting/update/<int:pk>/',                views.MeetingUpdate.as_view(),         name="update_met"),
-
-    path('meeting_docs/update/<int:pk>/<str:pop>/', views.MeetingUpdateDocs.as_view(),     name="update_met_doc"),
-    path('meeting_docs/update/<int:pk>/',           views.MeetingUpdateDocs.as_view(),     name="update_met_doc"),
-
+    path('meeting/update/<int:pk>/<str:pop>/',                    views.MeetingUpdate.as_view(),          name="update_met"),
+    path('meeting/update/<int:pk>/',                              views.MeetingUpdate.as_view(),          name="update_met"),
+    path('meeting_docs/update/<int:pk>/<str:pop>/',               views.MeetingUpdateDocs.as_view(),      name="update_met_doc"),
+    path('meeting_docs/update/<int:pk>/',                         views.MeetingUpdateDocs.as_view(),      name="update_met_doc"),
     path('meeting_DFO_participants/update/<int:pk>/<str:pop>/',   views.MeetingUpdateDFOPars.as_view(),   name="update_met_DFO_pars"),
     path('meeting_DFO_participants/update/<int:pk>/',             views.MeetingUpdateDFOPars.as_view(),   name="update_met_DFO_pars"),
-
     path('meeting_other_participants/update/<int:pk>/<str:pop>/', views.MeetingUpdateOtherPars.as_view(), name="update_met_other_pars"),
     path('meeting_other_participants/update/<int:pk>/',           views.MeetingUpdateOtherPars.as_view(), name="update_met_other_pars"),
-
-    path('meeting_OM_costs/update/<int:pk>/<str:pop>/', views.MeetingUpdateOMCosts.as_view(), name="update_met_OM_costs"),
-    path('meeting_OM_costs/update/<int:pk>/',           views.MeetingUpdateOMCosts.as_view(), name="update_met_OM_costs"),
-
-    path('meeting_media/update/<int:pk>/<str:pop>/', views.MeetingUpdateMedia.as_view(), name="update_met_media"),
-    path('meeting_media/update/<int:pk>/',           views.MeetingUpdateMedia.as_view(), name="update_met_media"),
+    path('meeting_OM_costs/update/<int:pk>/<str:pop>/',           views.MeetingUpdateOMCosts.as_view(),   name="update_met_OM_costs"),
+    path('meeting_OM_costs/update/<int:pk>/',                     views.MeetingUpdateOMCosts.as_view(),   name="update_met_OM_costs"),
+    path('meeting_media/update/<int:pk>/<str:pop>/',              views.MeetingUpdateMedia.as_view(),     name="update_met_media"),
+    path('meeting_media/update/<int:pk>/',                        views.MeetingUpdateMedia.as_view(),     name="update_met_media"),
 
     path('meeting/details/<int:pk>/',                    views.MeetingDetails.as_view(),          name="details_met"),
     path('meeting_docs/details/<int:pk>/',               views.MeetingDetailsDocs.as_view(),      name="details_met_docs"),
