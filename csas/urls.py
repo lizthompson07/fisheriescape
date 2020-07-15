@@ -118,6 +118,31 @@ urlpatterns = [
     path('create/coh/<str:pop>/', views.CreateCohView.as_view(), name="create_coh"),
     path('update/coh/<int:pk>/<str:pop>/', views.UpdateCohView.as_view(), name="update_coh"),
 
+    path('lookup/stt/', views.SttList.as_view(), name="list_stt"),
+    path('create/stt/', views.CreateSttView.as_view(), name="create_stt"),
+    path('create/stt/<str:pop>/', views.CreateSttView.as_view(), name="create_stt"),
+    path('update/stt/<int:pk>/<str:pop>/', views.UpdateSttView.as_view(), name="update_stt"),
+
+    path('lookup/meq/', views.MeqList.as_view(), name="list_meq"),
+    path('create/meq/', views.CreateMeqView.as_view(), name="create_meq"),
+    path('create/meq/<str:pop>/', views.CreateMeqView.as_view(), name="create_meq"),
+    path('update/meq/<int:pk>/<str:pop>/', views.UpdateMeqView.as_view(), name="update_meq"),
+
+    path('lookup/loc/', views.LocList.as_view(), name="list_loc"),
+    path('create/loc/', views.CreateLocView.as_view(), name="create_loc"),
+    path('create/loc/<str:pop>/', views.CreateLocView.as_view(), name="create_loc"),
+    path('update/loc/<int:pk>/<str:pop>/', views.UpdateLocView.as_view(), name="update_loc"),
+
+    path('lookup/apt/', views.AptList.as_view(), name="list_apt"),
+    path('create/apt/', views.CreateAptView.as_view(), name="create_apt"),
+    path('create/apt/<str:pop>/', views.CreateAptView.as_view(), name="create_apt"),
+    path('update/apt/<int:pk>/<str:pop>/', views.UpdateAptView.as_view(), name="update_apt"),
+
+    path('lookup/scp/', views.ScpList.as_view(), name="list_scp"),
+    path('create/scp/', views.CreateScpView.as_view(), name="create_scp"),
+    path('create/scp/<str:pop>/', views.CreateScpView.as_view(), name="create_scp"),
+    path('update/scp/<int:pk>/<str:pop>/', views.UpdateScpView.as_view(), name="update_scp"),
+
     # path('search/', views.SearchFormView.as_view(), name="sample_search"),
     # path('dataflow/', views.DataFlowTemplateView.as_view(), name ="dataflow" ),
 ]
