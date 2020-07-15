@@ -141,15 +141,21 @@ load_lookup(models.PtlPublicationTargetLanguage, target_lang)
 urgent_req = [['Yes ', ' Yes(fr)'], ['No ', ' No(fr)']]
 load_lookup(models.PurPublicationUrgentRequest, urgent_req)
 
+# load Meeting O&M Costs Category
+category = [['Hospitality ', ' Hospitality(fr)'], ['Travel ', ' Travel(fr)'], ['Venue ', ' Venue(fr)'],
+            ['Interpretation ', ' Interpretation(fr)'], ['Office ', ' Office(fr)'], ['Rentals ', ' Rentals(fr)'],
+            ['Contractors/Consultants ', ' Contractors/Consultants(fr)'], ['Planning ', ' Planning(fr)']]
+load_lookup(models.MccMeetingCostCategory, category)
+
 # ----------------------------------------------------------------------------------------------------
 # Yongcun: This part will be removed, we will use shared_models.Region in "models.py", it's just for
 #          the temporarily usage on my desktop.
 #
 # Load Regions
-region = [['Pacific ', ' Pacific(fr)'], ['Central & Arctic ', ' Central & Arctic(fr)'], ['Quebec ', ' Quebec(fr)'],
-          ['Gulf ', ' Gulf(fr)'], ['Maritimes ', ' Maritimes(fr)'], ['Newfoundland ', ' Newfoundland(fr)'],
-          ['National ', ' National(fr)']]
-load_lookup(models.MyRegion, region)
+# region = [['Pacific ', ' Pacific(fr)'], ['Central & Arctic ', ' Central & Arctic(fr)'], ['Quebec ', ' Quebec(fr)'],
+#           ['Gulf ', ' Gulf(fr)'], ['Maritimes ', ' Maritimes(fr)'], ['Newfoundland ', ' Newfoundland(fr)'],
+#           ['National ', ' National(fr)']]
+# load_lookup(models.MyRegion, region)
 #
 # ----------------------------------------------------------------------------------------------------
 
