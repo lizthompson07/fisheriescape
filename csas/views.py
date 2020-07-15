@@ -1,7 +1,5 @@
-from django.shortcuts import render
-
-from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
-from django_filters.views import FilterView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import CreateView, DetailView, TemplateView
 
 from django.urls import reverse_lazy
 from csas import models, forms, filters, utils
@@ -236,11 +234,37 @@ class IndexTemplateView(TemplateView):
             context['csas_admin'] = utils.csas_admin(self.request.user)
             context['csas_super'] = utils.csas_super(self.request.user)
 
+        # Add controlled list lookups here.
         context['lookups'] = [
             {
                 'title': _("Honorific"),
                 'list_url': 'csas:list_coh',
                 'create_url': 'csas:create_coh',
+            },
+            {
+                'title': _("Meeting Status"),
+                'list_url': 'csas:list_stt',
+                'create_url': 'csas:create_stt',
+            },
+            {
+                'title': _("Meeting Quarter"),
+                'list_url': 'csas:list_meq',
+                'create_url': 'csas:create_meq',
+            },
+            {
+                'title': _("Meeting Location"),
+                'list_url': 'csas:list_loc',
+                'create_url': 'csas:create_loc',
+            },
+            {
+                'title': _("Advisory Process Type"),
+                'list_url': 'csas:list_apt',
+                'create_url': 'csas:create_apt',
+            },
+            {
+                'title': _("Scope"),
+                'list_url': 'csas:list_scp',
+                'create_url': 'csas:create_scp',
             },
         ]
         return context
@@ -824,41 +848,41 @@ class PublicationDetailsComResults(DetailsCommon):
 
 
 # ----------------------------------------------------------------------------------------------------
-# Lookup model views
+# Controlled Lookup model views
 # ----------------------------------------------------------------------------------------------------
-class CsasLookupList(CsasListCommon):
+
+class CommonCsasAuthLookup(UserPassesTestMixin):
+    login_url = '/accounts/login_required/'
+
+    def test_func(self):
+        return utils.csas_super(self.request.user)
+
+    def get_success_url(self):
+        if "pop" in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return super().get_success_url()
+
+
+class CsasLookupList(CommonCsasAuthLookup, CsasListCommon):
+
     fields = ['id', 'name', 'nom']
 
     def get_context_data(self, *args, object_list=None, **kwargs):
+
         context = super().get_context_data(*args, object_list, **kwargs)
+        context['pop'] = True
+
         context['details_url'] = None
+
         if self.key:
             if self.key == 'coh':
                 context['update_url'] = 'csas:update_coh'
                 context['create_url'] = 'csas:create_coh'
 
-        context['pop'] = True
-
         return context
 
 
-class UpdateLookupView(CsasUpdateCommon):
-
-    def get_success_url(self):
-        if "pop" in self.kwargs:
-            return reverse_lazy('shared_models:close_me')
-        return super().get_success_url()
-
-
-class CreateLookupView(CsasCreateCommon):
-
-    def get_success_url(self):
-        if "pop" in self.kwargs:
-            return reverse_lazy('shared_models:close_me')
-        return super().get_success_url()
-
-
-class CohMixin():
+class CohMixin:
     key = 'coh'
     model = models.CohHonorific
     title = _("Honorific")
@@ -870,14 +894,112 @@ class CohList(CohMixin, CsasLookupList):
     pass
 
 
-class UpdateCohView(CohMixin, UpdateLookupView):
+class UpdateCohView(CommonCsasAuthLookup, CohMixin, CsasCreateCommon):
     pass
 
 
-class CreateCohView(CohMixin, CreateLookupView):
+class CreateCohView(CommonCsasAuthLookup, CohMixin, CsasUpdateCommon):
     pass
 
 
+class SttMixin:
+    key = 'stt'
+    model = models.SttStatus
+    title = _("Meeting Status")
+    fields = ['name', 'nom', 'description_en', 'description_fr']
+    success_url = reverse_lazy("csas:list_stt")
+
+
+class SttList(SttMixin, CsasLookupList):
+    pass
+
+
+class UpdateSttView(CommonCsasAuthLookup, SttMixin, CsasCreateCommon):
+    pass
+
+
+class CreateSttView(CommonCsasAuthLookup, SttMixin, CsasUpdateCommon):
+    pass
+
+
+class MeqMixin:
+    key = 'meq'
+    model = models.MeqQuarter
+    title = _("Meeting Quarter")
+    fields = ['name', 'nom', 'description_en', 'description_fr']
+    success_url = reverse_lazy("csas:list_meq")
+
+
+class MeqList(MeqMixin, CsasLookupList):
+    pass
+
+
+class UpdateMeqView(CommonCsasAuthLookup, MeqMixin, CsasCreateCommon):
+    pass
+
+
+class CreateMeqView(CommonCsasAuthLookup, MeqMixin, CsasUpdateCommon):
+    pass
+
+
+class LocMixin:
+    key = 'loc'
+    model = models.LocLocation
+    title = _("Meeting Location")
+    fields = ['name', 'nom', 'description_en', 'description_fr']
+    success_url = reverse_lazy("csas:list_loc")
+
+
+class LocList(LocMixin, CsasLookupList):
+    pass
+
+
+class UpdateLocView(CommonCsasAuthLookup, LocMixin, CsasCreateCommon):
+    pass
+
+
+class CreateLocView(CommonCsasAuthLookup, LocMixin, CsasUpdateCommon):
+    pass
+
+
+class AptMixin:
+    key = 'apt'
+    model = models.AptAdvisoryProcessType
+    title = _("Advisory Process Type")
+    fields = ['name', 'nom', 'description_en', 'description_fr']
+    success_url = reverse_lazy("csas:list_apt")
+
+
+class AptList(AptMixin, CsasLookupList):
+    pass
+
+
+class UpdateAptView(CommonCsasAuthLookup, AptMixin, CsasCreateCommon):
+    pass
+
+
+class CreateAptView(CommonCsasAuthLookup, AptMixin, CsasUpdateCommon):
+    pass
+
+
+class ScpMixin:
+    key = 'scp'
+    model = models.ScpScope
+    title = _("Scope")
+    fields = ['name', 'nom', 'description_en', 'description_fr']
+    success_url = reverse_lazy("csas:list_scp")
+
+
+class ScpList(ScpMixin, CsasLookupList):
+    pass
+
+
+class UpdateScpView(CommonCsasAuthLookup, ScpMixin, CsasCreateCommon):
+    pass
+
+
+class CreateScpView(CommonCsasAuthLookup, ScpMixin, CsasUpdateCommon):
+    pass
 # ----------------------------------------------------------------------------------------------------
 
 
