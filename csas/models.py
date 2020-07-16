@@ -175,7 +175,7 @@ class MetMeeting(models.Model):
         ordering = ['-id']
 
 
-class MetMeetingDocs(models.Model):
+class MedMeetingDocs(models.Model):
     meeting = models.ManyToManyField(MetMeeting, blank=True, related_name="meeting_docs", verbose_name=_('Meeting'))
     # meeting = models.OneToOneField(MetMeeting, on_delete=models.DO_NOTHING, related_name="meeting_doc", primary_key=True)
     reference = models.ForeignKey(MdfMeetingDocsRef, blank=True, on_delete=models.DO_NOTHING,
@@ -211,7 +211,7 @@ class MetMeetingOtherPars(models.Model):
     attended = models.BooleanField(verbose_name=_("Attended"))
 
 
-class MetMeetingOMCosts(models.Model):
+class MocMeetingOMCosts(models.Model):
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING, related_name="meeting_costs",
                                    verbose_name=_("Meeting"))
 
@@ -226,7 +226,7 @@ class MetMeetingOMCosts(models.Model):
         return "{}".format(self.meeting)
 
 
-class MetMeetingMedia(models.Model):
+class MemMeetingMedia(models.Model):
     meeting = models.ManyToManyField(MetMeeting, blank=True, related_name="meeting_media", verbose_name=_('Meeting'))
     # meeting = models.OneToOneField(MetMeeting, on_delete=models.DO_NOTHING, primary_key=True)
     media_attention = models.BooleanField(default=False, verbose_name=_("Is Media Attention Anticipated"))

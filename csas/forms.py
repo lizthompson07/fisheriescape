@@ -82,7 +82,7 @@ class MeetingForm(forms.ModelForm):
 
 class MeetingFormDocs(forms.ModelForm):
     class Meta:
-        model = models.MetMeetingDocs
+        model = models.MedMeetingDocs
         exclude = []
         widgets = {}
 
@@ -115,7 +115,7 @@ class MeetingFormOtherPars(forms.ModelForm):
 
 class MeetingFormOMCosts(forms.ModelForm):
     class Meta:
-        model = models.MetMeetingOMCosts
+        model = models.MocMeetingOMCosts
         exclude = []
         widgets = {
         }
@@ -127,7 +127,7 @@ class MeetingFormOMCosts(forms.ModelForm):
 
 class MeetingFormMedia(forms.ModelForm):
     class Meta:
-        model = models.MetMeetingMedia
+        model = models.MemMeetingMedia
         exclude = []
         widgets = {
             "media_attention_yes": Textarea(attrs={"rows": 3, "cols": 20}),

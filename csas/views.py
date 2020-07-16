@@ -462,7 +462,7 @@ class MeetingEntry(CsasCreateCommon):
 class MeetingEntryDocs(CsasCreateCommon):
     key = 'met_doc'
     title = _('New Meeting Documentation Entry')
-    model = models.MetMeetingDocs
+    model = models.MedMeetingDocs
     form_class = forms.MeetingFormDocs
 
     def get_success_url(self):
@@ -498,7 +498,7 @@ class MeetingEntryOtherPars(CsasCreateCommon):
 class MeetingEntryOMCosts(CsasCreateCommon3col):
     key = 'met_OM_costs'
     title = _('New Meeting O&M Costs Entry')
-    model = models.MetMeetingOMCosts
+    model = models.MocMeetingOMCosts
     form_class = forms.MeetingFormOMCosts
 
     def get_initial(self):
@@ -516,7 +516,7 @@ class MeetingEntryOMCosts(CsasCreateCommon3col):
 class MeetingEntryMedia(CsasCreateCommon):
     key = 'met_media'
     title = _('New Meeting Media Entry')
-    model = models.MetMeetingMedia
+    model = models.MemMeetingMedia
     form_class = forms.MeetingFormMedia
 
     def get_success_url(self):
@@ -538,7 +538,7 @@ class MeetingUpdate(CsasUpdateCommon):
 class MeetingUpdateDocs(CsasUpdateCommon):
     key = 'met_doc'
     title = _('Update Meeting Documentation')
-    model = models.MetMeetingDocs
+    model = models.MedMeetingDocs
     form_class = forms.MeetingFormDocs
 
     def get_success_url(self):
@@ -572,7 +572,7 @@ class MeetingUpdateOtherPars(CsasUpdateCommon):
 class MeetingUpdateOMCosts(CsasUpdateCommon):
     key = 'met_OM_costs'
     title = _('Update Meeting O&M Costs')
-    model = models.MetMeetingOMCosts
+    model = models.MocMeetingOMCosts
     form_class = forms.MeetingFormOMCosts
 
     def get_success_url(self):
@@ -584,7 +584,7 @@ class MeetingUpdateOMCosts(CsasUpdateCommon):
 class MeetingUpdateMedia(CsasUpdateCommon):
     key = 'met_media'
     title = _('Update Meeting Media')
-    model = models.MetMeetingMedia
+    model = models.MemMeetingMedia
     form_class = forms.MeetingFormMedia
 
     def get_success_url(self):
@@ -631,7 +631,7 @@ class MeetingDetails(DetailsCommon):
 class MeetingDetailsDocs(DetailsCommon):
     key = 'met_doc'
     title = _('Meeting Documentation')
-    model = models.MetMeetingDocs
+    model = models.MedMeetingDocs
     fields = ['meeting', 'reference', 'date_submitted', 'date_posted', 'link_en', 'link_fr',
               'attachment_en', 'attachment_fr']
 
@@ -653,7 +653,7 @@ class MeetingDetailsOtherPars(DetailsCommon):
 class MeetingDetailsOMCosts(DetailsCommon):
     key = 'met_OM_costs'
     title = _('Meeting O&M Costs')
-    model = models.MetMeetingOMCosts
+    model = models.MocMeetingOMCosts
     fields = ['meeting',
               'description', 'funding', 'total']
 
@@ -661,7 +661,7 @@ class MeetingDetailsOMCosts(DetailsCommon):
 class MeetingDetailsMedia(DetailsCommon):
     key = 'met_media'
     title = _('Meeting Media')
-    model = models.MetMeetingMedia
+    model = models.MemMeetingMedia
     fields = ['meeting', 'media_attention', 'media_attention_yes', 'media_attention_no',
               'media_bullets', 'media_lines']
 
