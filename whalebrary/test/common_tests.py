@@ -9,6 +9,6 @@ fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 standard_fixtures = [file for file in os.listdir(fixtures_dir)]
 
 
-# here are common tests for Travel. Essentially they will just load the travel fixtures
+# here are common tests for Whalebrary. Essentially they will just load the whalebrary fixtures
 class CommonWhalebraryTest(CommonTest):
     fixtures = standard_fixtures
