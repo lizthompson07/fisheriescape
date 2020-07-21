@@ -41,7 +41,6 @@ class CloserTemplateView(TemplateView):
 ### Permissions ###
 
 class WhalebraryAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/accounts/login_required/'
 
     def test_func(self):
         return True
@@ -59,7 +58,6 @@ def in_whalebrary_admin_group(user):
 
 
 class WhalebraryAdminAccessRequired(LoginRequiredMixin, UserPassesTestMixin):
-    login_url = '/accounts/login_required/'
 
     def test_func(self):
         return in_whalebrary_admin_group(self.request.user)
@@ -493,6 +491,7 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
 
 #TODO finish this logic and add proper url and link in _lending.html
 
+# similar to logic for orders - two steps - create new transaction and redirect to update view
 # def lending_return_item(request, item, transaction):
 #     """simple function to mark order received and create transaction"""
 #     my_item = models.Item.objects.get(pk=item)
@@ -700,6 +699,7 @@ class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView)
 
 #TODO finish this logic and add proper url and link in _order.html
 
+# two steps - mark received date and redirect to update transaction
 # def mark_order_received(request, order, item, transaction):
 #     """function to mark order received and create new transaction"""
 #     my_item = models.Item.objects.get(pk=item)
