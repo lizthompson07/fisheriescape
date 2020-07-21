@@ -701,13 +701,13 @@ class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView)
 #TODO finish this logic and add proper url and link in _order.html
 
 # def mark_order_received(request, order, item, transaction):
-#     """simple function to mark order received and create transaction"""
+#     """function to mark order received and create new transaction"""
 #     my_item = models.Item.objects.get(pk=item)
 #     my_order = models.Order.objects.get(pk=order)
 #     """
 #     logic needed: on clicking it should:
 #     1) change received_date=datetime.datetime.now()
-#     2) create a transaction with the relevant details and category=1 -- 2b) need this to popup a form to populate?
+#     2) create a transaction with the relevant details and category=1 -- 2b) need this to popup a form to populate the new transaction part?
 #     3) change the icon on the item_detail page to /admin/img/icon-yes.svg
 #     """
 #     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))

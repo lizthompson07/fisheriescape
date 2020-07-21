@@ -2,6 +2,7 @@
 
 ### SMALLER ITEMS
 # TODO Change "list all transactions" view to "all recent transactions"?
+# TODO Conceptual problem - if someone wants to move an item to a new location or return an item to a different location, what happens?
 
 # TODO from item_detail -- remove transactions view and change to total quantities by location
 # TODO personnel_list.html -- colour coding doesn't work for experience level
