@@ -361,6 +361,7 @@ class ItemUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
         del kwargs["pk"]
         return {"title": _("Item List"), "url": reverse("whalebrary:item_list", kwargs=kwargs)}
 
+
 class ItemCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Item
     form_class = forms.ItemForm
@@ -461,6 +462,7 @@ class LocationUpdateView(WhalebraryAdminAccessRequired, CommonUpdateView):
         del kwargs["pk"]
         return {"title": _("Location List"), "url": reverse("whalebrary:location_list", kwargs=kwargs)}
 
+
 class LocationCreateView(WhalebraryAdminAccessRequired, CommonCreateView):
     model = models.Location
     form_class = forms.LocationForm
@@ -501,6 +503,7 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
 #     1) return the item to inventory -- but how do I want this to happen? just change category from 'lend' to 'purchase' or do I need another category? 'return'
 #     """
 #     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
 
 class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
@@ -625,9 +628,6 @@ class TransactionDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDelet
     model = models.Transaction
     delete_protection = False
 
-## TODO I want to write a function that will 1) affect the specific line item in the transaction table 2) record the change in quantity for that line and create a new transaction with that amount
-## I think to do this I need to change models:
-## Quantity + Location = pool of unique quantity // Transaction = takes or adds to unique Q + L pool
 
     ##BULK TRANSACTION##
 
@@ -697,20 +697,6 @@ class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView)
 
     ## ORDER ##
 
-#TODO finish this logic and add proper url and link in _order.html
-
-# two steps - mark received date and redirect to update transaction
-# def mark_order_received(request, order, item, transaction):
-#     """function to mark order received and create new transaction"""
-#     my_item = models.Item.objects.get(pk=item)
-#     my_order = models.Order.objects.get(pk=order)
-#     """
-#     logic needed: on clicking it should:
-#     1) change received_date=datetime.datetime.now()
-#     2) create a transaction with the relevant details and category=1 -- 2b) need this to popup a form to populate the new transaction part?
-#     3) change the icon on the item_detail page to /admin/img/icon-yes.svg
-#     """
-#     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 class OrderListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/order_list.html"
@@ -794,6 +780,65 @@ class OrderUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
 class OrderUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
     model = models.Order
     form_class = forms.OrderForm1
+
+
+# TODO finish this logic and add proper url and link in _order.html
+
+# two steps - mark received date and redirect to update transaction
+# def mark_order_received(request, order, item, transaction):
+#     """function to mark order received and create new transaction"""
+#     my_item = models.Item.objects.get(pk=item)
+#     my_order = models.Order.objects.get(pk=order)
+#     """
+#     logic needed: on clicking it should:
+#     1) change received_date=datetime.datetime.now()
+#     2) create a transaction with the relevant details and category=1 -- 2b) need this to popup a form to populate the new transaction part?
+#     3) change the icon on the item_detail page to /admin/img/icon-yes.svg
+#     """
+#     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+
+def mark_order_received(request, order):
+    """function to mark order received and create new transaction"""
+    my_order = models.Order.objects.get(pk=order)
+    my_order.date_received = timezone.now()
+    my_order.save()
+    messages.success(request, "Order received")
+    return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+
+def mark_order_received(request, order, transaction):
+    """function to mark order received and create new transaction"""
+    # record received date
+    my_order = models.Order.objects.get(pk=order)
+    my_order.date_received = timezone.now()
+    my_order.save()
+    messages.success(request, "Order received")
+    # create new purchase transaction for received items
+
+    # new_transaction = how to create the new transaction?
+    # my_order.transaction = new_transaction.pk
+
+    return HttpResponseRedirect(reverse('whalebrary:transaction_edit', kwargs={'pk': transaction}))
+
+
+class OrderReceivedTransactionUpdateView(TransactionUpdatePopoutView):
+    model = models.Transaction
+    template_name = "whalebrary/transaction_form.html"
+
+    form_class = forms.TransactionForm2
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        self.object = form.save()
+
+        # set the transaction category to purchase
+        self.object.category = 1
+
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
 class OrderCreateView(WhalebraryEditRequiredMixin, CommonCreateView):

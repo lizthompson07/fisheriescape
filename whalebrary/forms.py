@@ -7,6 +7,7 @@ chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 
+
 class ItemForm(forms.ModelForm):
     class Meta:
         model = models.Item
@@ -17,6 +18,7 @@ class ItemForm(forms.ModelForm):
             # 'suppliers': forms.SelectMultiple(attrs=multi_select_js),
         }
 
+
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = models.Transaction
@@ -25,6 +27,7 @@ class TransactionForm(forms.ModelForm):
             'tag': forms.SelectMultiple(attrs=chosen_js),
 
         }
+
 
 class TransactionForm1(forms.ModelForm):
     class Meta:
@@ -35,6 +38,19 @@ class TransactionForm1(forms.ModelForm):
             'tag': forms.SelectMultiple(attrs=chosen_js),
 
         }
+
+
+class TransactionForm2(forms.ModelForm):
+    class Meta:
+        model = models.Transaction
+        fields = "__all__"
+        widgets = {
+            'item': forms.HiddenInput(),
+            'category': forms.HiddenInput(),
+            'tag': forms.SelectMultiple(attrs=chosen_js),
+
+        }
+
 
 class OrderForm(forms.ModelForm):
     class Meta:

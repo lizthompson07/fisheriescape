@@ -52,7 +52,7 @@
             {% endfor %}
             <td>
                 <a href="#"
-                   pop-href="{% url 'whalebrary:order_list' %}">
+                   pop-href="{% url 'whalebrary:mark_order_received' obj.id %}">
                     <img src="{% static "/admin/img/icon-unknown.svg" %}" data-toggle="tooltip" title="Mark received">
                 </a>
             </td>
