@@ -23,8 +23,16 @@ class EntryCreateForm(forms.ModelForm):
             'anticipated_end_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
             'created_by': forms.HiddenInput(),
+            'organizations': forms.SelectMultiple(attrs={'class': "multi-select"}),
+            'regions': forms.SelectMultiple(attrs={'class': "multi-select"}),
+            'sectors': forms.SelectMultiple(attrs={'class': "multi-select"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from ihub.views import get_ind_organizations
+        org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
+        self.fields["organizations"].choices = org_choices_all
 
 class EntryForm(forms.ModelForm):
     class Meta:
@@ -38,7 +46,16 @@ class EntryForm(forms.ModelForm):
             'initial_date': forms.DateInput(attrs=attr_fp_date),
             'anticipated_end_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
+            'organizations': forms.SelectMultiple(attrs={'class': "multi-select"}),
+            'regions': forms.SelectMultiple(attrs={'class': "multi-select"}),
+            'sectors': forms.SelectMultiple(attrs={'class': "multi-select"}),
         }
+
+    def __init__(self,*args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from ihub.views import get_ind_organizations
+        org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
+        self.fields["organizations"].choices = org_choices_all
 
 
 class NoteForm(forms.ModelForm):
@@ -56,6 +73,8 @@ class ReportSearchForm(forms.Form):
     field_order = ["report", "fiscal_year", "statuses", "organizations", "entry_types", "single_org"]
 
     def __init__(self, *args, **kwargs):
+        from .views import get_ind_organizations
+
         super().__init__(*args, **kwargs)
 
         report_choices = (
@@ -71,9 +90,8 @@ class ReportSearchForm(forms.Form):
                       models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
         fy_choices.insert(0, (None, "all years"))
 
-        org_choices_all = [(obj.id, obj) for obj in ml_models.Organization.objects.filter(grouping__is_indigenous=True)]
-        org_choices_has_entry = [(obj.id, obj) for obj in ml_models.Organization.objects.filter(grouping__is_indigenous=True) if
-                                 obj.entries.count() > 0]
+        org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
+        org_choices_has_entry = [(obj.id, obj) for obj in get_ind_organizations() if obj.entries.count() > 0]
 
         sector_choices = [(obj.id, obj) for obj in ml_models.Sector.objects.all() if obj.entries.count() > 0]
         status_choices = [(obj.id, obj) for obj in models.Status.objects.all() if obj.entries.count() > 0]
@@ -116,6 +134,12 @@ class OrganizationForm(forms.ModelForm):
             'next_election': forms.TextInput(attrs=attr_fp_date),
             'new_coucil_effective_date': forms.TextInput(attrs=attr_fp_date)
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from ihub.views import get_ind_organizations
+        org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
+        self.fields["orgs"].choices = org_choices_all
 
 
 class PersonForm(forms.ModelForm):
@@ -177,7 +201,38 @@ class MemberForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={"rows": "3"}),
         }
         labels = {
-            'person': "Select a person:",
+            'person': "Select a contact",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['person'].required = False
+
+
+class InstructionForm(forms.ModelForm):
+    class Meta:
+        model = ml_models.ConsultationInstruction
+        exclude = [
+            'date_last_modified',
+        ]
+        widgets = {
+            'organization': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={"rows": 3}),
+            'last_modified_by': forms.HiddenInput(),
+        }
+
+
+class ConsultationRoleForm(forms.ModelForm):
+    class Meta:
+        model = ml_models.ConsultationRole
+        exclude = ["date_last_modified"]
+        widgets = {
+            'member': forms.HiddenInput(),
+            'organization': forms.Select(attrs=chosen_js),
+            'last_modified_by': forms.HiddenInput(),
+        }
+        labels = {
+            'organization': "For which organization?"
         }
 
 
