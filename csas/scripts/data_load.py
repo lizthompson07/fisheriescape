@@ -3,7 +3,6 @@ from typing import List
 from csas.models import CohHonorific, LanLanguage, CotType, NotNotificationPreference, SecSector, RolRole
 from csas import models
 
-
 ###################################################################################################
 # To run this script start the django shell:
 #   >python manage.py shell
@@ -27,18 +26,22 @@ def load_lookup(model, options):
 priorities = [['High ', ' High(fr)'], ['Medium ', ' Medium(fr)'], ['Low ', ' Low(fr)'], ]
 load_lookup(models.RepPriority, priorities)
 
+
 # Load the (Request) proposed timing model
 timings = [['By quarter ', ' By quarter(fr)'], ['By month ', ' By month(fr)'], ]
 load_lookup(models.RetTiming, timings)
+
 
 # Load the (Request) status model
 req_status = [['Withdrawn ', ' Withdrawn(fr)'], ['CSAS Office Reviewing ', ' CSAS Office Reviewing(fr)'],
               ['RDS Reviewing ', ' RDS Reviewing(fr)'], ['Decision Made ', ' Decision Made(fr)'], ]
 load_lookup(models.ResStatus, req_status)
 
+
 # Load the (Request) decision model
 decision = [['On ', ' On(fr)'], ['Off ', ' Off(fr)'], ['Tentative ', ' Tentative(fr)'], ]
 load_lookup(models.RedDecision, decision)
+
 
 # Load the (Request) decision explanation model
 decision_exp = [['Planned Deferred (lower priority) ', ' Planned Deferred (lower priority)(fr)'],
@@ -46,6 +49,7 @@ decision_exp = [['Planned Deferred (lower priority) ', ' Planned Deferred (lower
                 ['Capacity Issues (e.g., no science staff) ', 'Capacity Issues (e.g., no science staff)(fr)'],
                 ['Unexpected Delays/Unforeseen Circumstances )', ' Unexpected Delays/Unforeseen Circumstances(fr)'], ]
 load_lookup(models.RdeDecisionExplanation, decision_exp)
+
 
 # Load the honorific model
 honorifics = [['Mr. ', ' Mr.(fr)'], ['Mrs. ', ' Mrs.(fr)'], ['Ms. ', ' Ms.(fr)'], ['Dr. ', ' Dr.(fr)'],
@@ -92,6 +96,7 @@ quarter = [['Spring (Apr-June) ', ' Spring (Apr-June)(fr)'], ['Summer (July-Sept
            ['Fall (Oct-Dec) ', ' Fall (Oct-Dec)(fr)'], ['Winter (Jan-Mar) ', ' Winter (Jan-Mar)(fr)']]
 load_lookup(models.MeqQuarter, quarter)
 
+# Load the Month Model
 months = [['January ', ' January(fr)'], ['February ', ' February(fr)'], ['March ', ' March(fr)'],
           ['April ', ' April(fr)'], ['May ', ' May(fr)'], ['June ', ' June(fr)'],
           ['July ', ' July(fr)'], ['August ', ' August(fr)'], ['September ', ' September(fr)'],
@@ -126,6 +131,7 @@ load_lookup(models.AptAdvisoryProcessType, process)
 # Load Expected Publication(s)
 exp_publication = [['SAR/SSR ', ' SAR/SSR(fr)'], ['Research Document ', ' Research Document(fr)'],
                    ['Proceedings ', ' Proceedings(fr)']]
+
 load_lookup(models.MepMeetingExpectedPublication, exp_publication)
 
 # Load Terms of Reference
@@ -185,6 +191,7 @@ load_lookup(models.MccMeetingCostCategory, category)
 #           ['Maritimes ', ' Maritimes(fr)'],
 #           ['Newfoundland ', ' Newfoundland(fr)'],
 #           ['National Capital ', ' National Capital(fr)']]
+
 # load_lookup(models.MyRegion, region)
 #
 # ----------------------------------------------------------------------------------------------------

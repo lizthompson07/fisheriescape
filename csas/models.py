@@ -140,6 +140,7 @@ class MccMeetingCostCategory(shared_models.Lookup):
 class MemMeetingMonth(shared_models.Lookup):
     pass
 
+
 class MetMeeting(models.Model):
     title_en = models.CharField(max_length=255, verbose_name=_("Meeting Title (English)"))
     title_fr = models.CharField(max_length=255, verbose_name=_("Meeting Title (French)"))
@@ -170,10 +171,8 @@ class MetMeeting(models.Model):
     #                                     on_delete=models.DO_NOTHING, verbose_name=_("Expected Publication(s)"))
     exp_publication = models.ManyToManyField(MepMeetingExpectedPublication, blank=True, related_name="exp_publication",
                                              verbose_name=_("Expected Publication(s)"))
-
     # other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
     #                                       verbose_name=_("Other Regions"))
-
     chair = models.ManyToManyField(ConContact, blank=True, related_name="chairs", verbose_name=_("Chair(s)"))
     csas_contact = models.ManyToManyField(ConContact, blank=True, related_name="csas_contacts",
                                           verbose_name=_("CSAS Contact(s)"))
@@ -232,8 +231,7 @@ class MetMeetingOtherPars(models.Model):
 
 class MocMeetingOMCosts(models.Model):
     meeting = models.ForeignKey(MetMeeting, on_delete=models.DO_NOTHING, related_name="meeting_costs",
-                                   verbose_name=_("Meeting"))
-
+                                verbose_name=_("Meeting"))
     category = models.ForeignKey(MccMeetingCostCategory, blank=False, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Cost Category"), default=1)
     # categories (hospitality, travel, venue, interpretation, office, rentals, contractors, planning)
@@ -432,7 +430,6 @@ class PubPublicationDocLocation(models.Model):
                                          verbose_name=_('Publication'))
     # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
     p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
-
     attach_en_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) File"))
     attach_en_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) Size"))
     attach_fr_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) File"))

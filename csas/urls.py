@@ -62,42 +62,32 @@ urlpatterns = [
     path('meeting_media/details/<int:pk>/',              views.MeetingDetailsMedia.as_view(),     name="details_met_media"),
 
     # for Publications
-    path('publication/',                  views.PublicationList.as_view(),             name="list_pub"),
+    path('publication/',                                         views.PublicationList.as_view(),             name="list_pub"),
 
     path('publication/new/',                                     views.PublicationEntry.as_view(),            name="create_pub"),
-
     path('publication_status/new/<int:pub_id>/<str:pop>/',       views.PublicationEntryStatus.as_view(),      name="create_pub_status"),
     path('publication_status/new/',                              views.PublicationEntryStatus.as_view(),      name="create_pub_status"),
-
     path('publication_trans_info/new/<int:pub_id>/<str:pop>/',   views.PublicationEntryTransInfo.as_view(),   name="create_pub_trans_info"),
     path('publication_trans_info/new/',                          views.PublicationEntryTransInfo.as_view(),   name="create_pub_trans_info"),
-
     path('publication_doc_location/new/<int:pub_id>/<str:pop>/', views.PublicationEntryDocLocation.as_view(), name="create_pub_doc_location"),
     path('publication_doc_location/new/',                        views.PublicationEntryDocLocation.as_view(), name="create_pub_doc_location"),
-
     path('publication_OM_costs/new/<int:pub_id>/<str:pop>/',     views.PublicationEntryOMCosts.as_view(),     name="create_pub_OM_costs"),
     path('publication_OM_costs/new/',                            views.PublicationEntryOMCosts.as_view(),     name="create_pub_OM_costs"),
-
     path('publication_comm_results/new/<int:pub_id>/<str:pop>/', views.PublicationEntryComResults.as_view(),  name="create_pub_com_results"),
     path('publication_comm_results/new/',                        views.PublicationEntryComResults.as_view(),  name="create_pub_com_results"),
 
-    path('publication/update/<int:pk>/<str:pop>/', views.PublicationUpdate.as_view(),  name="update_pub"),
-    path('publication/update/<int:pk>/',           views.PublicationUpdate.as_view(),  name="update_pub"),
-
-    path('publication_status/update/<int:pk>/<str:pop>/', views.PublicationUpdateStatus.as_view(), name="update_pub_status"),
-    path('publication_status/update/<int:pk>/',           views.PublicationUpdateStatus.as_view(), name="update_pub_status"),
-
-    path('publication_trans_info/update/<int:pk>/<str:pop>/', views.PublicationUpdateTransInfo.as_view(), name="update_pub_trans_info"),
-    path('publication_trans_info/update/<int:pk>/',           views.PublicationUpdateTransInfo.as_view(), name="update_pub_trans_info"),
-
+    path('publication/update/<int:pk>/<str:pop>/',              views.PublicationUpdate.as_view(),            name="update_pub"),
+    path('publication/update/<int:pk>/',                        views.PublicationUpdate.as_view(),            name="update_pub"),
+    path('publication_status/update/<int:pk>/<str:pop>/',       views.PublicationUpdateStatus.as_view(),      name="update_pub_status"),
+    path('publication_status/update/<int:pk>/',                 views.PublicationUpdateStatus.as_view(),      name="update_pub_status"),
+    path('publication_trans_info/update/<int:pk>/<str:pop>/',   views.PublicationUpdateTransInfo.as_view(),   name="update_pub_trans_info"),
+    path('publication_trans_info/update/<int:pk>/',             views.PublicationUpdateTransInfo.as_view(),   name="update_pub_trans_info"),
     path('publication_doc_location/update/<int:pk>/<str:pop>/', views.PublicationUpdateDocLocation.as_view(), name="update_pub_doc_location"),
     path('publication_doc_location/update/<int:pk>/',           views.PublicationUpdateDocLocation.as_view(), name="update_pub_doc_location"),
-
-    path('publication_OM_costs/update/<int:pk>/<str:pop>/', views.PublicationUpdateOMCosts.as_view(), name="update_pub_OM_costs"),
-    path('publication_OM_costs/update/<int:pk>/',           views.PublicationUpdateOMCosts.as_view(), name="update_pub_OM_costs"),
-
-    path('publication_com_results/update/<int:pk>/<str:pop>/', views.PublicationUpdateComResults.as_view(), name="update_pub_com_results"),
-    path('publication_com_results/update/<int:pk>/',           views.PublicationUpdateComResults.as_view(), name="update_pub_com_results"),
+    path('publication_OM_costs/update/<int:pk>/<str:pop>/',     views.PublicationUpdateOMCosts.as_view(),     name="update_pub_OM_costs"),
+    path('publication_OM_costs/update/<int:pk>/',               views.PublicationUpdateOMCosts.as_view(),     name="update_pub_OM_costs"),
+    path('publication_com_results/update/<int:pk>/<str:pop>/',  views.PublicationUpdateComResults.as_view(),  name="update_pub_com_results"),
+    path('publication_com_results/update/<int:pk>/',            views.PublicationUpdateComResults.as_view(),  name="update_pub_com_results"),
 
     path('publication/details/<int:pk>/',              views.PublicationDetails.as_view(),            name="details_pub"),
     path('publication_status/details/<int:pk>/',       views.PublicationDetailsStatus.as_view(),      name="details_pub_status"),
@@ -114,40 +104,40 @@ urlpatterns = [
     path('contacts/details/<int:pk>/',             views.ContactDetails.as_view(),     name="details_con"),
 
     path('close/',                                 views.CloserTemplateView.as_view(), name="close_me"),
-    # path('create/honorific/',                      views.HonorificView.as_view(),      name="create_coh"),
+    # path('create/honorific/',                    views.HonorificView.as_view(),      name="create_coh"),
     path('create/language/',                       views.LanguageView.as_view(),       name="create_lan"),
 
     # --------------------------------------------------------------------------------------------- #
     # Lookup URLs
     # --------------------------------------------------------------------------------------------- #
-    path('lookup/coh/', views.CohList.as_view(), name="list_coh"),
-    path('create/coh/', views.CreateCohView.as_view(), name="create_coh"),
-    path('create/coh/<str:pop>/', views.CreateCohView.as_view(), name="create_coh"),
+    path('lookup/coh/',                    views.CohList.as_view(),       name="list_coh"),
+    path('create/coh/',                    views.CreateCohView.as_view(), name="create_coh"),
+    path('create/coh/<str:pop>/',          views.CreateCohView.as_view(), name="create_coh"),
     path('update/coh/<int:pk>/<str:pop>/', views.UpdateCohView.as_view(), name="update_coh"),
 
-    path('lookup/stt/', views.SttList.as_view(), name="list_stt"),
-    path('create/stt/', views.CreateSttView.as_view(), name="create_stt"),
-    path('create/stt/<str:pop>/', views.CreateSttView.as_view(), name="create_stt"),
+    path('lookup/stt/',                    views.SttList.as_view(),       name="list_stt"),
+    path('create/stt/',                    views.CreateSttView.as_view(), name="create_stt"),
+    path('create/stt/<str:pop>/',          views.CreateSttView.as_view(), name="create_stt"),
     path('update/stt/<int:pk>/<str:pop>/', views.UpdateSttView.as_view(), name="update_stt"),
 
-    path('lookup/meq/', views.MeqList.as_view(), name="list_meq"),
-    path('create/meq/', views.CreateMeqView.as_view(), name="create_meq"),
-    path('create/meq/<str:pop>/', views.CreateMeqView.as_view(), name="create_meq"),
+    path('lookup/meq/',                    views.MeqList.as_view(),       name="list_meq"),
+    path('create/meq/',                    views.CreateMeqView.as_view(), name="create_meq"),
+    path('create/meq/<str:pop>/',          views.CreateMeqView.as_view(), name="create_meq"),
     path('update/meq/<int:pk>/<str:pop>/', views.UpdateMeqView.as_view(), name="update_meq"),
 
-    path('lookup/loc/', views.LocList.as_view(), name="list_loc"),
-    path('create/loc/', views.CreateLocView.as_view(), name="create_loc"),
-    path('create/loc/<str:pop>/', views.CreateLocView.as_view(), name="create_loc"),
+    path('lookup/loc/',                    views.LocList.as_view(),       name="list_loc"),
+    path('create/loc/',                    views.CreateLocView.as_view(), name="create_loc"),
+    path('create/loc/<str:pop>/',          views.CreateLocView.as_view(), name="create_loc"),
     path('update/loc/<int:pk>/<str:pop>/', views.UpdateLocView.as_view(), name="update_loc"),
 
-    path('lookup/apt/', views.AptList.as_view(), name="list_apt"),
-    path('create/apt/', views.CreateAptView.as_view(), name="create_apt"),
-    path('create/apt/<str:pop>/', views.CreateAptView.as_view(), name="create_apt"),
+    path('lookup/apt/',                    views.AptList.as_view(),       name="list_apt"),
+    path('create/apt/',                    views.CreateAptView.as_view(), name="create_apt"),
+    path('create/apt/<str:pop>/',          views.CreateAptView.as_view(), name="create_apt"),
     path('update/apt/<int:pk>/<str:pop>/', views.UpdateAptView.as_view(), name="update_apt"),
 
-    path('lookup/scp/', views.ScpList.as_view(), name="list_scp"),
-    path('create/scp/', views.CreateScpView.as_view(), name="create_scp"),
-    path('create/scp/<str:pop>/', views.CreateScpView.as_view(), name="create_scp"),
+    path('lookup/scp/',                    views.ScpList.as_view(),       name="list_scp"),
+    path('create/scp/',                    views.CreateScpView.as_view(), name="create_scp"),
+    path('create/scp/<str:pop>/',          views.CreateScpView.as_view(), name="create_scp"),
     path('update/scp/<int:pk>/<str:pop>/', views.UpdateScpView.as_view(), name="update_scp"),
 
     # path('search/', views.SearchFormView.as_view(), name="sample_search"),

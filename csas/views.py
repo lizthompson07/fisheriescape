@@ -645,11 +645,8 @@ class MeetingDetails(DetailsCommon):
 class MeetingDetailsDocs(DetailsCommon):
     key = 'met_doc'
     title = _('Meeting Documentation')
-    # model = models.MedMeetingDocs
     model = models.MetMeeting
     template_name = "csas/csas_details_met_docs.html"
-
-    # fields = ['meeting', 'pub_type', 'status', 'due_date', 'date_posted', 'link', 'confirmed']
     fields = []
 
 
@@ -670,23 +667,16 @@ class MeetingDetailsOtherPars(DetailsCommon):
 class MeetingDetailsOMCosts(DetailsCommon):
     key = 'met_OM_costs'
     title = _('Meeting O&M Costs')
-    # model = models.MocMeetingOMCosts
     model = models.MetMeeting
     template_name = "csas/csas_details_met_costs.html"
-
-    # fields = ['meeting', 'description', 'funding', 'total']
     fields = []
 
 
 class MeetingDetailsMedia(DetailsCommon):
     key = 'met_media'
     title = _('Meeting Media')
-    # model = models.MemMeetingMedia
     model = models.MetMeeting
     template_name = "csas/csas_details_met_media.html"
-
-    # fields = ['meeting', 'media_attention', 'media_attention_yes', 'media_attention_no', 'media_bullets',
-    #           'media_lines']
     fields = []
 
 
@@ -713,7 +703,7 @@ class PublicationEntryStatus(CsasCreateCommon):
         if 'pop' in self.kwargs:
             return reverse_lazy('shared_models:close_me')
         # return reverse_lazy('csas:details_pub_status', args=(self.object.pk,))
-        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
+        return reverse_lazy('csas:details_pub_status', args=(self.object.pk,))
 
 
 class PublicationEntryTransInfo(CsasCreateCommon):
@@ -759,11 +749,6 @@ class PublicationEntryComResults(CsasCreateCommon):
             return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_pub_com_results', args=(self.object.pk,))
 
-
-    def get_success_url(self):
-        if 'pop' in self.kwargs:
-            return reverse_lazy('shared_models:close_me')
-        return reverse_lazy('csas:details_met_media', args=(self.object.pk,))
 
 class PublicationUpdate(CsasUpdateCommon):
     title = _('Update Publication')
@@ -891,12 +876,9 @@ class PublicationDetailsOMCosts(DetailsCommon):
 class PublicationDetailsComResults(DetailsCommon):
     key = 'pub_com_results'
     title = _('Publication Com. of Results')
-    # model = models.PubPublicationComResults
     model = models.PubPublication
     template_name = "csas/csas_details_pub_com_results.html"
-
     fields = []
-    # fields = ['Publication', 'pub_category', 'pub_description', 'pub_size', 'pub_attachment']
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -1063,8 +1045,6 @@ class CommonLookup(CreateView):
 
 class HonorificView(CsasCreateCommon):
     model = models.CohHonorific
-
-
 
 
 class LanguageView(CommonLookup):
