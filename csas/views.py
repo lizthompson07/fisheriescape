@@ -144,14 +144,14 @@ class CsasCreateCommon(shared_view.CommonCreateView):
         return utils.csas_authorized(self.request.user)
 
 
-class CsasCreateCommon3col(shared_view.CommonCreateView):
-    nav_menu = 'csas/csas_nav.html'
-    site_css = 'csas/csas_css.css'
-    template_name = 'csas/csas_entry_form_3col.html'
-
-    # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
-    def test_func(self):
-        return utils.csas_authorized(self.request.user)
+# class CsasCreateCommon3col(shared_view.CommonCreateView):
+#     nav_menu = 'csas/csas_nav.html'
+#     site_css = 'csas/csas_css.css'
+#     template_name = 'csas/csas_entry_form_3col.html'
+#
+#     # overrides the UserPassesTestMixin test to check that a user belongs to the csas_admin group
+#     def test_func(self):
+#         return utils.csas_authorized(self.request.user)
 
 
 # The Update Common class is a quick way to create an entry form to edit existing objects.
@@ -455,6 +455,8 @@ class MeetingEntry(CsasCreateCommon):
     form_class = forms.MeetingForm
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_met', args=(self.object.pk,))
         # return reverse_lazy('csas:index_met', args='')
 
@@ -466,6 +468,8 @@ class MeetingEntryDocs(CsasCreateCommon):
     form_class = forms.MeetingFormDocs
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_met_docs', args=(self.object.pk,))
 
 
@@ -483,6 +487,8 @@ class MeetingEntryDFOPars(CsasCreateCommon):
         return initial
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_met_DFO_pars', args=(self.object.pk,))
 
 
@@ -492,10 +498,12 @@ class MeetingEntryOtherPars(CsasCreateCommon):
     form_class = forms.MeetingFormOtherPars
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_met_other_pars', args=(self.object.pk,))
 
 
-class MeetingEntryOMCosts(CsasCreateCommon3col):
+class MeetingEntryOMCosts(CsasCreateCommon):
     key = 'met_OM_costs'
     title = _('New Meeting O&M Costs Entry')
     model = models.MocMeetingOMCosts
@@ -510,6 +518,8 @@ class MeetingEntryOMCosts(CsasCreateCommon3col):
         return initial
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_met_OM_costs', args=(self.object.pk,))
 
 
@@ -520,6 +530,8 @@ class MeetingEntryMedia(CsasCreateCommon):
     form_class = forms.MeetingFormMedia
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_met_media', args=(self.object.pk,))
 
 
@@ -559,6 +571,7 @@ class MeetingUpdateDFOPars(CsasUpdateCommon):
 
 
 class MeetingUpdateOtherPars(CsasUpdateCommon):
+    key = 'met_other_pars'
     title = _('Update Meeting Other Participants')
     model = models.MetMeetingOtherPars
     form_class = forms.MeetingFormOtherPars
@@ -598,7 +611,7 @@ class MeetingList(CsasListCommon):
     title = _('Meeting List')
     model = models.MetMeeting
     filterset_class = filters.MeetingFilter
-    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location', 'process_type']
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
 
 
 class MeetingListDFOPars(CsasListCommonPars):
@@ -623,17 +636,21 @@ class MeetingDetails(DetailsCommon):
     model = models.MetMeeting
     template_name = "csas/csas_details_met.html"
 
-    fields = ['id', 'title_en', 'title_fr', 'status', 'status_notes', 'quarter',  'start_date', 'end_date',
-              'location', 'scope', 'process_type', 'lead_region', 'other_region', 'chair', 'csas_contact',
-              'program_contact', 'exp_publication', 'chair_comments', 'description']
+    fields = ['id', 'title_en', 'title_fr', 'status', 'status_notes', 'quarter', 'month', 'start_date', 'end_date',
+              'range_en', 'range_fr', 'location_prov', 'location_city',
+              'scope', 'process_type', 'lead_region', 'other_region', 'exp_publication', 'chair', 'csas_contact',
+              'program_contact',  'chair_comments', 'description']
 
 
 class MeetingDetailsDocs(DetailsCommon):
     key = 'met_doc'
     title = _('Meeting Documentation')
-    model = models.MedMeetingDocs
-    fields = ['meeting', 'reference', 'date_submitted', 'date_posted', 'link_en', 'link_fr',
-              'attachment_en', 'attachment_fr']
+    # model = models.MedMeetingDocs
+    model = models.MetMeeting
+    template_name = "csas/csas_details_met_docs.html"
+
+    # fields = ['meeting', 'pub_type', 'status', 'due_date', 'date_posted', 'link', 'confirmed']
+    fields = []
 
 
 class MeetingDetailsDFOPars(DetailsCommon):
@@ -653,17 +670,24 @@ class MeetingDetailsOtherPars(DetailsCommon):
 class MeetingDetailsOMCosts(DetailsCommon):
     key = 'met_OM_costs'
     title = _('Meeting O&M Costs')
-    model = models.MocMeetingOMCosts
-    fields = ['meeting',
-              'description', 'funding', 'total']
+    # model = models.MocMeetingOMCosts
+    model = models.MetMeeting
+    template_name = "csas/csas_details_met_costs.html"
+
+    # fields = ['meeting', 'description', 'funding', 'total']
+    fields = []
 
 
 class MeetingDetailsMedia(DetailsCommon):
     key = 'met_media'
     title = _('Meeting Media')
-    model = models.MemMeetingMedia
-    fields = ['meeting', 'media_attention', 'media_attention_yes', 'media_attention_no',
-              'media_bullets', 'media_lines']
+    # model = models.MemMeetingMedia
+    model = models.MetMeeting
+    template_name = "csas/csas_details_met_media.html"
+
+    # fields = ['meeting', 'media_attention', 'media_attention_yes', 'media_attention_no', 'media_bullets',
+    #           'media_lines']
+    fields = []
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -675,6 +699,8 @@ class PublicationEntry(CsasCreateCommon):
     form_class = forms.PublicationForm
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_pub', args=(self.object.pk,))
 
 
@@ -684,7 +710,10 @@ class PublicationEntryStatus(CsasCreateCommon):
     form_class = forms.PublicationFormStatus
 
     def get_success_url(self):
-        return reverse_lazy('csas:details_pub_status', args=(self.object.pk,))
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        # return reverse_lazy('csas:details_pub_status', args=(self.object.pk,))
+        return reverse_lazy('csas:details_pub', args=(self.object.pk,))
 
 
 class PublicationEntryTransInfo(CsasCreateCommon):
@@ -693,6 +722,8 @@ class PublicationEntryTransInfo(CsasCreateCommon):
     form_class = forms.PublicationFormTransInfo
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_pub_trans_info', args=(self.object.pk,))
 
 
@@ -702,6 +733,8 @@ class PublicationEntryDocLocation(CsasCreateCommon):
     form_class = forms.PublicationFormDocLocation
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_pub_doc_location', args=(self.object.pk,))
 
 
@@ -711,17 +744,26 @@ class PublicationEntryOMCosts(CsasCreateCommon):
     form_class = forms.PublicationFormOMCosts
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_pub_OM_costs', args=(self.object.pk,))
 
 
-class PublicationEntryComResults(CsasCreateCommon3col):
+class PublicationEntryComResults(CsasCreateCommon):
     title = _('New Publication Communication of Results Entry')
     model = models.PubPublicationComResults
     form_class = forms.PublicationFormComResults
 
     def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
         return reverse_lazy('csas:details_pub_com_results', args=(self.object.pk,))
 
+
+    def get_success_url(self):
+        if 'pop' in self.kwargs:
+            return reverse_lazy('shared_models:close_me')
+        return reverse_lazy('csas:details_met_media', args=(self.object.pk,))
 
 class PublicationUpdate(CsasUpdateCommon):
     title = _('Update Publication')
@@ -794,6 +836,7 @@ class PublicationList(CsasListCommon):
     title = _('Publication List')
     model = models.PubPublication
     filterset_class = filters.PublicationFilter
+
     fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
 
 
@@ -801,6 +844,8 @@ class PublicationDetails(DetailsCommon):
     key = 'pub'
     title = _('Publication Details')
     model = models.PubPublication
+    template_name = "csas/csas_details_pub.html"
+
     fields = ['id', 'series', 'lead_region', 'title_en', 'title_fr',  'title_in', 'pub_year',
               'lead_author', 'other_author', 'pub_num', 'pages', 'keywords', 'citation', 'client',
               'description']
@@ -810,6 +855,7 @@ class PublicationDetailsStatus(DetailsCommon):
     key = 'pub_status'
     title = _('Publication Status')
     model = models.PubPublicationStatus
+
     fields = ['publication', 'date_due', 'status', 'status_comments', 'data_submitted', 'submitted_by',
               'date_appr_by_chair', 'appr_by_chair', 'data_appr_by_CSAS', 'appr_by_CSAS', 'date_appr_by_dir',
               'appr_by_dir', 'date_num_req', 'date_doc_submitted', 'date_pdf_proof', 'appr_by', 'date_anti',
@@ -820,6 +866,7 @@ class PublicationDetailsTransInfo(DetailsCommon):
     key = 'pub_trans_info'
     title = _('Publication Translation Info.')
     model = models.PubPublicationTransInfo
+
     fields = ['publication', 'trans_status', 'date_to_trans', 'client_ref_num', 'target_lang',  'trans_ref_num',
               'urgent_req', 'date_fr_trans', 'invoice_num', 'attach', 'trans_note']
 
@@ -828,6 +875,7 @@ class PublicationDetailsDocLocation(DetailsCommon):
     key = 'pub_doc_location'
     title = _('Publication Doc. Location')
     model = models.PubPublicationDocLocation
+
     fields = ['publication', 'attach_en_file', 'attach_en_size', 'attach_fr_file', 'attach_fr_size',
               'url_e', 'url_f', 'dev_link_e', 'dev_link_f', 'lib_cat_e', 'lib_cat_f', 'lib_link_e', 'lib_link_f']
 
@@ -836,15 +884,19 @@ class PublicationDetailsOMCosts(DetailsCommon):
     key = 'pub_OM_costs'
     title = _('Publication O&M Costs')
     model = models.PubPublicationOMCosts
-    fields = ['publication', 'trans_funding', 'trans_code', 'trans_estimate', 'trans_cost']
+
+    fields = ['Publication', 'category', 'trans_funding', 'trans_code', 'trans_estimate', 'trans_cost']
 
 
 class PublicationDetailsComResults(DetailsCommon):
     key = 'pub_com_results'
     title = _('Publication Com. of Results')
-    model = models.PubPublicationComResults
-    fields = ['publication', 'media_line_desc', 'media_line_size', 'media_line_atta', 'brief_mate_desc',
-              'brief_mate_size', 'brief_mate_atta', 'other_comm_desc', 'other_comm_size', 'other_comm_atta']
+    # model = models.PubPublicationComResults
+    model = models.PubPublication
+    template_name = "csas/csas_details_pub_com_results.html"
+
+    fields = []
+    # fields = ['Publication', 'pub_category', 'pub_description', 'pub_size', 'pub_attachment']
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -944,8 +996,8 @@ class CreateMeqView(CommonCsasAuthLookup, MeqMixin, CsasCreateCommon):
 
 class LocMixin:
     key = 'loc'
-    model = models.LocLocation
-    title = _("Meeting Location")
+    model = models.LocLocationProv
+    title = _("Meeting Location Province")
     fields = ['name', 'nom', 'description_en', 'description_fr']
     success_url = reverse_lazy("csas:list_loc")
 

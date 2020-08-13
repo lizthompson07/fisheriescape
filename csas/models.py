@@ -113,7 +113,11 @@ class AptAdvisoryProcessType(shared_models.Lookup):
     pass
 
 
-class LocLocation(shared_models.Lookup):
+class LocLocationProv(shared_models.Lookup):
+    pass
+
+
+class LocLocationCity(shared_models.Lookup):
     pass
 
 
@@ -133,15 +137,26 @@ class MccMeetingCostCategory(shared_models.Lookup):
     pass
 
 
+class MemMeetingMonth(shared_models.Lookup):
+    pass
+
 class MetMeeting(models.Model):
     title_en = models.CharField(max_length=255, verbose_name=_("Meeting Title (English)"))
     title_fr = models.CharField(max_length=255, verbose_name=_("Meeting Title (French)"))
     status = models.ForeignKey(SttStatus, on_delete=models.DO_NOTHING, verbose_name=_("Meeting Status"))
     status_notes = models.TextField(null=True, blank=True, verbose_name=_("Status Notes"))
     quarter = models.ForeignKey(MeqQuarter, on_delete=models.DO_NOTHING, verbose_name=_("Meeting Quarter"))
-    location = models.ForeignKey(LocLocation, on_delete=models.DO_NOTHING, verbose_name=_("Location"))
-    start_date = models.DateField(null=True, blank=True, verbose_name=_("Start Date"))
-    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
+    month = models.ForeignKey(MemMeetingMonth, on_delete=models.DO_NOTHING, verbose_name=_("Meeting Month"))
+    start_date = models.DateField(null=True, blank=True, verbose_name=_("Start Date"),
+                                  help_text=_("Format: YYYY-MM-DD"))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"),
+                                help_text=_("Format: YYYY-MM-DD"))
+    range_en = models.CharField(max_length=255, verbose_name=_("Meeting Date Range (English)"))
+    range_fr = models.CharField(max_length=255, verbose_name=_("Meeting Date Range (French)"))
+    location_prov = models.ForeignKey(LocLocationProv, on_delete=models.DO_NOTHING,
+                                      verbose_name=_("Meeting Location Province"))
+    location_city = models.ForeignKey(LocLocationCity, on_delete=models.DO_NOTHING,
+                                      verbose_name=_("Meeting Location City"))
     scope = models.ForeignKey(ScpScope, on_delete=models.DO_NOTHING, verbose_name=_("Scope"))
     process_type = models.ForeignKey(AptAdvisoryProcessType, on_delete=models.DO_NOTHING,
                                      verbose_name=_("Type of Advisory Process"))
@@ -149,12 +164,16 @@ class MetMeeting(models.Model):
     #                                 verbose_name=_("Lead Region"))
     lead_region = models.ForeignKey(shared_models.Region, blank=True, on_delete=models.DO_NOTHING,
                                     verbose_name=_("Lead Region"))
-    exp_publication = models.ForeignKey(MepMeetingExpectedPublication, null=True, blank=True,
-                                        on_delete=models.DO_NOTHING, verbose_name=_("Expected Publication(s)"))
-    # other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
-    #                                       verbose_name=_("Other Regions"))
     other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
                                           verbose_name=_("Other Regions"))
+    # exp_publication = models.ForeignKey(MepMeetingExpectedPublication, null=True, blank=True,
+    #                                     on_delete=models.DO_NOTHING, verbose_name=_("Expected Publication(s)"))
+    exp_publication = models.ManyToManyField(MepMeetingExpectedPublication, blank=True, related_name="exp_publication",
+                                             verbose_name=_("Expected Publication(s)"))
+
+    # other_region = models.ManyToManyField(shared_models.Region, blank=True, related_name="other_regions",
+    #                                       verbose_name=_("Other Regions"))
+
     chair = models.ManyToManyField(ConContact, blank=True, related_name="chairs", verbose_name=_("Chair(s)"))
     csas_contact = models.ManyToManyField(ConContact, blank=True, related_name="csas_contacts",
                                           verbose_name=_("CSAS Contact(s)"))
@@ -166,7 +185,8 @@ class MetMeeting(models.Model):
     #
 
     chair_comments = models.TextField(null=True, blank=True, verbose_name=_("Chair Comments"))
-    description = models.TextField(null=True, blank=True, verbose_name=_("Description"))
+    description = models.TextField(null=True, blank=True, verbose_name=_("Description"),
+                                   help_text=_("Description of the meeting for reporting to senior management"))
 
     def __str__(self):
         return "{}".format(self.title_en)
@@ -178,16 +198,15 @@ class MetMeeting(models.Model):
 class MedMeetingDocs(models.Model):
     meeting = models.ManyToManyField(MetMeeting, blank=True, related_name="meeting_docs", verbose_name=_('Meeting'))
     # meeting = models.OneToOneField(MetMeeting, on_delete=models.DO_NOTHING, related_name="meeting_doc", primary_key=True)
-    reference = models.ForeignKey(MdfMeetingDocsRef, blank=True, on_delete=models.DO_NOTHING,
-                                  verbose_name=_("Terms of Reference"))
-    date_submitted = models.DateField(null=True, blank=True, default='0001-01-01',
-                                      verbose_name=_("Date Submitted (YYYY-MM-DD)"))
-    date_posted = models.DateField(null=True, blank=True, default='0001-01-01',
-                                   verbose_name=_("Date Posted (YYYY-MM-DD)"))
-    link_en = models.CharField(max_length=255, default='NA', verbose_name=_("Link (English)"))
-    link_fr = models.CharField(max_length=255, default='NA', verbose_name=_("Link (French)"))
-    attachment_en = models.CharField(max_length=255, default='NA', verbose_name=_("Attachment (English)"))
-    attachment_fr = models.CharField(max_length=255, default='NA', verbose_name=_("Attachment (French)"))
+    pub_type = models.ForeignKey(MdfMeetingDocsRef, blank=True, on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Publication Type"))
+    status = models.CharField(max_length=255, default='NA', verbose_name=_("Status"))
+    due_date = models.DateField(null=True, blank=True, default='0001-01-01', help_text=_("Format: YYYY-MM-DD"),
+                                verbose_name=_("Date Submitted"))
+    date_posted = models.DateField(null=True, blank=True, default='0001-01-01', help_text=_("Format: YYYY-MM-DD"),
+                                   verbose_name=_("Posted Date"))
+    link = models.CharField(max_length=255, default='NA', verbose_name=_("Link"))
+    confirmed = models.BooleanField(default=False)
 
 
 class MetMeetingDFOPars(models.Model):
@@ -319,6 +338,14 @@ class PurPublicationUrgentRequest(shared_models.Lookup):
     pass
 
 
+class PccPublicationCostCategory(shared_models.Lookup):
+    pass
+
+
+class PccPublicationComResultsCategory(shared_models.Lookup):
+    pass
+
+
 class PubPublication(models.Model):
     series = models.ForeignKey(PsePublicationSeries, blank=True, on_delete=models.DO_NOTHING,
                                verbose_name=_("Series"))
@@ -351,11 +378,14 @@ class PubPublication(models.Model):
 
 
 class PubPublicationStatus(models.Model):
-    publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
+    publication = models.ManyToManyField(PubPublication, blank=True, related_name="pub_status",
+                                         verbose_name=_('Publication'))
+    # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True,
+    #                                    related_name="pub_status", verbose_name=_('Publication'))
     date_due = models.DateField(null=True, blank=True, verbose_name=_("Date Due"))
     status = models.ForeignKey(PusPublicationStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
     status_comments = models.TextField(null=True, blank=True, verbose_name=_("Status Comments"))
-    data_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted by Author"))
+    date_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted by Author"))
     submitted_by = models.ManyToManyField(ConContact, blank=True, related_name="submitted_by",
                                           verbose_name=_("Submitted By"))
     date_appr_by_chair = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Chair"))
@@ -373,13 +403,15 @@ class PubPublicationStatus(models.Model):
     appr_by = models.ManyToManyField(ConContact, blank=True, related_name="appr_by",
                                      verbose_name=_("Approved by (PDF Proof)"))
     date_anti = models.DateField(null=True, blank=True, verbose_name=_("Date of Anticipated Posting"))
-    date_pasted = models.DateField(null=True, blank=True, verbose_name=_("Date Posted"))
+    date_posted = models.DateField(null=True, blank=True, verbose_name=_("Date Posted"))
     date_modify = models.DateField(null=True, blank=True, verbose_name=_("Date Modified"))
     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
 
 
 class PubPublicationTransInfo(models.Model):
-    publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
+    publication = models.ManyToManyField(PubPublication, blank=True, related_name="pub_trans_info",
+                                         verbose_name=_('Publication'))
+    # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
     trans_status = models.ForeignKey(PtsPublicationTransStatus, on_delete=models.DO_NOTHING,
                                      verbose_name=_("Translation Status"))
     date_to_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Sent to Translation"))
@@ -396,25 +428,50 @@ class PubPublicationTransInfo(models.Model):
 
 
 class PubPublicationDocLocation(models.Model):
-    publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
+    publication = models.ManyToManyField(PubPublication, blank=True, related_name="pub_doc_location",
+                                         verbose_name=_('Publication'))
+    # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
     p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
+
     attach_en_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) File"))
     attach_en_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) Size"))
     attach_fr_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) File"))
     attach_fr_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) Size"))
-    url_e = models.URLField(_("URL (English)"), max_length=128, db_index=True, unique=True, blank=True)
-    url_f = models.URLField(_("URL (French)"), max_length=128, db_index=True, unique=True, blank=True)
-    dev_link_e = models.URLField(_("Dev Link (English)"), max_length=128, db_index=True, unique=True, blank=True)
-    dev_link_f = models.URLField(_("Dev Link (French)"), max_length=128, db_index=True, unique=True, blank=True)
-    lib_cat_e = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (English)"))
-    lib_cat_f = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (French)"))
-    lib_link_e = models.URLField(_("Library Link (English)"), max_length=128, db_index=True, unique=True, blank=True)
-    lib_link_f = models.URLField(_("Library Link (French)"), max_length=128, db_index=True, unique=True, blank=True)
+
+    url_e_file = models.URLField(_("URL (English)"), max_length=255, db_index=True, unique=True, blank=True)
+    url_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("URL (English) Size"))
+    url_f_file = models.URLField(_("URL (French)"), max_length=255, db_index=True, unique=True, blank=True)
+    url_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("URL (French) Size"))
+
+    dev_link_e_file = models.URLField(_("Dev Link (English)"), max_length=255, db_index=True, unique=True, blank=True)
+    dev_link_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("Dev Link (English) Size"))
+    dev_link_f_file = models.URLField(_("Dev Link (French)"), max_length=255, db_index=True, unique=True, blank=True)
+    dev_link_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("Dev Link (French) Size"))
+
+    ekme_gcdocs_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (English)"))
+    ekme_gcdocs_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (English) Size"))
+    ekme_gcdocs_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (French)"))
+    ekme_gcdocs_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("EKME# GCDocs (French) Size"))
+
+    lib_cat_e_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (English)"))
+    lib_cat_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (English) Size"))
+    lib_cat_f_file = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (French)"))
+    lib_cat_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Catalogue # (French) Size"))
+
+    lib_link_e_file = models.URLField(_("Library Link (English)"), max_length=255, db_index=True, unique=True, blank=True)
+    lib_link_e_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Link (English) Size"))
+    lib_link_f_file = models.URLField(_("Library Link (French)"), max_length=255, db_index=True, unique=True, blank=True)
+    lib_link_f_size = models.CharField(default="NA", max_length=255, verbose_name=_("Library Link (French) Size"))
 
 
 class PubPublicationOMCosts(models.Model):
-    publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
-    p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
+    Publication = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING, related_name="publication_costs",
+                                    verbose_name=_("Publication"))
+    # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True,
+    #                                    related_name="publication_costs")
+    category = models.ForeignKey(PccPublicationCostCategory, blank=False, on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Publication Category"), default=1)
+    # p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
     trans_funding = models.CharField(default="NA", max_length=255,
                                      verbose_name=_("Translation Funding Source (e.g. sector)"))
     trans_code = models.CharField(default="NA", max_length=255, verbose_name=_("Translation Coding"))
@@ -423,21 +480,13 @@ class PubPublicationOMCosts(models.Model):
 
 
 class PubPublicationComResults(models.Model):
-    publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
-    p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
-    p2 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
-    media_line_desc = models.TextField(null=True, blank=True, verbose_name=_("Media Lines Description"))
-    media_line_size = models.CharField(default="NA", max_length=255, verbose_name=_("Media Lines Size"))
-    media_line_atta = models.CharField(default="NA", max_length=255, verbose_name=_("Media Lines Attachment"))
-    brief_mate_desc = models.TextField(null=True, blank=True, verbose_name=_("Briefing Material Description"))
-    brief_mate_size = models.CharField(default="NA", max_length=255, verbose_name=_("Briefing Material Size"))
-    brief_mate_atta = models.CharField(default="NA", max_length=255, verbose_name=_("Briefing Material Attachment"))
-    other_comm_desc = models.TextField(null=True, blank=True,
-                                       verbose_name=_("Other Communication Material Description"))
-    other_comm_size = models.CharField(default="NA", max_length=255,
-                                       verbose_name=_("Other Communication Material Size"))
-    other_comm_atta = models.CharField(default="NA", max_length=255,
-                                       verbose_name=_("Other Communication Material Attachment"))
+    Publication = models.ForeignKey(PubPublication, on_delete=models.DO_NOTHING, related_name="pub_com_results",
+                                    verbose_name=_("Publication"))
+    # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
+    pub_category = models.ForeignKey(PccPublicationComResultsCategory, on_delete=models.DO_NOTHING, verbose_name=_("Category"))
+    pub_description = models.TextField(null=True, blank=True, verbose_name=_("Description"))
+    pub_size = models.CharField(default="NA", max_length=255, verbose_name=_("Size"))
+    pub_attachment = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment"))
 
 
 class MepExpectedPublication(models.Model):

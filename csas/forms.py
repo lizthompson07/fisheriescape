@@ -222,9 +222,7 @@ class PublicationFormComResults(forms.ModelForm):
         widgets = {
             "p1": Textarea(attrs={"class": "hidden", "rows": 0, "cols": 0}),
             "p2": Textarea(attrs={"class": "hidden", "rows": 0, "cols": 0}),
-            "media_line_desc": Textarea(attrs={"rows": 3, "cols": 20}),
-            "brief_mate_desc": Textarea(attrs={"rows": 3, "cols": 20}),
-            "other_comm_desc": Textarea(attrs={"rows": 3, "cols": 20})
+            "pub_description": Textarea(attrs={"rows": 2, "cols": 20})
         }
 
     def __init__(self, *args, **kwargs):

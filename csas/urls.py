@@ -64,12 +64,22 @@ urlpatterns = [
     # for Publications
     path('publication/',                  views.PublicationList.as_view(),             name="list_pub"),
 
-    path('publication/new/',              views.PublicationEntry.as_view(),            name="create_pub"),
-    path('publication_status/new/',       views.PublicationEntryStatus.as_view(),      name="create_pub_status"),
-    path('publication_trans_info/new/',   views.PublicationEntryTransInfo.as_view(),   name="create_pub_trans_info"),
-    path('publication_doc_location/new/', views.PublicationEntryDocLocation.as_view(), name="create_pub_doc_location"),
-    path('publication_OM_costs/new/',     views.PublicationEntryOMCosts.as_view(),     name="create_pub_OM_costs"),
-    path('publication_comm_results/new/', views.PublicationEntryComResults.as_view(),  name="create_pub_com_results"),
+    path('publication/new/',                                     views.PublicationEntry.as_view(),            name="create_pub"),
+
+    path('publication_status/new/<int:pub_id>/<str:pop>/',       views.PublicationEntryStatus.as_view(),      name="create_pub_status"),
+    path('publication_status/new/',                              views.PublicationEntryStatus.as_view(),      name="create_pub_status"),
+
+    path('publication_trans_info/new/<int:pub_id>/<str:pop>/',   views.PublicationEntryTransInfo.as_view(),   name="create_pub_trans_info"),
+    path('publication_trans_info/new/',                          views.PublicationEntryTransInfo.as_view(),   name="create_pub_trans_info"),
+
+    path('publication_doc_location/new/<int:pub_id>/<str:pop>/', views.PublicationEntryDocLocation.as_view(), name="create_pub_doc_location"),
+    path('publication_doc_location/new/',                        views.PublicationEntryDocLocation.as_view(), name="create_pub_doc_location"),
+
+    path('publication_OM_costs/new/<int:pub_id>/<str:pop>/',     views.PublicationEntryOMCosts.as_view(),     name="create_pub_OM_costs"),
+    path('publication_OM_costs/new/',                            views.PublicationEntryOMCosts.as_view(),     name="create_pub_OM_costs"),
+
+    path('publication_comm_results/new/<int:pub_id>/<str:pop>/', views.PublicationEntryComResults.as_view(),  name="create_pub_com_results"),
+    path('publication_comm_results/new/',                        views.PublicationEntryComResults.as_view(),  name="create_pub_com_results"),
 
     path('publication/update/<int:pk>/<str:pop>/', views.PublicationUpdate.as_view(),  name="update_pub"),
     path('publication/update/<int:pk>/',           views.PublicationUpdate.as_view(),  name="update_pub"),
