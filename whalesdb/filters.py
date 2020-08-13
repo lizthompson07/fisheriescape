@@ -3,6 +3,7 @@ import django_filters
 from django.utils.translation import gettext as _
 
 from . import models
+import shared_models.models as shared_models
 
 
 class DepFilter(django_filters.FilterSet):
@@ -95,3 +96,10 @@ class TeaFilter(django_filters.FilterSet):
     class Meta:
         model = models.TeaTeamMember
         fields = []
+
+
+class CruFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = shared_models.Cruise
+        fields = ['start_date', 'end_date']

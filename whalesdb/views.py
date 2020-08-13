@@ -1,17 +1,17 @@
-from django.views.generic import TemplateView, CreateView, DetailView, UpdateView
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.views.generic import TemplateView, DetailView
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.conf import settings
 
 from django.urls import reverse_lazy
-from django_filters.views import FilterView
 from django.utils.translation import gettext_lazy as _
 
 from whalesdb import forms, models, filters, utils
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from shared_models.views import CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView
 
 import json
+import shared_models.models as shared_models
 
 
 def rst_delete(request, pk):
@@ -73,6 +73,13 @@ class CommonCreate(CommonAuthCreateView):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
         return context
+
+
+class CruCreate(CommonCreate):
+    key = 'cru'
+    model = shared_models.Cruise
+    form_class = forms.CruForm
+    title = _("Create Cruise")
 
 
 class DepCreate(CommonCreate):
@@ -310,6 +317,13 @@ class CommonUpdate(CommonAuthUpdateView):
         return context
 
 
+class CruUpdate(CommonUpdate):
+    key = 'cru'
+    model = shared_models.Cruise
+    form_class = forms.CruForm
+    title = _("Update Cruise")
+
+
 class DepUpdate(CommonUpdate):
     model = models.DepDeployment
     form_class = forms.DepForm
@@ -438,6 +452,14 @@ class CommonDetails(DetailView):
         context['editable'] = context['auth'] and self.editable
 
         return context
+
+
+class CruDetails(CommonDetails):
+    key = "cru"
+    model = shared_models.Cruise
+    title = _("Cruise Details")
+    fields = ["institute", "mission_number", "mission_name", "description", "chief_scientist", "samplers", "start_date",
+              "end_date", "probe", "area_of_operation", "number_of_profiles", "meds_id", "notes", "season","vessel", ]
 
 
 class DepDetails(CommonDetails):
@@ -701,3 +723,26 @@ class TeaList(CommonList):
 
     details_url = False
     update_url = False
+
+
+class CruList(CommonList):
+    queryset = shared_models.Cruise.objects.all().order_by("-season", "mission_number")
+
+    key = 'cru'
+    model = shared_models.Cruise
+    filterset_class = filters.CruFilter
+    fields = ["mission_number", "description", "chief_scientist", "samplers", "start_date", "end_date", "notes",
+              "season", "vessel" ]
+    title = _("Cruise List")
+
+    update_url = False
+    details_url = "whalesdb:details_cru"
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)

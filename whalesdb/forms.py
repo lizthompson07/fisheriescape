@@ -1,7 +1,21 @@
 from django import forms
 from whalesdb import models
-from dm_apps import custom_widgets
-import datetime
+
+import shared_models.models as shared_models
+
+
+class CruForm(forms.ModelForm):
+    class Meta:
+        model = shared_models.Cruise
+        fields = ["mission_number",
+                  "description",
+                  "chief_scientist",
+                  "samplers",
+                  "start_date",
+                  "end_date",
+                  "notes",
+                  "season",
+                  "vessel", ]
 
 
 class DepForm(forms.ModelForm):
