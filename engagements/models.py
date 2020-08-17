@@ -69,5 +69,39 @@ class Organization(models.Model):
         super(Organization, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('org_detail', kwargs={'slug': self.slug})
+        return reverse('organizations_detail', kwargs={'slug': self.slug})
 
+class Individual(models.Model):
+    first_name = models.CharField(max_length=45)
+    last_name = models.CharField(max_length=45)
+    title = models.CharField(max_length=45, blank=True)
+    organization = models.ManyToManyField(Organization, blank=True)
+    email_address = models.EmailField(blank=True, null=True)
+    phone_number = PhoneNumberField(blank=True, null=True)
+    fax_number = PhoneNumberField(blank=True, null=True)
+    address_line_1 = models.CharField(max_length=31, blank=True)
+    address_line_2 = models.CharField(max_length=31, blank=True)
+    city = models.CharField(max_length=15, blank=True)
+    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, related_name='individuals', null=True)
+    zip_postal = models.CharField("ZIP/Postal Code", max_length=10, blank=True)
+    country = models.CharField(max_length=50, blank=True, default='Canada')
+    linkedin_profile = models.URLField("LinkedIn profile", blank=True, null=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    last_modified = models.DateTimeField(auto_now=True)
+    slug = models.SlugField(max_length=127)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.slug = slugify(self.__str__())
+        super(Individual, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('individuals_detail', kwargs={'slug': self.slug})
+
+    @property
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
