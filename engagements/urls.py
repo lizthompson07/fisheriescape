@@ -5,4 +5,5 @@ app_name = 'engagements'
 
 urlpatterns = [
     path('', views.engagements_home, name='home'),
+    path('organizations/', views.organization_list_view, name='organizations_list'),
 ]
