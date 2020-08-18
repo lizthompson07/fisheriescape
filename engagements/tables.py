@@ -6,6 +6,6 @@ class OrganizationListTable(tables.Table):
     location = tables.Column(accessor='location_long', verbose_name='Location', order_by=('country', 'province', 'city'))
     class Meta:
         model = models.Organization
-        fields = ('legal_name', 'phone_number', 'location', 'organization_type')
+        fields = ('legal_name', 'phone_number', 'location', 'stakeholder_type')
         attrs = {"class": 'table table-hover'}
         template_name = "engagements/table_organizations_list.html"
