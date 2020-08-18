@@ -1,4 +1,4 @@
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import TemplateView, DetailView, DeleteView
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.conf import settings
@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
 from whalesdb import forms, models, filters, utils
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from shared_models.views import CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView
 
 import json
@@ -323,6 +323,9 @@ class CruUpdate(CommonUpdate):
     form_class = forms.CruForm
     title = _("Update Cruise")
 
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:details_cru", args=(self.kwargs['pk'],))
+
 
 class DepUpdate(CommonUpdate):
     model = models.DepDeployment
@@ -581,6 +584,9 @@ class CommonList(CommonAuthFilterView):
     # URL to use for the update button element in the filter view's list
     update_url = None
 
+    # URL to use for the delete button element in the filter view's list
+    delete_url = False
+
     # The height of the popup dialog used to display the creation/update form
     # if not set by the extending class the default popup height will be used
     creation_form_height = None
@@ -603,6 +609,9 @@ class CommonList(CommonAuthFilterView):
     def get_update_url(self):
         return self.update_url if self.update_url is not None else "whalesdb:update_{}".format(self.key)
 
+    def get_delete_url(self):
+        return self.delete_url if self.delete_url is not None else "whalesdb:delete_{}".format(self.key)
+
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
 
@@ -617,6 +626,7 @@ class CommonList(CommonAuthFilterView):
         context['create_url'] = self.get_create_url()
         context['details_url'] = self.get_details_url()
         context['update_url'] = self.get_update_url()
+        context['delete_url'] = self.get_delete_url()
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
@@ -735,8 +745,8 @@ class CruList(CommonList):
               "season", "vessel" ]
     title = _("Cruise List")
 
-    update_url = False
     details_url = "whalesdb:details_cru"
+    delete_url = "whalesdb:delete_cru"
 
     def test_func(self):
         return utils.whales_authorized(self.request.user)
@@ -746,3 +756,19 @@ class CruList(CommonList):
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect('/accounts/denied/')
         return super().dispatch(request, *args, **kwargs)
+
+
+class CruDeleteView(UserPassesTestMixin, DeleteView):
+    model = shared_models.Cruise
+    success_url = reverse_lazy('whalesdb:list_cru')
+    success_message = 'The cruise was successfully deleted!'
+    template_name = 'whalesdb/cruise_confirm_delete.html'
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+

@@ -68,30 +68,34 @@
                     {% for field in fields %}
                     <th>{% get_verbose_label filter.qs.first field %}</th>
                     {% endfor %}
-                    {% if details_url %}
-                    <th></th>
-                    {% endif %}
-                    {% if editable and update_url %}
+                    {% if details_url or editable and update_url or auth and delete_url %}
                     <th></th>
                     {% endif %}
                 </tr>
                 </thead>
                 <tbody>
                     {% for obj in filter.qs %}
-                        <tr>
+                        <td>
                         {% for field in fields %}
                         <td>{% get_field_value obj field %}</td>
                         {% endfor %}
+                            {% if details_url or editable and update_url or auth and delete_url %}
+                            <td>
                             {% if details_url %}
-                            <td><a class="btn btn-primary btn-sm" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a></td>
+                            <a class="btn btn-primary btn-sm my-1" href="{% url ''|add:details_url obj.pk %}">{% trans 'Details' %}</a>
                             {% endif %}
                             {% if editable and update_url%}
                                 {# if the update url contains /pop/ then open the url in a popup window #}
                                 {% if '/pop/' in update_url %}
-                                    <td><a class="btn btn-primary btn-sm" href="#" onclick="return pop('{% url ''|add:update_url obj.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
+                                    <a class="btn btn-primary btn-sm my-1" href="#" onclick="return pop('{% url ''|add:update_url obj.pk 'pop' %}', 'details_table')" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
                                 {% else %}
-                                    <td><a class="btn btn-primary btn-sm" href="{% url ''|add:update_url obj.pk %}" title="{% trans 'Update' %}">{% trans 'Update' %}</a></td>
+                                    <a class="btn btn-primary btn-sm my-1" href="{% url ''|add:update_url obj.pk %}" title="{% trans 'Update' %}">{% trans 'Update' %}</a>
                                 {% endif %}
+                            {% endif %}
+                            {% if auth and delete_url %}
+                            <a class="btn btn-danger my-1" href="{% url ''|add:delete_url obj.id %}">Delete</a>
+                            {% endif %}
+                            </td>
                             {% endif %}
                         </tr>
                     {% endfor %}

@@ -12,7 +12,7 @@ urlpatterns = [
     path('create/cru/new/', views.CruCreate.as_view(), name="create_cru"),
     path('details/cru/<int:pk>/', views.CruDetails.as_view(), name="details_cru"),
     path('update/cru/<int:pk>/', views.CruUpdate.as_view(), name="update_cru"),
-    # path('cruise/<int:pk>/delete/', views.CruiseDeleteView.as_view(), name ="cruise_delete" ),
+    path('delete/cru/<int:pk>/', views.CruDeleteView.as_view(), name="delete_cru"),
 
     path('create/dep/', views.DepCreate.as_view(), name="create_dep"),
     path('create/dep/<str:pop>/', views.DepCreate.as_view(), name="create_dep"),
