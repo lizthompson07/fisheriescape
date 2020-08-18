@@ -53,7 +53,7 @@ class Organization(models.Model):
     profit_nonprofit = models.PositiveIntegerField('Profit/Non-Profit', choices=PROFIT_OPTIONS, default=None,
                                                    blank=True, null=True)
     stakeholder_type = models.PositiveIntegerField(choices=STAKEHOLDER_TYPE, default=3)
-    parent_organizations = models.ManyToManyField('self', blank=True)
+    parent_organizations = models.ManyToManyField('self', symmetrical=False, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='created_organizations')
     last_modified = models.DateTimeField(auto_now=True)
@@ -74,6 +74,11 @@ class Organization(models.Model):
     @property
     def stakeholder_type_str(self):
         type_str = [item[1] for item in STAKEHOLDER_TYPE if item[0] == self.stakeholder_type]
+        return str(type_str[0])
+
+    @property
+    def profit_str(self):
+        type_str = [item[1] for item in PROFIT_OPTIONS if item[0] == self.profit_nonprofit]
         return str(type_str[0])
 
     @property
@@ -121,6 +126,7 @@ class Individual(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT)
     last_modified = models.DateTimeField(auto_now=True)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='modified_individuals')
     slug = models.SlugField(max_length=127)
 
     def __str__(self):
