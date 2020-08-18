@@ -69,7 +69,39 @@ class Organization(models.Model):
         super(Organization, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('organizations_detail', kwargs={'slug': self.slug})
+        return reverse('engagements:organization_detail', kwargs={'slug': self.slug})
+
+    @property
+    def stakeholder_type_str(self):
+        type_str = [item[1] for item in STAKEHOLDER_TYPE if item[0] == self.stakeholder_type]
+        return str(type_str[0])
+
+    @property
+    def location_long(self):
+        out = ""
+        if self.city is not None:
+            out += f"{self.city}"
+
+        if self.province is not None:
+            if self.province.abbrev_eng is not None:
+                if out == "":
+                    out += self.province.abbrev_eng
+                else:
+                    out += f", {self.province.abbrev_eng}"
+            else:
+                if out == "":
+                    out += self.province.name
+                else:
+                    out += f", {self.province.name}"
+
+        else:
+            if self.country is not None:
+                if out == "":
+                    out += self.country
+                else:
+                    out += f", {self.country}"
+
+        return out
 
 class Individual(models.Model):
     first_name = models.CharField(max_length=45)
@@ -100,7 +132,7 @@ class Individual(models.Model):
         super(Individual, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('individuals_detail', kwargs={'slug': self.slug})
+        return reverse('engagements:individual_detail', kwargs={'slug': self.slug})
 
     @property
     def full_name(self):
