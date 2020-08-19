@@ -28,10 +28,10 @@ for row in csv_data:
                                                 cc_grad, \
                                                 notes, \
                                                 contact_type_id, \
+                                                region_id, \
                                                 honorific_id, \
                                                 language_id, \
                                                 notification_preference_id, \
-                                                region_id, \
                                                 role_id, \
                                                 sector_id) \
                     VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", row)

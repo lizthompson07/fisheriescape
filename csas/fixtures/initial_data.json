@@ -458,5 +458,85 @@
     "description_en": null,
     "description_fr": null
   }
+},
+{
+    "model": "csas.mccmeetingcostcategory",
+    "pk": 1,
+    "fields": {
+        "name": "Hospitality",
+        "nom": "Hospitality (fr)",
+        "description_en": "",
+        "description_fr": ""
+    }
+},
+{
+    "model": "csas.mccmeetingcostcategory",
+    "pk": 2,
+    "fields": {
+        "name": "Travel",
+        "nom": "Travel (fr)",
+        "description_en": "",
+        "description_fr": ""
+    }
+},
+{
+    "model": "csas.mccmeetingcostcategory",
+    "pk": 3,
+    "fields": {
+        "name": "Rentals",
+        "nom": "Rentals (fr)",
+        "description_en": "",
+        "description_fr": ""
+    }
+},
+{
+    "model": "csas.mccmeetingcostcategory",
+    "pk": 4,
+    "fields": {
+        "name": "Office",
+        "nom": "Office (fr)",
+        "description_en": "",
+        "description_fr": ""
+    }
+},
+{
+    "model": "csas.mccmeetingcostcategory",
+    "pk": 5,
+    "fields": {
+        "name": "Venue",
+        "nom": "Venue (fr)",
+        "description_en": "",
+        "description_fr": ""
+    }
+},
+{
+    "model": "csas.mccmeetingcostcategory",
+    "pk": 6,
+    "fields": {
+        "name": "Interpretation",
+        "nom": "Interpretation (fr)",
+        "description_en": "",
+        "description_fr": ""
+    }
+},
+{
+    "model": "csas.mccmeetingcostcategory",
+    "pk": 7,
+    "fields": {
+        "name": "Contractors",
+        "nom": "Contractors (fr)",
+        "description_en": "",
+        "description_fr": ""
+    }
+},
+{
+    "model": "csas.mccmeetingcostcategory",
+    "pk": 8,
+    "fields": {
+        "name": "Planning",
+        "nom": "Planning (fr)",
+        "description_en": "",
+        "description_fr": ""
+    }
 }
 ]
