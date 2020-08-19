@@ -41,7 +41,7 @@
                     </div>
                     <div class="form-group">
                         <label class="mb-0">Email Address</label><br>
-                        {{ organization.email_address }}
+                        <a href="mailto:{{ organization.email }}">{{ organization.email }}</a>
                     </div>
                     <div class="form-group">
                         <label class="mb-0">Website</label><br>
@@ -57,6 +57,10 @@
                     </div>
                 </div>
                 <div class="col">
+                    <div class="form-group">
+                        <label class="mb-0">CRA Business Number</label><br>
+                        {{ organization.business_number }}
+                    </div>
                     <div class="form-group">
                         <label class="mb-0">Stakeholder Type</label><br>
                         {{ organization.stakeholder_type_str }}
