@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('shared_models', '0007_auto_20200617_0856'),
-        ('projects', '0017_merge_20200625_1543'),
+        ('projects', '0016_referencematerial'),
     ]
 
     operations = [
