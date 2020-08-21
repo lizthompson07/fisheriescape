@@ -12,4 +12,11 @@ urlpatterns = [
     path('organizations/<slug:slug>', views.OrganizationDetailView.as_view(), name='organization_detail'),
     path('organizations/<slug:slug>/edit', views.OrganizationUpdateView.as_view(), name='organization_update'),
     path('organizations/<slug:slug>/delete', views.OrganizationDeleteView.as_view(), name='organization_delete'),
+    
+    # Individuals
+    path('individuals/', views.IndividualListView.as_view(), name='individual_list'),
+    path('individuals/add', views.IndividualCreateView.as_view(), name='individual_create'),
+    path('individuals/<slug:slug>', views.IndividualDetailView.as_view(), name='individual_detail'),
+    path('individuals/<slug:slug>/edit', views.IndividualUpdateView.as_view(), name='individual_update'),
+    path('individuals/<slug:slug>/delete', views.IndividualDeleteView.as_view(), name='individual_delete'),
 ]

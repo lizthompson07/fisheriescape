@@ -6,38 +6,22 @@
 {% bootstrap_css %}
 {% load render_table from django_tables2 %}
 
-{% block pagetitle %}New Organization{% endblock %}
+{% block pagetitle %}New Individual{% endblock %}
 
 {% block breadcrumbs %}
     <li class="breadcrumb-item"><a href="{% url 'engagements:home' %}">Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{% url 'engagements:organization_list' %}">Organizations</a></li>
-    <li class="breadcrumb-item active" aria-current="page">New Organization</li>
+    <li class="breadcrumb-item"><a href="{% url 'engagements:individual_list' %}">Individuals</a></li>
+    <li class="breadcrumb-item active" aria-current="page">New Individual</li>
 {% endblock breadcrumbs %}
 
 {% block content %}
 
 <form action="" method="post">
     {% csrf_token %}
-
-    <!-- JS - dynamically hide other organization field -->
-    <script>function Hide()
-    {
-        // If Org type is 'Other', set field attribute to 'form-group', else hide using Bootstrap 'd-none'
-        if(document.getElementById('id_organization_type').options[document.getElementById('id_organization_type').selectedIndex].value == "Other")
-        {
-            document.getElementById('other_org_group').setAttribute('class', 'form-group');
-        } else {
-            document.getElementById('other_org_group').setAttribute('class', 'd-none')
-        }
-    }
-    window.onload = function() {
-        document.getElementById('id_organization_type').onchange = Hide;
-    };
-    </script>
-
+    <!-- TODO: fields -->
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 pt-2 border-bottom">
         <div class="mr-auto">
-            <h3 class="mb-0">New Organization</h3>
+            <h3 class="mb-0">New Individual</h3>
         </div>
         <input type="submit" value="Save" class="btn btn-success mr-2">
         <a href="javascript:history.back()" class="btn btn-danger">Cancel</a></td>
@@ -46,12 +30,26 @@
         <div class="col-9">
             <div class="row">
                 <div class="col">
+                    <div class="form-row">
                     {{ form.non_field_errors }}
+                    <div class="form-group col">
+                        {{ form.first_name.errors }}
+                        <label class="mb-0" for="{{ form.first_name.id_for_label }}">First Name</label><br>
+                        {{ form.first_name }}
+                        <small class="form-text text-muted">{{ form.first_name.help_text }}</small>
+                    </div>
+                    <div class="form-group col">
+                        {{ form.last_name.errors }}
+                        <label class="mb-0" for="{{ form.last_name.id_for_label }}">Last Name</label><br>
+                        {{ form.last_name }}
+                        <small class="form-text text-muted">{{ form.last_name.help_text }}</small>
+                    </div>
+                    </div>
                     <div class="form-group">
-                        {{ form.legal_name.errors }}
-                        <label class="mb-0" for="{{ form.legal_name.id_for_label }}">Name</label><br>
-                        {{ form.legal_name }}
-                        <small class="form-text text-muted">{{ form.legal_name.help_text }}</small>
+                        {{ form.email_address.errors }}
+                        <label class="mb-0" for="{{ form.email_address.id_for_label }}">Email Address</label><br>
+                        {{ form.email_address }}
+                        <small class="form-text text-muted">{{ form.email_address.help_text }}</small>
                     </div>
                     <div class="form-group">
                         {{ form.phone_number.errors }}
@@ -66,16 +64,24 @@
                         <small class="form-text text-muted">{{ form.fax_number.help_text }}</small>
                     </div>
                     <div class="form-group">
-                        {{ form.email.errors }}
-                        <label class="mb-0" for="{{ form.email.id_for_label }}">Email Address</label><br>
-                        {{ form.email }}
-                        <small class="form-text text-muted">{{ form.email.help_text }}</small>
+                        {{ form.linkedin_profile.errors }}
+                        <label class="mb-0" for="{{ form.linkedin_profile.id_for_label }}">LinkedIn Profile</label><br>
+                        {{ form.linkedin_profile }}
+                        <small class="form-text text-muted">{{ form.linkedin_profile.help_text }}</small>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        {{ form.title.errors }}
+                        <label class="mb-0" for="{{ form.title.id_for_label }}">Title</label><br>
+                        {{ form.title }}
+                        <small class="form-text text-muted">{{ form.title.help_text }}</small>
                     </div>
                     <div class="form-group">
-                        {{ form.webpage.errors }}
-                        <label class="mb-0" for="{{ form.webpage.id_for_label }}">Webpage</label><br>
-                        {{ form.webpage }}
-                        <small class="form-text text-muted">{{ form.webpage.help_text }}</small>
+                        {{ form.organization.errors }}
+                        <label class="mb-0" for="{{ form.parent_organizations.id_for_label }}">Organizations</label><br>
+                        {{ form.organization }}
+                        <small class="form-text text-muted">{{ form.organization.help_text }}</small>
                     </div>
                     <div class="form-group">
                         {{ form.address_line_1.errors }}
@@ -116,44 +122,6 @@
                         {{ form.country }}
                         <small class="form-text text-muted">{{ form.country.help_text }}</small>
                     </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        {{ form.business_number.errors }}
-                        <label class="mb-0" for="{{ form.business_number.id_for_label }}">CRA Business Number</label><br>
-                        {{ form.business_number }}
-                        <small class="form-text text-muted">{{ form.business_number.help_text }}</small>
-                    </div>
-                    <div class="form-group">
-                        {{ form.stakeholder_type.errors }}
-                        <label class="mb-0" for="{{ form.stakeholder_type.id_for_label }}">Stakeholder Type</label><br>
-                        {{ form.stakeholder_type }}
-                        <small class="form-text text-muted">{{ form.stakeholder_type.help_text }}</small>
-                    </div>
-                    <div class="form-group">
-                        {{ form.organization_type.errors }}
-                        <label class="mb-0" for="{{ form.organization_type.id_for_label }}">Organization Type</label><br>
-                        {{ form.organization_type }}
-                        <small class="form-text text-muted">{{ form.organization_type.help_text }}</small>
-                    </div>
-                    <div class="d-none" id="other_org_group">
-                        {{ form.other_organization_type.errors }}
-                        <label class="mb-0" for="{{ form.other_organization_type.id_for_label }}">Other Organization Type</label><br>
-                        {{ form.other_organization_type }}
-                        <small class="form-text text-muted">{{ form.other_organization_type.help_text }}</small>
-                    </div>
-                    <div class="form-group">
-                        {{ form.profit_nonprofit.errors }}
-                        <label class="mb-0" for="{{ form.profit_nonprofit.id_for_label }}">For Profit?</label><br>
-                        {{ form.profit_nonprofit }}
-                        <small class="form-text text-muted">{{ form.profit_nonprofit.help_text }}</small>
-                    </div>
-                    <div class="form-group">
-                        {{ form.parent_organizations.errors }}
-                        <label class="mb-0" for="{{ form.parent_organizations.id_for_label }}">Parent Organizations</label><br>
-                        {{ form.parent_organizations }}
-                        <small class="form-text text-muted">{{ form.parent_organizations.help_text }}</small>
                     </div>
                 </div>
             </div>

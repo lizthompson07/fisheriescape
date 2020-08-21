@@ -1,17 +1,15 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-from phonenumber_field.formfields import PhoneNumberField
 
-from .models import Organization
-
-# Add, Update, Delete forms required
+from .models import Organization, Individual
 
 bs_form_attrs = {'class': 'form-control'}
 
 # Organization - New
 class OrganizationCreateForm(forms.ModelForm):
     error_css_class = 'is-invalid'
+
     class Meta:
         model = Organization
         exclude = ['slug', 'created_by', 'last_modified_by']
@@ -42,11 +40,15 @@ class OrganizationCreateForm(forms.ModelForm):
 
 # Organization - Update
 class OrganizationForm(forms.ModelForm):
+    error_css_class = 'is-invalid'
+
     class Meta:
         model = Organization
         exclude = ['slug', 'created_by', 'last_modified_by']
         help_texts = {
-            'legal_name': "Enter the organization's legal name (127 characters maximum)"
+            'legal_name': "Enter the organization's legal name (127 characters maximum).",
+            'phone_number': "Enter in '+12345678900' format",
+            'fax_number': "Enter in '+12345678900' format",
         }
         widgets = {
             'legal_name': forms.TextInput(attrs=bs_form_attrs),
@@ -68,7 +70,53 @@ class OrganizationForm(forms.ModelForm):
             'parent_organizations': forms.SelectMultiple(attrs=bs_form_attrs),
         }
 
+# Individual - Create
+class IndividualCreateForm(forms.ModelForm):
+    error_css_class = 'is-invalid'
 
+    class Meta:
+        model = Individual
+        exclude = ['slug', 'created_by', 'last_modified_by']
+        widgets = {
+            'first_name': forms.TextInput(attrs=bs_form_attrs),
+            'last_name': forms.TextInput(attrs=bs_form_attrs),
+            'title': forms.TextInput(attrs=bs_form_attrs),
+            'organization': forms.SelectMultiple(attrs=bs_form_attrs),
+            'email_address': forms.EmailInput(attrs=bs_form_attrs),
+            'phone_number': forms.TextInput(attrs=bs_form_attrs),
+            'fax_number': forms.TextInput(attrs=bs_form_attrs),
+            'address_line_1': forms.TextInput(attrs=bs_form_attrs),
+            'address_line_2': forms.TextInput(attrs=bs_form_attrs),
+            'city': forms.TextInput(attrs=bs_form_attrs),
+            'province': forms.Select(attrs=bs_form_attrs),
+            'zip_postal': forms.TextInput(attrs=bs_form_attrs),
+            'country': forms.TextInput(attrs=bs_form_attrs),
+            'linkedin_profile': forms.URLInput(attrs=bs_form_attrs)
+        }
+
+# Individual - Update
+class IndividualForm(forms.ModelForm):
+    error_css_class = 'is-invalid'
+
+    class Meta:
+        model = Individual
+        exclude = ['slug', 'created_by', 'last_modified_by']
+        widgets = {
+            'first_name': forms.TextInput(attrs=bs_form_attrs),
+            'last_name': forms.TextInput(attrs=bs_form_attrs),
+            'title': forms.TextInput(attrs=bs_form_attrs),
+            'organization': forms.SelectMultiple(attrs=bs_form_attrs),
+            'email_address': forms.EmailInput(attrs=bs_form_attrs),
+            'phone_number': forms.TextInput(attrs=bs_form_attrs),
+            'fax_number': forms.TextInput(attrs=bs_form_attrs),
+            'address_line_1': forms.TextInput(attrs=bs_form_attrs),
+            'address_line_2': forms.TextInput(attrs=bs_form_attrs),
+            'city': forms.TextInput(attrs=bs_form_attrs),
+            'province': forms.Select(attrs=bs_form_attrs),
+            'zip_postal': forms.TextInput(attrs=bs_form_attrs),
+            'country': forms.TextInput(attrs=bs_form_attrs),
+            'linkedin_profile': forms.URLInput(attrs=bs_form_attrs)
+        }
 
 ### Mozilla Example
 # import datetime

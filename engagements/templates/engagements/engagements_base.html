@@ -20,7 +20,7 @@
             </h6>
             <ul class="nav flex-column mb-2">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Individuals</a>
+                    <a class="nav-link {% if nbar == 'individuals' %}active{% endif %}" href="{% url 'engagements:individual_list' %}">Individuals</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {% if nbar == 'organizations' %}active{% endif %}" href="{% url 'engagements:organization_list' %}">Organizations</a>
