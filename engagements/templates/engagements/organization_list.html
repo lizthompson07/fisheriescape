@@ -19,7 +19,7 @@
     </div>
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2">
         <div class="mr-auto">
-            <a href="" class="btn btn-success">Create new organization</a>
+            <a href="{% url 'engagements:organization_create' %}" class="btn btn-success">Create new organization</a>
         </div>
         <!-- Table pagination -->
         {% if table.page and table.paginator.num_pages > 1 %}
