@@ -228,7 +228,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'America/Halifax'
+TIME_ZONE = config("TIME_ZONE", cast=str, default='UTC')
 
 USE_I18N = True
 
