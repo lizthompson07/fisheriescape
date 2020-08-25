@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from phonenumber_field.modelfields import PhoneNumberField
 
-from shared_models.models import Province
+from shared_models.models import Province, Region
 
 ORGANIZATION_TYPES = [
     ('', '----'),
@@ -31,6 +31,15 @@ STAKEHOLDER_TYPE = [
     (1, 'Internal'),
     (2, 'Government of Canada'),
     (3, 'External')
+]
+
+PLANNED_STRING = 'Planned/Not Started'
+STATUS = [
+    (PLANNED_STRING, PLANNED_STRING),
+    ('In Progress', 'In Progress'),
+    ('Completed', 'Completed'),
+    ('On Hold/Deferred', 'On Hold/Deferred'),
+    ('Cancelled', 'Cancelled')
 ]
 
 
@@ -108,6 +117,7 @@ class Organization(models.Model):
 
         return out
 
+
 class Individual(models.Model):
     first_name = models.CharField(max_length=45)
     last_name = models.CharField(max_length=45)
@@ -119,7 +129,8 @@ class Individual(models.Model):
     address_line_1 = models.CharField(max_length=31, blank=True)
     address_line_2 = models.CharField(max_length=31, blank=True)
     city = models.CharField(max_length=15, blank=True)
-    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, related_name='individuals', null=True)
+    province = models.ForeignKey(Province, on_delete=models.DO_NOTHING, blank=True, related_name='individuals',
+                                 null=True)
     zip_postal = models.CharField("ZIP/Postal Code", max_length=10, blank=True)
     country = models.CharField(max_length=50, blank=True, default='Canada')
     linkedin_profile = models.URLField("LinkedIn profile", blank=True, null=True)
@@ -143,3 +154,33 @@ class Individual(models.Model):
     @property
     def full_name(self):
         return f'{self.first_name} {self.last_name}'
+
+
+class EngagementPlan(models.Model):
+    title = models.CharField(max_length=250)
+    lead = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                             related_name='engagement_plan_leads')
+    region = models.ForeignKey(Region, models.DO_NOTHING, related_name='engagement_plans')
+    summary = models.TextField()
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+    stakeholders = models.ManyToManyField(Organization, blank=True, null=True)
+    staff_collaborators = models.ManyToManyField(User, blank=True, null=True,
+                                                 related_name='engagement_plan_collaborators')
+    status = models.CharField(choices=STATUS, max_length=31, default=PLANNED_STRING)
+    created_on = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    last_modified = models.DateTimeField(auto_now=True)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='modified_engagement_plan')
+    slug = models.SlugField(max_length=127)
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.slug = slugify(self.__str__())
+        super(EngagementPlan, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('engagements:plan_detail', kwargs={'slug': self.slug})
