@@ -10,3 +10,11 @@ class OrganizationAdmin(admin.ModelAdmin):
 @admin.register(models.Individual)
 class ContactAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("first_name", "last_name")}
+
+@admin.register(models.EngagementPlan)
+class EngagementPlanAdmin(admin.ModelAdmin):
+    prepopulated_fields = {"slug": ("title",)}
+
+@admin.register(models.Interaction)
+class InteractionAdmin(admin.ModelAdmin):
+    prepopulated_fields = {"slug": ("title",)}
