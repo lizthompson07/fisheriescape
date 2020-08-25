@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from django.urls import reverse
 
 from phonenumber_field.modelfields import PhoneNumberField
+from multiselectfield import MultiSelectField
 
 from shared_models.models import Province, Region
 
@@ -40,6 +41,63 @@ STATUS = [
     ('Completed', 'Completed'),
     ('On Hold/Deferred', 'On Hold/Deferred'),
     ('Cancelled', 'Cancelled')
+]
+
+ACTIVITY_TYPE = [
+    ('Phone', 'Phone'),
+    ('Email', 'Email'),
+    ('Meeting', 'Meeting'),
+    ('Letter', 'Letter'),
+    ('Conference', 'Conference'),
+    ('Round-table', 'Round-table'),
+    ('Announcement', 'Announcement'),
+    ('Briefing', 'Briefing'),
+    ('Workshop', 'Workshop'),
+    ('Videoconference/Online', 'Videoconference/Online')
+]
+
+INITIATOR = [
+    ('Staff', 'Staff'),
+    ('Stakeholder', 'Stakeholder')
+]
+
+PRIORITY = [
+    (1, 'Urgent'),
+    (2, 'High'),
+    (3, 'Normal'),
+    (4, 'Low')
+]
+
+SUBJECTS = [
+    ('Fisheries Act Changes', 'Fisheries Act Changes'),
+    ('Indigenous Consultation', 'Indigenous Consultation'),
+    ('Indigenous Knowledge', 'Indigenous Knowledge'),
+    ('Codes of Practice', 'Codes of Practice'),
+    ('Prescribed Works and Water Regulation', 'Prescribed Works and Water Regulation'),
+    ('Engagement Framework and Tracking', 'Engagement Framework and Tracking'),
+    ('Public Registry', 'Public Registry'),
+    ('Offsetting and Banking', 'Offsetting and Banking'),
+    ('Risk Management Approach', 'Risk Management Approach'),
+    ('Death of Fish', 'Death of Fish'),
+    ('Cumulative Effects', 'Cumulative Effects'),
+    ('Marine Response Recovery Process', 'Marine Response Recovery Process')
+]
+
+OBJECTIVES = [
+    ('Consultation', 'Consultation'),
+    ('Convening', 'Convening'),
+    ('Disseminate information', 'Disseminate information'),
+    ('Establish/maintain partnerships', 'Establish/maintain partnerships'),
+    ('Establish/maintain relationships', 'Establish/maintain relationships'),
+    ('Gather intelligence', 'Gather intelligence'),
+    ('Professional development', 'Professional development'),
+    ('Program development', 'Program development'),
+]
+
+GEO_LEVEL = [
+    (1, 'Regional'),
+    (2, 'National'),
+    (3, 'International')
 ]
 
 
@@ -135,7 +193,7 @@ class Individual(models.Model):
     country = models.CharField(max_length=50, blank=True, default='Canada')
     linkedin_profile = models.URLField("LinkedIn profile", blank=True, null=True)
     created_on = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='created_individuals')
     last_modified = models.DateTimeField(auto_now=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='modified_individuals')
     slug = models.SlugField(max_length=127)
@@ -161,7 +219,7 @@ class EngagementPlan(models.Model):
     lead = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
                              related_name='engagement_plan_leads')
     region = models.ForeignKey(Region, models.DO_NOTHING, related_name='engagement_plans')
-    summary = models.TextField()
+    summary = models.TextField(blank=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
     stakeholders = models.ManyToManyField(Organization, blank=True, null=True)
@@ -169,7 +227,7 @@ class EngagementPlan(models.Model):
                                                  related_name='engagement_plan_collaborators')
     status = models.CharField(choices=STATUS, max_length=31, default=PLANNED_STRING)
     created_on = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(User, on_delete=models.PROTECT)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='created_engagement_plan')
     last_modified = models.DateTimeField(auto_now=True)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='modified_engagement_plan')
     slug = models.SlugField(max_length=127)
@@ -184,3 +242,40 @@ class EngagementPlan(models.Model):
 
     def get_absolute_url(self):
         return reverse('engagements:plan_detail', kwargs={'slug': self.slug})
+
+
+class Interaction(models.Model):
+    activity_type = models.CharField(choices=ACTIVITY_TYPE, max_length=22)
+    title = models.CharField(max_length=250)
+    file_reference = models.CharField(max_length=31, blank=True)
+    description = models.TextField(blank=True)
+    date = models.DateField(blank=True, null=True)
+    engagement_plan = models.ForeignKey(EngagementPlan, models.SET_NULL, blank=True, null=True)
+    initiator = models.CharField(choices=INITIATOR, max_length=11, default='Staff')
+    primary_contact = models.ForeignKey(Individual, models.DO_NOTHING, related_name='interaction_primaries')
+    staff_lead = models.ForeignKey(User, models.DO_NOTHING, related_name='interaction_leads')
+    attendees = models.ManyToManyField(Individual, related_name='attended_interactions')
+    organization_attendees = models.ManyToManyField(Organization, related_name='attended_interactions', blank=True)
+    staff_attendees = models.ManyToManyField(User, related_name='attended_interactions')
+    location = models.CharField(max_length=127, blank=True)
+    status = models.CharField(choices=STATUS, max_length=31, default=PLANNED_STRING)
+    priority = models.PositiveIntegerField(choices=PRIORITY, default=3)
+    subjects = MultiSelectField(choices=SUBJECTS, max_length=50, blank=True)
+    objectives = MultiSelectField(choices=OBJECTIVES, max_length=50, blank=True)
+    geographic_level = models.PositiveIntegerField(choices=GEO_LEVEL, default=1)
+    created_on = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='created_interactions')
+    last_modified = models.DateTimeField(auto_now=True)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='modified_interactions')
+    slug = models.SlugField(max_length=127)
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.slug = slugify(self.__str__())
+        super(Interaction, self).save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('engagements:interaction_detail', kwargs={'slug': self.slug})
