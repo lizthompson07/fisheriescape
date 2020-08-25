@@ -222,9 +222,8 @@ class EngagementPlan(models.Model):
     summary = models.TextField(blank=True)
     start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
-    stakeholders = models.ManyToManyField(Organization, blank=True, null=True)
-    staff_collaborators = models.ManyToManyField(User, blank=True, null=True,
-                                                 related_name='engagement_plan_collaborators')
+    stakeholders = models.ManyToManyField(Organization, blank=True)
+    staff_collaborators = models.ManyToManyField(User, blank=True, related_name='engagement_plan_collaborators')
     status = models.CharField(choices=STATUS, max_length=31, default=PLANNED_STRING)
     created_on = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='created_engagement_plan')
