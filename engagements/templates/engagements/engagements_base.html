@@ -31,7 +31,7 @@
             </h6>
             <ul class="nav flex-column mb-2">
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Engagement Plans</a>
+                    <a class="nav-link {% if nbar == 'plans' %}active{% endif %}" href="{% url 'engagements:plan_list' %}">Engagement Plans</a>
                 </li>
             </ul>
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted font-weight-bold">

@@ -9,8 +9,8 @@ from django.utils.text import slugify
 from django.urls import reverse_lazy
 from django_tables2 import RequestConfig, LazyPaginator, SingleTableView
 
-from .models import Organization, Individual
-from .tables import OrganizationListTable, IndividualListTable
+from .models import Organization, Individual, EngagementPlan
+from .tables import OrganizationListTable, IndividualListTable, PlanListTable
 from .forms import OrganizationCreateForm, OrganizationForm, IndividualCreateForm, IndividualForm
 
 
@@ -108,3 +108,16 @@ class IndividualUpdateView(UpdateView):
 class IndividualDeleteView(DeleteView):
     model = Individual
     success_url = reverse_lazy('engagements:individual_list')
+
+
+class PlanListView(SingleTableView):
+    model = EngagementPlan
+    template_name = 'engagements/plan_list.html'
+    table_class = PlanListTable
+    paginate_by = 10
+    context_object_name = 'table'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['nbar'] = 'plans'
+        return context

@@ -19,4 +19,11 @@ urlpatterns = [
     path('individuals/<slug:slug>', views.IndividualDetailView.as_view(), name='individual_detail'),
     path('individuals/<slug:slug>/edit', views.IndividualUpdateView.as_view(), name='individual_update'),
     path('individuals/<slug:slug>/delete', views.IndividualDeleteView.as_view(), name='individual_delete'),
+
+    # Engagement plans
+    path('plans/', views.PlanListView.as_view(), name='plan_list'),
+    # path('plans/add', views.PlanCreateView.as_view(), name='plan_create'),
+    # path('plans/<slug:slug>', views.PlanDetailView.as_view(), name='plan_detail'),
+    # path('plans/<slug:slug>/edit', views.PlanUpdateView.as_view(), name='plan_update'),
+    # path('plans/<slug:slug>/delete', views.PlanDeleteView.as_view(), name='plan_delete'),
 ]
