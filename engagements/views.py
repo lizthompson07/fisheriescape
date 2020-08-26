@@ -121,3 +121,7 @@ class PlanListView(SingleTableView):
         context = super().get_context_data(**kwargs)
         context['nbar'] = 'plans'
         return context
+
+class PlanDetailView(DetailView):
+    model = EngagementPlan
+    template_name = 'engagements/plan_detail.html'
