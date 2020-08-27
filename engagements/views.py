@@ -11,7 +11,7 @@ from django_tables2 import RequestConfig, LazyPaginator, SingleTableView
 
 from .models import Organization, Individual, EngagementPlan
 from .tables import OrganizationListTable, IndividualListTable, PlanListTable
-from .forms import OrganizationCreateForm, OrganizationForm, IndividualCreateForm, IndividualForm
+from .forms import OrganizationCreateForm, OrganizationForm, IndividualCreateForm, IndividualForm, PlanForm
 
 
 def engagements_home(request):
@@ -125,3 +125,33 @@ class PlanListView(SingleTableView):
 class PlanDetailView(DetailView):
     model = EngagementPlan
     template_name = 'engagements/plan_detail.html'
+
+class PlanCreateView(CreateView):
+    # form_class to specify a Form class in forms.py for extra validation and widget styling/selection
+    model = EngagementPlan
+    form_class = PlanForm
+    template_name = 'engagements/plan_form.html'
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        form.instance.last_modified_by = form.instance.created_by
+        form.instance.slug = slugify(form.instance.__str__())
+
+        return super().form_valid(form)
+
+
+class PlanUpdateView(UpdateView):
+    model = EngagementPlan
+    form_class = PlanForm
+    template_name = 'engagements/plan_form.html'
+
+    def form_valid(self, form):
+        form.instance.last_modified_by = self.request.user
+
+        return super().form_valid(form)
+
+
+class PlanDeleteView(DeleteView):
+    model = EngagementPlan
+    success_url = reverse_lazy('engagements:plan_list')
+    template_name = 'engagements/plan_confirm_delete.html'

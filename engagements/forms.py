@@ -2,9 +2,10 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from .models import Organization, Individual
+from .models import Organization, Individual, EngagementPlan
 
 bs_form_attrs = {'class': 'form-control'}
+
 
 # Organization - New
 class OrganizationCreateForm(forms.ModelForm):
@@ -38,6 +39,7 @@ class OrganizationCreateForm(forms.ModelForm):
             'parent_organizations': forms.SelectMultiple(attrs=bs_form_attrs),
         }
 
+
 # Organization - Update
 class OrganizationForm(forms.ModelForm):
     error_css_class = 'is-invalid'
@@ -70,6 +72,7 @@ class OrganizationForm(forms.ModelForm):
             'parent_organizations': forms.SelectMultiple(attrs=bs_form_attrs),
         }
 
+
 # Individual - Create
 class IndividualCreateForm(forms.ModelForm):
     error_css_class = 'is-invalid'
@@ -94,6 +97,7 @@ class IndividualCreateForm(forms.ModelForm):
             'linkedin_profile': forms.URLInput(attrs=bs_form_attrs)
         }
 
+
 # Individual - Update
 class IndividualForm(forms.ModelForm):
     error_css_class = 'is-invalid'
@@ -117,6 +121,26 @@ class IndividualForm(forms.ModelForm):
             'country': forms.TextInput(attrs=bs_form_attrs),
             'linkedin_profile': forms.URLInput(attrs=bs_form_attrs)
         }
+
+
+class PlanForm(forms.ModelForm):
+    error_css_class = 'is-invalid'
+
+    class Meta:
+        model = EngagementPlan
+        exclude = ['slug', 'created_by', 'last_modified_by']
+        widgets = {
+            'title': forms.TextInput(attrs=bs_form_attrs),
+            'lead': forms.Select(attrs=bs_form_attrs),
+            'region': forms.Select(attrs=bs_form_attrs),
+            'summary': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'start_date': forms.DateInput(attrs=bs_form_attrs),
+            'end_date': forms.DateInput(attrs=bs_form_attrs),
+            'stakeholders': forms.SelectMultiple(attrs=bs_form_attrs),
+            'staff_collaborators': forms.SelectMultiple(attrs=bs_form_attrs),
+            'status': forms.Select(attrs=bs_form_attrs)
+        }
+
 
 ### Mozilla Example
 # import datetime
