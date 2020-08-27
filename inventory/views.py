@@ -201,6 +201,7 @@ class MyResourceListView(LoginRequiredMixin, ListView):
         ]
 
         context['now'] = timezone.now()
+        context['random_object'] = models.Resource.objects.first()
 
         return context
 
