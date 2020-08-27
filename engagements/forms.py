@@ -2,7 +2,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from .models import Organization, Individual, EngagementPlan
+from .models import Organization, Individual, EngagementPlan, Interaction
+from multiselectfield import MultiSelectFormField
 
 bs_form_attrs = {'class': 'form-control'}
 
@@ -139,6 +140,34 @@ class PlanForm(forms.ModelForm):
             'stakeholders': forms.SelectMultiple(attrs=bs_form_attrs),
             'staff_collaborators': forms.SelectMultiple(attrs=bs_form_attrs),
             'status': forms.Select(attrs=bs_form_attrs)
+        }
+        
+        
+class InteractionForm(forms.ModelForm):
+    error_css_class = 'is-invalid'
+
+    class Meta:
+        model = Interaction
+        exclude = ['slug', 'created_by', 'last_modified_by']
+        widgets = {
+            'activity_type': forms.Select(attrs=bs_form_attrs),
+            'title': forms.TextInput(attrs=bs_form_attrs),
+            'file_reference': forms.TextInput(attrs=bs_form_attrs),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'date': forms.DateInput(attrs=bs_form_attrs),
+            'engagement_plan': forms.Select(attrs=bs_form_attrs),
+            'initiator': forms.Select(attrs=bs_form_attrs),
+            'primary_contact': forms.Select(attrs=bs_form_attrs),
+            'staff_lead': forms.Select(attrs=bs_form_attrs),
+            'attendees': forms.SelectMultiple(attrs=bs_form_attrs),
+            'organization_attendees': forms.SelectMultiple(attrs=bs_form_attrs),
+            'staff_attendees': forms.SelectMultiple(attrs=bs_form_attrs),
+            'location': forms.TextInput(attrs=bs_form_attrs),
+            'status': forms.Select(attrs=bs_form_attrs),
+            'priority': forms.Select(attrs=bs_form_attrs),
+            'subjects': forms.CheckboxSelectMultiple(attrs={'class': 'list-unstyled'}),
+            'objectives': forms.CheckboxSelectMultiple(attrs={'class': 'list-unstyled'}),
+            'geographic_level': forms.Select(attrs=bs_form_attrs)
         }
 
 

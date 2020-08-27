@@ -4,7 +4,6 @@ from django.utils.text import slugify
 from django.urls import reverse
 
 from phonenumber_field.modelfields import PhoneNumberField
-from multiselectfield import MultiSelectField
 
 from shared_models.models import Province, Region
 
@@ -243,6 +242,20 @@ class EngagementPlan(models.Model):
         return reverse('engagements:plan_detail', kwargs={'slug': self.slug})
 
 
+class InteractionSubject(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+
+class InteractionObjective(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+
 class Interaction(models.Model):
     activity_type = models.CharField(choices=ACTIVITY_TYPE, max_length=22)
     title = models.CharField(max_length=250)
@@ -259,8 +272,8 @@ class Interaction(models.Model):
     location = models.CharField(max_length=127, blank=True)
     status = models.CharField(choices=STATUS, max_length=31, default=PLANNED_STRING)
     priority = models.PositiveIntegerField(choices=PRIORITY, default=3)
-    subjects = MultiSelectField(choices=SUBJECTS, max_length=50, blank=True)
-    objectives = MultiSelectField(choices=OBJECTIVES, max_length=50, blank=True)
+    subjects = models.ManyToManyField(InteractionSubject, related_name='interaction_subjects')
+    objectives = models.ManyToManyField(InteractionObjective, related_name='interaction_objectives')
     geographic_level = models.PositiveIntegerField(choices=GEO_LEVEL, default=1)
     created_on = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='created_interactions')
@@ -278,3 +291,13 @@ class Interaction(models.Model):
 
     def get_absolute_url(self):
         return reverse('engagements:interaction_detail', kwargs={'slug': self.slug})
+
+    @property
+    def priority_str(self):
+        type_str = [item[1] for item in PRIORITY if item[0] == self.priority]
+        return str(type_str[0])
+
+    @property
+    def geographic_level_str(self):
+        type_str = [item[1] for item in GEO_LEVEL if item[0] == self.geographic_level]
+        return str(type_str[0])

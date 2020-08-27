@@ -18,3 +18,11 @@ class EngagementPlanAdmin(admin.ModelAdmin):
 @admin.register(models.Interaction)
 class InteractionAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("title",)}
+
+@admin.register(models.InteractionObjective)
+class InteractionObjectiveAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(models.InteractionSubject)
+class InteractionSubjectAdmin(admin.ModelAdmin):
+    pass

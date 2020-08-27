@@ -26,4 +26,11 @@ urlpatterns = [
     path('plans/<slug:slug>', views.PlanDetailView.as_view(), name='plan_detail'),
     path('plans/<slug:slug>/edit', views.PlanUpdateView.as_view(), name='plan_update'),
     path('plans/<slug:slug>/delete', views.PlanDeleteView.as_view(), name='plan_delete'),
+
+    # Interactions
+    path('interactions/', views.InteractionListView.as_view(), name='interaction_list'),
+    path('interactions/add', views.InteractionCreateView.as_view(), name='interaction_create'),
+    path('interactions/<slug:slug>', views.InteractionDetailView.as_view(), name='interaction_detail'),
+    path('interactions/<slug:slug>/edit', views.InteractionUpdateView.as_view(), name='interaction_update'),
+    path('interactions/<slug:slug>/delete', views.InteractionDeleteView.as_view(), name='interaction_delete'),
 ]
