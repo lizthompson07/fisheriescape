@@ -87,6 +87,7 @@ urlpatterns = [
         views.consultation_log_export_spreadsheet, name="consultation_log_xlsx"),
 
     path('reports/consultation-instructions/pdf/', views.ReportConsultationInstructionsPDFView.as_view(), name="consultation_instructions_pdf"),
+    path('reports/consultation-instructions/xlsx/', views.consultation_instructions_export_spreadsheet, name="consultation_instructions_xlsx"),
 
     # SETTINGS #
     ############

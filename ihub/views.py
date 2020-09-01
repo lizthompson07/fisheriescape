@@ -694,7 +694,10 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
             return HttpResponseRedirect(
                 f'{reverse("ihub:consultation_instructions_pdf")}?orgs={orgs_w_consultation_instructions}'
             )
-
+        elif report == 8:
+            return HttpResponseRedirect(
+                f'{reverse("ihub:consultation_instructions_xlsx")}?orgs={orgs_w_consultation_instructions}'
+            )
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("ihub:report_search"))
@@ -997,10 +1000,20 @@ class ReportConsultationInstructionsPDFView(PDFTemplateView):
         context["object_list"] = object_list
         context["now"] = timezone.now()
         # now we need to refine the list again to only
-
-
-
         return context
+
+
+def consultation_instructions_export_spreadsheet(request):
+    orgs = request.GET["orgs"]
+    file_url = reports.consultation_instructions_export_spreadsheet(orgs)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; ' \
+                                              f'filename="iHub Consultation Instructions Export ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+            return response
+    raise Http404
 
 
 # SETTINGS #

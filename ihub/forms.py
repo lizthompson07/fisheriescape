@@ -86,6 +86,7 @@ class ReportSearchForm(forms.Form):
             (5, _("Engagement Update Log (PDF)")),
             (6, _("Engagement Update Log (XLSX)")),
             (7, _("Consultation Instructions (PDF)")),
+            (8, _("Consultation Instructions - Mail Merge (xlsx)")),
         )
         fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
                       models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
