@@ -142,7 +142,7 @@ INSTALLED_APPS = [
                      'lib',
                      'shared_models',
                      'tickets',
-                     'phonenumber_field'
+                     'phonenumber_field',
                      'django_tables2'
                  ] + local_conf.MY_INSTALLED_APPS
 
