@@ -140,6 +140,8 @@ INSTALLED_APPS = [
                      'lib',
                      'shared_models',
                      'tickets',
+                     'phonenumber_field',
+                     'django_tables2'
                  ] + local_conf.MY_INSTALLED_APPS
 
 # If the GEODJANGO setting is set to False, turn off any apps that require it
