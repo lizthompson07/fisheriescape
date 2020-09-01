@@ -3,7 +3,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from .models import Organization, Individual, EngagementPlan, Interaction
-from multiselectfield import MultiSelectFormField
 
 bs_form_attrs = {'class': 'form-control'}
 
