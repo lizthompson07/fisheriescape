@@ -987,7 +987,7 @@ class ReportConsultationInstructionsPDFView(PDFTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        orgs = self.request.GET["orgs"]
+        orgs = self.request.GET["orgs"] if self.request.GET.get("orgs") else "None"
         orgs = None if orgs == "None" else orgs
 
         # if there are some organizations that are specified,
@@ -1004,7 +1004,7 @@ class ReportConsultationInstructionsPDFView(PDFTemplateView):
 
 
 def consultation_instructions_export_spreadsheet(request):
-    orgs = request.GET["orgs"]
+    orgs = request.GET["orgs"] if request.GET.get("orgs") else "None"
     file_url = reports.consultation_instructions_export_spreadsheet(orgs)
 
     if os.path.exists(file_url):

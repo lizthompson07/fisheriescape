@@ -36,7 +36,11 @@ class TestReportSearchFormView(CommonTest):
 class TestConsultationLogReport(CommonTest):
     def setUp(self):
         super().setUp()
-        org = FactoryFloor.OrganizationFactory()
+        consultee = FactoryFloor.ConsultationRoleFactory()
+        org = consultee.organization
+        org.grouping.add(1)  # make sure it will load as an indigenous org
+        instructions = FactoryFloor.ConsultationInstructionFactory(organization=org)
+
         status = models.Status.objects.first()
         sector = FactoryFloor.SectorFactory()
         entry_type = models.EntryType.objects.first()
