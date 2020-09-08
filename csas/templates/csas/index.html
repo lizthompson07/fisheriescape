@@ -21,7 +21,7 @@
                 <div class="col-1"><a class="btn btn-secondary btn-lg"
                                       href="{% url 'csas:list_req'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-secondary btn-lg"
-                                      href="{% url 'csas:list_req'%}">{% trans "Maritimes" %}</a></div>
+                                      href="{% url 'csas:list_req_reg'%}">{% trans "Maritimes" %}</a></div>
                 {# if the user is in csas-users group and has permissions to input New Requests #}
                 {% if auth %}
                     <div class="col-3"><a class="btn btn-secondary btn-lg"
@@ -36,7 +36,7 @@
                 <div class="col-1"><a class="btn btn-secondary btn-lg"
                                       href="{% url 'csas:list_met'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-secondary btn-lg"
-                                      href="{% url 'csas:list_met'%}">{% trans "Maritimes" %}</a></div>
+                                      href="{% url 'csas:list_met_reg'%}">{% trans "Maritimes" %}</a></div>
                 {# if the user is in csas-admin group authenticated and has permissions to input New Meetings #}
                 {% if csas_admin %}
                     <div class="col-3"><a class="btn btn-secondary btn-lg"
@@ -51,7 +51,7 @@
                 <div class="col-1"><a class="btn btn-secondary btn-lg"
                                       href="{% url 'csas:list_pub'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-secondary btn-lg"
-                                      href="{% url 'csas:list_pub'%}">{% trans "Maritimes" %}</a></div>
+                                      href="{% url 'csas:list_pub_reg'%}">{% trans "Maritimes" %}</a></div>
                 {# if the user is in csas-admin group authenticated and has permissions to input New Publications #}
                 {% if csas_admin %}
                     <div class="col-3"><a class="btn btn-secondary btn-lg"
@@ -66,7 +66,7 @@
                 <div class="col-1"><a class="btn btn-secondary btn-lg"
                                       href="{% url 'csas:list_con'%}">{% trans "All" %}</a></div>
                 <div class="col-2"><a class="btn btn-secondary btn-lg"
-                                      href="{% url 'csas:list_con'%}">{% trans "Maritimes" %}</a></div>
+                                      href="{% url 'csas:list_con_reg'%}">{% trans "Maritimes" %}</a></div>
                 {# if the user is in csas-users group and has permissions to input New Contact #}
                 {% if csas_admin %}
                     <div class="col-3"><a class="btn btn-secondary btn-lg"

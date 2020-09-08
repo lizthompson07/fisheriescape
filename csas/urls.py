@@ -11,6 +11,8 @@ urlpatterns = [
 
     # for Requests
     path('request/',                                views.RequestList.as_view(),          name="list_req"),
+    path('request/reg/',                            views.RequestListReg.as_view(),       name="list_req_reg"),
+
     path('request/',                                views.RequestList.as_view(),          name="list_req_CSAS"),
 
     path('request/new/',                            views.RequestEntry.as_view(),         name="create_req"),
@@ -26,6 +28,7 @@ urlpatterns = [
 
     # for Meetings
     path('meeting/',                    views.MeetingList.as_view(),          name="list_met"),
+    path('meeting/reg/',                views.MeetingListReg.as_view(),       name="list_met_reg"),
     path('meeting_DFO_participants/',   views.MeetingListDFOPars.as_view(),   name="list_met_DFO_pars"),
     path('meeting_other_participants/', views.MeetingListOtherPars.as_view(), name="list_met_other_pars"),
 
@@ -63,6 +66,7 @@ urlpatterns = [
 
     # for Publications
     path('publication/',                                         views.PublicationList.as_view(),             name="list_pub"),
+    path('publication/reg/',                                     views.PublicationListReg.as_view(),          name="list_pub_reg"),
 
     path('publication/new/',                                     views.PublicationEntry.as_view(),            name="create_pub"),
     path('publication_status/new/<int:pub_id>/<str:pop>/',       views.PublicationEntryStatus.as_view(),      name="create_pub_status"),
@@ -98,6 +102,7 @@ urlpatterns = [
 
     # for Contacts
     path('contacts/',                              views.ContactList.as_view(),        name="list_con"),
+    path('contacts/reg/',                          views.ContactListReg.as_view(),     name="list_con_reg"),
     path('contacts/new/',                          views.ContactEntry.as_view(),       name="create_con"),
     path('contacts/update/<int:pk>/<str:pop>/',    views.ContactUpdate.as_view(),      name="update_con"),
     path('contacts/update/<int:pk>/',              views.ContactUpdate.as_view(),      name="update_con"),

@@ -67,7 +67,7 @@ types = [['Government ', ' Government(fr)'], ['Industry ', ' Industry(fr)'], ['N
          ['Indigenous ', ' Indigenous(fr)'], ['Consultant ', ' Consultant(fr)'], ['Contractor ', ' Contractor(fr)'], ]
 load_lookup(CotType, types)
 
-# Load the notification preferences model
+# Load the notification (communication) preferences model
 preferences = [['Phone ', ' Phone(fr)'], ['E-mail ', ' E-mail(fr)'], ['Fax ', ' Fax(fr)'], ]
 load_lookup(NotNotificationPreference, preferences)
 
@@ -81,6 +81,16 @@ roles = [['Regional Coordinator ', ' Regional Coordinator(fr)'],
          ['Regional Science Advisor ', ' Regional Science Advisor(fr)'],
          ['Regional Admin ', ' Regional Admin(fr)'], ['Director ', ' Director(fr)'], ]
 load_lookup(RolRole, roles)
+
+# Load the status model in Contact
+status_con = [['Active ', ' Active(fr)'], ['Inactive ', ' Inactive(fr)']]
+load_lookup(models.CotStatus, status_con)
+
+# Load the expertise model in Contact
+expertise = [['Expertise A', 'Expertise A(fr)'], ['Expertise B', 'Expertise B(fr)'],
+             ['Expertise C', 'Expertise C(fr)'], ['Expertise D', 'Expertise D(fr)'],
+             ['Expertise E', 'Expertise E(fr)']]
+load_lookup(models.CotExpertise, expertise)
 
 # Load the Scope Model
 scopes = [['Regional ', ' Regional(fr)'], ['Zonal ', ' Zonal(fr)'], ['National ', ' National(fr)']]

@@ -105,6 +105,8 @@
                 <tbody>
                     {% for obj in filter.qs %}
                         <tr>
+                            {% if obj.region|slugify == 'maritimes' %}    {# ===== starting Regional List ===== #}
+
                             {% for field in fields %}
                                 <td>{% get_field_value obj field %}</td>
                             {% endfor %}
@@ -291,6 +293,7 @@
                                 {# {% endif %}                                                                                               #}
 
                             {% endif %}
+                            {% endif %}    {# ===== ending Regional List ===== #}
                         </tr>
                     {% endfor %}
                 </tbody>
