@@ -378,6 +378,16 @@ class RequestList(CsasListCommon):
     fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'client_email', 'funding']
 
 
+class RequestListReg(CsasListCommon):
+    key = 'req'
+    title = _('Maritimes Region Request List')
+    model = models.ReqRequest
+    filterset_class = filters.RequestFilterReg
+    template_name = "csas/csas_filter_regs.html"
+
+    fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
+
+
 class RequestDetails(DetailsCommon):
     key = 'req'
     title = _('Request Details')
@@ -436,10 +446,22 @@ class ContactList(CsasListCommon):
     fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
 
 
+class ContactListReg(CsasListCommon):
+    key = 'con'
+    title = _('Maritimes Region Contact List')
+    model = models.ConContact
+    filterset_class = filters.ContactFilterReg
+    template_name = 'csas/csas_filter_regs.html'
+
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+
+
 class ContactDetails(DetailsCommon):
     key = 'con'
     title = _('Contact Details')
     model = models.ConContact
+    template_name = "csas/csas_details_con.html"
+
     fields = ['id', 'honorific', 'first_name', 'last_name', 'affiliation', 'job_title', 'language', 'contact_type',
               'notification_preference', 'phone', 'email', 'region', 'sector', 'role', 'expertise', 'cc_grad',
               'notes']
@@ -611,6 +633,16 @@ class MeetingList(CsasListCommon):
     title = _('Meeting List')
     model = models.MetMeeting
     filterset_class = filters.MeetingFilter
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+
+
+class MeetingListReg(CsasListCommon):
+    key = 'met'
+    title = _('Maritimes Region Meeting List')
+    model = models.MetMeeting
+    filterset_class = filters.MeetingFilterReg
+    template_name = "csas/csas_filter_regs.html"
+
     fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
 
 
@@ -821,6 +853,16 @@ class PublicationList(CsasListCommon):
     title = _('Publication List')
     model = models.PubPublication
     filterset_class = filters.PublicationFilter
+
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
+
+
+class PublicationListReg(CsasListCommon):
+    key = 'pub'
+    title = _('Maritimes Region Publication List')
+    model = models.PubPublication
+    filterset_class = filters.PublicationFilterReg
+    template_name = "csas/csas_filter_regs.html"
 
     fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
 

@@ -51,30 +51,40 @@ class SecSector(shared_models.Lookup):
     pass
 
 
+class CotStatus(shared_models.Lookup):
+    pass
+
+
+class CotExpertise(shared_models.Lookup):
+    pass
+
+
 class ConContact(models.Model):
-    honorific = models.ForeignKey(CohHonorific, on_delete=models.DO_NOTHING, verbose_name=_("Honorific"))
+    honorific = models.ForeignKey(CohHonorific, null=True, blank=True, on_delete=models.DO_NOTHING,
+                                  verbose_name=_("Honorific"))
     first_name = models.CharField(max_length=100, verbose_name=_("First Name"))
     last_name = models.CharField(max_length=100, verbose_name=_("Last Name"))
     affiliation = models.CharField(max_length=100, verbose_name=_("Affiliation"))
-    job_title = models.CharField(max_length=100, verbose_name=_("Job Title"))
-    language = models.ForeignKey(LanLanguage, on_delete=models.DO_NOTHING, verbose_name=_("Language"))
-    contact_type = models.ForeignKey(CotType, on_delete=models.DO_NOTHING, verbose_name=_("Contact Type"))
-    notification_preference = models.ForeignKey(NotNotificationPreference, models.DO_NOTHING,
-                                                verbose_name=_("Notification Preference"))
-    phone = models.CharField(max_length=12, verbose_name=_("Phone"))
-    email = models.CharField(max_length=255, verbose_name=_("E-mail"))
-    # region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
-    #                            verbose_name=_("Region"))
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, blank=True, null=True,
-                               verbose_name=_("Region"))
-    sector = models.ForeignKey(SecSector, on_delete=models.DO_NOTHING, verbose_name=_("Sector"))
-    role = models.ForeignKey(RolRole, on_delete=models.DO_NOTHING,
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, null=True, blank=True,
+                               related_name="region_name", verbose_name=_("Region"))
+    sector = models.ForeignKey(SecSector, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Sector"))
+    role = models.ForeignKey(RolRole, null=True, blank=True, on_delete=models.DO_NOTHING,
                              help_text=_("Indicates permissions i.e. regional coordinator, regional science adviser, "
                                          "regional admin, director, etc."),
                              verbose_name=_("Role"))
-    expertise = models.CharField(max_length=100, verbose_name=_("Expertise"))
-    cc_grad = models.BooleanField(verbose_name=_("Chair Course Graduate"))
-    notes = models.TextField(verbose_name=_("Notes"))
+    job_title = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("Job Title"))
+    language = models.ForeignKey(LanLanguage, on_delete=models.DO_NOTHING, verbose_name=_("Language"))
+    contact_type = models.ForeignKey(CotType, on_delete=models.DO_NOTHING, verbose_name=_("Contact Type"))
+    status = models.ForeignKey(CotStatus, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
+    notification_preference = models.ForeignKey(NotNotificationPreference, models.DO_NOTHING,
+                                                verbose_name=_("Communication Preference"))
+    phone = models.CharField(max_length=12, null=True, blank=True, verbose_name=_("Phone"))
+    email = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("E-mail"))
+
+    expertise = models.ForeignKey(CotExpertise, null=True, blank=True, on_delete=models.DO_NOTHING,
+                                  verbose_name=_("Expertise"))
+    cc_grad = models.BooleanField(null=True, blank=True, verbose_name=_("Chair Course Graduate"))
+    notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
 
     def __str__(self):
         return "{}, {}".format(self.last_name, self.first_name)
@@ -121,10 +131,6 @@ class LocLocationCity(shared_models.Lookup):
     pass
 
 
-class MeqQuarter(shared_models.Lookup):
-    pass
-
-
 class MdfMeetingDocsRef(shared_models.Lookup):
     pass
 
@@ -137,8 +143,27 @@ class MccMeetingCostCategory(shared_models.Lookup):
     pass
 
 
+class MeqQuarter(shared_models.Lookup):
+    pass
+
+
 class MemMeetingMonth(shared_models.Lookup):
     pass
+
+
+# class MeqQuarter(shared_models.Lookup):
+#     name = models.CharField(max_length=50)
+#
+#     def __str__(self):
+#         return self.name
+
+
+# class MemMeetingMonth(shared_models.Lookup):
+#     quarter = models.ForeignKey(MeqQuarter, on_delete=models.CASCADE)
+#     name = models.CharField(max_length=30)
+#
+#     def __str__(self):
+#        return self.name
 
 
 class MetMeeting(models.Model):
@@ -362,6 +387,7 @@ class PubPublication(models.Model):
                                           verbose_name=_("Other Author(s)"))
     pub_num = models.CharField(default="NA", max_length=25, verbose_name=_("Publication Number"))
     pages = models.IntegerField(null=True, blank=True, verbose_name=_("Pages"))
+    pdf_size = models.IntegerField(null=True, blank=True, verbose_name=_("PDF Size"))
     keywords = models.CharField(default="NA", max_length=25, verbose_name=_("Keywords"))
     citation = models.TextField(null=True, blank=True, verbose_name=_("Citation"))
     client = models.ManyToManyField(ConContact, blank=True, related_name="clients",
