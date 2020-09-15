@@ -8,6 +8,7 @@ from whalebrary import views
 from whalebrary.test import FactoryFloor
 from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
 
+
 class TestItemDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -16,20 +17,15 @@ class TestItemDeleteView(CommonTest):
         self.expected_template = 'whalebrary/confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalebrary_edit")
 
- 
-
     @tag("Item", "item_delete", "view")
     def test_view_class(self):
         self.assert_inheritance(views.ItemDeleteView, CommonDeleteView)
         self.assert_inheritance(views.ItemDeleteView, views.WhalebraryEditRequiredMixin)
 
- 
-
     @tag("Item", "item_delete", "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
 
     @tag("Item", "item_delete", "submit")
     def test_submit(self):
@@ -38,7 +34,36 @@ class TestItemDeleteView(CommonTest):
         
         # for delete views...
         self.assertEqual(models.Item.objects.filter(pk=self.instance.pk).count(), 0)
-#
+
+
+class TestTransactionDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.TransactionFactory()
+        self.test_url = reverse_lazy('whalebrary:transaction_delete', args=[self.instance.pk, ])
+        self.expected_template = 'whalebrary/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="whalebrary_edit")
+
+    @tag("Transaction", "transaction_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.TransactionDeleteView, CommonDeleteView)
+        self.assert_inheritance(views.TransactionDeleteView, views.WhalebraryEditRequiredMixin)
+
+    @tag("Transaction", "transaction_delete", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Transaction", "transaction_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.TransactionFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.Transaction.objects.filter(pk=self.instance.pk).count(), 0)
+
+
+
 # class IndividualTripRequestDelete(CommonTravelTest):
 #     def setUp(self):
 #         super().setUp()

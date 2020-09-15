@@ -5,6 +5,7 @@ from django.utils.translation import activate
 from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
 from .. import views
 
+
 class TestIndexView(CommonTest):
     def setUp(self):
         super().setUp()

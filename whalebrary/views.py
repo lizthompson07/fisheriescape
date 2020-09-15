@@ -807,19 +807,27 @@ def mark_order_received(request, order):
     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
-def mark_order_received(request, order, transaction):
+def mark_order_received(request, order, item):
     """function to mark order received and create new transaction"""
     # record received date
     my_order = models.Order.objects.get(pk=order)
     my_order.date_received = timezone.now()
     my_order.save()
     messages.success(request, "Order received")
+
+    # get the current item
+    my_item = models.Item.objects.get(pk=item)
+    # set transaction category to 1 for purchase
+    my_type = models.TransactionCategory.objects.get(pk=1)
+
     # create new purchase transaction for received items
+    my_transaction = models.Transaction.objects.create(
+        item=my_item,
+        category=my_type
+    )
+    my_transaction.save()
 
-    # new_transaction = how to create the new transaction?
-    # my_order.transaction = new_transaction.pk
-
-    return HttpResponseRedirect(reverse('whalebrary:transaction_edit', kwargs={'pk': transaction}))
+    return HttpResponseRedirect(reverse('whalebrary:transaction_edit', kwargs={'pk': my_transaction.id}))
 
 
 class OrderReceivedTransactionUpdateView(TransactionUpdatePopoutView):

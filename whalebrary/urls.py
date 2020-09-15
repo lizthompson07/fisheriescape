@@ -59,7 +59,7 @@ urlpatterns = [
     path('order/<int:pk>/edit/pop/<int:pop>/', views.OrderUpdatePopoutView.as_view(), name="order_edit"),
     path('order/<int:pk>/delete/pop/<int:pop>/', views.OrderDeletePopoutView.as_view(), name="order_delete"),
     path('order/<int:pk>/delete/', views.OrderDeleteView.as_view(), name="order_delete"),
-    path('order/<int:order>/received/', views.mark_order_received,
+    path('order/<int:order>/for/item/<int:item>/', views.mark_order_received,
          name="mark_order_received"),
 
 

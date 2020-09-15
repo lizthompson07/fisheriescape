@@ -102,6 +102,7 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     category = factory.SubFactory(TransactionCategoryFactory)
     location = factory.SubFactory(LocationFactory)
     created_by = factory.SubFactory(UserFactory)
+    quantity = factory.lazy_attribute(lambda o: faker.pyint(1, 100))
     created_at = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     updated_at = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
 
@@ -109,9 +110,10 @@ class TransactionFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         return {
             'item': ItemFactory().id,
-            'category': CategoryFactory().id,
+            'category': TransactionCategoryFactory().id,
             'location': LocationFactory().id,
             'created_by': UserFactory().id,
+            'quantity': faker.pyint(1, 100),
             'created_at': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
             'updated_at': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
