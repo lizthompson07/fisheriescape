@@ -328,6 +328,8 @@ class Institute(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
     abbrev = models.CharField(max_length=255, verbose_name=_("abbreviation"))
+    address = models.CharField(max_length=255, blank=True, null=True)
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         # check to see if a french value is given
@@ -343,11 +345,16 @@ class Institute(models.Model):
 
 class Vessel(models.Model):
     name = models.CharField(max_length=255)
-    call_sign = models.CharField(max_length=56, null=True, blank=True, unique=True)
+    call_sign = models.CharField(max_length=56, null=True, blank=True)
+    ices_shipc_ship_codes = models.CharField(max_length=56, null=True, blank=True)
+    country_of_origin = models.CharField(max_length=56, null=True, blank=True)
+    platform_type = models.CharField(max_length=56, null=True, blank=True)
+    platform_owner = models.CharField(max_length=255, null=True, blank=True)
+    imo_number = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         if self.call_sign:
-            return "{} {}".format(self.name, self.call_sign)
+            return "{} {}".format(self.name, self.call_sign)  #self.Country_of_origin, self.Platform_type, self.Platform_owner, self.IMO_number
         else:
             return "{}".format(self.name)
 
@@ -360,20 +367,30 @@ class Vessel(models.Model):
 # snowcrab
 class Cruise(models.Model):
     institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True)
-    mission_number = models.CharField(max_length=255)  # once we are sure the data is clean, this should be set to `unique`
-    mission_name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, null=True, blank=True)
-    chief_scientist = models.CharField(max_length=255)
-    samplers = models.CharField(max_length=255, null=True, blank=True)
-    start_date = models.DateTimeField(null=True, blank=True)
-    end_date = models.DateTimeField(null=True, blank=True)
+    mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"))
+    mission_name = models.CharField(max_length=255, verbose_name=_("Mission Name"))
+    description = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Description"))
+    purpose = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Purpose"))
+    chief_scientist = models.CharField(max_length=255, verbose_name=_("Chief Scientist"))
+    samplers = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Samplers"))
+    start_date = models.DateTimeField(null=True, blank=True, verbose_name=_("Start Date"))
+    end_date = models.DateTimeField(null=True, blank=True, verbose_name=_("End Date"))
     probe = models.ForeignKey(Probe, null=True, blank=True, on_delete=models.DO_NOTHING)
-    area_of_operation = models.CharField(max_length=255, null=True, blank=True)
-    number_of_profiles = models.IntegerField(blank=True, null=True)
-    meds_id = models.CharField(max_length=255, null=True, blank=True, verbose_name="MEDS ID")
+    area_of_operation = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Area of Operation"))
+    number_of_profiles = models.IntegerField(blank=True, null=True, verbose_name=_("Number of Profiles"))
+    meds_id = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("MEDS ID"))
     notes = models.CharField(max_length=255, null=True, blank=True)
     season = models.IntegerField(null=True, blank=True)
     vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="missions", blank=True, null=True)
+    west_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_("West Bound Longitude")) #, verbose_name="Westernmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)")
+    east_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_("East Bound Longitude")) #, verbose_name="Easternmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)")
+    north_bound_latitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_("North Bound Latitude")) #, verbose_name="Northernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)")
+    south_bound_latitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_("South Bound Latitude")) #, verbose_name="Southernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)")
+    funding_agency_name = models.CharField(max_length=255, null=True, blank=True,verbose_name=_("Funding Agency Name")) #, verbose_name="Funding agency of the data collection")
+    funding_project_title = models.CharField(max_length=255, null=True, blank=True,verbose_name=_("Funding Project Title")) #, verbose_name="The title of your funded project")
+    funding_project_ID = models.CharField(max_length=255, null=True, blank=True,verbose_name=_("Funding Project ID")) #, verbose_name="The ID of your funded project")
+    research_Projects_Programs = models.CharField(max_length=255, null=True, blank=True,verbose_name=_("Research Projects Programs")) #, verbose_name="The collaborative research or programs which the cruise is part of, separate them with comma")
+    references = models.CharField(max_length=255, null=True, blank=True,verbose_name=_("References")) #, verbose_name="Provide the bibliographic citations for publications describing the data set. Example: cruise report, scientific paper")
 
     class Meta:
         ordering = ['mission_number', ]

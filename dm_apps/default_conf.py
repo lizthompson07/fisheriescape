@@ -42,6 +42,7 @@ APP_DICT = {
     'whalebrary': "Marine Mammal Tools and Necropsy Planner",
     'spring_cleanup': "Gulf Region Spring Cleanup",
     'shiny': "DM Apps Shiny App Collection",
+    'engagements': 'Stakeholder Engagement Tool',
 }
 
 # This variable is used to employ a preconfiguartion of applications for Azure deployment
