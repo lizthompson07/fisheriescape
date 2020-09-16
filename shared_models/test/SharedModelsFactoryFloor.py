@@ -5,6 +5,7 @@ from shared_models import models as shared_models
 from django.contrib.auth.hashers import make_password
 
 faker = Faker()
+
 test_password = "test1234"
 
 
@@ -19,6 +20,7 @@ class GroupFactory(factory.django.DjangoModelFactory):
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
+        django_get_or_create = ('username',)
 
     first_name = factory.LazyAttribute(lambda o: faker.first_name())
     last_name = factory.LazyAttribute(lambda o: faker.last_name())

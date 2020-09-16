@@ -43,19 +43,6 @@
                         </div>
                     </div>
 
-                    {# ============================================================================================== #}
-                    {# if the user is in Staff-Users group and has permissions to input New Requests #}
-                    {% if csas_admin %}
-                        <br>
-                        <!-- <div class="col-3"><a class="btn btn-secondary btn-lg" href="{% url 'csas:create_req'%}">{% trans "New Request" %}</a></div> -->
-                        <div class="col-12"><a class="btn btn-primary btn-lg" >
-                            {% trans "The following part will be filled by the Super Users" %}</a></div> <br>
-                        <div class="col-12"><a class="btn btn-outline-primary btn-lg" >
-                            {% trans "This part is still under construction" %}</a></div>
-                        <br><br>
-                    {% endif %}
-                    {# ============================================================================================== #}
-
                     {% buttons %}
                         <button type="submit" class="btn btn-success" onclick="saveForm();">
                             {% trans "Submit" %}
@@ -65,4 +52,5 @@
             </div>
         </div>
     </div>
+
 {% endblock content %}

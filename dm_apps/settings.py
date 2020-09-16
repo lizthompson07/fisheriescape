@@ -39,8 +39,6 @@ DEBUG = config("DEBUG", cast=bool, default=False)
 LOGGING_LEVEL = config("LOGGING_LEVEL", cast=str, default="WARNING")
 # What is the path to the log file?
 LOG_FILE_PATH = config("LOG_FILE_PATH", cast=str, default=os.path.join(LOGS_DIR, 'error.log'))
-# this is used in email templates to link the recipient back to the site
-SITE_FULL_URL = config("SITE_FULL_URL", cast=str, default="http://dmapps")
 # the default 'from' email address used for system emails
 SITE_FROM_EMAIL = config("SITE_FROM_EMAIL", cast=str, default="DoNotReply.DMApps@Azure.Cloud.dfo-mpo.gc.ca")
 # google maps API key
@@ -98,8 +96,8 @@ ALLOWED_HOSTS = [
     'localhost',
     'dmapps',
     'dmapps.ent.dfo-mpo.ca',
-    'dmapps-dev.azurewebsites.net',
-    'dmapps-test-web.azurewebsites.net',
+    'dmapps-dev-docker.azurewebsites.net',
+    'dmapps-test-docker.azurewebsites.net',
     'dmapps-prod-web.azurewebsites.net',
     'dmapps-prod-web-staging.azurewebsites.net',
     'sci-zone.azure.cloud.dfo-mpo.gc.ca',
@@ -142,6 +140,8 @@ INSTALLED_APPS = [
                      'lib',
                      'shared_models',
                      'tickets',
+                     'phonenumber_field',
+                     'django_tables2'
                  ] + local_conf.MY_INSTALLED_APPS
 
 # If the GEODJANGO setting is set to False, turn off any apps that require it
@@ -230,7 +230,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'America/Halifax'
+TIME_ZONE = config("TIME_ZONE", cast=str, default='UTC')
 
 USE_I18N = True
 
@@ -255,7 +255,6 @@ STATICFILES_DIRS = [
 ]
 
 AZURE_STORAGE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", cast=str, default="")
-# AZURE_STORAGE_ACCESS_KEY = config("AZURE_STORAGE_ACCESS_KEY", cast=str, default="")
 # if no account name was provided, serve static and media files with whitenoise
 if AZURE_STORAGE_ACCOUNT_NAME == "":
     print('Serving static and media files from local staticfiles directory using Whitenoise.')
@@ -269,11 +268,8 @@ else:
     print('Azure storage blob connection information found. Serving static and mediafile from azure storage blob.')
     DEFAULT_FILE_STORAGE = 'backend.custom_azure.AzureMediaStorage'
     STATICFILES_STORAGE = 'backend.custom_azure.AzureStaticStorage'
-    STATIC_CONTAINER_NAME = "static"
-    MEDIA_CONTAINER_NAME = "media"
     AZURE_CUSTOM_DOMAIN = f'{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net'
-    STATIC_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{STATIC_CONTAINER_NAME}/'
-    MEDIA_URL = f'https://{AZURE_CUSTOM_DOMAIN}/{MEDIA_CONTAINER_NAME}/'
+    STATIC_URL = f'https://{AZURE_STORAGE_ACCOUNT_NAME}.z9.web.core.windows.net/'
 
 # This setting should allow for submitting forms with lots of fields. This is especially relevent when using formsets as in ihub > settings > orgs...
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000

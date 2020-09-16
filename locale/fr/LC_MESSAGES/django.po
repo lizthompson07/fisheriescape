@@ -1991,7 +1991,7 @@ msgstr "OU"
 #: .\travel\templates\travel\trip_request_form_popout.html:57
 #: .\travel\templates\travel\trip_request_form_popout.html:143
 msgid "Close"
-msgstr "Fermé"
+msgstr "Fermer"
 
 #: .\ihub\templates\ihub\file_form_popout.html:29
 msgid "Editing File:"

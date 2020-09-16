@@ -155,7 +155,6 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
     if trip_request_list:
         i = 3
         for tr in trip_request_list.order_by("trip__start_date"):
-            print(123)
             # Build the Notes field
             notes = "TRAVELLER COST BREAKDOWN: " + tr.cost_breakdown
 
@@ -185,18 +184,6 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 my_status = str(tr.parent_request.status)
             else:
                 my_status = str(tr.status)
-
-            # REASON
-            if tr.parent_request:
-                my_reason = str(tr.parent_request.reason) if tr.parent_request.reason else "n/a"
-            else:
-                my_reason = str(tr.reason) if tr.reason else "n/a"
-
-            # TRIP NAME
-            if tr.parent_request:
-                my_trip_name = str(tr.parent_request.trip) if tr.parent_request.trip else "n/a"
-            else:
-                my_trip_name = str(tr.trip) if tr.trip else "n/a"
 
             # DESTINATION
             if tr.parent_request:
@@ -232,8 +219,8 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
                 my_name,
                 str(tr.region) if tr.region else "n/a",
                 my_role,
-                my_reason,
-                my_trip_name,
+                str(tr.smart_trip.trip_subcategory),
+                str(tr.smart_trip),
                 my_dest,
                 my_start,
                 my_end,
@@ -269,7 +256,7 @@ def generate_cfts_spreadsheet(fiscal_year=None, region=None, trip_request=None, 
     return target_url
 
 
-def generate_trip_list(fiscal_year, region, adm, from_date, to_date):
+def generate_trip_list(fiscal_year, region, adm, from_date, to_date, site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'travel', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -418,7 +405,7 @@ def generate_trip_list(fiscal_year, region, adm, from_date, to_date):
             elif field == "name":
                 my_val = str(get_field_value(trip, field))
                 my_ws.write_url(i, j,
-                                url=f'{settings.SITE_FULL_URL}/{reverse("travel:trip_detail", kwargs={"pk": trip.id})}',
+                                url=f'{site_url}/{reverse("travel:trip_detail", kwargs={"pk": trip.id})}',
                                 string=my_val)
             elif "cost" in field:
                 my_val = nz(get_field_value(trip, field), 0)

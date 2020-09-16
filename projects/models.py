@@ -20,7 +20,7 @@ from dm_apps import custom_widgets
 from . import emails
 
 # Choices for language
-from shared_models.models import SimpleLookup
+from shared_models.models import SimpleLookup, Lookup
 
 ENG = 1
 FRE = 2
@@ -125,6 +125,28 @@ class Program(models.Model):
 
     class Meta:
         ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
+
+
+class UpcomingDate(models.Model):
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, related_name="project_upcoming_dates",
+                               verbose_name=_("region"))
+    description_en = models.TextField(verbose_name=_("description (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("description (fr)"))
+    date = models.DateField()
+    is_deadline = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-date", ]
+
+    @property
+    def tdescription(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("description_en"))):
+            my_str = "{}".format(getattr(self, str(_("description_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.description_en
+        return my_str
 
 
 class FunctionalGroup(SimpleLookup):
@@ -316,10 +338,9 @@ class Project(models.Model):
     def __str__(self):
         return "{}".format(self.project_title)
 
-    def save(self, *args, **kwargs):
-        self.date_last_modified = timezone.now()
+    def send_approval_email(self, request):
         if self.approved is not None and not self.notification_email_sent:
-            email = emails.ProjectApprovalEmail(self)
+            email = emails.ProjectApprovalEmail(self, request)
             # send the email object
             custom_send_mail(
                 subject=email.subject,
@@ -328,6 +349,10 @@ class Project(models.Model):
                 recipient_list=email.to_list
             )
             self.notification_email_sent = timezone.now()
+            self.save()
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
 
         super().save(*args, **kwargs)
 
@@ -750,3 +775,46 @@ class Note(models.Model):
     def summary_html(self):
         if self.summary:
             return textile(self.summary)
+
+
+def ref_mat_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return f'projects/{filename}'
+
+
+class ReferenceMaterial(SimpleLookup):
+    file = models.FileField(upload_to=ref_mat_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
+    date_modified = models.DateTimeField(auto_now=True, editable=False)
+
+
+@receiver(models.signals.post_delete, sender=ReferenceMaterial)
+def auto_delete_ReferenceMaterial_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
+
+
+@receiver(models.signals.pre_save, sender=ReferenceMaterial)
+def auto_delete_ReferenceMaterial_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_file = ReferenceMaterial.objects.get(pk=instance.pk).file
+    except ReferenceMaterial.DoesNotExist:
+        return False
+
+    new_file = instance.file
+    if not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)

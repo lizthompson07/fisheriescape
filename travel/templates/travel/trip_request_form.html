@@ -1,19 +1,11 @@
-{% extends "travel/base.html" %}
+{% extends "travel/form.html" %}
 {% load static %}
 {% load bootstrap4 %}
 {% load i18n %}
 {% load custom_filters %}
 
-{% block subtitle %}
-    {% if object %}
-        - {% trans "Edit request" %}
-    {% else %}
-        - {% trans "New request" %}
-    {% endif %}
-{% endblock %}
-
-{% block content %}
-
+{% block header %}
+    {{ block.super }}
     <style>
         input.cost {
             font-size: small;
@@ -28,41 +20,15 @@
         }
     </style>
 
+{% endblock %}
 
-    <div class="container mb-3">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'travel:index' %}">
-                    {% trans "Home" %}
-                </a></li>
-                <li class="breadcrumb-item"><a href="{% url 'travel:request_list' %}">
-                    {% trans "Trip Requests" %}
-                </a></li>
-                {% if object %}
-                    <li class="breadcrumb-item"><a href="{% url 'travel:request_detail' object.id %}">{{ object }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">
-                        {% trans "Edit" %}
-                    </li>
-                {% else %}
-                    <li class="breadcrumb-item active" aria-current="page">
-                        {% trans "New" %}
-                    </li>
-                {% endif %}
-            </ol>
-        </nav>
 
-        <h1>
-            {% if object %}
-                {% if cloned %}
-                    CLONING:
-                {% endif %}
-                {{ object }}
-            {% else %}
-                New <span id="request-type"></span> Request
-            {% endif %}
-        </h1>
 
-    </div>
+
+
+{% block form %}
+
+
     <form method="post" class="form">
         {% csrf_token %}
         <div class="container">
@@ -155,22 +121,23 @@
                         <button type="submit" class="btn btn-success">
                             {% trans "Update" %}
                         </button>
-                        <a class="btn btn-secondary" href="{% url 'travel:request_detail' object.id %}">
-                        {% trans "Cancel" %}
+                        <a class="btn btn-secondary" href="{% url 'travel:request_detail' object.id view.kwargs.type %}">
+                            {% trans "Cancel" %}
                         </a>
                     {% else %}
                         <button type="submit" class="btn btn-success">
                             {% trans "Next" %}
                         </button>
-                        <a class="btn btn-secondary" href="{% url 'travel:request_list' %}">
-                        {% trans "Cancel" %}
+                        <a class="btn btn-secondary" href="{% url 'travel:request_list' view.kwargs.type %}">
+                            {% trans "Cancel" %}
                         </a>
                     {% endif %}
                 {% endbuttons %}
             </div>
+        </div>
     </form>
+{% endblock %}
 
-{% endblock content %}
 
 {% block body_js %}
 
@@ -252,9 +219,9 @@
         }
 
         function reloadTripSelect() {
-            var maxValue=-1;
+            var maxValue = -1;
 
-            $("#id_trip option").each(function(){
+            $("#id_trip option").each(function () {
                 maxValue = Math.max(maxValue, $(this).val());
             });
             console.log("max val: " + maxValue);
@@ -265,7 +232,7 @@
                 url: '{% url 'travel:conf_details' %}',
                 data: {},
                 dataType: 'json',
-                success: function(data) {
+                success: function (data) {
                     confObj = data;
                     refreshTripDetails();
                 }
@@ -298,7 +265,6 @@
             // do not make these fields required, otherwise we will not see the form errors if omitted
             $("#id_user").prop("required", false);
             $("#id_section").prop("required", false);
-            $("#id_purpose").prop("required", true);
         });
 
         $("#predefined-addresses").change(function () {

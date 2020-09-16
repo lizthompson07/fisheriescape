@@ -870,9 +870,10 @@ def construct(my_resource, pretty=True):
     MD_Distribution = SubElement(distributionInfo, 'gmd:MD_Distribution')
 
     # distribution Format
-    MD_Format = SubElement(SubElement(MD_Distribution, 'gmd:distributionFormat '), "gmd:MD_Format")
-    charstring(MD_Format, 'gmd:name', my_resource.distribution_format)
-    charstring(MD_Format, 'gmd:version', "n/a")
+    for df in my_resource.distribution_formats.all():
+        MD_Format = SubElement(SubElement(MD_Distribution, 'gmd:distributionFormat '), "gmd:MD_Format")
+        charstring(MD_Format, 'gmd:name', df.name)
+        charstring(MD_Format, 'gmd:version', "n/a")
 
     # distributor
     distributor = SubElement(MD_Distribution, 'gmd:distributor')
@@ -924,7 +925,6 @@ def verify(resource):
         'south_bounding',
         'east_bounding',
         'north_bounding',
-        'distribution_format',
 
         # bilingual fields
         '?title_',
@@ -952,6 +952,8 @@ def verify(resource):
         'certification_history|',
         'data_resources|',
         'web_services|',
+        'distribution_formats|',
+
 
         # will check all keywords associated with resource
         '*keyword.text_value_',  # special keywords function will be called
@@ -980,6 +982,7 @@ def verify(resource):
     # plus number of people times number of fields for people
     # note: any field ending in '_' represents two fields and thus should be counted twice
 
+    simple_fields = len([f for f in fields_to_check if "$" not in f and "|" not in f and "." not in f and "__" not in f and "?" not in f])
     special_keyword_fields = len([f for f in fields_to_check if f.startswith("*keyword")])
     special_bilingual_keyword_fields = len([f for f in fields_to_check if f.startswith("*keyword") and f.endswith("_")])
     true_count_of_special_keyword_fields = special_keyword_fields - special_bilingual_keyword_fields + (
@@ -1008,7 +1011,7 @@ def verify(resource):
 
     for field in fields_to_check:
         # starting with the most simple case: unilingual fields of resource
-        if "$" not in field and "|" not in field and "." not in field and "_" not in field and "?" not in field:
+        if "$" not in field and "|" not in field and "." not in field and "__" not in field and "?" not in field:
             field_value = nz(getattr(resource, field), None)
             verbose_name = resource._meta.get_field(field).verbose_name
             if field_value is None:
@@ -1101,7 +1104,7 @@ def verify(resource):
                     rating = rating - 1
             elif field == 'resource_people':
                 role = models.PersonRole.objects.get(pk=my_filter)
-                if resource.resource_people.filter(role=role) == 0:
+                if not resource.resource_people.filter(role=role).exists():
                     checklist.append("At least one {} is needed.".format(role))
                     rating = rating - 1
             elif field == 'data_resources':
@@ -1114,6 +1117,10 @@ def verify(resource):
                     rating = rating - 1
                 if resource.web_services.filter(service_language="urn:xml:lang:fra-CAN").count() == 0:
                     checklist.append('There has to be a French web service')
+                    rating = rating - 1
+            elif field == 'distribution_formats':
+                if resource.distribution_formats.count() == 0:
+                    checklist.append('There has to be at least one distribution format')
                     rating = rating - 1
 
         # next lets deal with special cases. This is the messiest one

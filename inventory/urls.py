@@ -5,7 +5,6 @@ from django.contrib.auth import views as auth_views
 app_name = 'inventory'
 
 urlpatterns = [
-    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
 
     # RESOURCE #
     ############
@@ -13,6 +12,7 @@ urlpatterns = [
     path('list/', views.ResourceListView.as_view(), name="resource_list"),
     path('my-list/', views.MyResourceListView.as_view(), name="my_resource_list"),
     path('<int:pk>/view/', views.ResourceDetailView.as_view(), name="resource_detail"),
+    path('<int:pk>/pdf/', views.ResourceDetailPDFView.as_view(), name="resource_pdf"),
     path('<int:pk>/full-view/', views.ResourceFullDetailView.as_view(), name="resource_full_detail"),
     path('<int:pk>/edit/', views.ResourceUpdateView.as_view(), name="resource_edit"),
     path('<int:pk>/delete/', views.ResourceDeleteView.as_view(), name="resource_delete"),
@@ -135,6 +135,7 @@ urlpatterns = [
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     path('reports/export-batch-xml/<str:sections>/', views.export_batch_xml, name="export_batch_xml"),
     path('reports/odi-report/', views.export_odi_report, name="export_odi_report"),
+    path('reports/physical-samples/', views.export_phyiscal_samples, name="export_phyiscal_samples"),
 
 
     # TEMP #

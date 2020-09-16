@@ -83,12 +83,12 @@
         <tbody>
 
         {% for object in list %}
-            {% block row %}
+            {% block table_tr %}
                 {% url row_url_name object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
                         <td class="{{ field.class }}">
-                            {% block field_td %}
+                            {% block table_td %}
                                 {% get_field_value object field.name safe=True %}
                             {% endblock %}
                         </td>

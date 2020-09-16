@@ -144,37 +144,50 @@ def end_review_process(trip_request):
         reviewer.save()
 
 
-def start_trip_review_process(trip):
-    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending"""
+def start_trip_review_process(trip, reset=False):
+    """this should be used when a project is submitted. It will change over all reviewers' statuses to Pending
+        set the `reset` arg to True is this is being used in the context of restarting a review process
+    """
     # focus only on reviewers that are status = Not Submitted
-
-    trip.review_start_date = timezone.now()
-    trip.status_id = 31
-    trip.save()
+    if not reset:
+        trip.review_start_date = timezone.now()
+        trip.status_id = 31
+        trip.save()
 
     for reviewer in trip.reviewers.all():
         # set everyone to being queued
         reviewer.status_id = 24
-        reviewer.status_date = None
+        if not reset:
+            reviewer.status_date = None
         reviewer.save()
 
 
-def end_trip_review_process(trip):
-    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
+def end_trip_review_process(trip, reset=False):
+    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending
+    set the `reset` arg to True is this is being used in the context of restarting a review process
+    """
     # focus only on reviewers that are status = Not Submitted
-
-    # trip.review_start_date = None NEVER reset the review start date!
-    trip.status_id = 41
-    trip.save()
+    if not reset:
+        # trip.review_start_date = None NEVER reset the review start date!
+        trip.status_id = 41
+        trip.save()
 
     for reviewer in trip.reviewers.all():
         reviewer.status_id = 23
-        reviewer.status_date = None
-        reviewer.comments = None
+        if not reset:
+            reviewer.status_date = None
+            reviewer.comments = None
         reviewer.save()
 
 
-def set_request_status(trip_request):
+def reset_trip_review_process(trip):
+    """To be used if a trip reviewer finds modifications that are required and wants to restart the review process. COMMENTS ARE SAVED"""
+    # focus only on reviewers that are status = Not Submitted
+    end_trip_review_process(trip, reset=True)
+    start_trip_review_process(trip, reset=True)
+
+
+def __set_request_status__(trip_request, request):
     """
     IF POSSIBLE, THIS SHOULD ONLY BE CALLED BY THE approval_seeker() function.
     This will look at the reviewers and decide on  what the project status should be. Will return False if trip_request is denied or if trip_request is not submitted
@@ -195,18 +208,20 @@ def set_request_status(trip_request):
         # if someone denied it at any point, the trip_request is 'denied' and all subsequent reviewers are set to "cancelled"
         is_denied = False
         for reviewer in trip_request.reviewers.all():
-            # if reviewer status is denied, set the is_denied var to true
-            if reviewer.status_id == 3:
-                is_denied = True
             # if is_denied, all subsequent reviewer statuses should be set to "cancelled"
             if is_denied:
                 reviewer.status_id = 5
                 reviewer.save()
+
+            # if reviewer status is denied, set the is_denied var to true
+            if reviewer.status_id == 3:
+                is_denied = True
+
         if is_denied:
             trip_request.status_id = 10
             trip_request.save()
             # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(trip_request)
+            email = emails.StatusUpdateEmail(trip_request, request)
             # # send the email object
             custom_send_mail(
                 subject=email.subject,
@@ -224,7 +239,7 @@ def set_request_status(trip_request):
             trip_request.status_id = 11
             trip_request.save()
             # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(trip_request)
+            email = emails.StatusUpdateEmail(trip_request, request)
             # # send the email object
             custom_send_mail(
                 subject=email.subject,
@@ -261,15 +276,15 @@ def set_request_status(trip_request):
     return True
 
 
-def approval_seeker(trip_request):
+def approval_seeker(trip_request, suppress_email=False, request=None):
     """
     This method is meant to seek approvals via email + set reveiwer statuses.
-    It will also set the trip_request status vis a vis set_request_status()
+    It will also set the trip_request status vis a vis __set_request_status__()
 
     """
 
     # start by setting the trip_request status... if the trip_request is "denied" OR "draft" or "approved", do not continue
-    if set_request_status(trip_request):
+    if __set_request_status__(trip_request, request):
         next_reviewer = None
         email = None
         for reviewer in trip_request.reviewers.all():
@@ -289,13 +304,13 @@ def approval_seeker(trip_request):
 
             # now, depending on the role of this reviewer, perhaps we want to send an email.
             # if they are a recommender, rev...
-            if next_reviewer.role_id in [1, 2, 3, 4, ]:  # essentially, just not the RDG or ADM
-                email = emails.ReviewAwaitingEmail(trip_request, next_reviewer)
+            if next_reviewer.role_id in [1, 2, 3, 4, ] and request:  # essentially, just not the RDG or ADM
+                email = emails.ReviewAwaitingEmail(trip_request, next_reviewer, request)
 
-            elif next_reviewer.role_id in [5, 6]:  # if we are going for ADM or RDG signature...
-                email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role_id)
+            elif next_reviewer.role_id in [5, 6]  and request:  # if we are going for ADM or RDG signature...
+                email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role_id, request)
 
-            if email:
+            if email and not suppress_email:
                 # send the email object
                 custom_send_mail(
                     subject=email.subject,
@@ -305,12 +320,22 @@ def approval_seeker(trip_request):
                 )
 
             # Then, lets set the trip_request status again to account for the fact that something happened
-            set_request_status(trip_request)
+            __set_request_status__(trip_request, request)
 
 
 def populate_trip_request_costs(request, trip_request):
+    # determine if we are dealing with a child trip request - used to prepopulate number of days
+    if trip_request.parent_request:
+        trip = trip_request.parent_request.trip
+    else:
+        trip = trip_request.trip
+
     for obj in models.Cost.objects.all():
-        new_item, created = models.TripRequestCost.objects.get_or_create(trip_request=trip_request, cost=obj)
+        new_item, created = models.TripRequestCost.objects.get_or_create(
+            trip_request=trip_request,
+            cost=obj,
+            # number_of_days=trip.number_of_days,
+        )
         if created:
             # breakfast
             if new_item.cost_id == 9:
@@ -363,7 +388,7 @@ def compare_strings(str1, str2):
         return 9999
 
 
-def manage_trip_warning(trip):
+def manage_trip_warning(trip, request):
     """
     This function will decide if sending an email to NCR is necessary based on
     1) the total costs accrued for a trip
@@ -389,7 +414,7 @@ def manage_trip_warning(trip):
         # if the trip is >= 10K, we simply need to send an email to NCR
         else:
             if not trip.cost_warning_sent:
-                email = emails.TripCostWarningEmail(trip)
+                email = emails.TripCostWarningEmail(trip, request)
                 # # send the email object
                 custom_send_mail(
                     subject=email.subject,
@@ -410,10 +435,9 @@ def __set_trip_status__(trip):
     pass
 
 
-def trip_approval_seeker(trip):
+def trip_approval_seeker(trip, request):
     """
-    This method is meant to seek approvals via email + set reveiwer statuses.
-    It will also set the trip_request status vis a vis set_request_status()
+    This method is meant to seek approvals via email + set reviewer statuses.
     """
 
     # start by setting the trip status... if the trip_request is "denied" OR "draft" or "approved", do not continue
@@ -440,7 +464,7 @@ def trip_approval_seeker(trip):
             next_reviewer.status_date = timezone.now()
             next_reviewer.save()
 
-            email = emails.TripReviewAwaitingEmail(trip, next_reviewer)
+            email = emails.TripReviewAwaitingEmail(trip, next_reviewer, request)
 
             # send the email object
             custom_send_mail(
@@ -467,23 +491,25 @@ def get_related_trips(user):
     """give me a user and I'll send back a queryset with all related trips, i.e.
      they are the request.user | they are the request.created_by | they are a traveller on a child trip"""
 
-    tr_ids = [tr.id for tr in models.TripRequest.objects.filter(user=user)]
+    # all individual or group requests where user =user (this should include parent requests)
+    tr_ids = [tr.id for tr in models.TripRequest.objects.filter(parent_request__isnull=True, user=user)]
+    # all trips that were created by user
     tr_ids.extend([tr.id for tr in models.TripRequest.objects.filter(parent_request__isnull=True, created_by=user)])
+    # all trips where the user is a traveller on a group trip
     tr_ids.extend([tr.parent_request.id for tr in models.TripRequest.objects.filter(parent_request__isnull=False, user=user)])
     return models.TripRequest.objects.filter(id__in=tr_ids)
 
 
-def get_adm_ready_trips():
+def get_adm_eligible_trips():
     """returns a qs of trips that are ready for adm review"""
-    three_months_away = timezone.now() + datetime.timedelta(days=(365 / 12) * 3)
     # start with trips that need adm approval that have not already been reviewed or those that have been cancelled
-    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id__in=[32, 43]))
+    trips = models.Conference.objects.filter(is_adm_approval_required=True).filter(~Q(status_id__in=[32, 43, 31]))
 
     t_ids = list()
     for t in trips:
         # only get trips that have attached requests
         if t.get_connected_active_requests().count():
             # only get trips that are within three months from the closest date
-            if t.closest_date <= three_months_away:
+            if t.date_eligible_for_adm_review and t.date_eligible_for_adm_review <= timezone.now():
                 t_ids.append(t.id)
     return models.Conference.objects.filter(id__in=t_ids)

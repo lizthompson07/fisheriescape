@@ -16,7 +16,7 @@
 
 
 <!-- custom CSS -->
-<link rel="stylesheet" href="{% static 'css/master.css' %}?version=1.6.4">
+<link rel="stylesheet" href="{% static 'css/master.css' %}?version=1.6.5">
 {##}
 <!--  Google Fonts -->
 <link href="https://fonts.googleapis.com/css?family=Montserrat|Open+Sans|Roboto" rel="stylesheet">
@@ -42,6 +42,7 @@
 <link rel="stylesheet" href="{% static 'widgEditor_1.0.1/css/widgEditor.css' %}">
 
 <link rel="stylesheet" href="{% static 'lou-multi-select-e052211/css/multi-select.css' %}" media="screen" type="text/css">
+<link rel="stylesheet" href="//cdn.materialdesignicons.com/5.3.45/css/materialdesignicons.min.css">
 
 <style>
     .chosen-container-single .chosen-single {
@@ -49,10 +50,16 @@
         background: -webkit-gradient(linear, left top, left bottom);
         background: linear-gradient(#ffffff, #ffffff);
     }
-
+    .mdi{
+      color: black;
+    }
     .chosen-container-multi .chosen-choices {
         border-radius: 5px;
 
+    }
+
+    body {
+        padding-top: 55px;
     }
 
     .ms-container {
@@ -67,6 +74,20 @@
         font-weight: bold;
     }
 
+    .circle {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        font-size: 20px;
+        color: #fff;
+        line-height: 35px;
+        text-align: center;
+        background: #4c4c4c
+    }
+
+    .bg-navy {
+        background-color: #041d70;
+    }
 
     table.sortable > thead > tr > th {
         color: blue;
@@ -74,4 +95,5 @@
         font-weight: normal;
         cursor: pointer;
     }
+
 </style>

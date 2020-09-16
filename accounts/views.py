@@ -71,7 +71,7 @@ class CloserTemplateView(TemplateView):
 def access_denied(request, message=None):
     my_url = reverse("accounts:request_access")
     a_tag = mark_safe(
-        '<a pop-href="{}" href="#" class="btn btn-sm btn-success request-access-button">{}</a>'.format(my_url, _("Request access")))
+        '<a pop-href="{}" href="#" class="btn btn-sm btn-primary badge request-access-button">{}</a>'.format(my_url, _("Request access")))
     if not message:
         message = _("Sorry, you are not authorized to view this page.")
     denied_message = "{} {}".format(message, a_tag)
@@ -292,7 +292,7 @@ class RequestAccessFormView(LoginRequiredMixin, FormView):
             "application": form.cleaned_data["application"],
             "optional_comment": form.cleaned_data["optional_comment"],
         }
-        email = emails.RequestAccessEmail(context)
+        email = emails.RequestAccessEmail(context, self.request)
         # send the email object
         custom_send_mail(
             subject=email.subject,
