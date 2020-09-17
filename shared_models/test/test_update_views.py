@@ -34,7 +34,6 @@ class TestSectionUpdateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.admin_user)
 
 
-
 class TestDivisionUpdateView(CommonTest):
     def setUp(self):
         super().setUp()

@@ -4,7 +4,50 @@ from django.test import tag, RequestFactory
 
 from whalesdb.test.common_views import CommonDetailsTest, setup_view
 from whalesdb.test import WhalesdbFactoryFloor as Factory
+from shared_models.test import SharedModelsFactoryFloor as SharedFactory
 from whalesdb import views, models
+
+
+class TestCruDetails(CommonDetailsTest):
+
+    def createDict(self):
+        if self._details_dict:
+            return self._details_dict
+
+        self._details_dict = {}
+
+        obj = SharedFactory.CruiseFactory()
+
+        self._details_dict['cru_1'] = obj
+
+        return self._details_dict
+
+    def setUp(self):
+        super().setUp()
+
+        cru_dic = self.createDict()
+
+        self.test_url = reverse_lazy('whalesdb:details_cru', args=(cru_dic['cru_1'].pk,))
+        self.test_expected_template = 'whalesdb/whales_details.html'
+        self.fields = []
+
+    @tag('cru', 'details_cru', 'response', 'access')
+    def test_details_cru_en(self):
+        super().assert_view()
+
+    # Station Details are visible to all
+    @tag('cru', 'details_cru', 'response', 'access')
+    def test_details_cru_fr(self):
+        super().assert_view(lang='fr')
+
+    # Test that the context contains the proper fields
+    @tag('cru', 'details_cru', 'context')
+    def test_context_fields_cru(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        super().assert_context_fields(response)
 
 
 class TestEmmDetails(CommonDetailsTest):
