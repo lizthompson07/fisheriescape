@@ -4,6 +4,48 @@ from django.urls import reverse_lazy
 from whalesdb.test.common_views import CommonListTest
 
 
+# The Cruise views requires a Whales_admin level of permissions to access since cruises are used by other apps
+class TesCruList(CommonListTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_cru')
+
+    # login required
+    @tag('cru', 'cru_list', 'response', 'access')
+    def test_cru_list_en_login_required(self):
+        super().assert_view(expected_code=302)
+
+    # login required
+    @tag('cru', 'cru_list', 'response', 'access')
+    def test_cru_list_fr_login_required(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # login required
+    @tag('cru', 'cru_list', 'response', 'access')
+    def test_cru_list_en(self):
+        self.login_whale_user()
+        super().assert_view()
+
+    # login required
+    @tag('cru', 'cru_list', 'response', 'access')
+    def test_cru_list_fr(self):
+        self.login_whale_user()
+        super().assert_view(lang='fr')
+
+    # make sure project list context returns expected context objects
+    # The cruise view should use create_cru and details_cru for the create and details buttons
+    @tag('cru', 'cru_list', 'response', 'context')
+    def test_cru_list_context_fields(self):
+        self.login_whale_user()
+        response = super().assert_list_view_context_fields()
+
+        self.assertEqual("whalesdb:create_cru", response.context['create_url'])
+        self.assertEqual("whalesdb:details_cru", response.context['details_url'])
+        self.assertEqual("whalesdb:update_cru", response.context['update_url'])
+
+
 class TestDepList(CommonListTest):
 
     def setUp(self):
@@ -204,7 +246,6 @@ class TestRttList(CommonListTest):
     @tag('rtt', 'rtt_list', 'response', 'access')
     def test_rsc_list_fr(self):
         super().assert_view(lang='fr')
-
 
 
 class TestStnList(CommonListTest):

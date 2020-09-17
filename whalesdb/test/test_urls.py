@@ -31,6 +31,26 @@ class URLTest(TestCase):
         # Test the resolved URL points to the proper view
         self.assertEqual(found.func.__name__, view.__name__)
 
+    @tag('cru', 'url', 'create')
+    def test_url_create_cru_view(self):
+        self.basic_en_url_test('whalesdb:create_cru', 'whalesdb/create/cru/', views.CruCreate)
+
+    @tag('cru', 'url', 'update')
+    def test_url_update_cru_view(self):
+        self.basic_en_url_test('whalesdb:update_cru', 'whalesdb/update/cru/1/', views.CruUpdate, [1])
+
+    @tag('cru', 'url', 'details')
+    def test_url_details_cru_view(self):
+        self.basic_en_url_test('whalesdb:details_cru', 'whalesdb/details/cru/1/', views.CruDetails, [1])
+
+    @tag('cru', 'url', 'list')
+    def test_url_list_cru_view(self):
+        self.basic_en_url_test('whalesdb:list_cru', 'whalesdb/list/cru/', views.CruList)
+
+    @tag('cru', 'url', 'delete')
+    def test_url_delete_cru_view(self):
+        self.basic_en_url_test('whalesdb:delete_cru', 'whalesdb/delete/cru/1/', views.CruDeleteView, [1])
+
     @tag('index', 'url')
     def test_root_url_index_view(self):
         self.basic_en_url_test('whalesdb:index', 'whalesdb/', views.IndexView)
