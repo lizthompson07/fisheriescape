@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from whalesdb import forms, models, filters, utils
 from django.contrib.auth.mixins import UserPassesTestMixin
-from shared_models.views import CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView
+from shared_models.views import CommonTemplateView, CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView
 
 import json
 import shared_models.models as shared_models
@@ -24,7 +24,10 @@ def rst_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
-class IndexView(TemplateView):
+class IndexView(CommonTemplateView):
+    nav_menu = 'whalesdb/whale_nav_menu.html'
+    site_css = 'whalesdb/whales_css.css'
+    title = _("Whale Equipment Metadata Database")
     template_name = 'whalesdb/index.html'
 
     def get_context_data(self, *args, **kwargs):
