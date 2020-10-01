@@ -84,7 +84,12 @@
                         <td>{{ evt.set_type.name }}</td>
                         <td>
                          <div class="card border border-dark my-1">
-                            <p class="card-header"><a href="#fs-evt-{{evt.pk}}" data-toggle="collapse">{% trans 'Details' %}</a></p>
+                            <div class="card-header">
+                                <div class="row">
+                                    <a class="col h5" href="#fs-evt-{{evt.pk}}" data-toggle="collapse">{% trans 'Details' %}</a>
+                                    <a class="btn btn-primary col-2" href="#" onclick="return pop('{% url 'whalesdb:update_ste' evt.id object.pk 'pop' %}','all')" >{% trans 'Update' %}</a>
+                                </div>
+                            </div>
                             <div class="card-body collapse" id="fs-evt-{{evt.pk}}">
                                 <div class="card-text">{% include "whalesdb/_details_ste.html" with evt=evt %}</div>
                             </div>

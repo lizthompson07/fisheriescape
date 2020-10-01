@@ -450,6 +450,21 @@ class StnUpdate(CommonUpdate):
         return reverse_lazy("whalesdb:list_stn")
 
 
+class SteUpdate(CommonUpdate):
+    model = models.SteStationEvent
+    form_class = forms.SteForm
+    title = _("Update Station Event")
+
+    def get_initial(self):
+        init = super().get_initial()
+        if 'dep_id' in self.kwargs and models.DepDeployment.objects.filter(pk=self.kwargs['dep_id']):
+            init['dep'] = models.DepDeployment.objects.get(pk=self.kwargs['dep_id'])
+
+        if 'set_id' in self.kwargs and models.SetStationEventCode.objects.filter(pk=self.kwargs['set_id']):
+            init['set_type'] = models.SetStationEventCode.objects.get(pk=self.kwargs['set_id'])
+        return init
+
+
 class CommonDetails(DetailView):
     # default template to use to create a details view
     template_name = "whalesdb/whales_details.html"
