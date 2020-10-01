@@ -148,6 +148,8 @@ class RecForm(forms.ModelForm):
         model = models.RecDataset
         exclude = []
         widgets = {
+            'rec_start_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'rec_end_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
         }
 
 
@@ -160,6 +162,7 @@ class ReeForm(forms.ModelForm):
         exclude = []
         widgets = {
             'rec_id': forms.HiddenInput(),
+            'ree_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
         }
 
 
