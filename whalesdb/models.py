@@ -296,8 +296,8 @@ class RecDataset(models.Model):
     rec_start_time = models.TimeField(blank=True, null=True, verbose_name=_("In Water Start Time"))
     rec_end_date = models.DateField(blank=True, null=True, verbose_name=_("In Water End Date"))
     rec_end_time = models.TimeField(blank=True, null=True, verbose_name=_("In Water End Time"))
-    rec_backup_hd_1 = models.IntegerField(blank=True, null=True, verbose_name=_("HD Backup 1"))
-    rec_backup_hd_2 = models.IntegerField(blank=True, null=True, verbose_name=_("HD Backup 2"))
+    rec_backup_hd_1 = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("HD Backup 1"))
+    rec_backup_hd_2 = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("HD Backup 2"))
     rec_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     def __str__(self):
