@@ -75,7 +75,7 @@
                 </thead>
                 <tbody>
                     {% for obj in filter.qs %}
-                        <td>
+                        <tr>
                         {% for field in fields %}
                         <td>{% get_field_value obj field %}</td>
                         {% endfor %}
