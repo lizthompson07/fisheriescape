@@ -203,6 +203,31 @@ class TestRecList(CommonListTest):
         self.assertEquals(False, response.context["editable"])
 
 
+class TestRetList(CommonListTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_ret')
+
+    # User should be able to view lists without login required
+    @tag('ret', 'ret_list', 'response', 'access')
+    def test_ret_list_en(self):
+        super().assert_view()
+
+    # User should be able to view lists without login required
+    @tag('ret', 'ret_list', 'response', 'access')
+    def test_ret_list_fr(self):
+        super().assert_view(lang='fr')
+
+    @tag('ret', 'ret_list', 'response', 'context')
+    def test_ret_list_context_fields(self):
+        response = super().assert_list_view_context_fields()
+
+        self.assertFalse(response.context['details_url'])
+        self.assertEqual("whalesdb:delete_ret", response.context['delete_url'])
+
+
 class TestRscList(CommonListTest):
 
     def setUp(self):
@@ -239,12 +264,12 @@ class TestRttList(CommonListTest):
 
     # User should be able to view lists without login required
     @tag('rtt', 'rtt_list', 'response', 'access')
-    def test_rsc_list_en(self):
+    def test_rtt_list_en(self):
         super().assert_view()
 
     # User should be able to view lists without login required
     @tag('rtt', 'rtt_list', 'response', 'access')
-    def test_rsc_list_fr(self):
+    def test_rtt_list_fr(self):
         super().assert_view(lang='fr')
 
 

@@ -85,6 +85,11 @@ urlpatterns = [
     path('details/rec/<int:pk>/', views.RecDetails.as_view(), name="details_rec"),
     path('update/rec/<int:pk>/', views.RecUpdate.as_view(), name="update_rec"),
 
+    path('create/ret/', views.RetCreate.as_view(), name="create_ret"),
+    path('list/ret/', views.RetList.as_view(), name="list_ret"),
+    path('update/ret/<int:pk>/', views.RetUpdate.as_view(), name="update_ret"),
+    path('delete/ret/<int:pk>/', views.ret_delete, name="delete_ret"),
+
     path('create/rci/<int:rec_id>/<str:pop>/', views.RciCreate.as_view(), name="create_rci"),
 
     path('create/ree/<int:rec_id>/<str:pop>/', views.ReeCreate.as_view(), name="create_ree"),

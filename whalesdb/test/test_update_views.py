@@ -610,3 +610,60 @@ class TestRecUpdate(CommonUpdateTest):
     @tag('rec', 'update_rec', 'redirect')
     def test_update_rec_successful_url(self):
         super().assert_successful_url()
+
+
+class TestRetUpdate(CommonUpdateTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.RetFactory.get_valid_data()
+
+        obj = Factory.RetFactory()
+
+        self.test_url = reverse_lazy('whalesdb:update_ret', args=(obj.pk,))
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_view = views.RetUpdate
+
+        self.expected_form = forms.RetForm
+
+        self.expected_success_url = reverse_lazy("whalesdb:list_ret")
+
+    # Users must be logged in to create new stations
+    @tag('ret', 'update_ret', 'response', 'access')
+    def test_update_ret_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to update object
+    @tag('ret', 'update_ret', 'response', 'access')
+    def test_update_ret_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
+    @tag('ret', 'update_ret', 'response', 'access')
+    def test_update_ret_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('ret', 'update_ret', 'form')
+    def test_update_ret_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('ret', 'update_ret', 'context')
+    def test_update_ret_context_fields(self):
+        super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('ret', 'update_ret', 'redirect')
+    def test_update_ret_successful_url(self):
+        super().assert_successful_url()

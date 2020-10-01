@@ -479,3 +479,20 @@ class ReeFactory(factory.django.DjangoModelFactory):
         }
 
         return valid_data
+
+
+class RetFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.RetRecordingEventType
+
+    ret_name = factory.lazy_attribute(lambda o: faker.word())
+    ret_desc = factory.lazy_attribute(lambda o: faker.text())
+
+    @staticmethod
+    def get_valid_data():
+        valid_data = {
+            'ret_name': faker.word(),
+            'ret_desc': faker.text()
+        }
+
+        return valid_data

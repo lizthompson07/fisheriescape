@@ -163,6 +163,12 @@ class ReeForm(forms.ModelForm):
         }
 
 
+class RetForm(forms.ModelForm):
+    class Meta:
+        model = models.RetRecordingEventType
+        exclude = []
+
+
 class RscForm(forms.ModelForm):
     class Meta:
         model = models.RscRecordingSchedule

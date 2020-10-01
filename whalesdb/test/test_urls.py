@@ -276,6 +276,18 @@ class URLTest(TestCase):
     def test_url_update_rec_view(self):
         self.basic_en_url_test('whalesdb:update_rec', 'whalesdb/update/rec/1/', views.RecUpdate, [1])
 
+    @tag('ret', 'url', 'create')
+    def test_url_create_ret_view(self):
+        self.basic_en_url_test('whalesdb:create_ret', 'whalesdb/create/ret/', views.RetCreate)
+
+    @tag('ret', 'url', 'list')
+    def test_url_list_ret_view(self):
+        self.basic_en_url_test('whalesdb:list_ret', 'whalesdb/list/ret/', views.RetList)
+
+    @tag('ret', 'url', 'update')
+    def test_url_update_ret_view(self):
+        self.basic_en_url_test('whalesdb:update_ret', 'whalesdb/update/ret/1/', views.RetUpdate, [1])
+
     @tag('rci', 'url', 'create', 'pop')
     def test_url_create_rci_pop_ste_view(self):
         self.basic_en_url_test('whalesdb:create_rci', 'whalesdb/create/rci/1/pop/', views.RciCreate, [1, 'pop'])

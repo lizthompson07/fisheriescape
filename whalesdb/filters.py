@@ -53,6 +53,13 @@ class RecFilter(django_filters.FilterSet):
         fields = ['eda_id', 'rsc_id', 'rec_start_date', 'rec_end_date']
 
 
+class RetFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.RetRecordingEventType
+        fields = ['ret_name', 'ret_desc']
+
+
 class RscFilter(django_filters.FilterSet):
     rsc_name = django_filters.CharFilter(field_name='rsc_name', lookup_expr='icontains')
 

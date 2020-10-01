@@ -260,6 +260,18 @@ class TestReeForm(CommonFormTest):
         self.assertIsInstance(form.fields['rec_id'].widget, d_forms.HiddenInput)
 
 
+class TestRetForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.RetForm
+        self.test_factory = factory.RetFactory
+
+    @tag('ret', 'form', 'valid_data')
+    def test_ret_valid_data(self):
+        self.assert_valid_data()
+
+
 class TestRscForm(CommonFormTest):
 
     def setUp(self) -> None:

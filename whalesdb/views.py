@@ -24,6 +24,16 @@ def rst_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
+def ret_delete(request, pk):
+    ret = models.RetRecordingEventType.objects.get(pk=pk)
+    if utils.whales_authorized(request.user):
+        ret.delete()
+        messages.success(request, _("The recording Event Type has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 class IndexView(CommonTemplateView):
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
@@ -227,6 +237,13 @@ class ReeCreate(CommonCreate):
         return init
 
 
+class RetCreate(CommonCreate):
+    key = 'ret'
+    model = models.RetRecordingEventType
+    form_class = forms.RetForm
+    title = _("Recording Event Type")
+
+
 class RscCreate(CommonCreate):
     key = 'rsc'
     model = models.RscRecordingSchedule
@@ -413,6 +430,15 @@ class RecUpdate(CommonUpdate):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:details_rec", args=(self.kwargs['pk'],))
+
+
+class RetUpdate(CommonUpdate):
+    model = models.RetRecordingEventType
+    form_class = forms.RetForm
+    title = _("Update Recording Event Type")
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_ret")
 
 
 class StnUpdate(CommonUpdate):
@@ -696,6 +722,17 @@ class RecList(CommonList):
     filterset_class = filters.RecFilter
     title = _("Dataset")
     fields = ['eda_id', 'rsc_id', 'rec_start_date', 'rec_end_date']
+
+
+class RetList(CommonList):
+    key = 'ret'
+    model = models.RetRecordingEventType
+    filterset_class = filters.RetFilter
+    title = _("Recording Event Type")
+    fields = ['ret_name', 'ret_desc']
+
+    details_url = False
+    delete_url = "whalesdb:delete_ret"
 
 
 class RscList(CommonList):
