@@ -337,7 +337,7 @@ class RstRecordingStage(models.Model):
     rsc = models.ForeignKey(RscRecordingSchedule, models.DO_NOTHING, verbose_name=_("Schedule"), related_name="stages")
     rst_active = models.CharField(max_length=1, verbose_name=_("(A)ctive or (S)leep"))
     rst_duration = models.BigIntegerField(verbose_name=_("Duration"))
-    rst_rate = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True, verbose_name=_("Rate (Hz)"))
+    rst_rate = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True, verbose_name=_("Rate (Hz)"))
 
 
 class RttTimezoneCode(models.Model):
