@@ -229,7 +229,7 @@ class SteStationEvent(models.Model):
 
     # Note: We're using the cruise information from the Shared Models tables rather than duplicating information.
     #   Not to mention the Shared Model tables will have more detail than Team Whale expects to get.
-    crs = models.ForeignKey(shared_models.Cruise, on_delete=models.DO_NOTHING, verbose_name=_("Cruise"))
+    crs = models.ForeignKey(shared_models.Cruise, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Cruise"))
 
     ste_lat_ship = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True,
                                        verbose_name=_("Ship Latitude"))
