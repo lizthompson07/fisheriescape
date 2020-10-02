@@ -28,6 +28,13 @@ class EqpFilter(django_filters.FilterSet):
         fields = ['emm', 'eqp_serial', 'eqp_date_purchase', 'eqo_owned_by', 'eqp_retired', 'eqp_deployed']
 
 
+class EtrFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EtrTechnicalRepairEvent
+        fields = ['etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe' ]
+
+
 class MorFilter(django_filters.FilterSet):
     mor_name = django_filters.CharFilter(field_name='mor_name', lookup_expr='icontains')
     mor_max_depth = django_filters.NumberFilter(field_name='mor_max_depth', lookup_expr='icontains')

@@ -48,6 +48,8 @@
                     {% endif %}
                     <hr />
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_emm' %}" >{% trans 'Make/Model' %}</a>
+                    <hr />
+                    <a class="btn btn-secondary" href="{% url 'whalesdb:list_etr' %}" >{% trans 'Equipment Technical Repair Event' %}</a>
                 </div>
             </div>
         </div>
@@ -76,6 +78,7 @@
                     {% if auth %}
                     <a class="btn btn-secondary" href="{% url 'whalesdb:create_tea' %}" >{% trans 'New Team Member' %}</a>
                     {% endif %}
+                    <hr />
                     <a class="btn btn-secondary" href="{% url 'whalesdb:list_ret' %}" >{% trans 'Recording Event Type' %}</a>
 
                 </div>

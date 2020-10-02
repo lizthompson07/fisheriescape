@@ -120,6 +120,29 @@ class TestEqpList(CommonListTest):
         response = super().assert_list_view_context_fields()
 
 
+class TestEtrList(CommonListTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_etr')
+
+    # User should be able to view lists without login required
+    @tag('etr', 'etr_list', 'response', 'access')
+    def test_etr_list_en(self):
+        super().assert_view()
+
+    # User should be able to view lists without login required
+    @tag('etr', 'etr_list', 'response', 'access')
+    def test_etr_list_fr(self):
+        super().assert_view(lang='fr')
+
+    # make sure project list context returns expected context objects
+    @tag('etr', 'etr_list', 'response', 'context')
+    def test_etr_list_context_fields(self):
+        response = super().assert_list_view_context_fields()
+
+
 class TestMorList(CommonListTest):
 
     def setUp(self):

@@ -105,6 +105,14 @@ class EqrForm(forms.ModelForm):
         }
 
 
+class EtrForm(forms.ModelForm):
+    class Meta:
+        model = models.EtrTechnicalRepairEvent
+        exclude = []
+        widgets = {
+        }
+
+
 class MorForm(forms.ModelForm):
 
     min_height = 935

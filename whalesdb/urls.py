@@ -43,6 +43,8 @@ urlpatterns = [
     path('create/eqr/<int:pk>/<str:pop>/', views.EqrCreate.as_view(), name="create_eqr"),
     path('update/eqr/<int:pk>/<str:pop>/', views.EqrUpdate.as_view(), name="update_eqr"),
 
+    path('list/etr/', views.EtrList.as_view(), name="list_etr"),
+
     path('create/mor/', views.MorCreate.as_view(), name="create_mor"),
     path('create/mor/<str:pop>/', views.MorCreate.as_view(), name="create_mor"),
     path('update/mor/<int:pk>/', views.MorUpdate.as_view(), name="update_mor"),

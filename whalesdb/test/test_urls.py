@@ -143,6 +143,10 @@ class URLTest(TestCase):
     def test_url_update_pop_eqr_view(self):
         self.basic_en_url_test('whalesdb:update_eqr', 'whalesdb/update/eqr/1/pop/', views.EqrUpdate, [1, 'pop'])
 
+    @tag('etr', 'url', 'list')
+    def test_url_list_etr_view(self):
+        self.basic_en_url_test('whalesdb:list_etr', 'whalesdb/list/etr/', views.EtrList)
+
     @tag('mor', 'url', 'create')
     def test_url_create_mor_view(self):
         self.basic_en_url_test('whalesdb:create_mor', 'whalesdb/create/mor/', views.MorCreate)

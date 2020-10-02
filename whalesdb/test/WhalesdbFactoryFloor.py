@@ -85,6 +85,20 @@ class EqrFactory(factory.django.DjangoModelFactory):
         return valid_data
 
 
+class EtrFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EtrTechnicalRepairEvent
+
+    eqp_id = factory.SubFactory(EqpFactory)
+
+    @staticmethod
+    def get_valid_data():
+        valid_data = {
+        }
+
+        return valid_data
+
+
 class EcpFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EcpChannelProperty

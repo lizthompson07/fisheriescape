@@ -188,6 +188,13 @@ class EqrCreate(CommonCreate):
         return initial
 
 
+class EtrCreate(CommonCreate):
+    key = 'etr'
+    model = models.EtrTechnicalRepairEvent
+    form_class = forms.EtrForm
+    title = _("Equipment Technical Repair Event")
+
+
 class MorCreate(CommonCreate):
     key = 'mor'
     model = models.MorMooringSetup
@@ -724,6 +731,14 @@ class EqpList(CommonList):
     filterset_class = filters.EqpFilter
     fields = ['emm', 'eqp_serial', 'eqp_date_purchase', 'eqo_owned_by', 'eqp_retired', "eqp_deployed"]
     title = _("Equipment List")
+
+
+class EtrList(CommonList):
+    key = 'etr'
+    model = models.EtrTechnicalRepairEvent
+    filterset_class = filters.EtrFilter
+    fields = ['etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
+    title = _("Equipment Technical Repair Event")
 
 
 class MorList(CommonList):
