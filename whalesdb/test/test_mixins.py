@@ -263,7 +263,7 @@ class TestEtr(CommonMixinsTest):
     def setUp(self) -> None:
         self.mixin = mixins.EtrMixin
         self.expected_key = 'etr'
-        self.expected_title = "Equipment Technical Repair Event"
+        self.expected_title = "Technical Repair Event"
         self.expected_model = models.EtrTechnicalRepairEvent
         self.expected_form = forms.EtrForm
 
