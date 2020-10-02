@@ -110,6 +110,7 @@ class EtrForm(forms.ModelForm):
         model = models.EtrTechnicalRepairEvent
         exclude = []
         widgets = {
+            'etr_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
         }
 
 

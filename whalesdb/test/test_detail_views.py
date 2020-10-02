@@ -50,90 +50,6 @@ class TestCruDetails(CommonDetailsTest):
         super().assert_context_fields(response)
 
 
-class TestEmmDetails(CommonDetailsTest):
-
-    def createDict(self):
-        if self._details_dict:
-            return self._details_dict
-
-        self._details_dict = {}
-
-        obj = Factory.EmmFactory()
-
-        self._details_dict['emm_1'] = obj
-
-        return self._details_dict
-
-    def setUp(self):
-        super().setUp()
-
-        emm_dic = self.createDict()
-
-        self.test_url = reverse_lazy('whalesdb:details_emm', args=(emm_dic['emm_1'].pk,))
-        self.test_expected_template = 'whalesdb/details_emm.html'
-        self.fields = []
-
-    @tag('emm', 'details_emm', 'response', 'access')
-    def test_details_emm_en(self):
-        super().assert_view()
-
-    # Station Details are visible to all
-    @tag('emm', 'details_emm', 'response', 'access')
-    def test_details_emm_fr(self):
-        super().assert_view(lang='fr')
-
-    # Test that the context contains the proper fields
-    @tag('emm', 'details_emm', 'context')
-    def test_context_fields_emm(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
-
-
-class TestEqpDetails(CommonDetailsTest):
-
-    def createDict(self):
-        if self._details_dict:
-            return self._details_dict
-
-        self._details_dict = {}
-
-        obj = Factory.EqpFactory()
-
-        self._details_dict['eqp_1'] = obj
-
-        return self._details_dict
-
-    def setUp(self):
-        super().setUp()
-
-        eqp_dic = self.createDict()
-
-        self.test_url = reverse_lazy('whalesdb:details_eqp', args=(eqp_dic['eqp_1'].pk,))
-        self.test_expected_template = 'whalesdb/details_eqp.html'
-        self.fields = []
-
-    @tag('eqp', 'details_eqp', 'response', 'access')
-    def test_details_eqp_en(self):
-        super().assert_view()
-
-    # Station Details are visible to all
-    @tag('eqp', 'details_eqp', 'response', 'access')
-    def test_details_eqp_fr(self):
-        super().assert_view(lang='fr')
-
-    # Test that the context contains the proper fields
-    @tag('eqp', 'details_eqp', 'context')
-    def test_context_fields_eqp(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
-
-
 class TestDepDetails(CommonDetailsTest):
 
     def createDict(self):
@@ -250,6 +166,127 @@ class TestDepDetails(CommonDetailsTest):
         self.assertIn("editable", response.context)
         self.assertTrue(response.context['auth'])
         self.assertFalse(response.context['editable'])
+
+
+class TestEmmDetails(CommonDetailsTest):
+
+    def createDict(self):
+        if self._details_dict:
+            return self._details_dict
+
+        self._details_dict = {}
+
+        obj = Factory.EmmFactory()
+
+        self._details_dict['emm_1'] = obj
+
+        return self._details_dict
+
+    def setUp(self):
+        super().setUp()
+
+        emm_dic = self.createDict()
+
+        self.test_url = reverse_lazy('whalesdb:details_emm', args=(emm_dic['emm_1'].pk,))
+        self.test_expected_template = 'whalesdb/details_emm.html'
+        self.fields = []
+
+    @tag('emm', 'details_emm', 'response', 'access')
+    def test_details_emm_en(self):
+        super().assert_view()
+
+    # Station Details are visible to all
+    @tag('emm', 'details_emm', 'response', 'access')
+    def test_details_emm_fr(self):
+        super().assert_view(lang='fr')
+
+    # Test that the context contains the proper fields
+    @tag('emm', 'details_emm', 'context')
+    def test_context_fields_emm(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        super().assert_context_fields(response)
+
+
+class TestEqpDetails(CommonDetailsTest):
+
+    def createDict(self):
+        if self._details_dict:
+            return self._details_dict
+
+        self._details_dict = {}
+
+        obj = Factory.EqpFactory()
+
+        self._details_dict['eqp_1'] = obj
+
+        return self._details_dict
+
+    def setUp(self):
+        super().setUp()
+
+        eqp_dic = self.createDict()
+
+        self.test_url = reverse_lazy('whalesdb:details_eqp', args=(eqp_dic['eqp_1'].pk,))
+        self.test_expected_template = 'whalesdb/details_eqp.html'
+        self.fields = []
+
+    @tag('eqp', 'details_eqp', 'response', 'access')
+    def test_details_eqp_en(self):
+        super().assert_view()
+
+    # Station Details are visible to all
+    @tag('eqp', 'details_eqp', 'response', 'access')
+    def test_details_eqp_fr(self):
+        super().assert_view(lang='fr')
+
+    # Test that the context contains the proper fields
+    @tag('eqp', 'details_eqp', 'context')
+    def test_context_fields_eqp(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        super().assert_context_fields(response)
+
+
+class TestEtrDetails(CommonDetailsTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.etr = Factory.EtrFactory()
+
+        self.test_url = reverse_lazy('whalesdb:details_etr', args=(self.etr.pk,))
+        self.test_expected_template = 'whalesdb/whales_details.html'
+        self.fields = ['eqp', 'etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe',
+                       'etr_rec_affe']
+
+    # Station Details are visible to all
+    @tag('etr', 'details_etr', 'response', 'access')
+    def test_details_etr_en(self):
+        super().assert_view()
+
+    # Station Details are visible to all
+    @tag('etr', 'details_etr', 'response', 'access')
+    def test_details_etr_fr(self):
+        super().assert_view(lang='fr')
+
+    # Test that the context contains the proper fields
+    @tag('etr', 'details_etr', 'context')
+    def test_context_fields_etr(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        super().assert_context_fields(response)
+        self.assertEqual(response.context['list_url'], 'whalesdb:list_etr')
+        self.assertEqual(response.context['update_url'], 'whalesdb:update_etr')
+
+        self.assertEqual(response.context["object"], self.etr)
+        super().assert_field_in_fields(response)
 
 
 class TestMorDetails(CommonDetailsTest):

@@ -147,6 +147,22 @@ class URLTest(TestCase):
     def test_url_list_etr_view(self):
         self.basic_en_url_test('whalesdb:list_etr', 'whalesdb/list/etr/', views.EtrList)
 
+    @tag('etr', 'url', 'create')
+    def test_url_create_etr_view(self):
+        self.basic_en_url_test('whalesdb:create_etr', 'whalesdb/create/etr/', views.EtrCreate)
+
+    @tag('etr', 'url', 'details')
+    def test_url_details_etr_view(self):
+        self.basic_en_url_test('whalesdb:details_etr', 'whalesdb/details/etr/1/', views.EtrDetails, [1])
+
+    @tag('etr', 'url', 'update')
+    def test_url_update_etr_view(self):
+        self.basic_en_url_test('whalesdb:update_etr', 'whalesdb/update/etr/1/', views.EtrUpdate, [1])
+
+    @tag('etr', 'url', 'update', 'pop')
+    def test_url_update_pop_etr_view(self):
+        self.basic_en_url_test('whalesdb:update_etr', 'whalesdb/update/etr/1/pop/', views.EtrUpdate, [1, 'pop'])
+
     @tag('mor', 'url', 'create')
     def test_url_create_mor_view(self):
         self.basic_en_url_test('whalesdb:create_mor', 'whalesdb/create/mor/', views.MorCreate)

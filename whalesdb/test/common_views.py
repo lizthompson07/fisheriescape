@@ -231,8 +231,9 @@ class CommonDetailsTest(CommonTest):
     def tearDown(self) -> None:
         _details_dict = self.createDict()
 
-        for key in self._details_dict:
-            _details_dict[key].delete()
+        if self._details_dict:
+            for key in self._details_dict:
+                _details_dict[key].delete()
 
     def assert_field_in_fields(self, response):
         for field in self.fields:

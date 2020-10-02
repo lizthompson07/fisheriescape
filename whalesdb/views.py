@@ -13,6 +13,8 @@ from shared_models.views import CommonTemplateView, CommonAuthCreateView, Common
 import json
 import shared_models.models as shared_models
 
+from . import mixins
+
 
 def rst_delete(request, pk):
     rst = models.RstRecordingStage.objects.get(pk=pk)
@@ -88,18 +90,11 @@ class CommonCreate(CommonAuthCreateView):
         return context
 
 
-class CruCreate(CommonCreate):
-    key = 'cru'
-    model = shared_models.Cruise
-    form_class = forms.CruForm
-    title = _("Create Cruise")
+class CruCreate(mixins.CruMixin, CommonCreate):
+    pass
 
 
-class DepCreate(CommonCreate):
-    key = 'dep'
-    model = models.DepDeployment
-    form_class = forms.DepForm
-    title = _("Create Deployment")
+class DepCreate(mixins.DepMixin, CommonCreate):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -113,11 +108,7 @@ class DepCreate(CommonCreate):
         return context
 
 
-class EdaCreate(CommonCreate):
-    key = 'eda'
-    model = models.EdaEquipmentAttachment
-    form_class = forms.EdaForm
-    title = _("Select Equipment")
+class EdaCreate(mixins.EdaMixin, CommonCreate):
 
     def get_initial(self):
         initial = super().get_initial()
@@ -126,11 +117,7 @@ class EdaCreate(CommonCreate):
         return initial
 
 
-class EmmCreate(CommonCreate):
-    key = 'emm'
-    model = models.EmmMakeModel
-    form_class = forms.EmmForm
-    title = _("Create Make/Model")
+class EmmCreate(mixins.EmmMixin, CommonCreate):
 
     def form_valid(self, form):
         emm = form.save()
@@ -141,11 +128,7 @@ class EmmCreate(CommonCreate):
             return HttpResponseRedirect(self.get_success_url())
 
 
-class EqhCreate(CommonCreate):
-    key = 'eqh'
-    model = models.EqhHydrophoneProperty
-    form_class = forms.EqhForm
-    title = _("Hydrophone Properties")
+class EqhCreate(mixins.EqhMixin, CommonCreate):
 
     def get_initial(self):
         initial = super().get_initial()
@@ -154,32 +137,15 @@ class EqhCreate(CommonCreate):
         return initial
 
 
-class EqoCreate(CommonCreate):
-    key = 'eqo'
-    model = models.EqoOwner
-    form_class = forms.EqoForm
-    title = _("Create Equipment Owner")
+class EqoCreate(mixins.EqoMixin, CommonCreate):
+    pass
 
 
-class EqpCreate(CommonCreate):
-    # This key is used by CommonCreate to create the 'whalesdb:list_eqp' name in the get_success_url method
-    key = 'eqp'
-
-    # The model this class uses
-    model = models.EqpEquipment
-
-    # The form class this model uses
-    form_class = forms.EqpForm
-
-    # the title to use on this views creation template
-    title = _("Create Equipment")
+class EqpCreate(mixins.EqpMixin, CommonCreate):
+    pass
 
 
-class EqrCreate(CommonCreate):
-    key = 'eqr'
-    model = models.EqrRecorderProperties
-    form_class = forms.EqrForm
-    title = _("Recorder Properties")
+class EqrCreate(mixins.EqrMixin, CommonCreate):
 
     def get_initial(self):
         initial = super().get_initial()
@@ -188,32 +154,19 @@ class EqrCreate(CommonCreate):
         return initial
 
 
-class EtrCreate(CommonCreate):
-    key = 'etr'
-    model = models.EtrTechnicalRepairEvent
-    form_class = forms.EtrForm
-    title = _("Equipment Technical Repair Event")
+class EtrCreate(mixins.EtrMixin, CommonCreate):
+    pass
 
 
-class MorCreate(CommonCreate):
-    key = 'mor'
-    model = models.MorMooringSetup
-    form_class = forms.MorForm
-    title = _("Create Mooring Setup")
+class MorCreate(mixins.MorMixin, CommonCreate):
+    pass
 
 
-class PrjCreate(CommonCreate):
-    key = 'prj'
-    model = models.PrjProject
-    form_class = forms.PrjForm
-    title = _("Create Project")
+class PrjCreate(mixins.PrjMixin, CommonCreate):
+    pass
 
 
-class RciCreate(CommonCreate):
-    key = 'rci'
-    model = models.RciChannelInfo
-    form_class = forms.RciForm
-    title = _("Channel Information")
+class RciCreate(mixins.RciMixin, CommonCreate):
 
     def get_initial(self):
         init = super().get_initial()
@@ -223,18 +176,11 @@ class RciCreate(CommonCreate):
         return init
 
 
-class RecCreate(CommonCreate):
-    key = 'rec'
-    model = models.RecDataset
-    form_class = forms.RecForm
-    title = _("Dataset")
+class RecCreate(mixins.RecMixin, CommonCreate):
+    pass
 
 
-class ReeCreate(CommonCreate):
-    key = 'ree'
-    model = models.ReeRecordingEvent
-    form_class = forms.ReeForm
-    title = _("Recording Events")
+class ReeCreate(mixins.ReeMixin, CommonCreate):
 
     def get_initial(self):
         init = super().get_initial()
@@ -244,18 +190,11 @@ class ReeCreate(CommonCreate):
         return init
 
 
-class RetCreate(CommonCreate):
-    key = 'ret'
-    model = models.RetRecordingEventType
-    form_class = forms.RetForm
-    title = _("Recording Event Type")
+class RetCreate(mixins.RetMixin, CommonCreate):
+    pass
 
 
-class RscCreate(CommonCreate):
-    key = 'rsc'
-    model = models.RscRecordingSchedule
-    form_class = forms.RscForm
-    title = _("Create Recording Schedule")
+class RscCreate(mixins.RscMixin, CommonCreate):
 
     def form_valid(self, form):
         obj = form.save()
@@ -263,11 +202,7 @@ class RscCreate(CommonCreate):
         return HttpResponseRedirect(reverse_lazy("whalesdb:details_rsc", kwargs={"pk": obj.pk}))
 
 
-class RstCreate(CommonCreate):
-    key = 'rst'
-    model = models.RstRecordingStage
-    form_class = forms.RstForm
-    title = _("Create Recording Stage")
+class RstCreate(mixins.RstMixin, CommonCreate):
 
     def get_initial(self):
         initial = super().get_initial()
@@ -276,18 +211,11 @@ class RstCreate(CommonCreate):
         return initial
 
 
-class RttCreate(CommonCreate):
-    key = 'rtt'
-    model = models.RttTimezoneCode
-    form_class = forms.RttForm
-    title = _("Time Zone")
+class RttCreate(mixins.RttMixin, CommonCreate):
+    pass
 
 
-class SteCreate(CommonCreate):
-    key = 'ste'
-    model = models.SteStationEvent
-    form_class = forms.SteForm
-    title = _("Create Station Event")
+class SteCreate(mixins.SteMixin, CommonCreate):
 
     def get_initial(self):
         init = super().get_initial()
@@ -299,18 +227,12 @@ class SteCreate(CommonCreate):
         return init
 
 
-class StnCreate(CommonCreate):
-    key = 'stn'
-    model = models.StnStation
-    form_class = forms.StnForm
-    title = _("Create Station")
+class StnCreate(mixins.StnMixin, CommonCreate):
+    pass
 
 
-class TeaCreate(CommonCreate):
-    key = 'tea'
-    model = models.TeaTeamMember
-    form_class = forms.TeaForm
-    title = _("Create Team Member")
+class TeaCreate(mixins.TeaMixin, CommonCreate):
+    pass
 
 
 class CommonUpdate(CommonAuthUpdateView):
@@ -319,8 +241,14 @@ class CommonUpdate(CommonAuthUpdateView):
     site_css = 'whalesdb/whales_css.css'
     home_url_name = "whalesdb:index"
 
-    # update views are all intended to be pop out windows so upon success close the window
-    success_url = reverse_lazy("shared_models:close_me_no_refresh")
+    def get_success_url(self):
+        success_url = self.success_url if self.success_url else reverse_lazy("whalesdb:list_{}".format(self.key))
+
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+        return success_url
 
     def get_nav_menu(self):
         if self.kwargs.get("pop"):
@@ -344,20 +272,13 @@ class CommonUpdate(CommonAuthUpdateView):
         return context
 
 
-class CruUpdate(CommonUpdate):
-    key = 'cru'
-    model = shared_models.Cruise
-    form_class = forms.CruForm
-    title = _("Update Cruise")
+class CruUpdate(mixins.CruMixin, CommonUpdate):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:details_cru", args=(self.kwargs['pk'],))
 
 
-class DepUpdate(CommonUpdate):
-    model = models.DepDeployment
-    form_class = forms.DepForm
-    title = _("Update Deployment")
+class DepUpdate(mixins.DepMixin, CommonUpdate):
 
     def test_func(self):
         auth = super().test_func()
@@ -382,85 +303,60 @@ class DepUpdate(CommonUpdate):
         return reverse_lazy("whalesdb:list_dep")
 
 
-class EmmUpdate(CommonUpdate):
-    model = models.EmmMakeModel
-    form_class = forms.EmmForm
-    title = _("Update Make/Model")
+class EmmUpdate(mixins.EmmMixin, CommonUpdate):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:list_emm")
 
 
-class EqhUpdate(CommonUpdate):
-    model = models.EqhHydrophoneProperty
-    form_class = forms.EqhForm
-    title = _("Hydrophone Properties")
+class EqhUpdate(mixins.EqhMixin, CommonUpdate):
+    pass
 
 
-class EqpUpdate(CommonUpdate):
-    model = models.EqpEquipment
-    form_class = forms.EqpForm
-    title = _("Update Equipment")
-
+class EqpUpdate(mixins.EqpMixin, CommonUpdate):
     def get_success_url(self):
         return reverse_lazy("whalesdb:list_eqp")
 
 
-class EqrUpdate(CommonUpdate):
-    model = models.EqrRecorderProperties
-    form_class = forms.EqrForm
-    title = _("Recorder Properties")
+class EqrUpdate(mixins.EqrMixin, CommonUpdate):
+    pass
 
 
-class MorUpdate(CommonUpdate):
-    model = models.MorMooringSetup
-    form_class = forms.MorForm
-    title = _("Update Mooring Setup")
+class EtrUpdate(mixins.EtrMixin, CommonUpdate):
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:details_etr", args=(self.kwargs['pk'],))
+
+
+class MorUpdate(mixins.MorMixin, CommonUpdate):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:list_mor")
 
 
-class PrjUpdate(CommonUpdate):
-    model = models.PrjProject
-    form_class = forms.PrjForm
-    title = _("Update Project")
-
+class PrjUpdate(mixins.PrjMixin, CommonUpdate):
     def get_success_url(self):
         return reverse_lazy("whalesdb:list_prj")
 
 
-class RecUpdate(CommonUpdate):
-    model = models.RecDataset
-    form_class = forms.RecForm
-    title = _("Update Dataset")
+class RecUpdate(mixins.RecMixin, CommonUpdate):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:details_rec", args=(self.kwargs['pk'],))
 
 
-class RetUpdate(CommonUpdate):
-    model = models.RetRecordingEventType
-    form_class = forms.RetForm
-    title = _("Update Recording Event Type")
+class RetUpdate(mixins.RetMixin, CommonUpdate):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:list_ret")
 
 
-class StnUpdate(CommonUpdate):
-    model = models.StnStation
-    form_class = forms.StnForm
-    title = _("Update Station")
+class StnUpdate(mixins.StnMixin, CommonUpdate):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:list_stn")
 
 
-class SteUpdate(CommonUpdate):
-    model = models.SteStationEvent
-    form_class = forms.SteForm
-    title = _("Update Station Event")
+class SteUpdate(mixins.SteMixin, CommonUpdate):
 
     def get_initial(self):
         init = super().get_initial()
@@ -508,19 +404,13 @@ class CommonDetails(DetailView):
         return context
 
 
-class CruDetails(CommonDetails):
-    key = "cru"
-    model = shared_models.Cruise
-    title = _("Cruise Details")
+class CruDetails(mixins.CruMixin, CommonDetails):
     fields = ["institute", "mission_number", "mission_name", "description", "chief_scientist", "samplers", "start_date",
               "end_date", "probe", "area_of_operation", "number_of_profiles", "meds_id", "notes", "season","vessel", ]
 
 
-class DepDetails(CommonDetails):
-    key = "dep"
-    model = models.DepDeployment
+class DepDetails(mixins.DepMixin, CommonDetails):
     template_name = 'whalesdb/details_dep.html'
-    title = _("Deployment Details")
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
     def test_func(self):
@@ -553,70 +443,50 @@ class DepDetails(CommonDetails):
         return context
 
 
-class EmmDetails(CommonDetails):
-    key = "emm"
-    model = models.EmmMakeModel
+class EmmDetails(mixins.EmmMixin, CommonDetails):
     template_name = 'whalesdb/details_emm.html'
-    title = _("Make/Model Details")
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating', 'emm_description']
 
 
-class EqpDetails(CommonDetails):
-    key = "eqp"
+class EtrDetails(mixins.EtrMixin, CommonDetails):
+    fields = ['eqp', 'etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
+
+
+class EqpDetails(mixins.EqpMixin, CommonDetails):
     template_name = "whalesdb/details_eqp.html"
-    model = models.EqpEquipment
-    title = _("Equipment Details")
     fields = ['emm', 'eqp_serial', 'eqp_asset_id', 'eqp_date_purchase', 'eqp_notes', 'eqp_retired', 'eqo_owned_by']
 
 
-class MorDetails(CommonDetails):
-    key = "mor"
-    model = models.MorMooringSetup
+class MorDetails(mixins.MorMixin, CommonDetails):
     template_name = 'whalesdb/details_mor.html'
-    title = _("Mooring Setup Details")
     fields = ["mor_name", "mor_max_depth", "mor_link_setup_image", "mor_additional_equipment",
               "mor_general_moor_description", "mor_notes"]
     creation_form_height = 600
 
 
-class PrjDetails(CommonDetails):
-    key = 'prj'
-    model = models.PrjProject
-    title = _("Project Details")
+class PrjDetails(mixins.PrjMixin, CommonDetails):
     fields = ['name', 'description_en', 'prj_url']
     creation_form_height = 725
 
 
-class RecDetails(CommonDetails):
-    key = 'rec'
-    model = models.RecDataset
-    title = _("Dataset")
+class RecDetails(mixins.RecMixin, CommonDetails):
     template_name = "whalesdb/details_rec.html"
     fields = ['eda_id', 'rsc_id', 'rtt_dataset', 'rtt_in_water', 'rec_start_date', 'rec_start_time', 'rec_end_date',
               'rec_end_time', 'rec_backup_hd_1', 'rec_backup_hd_2', 'rec_notes', ]
 
 
-class RscDetails(CommonDetails):
-    key = 'rsc'
-    model = models.RscRecordingSchedule
-    title = _("Recording Schedule Details")
+class RscDetails(mixins.RscMixin, CommonDetails):
     template_name = "whalesdb/details_rsc.html"
     fields = ['rsc_name', 'rsc_period']
     editable = False
 
 
-class RttDetails(CommonDetails):
-    key = 'rtt'
-    model = models.RttTimezoneCode
-    title = _("Time Zone")
+class RttDetails(mixins.RttMixin, CommonDetails):
     template_name = "whalesdb/details_rtt.html"
     fields = ['rtt_name', 'rtt_abb', 'rtt_period']
 
 
-class StnDetails(CommonDetails):
-    key = 'stn'
-    model = models.StnStation
-    title = _("Station Details")
+class StnDetails(mixins.StnMixin, CommonDetails):
     template_name = 'whalesdb/details_stn.html'
     fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
               'stn_planned_depth', 'stn_notes']
@@ -703,12 +573,9 @@ class CommonList(CommonAuthFilterView):
         return context
 
 
-class DepList(CommonList):
-    key = 'dep'
-    model = models.DepDeployment
+class DepList(mixins.DepMixin, CommonList):
     filterset_class = filters.DepFilter
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
-    title = _("Deployment List")
     creation_form_height = 600
 
     def get_context_data(self, *args, object_list=None, **kwargs):
@@ -717,81 +584,53 @@ class DepList(CommonList):
         return context
 
 
-class EmmList(CommonList):
-    key = 'emm'
-    model = models.EmmMakeModel
+class EmmList(mixins.EmmMixin, CommonList):
     filterset_class = filters.EmmFilter
     fields = ['eqt', 'emm_make', 'emm_model', 'emm_depth_rating']
-    title = _("Make/Model List")
 
 
-class EqpList(CommonList):
-    key = 'eqp'
-    model = models.EqpEquipment
-    filterset_class = filters.EqpFilter
+class EqpList(mixins.EqpMixin, CommonList):
     fields = ['emm', 'eqp_serial', 'eqp_date_purchase', 'eqo_owned_by', 'eqp_retired', "eqp_deployed"]
-    title = _("Equipment List")
 
 
-class EtrList(CommonList):
-    key = 'etr'
-    model = models.EtrTechnicalRepairEvent
+class EtrList(mixins.EtrMixin, CommonList):
     filterset_class = filters.EtrFilter
     fields = ['etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe']
-    title = _("Equipment Technical Repair Event")
 
 
-class MorList(CommonList):
-    key = 'mor'
-    model = models.MorMooringSetup
+class MorList(mixins.MorMixin, CommonList):
     filterset_class = filters.MorFilter
     fields = ['mor_name', 'mor_max_depth', 'mor_notes']
-    title = _("Mooring Setup List")
     creation_form_height = 725
 
 
-class PrjList(CommonList):
-    key = 'prj'
-    model = models.PrjProject
+class PrjList(mixins.PrjMixin, CommonList):
     filterset_class = filters.PrjFilter
-    title = _("Project List")
     creation_form_height = 400
     fields = ['tname|Name', 'tdescription|Description']
 
 
-class RecList(CommonList):
-    key = 'rec'
-    model = models.RecDataset
+class RecList(mixins.RecMixin, CommonList):
     filterset_class = filters.RecFilter
-    title = _("Dataset")
     fields = ['eda_id', 'rsc_id', 'rec_start_date', 'rec_end_date']
 
 
-class RetList(CommonList):
-    key = 'ret'
-    model = models.RetRecordingEventType
+class RetList(mixins.RetMixin, CommonList):
     filterset_class = filters.RetFilter
-    title = _("Recording Event Type")
     fields = ['ret_name', 'ret_desc']
 
     details_url = False
     delete_url = "whalesdb:delete_ret"
 
 
-class RscList(CommonList):
-    key = 'rsc'
-    model = models.RscRecordingSchedule
+class RscList(mixins.RscMixin, CommonList):
     filterset_class = filters.RscFilter
-    title = _("Recording Schedule List")
     fields = ['rsc_name', 'rsc_period']
     editable = False
 
 
-class RttList(CommonList):
-    key = 'rtt'
-    model = models.RttTimezoneCode
+class RttList(mixins.RttMixin, CommonList):
     filterset_class = filters.RttFilter
-    title = _("Time Zone")
     fields = ['rtt_name', 'rtt_abb', 'rtt_offset']
     editable = False
 
@@ -799,34 +638,25 @@ class RttList(CommonList):
         return None
 
 
-class StnList(CommonList):
-    key = 'stn'
-    model = models.StnStation
+class StnList(mixins.StnMixin, CommonList):
     filterset_class = filters.StnFilter
     fields = ['stn_name', 'stn_code', 'stn_revision']
-    title = _("Station List")
 
 
-class TeaList(CommonList):
-    key = 'tea'
-    model = models.TeaTeamMember
+class TeaList(mixins.TeaMixin, CommonList):
     filterset_class = filters.TeaFilter
     fields = ["tea_abb", "tea_last_name", "tea_first_name"]
-    title = _("Team Member List")
 
     details_url = False
     update_url = False
 
 
-class CruList(CommonList):
+class CruList(mixins.CruMixin, CommonList):
     queryset = shared_models.Cruise.objects.all().order_by("-season", "mission_number")
 
-    key = 'cru'
-    model = shared_models.Cruise
     filterset_class = filters.CruFilter
     fields = ["mission_number", "description", "chief_scientist", "samplers", "start_date", "end_date", "notes",
               "season", "vessel" ]
-    title = _("Cruise List")
 
     details_url = "whalesdb:details_cru"
     delete_url = "whalesdb:delete_cru"
@@ -841,8 +671,7 @@ class CruList(CommonList):
         return super().dispatch(request, *args, **kwargs)
 
 
-class CruDeleteView(UserPassesTestMixin, DeleteView):
-    model = shared_models.Cruise
+class CruDeleteView(mixins.CruMixin, UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy('whalesdb:list_cru')
     success_message = 'The cruise was successfully deleted!'
     template_name = 'whalesdb/cruise_confirm_delete.html'

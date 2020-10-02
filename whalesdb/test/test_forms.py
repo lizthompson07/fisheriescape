@@ -155,6 +155,28 @@ class TestEmmForm(CommonFormTest):
         self.assertTrue(hasattr(form, 'min_width'))
 
 
+class TestEtrForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.EtrForm
+        self.test_factory = factory.EtrFactory
+
+    @tag('etr', 'form', 'valid')
+    def test_etr_valid_data(self):
+        self.assert_valid_data()
+
+    @tag('etr', 'form', 'widgets')
+    def test_etr_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['etr_date'], 'widget'))
+        self.assertIsInstance(form.fields['etr_date'].widget, d_forms.DateInput)
+        self.assertTrue(hasattr(form.fields['etr_date'].widget, 'attrs'))
+        self.assertIn('class', form.fields['etr_date'].widget.attrs)
+        self.assertEqual(form.fields['etr_date'].widget.attrs['class'], 'fp-date')
+
+
 class TestMorForm(CommonFormTest):
 
     def setUp(self) -> None:
