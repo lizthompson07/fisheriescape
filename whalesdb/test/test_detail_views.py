@@ -184,6 +184,24 @@ class TestDepDetails(CommonDetailsTest):
         self.assertEqual(response.context["object"], self.createDict()['dep_1'])
         super().assert_field_in_fields(response)
 
+        # Test that the context contains the proper fields
+
+    @tag('dep', 'details_dep', 'context')
+    # If there is a Dataset associated with the deployment it should be passed as a context variable to the
+    # Deployment details page so it can be linked to.
+    def test_context_fields_dep_w_rec(self):
+        rec = Factory.RecFactory()
+        dep = rec.eda_id.dep
+        test_url = reverse_lazy('whalesdb:details_dep', args=(dep.pk,))
+        activate('en')
+
+        response = self.client.get(test_url)
+
+        super().assert_context_fields(response)
+        self.assertIsNotNone(response.context['rec'])
+        self.assertEqual(str(rec), response.context['rec'][0]['text'])
+        self.assertEqual(rec.id, response.context['rec'][0]['id'])
+
     # If a deployment event has been issued, a deployment should no longer be editable and the
     # test_func method should return false. This is to prevent URL hijacking and letting a user
     # paste in data to a url to update a view

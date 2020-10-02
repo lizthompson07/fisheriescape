@@ -3,10 +3,20 @@
 
 <div class="row">
     <div class="col-sm">
-        <div><span class="font-weight-bold">{% get_verbose_label dep 'dep_name' %} : </span><span>{% get_field_value dep 'dep_name'%}</span></div>
-        <div><span class="font-weight-bold">{% get_verbose_label dep 'dep_month' %} : </span><span>{% get_field_value dep 'dep_month'%}</span></div>
-        <div><span class="font-weight-bold">{% get_verbose_label dep 'prj' %} : </span><span>{% get_field_value dep 'prj'%}</span></div>
-
+        <div class="row">
+            <div class="col-8">
+                <div><span class="font-weight-bold">{% get_verbose_label dep 'dep_name' %} : </span><span>{% get_field_value dep 'dep_name'%}</span></div>
+                <div><span class="font-weight-bold">{% get_verbose_label dep 'dep_month' %} : </span><span>{% get_field_value dep 'dep_month'%}</span></div>
+                <div><span class="font-weight-bold">{% get_verbose_label dep 'prj' %} : </span><span>{% get_field_value dep 'prj'%}</span></div>
+            </div>
+            {% if rec %}
+            <div class="col-4">
+                {% for r in rec %}
+                <a class="btn btn-primary" href="{% url 'whalesdb:details_rec' r.id %}">{{r.text}}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
         <div class="card border border-dark my-1">
             <h5 class="card-header"><a href="#fs-deployment-list-stn" data-toggle="collapse">{% get_verbose_label dep 'stn' %}</a></h5>
             <div class="card-body collapse" id="fs-deployment-list-stn">

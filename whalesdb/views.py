@@ -530,6 +530,19 @@ class DepDetails(CommonDetails):
         # So if the user has auth AND the object is editable set auth to true
         context['editable'] = self.test_func() and context['auth']
 
+        if models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk']):
+            edas = models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk'])
+            for eda in edas:
+                if models.RecDataset.objects.filter(eda_id=eda.pk):
+                    if not hasattr(context, 'rec'):
+                        context['rec'] = []
+
+                    rec = models.RecDataset.objects.get(eda_id=eda.pk)
+                    context['rec'].append({
+                        'text': str(rec),
+                        'id': rec.pk,
+                    })
+
         return context
 
 
