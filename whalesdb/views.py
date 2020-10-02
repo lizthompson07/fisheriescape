@@ -280,15 +280,7 @@ class CruUpdate(mixins.CruMixin, CommonUpdate):
 
 class DepUpdate(mixins.DepMixin, CommonUpdate):
 
-    def test_func(self):
-        auth = super().test_func()
-        if auth:
-            # editable if the object has no station events
-            auth = self.model.objects.get(pk=self.kwargs['pk']).station_events.count() <= 0
-
-        return auth
-
-    def get_context_data(self, **kwargs):
+     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         station_dict = [{"stn_id": v[0], "stn_code": v[2]} for v in
@@ -297,10 +289,12 @@ class DepUpdate(mixins.DepMixin, CommonUpdate):
         context['station_json'] = json.dumps(station_dict)
         context['java_script'] = 'whalesdb/_entry_dep_js.html'
 
-        return context
+        context['editable'] = True
+        if context['auth']:
+            # editable if the object has no station events
+            context['editable'] = self.model.objects.get(pk=self.kwargs['pk']).station_events.count() <= 0
 
-    def get_success_url(self):
-        return reverse_lazy("whalesdb:list_dep")
+        return context
 
 
 class EmmUpdate(mixins.EmmMixin, CommonUpdate):

@@ -133,21 +133,19 @@ class TestDepUpdate(CommonUpdateTest):
     def test_update_dep_test_func_denied(self):
         dep = Factory.DepFactory()
 
-        # have to create the request and setup the view
-        req_factory = RequestFactory()
-        request = req_factory.get(reverse_lazy("whalesdb:update_dep", kwargs={'pk': dep.pk, 'pop': 'pop'}))
-        request.user = self.login_whale_user()
-        view = setup_view(views.DepUpdate(), request, pk=dep.pk)
+        self.login_whale_user()
+        response = self.client.get(reverse_lazy('whalesdb:update_dep', args=(dep.pk,)))
 
-        # check to see if a deployment that's not been deployed can be edited
-        self.assertTrue(view.test_func())
+        self.assertTrue(response.context['editable'])
 
         # create a deployment event
         set_type = models.SetStationEventCode.objects.get(pk=1)  # 1 == Deployment event
         dep_evt = Factory.SteFactory(dep=dep, set_type=set_type)
 
+        response = self.client.get(reverse_lazy('whalesdb:update_dep', args=(dep.pk,)))
+
         # deployment should no longer be editable
-        self.assertFalse(view.test_func())
+        self.assertFalse(response.context['editable'])
 
 
 class TestEmmUpdate(CommonUpdateTest):
