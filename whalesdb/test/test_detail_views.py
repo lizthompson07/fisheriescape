@@ -168,6 +168,36 @@ class TestDepDetails(CommonDetailsTest):
         self.assertFalse(response.context['editable'])
 
 
+class TestEcaDetails(CommonDetailsTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.eca = Factory.EcaFactory()
+
+        self.test_url = reverse_lazy('whalesdb:details_eca', args=(self.eca.pk,))
+        self.test_expected_template = 'whalesdb/whales_details.html'
+        self.fields = []
+
+    @tag('eca', 'details_eca', 'response', 'access')
+    def test_details_eca_en(self):
+        super().assert_view()
+
+    # Station Details are visible to all
+    @tag('eca', 'details_eca', 'response', 'access')
+    def test_details_eca_fr(self):
+        super().assert_view(lang='fr')
+
+    # Test that the context contains the proper fields
+    @tag('eca', 'details_eca', 'context')
+    def test_context_fields_eca(self):
+        activate('en')
+
+        response = self.client.get(self.test_url)
+
+        super().assert_context_fields(response)
+
+
 class TestEmmDetails(CommonDetailsTest):
 
     def createDict(self):

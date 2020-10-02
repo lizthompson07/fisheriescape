@@ -74,6 +74,32 @@ class TestDepList(CommonListTest):
         self.assertEqual("whalesdb:update_dep", response.context['update_url'])
 
 
+class TestEcaList(CommonListTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.test_url = reverse_lazy('whalesdb:list_eca')
+
+    # User should be able to view lists without login required
+    @tag('eca', 'eca_list', 'response', 'access')
+    def test_eca_list_en(self):
+        super().assert_view()
+
+    # User should be able to view lists without login required
+    @tag('eca', 'eca_list', 'response', 'access')
+    def test_eca_list_fr(self):
+        super().assert_view(lang='fr')
+
+    @tag('eca', 'eca_list', 'response', 'context')
+    def test_eca_list_context_fields(self):
+        response = super().assert_list_view_context_fields()
+
+        self.assertEqual("whalesdb:create_eca", response.context['create_url'])
+        self.assertEqual("whalesdb:details_eca", response.context['details_url'])
+        self.assertEqual("whalesdb:update_eca", response.context['update_url'])
+
+
 class TestEmmList(CommonListTest):
 
     def setUp(self):

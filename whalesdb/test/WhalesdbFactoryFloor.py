@@ -310,6 +310,28 @@ class SteFactory(factory.django.DjangoModelFactory):
         return valid_data
 
 
+class EcaFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EcaCalibrationEvent
+
+    eca_date = factory.lazy_attribute(lambda o: faker.date())
+    eca_attachment = factory.SubFactory(EqpFactory)
+
+    @staticmethod
+    def get_valid_data():
+
+        # Eda will only show recorders, so no hydrophones here
+        emm = EmmFactory(pk=1)
+        eca = EqpFactory(emm=emm)
+
+        valid_data = {
+            "eca_date": faker.date(),
+            "eca_attachment": eca.pk
+        }
+
+        return valid_data
+
+
 class EdaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EdaEquipmentAttachment

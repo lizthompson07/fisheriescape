@@ -19,6 +19,13 @@ class DepMixin:
     title = _("Deployment")
 
 
+class EcaMixin(object):
+    key = 'eca'
+    model = models.EcaCalibrationEvent
+    form_class = forms.EcaForm
+    title = _("Calibration Event")
+
+
 class EdaMixin:
     key = 'eda'
     model = models.EdaEquipmentAttachment
@@ -65,7 +72,7 @@ class EtrMixin:
     key = 'etr'
     model = models.EtrTechnicalRepairEvent
     form_class = forms.EtrForm
-    title = _("Equipment Technical Repair Event")
+    title = _("Technical Repair Event")
 
 
 class MorMixin:

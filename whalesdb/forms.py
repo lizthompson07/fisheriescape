@@ -34,6 +34,16 @@ class DepForm(forms.ModelForm):
         self.fields['mor'].create_url = 'whalesdb:create_mor'
 
 
+class EcaForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EcaCalibrationEvent
+        exclude = []
+        widgets = {
+            'eca_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+        }
+
+
 class EdaForm(forms.ModelForm):
 
     class Meta:

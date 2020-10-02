@@ -108,6 +108,10 @@ class DepCreate(mixins.DepMixin, CommonCreate):
         return context
 
 
+class EcaCreate(mixins.EcaMixin, CommonCreate):
+    pass
+
+
 class EdaCreate(mixins.EdaMixin, CommonCreate):
 
     def get_initial(self):
@@ -297,6 +301,10 @@ class DepUpdate(mixins.DepMixin, CommonUpdate):
         return context
 
 
+class EcaUpdate(mixins.EcaMixin, CommonUpdate):
+    pass
+
+
 class EmmUpdate(mixins.EmmMixin, CommonUpdate):
 
     def get_success_url(self):
@@ -435,6 +443,10 @@ class DepDetails(mixins.DepMixin, CommonDetails):
                     })
 
         return context
+
+
+class EcaDetails(mixins.EcaMixin, CommonDetails):
+    fields = ['eca_date', 'eca_attachment', 'eca_hydrophone', 'eca_notes']
 
 
 class EmmDetails(mixins.EmmMixin, CommonDetails):
@@ -576,6 +588,11 @@ class DepList(mixins.DepMixin, CommonList):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
         context['editable'] = False
         return context
+
+
+class EcaList(mixins.EcaMixin, CommonList):
+    filterset_class = filters.EcaFilter
+    fields = ['eca_date', 'eca_attachment', 'eca_hydrophone']
 
 
 class EmmList(mixins.EmmMixin, CommonList):

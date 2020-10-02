@@ -14,6 +14,13 @@ class DepFilter(django_filters.FilterSet):
         fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
 
+class EcaFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EcaCalibrationEvent
+        fields = ['eca_date', 'eca_attachment', 'eca_hydrophone']
+
+
 class EmmFilter(django_filters.FilterSet):
 
     class Meta:

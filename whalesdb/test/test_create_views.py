@@ -124,6 +124,58 @@ class TestDepCreate(CommonCreateTest):
         super().assert_successful_url()
 
 
+class TestEcaCreate(CommonCreateTest):
+
+    def setUp(self):
+        super().setUp()
+        self.data = Factory.EcaFactory.get_valid_data()
+        self.test_url = reverse_lazy('whalesdb:create_eca')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_success_url = reverse_lazy('whalesdb:list_eca')
+
+        self.expected_view = views.EcaCreate
+        self.expected_form = forms.EcaForm
+
+    # Users must be logged in to create new objects
+    @tag('eca', 'create', 'response', 'access')
+    def test_create_eca_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new objects
+    @tag('eca', 'create', 'response', 'access')
+    def test_create_eca_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
+    # Logged in user in the whalesdb_admin group should get to the shared_entry_form.html template
+    @tag('eca', 'create', 'response', 'access')
+    def test_create_eca_en_access(self):
+        # ensure a user not in the whalesdb_admin group cannot access creation forms
+        super().assert_logged_in_not_access()
+
+        # ensure a user in the whales_db_admin group can access creation forms
+        super().assert_logged_in_has_access()
+
+    # Test that projects is using the project form
+    @tag('eca', 'create', 'form')
+    def test_create_eca_form(self):
+        super().assert_create_form()
+
+    # test that the context is returning the required context fields
+    # at a minimum this should include a title field
+    # Each view might require specific context fields
+    @tag('eca', 'create', 'context')
+    def test_create_eca_context_fields(self):
+        response = super().assert_create_view_context_fields()
+
+    # test that given some valid data the view will redirect to the list
+    @tag('eca', 'create', 'redirect')
+    def test_create_eca_successful_url(self):
+        super().assert_successful_url()
+
+
 class TestEdaCreate(CommonCreateTest):
 
     def setUp(self):

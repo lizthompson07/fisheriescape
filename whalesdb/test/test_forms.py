@@ -47,6 +47,28 @@ class TestDepForm(CommonFormTest):
         self.assertTrue(hasattr(form, 'min_width'))
 
 
+class TestEcaForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.EcaForm
+        self.test_factory = factory.EcaFactory
+
+    @tag('eca', 'form', 'valid')
+    def test_eca_valid_data(self):
+        self.assert_valid_data()
+
+    @tag('eca', 'form', 'widgets')
+    def test_eca_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['eca_date'], 'widget'))
+        self.assertIsInstance(form.fields['eca_date'].widget, d_forms.DateInput)
+        self.assertTrue(hasattr(form.fields['eca_date'].widget, 'attrs'))
+        self.assertIn('class', form.fields['eca_date'].widget.attrs)
+        self.assertEqual(form.fields['eca_date'].widget.attrs['class'], 'fp-date')
+
+
 class TestEdaForm(CommonFormTest):
 
     def setUp(self) -> None:

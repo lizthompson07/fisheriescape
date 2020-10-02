@@ -76,6 +76,32 @@ class TestDep(CommonMixinsTest):
         super().assertCorrectForm()
 
 
+class TestEca(CommonMixinsTest):
+
+    def setUp(self) -> None:
+        self.mixin = mixins.EcaMixin
+        self.expected_key = 'eca'
+        self.expected_title = "Calibration Event"
+        self.expected_model = models.EcaCalibrationEvent
+        self.expected_form = forms.EcaForm
+
+    @tag('eca', 'mixin', 'key')
+    def test_eca_mixin_key(self):
+        super().assertKeyExists()
+
+    @tag('eca', 'mixin', 'title')
+    def test_eca_mixin_title(self):
+        super().assertTitleExists()
+
+    @tag('eca', 'mixin', 'model')
+    def test_eca_mixin_model(self):
+        super().assertCorrectModel()
+
+    @tag('eca', 'mixin', 'form')
+    def test_eca_mixin_form(self):
+        super().assertCorrectForm()
+
+
 class TestEda(CommonMixinsTest):
 
     def setUp(self) -> None:

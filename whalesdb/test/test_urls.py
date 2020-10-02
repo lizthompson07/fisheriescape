@@ -79,6 +79,26 @@ class URLTest(TestCase):
     def test_url_details_dep_view(self):
         self.basic_en_url_test('whalesdb:details_dep', 'whalesdb/details/dep/1/', views.DepDetails, [1])
 
+    @tag('eca', 'url', 'list')
+    def test_url_list_eca_view(self):
+        self.basic_en_url_test('whalesdb:list_eca', 'whalesdb/list/eca/', views.EcaList)
+
+    @tag('eca', 'url', 'create')
+    def test_url_create_eca_view(self):
+        self.basic_en_url_test('whalesdb:create_eca', 'whalesdb/create/eca/', views.EcaCreate)
+
+    @tag('eca', 'url', 'details')
+    def test_url_details_eca_view(self):
+        self.basic_en_url_test('whalesdb:details_eca', 'whalesdb/details/eca/1/', views.EcaDetails, [1])
+
+    @tag('eca', 'url', 'update', 'pop')
+    def test_url_update_eca_view(self):
+        self.basic_en_url_test('whalesdb:update_eca', 'whalesdb/update/eca/1/', views.EcaUpdate, [1])
+
+    @tag('eda', 'url', 'create', 'pop')
+    def test_url_create_pop_eda_view(self):
+        self.basic_en_url_test('whalesdb:create_eda', 'whalesdb/create/eda/1/pop/', views.EdaCreate, [1, 'pop'])
+
     @tag('eda', 'url', 'create', 'pop')
     def test_url_create_pop_eda_view(self):
         self.basic_en_url_test('whalesdb:create_eda', 'whalesdb/create/eda/1/pop/', views.EdaCreate, [1, 'pop'])
