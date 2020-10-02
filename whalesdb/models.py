@@ -150,6 +150,8 @@ class EtrTechnicalRepairEvent(models.Model):
     etr_issue_desc = models.TextField(blank=True, null=True, verbose_name=_("Issue"))
     etr_repair_desc = models.TextField(blank=True, null=True, verbose_name=_("Repair"))
     etr_repaired_by = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Repaired By"))
+    etr_dep_affe = models.TextField(blank=True, null=True, verbose_name=_("Deployment(s) Affected"))
+    etr_rec_affe = models.BooleanField(default=False, verbose_name=_("Has a Recording been Affected"))
 
 
 class PrmParameterCode(shared_models.Lookup):
