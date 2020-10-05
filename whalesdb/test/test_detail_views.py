@@ -176,7 +176,7 @@ class TestEcaDetails(CommonDetailsTest):
         self.eca = Factory.EcaFactory()
 
         self.test_url = reverse_lazy('whalesdb:details_eca', args=(self.eca.pk,))
-        self.test_expected_template = 'whalesdb/whales_details.html'
+        self.test_expected_template = 'whalesdb/details_eca.html'
         self.fields = []
 
     @tag('eca', 'details_eca', 'response', 'access')

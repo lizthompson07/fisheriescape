@@ -44,6 +44,14 @@ class EcaForm(forms.ModelForm):
         }
 
 
+class EccForm(forms.ModelForm):
+    class Meta:
+        model = models.EccCalibrationValue
+        exclude = []
+        widgets = {
+        }
+
+
 class EdaForm(forms.ModelForm):
 
     class Meta:

@@ -166,7 +166,7 @@ class TestEcaUpdate(CommonUpdateTest):
 
         self.expected_form = forms.EmmForm
 
-        self.expected_success_url = reverse_lazy("whalesdb:list_eca")
+        self.expected_success_url = reverse_lazy("whalesdb:details_eca", args=(obj.pk,))
 
     # Users must be logged in to update object
     @tag('eca', 'update_eca', 'response', 'access')

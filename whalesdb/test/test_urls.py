@@ -79,6 +79,14 @@ class URLTest(TestCase):
     def test_url_details_dep_view(self):
         self.basic_en_url_test('whalesdb:details_dep', 'whalesdb/details/dep/1/', views.DepDetails, [1])
 
+    @tag('ecc', 'url', 'create')
+    def test_url_create_ecc_view(self):
+        self.basic_en_url_test('whalesdb:create_ecc', 'whalesdb/create/ecc/1/pop/', views.EccCreate, [1, 'pop'])
+
+    @tag('ecc', 'url', 'delete')
+    def test_url_delete_ecc_view(self):
+        self.basic_en_url_test('whalesdb:delete_ecc', 'whalesdb/delete/ecc/1/', views.ecc_delete, [1])
+
     @tag('eca', 'url', 'list')
     def test_url_list_eca_view(self):
         self.basic_en_url_test('whalesdb:list_eca', 'whalesdb/list/eca/', views.EcaList)

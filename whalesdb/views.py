@@ -16,6 +16,16 @@ import shared_models.models as shared_models
 from . import mixins
 
 
+def ecc_delete(request, pk):
+    ecc = models.EccCalibrationValue.objects.get(pk=pk)
+    if utils.whales_authorized(request.user):
+        ecc.delete()
+        messages.success(request, _("The value curve has been successfully deleted."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 def rst_delete(request, pk):
     rst = models.RstRecordingStage.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
@@ -106,6 +116,15 @@ class DepCreate(mixins.DepMixin, CommonCreate):
         context['java_script'] = 'whalesdb/_entry_dep_js.html'
 
         return context
+
+
+class EccCreate(mixins.EccMixin, CommonCreate):
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['eca'] = self.kwargs['eca']
+
+        return initial
 
 
 class EcaCreate(mixins.EcaMixin, CommonCreate):
@@ -302,7 +321,8 @@ class DepUpdate(mixins.DepMixin, CommonUpdate):
 
 
 class EcaUpdate(mixins.EcaMixin, CommonUpdate):
-    pass
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:details_eca", args=(self.kwargs['pk'],))
 
 
 class EmmUpdate(mixins.EmmMixin, CommonUpdate):
@@ -446,6 +466,7 @@ class DepDetails(mixins.DepMixin, CommonDetails):
 
 
 class EcaDetails(mixins.EcaMixin, CommonDetails):
+    template_name = 'whalesdb/details_eca.html'
     fields = ['eca_date', 'eca_attachment', 'eca_hydrophone', 'eca_notes']
 
 

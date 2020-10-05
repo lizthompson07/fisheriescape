@@ -535,3 +535,24 @@ class RetFactory(factory.django.DjangoModelFactory):
         }
 
         return valid_data
+
+
+class EccFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EccCalibrationValue
+
+    eca = factory.SubFactory(EcaFactory)
+    ecc_frequency = factory.lazy_attribute(lambda o: faker.pyfloat(left_digits=4, right_digits=6))
+    ecc_sensitivity = factory.lazy_attribute(lambda o: faker.pyfloat(left_digits=4, right_digits=6))
+
+    @staticmethod
+    def get_valid_data():
+        eca = EcaFactory()
+
+        valid_data = {
+            'eca': eca.pk,
+            'ecc_frequency': faker.pyfloat(left_digits=4, right_digits=6),
+            'ecc_sensitivity': faker.pyfloat(left_digits=4, right_digits=6),
+        }
+
+        return valid_data

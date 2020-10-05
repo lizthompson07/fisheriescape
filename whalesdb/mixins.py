@@ -26,6 +26,13 @@ class EcaMixin(object):
     title = _("Calibration Event")
 
 
+class EccMixin(object):
+    key = 'ecc'
+    model = models.EccCalibrationValue
+    form_class = forms.EccForm
+    title = _("Calibration Values")
+
+
 class EdaMixin:
     key = 'eda'
     model = models.EdaEquipmentAttachment

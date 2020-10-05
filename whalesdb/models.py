@@ -30,9 +30,13 @@ class EcaCalibrationEvent(models.Model):
                                        blank=True, null=True, verbose_name=_("Hydrophone"))
     eca_notes = models.CharField(blank=True, null=True, max_length=50, verbose_name=_("Notes"))
 
+    def __str__(self):
+        return "{}: {}".format(self.eca_date, self.eca_attachment)
+
 
 class EccCalibrationValue(models.Model):
-    eca = models.ForeignKey(EcaCalibrationEvent, on_delete=models.DO_NOTHING, verbose_name=_("Calibration Event"))
+    eca = models.ForeignKey(EcaCalibrationEvent, on_delete=models.DO_NOTHING, verbose_name=_("Calibration Event"),
+                            related_name='curve_values')
     ecc_frequency = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Frequency"))
     ecc_sensitivity = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Sensitivity"))
 
