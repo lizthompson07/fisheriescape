@@ -291,6 +291,7 @@ class RciChannelInfo(models.Model):
 
 class RecDataset(models.Model):
     eda_id = models.ForeignKey("EdaEquipmentAttachment", on_delete=models.DO_NOTHING,
+                               related_name="dataset",
                                verbose_name=_("Equipment Deployment"))
     rsc_id = models.ForeignKey("RscRecordingSchedule", on_delete=models.DO_NOTHING,
                                verbose_name=_("Recording Schedule"))

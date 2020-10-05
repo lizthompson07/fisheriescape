@@ -107,9 +107,9 @@ class URLTest(TestCase):
     def test_url_create_pop_eda_view(self):
         self.basic_en_url_test('whalesdb:create_eda', 'whalesdb/create/eda/1/pop/', views.EdaCreate, [1, 'pop'])
 
-    @tag('eda', 'url', 'create', 'pop')
-    def test_url_create_pop_eda_view(self):
-        self.basic_en_url_test('whalesdb:create_eda', 'whalesdb/create/eda/1/pop/', views.EdaCreate, [1, 'pop'])
+    @tag('eda', 'url', 'delete', 'pop')
+    def test_url_delete_pop_eda_view(self):
+        self.basic_en_url_test('whalesdb:delete_eda', 'whalesdb/delete/eda/1/', views.eda_delete, [1])
 
     @tag('emm', 'url', 'create')
     def test_url_create_emm_view(self):
@@ -320,6 +320,10 @@ class URLTest(TestCase):
     @tag('rec', 'url', 'create')
     def test_url_create_rec_view(self):
         self.basic_en_url_test('whalesdb:create_rec', 'whalesdb/create/rec/', views.RecCreate)
+
+    @tag('rec', 'url', 'create')
+    def test_url_create_rec_view(self):
+        self.basic_en_url_test('whalesdb:create_rec', 'whalesdb/create/rec/1/', views.RecCreate, [1])
 
     @tag('rec', 'url', 'list')
     def test_url_list_rec_view(self):

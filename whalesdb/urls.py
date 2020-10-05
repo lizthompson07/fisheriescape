@@ -30,6 +30,7 @@ urlpatterns = [
     path('delete/ecc/<int:pk>/', views.ecc_delete, name="delete_ecc"),
 
     path('create/eda/<int:dep>/<str:pop>/', views.EdaCreate.as_view(), name="create_eda"),
+    path('delete/eda/<int:pk>/', views.eda_delete, name="delete_eda"),
 
     path('create/emm/', views.EmmCreate.as_view(), name="create_emm"),
     path('create/emm/<str:pop>/', views.EmmCreate.as_view(), name="create_emm"),
@@ -96,6 +97,7 @@ urlpatterns = [
     path('details/rtt/<int:pk>/', views.RttDetails.as_view(), name="details_rtt"),
 
     path('create/rec/', views.RecCreate.as_view(), name="create_rec"),
+    path('create/rec/<int:eda>/', views.RecCreate.as_view(), name="create_rec"),
     path('list/rec/', views.RecList.as_view(), name="list_rec"),
     path('details/rec/<int:pk>/', views.RecDetails.as_view(), name="details_rec"),
     path('update/rec/<int:pk>/', views.RecUpdate.as_view(), name="update_rec"),

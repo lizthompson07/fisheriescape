@@ -7,11 +7,6 @@
             <span class="col">
                 {% trans title %}
             </span>
-            {% if auth %}
-            <span class="px-1">
-                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:update_dep' object.pk 'pop' %}','all')">{% trans 'Update' %}</a>
-            </span>
-            {% endif %}
         </div>
     </div>
     <div class="card-body">
@@ -24,13 +19,6 @@
                             <div><span class="font-weight-bold">{% get_verbose_label dep 'dep_month' %} : </span><span>{% get_field_value dep 'dep_month'%}</span></div>
                             <div><span class="font-weight-bold">{% get_verbose_label dep 'prj' %} : </span><span>{% get_field_value dep 'prj'%}</span></div>
                         </div>
-                        {% if rec %}
-                        <div class="col-4">
-                            {% for r in rec %}
-                            <a class="btn btn-primary" href="{% url 'whalesdb:details_rec' r.id %}">{{r.text}}</a>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
                     </div>
                     <div class="card border border-dark my-1">
                         <h5 class="card-header"><a href="#fs-deployment-list-stn" data-toggle="collapse">{% get_verbose_label dep 'stn' %}</a></h5>
@@ -61,11 +49,37 @@
                         </div>
                         <div class="card-body expand" id="fs-list-attachments">
                             <div class="card-text">
-                                <ul>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-10">{% trans 'Equipment' %}</th>
+                                            <th class="col">{% trans 'Dataset' %}</th>
+                                            <td class="col"></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
                                 {% for att in dep.attachments.all %}
-                                    <li><a href="{% url 'whalesdb:details_eqp' att.eqp.pk %}">{{att.eqp}}</a> - This is a place holder, this should link to the Recording Dataset</li>
+                                    <tr>
+                                    <td class="col-10">
+                                        <a href="{% url 'whalesdb:details_eqp' att.eqp.pk %}">{{att.eqp}}</a>
+                                    </td><td class="col">
+                                        {% if att.dataset.all %}
+                                            {% for ds in att.dataset.all %}
+                                                <a class="btn btn-primary" href="{% url 'whalesdb:details_rec' ds.id %}">{{ ds.rec_start_date }}</a><br />
+                                            {% endfor %}
+                                        {% elif not att.dataset.first %}
+                                            <a class="btn btn-primary" href="{% url 'whalesdb:create_rec' att.pk %}">+</a>
+                                        {% endif %}
+                                    </td><td class="col">
+                                        {# Cannot remove an attachment after a deployment has been made #}
+                                        {% if not dep.station_events.first and not att.dataset.first %}
+                                            <a class="btn btn-danger" href="{% url 'whalesdb:delete_eda' att.id %}">X</a>
+                                        {% endif %}
+                                    </td>
+                                    </tr>
                                 {% endfor %}
-                                </ul>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

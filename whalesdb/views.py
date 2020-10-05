@@ -26,6 +26,16 @@ def ecc_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
+def eda_delete(request, pk):
+    eda = models.EdaEquipmentAttachment.objects.get(pk=pk)
+    if utils.whales_authorized(request.user):
+        eda.delete()
+        messages.success(request, _("The attachment has been successfully removed."))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
+
+
 def rst_delete(request, pk):
     rst = models.RstRecordingStage.objects.get(pk=pk)
     if utils.whales_authorized(request.user):
@@ -200,7 +210,20 @@ class RciCreate(mixins.RciMixin, CommonCreate):
 
 
 class RecCreate(mixins.RecMixin, CommonCreate):
-    pass
+
+    def get_initial(self):
+        init = super().get_initial()
+        if 'eda' in self.kwargs and models.EdaEquipmentAttachment.objects.filter(pk=self.kwargs['eda']):
+            init['eda_id'] = models.EdaEquipmentAttachment.objects.get(pk=self.kwargs['eda'])
+
+        return init
+
+    def get_success_url(self):
+        if self.kwargs.get("eda"):
+            eda = models.EdaEquipmentAttachment.objects.get(pk=self.kwargs['eda'])
+            return reverse_lazy("whalesdb:details_dep", args=(eda.dep.pk,))
+
+        return super().get_success_url()
 
 
 class ReeCreate(mixins.ReeMixin, CommonCreate):
@@ -435,20 +458,12 @@ class DepDetails(mixins.DepMixin, CommonDetails):
     template_name = 'whalesdb/details_dep.html'
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
-    def test_func(self):
-        # editable if the object has no station events
-        auth = self.model.objects.get(pk=self.kwargs['pk']).station_events.count() <= 0
-
-        return auth
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context['google_api_key'] = settings.GOOGLE_API_KEY
-        # auth is set in the CommonDetails.get_context_data function.
-        # So if the user has auth AND the object is editable set auth to true
-        context['editable'] = self.test_func() and context['auth']
 
+        context['edit_attachments'] = self.model.objects.get(pk=self.kwargs['pk']).station_events.count()
         if models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk']):
             edas = models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk'])
             for eda in edas:
