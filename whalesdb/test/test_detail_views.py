@@ -142,31 +142,6 @@ class TestDepDetails(CommonDetailsTest):
         # deployment should no longer be editable
         self.assertFalse(view.test_func())
 
-    # Same as test_details_dep_test_func, but we're testing the context returns the expected values
-    # page is editable if the user is authorized and test_func returns true
-    @tag('dep', 'details_dep', 'context', 'access')
-    def test_details_dep_context_auth_denied(self):
-        activate('en')
-
-        dep = Factory.DepFactory()
-        test_url = reverse_lazy("whalesdb:details_dep", kwargs={'pk': dep.pk})
-
-        self.login_whale_user()
-        response = self.client.get(test_url)
-
-        self.assertIn("editable", response.context)
-        self.assertTrue(response.context['editable'])
-
-        # create a deployment event
-        set_type = models.SetStationEventCode.objects.get(pk=1)  # 1 == Deployment event
-        dep_evt = Factory.SteFactory(dep=dep, set_type=set_type)
-
-        response = self.client.get(test_url)
-
-        self.assertIn("editable", response.context)
-        self.assertTrue(response.context['auth'])
-        self.assertFalse(response.context['editable'])
-
 
 class TestEcaDetails(CommonDetailsTest):
 
