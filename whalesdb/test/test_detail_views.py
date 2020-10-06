@@ -118,30 +118,6 @@ class TestDepDetails(CommonDetailsTest):
         self.assertEqual(str(rec), response.context['rec'][0]['text'])
         self.assertEqual(rec.id, response.context['rec'][0]['id'])
 
-    # If a deployment event has been issued, a deployment should no longer be editable and the
-    # test_func method should return false. This is to prevent URL hijacking and letting a user
-    # paste in data to a url to update a view
-    @tag('dep', 'details_dep', 'access')
-    def test_details_dep_test_func(self):
-        dep = Factory.DepFactory()
-
-        # have to create the request and setup the view
-        req_factory = RequestFactory()
-        test_url = reverse_lazy("whalesdb:details_dep", kwargs={'pk': dep.pk})
-        request = req_factory.get(test_url)
-        request.user = self.login_whale_user()
-        view = setup_view(views.DepDetails(), request, pk=dep.pk)
-
-        # check to see if a deployment that's not been deployed can be edited
-        self.assertTrue(view.test_func())
-
-        # create a deployment event
-        set_type = models.SetStationEventCode.objects.get(pk=1)  # 1 == Deployment event
-        dep_evt = Factory.SteFactory(dep=dep, set_type=set_type)
-
-        # deployment should no longer be editable
-        self.assertFalse(view.test_func())
-
 
 class TestEcaDetails(CommonDetailsTest):
 

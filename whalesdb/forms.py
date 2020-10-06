@@ -64,8 +64,14 @@ class EdaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        exclude = []
+        if 'initial' in kwargs and 'dep' in kwargs['initial'] and \
+                models.DepDeployment.objects.filter(pk=kwargs['initial']['dep']).count() > 0:
+            exclude = [eda.eqp.pk for eda in
+                       models.DepDeployment.objects.get(pk=kwargs['initial']['dep']).attachments.all()]
+
         # exclude hydrophones from the equipment selection list
-        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__pk=4)
+        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__pk=4).exclude(pk__in=exclude)
 
 
 class EmmForm(forms.ModelForm):

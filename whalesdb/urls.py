@@ -29,6 +29,7 @@ urlpatterns = [
     path('create/ecc/<int:eca>/<str:pop>/', views.EccCreate.as_view(), name="create_ecc"),
     path('delete/ecc/<int:pk>/', views.ecc_delete, name="delete_ecc"),
 
+    path('create/eda/<int:dep>/', views.EdaCreate.as_view(), name="create_eda"),
     path('create/eda/<int:dep>/<str:pop>/', views.EdaCreate.as_view(), name="create_eda"),
     path('delete/eda/<int:pk>/', views.eda_delete, name="delete_eda"),
 

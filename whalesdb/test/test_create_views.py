@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 
 from django.core.files.base import ContentFile
 from django.utils.six import BytesIO
+from django.utils.translation import activate
 
 from PIL import Image
 
@@ -275,6 +276,32 @@ class TestEdaCreate(CommonCreateTest):
 
         # ensure a user in the whales_db_admin group can access creation forms
         super().assert_logged_in_has_access()
+
+    @tag('eda', 'create', 'form')
+    def test_create_eda_eqp_filter(self):
+        activate('en')
+
+        dep = Factory.DepFactory()
+        eqp1 = Factory.EqpFactory()
+        eqp2 = Factory.EqpFactory()
+        eqp3 = Factory.EqpFactory()
+
+        models.EdaEquipmentAttachment(dep=dep, eqp=eqp1).save()
+
+        models.EdaEquipmentAttachment(dep=dep, eqp=eqp2).save()
+
+        test_url = reverse_lazy('whalesdb:create_eda', args=(dep.pk,))
+
+        self.login_whale_user()
+        response = self.client.get(test_url)
+
+        eqp_field = response.context_data["form"].fields['eqp']
+
+        # Confusing, but there are four pieces of equipment at this point, one is created in the setup function.
+        # Two of the four have been attached to the deployment created in this test case, so only two pieces of
+        # equipment should be returned in the queryset.
+
+        self.assertEqual(2, eqp_field.queryset.count())
 
     # Test that projects is using the project form
     @tag('eda', 'create', 'form')
