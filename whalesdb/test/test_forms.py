@@ -91,8 +91,13 @@ class TestEdaForm(CommonFormTest):
     # filter out hydrophones
     @tag('eda', 'form', 'field')
     def test_eda_field_filter(self):
-        recorder = factory.EmmFactory(pk=1)
-        hydrophone = factory.EmmFactory(pk=4)
+        recorder = factory.EmmFactory()
+        recorder.eqt = models.EqtEquipmentTypeCode.objects.get(pk=1)
+        recorder.save()
+
+        hydrophone = factory.EmmFactory()
+        hydrophone.eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
+        hydrophone.save()
 
         rec_1 = factory.EqpFactory.create(emm=recorder)
         rec_2 = factory.EqpFactory.create(emm=recorder)

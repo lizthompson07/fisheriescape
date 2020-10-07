@@ -71,7 +71,7 @@ class EdaForm(forms.ModelForm):
                        models.DepDeployment.objects.get(pk=kwargs['initial']['dep']).attachments.all()]
 
         # exclude hydrophones from the equipment selection list
-        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__pk=4).exclude(pk__in=exclude)
+        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__eqt=4).exclude(pk__in=exclude)
 
 
 class EmmForm(forms.ModelForm):
