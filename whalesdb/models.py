@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
+from pyexpat import model
 
 from shared_models import models as shared_models
 
@@ -80,14 +81,17 @@ class EcpChannelProperty(models.Model):
         return "{}: {}".format(_("Channel"), self.ecp_channel_no)
 
 
-class EhaHydrophoneAttachment(models.Model):
-    eda = models.ForeignKey("EdaEquipmentAttachment", blank=True, null=True, on_delete=models.DO_NOTHING,
-                            verbose_name=_("Attachment"))
-    eqp = models.ForeignKey('EqpEquipment', blank=True, null=True, on_delete=models.DO_NOTHING,
-                            verbose_name=_("Hydrophone"))
+class EheHydrophoneEvent(models.Model):
+    # The hyd could be null if a hydrophone was being removed from a recorder and no replacement was being added
+    hyd = models.ForeignKey('EqpEquipment', blank=True, null=True, on_delete=models.DO_NOTHING,
+                            verbose_name=_("Hydrophone"), related_name="Hydrophones")
+    # The recorder a hydrophone is being attached to.
+    rec = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING,
+                            verbose_name=_("Recorder"), related_name="Recorders")
 
-    class Meta:
-        unique_together = (('eda', 'eqp'),)
+    ecp = models.ForeignKey('EcpChannelProperty', on_delete=models.DO_NOTHING, verbose_name=_("Channel"))
+
+    ehe_date = models.DateField(verbose_name=_("Attachment Date"))
 
 
 class EprEquipmentParameter(models.Model):
