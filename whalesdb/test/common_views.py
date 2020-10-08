@@ -32,7 +32,7 @@ class CommonFormTest(TestCase):
 # Common Test for all views, this includes checking that a view is accessible or provides
 # a redirect if permissions are required to access a view
 ###########################################################################################
-class CommonTest(TestCase):
+class CommonTest(object):
     fixtures = ['initial_whale_data.json']
 
     test_url = None
@@ -75,6 +75,18 @@ class CommonTest(TestCase):
 
         return user
 
+    def get_context(self, url=None, whale_user=True):
+        activate('en')
+
+        if whale_user:
+            self.login_whale_user()
+        else:
+            self.login_regular_user()
+
+        response = self.client.get(self.test_url if url is None else url)
+
+        return response
+
     # All views should at a minimum have a title field and determine if a user is authorized,
     # and if content is editable
     def assert_context_fields(self, response):
@@ -104,7 +116,7 @@ class CommonTest(TestCase):
 ###########################################################################################
 # List Test contain tests used from common Test also adding tests specific for list/filter views
 ###########################################################################################
-class CommonListTest(CommonTest):
+class CommonListTest(CommonTest, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -148,8 +160,16 @@ class CommonCreateTest(CommonTest):
         # CreateViews intended to be used from a views.ListCommon should use the shared_entry_form.html template
         self.test_expected_template = 'whalesdb/shared_entry_form.html'
 
+    # Users must be logged in to create new objects
+    def test_view_en(self):
+        super().assert_view(expected_code=302)
+
+    # Users must be logged in to create new objects
+    def test_view_fr(self):
+        super().assert_view(lang='fr', expected_code=302)
+
     # If a user is logged in and not in 'whalesdb_admin' they should be get a 403 restriction
-    def assert_logged_in_not_access(self):
+    def test_logged_in_not_access(self):
         regular_user = self.login_regular_user()
 
         self.assertEqual(int(self.client.session['_auth_user_id']), regular_user.pk)
@@ -157,7 +177,7 @@ class CommonCreateTest(CommonTest):
         super().assert_view(expected_code=403)
 
     # If a user is logged in and in 'whalesdb_admin' they should not be redirected
-    def assert_logged_in_has_access(self):
+    def test_logged_in_has_access(self):
         whale_user = self.login_whale_user()
 
         self.assertEqual(int(self.client.session['_auth_user_id']), whale_user.pk)
@@ -165,7 +185,7 @@ class CommonCreateTest(CommonTest):
         super().assert_view()
 
     # check that the creation view is using the correct form
-    def assert_create_form(self):
+    def test_form(self):
         activate("en")
 
         view = self.expected_view
@@ -174,15 +194,13 @@ class CommonCreateTest(CommonTest):
 
     # All CommonCreate views should at a minimum have a title.
     # This will return the response for other create view tests to run further tests on context if required
-    def assert_create_view_context_fields(self):
+    def test_view_context_fields(self):
         activate('en')
 
-        self.login_whale_user()
-        response = self.client.get(self.test_url)
+        super().assert_context_fields(self.get_context())
 
-        super().assert_context_fields(response)
-
-        return response
+    def test_successful_url(self):
+        self.assert_successful_url()
 
     # test that upon a successful form the view redirects to the expected success url
     #   - Requires: self.test_url
@@ -235,11 +253,20 @@ class CommonDetailsTest(CommonTest):
             for key in self._details_dict:
                 _details_dict[key].delete()
 
+    def test_details_en(self):
+        super().assert_view()
+
+    # Station Details are visible to all
+    def test_details_fr(self):
+        super().assert_view(lang='fr')
+
     def assert_field_in_fields(self, response):
         for field in self.fields:
             self.assertIn(field, response.context['fields'])
 
-    def assert_context_fields(self, response):
+    def test_context_fields(self):
+        response = super().get_context()
+
         super().assert_context_fields(response)
 
         self.assertIn("list_url", response.context)

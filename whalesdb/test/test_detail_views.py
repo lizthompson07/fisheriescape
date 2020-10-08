@@ -1,14 +1,13 @@
-from django.utils.translation import activate
 from django.urls import reverse_lazy
-from django.test import tag, RequestFactory
+from django.test import tag, TestCase
 
-from whalesdb.test.common_views import CommonDetailsTest, setup_view
+from whalesdb.test.common_views import CommonDetailsTest
 from whalesdb.test import WhalesdbFactoryFloor as Factory
 from shared_models.test import SharedModelsFactoryFloor as SharedFactory
-from whalesdb import views, models
 
 
-class TestCruDetails(CommonDetailsTest):
+@tag('cru', 'detail')
+class TestCruDetails(CommonDetailsTest, TestCase):
 
     def createDict(self):
         if self._details_dict:
@@ -31,26 +30,9 @@ class TestCruDetails(CommonDetailsTest):
         self.test_expected_template = 'whalesdb/whales_details.html'
         self.fields = []
 
-    @tag('cru', 'details_cru', 'response', 'access')
-    def test_details_cru_en(self):
-        super().assert_view()
 
-    # Station Details are visible to all
-    @tag('cru', 'details_cru', 'response', 'access')
-    def test_details_cru_fr(self):
-        super().assert_view(lang='fr')
-
-    # Test that the context contains the proper fields
-    @tag('cru', 'details_cru', 'context')
-    def test_context_fields_cru(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
-
-
-class TestDepDetails(CommonDetailsTest):
+@tag('dep', 'detail')
+class TestDepDetails(CommonDetailsTest, TestCase):
 
     def createDict(self):
         if self._details_dict:
@@ -74,24 +56,10 @@ class TestDepDetails(CommonDetailsTest):
         self.test_expected_template = 'whalesdb/details_dep.html'
         self.fields = ['dep_year', 'dep_month', 'dep_name', 'stn', 'prj', 'mor']
 
-    # Station Details are visible to all
-    @tag('dep', 'details_dep', 'response', 'access')
-    def test_details_dep_en(self):
-        super().assert_view()
-
-    # Station Details are visible to all
-    @tag('dep', 'details_dep', 'response', 'access')
-    def test_details_dep_fr(self):
-        super().assert_view(lang='fr')
-
     # Test that the context contains the proper fields
-    @tag('dep', 'details_dep', 'context')
     def test_context_fields_dep(self):
-        activate('en')
+        response = super().get_context()
 
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
         # Google API key is required so map of station location doesn't nag about being in dev mode
         self.assertIn("google_api_key", response.context)
         self.assertEqual(response.context['list_url'], 'whalesdb:list_dep')
@@ -102,24 +70,22 @@ class TestDepDetails(CommonDetailsTest):
 
         # Test that the context contains the proper fields
 
-    @tag('dep', 'details_dep', 'context')
-    # If there is a Dataset associated with the deployment it should be passed as a context variable to the
+        # If there is a Dataset associated with the deployment it should be passed as a context variable to the
     # Deployment details page so it can be linked to.
     def test_context_fields_dep_w_rec(self):
         rec = Factory.RecFactory()
         dep = rec.eda_id.dep
         test_url = reverse_lazy('whalesdb:details_dep', args=(dep.pk,))
-        activate('en')
 
-        response = self.client.get(test_url)
+        response = super().get_context(url=test_url)
 
-        super().assert_context_fields(response)
         self.assertIsNotNone(response.context['rec'])
         self.assertEqual(str(rec), response.context['rec'][0]['text'])
         self.assertEqual(rec.id, response.context['rec'][0]['id'])
 
 
-class TestEcaDetails(CommonDetailsTest):
+@tag('eca', 'detail')
+class TestEcaDetails(CommonDetailsTest, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -130,26 +96,9 @@ class TestEcaDetails(CommonDetailsTest):
         self.test_expected_template = 'whalesdb/details_eca.html'
         self.fields = []
 
-    @tag('eca', 'details_eca', 'response', 'access')
-    def test_details_eca_en(self):
-        super().assert_view()
 
-    # Station Details are visible to all
-    @tag('eca', 'details_eca', 'response', 'access')
-    def test_details_eca_fr(self):
-        super().assert_view(lang='fr')
-
-    # Test that the context contains the proper fields
-    @tag('eca', 'details_eca', 'context')
-    def test_context_fields_eca(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
-
-
-class TestEmmDetails(CommonDetailsTest):
+@tag('emm', 'detail')
+class TestEmmDetails(CommonDetailsTest, TestCase):
 
     def createDict(self):
         if self._details_dict:
@@ -172,26 +121,9 @@ class TestEmmDetails(CommonDetailsTest):
         self.test_expected_template = 'whalesdb/details_emm.html'
         self.fields = []
 
-    @tag('emm', 'details_emm', 'response', 'access')
-    def test_details_emm_en(self):
-        super().assert_view()
 
-    # Station Details are visible to all
-    @tag('emm', 'details_emm', 'response', 'access')
-    def test_details_emm_fr(self):
-        super().assert_view(lang='fr')
-
-    # Test that the context contains the proper fields
-    @tag('emm', 'details_emm', 'context')
-    def test_context_fields_emm(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
-
-
-class TestEqpDetails(CommonDetailsTest):
+@tag('eqp', 'detail')
+class TestEqpDetails(CommonDetailsTest, TestCase):
 
     def createDict(self):
         if self._details_dict:
@@ -214,26 +146,9 @@ class TestEqpDetails(CommonDetailsTest):
         self.test_expected_template = 'whalesdb/details_eqp.html'
         self.fields = []
 
-    @tag('eqp', 'details_eqp', 'response', 'access')
-    def test_details_eqp_en(self):
-        super().assert_view()
 
-    # Station Details are visible to all
-    @tag('eqp', 'details_eqp', 'response', 'access')
-    def test_details_eqp_fr(self):
-        super().assert_view(lang='fr')
-
-    # Test that the context contains the proper fields
-    @tag('eqp', 'details_eqp', 'context')
-    def test_context_fields_eqp(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
-
-
-class TestEtrDetails(CommonDetailsTest):
+@tag('er', 'detail')
+class TestEtrDetails(CommonDetailsTest, TestCase):
 
     def setUp(self):
         super().setUp()
@@ -245,24 +160,10 @@ class TestEtrDetails(CommonDetailsTest):
         self.fields = ['eqp', 'etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe',
                        'etr_rec_affe']
 
-    # Station Details are visible to all
-    @tag('etr', 'details_etr', 'response', 'access')
-    def test_details_etr_en(self):
-        super().assert_view()
-
-    # Station Details are visible to all
-    @tag('etr', 'details_etr', 'response', 'access')
-    def test_details_etr_fr(self):
-        super().assert_view(lang='fr')
-
     # Test that the context contains the proper fields
-    @tag('etr', 'details_etr', 'context')
     def test_context_fields_etr(self):
-        activate('en')
+        response = super().get_context()
 
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
         self.assertEqual(response.context['list_url'], 'whalesdb:list_etr')
         self.assertEqual(response.context['update_url'], 'whalesdb:update_etr')
 
@@ -270,7 +171,8 @@ class TestEtrDetails(CommonDetailsTest):
         super().assert_field_in_fields(response)
 
 
-class TestMorDetails(CommonDetailsTest):
+@tag('mor', 'detail')
+class TestMorDetails(CommonDetailsTest, TestCase):
 
     def createDict(self):
         if self._details_dict:
@@ -295,24 +197,10 @@ class TestMorDetails(CommonDetailsTest):
         self.fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image', 'mor_additional_equipment',
                        'mor_general_moor_description', 'mor_notes']
 
-    # Station Details are visible to all
-    @tag('mor', 'details_mor', 'response', 'access')
-    def test_details_mor_en(self):
-        super().assert_view()
-
-    # Station Details are visible to all
-    @tag('mor', 'details_mor', 'response', 'access')
-    def test_details_mor_fr(self):
-        super().assert_view(lang='fr')
-
     # Test that the context contains the proper fields
-    @tag('mor', 'details_mor', 'context')
     def test_context_fields_mor(self):
-        activate('en')
+        response = super().get_context()
 
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
         self.assertEqual(response.context['list_url'], 'whalesdb:list_mor')
         self.assertEqual(response.context['update_url'], 'whalesdb:update_mor')
 
@@ -320,7 +208,8 @@ class TestMorDetails(CommonDetailsTest):
         super().assert_field_in_fields(response)
 
 
-class TestPrjDetails(CommonDetailsTest):
+@tag('prj', 'detail')
+class TestPrjDetails(CommonDetailsTest, TestCase):
 
     def createDict(self):
         if self._details_dict:
@@ -342,24 +231,10 @@ class TestPrjDetails(CommonDetailsTest):
         self.test_url = reverse_lazy('whalesdb:details_prj', args=(stn_dic['prj_1'].pk,))
         self.test_expected_template = 'whalesdb/whales_details.html'
 
-    # Project Details are visible to all
-    @tag('prj', 'details_prj', 'response', 'access')
-    def test_details_prj_en(self):
-        super().assert_view()
-
-    # Project Details are visible to all
-    @tag('prj', 'details_prj', 'response', 'access')
-    def test_details_prj_fr(self):
-        super().assert_view(lang='fr')
-
     # Test that the context contains the proper fields
-    @tag('prj', 'details_prj', 'context')
     def test_context_fields_prj(self):
-        activate('en')
+        response = super().get_context()
 
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
         self.assertEqual(response.context['list_url'], 'whalesdb:list_prj')
         self.assertEqual(response.context['update_url'], 'whalesdb:update_prj')
 
@@ -367,7 +242,8 @@ class TestPrjDetails(CommonDetailsTest):
         super().assert_field_in_fields(response)
 
 
-class TestRecDetails(CommonDetailsTest):
+@tag('rec', 'detail')
+class TestRecDetails(CommonDetailsTest, TestCase):
 
     def createDict(self):
         if self._details_dict:
@@ -389,24 +265,10 @@ class TestRecDetails(CommonDetailsTest):
         self.test_url = reverse_lazy('whalesdb:details_rec', args=(stn_dic['rec_1'].pk,))
         self.test_expected_template = 'whalesdb/details_rec.html'
 
-    # Project Details are visible to all
-    @tag('rec', 'details_rec', 'response', 'access')
-    def test_details_rec_en(self):
-        super().assert_view()
-
-    # Project Details are visible to all
-    @tag('rec', 'details_rec', 'response', 'access')
-    def test_details_rec_fr(self):
-        super().assert_view(lang='fr')
-
     # Test that the context contains the proper fields
-    @tag('rec', 'details_rec', 'context')
     def test_context_fields_rec(self):
-        activate('en')
+        response = super().get_context(whale_user=False)
 
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
         self.assertEqual(response.context['list_url'], 'whalesdb:list_rec')
         self.assertEqual(response.context['update_url'], 'whalesdb:update_rec')
 
@@ -415,18 +277,15 @@ class TestRecDetails(CommonDetailsTest):
         super().assert_field_in_fields(response)
 
     # Test that an rec object isn't editable even if the user is logged in with rights
-    @tag('rec', 'details_rec', 'auth', 'context')
     def test_context_fields_auth_rec(self):
-        activate('en')
-
-        self.login_whale_user()
-        response = self.client.get(self.test_url)
+        response = super().get_context()
 
         self.assertTrue(response.context['auth'])
         self.assertTrue(response.context['editable'])
 
 
-class TestRscDetails(CommonDetailsTest):
+@tag('rsc', 'detail')
+class TestRscDetails(CommonDetailsTest, TestCase):
 
     def createDict(self):
         if self._details_dict:
@@ -448,24 +307,10 @@ class TestRscDetails(CommonDetailsTest):
         self.test_url = reverse_lazy('whalesdb:details_rsc', args=(stn_dic['rsc_1'].pk,))
         self.test_expected_template = 'whalesdb/details_rsc.html'
 
-    # Project Details are visible to all
-    @tag('rsc', 'details_rsc', 'response', 'access')
-    def test_details_rsc_en(self):
-        super().assert_view()
-
-    # Project Details are visible to all
-    @tag('rsc', 'details_rsc', 'response', 'access')
-    def test_details_rsc_fr(self):
-        super().assert_view(lang='fr')
-
     # Test that the context contains the proper fields
-    @tag('rsc', 'details_rsc', 'context')
     def test_context_fields_rsc(self):
-        activate('en')
-
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
+        response = super().get_context()
+        
         self.assertEqual(response.context['list_url'], 'whalesdb:list_rsc')
         self.assertEqual(response.context['update_url'], 'whalesdb:update_rsc')
 
@@ -474,18 +319,15 @@ class TestRscDetails(CommonDetailsTest):
         super().assert_field_in_fields(response)
 
     # Test that an rsc object isn't editable even if the user is logged in with rights
-    @tag('rsc', 'details_rsc', 'auth', 'context')
     def test_context_fields_auth_rsc(self):
-        activate('en')
-
-        self.login_whale_user()
-        response = self.client.get(self.test_url)
+        response = super().get_context()
 
         self.assertTrue(response.context['auth'])
         self.assertFalse(response.context['editable'])
 
 
-class TestStnDetails(CommonDetailsTest):
+@tag('stn', 'detail')
+class TestStnDetails(CommonDetailsTest, TestCase):
 
     def createDict(self):
         if self._details_dict:
@@ -510,24 +352,10 @@ class TestStnDetails(CommonDetailsTest):
         self.fields = ['stn_name', 'stn_code', 'stn_revision', 'stn_planned_lat', 'stn_planned_lon',
                        'stn_planned_depth', 'stn_notes']
 
-    # Station Details are visible to all
-    @tag('stn', 'details_stn', 'response', 'access')
-    def test_details_stn_en(self):
-        super().assert_view(expected_template='whalesdb/details_stn.html')
-
-    # Station Details are visible to all
-    @tag('stn', 'stn', 'details_stn', 'response', 'access')
-    def test_details_stn_fr(self):
-        super().assert_view(lang='fr', expected_template='whalesdb/details_stn.html')
-
     # Test that the context contains the proper fields
-    @tag('stn', 'details_stn', 'context')
+    
     def test_context_fields_stn(self):
-        activate('fr')
-
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
+        response = super().get_context()
 
         # Google API key is required so map of station location doesn't nag about being in dev mode
         self.assertIn("google_api_key", response.context)

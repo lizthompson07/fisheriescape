@@ -47,6 +47,13 @@ class EmmMixin:
     title = _("Make/Model")
 
 
+class EheMixin(object):
+    key = 'ehe'
+    model = models.EheHydrophoneEvent
+    form_class = forms.EheForm
+    title = _("Hydrophone Event")
+
+
 class EqhMixin:
     key = 'eqh'
     model = models.EqhHydrophoneProperty

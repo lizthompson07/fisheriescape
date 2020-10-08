@@ -135,6 +135,10 @@ class URLTest(TestCase):
     def test_url_details_emm_view(self):
         self.basic_en_url_test('whalesdb:details_emm', 'whalesdb/details/emm/1/', views.EmmDetails, [1])
 
+    @tag('ehe', 'url', 'create')
+    def test_url_create_pop_ehe_view(self):
+        self.basic_en_url_test('whalesdb:create_ehe', 'whalesdb/create/ehe/1/1/pop/', views.EheCreate, [1, 1, 'pop'])
+
     @tag('eqh', 'url', 'create')
     def test_url_create_pop_eqh_view(self):
         self.basic_en_url_test('whalesdb:create_eqh', 'whalesdb/create/eqh/1/pop/', views.EqhCreate, [1, 'pop'])

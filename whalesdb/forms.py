@@ -64,14 +64,15 @@ class EdaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        exclude = []
+        # Remove equipment that is already attached to a given deployment
+        remove = []
         if 'initial' in kwargs and 'dep' in kwargs['initial'] and \
                 models.DepDeployment.objects.filter(pk=kwargs['initial']['dep']).count() > 0:
-            exclude = [eda.eqp.pk for eda in
+            remove = [eda.eqp.pk for eda in
                        models.DepDeployment.objects.get(pk=kwargs['initial']['dep']).attachments.all()]
 
         # exclude hydrophones from the equipment selection list
-        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__eqt=4).exclude(pk__in=exclude)
+        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__eqt=4).exclude(pk__in=remove)
 
 
 class EmmForm(forms.ModelForm):
@@ -80,6 +81,14 @@ class EmmForm(forms.ModelForm):
 
     class Meta:
         model = models.EmmMakeModel
+        exclude = []
+        widgets = {
+        }
+
+
+class EheForm(forms.ModelForm):
+    class Meta:
+        model = models.EheHydrophoneEvent
         exclude = []
         widgets = {
         }

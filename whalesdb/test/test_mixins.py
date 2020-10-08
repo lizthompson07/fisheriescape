@@ -90,6 +90,17 @@ class TestEmm(CommonMixinsTest, TestCase):
         self.expected_form = forms.EmmForm
 
 
+@tag('ehe', 'mixin')
+class TestEhe(CommonMixinsTest, TestCase):
+
+    def setUp(self) -> None:
+        self.mixin = mixins.EheMixin
+        self.expected_key = 'ehe'
+        self.expected_title = "Hydrophone Event"
+        self.expected_model = models.EheHydrophoneEvent
+        self.expected_form = forms.EheForm
+
+
 @tag('eqh', 'mixin')
 class TestEqh(CommonMixinsTest, TestCase):
 

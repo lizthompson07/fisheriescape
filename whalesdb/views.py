@@ -161,6 +161,10 @@ class EmmCreate(mixins.EmmMixin, CommonCreate):
             return HttpResponseRedirect(self.get_success_url())
 
 
+class EheCreate(mixins.EheMixin, CommonCreate):
+    pass
+
+
 class EqhCreate(mixins.EqhMixin, CommonCreate):
 
     def get_initial(self):
@@ -352,6 +356,10 @@ class EmmUpdate(mixins.EmmMixin, CommonUpdate):
 
     def get_success_url(self):
         return reverse_lazy("whalesdb:list_emm")
+
+
+class EqhUpdate(mixins.EheMixin, CommonUpdate):
+    pass
 
 
 class EqhUpdate(mixins.EqhMixin, CommonUpdate):
