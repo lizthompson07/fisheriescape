@@ -112,6 +112,23 @@ class TestEdaForm(CommonFormTest):
         self.assertNotIn(hydro_1, form.fields['eqp'].queryset)
 
 
+class TestEheForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.EheForm
+        self.test_factory = factory.EheFactory
+
+    @tag('ehe', 'form', 'valid')
+    def test_ehe_valid_data(self):
+        self.assert_valid_data()
+
+    # test that the required fields exists and that they has a "create_url" attribute
+    @tag('ehe', 'form', 'field')
+    def test_ehe_field_create(self):
+        form = self.form_class()
+
+
 class TestEqhForm(CommonFormTest):
 
     def setUp(self) -> None:

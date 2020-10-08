@@ -39,7 +39,7 @@ urlpatterns = [
     path('details/emm/<int:pk>/', views.EmmDetails.as_view(), name="details_emm"),
     path('list/emm/', views.EmmList.as_view(), name="list_emm"),
 
-    path('create/ehe/<int:eqp>/<int:ecp>/<str:pop>/', views.EheCreate.as_view(), name="create_ehe"),
+    path('create/ehe/<int:ecp>/<str:pop>/', views.EheCreate.as_view(), name="create_ehe"),
 
     path('create/eqh/<int:pk>/<str:pop>/', views.EqhCreate.as_view(), name="create_eqh"),
     path('update/eqh/<int:pk>/<str:pop>/', views.EqhUpdate.as_view(), name="update_eqh"),

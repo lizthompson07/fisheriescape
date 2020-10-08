@@ -171,11 +171,31 @@ class EmmFactory(factory.django.DjangoModelFactory):
         return valid_data
 
 
+class EheFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EheHydrophoneEvent
+
+    ecp = factory.SubFactory("whalesdb.test.WhalesFactoryFloor.EcpFactory")
+    ehe_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def get_valid_data():
+        ecp = EcpFactory()
+
+        valid_data = {
+            "ecp": ecp.pk,
+            "ehe_date": faker.date(),
+        }
+
+        return valid_data
+
+
 class EqhFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqhHydrophoneProperty
 
-    emm = factory.lazy_attribute(lambda o: EmmFactory(pk=4))
+    emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
+                             eqt=models.EqtEquipmentTypeCode.objects.get(pk=4))
     eqh_range_min = factory.lazy_attribute(lambda o: faker.random_int(0, 100))
     eqh_range_max = factory.lazy_attribute(lambda o: faker.random_int(100, 1000))
 
@@ -234,7 +254,9 @@ class EqrFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqrRecorderProperties
 
-    emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory")
+    emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
+                             eqt=factory.lazy_attribute(lambda o: models.EqtEquipmentTypeCode.objects.get(
+                                 pk=faker.random_int(1, 3))))
     ert = factory.lazy_attribute(lambda o: models.ErtRecorderType.objects.get(pk=faker.random_int(1, 4)))
     eqr_internal_hydro = factory.lazy_attribute(lambda o: faker.boolean())
 

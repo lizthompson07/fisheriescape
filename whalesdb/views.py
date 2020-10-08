@@ -162,7 +162,12 @@ class EmmCreate(mixins.EmmMixin, CommonCreate):
 
 
 class EheCreate(mixins.EheMixin, CommonCreate):
-    pass
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['ecp'] = self.kwargs['ecp']
+
+        return initial
 
 
 class EqhCreate(mixins.EqhMixin, CommonCreate):

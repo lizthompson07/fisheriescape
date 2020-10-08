@@ -83,11 +83,8 @@ class EcpChannelProperty(models.Model):
 
 class EheHydrophoneEvent(models.Model):
     # The hyd could be null if a hydrophone was being removed from a recorder and no replacement was being added
-    hyd = models.ForeignKey('EqpEquipment', blank=True, null=True, on_delete=models.DO_NOTHING,
+    hyd = models.ForeignKey('EqhHydrophoneProperty', blank=True, null=True, on_delete=models.DO_NOTHING,
                             verbose_name=_("Hydrophone"), related_name="Hydrophones")
-    # The recorder a hydrophone is being attached to.
-    rec = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING,
-                            verbose_name=_("Recorder"), related_name="Recorders")
 
     ecp = models.ForeignKey('EcpChannelProperty', on_delete=models.DO_NOTHING, verbose_name=_("Channel"))
 

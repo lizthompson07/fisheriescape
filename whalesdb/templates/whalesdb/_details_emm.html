@@ -91,12 +91,20 @@
         <div class="card-body">
             <table class="table">
                 <thead>
-                <tr><th>{% trans 'Channel No.'%}</th><th>{% trans 'ADC Bits'%}</th><th>{% trans 'Voltage (max)'%}</th><th>{% trans 'Voltage (min)'%}</th></tr>
+                <tr><th>{% trans 'Channel No.'%}</th><th>{% trans 'ADC Bits'%}</th><th>{% trans 'Voltage (max)'%}</th><th>{% trans 'Voltage (min)'%}</th>
+                {% if not emm.eqt.pk == 4 %}
+                    <td></td>
+                {% endif %}
+                </tr>
                 </thead>
                 <tbody>
             {% for ecp in emm.recorder.channels.all %}
                     <tr>
                         <td>{{ecp.ecp_channel_no}}</td><td>{{ecp.eqa_adc_bits}}</td><td>{{ecp.ecp_voltage_range_min}}</td><td>{{ecp.ecp_voltage_range_max}}</td>
+                {% if not emm.eqt.pk == 4 %}
+                    <td><a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' object.pk ecp.pk 'pop' %}','channel')"> + </a></td>
+                {% endif %}
+
                     </tr>
                 </tbody>
             {% endfor %}

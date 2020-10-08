@@ -196,6 +196,24 @@ class TestEmmCreate(CommonCreateTest, TestCase):
         self.assertRedirects(response=response, expected_url=reverse_lazy('whalesdb:details_emm', args=(emm_id,)))
 
 
+@tag('ehe', 'create')
+class TestEheCreate(CommonCreateTest, TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = Factory.EheFactory.get_valid_data()
+
+        self.test_url = reverse_lazy('whalesdb:create_ehe', args=(self.data['ecp'], 'pop',))
+
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
+
+        self.expected_view = views.EheCreate
+        self.expected_form = forms.EheForm
+
+
 @tag('eqh', 'create')
 class TestEqhCreate(CommonCreateTest, TestCase):
 
