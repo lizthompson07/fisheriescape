@@ -75,6 +75,9 @@ class CommonTest(object):
 
         return user
 
+    # Get context will use the default Test url set up in the setUp function, unless otherwise supplied as an
+    # argument here. By default this method will also log a user in as the standard whale user, unless
+    # whale_user=False, in which case a user will be logged in as a regular user not in the whale_admin group
     def get_context(self, url=None, whale_user=True):
         activate('en')
 
@@ -116,24 +119,39 @@ class CommonTest(object):
 ###########################################################################################
 # List Test contain tests used from common Test also adding tests specific for list/filter views
 ###########################################################################################
-class CommonListTest(CommonTest, TestCase):
+class CommonListTest(CommonTest):
+
+    login_required = False
 
     def setUp(self):
         super().setUp()
 
         self.test_expected_template = 'shared_models/shared_filter.html'
 
+    # login required
+    def test_view_en(self):
+        if self.login_required:
+            super().assert_view(expected_code=302)
+
+        self.login_whale_user()
+        super().assert_view()
+
+    # login required
+    def test_view_fr(self):
+        if self.login_required:
+            super().assert_view(lang='fr', expected_code=302)
+
+        self.login_whale_user()
+        super().assert_view(lang='fr')
+
     # List context should return:
     #   - a title to display in the html template
     #   - a list of fields to display
     #   - a url to use for the create button
     #   - a url to use for the detail links
-    def assert_list_view_context_fields(self):
-        activate('en')
+    def test_list_view_context_fields(self):
+        response = super().get_context()
 
-        response = self.client.get(self.test_url)
-
-        super().assert_context_fields(response)
         self.assertIn("fields", response.context)
         self.assertIn("create_url", response.context)
         self.assertIn("details_url", response.context)
