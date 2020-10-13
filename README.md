@@ -75,6 +75,6 @@ the app of interest in the app dictionary: `my_conf.APP_DICT`. Each connected ap
 1. If you are reading this, your contributions and collaborations are welcomed :)
 1. Please do your work locally and make sure to pull regularly from `origin/master`
 1. When ready to merge your work, please be sure to run the project's unit tests before creating your merge request
-    1. if you are using windows, you can run the suite of test using the following batch file: `run_tests_in_windows.txt`
+    1. if you are using windows, you can run the suite of test using the following batch file: `run_tests_in_windows.bat`
 1. Please do not create a merge request that has conflicts with the master branch, unless you specifically need help with dealing with any conflicting code.
     1. in the case of the latter, please be sure to properly assign your merge request and add the appropriate comments

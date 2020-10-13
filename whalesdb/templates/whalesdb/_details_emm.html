@@ -31,8 +31,8 @@
                 </div>
         </h5>
         <div class="card-body">
-        {% if emm.hydrophones %}
-            {% with emm.hydrophones as hydro %}
+        {% if emm.hydrophone %}
+            {% with emm.hydrophone as hydro%}
             <div class="row" >
                 <div class="container"><span class="font-weight-bold">{% get_verbose_label hydro 'eqh_range_min' %} : </span><span>{% get_field_value hydro 'eqh_range_min' %}</span></div>
             </div>
@@ -91,12 +91,29 @@
         <div class="card-body">
             <table class="table">
                 <thead>
-                <tr><th>{% trans 'Channel No.'%}</th><th>{% trans 'ADC Bits'%}</th><th>{% trans 'Voltage (max)'%}</th><th>{% trans 'Voltage (min)'%}</th></tr>
+                <tr><th>{% trans 'Channel No.'%}</th><th>{% trans 'ADC Bits'%}</th><th>{% trans 'Voltage (max)'%}</th><th>{% trans 'Voltage (min)'%}</th>
+                {% if not emm.eqt.pk == 4 %}
+                    <th>{% trans 'Attached Hydrophones' %}</th>
+                {% endif %}
+                </tr>
                 </thead>
                 <tbody>
             {% for ecp in emm.recorder.channels.all %}
                     <tr>
                         <td>{{ecp.ecp_channel_no}}</td><td>{{ecp.eqa_adc_bits}}</td><td>{{ecp.ecp_voltage_range_min}}</td><td>{{ecp.ecp_voltage_range_max}}</td>
+                {% if not emm.eqt.pk == 4 %}
+                    <td>
+                        {% if ecp.hydrophones.first %}
+                        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' ecp.pk 'pop' %}','channel')"> &gt; </a>
+                        {% with ecp.hydrophones.first as hyd %}
+                            {{hyd.ehe_date}} - {{hyd.hyd}}
+                        {% endwith %}
+                        {% else %}
+                            <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' ecp.pk 'pop' %}','channel')"> + </a>
+                        {% endif %}
+                    </td>
+                {% endif %}
+
                     </tr>
                 </tbody>
             {% endfor %}

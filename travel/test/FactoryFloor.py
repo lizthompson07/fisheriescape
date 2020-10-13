@@ -155,7 +155,7 @@ class TripRequestCostDayXRateFactory(factory.django.DjangoModelFactory):
     trip_request = factory.SubFactory(IndividualTripRequestFactory)
     cost = factory.lazy_attribute(lambda o: models.Cost.objects.all()[faker.random_int(0, models.Cost.objects.count() - 1)])
 
-    rate_cad = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
+    rate_cad = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True)+1)
     number_of_days = factory.lazy_attribute(lambda o: faker.random_int(1, 10))
 
 

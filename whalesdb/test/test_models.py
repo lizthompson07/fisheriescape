@@ -27,6 +27,7 @@ class TestDep(TestCase):
         self.assertEquals(dep.station_events.first().dep, dep)
         self.assertEquals(dep.station_events.first().set_type, set)
 
+
 class TestEmm(TestCase):
 
     fixtures = ['initial_whale_data.json']

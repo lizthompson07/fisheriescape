@@ -326,7 +326,7 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
                         obj.status,
                         obj.author.first_name,
                         obj.author.last_name,
-                        obj.date.strftime("%Y-%m-%d"),
+                        obj.creation_date.strftime("%Y-%m-%d"),
                     )
                     if not count == max_count:
                         notes += "\n"
