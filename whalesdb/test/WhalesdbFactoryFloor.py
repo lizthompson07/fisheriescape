@@ -34,7 +34,6 @@ class DepFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         stn = StnFactory()
         prj = PrjFactory()
         mor = MorFactory()
@@ -61,7 +60,6 @@ class EcaFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         emm = EmmFactory(pk=1)
         eca = EqpFactory(emm=emm)
 
@@ -110,11 +108,11 @@ class EcpFactory(factory.django.DjangoModelFactory):
         eqr = EqrFactory()
         min_volt = faker.random_int(1, 1000)
         valid_data = {
-            'eqr':  eqr.pk,
-            'ecp_channel_no':  faker.random_int(1, 9),
-            'eqa_adc_bits':  models.EqaAdcBitsCode.objects.get(pk=faker.random_int(1, 3)),
-            'ecp_voltage_range_min':  min_volt,
-            'ecp_voltage_range_max':  min_volt + faker.random_int(1, 1000),
+            'eqr': eqr.pk,
+            'ecp_channel_no': faker.random_int(1, 9),
+            'eqa_adc_bits': models.EqaAdcBitsCode.objects.get(pk=faker.random_int(1, 3)),
+            'ecp_voltage_range_min': min_volt,
+            'ecp_voltage_range_max': min_volt + faker.random_int(1, 1000),
         }
 
         return valid_data
@@ -156,7 +154,6 @@ class EmmFactory(factory.django.DjangoModelFactory):
     # if providing an eqt_type use the WhalesdbFactory._eqt_type_codes array
     @staticmethod
     def get_valid_data(eqt_id=None):
-
         eqt_id = eqt_id if eqt_id else faker.random_int(1, 4)
         eqt = models.EqtEquipmentTypeCode.objects.get(pk=eqt_id)
 
@@ -194,8 +191,7 @@ class EqhFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EqhHydrophoneProperty
 
-    emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
-                             eqt=models.EqtEquipmentTypeCode.objects.get(pk=4))
+    emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory", eqt_id=4)
     eqh_range_min = factory.lazy_attribute(lambda o: faker.random_int(0, 100))
     eqh_range_max = factory.lazy_attribute(lambda o: faker.random_int(100, 1000))
 
@@ -233,7 +229,6 @@ class EqpFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         emm = EmmFactory()
         eqo = EqoFactory()
 
@@ -351,7 +346,6 @@ class RciFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         rec = RecFactory()
         valid_data = {
             "rec_id": rec.pk,
@@ -375,7 +369,6 @@ class RecFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         eda_id = EdaFactory()
         rsc_id = RscFactory()
         rtt_in_water = RttFactory()
@@ -447,7 +440,6 @@ class RscFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         valid_data = {
             "rsc_name": faker.word(),
             "rsc_period": faker.random_int(1, 1000000)
@@ -468,7 +460,6 @@ class RstFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         rsc = RscFactory()
 
         valid_data = {
@@ -502,7 +493,6 @@ class RttFactory(factory.django.DjangoModelFactory):
 
 
 class StnFactory(factory.django.DjangoModelFactory):
-
     class Meta:
         model = models.StnStation
         django_get_or_create = ('stn_code',)
@@ -517,10 +507,9 @@ class StnFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         valid_data = {
             "stn_name": faker.name(),
-            "stn_code": _stn_codes_[faker.random_int(0, len(_stn_codes_)-1)],
+            "stn_code": _stn_codes_[faker.random_int(0, len(_stn_codes_) - 1)],
             "stn_revision": 1,
             "stn_planned_lat": faker.pydecimal(left_digits=2, right_digits=5),
             "stn_planned_lon": faker.pydecimal(left_digits=2, right_digits=5),
@@ -544,7 +533,6 @@ class SteFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         dep = DepFactory()
         crs = CruiseFactory()
         ste = SteFactory.build()
@@ -569,7 +557,6 @@ class TeaFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def get_valid_data():
-
         valid_data = {
             "tea_abb": faker.word(),
             "tea_last_name": faker.word(),
