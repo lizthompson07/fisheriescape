@@ -16,21 +16,20 @@ python manage.py test -v0 travel.test -v 0
 
 printf "\n"
 echo "RUNNING TESTS FOR: whalesdb"
-python manage.py test -v0 whalesdb.test -v 0
+python manage.py test -v0 whalesdb.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: inventory"
-python manage.py test -v0 inventory.test -v 0
+python manage.py test -v0 inventory.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: shiny"
-python manage.py test -v0 shiny.test -v 0
+python manage.py test -v0 shiny.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: ihub"
-python manage.py test -v0 ihub.test -v 0
-
+python manage.py test -v0 ihub.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: csas"
-python manage.py test -v0 csas.test -v 0
+python manage.py test -v0 csas.test

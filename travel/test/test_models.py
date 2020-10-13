@@ -93,6 +93,7 @@ class TestTravelModels(CommonTest):
         tr_cost_2.save()
         self.assertEqual(amount, tr_cost_2.amount_cad)
 
+        # however, if we provide a non-null, non-zero value for both rate and days, the amount_cad will be overwritten
         tr_cost_2.rate_cad = rate
         tr_cost_2.number_of_days = days
         tr_cost_2.save()
