@@ -7,7 +7,7 @@
 1. Working from your root projects directory (e.g., `~/my_projects`), create python virtual environment: `python -m venv dm_apps_venv`
 1. Activate the virtual environment: `.\dm_apps_venv\Scripts\activate` (Windows) OR `source ./dm_apps_venv/bin/activate` (Linux)
 1. Clone project: `git clone https://github.com/dfo-mar-odis/dm_apps`
-1. navigate into the project director: `cd dm_apps`
+1. navigate into the project directory: `cd dm_apps`
 1. Install the Python packages required by the DM APPS application: `pip install -r requirements.txt`
     - If you get an error when installing this, you will have to open the requirements.txt and comment out the lines for `mysqlclient` and `shapely`.
     - Rerun the package installation line above

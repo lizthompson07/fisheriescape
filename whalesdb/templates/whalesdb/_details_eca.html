@@ -1,0 +1,35 @@
+{% load verbose_names %}
+{% load i18n %}
+{% load bootstrap4 %}
+{% bootstrap_css %}
+
+{% block field_override %}
+<div class="card border border-dark my-1">
+    <div class="card-header h5">
+        <div class="row align-items-center">
+            <span class="col">
+                {% trans 'Value Curves' %}
+            </span>
+            <span class="px-1">
+                <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ecc' eca.pk 'pop' %}','curve_value_id')" title="{% trans 'Add' %}">+</a>
+            </span>
+        </div>
+    </div>
+    <div id="curve_value_id" class="card-body">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>{% trans 'Frequency (Hz)' %}</th><th>{% trans 'Sensitivity' %}</th><th class="col-1"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for value in eca.curve_values.all %}
+                <tr>
+                    <td>{{value.ecc_frequency}}</td><td>{{value.ecc_sensitivity}}</td><td><a class="btn btn-danger" href="{% url 'whalesdb:delete_ecc' value.pk %}">X</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock field_override %}
