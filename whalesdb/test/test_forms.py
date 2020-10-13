@@ -47,6 +47,28 @@ class TestDepForm(CommonFormTest):
         self.assertTrue(hasattr(form, 'min_width'))
 
 
+class TestEcaForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.EcaForm
+        self.test_factory = factory.EcaFactory
+
+    @tag('eca', 'form', 'valid')
+    def test_eca_valid_data(self):
+        self.assert_valid_data()
+
+    @tag('eca', 'form', 'widgets')
+    def test_eca_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['eca_date'], 'widget'))
+        self.assertIsInstance(form.fields['eca_date'].widget, d_forms.DateInput)
+        self.assertTrue(hasattr(form.fields['eca_date'].widget, 'attrs'))
+        self.assertIn('class', form.fields['eca_date'].widget.attrs)
+        self.assertEqual(form.fields['eca_date'].widget.attrs['class'], 'fp-date')
+
+
 class TestEdaForm(CommonFormTest):
 
     def setUp(self) -> None:
@@ -69,8 +91,13 @@ class TestEdaForm(CommonFormTest):
     # filter out hydrophones
     @tag('eda', 'form', 'field')
     def test_eda_field_filter(self):
-        recorder = factory.EmmFactory(pk=1)
-        hydrophone = factory.EmmFactory(pk=4)
+        recorder = factory.EmmFactory()
+        recorder.eqt = models.EqtEquipmentTypeCode.objects.get(pk=1)
+        recorder.save()
+
+        hydrophone = factory.EmmFactory()
+        hydrophone.eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
+        hydrophone.save()
 
         rec_1 = factory.EqpFactory.create(emm=recorder)
         rec_2 = factory.EqpFactory.create(emm=recorder)
@@ -83,6 +110,23 @@ class TestEdaForm(CommonFormTest):
         self.assertIn(rec_1, form.fields['eqp'].queryset)
         self.assertIn(rec_2, form.fields['eqp'].queryset)
         self.assertNotIn(hydro_1, form.fields['eqp'].queryset)
+
+
+class TestEheForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.EheForm
+        self.test_factory = factory.EheFactory
+
+    @tag('ehe', 'form', 'valid')
+    def test_ehe_valid_data(self):
+        self.assert_valid_data()
+
+    # test that the required fields exists and that they has a "create_url" attribute
+    @tag('ehe', 'form', 'field')
+    def test_ehe_field_create(self):
+        form = self.form_class()
 
 
 class TestEqhForm(CommonFormTest):
@@ -153,6 +197,28 @@ class TestEmmForm(CommonFormTest):
         form = self.form_class()
         self.assertTrue(hasattr(form, 'min_height'))
         self.assertTrue(hasattr(form, 'min_width'))
+
+
+class TestEtrForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.EtrForm
+        self.test_factory = factory.EtrFactory
+
+    @tag('etr', 'form', 'valid')
+    def test_etr_valid_data(self):
+        self.assert_valid_data()
+
+    @tag('etr', 'form', 'widgets')
+    def test_etr_widgets(self):
+        form = self.form_class()
+
+        self.assertTrue(hasattr(form.fields['etr_date'], 'widget'))
+        self.assertIsInstance(form.fields['etr_date'].widget, d_forms.DateInput)
+        self.assertTrue(hasattr(form.fields['etr_date'].widget, 'attrs'))
+        self.assertIn('class', form.fields['etr_date'].widget.attrs)
+        self.assertEqual(form.fields['etr_date'].widget.attrs['class'], 'fp-date')
 
 
 class TestMorForm(CommonFormTest):
@@ -258,6 +324,18 @@ class TestReeForm(CommonFormTest):
 
         self.assertTrue(hasattr(form.fields['rec_id'], 'widget'))
         self.assertIsInstance(form.fields['rec_id'].widget, d_forms.HiddenInput)
+
+
+class TestRetForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.RetForm
+        self.test_factory = factory.RetFactory
+
+    @tag('ret', 'form', 'valid_data')
+    def test_ret_valid_data(self):
+        self.assert_valid_data()
 
 
 class TestRscForm(CommonFormTest):

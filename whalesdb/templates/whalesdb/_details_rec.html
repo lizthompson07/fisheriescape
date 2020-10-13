@@ -1,6 +1,26 @@
 {% load verbose_names %}
 {% load i18n %}
 
+<div class="card border border-dark my-1">
+    <div class="card-header h5">
+        <div class="row align-items-center">
+            <span class="col">
+                {% trans title %}
+            </span>
+            <span class="px-1">
+                <a class="btn btn-primary" href="{% url 'whalesdb:details_dep' rec.eda_id.dep.pk %}" >{% trans 'View Deployment Details' %}</a>
+            </span>
+        </div>
+    </div>
+    <div class="card-body">
+    {% for field in fields %}
+    <div class="row" >
+            <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field%}</span></div>
+    </div>
+    {% endfor %}
+    </div>
+</div>
+
  <div class="card border border-dark my-1">
     <div class="card-header h5">
         <div class="row align-items-center">

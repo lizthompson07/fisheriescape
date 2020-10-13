@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
+from pyexpat import model
 
 from shared_models import models as shared_models
 
@@ -30,9 +31,13 @@ class EcaCalibrationEvent(models.Model):
                                        blank=True, null=True, verbose_name=_("Hydrophone"))
     eca_notes = models.CharField(blank=True, null=True, max_length=50, verbose_name=_("Notes"))
 
+    def __str__(self):
+        return "{}: {}".format(self.eca_date, self.eca_attachment)
+
 
 class EccCalibrationValue(models.Model):
-    eca = models.ForeignKey(EcaCalibrationEvent, on_delete=models.DO_NOTHING, verbose_name=_("Calibration Event"))
+    eca = models.ForeignKey(EcaCalibrationEvent, on_delete=models.DO_NOTHING, verbose_name=_("Calibration Event"),
+                            related_name='curve_values')
     ecc_frequency = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Frequency"))
     ecc_sensitivity = models.DecimalField(max_digits=10, decimal_places=6, verbose_name=_("Sensitivity"))
 
@@ -76,14 +81,18 @@ class EcpChannelProperty(models.Model):
         return "{}: {}".format(_("Channel"), self.ecp_channel_no)
 
 
-class EhaHydrophoneAttachment(models.Model):
-    eda = models.ForeignKey("EdaEquipmentAttachment", blank=True, null=True, on_delete=models.DO_NOTHING,
-                            verbose_name=_("Attachment"))
-    eqp = models.ForeignKey('EqpEquipment', blank=True, null=True, on_delete=models.DO_NOTHING,
-                            verbose_name=_("Hydrophone"))
+class EheHydrophoneEvent(models.Model):
+    # The hyd could be null if a hydrophone was being removed from a recorder and no replacement was being added
+    hyd = models.ForeignKey('EqhHydrophoneProperty', blank=True, null=True, on_delete=models.DO_NOTHING,
+                            verbose_name=_("Hydrophone"), related_name="channels")
+
+    ecp = models.ForeignKey('EcpChannelProperty', on_delete=models.DO_NOTHING, verbose_name=_("Channel"),
+                            related_name="hydrophones")
+
+    ehe_date = models.DateField(verbose_name=_("Attachment Date"))
 
     class Meta:
-        unique_together = (('eda', 'eqp'),)
+        ordering = ["-ehe_date"]
 
 
 class EprEquipmentParameter(models.Model):
@@ -145,11 +154,13 @@ class EqtEquipmentTypeCode(shared_models.Lookup):
 
 
 class EtrTechnicalRepairEvent(models.Model):
-    eqp_id = models.ForeignKey("EqpEquipment", on_delete=models.DO_NOTHING, verbose_name=_("Equipment"))
+    eqp = models.ForeignKey("EqpEquipment", on_delete=models.DO_NOTHING, verbose_name=_("Equipment"))
     etr_date = models.DateField(blank=True, null=True, verbose_name=_("Date"))
     etr_issue_desc = models.TextField(blank=True, null=True, verbose_name=_("Issue"))
     etr_repair_desc = models.TextField(blank=True, null=True, verbose_name=_("Repair"))
     etr_repaired_by = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("Repaired By"))
+    etr_dep_affe = models.TextField(blank=True, null=True, verbose_name=_("Deployment(s) Affected"))
+    etr_rec_affe = models.BooleanField(default=False, verbose_name=_("Has a Recording been Affected"))
 
 
 class PrmParameterCode(shared_models.Lookup):
@@ -229,7 +240,7 @@ class SteStationEvent(models.Model):
 
     # Note: We're using the cruise information from the Shared Models tables rather than duplicating information.
     #   Not to mention the Shared Model tables will have more detail than Team Whale expects to get.
-    crs = models.ForeignKey(shared_models.Cruise, on_delete=models.DO_NOTHING, verbose_name=_("Cruise"))
+    crs = models.ForeignKey(shared_models.Cruise, null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Cruise"))
 
     ste_lat_ship = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True,
                                        verbose_name=_("Ship Latitude"))
@@ -280,11 +291,12 @@ class RciChannelInfo(models.Model):
     rci_name = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Name"))
     rci_size = models.IntegerField(blank=True, null=True, verbose_name=_("Size (GB)"))
     rci_gain = models.IntegerField(blank=True, null=True, verbose_name=_("Gain"))
-    rci_volts = models.DecimalField(max_digits=4, decimal_places=1, blank=True, null=True, verbose_name=_("Voltage"))
+    rci_volts = models.DecimalField(max_digits=14, decimal_places=10, blank=True, null=True, verbose_name=_("Voltage"))
 
 
 class RecDataset(models.Model):
     eda_id = models.ForeignKey("EdaEquipmentAttachment", on_delete=models.DO_NOTHING,
+                               related_name="dataset",
                                verbose_name=_("Equipment Deployment"))
     rsc_id = models.ForeignKey("RscRecordingSchedule", on_delete=models.DO_NOTHING,
                                verbose_name=_("Recording Schedule"))
@@ -296,8 +308,8 @@ class RecDataset(models.Model):
     rec_start_time = models.TimeField(blank=True, null=True, verbose_name=_("In Water Start Time"))
     rec_end_date = models.DateField(blank=True, null=True, verbose_name=_("In Water End Date"))
     rec_end_time = models.TimeField(blank=True, null=True, verbose_name=_("In Water End Time"))
-    rec_backup_hd_1 = models.IntegerField(blank=True, null=True, verbose_name=_("HD Backup 1"))
-    rec_backup_hd_2 = models.IntegerField(blank=True, null=True, verbose_name=_("HD Backup 2"))
+    rec_backup_hd_1 = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("HD Backup 1"))
+    rec_backup_hd_2 = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("HD Backup 2"))
     rec_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     def __str__(self):
@@ -337,7 +349,7 @@ class RstRecordingStage(models.Model):
     rsc = models.ForeignKey(RscRecordingSchedule, models.DO_NOTHING, verbose_name=_("Schedule"), related_name="stages")
     rst_active = models.CharField(max_length=1, verbose_name=_("(A)ctive or (S)leep"))
     rst_duration = models.BigIntegerField(verbose_name=_("Duration"))
-    rst_rate = models.DecimalField(max_digits=7, decimal_places=2, blank=True, null=True, verbose_name=_("Rate (Hz)"))
+    rst_rate = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True, verbose_name=_("Rate (Hz)"))
 
 
 class RttTimezoneCode(models.Model):
