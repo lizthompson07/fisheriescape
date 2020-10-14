@@ -250,8 +250,7 @@ class EqrFactory(factory.django.DjangoModelFactory):
         model = models.EqrRecorderProperties
 
     emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
-                             eqt=factory.lazy_attribute(lambda o: models.EqtEquipmentTypeCode.objects.get(
-                                 pk=faker.random_int(1, 3))))
+                             eqt=faker.random_int(1, 3))
     ert = factory.lazy_attribute(lambda o: models.ErtRecorderType.objects.get(pk=faker.random_int(1, 4)))
     eqr_internal_hydro = factory.lazy_attribute(lambda o: faker.boolean())
 
