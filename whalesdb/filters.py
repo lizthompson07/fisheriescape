@@ -3,6 +3,7 @@ import django_filters
 from django.utils.translation import gettext as _
 
 from . import models
+import shared_models.models as shared_models
 
 
 class DepFilter(django_filters.FilterSet):
@@ -11,6 +12,13 @@ class DepFilter(django_filters.FilterSet):
     class Meta:
         model = models.DepDeployment
         fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
+
+
+class EcaFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EcaCalibrationEvent
+        fields = ['eca_date', 'eca_attachment', 'eca_hydrophone']
 
 
 class EmmFilter(django_filters.FilterSet):
@@ -25,6 +33,13 @@ class EqpFilter(django_filters.FilterSet):
     class Meta:
         model = models.EqpEquipment
         fields = ['emm', 'eqp_serial', 'eqp_date_purchase', 'eqo_owned_by', 'eqp_retired', 'eqp_deployed']
+
+
+class EtrFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EtrTechnicalRepairEvent
+        fields = ['etr_date', 'etr_issue_desc', 'etr_repair_desc', 'etr_repaired_by', 'etr_dep_affe', 'etr_rec_affe' ]
 
 
 class MorFilter(django_filters.FilterSet):
@@ -50,6 +65,13 @@ class RecFilter(django_filters.FilterSet):
     class Meta:
         model = models.RecDataset
         fields = ['eda_id', 'rsc_id', 'rec_start_date', 'rec_end_date']
+
+
+class RetFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.RetRecordingEventType
+        fields = ['ret_name', 'ret_desc']
 
 
 class RscFilter(django_filters.FilterSet):
@@ -95,3 +117,10 @@ class TeaFilter(django_filters.FilterSet):
     class Meta:
         model = models.TeaTeamMember
         fields = []
+
+
+class CruFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = shared_models.Cruise
+        fields = ['start_date', 'end_date']

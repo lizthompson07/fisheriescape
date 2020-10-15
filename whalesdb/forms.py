@@ -1,7 +1,21 @@
 from django import forms
 from whalesdb import models
-from dm_apps import custom_widgets
-import datetime
+
+import shared_models.models as shared_models
+
+
+class CruForm(forms.ModelForm):
+    class Meta:
+        model = shared_models.Cruise
+        fields = ["mission_number",
+                  "description",
+                  "chief_scientist",
+                  "samplers",
+                  "start_date",
+                  "end_date",
+                  "notes",
+                  "season",
+                  "vessel", ]
 
 
 class DepForm(forms.ModelForm):
@@ -20,6 +34,24 @@ class DepForm(forms.ModelForm):
         self.fields['mor'].create_url = 'whalesdb:create_mor'
 
 
+class EcaForm(forms.ModelForm):
+
+    class Meta:
+        model = models.EcaCalibrationEvent
+        exclude = []
+        widgets = {
+            'eca_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+        }
+
+
+class EccForm(forms.ModelForm):
+    class Meta:
+        model = models.EccCalibrationValue
+        exclude = []
+        widgets = {
+        }
+
+
 class EdaForm(forms.ModelForm):
 
     class Meta:
@@ -32,8 +64,15 @@ class EdaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Remove equipment that is already attached to a given deployment
+        remove = []
+        if 'initial' in kwargs and 'dep' in kwargs['initial'] and \
+                models.DepDeployment.objects.filter(pk=kwargs['initial']['dep']).count() > 0:
+            remove = [eda.eqp.pk for eda in
+                       models.DepDeployment.objects.get(pk=kwargs['initial']['dep']).attachments.all()]
+
         # exclude hydrophones from the equipment selection list
-        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__pk=4)
+        self.fields['eqp'].queryset = self.fields['eqp'].queryset.exclude(emm__eqt=4).exclude(pk__in=remove)
 
 
 class EmmForm(forms.ModelForm):
@@ -47,6 +86,14 @@ class EmmForm(forms.ModelForm):
         }
 
 
+class EheForm(forms.ModelForm):
+    class Meta:
+        model = models.EheHydrophoneEvent
+        exclude = []
+        widgets = {
+        }
+
+
 class EqhForm(forms.ModelForm):
     class Meta:
         model = models.EqhHydrophoneProperty
@@ -54,6 +101,9 @@ class EqhForm(forms.ModelForm):
         widgets = {
             'emm': forms.HiddenInput()
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class EqoForm(forms.ModelForm):
@@ -88,6 +138,15 @@ class EqrForm(forms.ModelForm):
         exclude = []
         widgets = {
             'emm': forms.HiddenInput()
+        }
+
+
+class EtrForm(forms.ModelForm):
+    class Meta:
+        model = models.EtrTechnicalRepairEvent
+        exclude = []
+        widgets = {
+            'etr_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
         }
 
 
@@ -134,6 +193,8 @@ class RecForm(forms.ModelForm):
         model = models.RecDataset
         exclude = []
         widgets = {
+            'rec_start_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'rec_end_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
         }
 
 
@@ -146,7 +207,14 @@ class ReeForm(forms.ModelForm):
         exclude = []
         widgets = {
             'rec_id': forms.HiddenInput(),
+            'ree_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
         }
+
+
+class RetForm(forms.ModelForm):
+    class Meta:
+        model = models.RetRecordingEventType
+        exclude = []
 
 
 class RscForm(forms.ModelForm):

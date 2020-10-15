@@ -7,7 +7,7 @@
 1. Working from your root projects directory (e.g., `~/my_projects`), create python virtual environment: `python -m venv dm_apps_venv`
 1. Activate the virtual environment: `.\dm_apps_venv\Scripts\activate` (Windows) OR `source ./dm_apps_venv/bin/activate` (Linux)
 1. Clone project: `git clone https://github.com/dfo-mar-odis/dm_apps`
-1. navigate into the project director: `cd dm_apps`
+1. navigate into the project directory: `cd dm_apps`
 1. Install the Python packages required by the DM APPS application: `pip install -r requirements.txt`
     - If you get an error when installing this, you will have to open the requirements.txt and comment out the lines for `mysqlclient` and `shapely`.
     - Rerun the package installation line above
@@ -75,6 +75,6 @@ the app of interest in the app dictionary: `my_conf.APP_DICT`. Each connected ap
 1. If you are reading this, your contributions and collaborations are welcomed :)
 1. Please do your work locally and make sure to pull regularly from `origin/master`
 1. When ready to merge your work, please be sure to run the project's unit tests before creating your merge request
-    1. if you are using windows, you can run the suite of test using the following batch file: `run_tests_in_windows.txt`
+    1. if you are using windows, you can run the suite of test using the following batch file: `run_tests_in_windows.bat`
 1. Please do not create a merge request that has conflicts with the master branch, unless you specifically need help with dealing with any conflicting code.
     1. in the case of the latter, please be sure to properly assign your merge request and add the appropriate comments
