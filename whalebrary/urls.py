@@ -35,13 +35,13 @@ urlpatterns = [
 
     path('transaction_list/', views.TransactionListView.as_view(), name="transaction_list"),
     path('transaction_detail/<int:pk>/view/', views.TransactionDetailView.as_view(), name="transaction_detail"),
-    # path('transaction_list/<int:pk>/view/', views.TransactionItemListView.as_view(), name="transaction_item_detail"),
     path('item/<int:pk>/transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
     path('transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="transaction_edit"),
     path('transaction/<int:pk>/edit/pop/<int:pop>/', views.TransactionUpdatePopoutView.as_view(), name="transaction_edit"),
     path('transaction/<int:pk>/delete/pop/<int:pop>/', views.TransactionDeletePopoutView.as_view(), name="transaction_delete"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="transaction_delete"),
+    path('transaction/return/item/<int:item_return>/', views.lending_return_item, name="lending_return_item"),
 
     # BULK TRANSACTIONS #
 
@@ -59,8 +59,8 @@ urlpatterns = [
     path('order/<int:pk>/edit/pop/<int:pop>/', views.OrderUpdatePopoutView.as_view(), name="order_edit"),
     path('order/<int:pk>/delete/pop/<int:pop>/', views.OrderDeletePopoutView.as_view(), name="order_delete"),
     path('order/<int:pk>/delete/', views.OrderDeleteView.as_view(), name="order_delete"),
-    path('order/<int:order>/for/item/<int:item>/', views.mark_order_received,
-         name="mark_order_received"),
+    # path('order/<int:order>/for/item/<int:pk>/', views.mark_order_received,
+    #      name="mark_order_received"),
 
 
     # LOCATION #

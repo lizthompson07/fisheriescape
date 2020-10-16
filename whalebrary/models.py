@@ -92,7 +92,7 @@ class Supplier(models.Model):
 class Item(models.Model):
     item_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("name of item"))
     description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
-    serial_number = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("serial number"))
+    note = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("note"))
     owner = models.ForeignKey(Owner, on_delete=models.DO_NOTHING, related_name="items",
                               verbose_name=_("owner of equipment"))
     size = models.ForeignKey(Size, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="items",

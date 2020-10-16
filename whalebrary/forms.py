@@ -89,9 +89,6 @@ class TagForm(forms.ModelForm):
     class Meta:
         model = models.Tag
         fields = "__all__"
-        widgets = {
-            'tag': forms.SelectMultiple(attrs=chosen_js),
-        }
 
 TagFormset = modelformset_factory(
     model=models.Tag,

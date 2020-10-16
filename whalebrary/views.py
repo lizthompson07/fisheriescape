@@ -96,6 +96,7 @@ def index(request):
 
     ## LOCATION ##
 
+
 class LocationHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
     model = models.Location
     success_url = reverse_lazy("whalebrary:manage_locations")
@@ -111,6 +112,7 @@ class LocationFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
     delete_url_name = "whalebrary:delete_location"
 
     ## TAG ##
+
 
 class TagHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
     model = models.Tag
@@ -132,6 +134,8 @@ class TagFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
 # #
 #
 
+# TODO Find out how to add admin permission to this action
+# TODO Decide if I want the report to also have locations
 
 # @permission_required(WhalebraryAdminAccessRequired)
 def inventory_download(request):
@@ -146,7 +150,7 @@ def inventory_download(request):
         'item_name',
         'oh quantity',
         'description',
-        'serial_number',
+        'note',
         'owner',
         'size',
         'category',
@@ -160,7 +164,7 @@ def inventory_download(request):
             obj.item_name,
             obj.total_oh_quantity,
             obj.description,
-            obj.serial_number,
+            obj.note,
             obj.owner,
             obj.size,
             obj.category,
@@ -176,7 +180,6 @@ class ItemListView(WhalebraryAccessRequired, CommonFilterView):
     h1 = "Item List"
     filterset_class = filters.SpecificItemFilter
     home_url_name = "whalebrary:index"
-    # container_class = "container-fluid"
     row_object_url_name = "whalebrary:item_detail"
     new_btn_text = "New Item"
 
@@ -187,7 +190,7 @@ class ItemListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'tname|{}'.format(gettext_lazy("Item name (size)")), "class": "", "width": ""},
         {"name": 'description', "class": "", "width": ""},
-        {"name": 'serial_number', "class": "", "width": ""},
+        {"name": 'note', "class": "", "width": ""},
         {"name": 'owner', "class": "", "width": ""},
         {"name": 'category', "class": "red-font", "width": ""},
         {"name": 'gear_type', "class": "", "width": ""},
@@ -206,7 +209,7 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         'id',
         'item_name',
         'description',
-        'serial_number',
+        'note',
         'owner',
         'size',
         'category',
@@ -221,15 +224,6 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
 
         # contexts for _quantity.html file
         context["random_qty"] = models.Transaction.objects.first()
-        context["qty_field_list"] = [
-            'quantity',
-            'category',
-            'location',
-
-        ]
-
-        # context for location specific info on _quantity.html
-
         context["oh_qty_field_list"] = [
             'location',
             'quantity',
@@ -256,7 +250,6 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         ]
 
         # context for _lending.html
-# TODO fix this with new model
         context["random_lend"] = models.Transaction.objects.first()
         context["lend_field_list"] = [
             'quantity',
@@ -275,7 +268,7 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
         return context
 
 
-class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
+class ItemTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = 'whalebrary/list.html'
     filterset_class = filters.TransactionFilter
 
@@ -292,21 +285,12 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'updated_at', "class": "", "width": ""},
     ]
     home_url_name = "whalebrary:index"
+    grandparent_crumb = {"title": gettext_lazy("Item List"), "url": reverse_lazy("whalebrary:item_list")}
     row_object_url_name = "whalebrary:transaction_detail"
 
-### how to get it to go to a crumb if there might be two different previous ones and how to select
-
-    # def get_active_page_name_crumb(self):
-    #     my_object = self.get_object()
-    #     return my_object
-
-    # def get_parent_crumb(self):
-    #     return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:item_detail", kwargs=self.kwargs)}
-    #
-    # def get_grandparent_crumb(self):
-    #     kwargs = deepcopy(self.kwargs)
-    #     del kwargs["pk"]
-    #     return {"title": _("Item List"), "url": reverse("whalebrary:item_list", kwargs=kwargs)}
+    def get_parent_crumb(self):
+        title = models.Item.objects.get(pk=self.kwargs.get('pk'))
+        return {"title": str(title), "url": reverse_lazy("whalebrary:item_detail", kwargs=self.kwargs)}
 
     def get_new_object_url(self):
         return reverse("whalebrary:transaction_new", kwargs=self.kwargs)
@@ -322,15 +306,6 @@ class ItemTransactionListView(WhalebraryAccessRequired, CommonFilterView):
         item_name = models.Item.objects.get(pk=self.kwargs.get('pk'))
         h1 = _("Detailed Transactions for ") + f' {str(item_name)}'
         return h1
-
-        # # context for _item_summary.html
-        # context["random_item"] = models.Item.objects.first()
-        # context["item_field_list"] = [
-        #     'item_name',
-        #     'description',
-        #     'serial_number',
-        #
-        # ]
 
 
 class ItemUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
@@ -491,18 +466,22 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
 
     ##TRANSACTION##
 
-#TODO finish this logic and add proper url and link in _lending.html
 
-# similar to logic for orders - two steps - create new transaction and redirect to update view
-# def lending_return_item(request, item, transaction):
-#     """simple function to mark order received and create transaction"""
-#     my_item = models.Item.objects.get(pk=item)
-#     my_transaction = models.Transaction.objects.get(pk=transaction)
-#     """
-#     logic needed: on clicking it should:
-#     1) return the item to inventory -- but how do I want this to happen? just change category from 'lend' to 'purchase' or do I need another category? 'return'
-#     """
-#     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+def lending_return_item(request, item_return):
+    """simple function to change item status from lend to return"""
+    my_return = models.Transaction.objects.get(pk=item_return)
+    my_return.category_id = 4
+    my_return.save()
+    messages.success(request, "Items returned")
+    return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+
+def lend_out_items():
+    """
+    This should be added to _quantity.html for each line so that items can be lent
+    out from a location; it should also not allow more than the # avail to be lent out
+    """
+    pass
 
 
 class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
@@ -798,13 +777,13 @@ class OrderUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView)
 #     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
-def mark_order_received(request, order):
-    """function to mark order received and create new transaction"""
-    my_order = models.Order.objects.get(pk=order)
-    my_order.date_received = timezone.now()
-    my_order.save()
-    messages.success(request, "Order received")
-    return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+# def mark_order_received(request, order):
+#     """function to mark order received and create new transaction"""
+#     my_order = models.Order.objects.get(pk=order)
+#     my_order.date_received = timezone.now()
+#     my_order.save()
+#     messages.success(request, "Order received")
+#     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
 def mark_order_received(request, order, item):
@@ -815,19 +794,20 @@ def mark_order_received(request, order, item):
     my_order.save()
     messages.success(request, "Order received")
 
-    # get the current item
-    my_item = models.Item.objects.get(pk=item)
-    # set transaction category to 1 for purchase
-    my_type = models.TransactionCategory.objects.get(pk=1)
+    # # get the current item
+    # my_item = models.Item.objects.get(pk=item)
+    # # set transaction category to 1 for purchase
+    # my_type = models.TransactionCategory.objects.get(pk=1)
 
     # create new purchase transaction for received items
     my_transaction = models.Transaction.objects.create(
-        item=my_item,
-        category=my_type
+        item=order.item,
+        quantity=order.quantity,
+        category=1
     )
     my_transaction.save()
 
-    return HttpResponseRedirect(reverse('whalebrary:transaction_edit', kwargs={'pk': my_transaction.id}))
+    return HttpResponseRedirect(reverse('whalebrary:transaction_new', kwargs={'pk': my_transaction}))
 
 
 class OrderReceivedTransactionUpdateView(TransactionUpdatePopoutView):
