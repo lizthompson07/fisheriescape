@@ -49,6 +49,8 @@ GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 # Should the ticketing app be displayed on the main index page?
 DEVOPS_BUILD_NUMBER = config("DEVOPS_BUILD_NUMBER", cast=str, default="")
+# Fake Apps
+FAKE_TRAVEL_APP = config("FAKE_TRAVEL_APP", cast=bool, default=False)
 
 # Slightly more complicated settings
 ####################################

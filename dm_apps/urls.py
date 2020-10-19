@@ -100,7 +100,7 @@ if settings.INSTALLED_APPS.count("shares"):
 else:
     print("not connecting shares app")
 
-if settings.INSTALLED_APPS.count("travel"):
+if settings.INSTALLED_APPS.count("travel") and not settings.FAKE_TRAVEL_APP:
     urlpatterns += i18n_patterns(path('travel-plans/', include('travel.urls')), prefix_default_language=True)
 else:
     print("not connecting travel app")

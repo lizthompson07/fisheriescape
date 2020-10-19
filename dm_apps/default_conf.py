@@ -44,6 +44,10 @@ APP_DICT = {
     'engagements': 'Stakeholder Engagement Tool',
 }
 
+# Deal with fake apps...
+if config("FAKE_TRAVEL_APP", cast=bool, default=False) and APP_DICT.get("travel"):
+    del APP_DICT["travel"]
+
 # This variable is used to employ a preconfiguartion of applications for Azure deployment
 DEPLOYMENT_STAGE = config("DEPLOYMENT_STAGE", cast=str, default="").upper()
 
