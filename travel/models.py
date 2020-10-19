@@ -1117,7 +1117,7 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
             if os.path.isfile(instance.file.path):
                 os.remove(instance.file.path)
         except:
-            instance.file.delete(save=True)
+            instance.file.delete()
 
 
 @receiver(models.signals.pre_save, sender=File)
