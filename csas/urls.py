@@ -6,12 +6,24 @@ app_name = 'csas'
 urlpatterns = [
     # for home/index page
     path('',                                        views.IndexTemplateView.as_view(),    name="index"),
+    path('index_newfoundland_labrador/',            views.IndexNLView.as_view(),          name="index_nl"),
+    path('index_gulf/',                             views.IndexGFView.as_view(),          name="index_gf"),
+    path('index_quebec/',                           views.IndexQBView.as_view(),          name="index_qb"),
+    path('index_arctic/',                           views.IndexACView.as_view(),          name="index_ac"),
+    path('index_ontario_prairie/',                  views.IndexOPView.as_view(),          name="index_op"),
+    path('index_pacific/',                          views.IndexPCView.as_view(),          name="index_pc"),
     path('index_meeting/',                          views.IndexMeetingView.as_view(),     name="index_met"),
     path('index_publication',                       views.IndexPublicationView.as_view(), name="index_pub"),
 
     # for Requests
     path('request/',                                views.RequestList.as_view(),          name="list_req"),
-    path('request/reg/',                            views.RequestListReg.as_view(),       name="list_req_reg"),
+    path('request/maritimes/',                      views.RequestListMA.as_view(),        name="list_req_ma"),
+    path('request/newfoundland_labrador/',          views.RequestListNL.as_view(),        name="list_req_nl"),
+    path('request/gulf/',                           views.RequestListGF.as_view(),        name="list_req_gf"),
+    path('request/quebec/',                         views.RequestListQB.as_view(),        name="list_req_qb"),
+    path('request/arctic/',                         views.RequestListAC.as_view(),        name="list_req_ac"),
+    path('request/ontario_prairie/',                views.RequestListOP.as_view(),        name="list_req_op"),
+    path('request/pacific/',                        views.RequestListPC.as_view(),        name="list_req_pc"),
 
     path('request/',                                views.RequestList.as_view(),          name="list_req_CSAS"),
 
@@ -27,10 +39,16 @@ urlpatterns = [
     path('request_CSAS/details/<int:pk>/',          views.RequestDetailsCSAS.as_view(),   name="details_req_CSAS"),
 
     # for Meetings
-    path('meeting/',                    views.MeetingList.as_view(),          name="list_met"),
-    path('meeting/reg/',                views.MeetingListReg.as_view(),       name="list_met_reg"),
-    path('meeting_DFO_participants/',   views.MeetingListDFOPars.as_view(),   name="list_met_DFO_pars"),
-    path('meeting_other_participants/', views.MeetingListOtherPars.as_view(), name="list_met_other_pars"),
+    path('meeting/',                       views.MeetingList.as_view(),          name="list_met"),
+    path('meeting/maritimes/',             views.MeetingListMA.as_view(),        name="list_met_ma"),
+    path('meeting/newfoundland_labrador/', views.MeetingListNL.as_view(),        name="list_met_nl"),
+    path('meeting/gulf/',                  views.MeetingListGF.as_view(),        name="list_met_gf"),
+    path('meeting/quebec/',                views.MeetingListQB.as_view(),        name="list_met_qb"),
+    path('meeting/arctic/',                views.MeetingListAC.as_view(),        name="list_met_ac"),
+    path('meeting/ontario_prairie/',       views.MeetingListOP.as_view(),        name="list_met_op"),
+    path('meeting/pacific/',               views.MeetingListPC.as_view(),        name="list_met_pc"),
+    path('meeting_DFO_participants/',      views.MeetingListDFOPars.as_view(),   name="list_met_DFO_pars"),
+    path('meeting_other_participants/',    views.MeetingListOtherPars.as_view(), name="list_met_other_pars"),
 
     path('meeting/new/',                                           views.MeetingEntry.as_view(),          name="create_met"),
     path('meeting_docs/new/<int:met_id>/<str:pop>/',               views.MeetingEntryDocs.as_view(),      name="create_met_doc"),
@@ -66,7 +84,13 @@ urlpatterns = [
 
     # for Publications
     path('publication/',                                         views.PublicationList.as_view(),             name="list_pub"),
-    path('publication/reg/',                                     views.PublicationListReg.as_view(),          name="list_pub_reg"),
+    path('publication/maritimes/',                               views.PublicationListMA.as_view(),           name="list_pub_ma"),
+    path('publication/newfoundland_labrador/',                   views.PublicationListNL.as_view(),           name="list_pub_nl"),
+    path('publication/gulf/',                                    views.PublicationListGF.as_view(),           name="list_pub_gf"),
+    path('publication/quebec/',                                  views.PublicationListQB.as_view(),           name="list_pub_qb"),
+    path('publication/arctic/',                                  views.PublicationListAC.as_view(),           name="list_pub_ac"),
+    path('publication/ontario_prairie/',                         views.PublicationListOP.as_view(),           name="list_pub_op"),
+    path('publication/pacific/',                                 views.PublicationListPC.as_view(),           name="list_pub_pc"),
 
     path('publication/new/',                                     views.PublicationEntry.as_view(),            name="create_pub"),
     path('publication_status/new/<int:pub_id>/<str:pop>/',       views.PublicationEntryStatus.as_view(),      name="create_pub_status"),
@@ -102,7 +126,13 @@ urlpatterns = [
 
     # for Contacts
     path('contacts/',                              views.ContactList.as_view(),        name="list_con"),
-    path('contacts/reg/',                          views.ContactListReg.as_view(),     name="list_con_reg"),
+    path('contacts/maritimes/',                    views.ContactListMA.as_view(),      name="list_con_ma"),
+    path('contacts/newfoundland_labrador/',        views.ContactListNL.as_view(),      name="list_con_nl"),
+    path('contacts/gulf/',                         views.ContactListGF.as_view(),      name="list_con_gf"),
+    path('contacts/quebec/',                       views.ContactListQB.as_view(),      name="list_con_qb"),
+    path('contacts/arctic/',                       views.ContactListAC.as_view(),      name="list_con_ac"),
+    path('contacts/ontario_prairie/',              views.ContactListOP.as_view(),      name="list_con_op"),
+    path('contacts/pacific/',                      views.ContactListPC.as_view(),      name="list_con_pc"),
     path('contacts/new/',                          views.ContactEntry.as_view(),       name="create_con"),
     path('contacts/update/<int:pk>/<str:pop>/',    views.ContactUpdate.as_view(),      name="update_con"),
     path('contacts/update/<int:pk>/',              views.ContactUpdate.as_view(),      name="update_con"),

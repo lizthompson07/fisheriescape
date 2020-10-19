@@ -406,29 +406,39 @@ class PubPublicationStatus(models.Model):
                                          verbose_name=_('Publication'))
     # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True,
     #                                    related_name="pub_status", verbose_name=_('Publication'))
-    date_due = models.DateField(null=True, blank=True, verbose_name=_("Date Due"))
+    date_due = models.DateField(null=True, blank=True, verbose_name=_("Date Due"), help_text=_("Format: YYYY-MM-DD"))
     status = models.ForeignKey(PusPublicationStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
     status_comments = models.TextField(null=True, blank=True, verbose_name=_("Status Comments"))
-    date_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted by Author"))
+    date_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Submitted by Author"),
+                                      help_text=_("Format: YYYY-MM-DD"))
     submitted_by = models.ManyToManyField(ConContact, blank=True, related_name="submitted_by",
                                           verbose_name=_("Submitted By"))
-    date_appr_by_chair = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Chair"))
+    date_appr_by_chair = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Chair"),
+                                          help_text=_("Format: YYYY-MM-DD"))
     appr_by_chair = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_chair",
                                            verbose_name=_("Approved By (Chair)"))
-    data_appr_by_CSAS = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by CSAS"))
+    data_appr_by_CSAS = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by CSAS"),
+                                         help_text=_("Format: YYYY-MM-DD"))
     appr_by_CSAS = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_CSAS",
                                           verbose_name=_("Approved By (CSAS Contact)"))
-    date_appr_by_dir = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Director"))
+    date_appr_by_dir = models.DateField(null=True, blank=True, verbose_name=_("Date Approved by Director"),
+                                        help_text=_("Format: YYYY-MM-DD"))
     appr_by_dir = models.ManyToManyField(ConContact, blank=True, related_name="appr_by_dir",
                                          verbose_name=_("Approved By Director"))
-    date_num_req = models.DateField(null=True, blank=True, verbose_name=_("Date Number Requested"))
-    date_doc_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Document Submitted to CSAS"))
-    date_pdf_proof = models.DateField(null=True, blank=True, verbose_name=_("Date PDF Proof Sent to Author"))
+    date_num_req = models.DateField(null=True, blank=True, verbose_name=_("Date Number Requested"),
+                                    help_text=_("Format: YYYY-MM-DD"))
+    date_doc_submitted = models.DateField(null=True, blank=True, verbose_name=_("Date Document Submitted to CSAS"),
+                                          help_text=_("Format: YYYY-MM-DD"))
+    date_pdf_proof = models.DateField(null=True, blank=True, verbose_name=_("Date PDF Proof Sent to Author"),
+                                      help_text=_("Format: YYYY-MM-DD"))
     appr_by = models.ManyToManyField(ConContact, blank=True, related_name="appr_by",
                                      verbose_name=_("Approved by (PDF Proof)"))
-    date_anti = models.DateField(null=True, blank=True, verbose_name=_("Date of Anticipated Posting"))
-    date_posted = models.DateField(null=True, blank=True, verbose_name=_("Date Posted"))
-    date_modify = models.DateField(null=True, blank=True, verbose_name=_("Date Modified"))
+    date_anti = models.DateField(null=True, blank=True, verbose_name=_("Date of Anticipated Posting"),
+                                 help_text=_("Format: YYYY-MM-DD"))
+    date_posted = models.DateField(null=True, blank=True, verbose_name=_("Date Posted"),
+                                   help_text=_("Format: YYYY-MM-DD"))
+    date_modify = models.DateField(null=True, blank=True, verbose_name=_("Date Modified"),
+                                   help_text=_("Format: YYYY-MM-DD"))
     notes = models.TextField(null=True, blank=True, verbose_name=_("Notes"))
 
 
@@ -438,14 +448,16 @@ class PubPublicationTransInfo(models.Model):
     # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
     trans_status = models.ForeignKey(PtsPublicationTransStatus, on_delete=models.DO_NOTHING,
                                      verbose_name=_("Translation Status"))
-    date_to_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Sent to Translation"))
+    date_to_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Sent to Translation"),
+                                     help_text=_("Format: YYYY-MM-DD"))
     client_ref_num = models.CharField(default="NA", max_length=255, verbose_name=_("Client Reference Number"))
     target_lang = models.ForeignKey(PtlPublicationTargetLanguage, on_delete=models.DO_NOTHING,
                                     verbose_name=_("Target Language"))
     trans_ref_num = models.CharField(default="NA", max_length=255, verbose_name=_("Translator Reference Number"))
     urgent_req = models.ForeignKey(PurPublicationUrgentRequest, on_delete=models.DO_NOTHING,
                                    verbose_name=_("Urgent Request"))
-    date_fr_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Back from Translation"))
+    date_fr_trans = models.DateField(null=True, blank=True, verbose_name=_("Date Back from Translation"),
+                                     help_text=_("Format: YYYY-MM-DD"))
     invoice_num = models.CharField(default="NA", max_length=255, verbose_name=_("Invoice Number"))
     attach = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment(s)"))
     trans_note = models.TextField(null=True, blank=True, verbose_name=_("Translation Notes"))
@@ -611,7 +623,7 @@ class ReqRequest(models.Model):
 
 
 class ReqRequestCSAS(models.Model):
-    request = models.OneToOneField(ReqRequest, on_delete=models.DO_NOTHING, primary_key=True)
+    request = models.OneToOneField(ReqRequest, on_delete=models.DO_NOTHING, primary_key=True, related_name="req_status")
     # status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, blank=True, null=True,
     #                            verbose_name=_("Status"))
     status = models.ForeignKey(ResStatus, on_delete=models.DO_NOTHING, verbose_name=_("Status"))
