@@ -29,12 +29,16 @@ YES_NO_CHOICES = (
 class DefaultReviewer(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
                                 verbose_name=_("DM Apps user"))
-    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which DFO section(s)"), blank=True,
+    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which DFO section(s)"),
+                                      blank=True,
                                       related_name="travel_default_reviewers")
-    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"), blank=True,
+    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"),
+                                      blank=True,
                                       related_name="travel_default_reviewers")
-    reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"), blank=True,
-                                            related_name="travel_default_reviewers", limit_choices_to={"id__in": [3, 4, 5]})
+    reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"),
+                                            blank=True,
+                                            related_name="travel_default_reviewers",
+                                            limit_choices_to={"id__in": [3, 4, 5]})
     order = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
@@ -72,7 +76,8 @@ class CostCategory(SimpleLookup):
 
 
 class Cost(SimpleLookup):
-    cost_category = models.ForeignKey(CostCategory, on_delete=models.DO_NOTHING, related_name="costs", verbose_name=_("category"))
+    cost_category = models.ForeignKey(CostCategory, on_delete=models.DO_NOTHING, related_name="costs",
+                                      verbose_name=_("category"))
 
     class Meta:
         ordering = ['cost_category', 'name']
@@ -88,7 +93,8 @@ class TripCategory(SimpleLookup):
 
 
 class TripSubcategory(Lookup):
-    name = models.CharField(max_length=255, verbose_name=_("name (en)"))  # overflowing this since we DO NOT want it to be unique=True
+    name = models.CharField(max_length=255,
+                            verbose_name=_("name (en)"))  # overflowing this since we DO NOT want it to be unique=True
     trip_category = models.ForeignKey(TripCategory, on_delete=models.DO_NOTHING, related_name="subcategories")
 
     def __str__(self):
@@ -139,8 +145,10 @@ class Conference(models.Model):
                                          related_name="trips", null=True)
     is_adm_approval_required = models.BooleanField(default=False, choices=YES_NO_CHOICES, verbose_name=_(
         "does attendance to this require ADM approval?"))
-    location = models.CharField(max_length=1000, blank=False, null=True, verbose_name=_("location (city, province, country)"))
-    lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Which region is the lead on this trip?"),
+    location = models.CharField(max_length=1000, blank=False, null=True,
+                                verbose_name=_("location (city, province, country)"))
+    lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
+                             verbose_name=_("Which region is the lead on this trip?"),
                              related_name="meeting_leads", blank=False, null=True)
     has_event_template = models.NullBooleanField(default=False, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
@@ -151,10 +159,12 @@ class Conference(models.Model):
     abstract_deadline = models.DateTimeField(verbose_name=_("abstract submission deadline"), blank=True, null=True)
     registration_deadline = models.DateTimeField(verbose_name=_("registration deadline"), blank=True, null=True)
     notes = models.TextField(blank=True, null=True, verbose_name=_("general notes"))
-    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING,
+                                    verbose_name=_("fiscal year"),
                                     blank=True, null=True, related_name="trips")
     is_verified = models.BooleanField(default=False, verbose_name=_("verified?"))
-    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="trips_verified_by",
+    verified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                    related_name="trips_verified_by",
                                     verbose_name=_("verified by"))
     cost_warning_sent = models.DateTimeField(blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trips",
@@ -162,7 +172,8 @@ class Conference(models.Model):
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
     adm_review_deadline = models.DateTimeField(verbose_name=_("ADM Office review deadline"), blank=True, null=True)
-    date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"), blank=True, null=True)
+    date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"),
+                                                        blank=True, null=True)
     last_modified = models.DateTimeField(verbose_name=_("last modified"), auto_now=True, editable=False)
     last_modified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trips_last_modified_by",
                                          verbose_name=_("last_modified_by"), blank=True, null=True)
@@ -310,7 +321,8 @@ class Conference(models.Model):
 
         # start simple... non-group
         my_list = [trip_request.total_dfo_funding for trip_request in
-                   self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False, is_research_scientist=False)]
+                   self.trip_requests.filter(~Q(status_id__in=[10, 22, 8])).filter(is_group_request=False,
+                                                                                   is_research_scientist=False)]
         # group travellers
         my_list.extend(
             [trip_request.total_dfo_funding for trip_request in
@@ -330,7 +342,8 @@ class Conference(models.Model):
         return my_str
 
     def save(self, *args, **kwargs):
-        self.fiscal_year = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
+        self.fiscal_year = shared_models.FiscalYear.objects.get(
+            pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
 
         # TODO: make sure this gets tested
         # go through all the associated requests and update dates if applicable
@@ -346,7 +359,8 @@ class Conference(models.Model):
 
         if self.is_adm_approval_required and self.trip_subcategory:
             # trips must be reviewed by ADMO before two weeks to the closest date
-            self.adm_review_deadline = self.closest_date - datetime.timedelta(days=21)  # 14 business days -- > 21 calendar days?
+            self.adm_review_deadline = self.closest_date - datetime.timedelta(
+                days=21)  # 14 business days -- > 21 calendar days?
 
             # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
             # else they can start the review closer to the date: eight business weeks (60 days)
@@ -383,7 +397,8 @@ class Conference(models.Model):
         # group requests
         my_id_list.extend(
             [trip_request.id for trip_request in
-             TripRequest.objects.filter(parent_request__trip=self).filter(~Q(parent_request__status_id__in=[10, 22, 8])).filter(
+             TripRequest.objects.filter(parent_request__trip=self).filter(
+                 ~Q(parent_request__status_id__in=[10, 22, 8])).filter(
                  ~Q(status_id=10))])
         return TripRequest.objects.filter(id__in=my_id_list)
 
@@ -405,7 +420,8 @@ class Conference(models.Model):
             try:
                 # there are two things we have to do to get this list...
                 # 1) get all non group travel
-                qs = traveller.user_trip_requests.filter(trip__is_adm_approval_required=True).filter(is_group_request=False)
+                qs = traveller.user_trip_requests.filter(trip__is_adm_approval_required=True).filter(
+                    is_group_request=False)
                 total_list.extend([trip.id for trip in qs])
 
                 # 2) get all group travel - the trick part is that we have to grab the parent trip
@@ -478,17 +494,23 @@ class Conference(models.Model):
 
 
 class TripRequest(models.Model):
-    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, verbose_name=_("fiscal year"),
-                                    default=fiscal_year(sap_style=True), blank=True, null=True, related_name="trip_requests")
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING,
+                                    verbose_name=_("fiscal year"),
+                                    default=fiscal_year(sap_style=True), blank=True, null=True,
+                                    related_name="trip_requests")
     # traveller info
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="user_trip_requests",
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True,
+                             related_name="user_trip_requests",
                              verbose_name=_("DM Apps user"))
-    is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES, verbose_name=_("Is the traveller a public servant?"))
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, verbose_name=_("Traveller belongs to which DFO region"),
+    is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES,
+                                            verbose_name=_("Is the traveller a public servant?"))
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
+                               verbose_name=_("Traveller belongs to which DFO region"),
                                related_name="trip_requests",
                                null=True, blank=True)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
-                                verbose_name=_("under which DFO section is this request being made"), related_name="trip_requests")
+                                verbose_name=_("under which DFO section is this request being made"),
+                                related_name="trip_requests")
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
                                                 verbose_name=_("Is the traveller a research scientist (RES)?"))
     first_name = models.CharField(max_length=100, verbose_name=_("first name"), blank=True, null=True)
@@ -501,24 +523,30 @@ class TripRequest(models.Model):
 
     # Trip Details
     is_group_request = models.BooleanField(default=False,
-                                           verbose_name=_("Is this a group request (i.e., a request for multiple individuals)?"))
+                                           verbose_name=_(
+                                               "Is this a group request (i.e., a request for multiple individuals)?"))
     # purpose = models.ForeignKey(Purpose, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("purpose of travel"))
-    trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, null=True, verbose_name=_("trip"), related_name="trip_requests")
+    trip = models.ForeignKey(Conference, on_delete=models.DO_NOTHING, null=True, verbose_name=_("trip"),
+                             related_name="trip_requests")
 
-    departure_location = models.CharField(max_length=1000, verbose_name=_("departure location (city, province, country)"), blank=True,
+    departure_location = models.CharField(max_length=1000,
+                                          verbose_name=_("departure location (city, province, country)"), blank=True,
                                           null=True)
-    destination = models.CharField(max_length=1000, verbose_name=_("destination location (city, province, country)"), blank=True,
+    destination = models.CharField(max_length=1000, verbose_name=_("destination location (city, province, country)"),
+                                   blank=True,
                                    null=True)
     start_date = models.DateTimeField(verbose_name=_("start date of travel"), null=True, blank=True)
     end_date = models.DateTimeField(verbose_name=_("end date of travel"), null=True, blank=True)
-    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role of traveller"))
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True,
+                             verbose_name=_("role of traveller"))
 
     # purpose
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role description"))
     objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of the trip"))
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("benefit to DFO"))
     multiple_conferences_rationale = models.TextField(blank=True, null=True,
-                                                      verbose_name=_("rationale for individual attending multiple conferences"))
+                                                      verbose_name=_(
+                                                          "rationale for individual attending multiple conferences"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
     # multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
     #     "rationale for multiple travelers"))
@@ -527,18 +555,22 @@ class TripRequest(models.Model):
     notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes"))
     # total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
     non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Amount of non-DFO funding (CAD)"))
-    non_dfo_org = models.CharField(max_length=1000, verbose_name=_("full name(s) of organization providing non-DFO funding"), blank=True,
+    non_dfo_org = models.CharField(max_length=1000,
+                                   verbose_name=_("full name(s) of organization providing non-DFO funding"), blank=True,
                                    null=True)
 
     submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
     original_submission_date = models.DateTimeField(verbose_name=_("original submission date"), blank=True, null=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="trip_requests",
                                limit_choices_to={"used_for": 2}, verbose_name=_("trip request status"), default=8)
-    parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests", blank=True, null=True)
+    parent_request = models.ForeignKey("TripRequest", on_delete=models.CASCADE, related_name="children_requests",
+                                       blank=True, null=True)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
-    exclude_from_travel_plan = models.BooleanField(default=False, verbose_name=_("Exclude this traveller from the travel plan?"))
+    exclude_from_travel_plan = models.BooleanField(default=False,
+                                                   verbose_name=_("Exclude this traveller from the travel plan?"))
 
-    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="trip_requests_created_by",
+    created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, null=True, blank=True,
+                                   related_name="trip_requests_created_by",
                                    verbose_name=_("created by"))
 
     @property
@@ -790,7 +822,8 @@ class TripRequest(models.Model):
         if self.benefit_to_dfo:
             my_str += "<br><em>Benefit to DFO:</em> {}".format(self.benefit_to_dfo)
         if self.multiple_conferences_rationale:
-            my_str += "<br><em>Rationale for attending multiple conferences:</em> {}".format(self.multiple_conferences_rationale)
+            my_str += "<br><em>Rationale for attending multiple conferences:</em> {}".format(
+                self.multiple_conferences_rationale)
         if self.funding_source:
             my_str += "<br><em>Funding source:</em> {}".format(self.funding_source)
 
@@ -870,7 +903,8 @@ class TripRequest(models.Model):
     def requester_info(self):
         mystr = ""
         if not self.is_public_servant:
-            mystr += _("Company: ") + nz(self.company_name, "<span class='red-font'>missing company name</span>") + "<br>"
+            mystr += _("Company: ") + nz(self.company_name,
+                                         "<span class='red-font'>missing company name</span>") + "<br>"
         mystr += _("Address: ") + nz(self.address, "<span class='red-font'>missing address</span>") + "<br>"
         mystr += _("Phone: ") + nz(self.phone, "<span class='red-font'>missing phone</span>") + "<br>"
         mystr += _("Email: ") + nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
@@ -922,7 +956,8 @@ class TripRequest(models.Model):
 class TripRequestCost(models.Model):
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs",
                                      verbose_name=_("trip request"))
-    cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs", verbose_name=_("cost"))
+    cost = models.ForeignKey(Cost, on_delete=models.DO_NOTHING, related_name="trip_request_costs",
+                             verbose_name=_("cost"))
     rate_cad = models.FloatField(verbose_name=_("daily rate (CAD/day)"), blank=True, null=True)
     number_of_days = models.FloatField(verbose_name=_("number of days"), blank=True, null=True)
     amount_cad = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
@@ -951,7 +986,8 @@ class ReviewerRole(SimpleLookup):
 class Reviewer(models.Model):
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers", verbose_name=_("DM Apps user"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="reviewers",
+                             verbose_name=_("DM Apps user"))
     role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 1},
                                verbose_name=_("review status"), default=4)
@@ -1004,7 +1040,8 @@ class Reviewer(models.Model):
 class TripReviewer(models.Model):
     trip = models.ForeignKey(Conference, on_delete=models.CASCADE, related_name="reviewers")
     order = models.IntegerField(null=True, verbose_name=_("process order"))
-    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers", verbose_name=_("DM Apps user"))
+    user = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trip_reviewers",
+                             verbose_name=_("DM Apps user"))
     role = models.ForeignKey(ReviewerRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, limit_choices_to={"used_for": 3},
                                verbose_name=_("review status"), default=23)
@@ -1076,8 +1113,11 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
     when corresponding `MediaFile` object is deleted.
     """
     if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
+        try:
+            if os.path.isfile(instance.file.path):
+                os.remove(instance.file.path)
+        except:
+            instance.file.delete(save=True)
 
 
 @receiver(models.signals.pre_save, sender=File)
