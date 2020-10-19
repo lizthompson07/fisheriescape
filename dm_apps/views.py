@@ -58,9 +58,10 @@ def get_app_dict(request):
             "description": _("Management tool to facilitate regional and national travel pre-approvals."),
             "status": "production",
             "access": "permission-required",
-            "url": "https://sci-zone.dfo-mpo.gc.ca/travel/",
+            "url": "https://sci-zone.dfo-mpo.gc.ca/travel-plans/",
             "icon_path": 'img/icons/paper-plane.svg',
             "region": "all",
+            "fake": True,
         }
     # otherwise, we can just follow the normal process
     else:

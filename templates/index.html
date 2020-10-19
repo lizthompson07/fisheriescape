@@ -173,8 +173,7 @@
                         {% with app_dict as app_dict %}
                             <div class="row justify-content-center">
                                 {% for app in app_dict %}
-
-                                    <div class="card" href="{{ app_dict|lookup:app|lookup:"url" }}">
+                                    <div class="card{% if app_dict|lookup:app|lookup:"fake" %} fake{% endif %}" href="{{ app_dict|lookup:app|lookup:"url" }}">
                                         <div class="card-body">
                                             <div class="row mb-4">
                                                 <div class="col-3">
@@ -254,10 +253,11 @@
                 $(this)[0].style.cursor = "pointer"
                 // add a click event listener to navigate to the specified url
                 $(this).click(function () {
+
                     href = $(this)[0].getAttribute("href")
+                    if ($(this).hasClass("fake")) alert("You are being redirected to sci-zone.dfo-mpo.gc.ca");
 
                     document.location.href = href
-
                 });
             }
         });
