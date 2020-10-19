@@ -11,10 +11,8 @@
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
         <a class="dropdown-item" href="{% url 'whalebrary:item_list' %}">Inventory</a>
-        <a class="dropdown-item" href="{% url 'whalebrary:transaction_list' %}">Transaction</a>
         <a class="dropdown-item" href="{% url 'whalebrary:order_list' %}">Orders</a>
         <a class="dropdown-item" href="{% url 'whalebrary:supplier_list' %}">Suppliers</a>
-        <a class="dropdown-item" href="{% url 'whalebrary:file_list' %}">Files</a>
 
     </div>
 </li>
@@ -55,6 +53,9 @@
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
+        <a class="dropdown-item" href="{% url 'whalebrary:location_list' %}">List Locations</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:transaction_list' %}">List Transactions</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:file_list' %}">List Files</a>
         <a class="dropdown-item" href="{% url 'whalebrary:manage_locations' %}">Manage Locations</a>
         <a class="dropdown-item" href="{% url 'whalebrary:manage_tags' %}">Manage Tags</a>
 

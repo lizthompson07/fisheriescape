@@ -365,7 +365,7 @@ class ItemDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 
 # # LOCATION # #
 
-    ## CRUD Views - mark for possible deletion ##
+    ## CRUD Views - admin only
 
 class LocationListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
@@ -406,7 +406,6 @@ class LocationDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
     ]
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Location List"), "url": reverse_lazy("whalebrary:location_list")}
-    # container_class = "container-fluid"
 
 
 class LocationUpdateView(WhalebraryAdminAccessRequired, CommonUpdateView):
@@ -473,9 +472,9 @@ def lending_return_item(request, item_return):
     my_return.category_id = 4
     my_return.save()
     messages.success(request, "Items returned")
-    return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+    return HttpResponseRedirect(reverse_lazy('shared_models:close_me')) # TODO Ideally want to have a confirm step using 'confirm_status_change.html'
 
-
+# TODO create the location lend out function
 def lend_out_items():
     """
     This should be added to _quantity.html for each line so that items can be lent
@@ -484,12 +483,12 @@ def lend_out_items():
     pass
 
 
-class TransactionListView(WhalebraryAccessRequired, CommonFilterView):
+# admin access only
+class TransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
     h1 = "Transaction List"
     filterset_class = filters.TransactionFilter
     home_url_name = "whalebrary:index"
-    # container_class = "container-fluid"
     row_object_url_name = "whalebrary:transaction_detail"
     new_btn_text = "New Transaction"
 
@@ -532,10 +531,11 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
 
     ]
     home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
 
-    def get_parent_crumb(self):
-        parent_crumb_url = ""
-        return {"title": self.get_object(), "url": parent_crumb_url}
+    # def get_parent_crumb(self):
+    #     parent_crumb_url = ""
+    #     return {"title": self.get_object(), "url": parent_crumb_url}
 
 
 class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
@@ -565,6 +565,7 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
         return HttpResponseRedirect(reverse("whalebrary:transaction_detail", kwargs=self.kwargs))
 
 
+# TODO change this to a lending by location popout view/form
 class TransactionUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
     model = models.Transaction
     form_class = forms.TransactionForm1
@@ -669,10 +670,16 @@ class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView)
     model = models.Transaction
     permission_required = "__all__"
     success_url = reverse_lazy('whalebrary:bulk_transaction_list')
-    # success_message = 'The transaction was successfully deleted!'
+    # success_message = 'The transaction was successfully deleted!' # TODO doesn't currently work
     template_name = 'whalebrary/confirm_delete.html'
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Item Quantities and Statuses"), "url": reverse_lazy("whalebrary:bulk_transaction_list")}
+
+
+# TODO write a view for this
+class ConfirmStatusChangeView(WhalebraryAdminAccessRequired, CommonPopoutFormView):
+    pass
+
 
     ## ORDER ##
 
@@ -724,8 +731,11 @@ class OrderDetailView(WhalebraryAccessRequired, CommonDetailView):
         return h1
 
     def get_parent_crumb(self):
-        parent_crumb_url = ""
-        return {"title": self.get_object(), "url": parent_crumb_url}
+        return {"title": gettext_lazy("Order List"), "url": reverse_lazy("whalebrary:order_list")}
+
+    # def get_parent_crumb(self):
+    #     parent_crumb_url = ""
+    #     return {"title": self.get_object(), "url": parent_crumb_url}
 
 
 class OrderUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
@@ -735,16 +745,13 @@ class OrderUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     template_name = "whalebrary/form.html"
     cancel_text = _("Cancel")
 
-    def get_active_page_name_crumb(self):
-        my_object = self.get_object()
-        return my_object
-
     def get_h1(self):
-        my_object = self.get_object()
-        return my_object
+        order_num = models.Order.objects.get(pk=self.kwargs.get('pk'))
+        h1 = _("Order # ") + f' {str(order_num)}'
+        return h1
 
     def get_parent_crumb(self):
-        return {"title": str(self.get_object()),
+        return {"title": str(self.get_h1()),
                 "url": reverse_lazy("whalebrary:order_detail", kwargs=self.kwargs)}
 
     def get_grandparent_crumb(self):
@@ -842,7 +849,7 @@ class OrderCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        messages.success(self.request, _(f"Order record successfully created for : {my_object}"))
+        messages.success(self.request, _(f"Order record successfully created for : Order # {str(my_object)}"))
 
         # if there's a pk argument, this means user is calling from item_detail page and
         if self.kwargs.get("pk"):
@@ -865,7 +872,7 @@ class OrderDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     grandparent_crumb = {"title": gettext_lazy("Order List"), "url": reverse_lazy("whalebrary:order_list")}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("whalebrary:order_detail", kwargs=self.kwargs)}
+        return {"title": "Order # " + str(self.get_object()), "url": reverse_lazy("whalebrary:order_detail", kwargs=self.kwargs)}
 
 
 class OrderDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
@@ -881,7 +888,6 @@ class PersonnelListView(WhalebraryAdminAccessRequired, CommonFilterView):
     h1 = "Personnel List"
     filterset_class = filters.PersonnelFilter
     home_url_name = "whalebrary:index"
-    # container_class = "container-fluid"
     row_object_url_name = "whalebrary:personnel_detail"
     new_btn_text = "New Personnel"
 
@@ -895,7 +901,6 @@ class PersonnelListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'last_name', "class": "", "width": ""},
         {"name": 'organisation', "class": "", "width": ""},
         {"name": 'email', "class": "", "width": ""},
-        {"name": 'phone', "class": "", "width": ""},
         {"name": 'exp_level', "class": "", "width": ""},
         {"name": 'training', "class": "", "width": ""},
     ]
@@ -919,7 +924,6 @@ class PersonnelDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
     ]
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Personnel List"), "url": reverse_lazy("whalebrary:personnel_list")}
-    # container_class = "container-fluid"
 
 
 class PersonnelUpdateView(WhalebraryAdminAccessRequired, CommonUpdateView):
@@ -964,6 +968,7 @@ class PersonnelCreateView(WhalebraryAdminAccessRequired, CommonCreateView):
         messages.success(self.request, _(f"Personnel record successfully created for : {my_object}"))
         return super().form_valid(form)
 
+
 class PersonnelDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
     model = models.Personnel
     permission_required = "__all__"
@@ -989,7 +994,7 @@ def add_supplier_to_item(request, supplier, item):
 
 class AddSuppliersToItemView(WhalebraryEditRequiredMixin, CommonPopoutFormView):
     h1 = gettext_lazy("Please select a supplier to add to item")
-    form_class = forms.IncidentForm  # just a temp placeholder until we create a CommonPopoutTemplateView
+    form_class = forms.IncidentForm  # TODO just a temp placeholder until we create a CommonPopoutTemplateView
     template_name = "whalebrary/supplier_list_popout.html"
 
     def get_context_data(self, **kwargs):
@@ -1022,8 +1027,6 @@ class SupplierListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'id', "class": "", "width": ""},
         {"name": 'supplier_name', "class": "", "width": ""},
         {"name": 'contact_number', "class": "", "width": ""},
-        {"name": 'email', "class": "", "width": ""},
-        {"name": 'website', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
 
 
@@ -1049,8 +1052,7 @@ class SupplierDetailView(WhalebraryAccessRequired, CommonDetailView):
     home_url_name = "whalebrary:index"
 
     def get_parent_crumb(self):
-        parent_crumb_url = ""
-        return {"title": self.get_object(), "url": parent_crumb_url}
+        return {"title": _("Supplier List"), "url": reverse("whalebrary:supplier_list")}
 
 
 class SupplierUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
@@ -1133,12 +1135,11 @@ class SupplierDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteVi
     ## ITEM FILE UPLOAD ##
 
 
-class FileListView(WhalebraryAccessRequired, CommonFilterView):
+class FileListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/file_list.html"
     h1 = "File List"
     filterset_class = filters.FileFilter
     home_url_name = "whalebrary:index"
-    # row_object_url_name = "whalebrary:file_detail"
     # new_btn_text = "New File"
 
     queryset = models.File.objects.annotate(
@@ -1154,14 +1155,13 @@ class FileListView(WhalebraryAccessRequired, CommonFilterView):
     ]
 
     # def get_new_object_url(self):
-    #     return reverse("whalebrary:transaction_new", kwargs=self.kwargs)
+    #     return reverse("whalebrary:file_new", kwargs=self.kwargs)
 
 
 class FileCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.File
     template_name = 'whalebrary/file_form_popout.html'
     form_class = forms.FileForm
-    # home_url_name = "whalebrary:index"
 
     def form_valid(self, form):
         my_object = form.save()
@@ -1180,7 +1180,6 @@ class FileUpdateView(WhalebraryEditRequiredMixin, UpdateView):
     template_name = 'whalebrary/file_form_popout.html'
     form_class = forms.FileForm
     cancel_text = _("Cancel")
-    # home_url_name = "whalebrary:index"
 
     def form_valid(self, form):
         my_object = form.save()
@@ -1189,14 +1188,13 @@ class FileUpdateView(WhalebraryEditRequiredMixin, UpdateView):
         return HttpResponseRedirect(success_url)
 
 
-## I don't think next this view is currently being used; might expand and use
-
-
-class FileDetailView(FileUpdateView):
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["editable"] = False
-        return context
+# This view is not currently being used
+#
+# class FileDetailView(FileUpdateView):
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["editable"] = False
+#         return context
 
 
 class FileDeleteView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
@@ -1212,7 +1210,6 @@ class IncidentListView(WhalebraryAccessRequired, CommonFilterView):
     h1 = "Incident List"
     filterset_class = filters.IncidentFilter
     home_url_name = "whalebrary:index"
-    # container_class = "container-fluid"
     row_object_url_name = "whalebrary:incident_detail"
     new_btn_text = "New Incident"
 
@@ -1264,7 +1261,6 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     ]
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
-    # container_class = "container-fluid"
 
 
 class IncidentUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
@@ -1365,7 +1361,6 @@ class ReportGeneratorFormView(WhalebraryAccessRequired, CommonFormView):
 class ContainerSummaryListView(WhalebraryAccessRequired, CommonListView):
     template_name = 'whalebrary/report_container_summary.html'
     home_url_name = "whalebrary:index"
-    # row_object_url_name = "whalebrary:item_detail"
     parent_crumb = {"title": gettext_lazy("Report Generator"), "url": reverse_lazy("whalebrary:report_generator")}
 
     def get_queryset(self, **kwargs):
@@ -1378,13 +1373,21 @@ class ContainerSummaryListView(WhalebraryAccessRequired, CommonListView):
         return h1
 
     field_list = [
-        {"name": 'item', "class": "", "width": ""},
-        {"name": 'quantity', "class": "", "width": ""},
-        {"name": 'category', "class": "", "width": ""},
-        {"name": 'comments', "class": "", "width": ""},
-        {"name": 'audit', "class": "", "width": ""},
-        {"name": 'tag', "class": "", "width": ""},
+        {"name": 'tname|{}'.format(gettext_lazy("Item name (size)")), "class": "", "width": ""},
+        {"name": 'description', "class": "", "width": ""},
+        {"name": 'note', "class": "", "width": ""},
+        {"name": 'total_oh_quantity|{}'.format(gettext_lazy("Total on hand quantity")), "class": "", "width": ""},
+
     ]
+
+    # field_list = [
+    #     {"name": 'item', "class": "", "width": ""},
+    #     {"name": 'quantity', "class": "", "width": ""},
+    #     {"name": 'category', "class": "", "width": ""},
+    #     {"name": 'comments', "class": "", "width": ""},
+    #     {"name": 'audit', "class": "", "width": ""},
+    #     {"name": 'tag', "class": "", "width": ""},
+    # ]
 
 
 class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):

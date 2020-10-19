@@ -94,7 +94,6 @@ urlpatterns = [
 
     path('file_list/', views.FileListView.as_view(), name="file_list"),
     path('item/<int:item>/file/new/', views.FileCreateView.as_view(), name="file_new"),
-    path('file/<int:pk>/view/', views.FileDetailView.as_view(), name="file_detail"),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name="file_edit"),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name="file_delete"),
 

@@ -134,6 +134,7 @@ class IncidentForm(forms.ModelForm):
             'photos': forms.CheckboxInput,
         }
 
+
 class ReportGeneratorForm(forms.Form):
     report = forms.ChoiceField(required=True)
     location = forms.ChoiceField(required=False, label="Location/Container Name", widget=forms.Select(attrs=chosen_js))

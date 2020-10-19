@@ -8,7 +8,7 @@
         <div class="btn-group">
             <a class="btn btn-warning" href="{% url 'whalebrary:order_edit' object.id %}">Edit</a>
             <a class="btn btn-danger" href="{% url 'whalebrary:order_delete' object.id %}">Delete</a>
-            <a class="btn btn-dark" href="{% url 'whalebrary:order_list' %}" >Back</a>
+            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
         </div>
     </div>
 

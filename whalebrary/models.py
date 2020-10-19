@@ -207,7 +207,7 @@ class Status(models.Model):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/item_<id>/<filename>
-    return f'whalebrary/item_{instance.item.id}/{filename}'
+    return f'whalebrary/{instance.item.item_name}_id{instance.item.id}/{filename}'
 
 
 class File(models.Model):

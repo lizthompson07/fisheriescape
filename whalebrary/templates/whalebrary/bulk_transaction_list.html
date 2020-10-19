@@ -29,15 +29,8 @@
                 <em>{% trans 'displaying' %} {{ object_list.count }} {% trans "records." %}</em>
             {% endif %}
         </div>
-        {% if new_object_url %}
-            {% trans 'New' as default_new_btn_text %}
-            <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{{ new_object_url }}" class="btn btn-sm btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
-            </div>
-        {% endif %}
     </div>
 {% endblock %}
-
 
 
 {% block table_tr %}
@@ -54,6 +47,12 @@
                 <a class="delete-me" href="{% url 'whalebrary:bulk_transaction_delete' object.id %}">
                     <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                          title="Delete">
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                   pop-href="{% url 'whalebrary:lending_return_item' object.id %}">
+                    <img src="{% static "/admin/img/icon-no.svg" %}" data-toggle="tooltip" title="Return">
                 </a>
             </td>
     </tr>

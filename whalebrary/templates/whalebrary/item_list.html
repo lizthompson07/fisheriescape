@@ -38,8 +38,8 @@
     {% endblock %}
 
     {% block table_td %}
-        {% if field.name == "testname" %}
-         <span style="background-color:red">test!!!</span>
+        {% if field.name == "note" %}
+         <span style="color:lightseagreen">{% get_field_value object field.name %}</span>
         {% else %}
          {% get_field_value object field.name safe=True %}
         {% endif %}
