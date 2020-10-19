@@ -118,7 +118,7 @@ LOGIN_URL = '/accounts/login/'
 # if there is, we use this as our local configuration, otherwise we use the default
 try:
     from . import my_conf as local_conf
-except ModuleNotFoundError and ImportError:
+except:
     from . import default_conf as local_conf
 
 # Application definition
