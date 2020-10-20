@@ -322,7 +322,7 @@ class Personnel(models.Model):
     exp_level = models.ForeignKey(Experience, help_text="Novice 1-2 necropsy, Intermediate 3-5, Advanced more than 5",
                                   on_delete=models.DO_NOTHING, related_name="xp",
                                   verbose_name=_("experience level"))
-    training = models.ManyToManyField(Training, verbose_name=_("training"))
+    training = models.ManyToManyField(Training, blank=True, verbose_name=_("training"))
 
     def __str__(self):
         # check to see if a french value is given

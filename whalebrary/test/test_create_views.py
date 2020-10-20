@@ -15,7 +15,7 @@ class TestItemCreateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.ItemFactory()
         self.test_url = reverse_lazy('whalebrary:item_new')
-        self.expected_template = "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+        self.expected_template = "whalebrary/form.html"
         self.user = self.get_and_login_user(in_group="whalebrary_edit")
 
     @tag("Item", "item_new", "view")

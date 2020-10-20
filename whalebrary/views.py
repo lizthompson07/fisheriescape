@@ -372,7 +372,6 @@ class LocationListView(WhalebraryAdminAccessRequired, CommonFilterView):
     h1 = "Location List"
     filterset_class = filters.LocationFilter
     home_url_name = "whalebrary:index"
-    # container_class = "container-fluid"
     row_object_url_name = "whalebrary:location_detail"
     new_btn_text = "New Location"
 
@@ -1373,20 +1372,20 @@ class ContainerSummaryListView(WhalebraryAccessRequired, CommonListView):
         return h1
 
     field_list = [
-        {"name": 'tname|{}'.format(gettext_lazy("Item name (size)")), "class": "", "width": ""},
-        {"name": 'description', "class": "", "width": ""},
-        {"name": 'note', "class": "", "width": ""},
-        {"name": 'total_oh_quantity|{}'.format(gettext_lazy("Total on hand quantity")), "class": "", "width": ""},
-
+        {"name": 'item', "class": "", "width": ""},
+        {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'category', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
+        {"name": 'audit', "class": "", "width": ""},
+        {"name": 'tag', "class": "", "width": ""},
     ]
 
     # field_list = [
-    #     {"name": 'item', "class": "", "width": ""},
-    #     {"name": 'quantity', "class": "", "width": ""},
-    #     {"name": 'category', "class": "", "width": ""},
-    #     {"name": 'comments', "class": "", "width": ""},
-    #     {"name": 'audit', "class": "", "width": ""},
-    #     {"name": 'tag', "class": "", "width": ""},
+    #     {"name": 'tname|{}'.format(gettext_lazy("Item name (size)")), "class": "", "width": ""},
+    #     {"name": 'description', "class": "", "width": ""},
+    #     {"name": 'note', "class": "", "width": ""},
+    #     {"name": 'total_oh_quantity|{}'.format(gettext_lazy("Total on hand quantity")), "class": "", "width": ""},
+    #
     # ]
 
 

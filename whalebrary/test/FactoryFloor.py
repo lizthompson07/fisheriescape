@@ -37,33 +37,30 @@ class TransactionCategoryFactory(factory.django.DjangoModelFactory):
     type = factory.lazy_attribute(lambda o: faker.word())
 
 
-class LocationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.Location
-
-    location = factory.lazy_attribute(lambda o: faker.catch_phrase())
-
-
 class OrganisationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Organisation
 
-    name = factory.lazy_attribute(lambda o: faker.word())
-    abbrev_name = factory.lazy_attribute(lambda o: faker.word())
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.catch_phrase(),
+        }
 
 
 class ExperienceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Experience
 
-    type = factory.lazy_attribute(lambda o: faker.word())
-
-
-class TrainingFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.TransactionCategory
-
     name = factory.lazy_attribute(lambda o: faker.word())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.word(),
+        }
 
 
 class PersonnelFactory(factory.django.DjangoModelFactory):
@@ -72,7 +69,30 @@ class PersonnelFactory(factory.django.DjangoModelFactory):
 
     organisation = factory.SubFactory(OrganisationFactory)
     exp_level = factory.SubFactory(ExperienceFactory)
-    training = factory.SubFactory(TrainingFactory)
+    first_name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'organisation': OrganisationFactory().id,
+            'exp_level': ExperienceFactory().id,
+            'first_name': faker.catch_phrase(),
+        }
+
+
+class LocationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Location
+
+    location = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    address = factory.lazy_attribute(lambda o: faker.address())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'location': faker.catch_phrase(),
+            'address': faker.address(),
+        }
 
 
 class ItemFactory(factory.django.DjangoModelFactory):
@@ -116,4 +136,51 @@ class TransactionFactory(factory.django.DjangoModelFactory):
             'quantity': faker.pyint(1, 100),
             'created_at': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
             'updated_at': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+        }
+
+
+class OrderFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Order
+
+    item = factory.SubFactory(ItemFactory)
+    date_ordered = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'item': ItemFactory().id,
+            'date_ordered': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+        }
+
+
+class SupplierFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Supplier
+
+    supplier_name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'supplier_name': faker.catch_phrase(),
+        }
+
+
+class FileFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.File
+
+    item = factory.SubFactory(ItemFactory)
+    caption = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    file = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    date_uploaded = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'item': ItemFactory().id,
+            'caption': faker.catch_phrase(),
+            'file': faker.catch_phrase(),
+            'date_uploaded': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
