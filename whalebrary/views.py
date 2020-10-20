@@ -32,6 +32,8 @@ from . import models, admin
 from . import forms
 from . import filters
 from . import reports
+from .models import TransactionCategory, Location, Tag
+from django.contrib.auth.models import User as AuthUser
 
 
 class CloserTemplateView(TemplateView):
@@ -474,11 +476,12 @@ def lending_return_item(request, item_return):
     return HttpResponseRedirect(reverse_lazy('shared_models:close_me')) # TODO Ideally want to have a confirm step using 'confirm_status_change.html'
 
 # TODO create the location lend out function
-def lend_out_items():
+def lend_out_item_at_location():
     """
     This should be added to _quantity.html for each line so that items can be lent
     out from a location; it should also not allow more than the # avail to be lent out
     """
+    # lend_item = item.oh_quantity_by_location.get(pk=item)
     pass
 
 
@@ -767,32 +770,9 @@ class OrderUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView)
     form_class = forms.OrderForm1
 
 
-# TODO finish this logic and add proper url and link in _order.html
+# TODO Figure out how to have it only create once the form is saved - confirmation html step?
 
-# two steps - mark received date and redirect to update transaction
-# def mark_order_received(request, order, item, transaction):
-#     """function to mark order received and create new transaction"""
-#     my_item = models.Item.objects.get(pk=item)
-#     my_order = models.Order.objects.get(pk=order)
-#     """
-#     logic needed: on clicking it should:
-#     1) change received_date=datetime.datetime.now()
-#     2) create a transaction with the relevant details and category=1 -- 2b) need this to popup a form to populate the new transaction part?
-#     3) change the icon on the item_detail page to /admin/img/icon-yes.svg
-#     """
-#     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
-
-
-# def mark_order_received(request, order):
-#     """function to mark order received and create new transaction"""
-#     my_order = models.Order.objects.get(pk=order)
-#     my_order.date_received = timezone.now()
-#     my_order.save()
-#     messages.success(request, "Order received")
-#     return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
-
-
-def mark_order_received(request, order, item):
+def mark_order_received(request, order):
     """function to mark order received and create new transaction"""
     # record received date
     my_order = models.Order.objects.get(pk=order)
@@ -800,39 +780,25 @@ def mark_order_received(request, order, item):
     my_order.save()
     messages.success(request, "Order received")
 
-    # # get the current item
-    # my_item = models.Item.objects.get(pk=item)
-    # # set transaction category to 1 for purchase
-    # my_type = models.TransactionCategory.objects.get(pk=1)
-
     # create new purchase transaction for received items
+    my_user = request.user
     my_transaction = models.Transaction.objects.create(
-        item=order.item,
-        quantity=order.quantity,
-        category=1
+        item=my_order.item,
+        quantity=my_order.quantity,
+        category=TransactionCategory.objects.get(id=1),
+        location=Location.objects.get(location='Temp'),
+        created_by=my_user
     )
-    my_transaction.save()
+    my_transaction.tag.add(3)
+    my_order.transaction = my_transaction
+    my_order.save()
 
-    return HttpResponseRedirect(reverse('whalebrary:transaction_new', kwargs={'pk': my_transaction}))
+    return HttpResponseRedirect(reverse('whalebrary:transaction_edit', kwargs={'pk': my_transaction.id, 'user': my_user.id, 'pop': my_order.id}))
 
 
-class OrderReceivedTransactionUpdateView(TransactionUpdatePopoutView):
+class OrderReceivedTransactionUpdateView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
     model = models.Transaction
-    template_name = "whalebrary/transaction_form.html"
-
     form_class = forms.TransactionForm2
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-    def form_valid(self, form):
-        self.object = form.save()
-
-        # set the transaction category to purchase
-        self.object.category = 1
-
-        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
 class OrderCreateView(WhalebraryEditRequiredMixin, CommonCreateView):

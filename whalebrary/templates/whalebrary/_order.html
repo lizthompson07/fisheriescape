@@ -17,9 +17,9 @@
        </div>
 </div>
 
-{% if object.orders.count == 0 %}
+{% if object.active_orders.count == 0 %}
     <em>
-        {% trans "No orders have been made for this entry" %}
+        {% trans "No active orders for this entry" %}
     </em><br>
 {% else %}
 
@@ -36,7 +36,7 @@
             </th>
         </tr>
         <tbody>
-        {% for obj in object.orders.all %}
+        {% for obj in object.active_orders %}
             <tr>
             {% for field in ord_field_list %}
                 {% if field == "id" %}
@@ -55,8 +55,8 @@
             {% endfor %}
             <td align="center">
                 <a href="#"
-                   pop-href="{% url 'whalebrary:order_detail' obj.id %}"> <!--#TODO fix this when view is fixed-->
-                    <img src="{% static "/admin/img/icon-unknown.svg" %}" data-toggle="tooltip" title="Mark received">
+                   pop-href="{% url 'whalebrary:mark_order_received' obj.id %}">
+                    <img src="{% static "/admin/img/icon-addlink.svg" %}" data-toggle="tooltip" title="Mark received">
                 </a>
             </td>
             </tr>

@@ -184,3 +184,16 @@ class FileFactory(factory.django.DjangoModelFactory):
             'file': faker.catch_phrase(),
             'date_uploaded': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
+
+
+class IncidentFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Incident
+
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.catch_phrase(),
+        }

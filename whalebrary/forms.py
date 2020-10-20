@@ -52,15 +52,31 @@ class TransactionForm2(forms.ModelForm):
         }
 
 
+class TransactionForm3(forms.ModelForm):
+    class Meta:
+        model = models.Transaction
+        fields = "__all__"
+        widgets = {
+            'item': forms.HiddenInput(),
+            'category': forms.HiddenInput(),
+            'location': forms.HiddenInput(),
+            'tag': forms.SelectMultiple(attrs=chosen_js),
+
+        }
+
+
 class OrderForm(forms.ModelForm):
     class Meta:
         model = models.Order
         fields = "__all__"
         widgets = {
-            'date_ordered': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
-            'date_received': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'date_ordered': forms.DateInput(
+                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'date_received': forms.DateInput(
+                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
 
         }
+
 
 class OrderForm1(forms.ModelForm):
     class Meta:
@@ -74,10 +90,12 @@ class OrderForm1(forms.ModelForm):
             'transaction': forms.HiddenInput(),
         }
 
+
 class LocationForm(forms.ModelForm):
     class Meta:
         model = models.Location
         fields = "__all__"
+
 
 LocationFormset = modelformset_factory(
     model=models.Location,
@@ -85,10 +103,12 @@ LocationFormset = modelformset_factory(
     extra=1,
 )
 
+
 class TagForm(forms.ModelForm):
     class Meta:
         model = models.Tag
         fields = "__all__"
+
 
 TagFormset = modelformset_factory(
     model=models.Tag,
@@ -96,15 +116,18 @@ TagFormset = modelformset_factory(
     extra=1,
 )
 
+
 class PersonnelForm(forms.ModelForm):
     class Meta:
         model = models.Personnel
         fields = "__all__"
 
+
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = models.Supplier
         fields = "__all__"
+
 
 class SupplierForm1(forms.ModelForm):
     class Meta:
@@ -114,6 +137,7 @@ class SupplierForm1(forms.ModelForm):
             'item': forms.HiddenInput(),
         }
 
+
 class FileForm(forms.ModelForm):
     class Meta:
         model = models.File
@@ -121,6 +145,7 @@ class FileForm(forms.ModelForm):
         widgets = {
             'item': forms.HiddenInput(),
         }
+
 
 class IncidentForm(forms.ModelForm):
     class Meta:
@@ -150,7 +175,8 @@ class ReportGeneratorForm(forms.Form):
         ]
         report_choices.insert(0, (None, "------"))
 
-        location_choices = [(obj.id, "{}".format(obj.location)) for obj in models.Location.objects.filter(container=True)]
+        location_choices = [(obj.id, "{}".format(obj.location)) for obj in
+                            models.Location.objects.filter(container=True)]
         location_choices.insert(0, (None, "------"))
 
         item_list = set([item.item_name.lower() for item in models.Item.objects.filter(size__isnull=False)])

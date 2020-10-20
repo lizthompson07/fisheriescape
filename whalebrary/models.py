@@ -157,6 +157,21 @@ class Item(models.Model):
             my_dict[location] = self.get_oh_quantity(location)
         return my_dict
 
+    # @property
+    # def oh_quantity_by_item(self):
+    #     """find total quantity available for location of each item"""
+    #     item_list = self.transactions.all().values("item").distinct().order_by("item")
+    #     my_dict = dict()
+    #     for l in item_list:
+    #         item = Item.objects.get(pk=l["item"])
+    #         my_dict[item] = self.get_oh_quantity(item)
+    #     return my_dict
+
+    @property
+    def active_orders(self):
+        """find all order that have not been marked received"""
+        return self.orders.filter(date_received__isnull=True)
+
     def get_absolute_url(self):
         return reverse("whalebrary:item_detail", kwargs={"pk": self.id})
 
@@ -461,7 +476,7 @@ class Transaction(models.Model):
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("location stored"))
     # use "tag" field with M2M to track things of interest instead of "incident", "project code" etc.
-    tag = models.ManyToManyField(Tag, blank=True, verbose_name=_("tags"))
+    tag = models.ManyToManyField(Tag, blank=True, related_name="transactions", verbose_name=_("tags"))
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -478,6 +493,9 @@ class Transaction(models.Model):
 
         if self.quantity:
             return '{} - {}'.format(self.quantity, my_str)
+
+        if self.tag:
+            return '{}'.format(self.id)
 
     def get_absolute_url(self):
         return reverse("whalebrary:transaction_detail", kwargs={"pk": self.id})
@@ -521,7 +539,3 @@ class Order(models.Model):
         else:
             return "{}".format(self.id)
 
-    @property
-    def active_orders(self):
-        """find all order that have not been received"""
-        return self.orders.filter(date_received=0).count()

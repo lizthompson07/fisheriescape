@@ -20,6 +20,9 @@
                     {% for field in field_list %}
                         {% if field == "cost" %}
                             {% verbose_td_display object field format="currency" nullmark="n/a"%}
+                        {% elif field == "transaction" %}
+                            {% url 'whalebrary:transaction_detail' object.transaction.id as my_url %}
+                            {% verbose_td_display object field url=my_url %}
                         {% else %}
                             {% verbose_td_display object field %}
                         {% endif %}

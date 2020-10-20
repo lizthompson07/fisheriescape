@@ -248,3 +248,29 @@ class TestFileListView(CommonTest):
             "field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+class TestIncidentListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.IncidentFactory()
+        self.test_url = reverse_lazy('whalebrary:incident_list')
+        self.expected_template = 'whalebrary/incident_list.html'
+        self.user = self.get_and_login_user()
+
+    @tag("Incident", "incident_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.IncidentListView, CommonFilterView)
+        self.assert_inheritance(views.IncidentListView, views.WhalebraryAccessRequired)
+
+    @tag("Incident", "incident_list", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Incident", "incident_list", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
