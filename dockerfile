@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install and enable ssh service
-RUN apk add openssh \
+RUN apt-get install openssh \
      && echo "root:Docker!" | chpasswd
 COPY sshd_config /etc/ssh/
 EXPOSE 80 2222
