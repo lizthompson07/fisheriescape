@@ -41,7 +41,6 @@ APP_DICT = {
     'vault': "Marine Megafauna Media Vault",
     'spring_cleanup': "Gulf Region Spring Cleanup",
     'shiny': "DM Apps Shiny App Collection",
-    'engagements': 'Stakeholder Engagement Tool',
 }
 
 # Deal with fake apps...
