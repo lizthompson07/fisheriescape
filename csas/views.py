@@ -270,6 +270,102 @@ class IndexTemplateView(TemplateView):
         return context
 
 
+# Create index view for Newfoundland & Labrador
+#
+class IndexNLView(TemplateView):
+    template_name = 'csas/index_newfoundland_labrador.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
+# Create index view for Gulf
+#
+class IndexGFView(TemplateView):
+    template_name = 'csas/index_gulf.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
+# Create index view for Quebec
+#
+class IndexQBView(TemplateView):
+    template_name = 'csas/index_quebec.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
+# Create index view for Arctic
+#
+class IndexACView(TemplateView):
+    template_name = 'csas/index_arctic.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
+# Create index view for Ontario & Prairie
+#
+class IndexOPView(TemplateView):
+    template_name = 'csas/index_ontario_prairie.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
+# Create index view for Pacific
+#
+class IndexPCView(TemplateView):
+    template_name = 'csas/index_pacific.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
 # Create index view for new meeting
 #
 class IndexMeetingView(TemplateView):
@@ -378,12 +474,72 @@ class RequestList(CsasListCommon):
     fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'client_email', 'funding']
 
 
-class RequestListReg(CsasListCommon):
+class RequestListMA(CsasListCommon):
     key = 'req'
     title = _('Maritimes Region Request List')
     model = models.ReqRequest
     filterset_class = filters.RequestFilterReg
-    template_name = "csas/csas_filter_regs.html"
+    template_name = "csas/csas_filter_maritimes.html"
+
+    fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
+
+
+class RequestListNL(CsasListCommon):
+    key = 'req'
+    title = _('Newfoundland & Labrador Region Request List')
+    model = models.ReqRequest
+    filterset_class = filters.RequestFilterReg
+    template_name = "csas/csas_filter_newfoundland_labrador.html"
+
+    fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
+
+
+class RequestListGF(CsasListCommon):
+    key = 'req'
+    title = _('Gulf Region Request List')
+    model = models.ReqRequest
+    filterset_class = filters.RequestFilterReg
+    template_name = "csas/csas_filter_gulf.html"
+
+    fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
+
+
+class RequestListQB(CsasListCommon):
+    key = 'req'
+    title = _('Quebec Region Request List')
+    model = models.ReqRequest
+    filterset_class = filters.RequestFilterReg
+    template_name = "csas/csas_filter_quebec.html"
+
+    fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
+
+
+class RequestListAC(CsasListCommon):
+    key = 'req'
+    title = _('Arctic Region Request List')
+    model = models.ReqRequest
+    filterset_class = filters.RequestFilterReg
+    template_name = "csas/csas_filter_arctic.html"
+
+    fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
+
+
+class RequestListOP(CsasListCommon):
+    key = 'req'
+    title = _('Ontario & Prairie Region Request List')
+    model = models.ReqRequest
+    filterset_class = filters.RequestFilterReg
+    template_name = "csas/csas_filter_ontario_prairie.html"
+
+    fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
+
+
+class RequestListPC(CsasListCommon):
+    key = 'req'
+    title = _('Pacific Region Request List')
+    model = models.ReqRequest
+    filterset_class = filters.RequestFilterReg
+    template_name = "csas/csas_filter_pacific.html"
 
     fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
 
@@ -392,6 +548,8 @@ class RequestDetails(DetailsCommon):
     key = 'req'
     title = _('Request Details')
     model = models.ReqRequest
+    template_name = "csas/csas_details_req.html"
+
     fields = ['assigned_req_id', 'title', 'in_year_request', 'region', 'client_sector', 'client_name',
               'client_title', 'client_email', 'issue', 'priority', 'rationale', 'proposed_timing',
               'rationale_for_timing', 'funding', 'funding_notes', 'science_discussion', 'science_discussion_notes',
@@ -402,6 +560,8 @@ class RequestDetailsCSAS(DetailsCommon):
     key = 'req_CSAS'
     title = _('Request Status Details')
     model = models.ReqRequestCSAS
+    template_name = "csas/csas_details_req_status.html"
+
     fields = ['request', 'status', 'trans_title', 'decision', 'decision_exp', 'decision_date', ]
 
 
@@ -446,12 +606,72 @@ class ContactList(CsasListCommon):
     fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
 
 
-class ContactListReg(CsasListCommon):
+class ContactListMA(CsasListCommon):
     key = 'con'
     title = _('Maritimes Region Contact List')
     model = models.ConContact
     filterset_class = filters.ContactFilterReg
-    template_name = 'csas/csas_filter_regs.html'
+    template_name = 'csas/csas_filter_maritimes.html'
+
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+
+
+class ContactListNL(CsasListCommon):
+    key = 'con'
+    title = _('Newfoundland & Labrador Region Contact List')
+    model = models.ConContact
+    filterset_class = filters.ContactFilterReg
+    template_name = 'csas/csas_filter_newfoundland_labrador.html'
+
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+
+
+class ContactListGF(CsasListCommon):
+    key = 'con'
+    title = _('Gulf Region Contact List')
+    model = models.ConContact
+    filterset_class = filters.ContactFilterReg
+    template_name = 'csas/csas_filter_gulf.html'
+
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+
+
+class ContactListQB(CsasListCommon):
+    key = 'con'
+    title = _('Quebec Region Contact List')
+    model = models.ConContact
+    filterset_class = filters.ContactFilterReg
+    template_name = 'csas/csas_filter_quebec.html'
+
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+
+
+class ContactListAC(CsasListCommon):
+    key = 'con'
+    title = _('Arctic Region Contact List')
+    model = models.ConContact
+    filterset_class = filters.ContactFilterReg
+    template_name = 'csas/csas_filter_arctic.html'
+
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+
+
+class ContactListOP(CsasListCommon):
+    key = 'con'
+    title = _('Ontario & Prairie Region Contact List')
+    model = models.ConContact
+    filterset_class = filters.ContactFilterReg
+    template_name = 'csas/csas_filter_ontario_prairie.html'
+
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+
+
+class ContactListPC(CsasListCommon):
+    key = 'con'
+    title = _('Pacific Region Contact List')
+    model = models.ConContact
+    filterset_class = filters.ContactFilterReg
+    template_name = 'csas/csas_filter_pacific.html'
 
     fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
 
@@ -475,6 +695,7 @@ class MeetingEntry(CsasCreateCommon):
     title = _('New Meeting Details Entry')
     model = models.MetMeeting
     form_class = forms.MeetingForm
+    template_name = "csas/csas_entry_meeting.html"
 
     def get_success_url(self):
         if 'pop' in self.kwargs:
@@ -530,6 +751,8 @@ class MeetingEntryOMCosts(CsasCreateCommon):
     title = _('New Meeting O&M Costs Entry')
     model = models.MocMeetingOMCosts
     form_class = forms.MeetingFormOMCosts
+
+    template_name = "csas/csas_entry_om.html"
 
     def get_initial(self):
         initial = super().get_initial()
@@ -636,12 +859,72 @@ class MeetingList(CsasListCommon):
     fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
 
 
-class MeetingListReg(CsasListCommon):
+class MeetingListMA(CsasListCommon):
     key = 'met'
     title = _('Maritimes Region Meeting List')
     model = models.MetMeeting
     filterset_class = filters.MeetingFilterReg
-    template_name = "csas/csas_filter_regs.html"
+    template_name = "csas/csas_filter_maritimes.html"
+
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+
+
+class MeetingListNL(CsasListCommon):
+    key = 'met'
+    title = _('Newfoundland & Labrador Region Meeting List')
+    model = models.MetMeeting
+    filterset_class = filters.MeetingFilterReg
+    template_name = "csas/csas_filter_newfoundland_labrador.html"
+
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+
+
+class MeetingListGF(CsasListCommon):
+    key = 'met'
+    title = _('Gulf Region Meeting List')
+    model = models.MetMeeting
+    filterset_class = filters.MeetingFilterReg
+    template_name = "csas/csas_filter_gulf.html"
+
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+
+
+class MeetingListQB(CsasListCommon):
+    key = 'met'
+    title = _('Quebec Region Meeting List')
+    model = models.MetMeeting
+    filterset_class = filters.MeetingFilterReg
+    template_name = "csas/csas_filter_quebec.html"
+
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+
+
+class MeetingListAC(CsasListCommon):
+    key = 'met'
+    title = _('Arctic Region Meeting List')
+    model = models.MetMeeting
+    filterset_class = filters.MeetingFilterReg
+    template_name = "csas/csas_filter_arctic.html"
+
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+
+
+class MeetingListOP(CsasListCommon):
+    key = 'met'
+    title = _('Ontario & Prairie Region Meeting List')
+    model = models.MetMeeting
+    filterset_class = filters.MeetingFilterReg
+    template_name = "csas/csas_filter_ontario_prairie.html"
+
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+
+
+class MeetingListPC(CsasListCommon):
+    key = 'met'
+    title = _('Pacific Region Meeting List')
+    model = models.MetMeeting
+    filterset_class = filters.MeetingFilterReg
+    template_name = "csas/csas_filter_pacific.html"
 
     fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
 
@@ -857,12 +1140,72 @@ class PublicationList(CsasListCommon):
     fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
 
 
-class PublicationListReg(CsasListCommon):
+class PublicationListMA(CsasListCommon):
     key = 'pub'
     title = _('Maritimes Region Publication List')
     model = models.PubPublication
     filterset_class = filters.PublicationFilterReg
-    template_name = "csas/csas_filter_regs.html"
+    template_name = "csas/csas_filter_maritimes.html"
+
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
+
+
+class PublicationListNL(CsasListCommon):
+    key = 'pub'
+    title = _('Newfoundland & Labrador Region Publication List')
+    model = models.PubPublication
+    filterset_class = filters.PublicationFilterReg
+    template_name = "csas/csas_filter_newfoundland_labrador.html"
+
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
+
+
+class PublicationListGF(CsasListCommon):
+    key = 'pub'
+    title = _('Gulf Region Publication List')
+    model = models.PubPublication
+    filterset_class = filters.PublicationFilterReg
+    template_name = "csas/csas_filter_gulf.html"
+
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
+
+
+class PublicationListQB(CsasListCommon):
+    key = 'pub'
+    title = _('Quebec Region Publication List')
+    model = models.PubPublication
+    filterset_class = filters.PublicationFilterReg
+    template_name = "csas/csas_filter_quebec.html"
+
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
+
+
+class PublicationListAC(CsasListCommon):
+    key = 'pub'
+    title = _('Arctic Region Publication List')
+    model = models.PubPublication
+    filterset_class = filters.PublicationFilterReg
+    template_name = "csas/csas_filter_arctic.html"
+
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
+
+
+class PublicationListOP(CsasListCommon):
+    key = 'pub'
+    title = _('Ontario & Prairie Region Publication List')
+    model = models.PubPublication
+    filterset_class = filters.PublicationFilterReg
+    template_name = "csas/csas_filter_ontario_prairie.html"
+
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
+
+
+class PublicationListPC(CsasListCommon):
+    key = 'pub'
+    title = _('Pacific Region Publication List')
+    model = models.PubPublication
+    filterset_class = filters.PublicationFilterReg
+    template_name = "csas/csas_filter_pacific.html"
 
     fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
 

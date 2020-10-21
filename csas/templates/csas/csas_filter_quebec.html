@@ -11,12 +11,15 @@
 
 {% block body %}
 
+<<<<<<< HEAD
 <style>
     {# tr:nth-child(even){ #}
     {#     background-color: #dddddd; #}
     {# } #}
 </style>
 
+=======
+>>>>>>> c4fea7763709eb4a74e1d4435afded41692e482b
 <div class="container-fluid mt-1" >
     <div class="row mt-2 pt-1">
         <div class="container-fluid card border border-dark text-center">
@@ -102,6 +105,8 @@
                 <tbody>
                     {% for obj in filter.qs %}
                         <tr>
+                            {% if obj.region|slugify == 'quebec' %}    {# ===== starting Regional List ===== #}
+
                             {% for field in fields %}
                                 <td>{% get_field_value obj field %}</td>
                             {% endfor %}
@@ -224,15 +229,8 @@
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:update_url obj.pk %}"
                                            title="{% trans 'Update' %}">{% trans 'Update' %}</a>
-
-                                        {% if obj.req_status %}
-                                            <a class="btn btn-secondary btn-sm"
-                                               href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">
-                                               {% trans 'Status' %}</a>
-                                        {% else %}
-                                            <a class="btn btn-outline-primary btn-sm"> {% trans 'Status' %} </a>
-                                        {% endif %}
-
+                                        <a class="btn btn-secondary btn-sm"
+                                           href="{% url ''|add:'csas:details_req_CSAS' obj.pk %}">{% trans 'Status' %}</a>
                                         <a class="btn btn-secondary btn-sm"
                                            href="{% url ''|add:'csas:create_req_CSAS' %}">{% trans 'Status Update' %}</a>
                                     {% elif key == 'req' and auth %}
@@ -295,6 +293,7 @@
                                 {# {% endif %}                                                                                               #}
 
                             {% endif %}
+                            {% endif %}    {# ===== ending Regional List ===== #}
                         </tr>
                     {% endfor %}
                 </tbody>
