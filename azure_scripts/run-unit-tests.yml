@@ -11,7 +11,7 @@ steps:
 
   - script: |
       # install pre-requisites
-      python3.8 -m pip install --upgrade pip setuptools wheel
+      python3.6 -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
       pip3 install -r requirements.txt
       mkdir media
@@ -21,8 +21,8 @@ steps:
       mkdir media/inventory/temp
       mkdir media/ihub
       mkdir media/ihub/temp
-      python3.8 manage.py collectstatic --no-input
-      python3.8 manage.py migrate
+      python3.6 manage.py collectstatic --no-input
+      python3.6 manage.py migrate
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Install Prerequisites and Run Local Migrations '
 
