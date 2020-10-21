@@ -8,9 +8,14 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install and enable ssh service
-RUN apt-get install openssh \
-     && echo "root:Docker!" | chpasswd
+ENV SSH_PASSWD "root:Docker!"
+RUN apt-get update \
+        && apt-get install -y --no-install-recommends dialog \
+        && apt-get update \
+  && apt-get install -y --no-install-recommends openssh-server \
+  && echo "$SSH_PASSWD" | chpasswd
 COPY sshd_config /etc/ssh/
+
 EXPOSE 80 2222
 
 # install dependencies
