@@ -29,6 +29,8 @@ def in_admin_group(user):
     """give a list of groups that would be allowed to access this form"""
     if user.id:
         if user.groups.filter(name='travel_admin').count() != 0 or \
+                user.groups.filter(name='projects_admin').count() or \
+                user.groups.filter(name='scifi_admin').count() or \
                 user.groups.filter(name='travel_adm_admin').count():
             return True
 
@@ -160,10 +162,11 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
         if self.h1:
             return self.h1
         else:
-            return gettext("Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
-                self.model._meta.verbose_name,
-                self.get_object(),
-            ))
+            return gettext(
+                "Are you sure you want to delete the following {}? <br>  <span class='red-font'>{}</span>".format(
+                    self.model._meta.verbose_name,
+                    self.get_object(),
+                ))
 
     def get_submit_text(self):
         if self.submit_text:
@@ -190,7 +193,8 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
                 try:
                     my_list.append(
                         {
-                            "title": getattr(type(self.get_object()), related_name).rel.related_model._meta.verbose_name_plural,
+                            "title": getattr(type(self.get_object()),
+                                             related_name).rel.related_model._meta.verbose_name_plural,
                             "qs": getattr(self.get_object(), related_name).all()
                         }
                     )
@@ -254,6 +258,7 @@ class CommonPopoutDeleteView(CommonPopoutFormMixin, CommonDeleteView):
         context['height'] = self.height
         return context
 
+
 class CommonPopoutCreateView(CommonPopoutFormMixin, CommonCreateView):
     template_name = 'shared_models/generic_popout_form.html'
 
@@ -264,6 +269,7 @@ class CommonPopoutCreateView(CommonPopoutFormMixin, CommonCreateView):
         context['width'] = self.width
         context['height'] = self.height
         return context
+
 
 class CommonPopoutUpdateView(CommonPopoutFormMixin, UpdateView):
     template_name = 'shared_models/generic_popout_form.html'
@@ -361,7 +367,6 @@ class CommonDetailView(CommonMixin, DetailView):
 
 class CommonPopoutDetailView(CommonPopoutMixin, CommonDetailView):
     template_name = 'shared_models/generic_popout_detail.html'
-
 
 
 class CommonFormsetView(TemplateView, CommonFormMixin):
@@ -470,8 +475,9 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
     template_name = 'shared_models/org_index.html'
-    h1 = "<span class='red-font'><span class='font-weight-bold'>{}:</span> {}</span>".format(gettext_lazy("Warning"), gettext_lazy(
-        "These are shared tables for all of DM Apps."))
+    h1 = "<span class='red-font'><span class='font-weight-bold'>{}:</span> {}</span>".format(gettext_lazy("Warning"),
+                                                                                             gettext_lazy(
+                                                                                                 "These are shared tables for all of DM Apps."))
     h2 = gettext_lazy("Please be careful when editing.")
     active_page_name_crumb = gettext_lazy("DM Apps Shared Settings")
 

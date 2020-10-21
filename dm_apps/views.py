@@ -50,18 +50,33 @@ def get_app_dict(request):
         except NoReverseMatch:
             pass
 
-    try:
+    # The travel app is a bit special...
+    # if we are going to fake the travel app, we add it no matter what
+    if settings.FAKE_TRAVEL_APP:
         app_dict["travel"] = {
             "title": _("Conference and Travel Management System"),
             "description": _("Management tool to facilitate regional and national travel pre-approvals."),
             "status": "production",
             "access": "permission-required",
-            "url": reverse('travel:index'),
+            "url": "https://sci-zone.dfo-mpo.gc.ca/travel-plans/",
             "icon_path": 'img/icons/paper-plane.svg',
             "region": "all",
+            "fake": True,
         }
-    except NoReverseMatch:
-        pass
+    # otherwise, we can just follow the normal process
+    else:
+        try:
+            app_dict["travel"] = {
+                "title": _("Conference and Travel Management System"),
+                "description": _("Management tool to facilitate regional and national travel pre-approvals."),
+                "status": "production",
+                "access": "permission-required",
+                "url": reverse('travel:index'),
+                "icon_path": 'img/icons/paper-plane.svg',
+                "region": "all",
+            }
+        except NoReverseMatch:
+            pass
 
     try:
         app_dict["projects"] = {
@@ -349,19 +364,6 @@ def get_app_dict(request):
     # except NoReverseMatch:
     #     pass
 
-    try:
-        app_dict["engagements"] = {
-            "title": _("Engagement Tracking"),
-            "description": _("Stakeholder engagement tracking platform"),
-            "status": "Development",
-            "access": "permission-required",
-            "url": reverse('engagements:home'),
-            "icon_path": "img/icons/network.svg",
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
     return OrderedDict(app_dict)
 
 
@@ -394,4 +396,3 @@ class IndexView(TemplateView):
         if settings.DEVOPS_BUILD_NUMBER and settings.DEVOPS_BUILD_NUMBER != "":
             context["build_number"] = settings.DEVOPS_BUILD_NUMBER
         return context
-
