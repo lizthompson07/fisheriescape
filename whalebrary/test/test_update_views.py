@@ -10,6 +10,9 @@ from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
 from .. import views
 from .. import models
 
+# Example how to run with keyword tags
+# python manage.py test whalebrary.test --tag transaction_new
+
 
 class TestItemUpdateView(CommonTest):
     def setUp(self):

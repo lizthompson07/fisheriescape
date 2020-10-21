@@ -9,6 +9,9 @@ from whalebrary.test import FactoryFloor
 from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
 from .. import views
 
+# Example how to run with keyword tags
+# python manage.py test whalebrary.test --tag transaction_new
+
 
 class TestItemDetailView(CommonTest):
     def setUp(self):
@@ -32,7 +35,6 @@ class TestItemDetailView(CommonTest):
         context_vars = [
             "field_list",
             "random_qty",
-            "qty_field_list",
             "oh_qty_field_list",
             "random_sup",
             "sup_field_list",
@@ -43,6 +45,32 @@ class TestItemDetailView(CommonTest):
             "random_file",
             "file_field_list",
 
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+class TestLocationDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.LocationFactory()
+        self.test_url = reverse_lazy('whalebrary:location_detail', args=[self.instance.pk, ])
+        self.expected_template = 'whalebrary/location_detail.html'
+        self.user = self.get_and_login_user(in_group="whalebrary_admin")
+
+    @tag("Location", "location_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.LocationDetailView, CommonDetailView)
+        self.assert_inheritance(views.LocationDetailView, views.WhalebraryAdminAccessRequired)
+
+    @tag("Location", "location_detail", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Location", "location_detail", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
@@ -70,3 +98,109 @@ class TestTransactionDetailView(CommonTest):
             "field_list",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+class TestOrderDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.OrderFactory()
+        self.test_url = reverse_lazy('whalebrary:order_detail', args=[self.instance.pk, ])
+        self.expected_template = 'whalebrary/order_detail.html'
+        self.user = self.get_and_login_user()
+
+    @tag("Order", "order_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.OrderDetailView, CommonDetailView)
+        self.assert_inheritance(views.OrderDetailView, views.WhalebraryAccessRequired)
+
+    @tag("Order", "order_detail", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Order", "order_detail", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+class TestPersonnelDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.PersonnelFactory()
+        self.test_url = reverse_lazy('whalebrary:personnel_detail', args=[self.instance.pk, ])
+        self.expected_template = 'whalebrary/personnel_detail.html'
+        self.user = self.get_and_login_user(in_group="whalebrary_admin")
+
+    @tag("Personnel", "personnel_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.PersonnelDetailView, CommonDetailView)
+        self.assert_inheritance(views.PersonnelDetailView, views.WhalebraryAdminAccessRequired)
+
+    @tag("Personnel", "personnel_detail", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Personnel", "personnel_detail", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
+class TestSupplierDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SupplierFactory()
+        self.test_url = reverse_lazy('whalebrary:supplier_detail', args=[self.instance.pk, ])
+        self.expected_template = 'whalebrary/supplier_detail.html'
+        self.user = self.get_and_login_user()
+
+    @tag("Supplier", "supplier_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SupplierDetailView, CommonDetailView)
+        self.assert_inheritance(views.SupplierDetailView, views.WhalebraryAccessRequired)
+
+    @tag("Supplier", "supplier_detail", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Supplier", "supplier_detail", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+# TODO -- ask David about this fail - related to translation?
+class TestIncidentDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.IncidentFactory()
+        self.test_url = reverse_lazy('whalebrary:incident_detail', args=[self.instance.pk, ])
+        self.expected_template = 'whalebrary/incident_detail.html'
+        self.user = self.get_and_login_user()
+
+    @tag("Incident", "incident_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.IncidentDetailView, CommonDetailView)
+        self.assert_inheritance(views.IncidentDetailView, views.WhalebraryAccessRequired)
+
+    @tag("Incident", "incident_detail", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Incident", "incident_detail", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
