@@ -31,7 +31,7 @@ RUN mkdir media/inventory/temp
 
 COPY . /opt/services/djangoapp/src
 
-EXPOSE 80 8000 2222
+EXPOSE 8000 2222
 
 COPY ./azure_scripts/init.sh /usr/local/bin/
 	
