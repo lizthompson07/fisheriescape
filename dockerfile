@@ -14,9 +14,7 @@ RUN apt-get update \
         && apt-get update \
   && apt-get install -y --no-install-recommends openssh-server \
   && echo "$SSH_PASSWD" | chpasswd
-COPY sshd_config /etc/ssh/
-
-EXPOSE 80 2222
+COPY ./sshd_config /etc/ssh/
 
 # install dependencies
 RUN python -m pip install --upgrade pip setuptools wheel
@@ -33,7 +31,7 @@ RUN mkdir media/inventory/temp
 
 COPY . /opt/services/djangoapp/src
 
-EXPOSE 8000
+EXPOSE 80 8000 2222
 
 COPY ./azure_scripts/init.sh /usr/local/bin/
 	
