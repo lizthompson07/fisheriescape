@@ -364,19 +364,6 @@ def get_app_dict(request):
     # except NoReverseMatch:
     #     pass
 
-    try:
-        app_dict["engagements"] = {
-            "title": _("Engagement Tracking"),
-            "description": _("Stakeholder engagement tracking platform"),
-            "status": "Development",
-            "access": "permission-required",
-            "url": reverse('engagements:home'),
-            "icon_path": "img/icons/network.svg",
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
     return OrderedDict(app_dict)
 
 
@@ -409,4 +396,3 @@ class IndexView(TemplateView):
         if settings.DEVOPS_BUILD_NUMBER and settings.DEVOPS_BUILD_NUMBER != "":
             context["build_number"] = settings.DEVOPS_BUILD_NUMBER
         return context
-

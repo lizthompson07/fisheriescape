@@ -7,9 +7,15 @@ WORKDIR /opt/services/djangoapp/src
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+# install and enable ssh service
+RUN apk add openssh \
+     && echo "root:Docker!" | chpasswd
+COPY sshd_config /etc/ssh/
+EXPOSE 80 2222
+
 # install dependencies
 RUN python -m pip install --upgrade pip setuptools wheel
-#RUN apk add libmysqlclient-dev
+
 
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
