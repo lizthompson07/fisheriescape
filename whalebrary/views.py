@@ -568,9 +568,9 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
 
 
 # TODO change this to a lending by location popout view/form
-class TransactionUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
-    model = models.Transaction
-    form_class = forms.TransactionForm1
+# class TransactionUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
+#     model = models.Transaction
+#     form_class = forms.TransactionForm1
 
 
 class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):

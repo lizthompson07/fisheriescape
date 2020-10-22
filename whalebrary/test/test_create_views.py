@@ -141,13 +141,13 @@ class TestPersonnelCreateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
 
-#TODO find out about error - same as for Order (has to do with args)
+#TODO find out about error - same as for Order (has to do with args/kwargs?)
 class TestSupplierCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SupplierFactory()
         self.test_url = reverse_lazy('whalebrary:supplier_new')
-        self.test_url2 = reverse_lazy('whalebrary:supplier_new', args=[self.instance.pk, ])
+        self.test_url2 = reverse_lazy('whalebrary:supplier_new', kwargs={"pk": 0})
         self.expected_template = 'whalebrary/form.html'
         self.expected_template2 = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="whalebrary_edit")

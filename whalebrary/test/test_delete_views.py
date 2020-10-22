@@ -93,12 +93,12 @@ class TestTransactionDeleteView(CommonTest):
         self.assertEqual(models.Transaction.objects.filter(pk=self.instance.pk).count(), 0)
 
 
-#TODO Ask David about how to do popout view
+#TODO Ask David about how to do popout view -- added kwargs and seems to work, should these be static like this?
 class TestTransactionDeletePopoutView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.TransactionFactory()
-        self.test_url = reverse_lazy('whalebrary:transaction_delete', kwargs={"pk": self.instance.pk, "pop": self.instance.pop})
+        self.test_url = reverse_lazy('whalebrary:transaction_delete', kwargs={"pk": 1, "pop": 1})
         self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalebrary_edit")
 
@@ -174,13 +174,13 @@ class TestOrderDeleteView(CommonTest):
         # for delete views...
         self.assertEqual(models.Order.objects.filter(pk=self.instance.pk).count(), 0)
 
-# TODO fix popout test
+# TODO fix popout test -- i think fixed with kwargs?
 class TestOrderDeletePopoutView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.OrderFactory()
-        self.test_url = reverse_lazy('whalebrary:order_delete', args=[self.instance.pk, ])
-        self.expected_template = 'whalebrary/generic_.html'
+        self.test_url = reverse_lazy('whalebrary:order_delete', kwargs={"pk": 1, "pop": 1})
+        self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalebrary_edit")
 
     @tag("OrderDelete", "order_delete_pop", "view")
@@ -256,13 +256,13 @@ class TestSupplierDeleteView(CommonTest):
         self.assertEqual(models.Supplier.objects.filter(pk=self.instance.pk).count(), 0)
 
 
-#TODO fix popout tests
+#TODO fix popout tests - fixed I think with kwargs
 class TestSupplierDeletePopoutView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.instance = FactoryFloor.SupplierDeleteFactory()
-        self.test_url = reverse_lazy('whalebrary:supplier_delete', args=[self.instance.pk, ])
-        self.expected_template = 'whalebrary/generic_.html'
+        self.instance = FactoryFloor.SupplierFactory()
+        self.test_url = reverse_lazy('whalebrary:supplier_delete', kwargs={"pk": 1, "pop": 1})
+        self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
         self.user = self.get_and_login_user(in_group="whalebrary_edit")
 
     @tag("SupplierDelete", "supplier_delete_pop", "view")
