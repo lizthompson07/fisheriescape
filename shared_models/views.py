@@ -1,5 +1,6 @@
 from abc import ABC
 
+from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy, gettext
 from django.contrib import messages
@@ -12,6 +13,8 @@ from django.views.generic.detail import SingleObjectMixin, DetailView
 from django_filters.views import FilterView
 
 ###
+from dm_apps.utils import custom_send_mail
+from . import emails
 from . import models
 from . import forms
 from .mixins import CommonMixin, CommonFormMixin, CommonListMixin, CommonPopoutFormMixin, CommonPopoutMixin
@@ -842,3 +845,49 @@ class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
 #             "trip requests": getattr(self.get_object(), "trip_requests").all(),
 #         }
 #         return context
+
+
+
+# USER #
+########
+
+# this is a complicated cookie. Therefore we will not use a model view or model form and handle the clean data manually.
+class UserCreateView(LoginRequiredMixin, CommonPopoutFormView):
+    form_class = forms.UserCreateForm
+    h1 = gettext_lazy("Create a New DM Apps User")
+    h3 = "<span class='red-font'>{}</span>".format(
+        gettext_lazy("Please use extreme vigilance with this form."),
+    )
+
+    def form_valid(self, form):
+        # retrieve data from form
+        first_name = form.cleaned_data['first_name']
+        last_name = form.cleaned_data['last_name']
+        email = form.cleaned_data['email1']
+
+        # create a new user
+        my_user = User.objects.create(
+            username=email,
+            first_name=first_name,
+            last_name=last_name,
+            password="pbkdf2_sha256$120000$ctoBiOUIJMD1$DWVtEKBlDXXHKfy/0wKCpcIDYjRrKfV/wpYMHKVrasw=",
+            is_active=1,
+            email=email,
+        )
+
+        email = emails.UserCreationEmail(my_user, self.request)
+
+        # send the email object
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
+        messages.success(self.request, gettext("The user '{}' was created and an email was sent".format(my_user.get_full_name())))
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+

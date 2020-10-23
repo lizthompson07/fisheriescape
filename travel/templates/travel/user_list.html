@@ -1,0 +1,113 @@
+{% extends "travel/list.html" %}
+{% load static %}
+{% load i18n %}
+{% load humanize %}
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load el_pagination_tags %}
+
+{% block title_area %}
+  {{ block.super }}
+  <h3>
+    {% if view.kwargs.travel %}
+      Click <a href="{% url 'travel:user_list' %}">HERE</a> to show ALL users
+    {% else %}
+      Click <a href="{% url 'travel:user_list' 1 %}">HERE</a> to show only Admin & ADM Admin users
+    {% endif %}
+  </h3>
+{% endblock %}
+
+
+{% block table_header %}
+  <div class="row">
+    <div class="col">
+      {% trans "(click on a header to sort table)" %}
+    </div>
+    <div class="col" style="text-align: center">
+      {% if paginate_by %}
+        {% show_pages %}
+      {% endif %}
+      {% if filter %}
+        {% if filter_list %}
+          <em>{% trans 'displaying' %} {{ filter_list.count }} {% trans 'of' %} {{ filter.qs.count }}</em>
+        {% else %}
+          <em>{% trans 'displaying' %} {{ filter.qs.count }} {% trans 'of' %} {{ object_list.count }}</em>
+        {% endif %}
+      {% else %}
+        <em>{% trans 'displaying' %} {{ object_list.count }} {% trans "records." %}</em>
+      {% endif %}
+    </div>
+    {% if new_object_url %}
+      {% trans 'New' as default_new_btn_text %}
+      <div class="col" style="text-align: right; padding-bottom: 10px">
+        <a href="#" pop-href="{{ new_object_url }}" class="btn btn-sm btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block table %}
+  <table class="table table-sm {% if row_object_url_name %}table-hover{% endif %} sortable">
+    <thead>
+    {% block head %}
+      {% for field in field_list %}
+        <th class="{{ field.class }}" {% if field.width %}style="width: {{ field.width }}"{% endif %}>
+          {% get_verbose_label random_object field.name %}
+        </th>
+      {% endfor %}
+      <th class="text-center">
+        {% trans "Travel App Administrator" %}
+      </th>
+      <th class="text-center">
+        {% trans "Travel App ADM Administrator" %}
+      </th>
+
+    {% endblock %}
+    </thead>
+
+    <tbody>
+
+    {% for object in list %}
+
+      {% url row_object_url_name object.id as my_url %}
+
+      <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %} id="user_{{ object.id }}">
+
+        {% url 'travel:toggle_user' object.id "admin" as admin_url %}
+        {% url 'travel:toggle_user' object.id "adm_admin" as adm_admin_url %}
+
+        {% for field in field_list %}
+
+          <td class="{{ field.class }}">
+            {% if "last_login" in field.name %}
+              {{ object.last_login|naturaltime|nz }}
+            {% else %}
+              {% get_field_value object field.name %}
+            {% endif %}
+          </td>
+        {% endfor %}
+        <td class="text-center">
+          {% if admin_group in object.groups.all %}
+            <a class="btn btn-sm btn-success" href="{{ admin_url }}">Yes</a>
+          {% else %}
+            <a class="btn btn-sm btn-danger" href="{{ admin_url }}">No</a>
+          {% endif %}
+        </td>
+        <td class="text-center">
+          {% if adm_admin_group in object.groups.all %}
+            <a class="btn btn-sm btn-success" href="{{ adm_admin_url }}">Yes</a>
+          {% else %}
+            <a class="btn btn-sm btn-danger" href="{{ adm_admin_url }}">No</a>
+          {% endif %}
+        </td>
+
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
+
+
+
+
