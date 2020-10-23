@@ -11,7 +11,7 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:index' %}">Home</a></li>
             <li class="breadcrumb-item active" aria-current="page">
                 Cruise List
             </li>
@@ -51,7 +51,7 @@
                 <em>displaying {{ filter.qs.count }} of {{ object_list.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'oceanography:mission_new' %}" class="btn btn-sm btn-primary">New</a>
+                <a href="{% url 'cruises:mission_new' %}" class="btn btn-sm btn-primary">New</a>
             </div>
         </div>
         <table class="table table-sm table-hover sortable">
@@ -64,7 +64,7 @@
             </thead>
             <tbody>
             {% for object in filter.qs %}
-                {% url 'oceanography:mission_detail' object.id as my_url %}
+                {% url 'cruises:mission_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
 
                     {% for field in field_list %}
@@ -89,8 +89,8 @@
 
     {#    <nav aria-label="breadcrumb">#}
     {#        <ol class="breadcrumb">#}
-    {#            <li class="breadcrumb-item"><a href="{% url 'oceanography:index' %}">Home</a></li>#}
-    {#            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_year_list' %}">Year Selection</a></li>#}
+    {#            <li class="breadcrumb-item"><a href="{% url 'cruises:index' %}">Home</a></li>#}
+    {#            <li class="breadcrumb-item"><a href="{% url 'cruises:mission_year_list' %}">Year Selection</a></li>#}
     {#            <li class="breadcrumb-item active" aria-current="page">Missions</li>#}
     {#        </ol>#}
     {#    </nav>#}
@@ -106,7 +106,7 @@
     {#            <em>displaying all {{ object_list.count }} records</em>#}
     {#        </div>#}
     {#        <div class="col" style="text-align: right; padding-bottom: 10px">#}
-    {#            <a href="{% url 'oceanography:mission_new' view.kwargs.year %}" class="btn btn-sm btn-primary">New</a>#}
+    {#            <a href="{% url 'cruises:mission_new' view.kwargs.year %}" class="btn btn-sm btn-primary">New</a>#}
     {#        </div>#}
     {#    </div>#}
     {#    <table class="table table-hover table-sm sortable">#}
@@ -122,7 +122,7 @@
     {#        <tbody>#}
     {##}
     {#        {% for m in object_list %}#}
-    {#            <tr href="{% url "oceanography:mission_detail" m.id %}">#}
+    {#            <tr href="{% url "cruises:mission_detail" m.id %}">#}
     {#                <td><a>{{ m.mission_number }}</a></td>#}
     {#                <td>{{ m.institute.abbrev }}</td>#}
     {#                <td>{{ m.meds_id|nz:"" }}</td>#}

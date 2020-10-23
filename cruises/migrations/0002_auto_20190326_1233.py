@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('oceanography', '0001_initial'),
+        ('cruises', '0001_initial'),
     ]
 
     operations = [

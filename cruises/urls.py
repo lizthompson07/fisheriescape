@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from . import views
 
-app_name = 'oceanography'
+app_name = 'cruises'
 
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name='index'),

@@ -8,7 +8,7 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:index' %}">Home</a></li>
             <li class="breadcrumb-item active" aria-current="page">Year Selection</li>
         </ol>
     </nav>
@@ -27,7 +27,7 @@
             <tbody>
 
             {% for year in season_list %}
-                <tr href="{% url "oceanography:mission_list" year %}">
+                <tr href="{% url "cruises:mission_list" year %}">
                     <td><a>{{ year }}</a></td>
                 </tr>
             {% endfor %}

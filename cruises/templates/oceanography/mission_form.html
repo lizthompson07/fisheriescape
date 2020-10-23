@@ -5,10 +5,10 @@
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_list' %}">Cruise List</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:mission_list' %}">Cruise List</a></li>
             {% if object %}
-                <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_detail' object.id %}">{{ object }}</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'cruises:mission_detail' object.id %}">{{ object }}</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Edit</li>
             {% else %}
                 <li class="breadcrumb-item active" aria-current="page">New</li>
@@ -29,11 +29,11 @@
                 {% if editable %}
                     <input type="submit" class="btn btn-primary" value="Submit">
                 {% else %}
-                    <a href="{% url "oceanography:mission_edit" object.id %}" class="btn btn-warning">Edit</a>
-                    <a href="{% url "oceanography:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>
-                    <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-info">Export CSV</a>
+                    <a href="{% url "cruises:mission_edit" object.id %}" class="btn btn-warning">Edit</a>
+                    <a href="{% url "cruises:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>
+                    <a href="{% url "cruises:mission_export_csv" object.id %}" class="btn btn-info">Export CSV</a>
                 {% endif %}
-                <a href="{% url "oceanography:mission_list"  %}" class="btn btn-secondary">Back</a>
+                <a href="{% url "cruises:mission_list"  %}" class="btn btn-secondary">Back</a>
             </div>
             <br><br>
 

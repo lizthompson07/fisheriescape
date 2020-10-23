@@ -17,8 +17,8 @@
     </style>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_list' %}">Cruise List</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:mission_list' %}">Cruise List</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
     </nav>
@@ -27,14 +27,14 @@
         <h1>{{ object }}</h1>
         <div class="btn-group">
             {% if user.is_superuser %}
-                <a href="{% url "oceanography:mission_edit" object.id %}" class="btn btn-warning">Edit</a>
+                <a href="{% url "cruises:mission_edit" object.id %}" class="btn btn-warning">Edit</a>
             {% else %}
-                <a href="{% url "oceanography:mission_edit" object.id %}" class="btn btn-warning disabled">Edit</a>
+                <a href="{% url "cruises:mission_edit" object.id %}" class="btn btn-warning disabled">Edit</a>
 
             {% endif %}
 
 
-            <a href="{% url "oceanography:mission_list" %}" class="btn btn-dark">Back</a>
+            <a href="{% url "cruises:mission_list" %}" class="btn btn-dark">Back</a>
         </div>
         <br><br>
 
@@ -63,14 +63,14 @@
                             <h3>Associated Files</h3>
                         </div>
                         <div class="neighbours">
-                            <a href="{% url "oceanography:file_create" object.id %}" class="btn btn-info">Add a File</a>
+                            <a href="{% url "cruises:file_create" object.id %}" class="btn btn-info">Add a File</a>
                         </div>
                     </div>
 
                     <ul>
                         {% for file in object.files.all %}
                             <li>
-                                <a href="{% url "oceanography:file_detail" file.id %}">{{ file.caption }}</a> (uploaded
+                                <a href="{% url "cruises:file_detail" file.id %}">{{ file.caption }}</a> (uploaded
                                 on: {{ file.date_created|date:"F d Y" }})
                             </li>
                         {% empty %}
@@ -87,8 +87,8 @@
                         </div>
                         {% if object.bottles.count %}
                             <div class="neighbours btn-group">
-                                <a href="{% url "oceanography:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>
-                                <a href="{% url "oceanography:mission_export_csv" object.id %}" class="btn btn-success">Export Bottle
+                                <a href="{% url "cruises:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>
+                                <a href="{% url "cruises:mission_export_csv" object.id %}" class="btn btn-success">Export Bottle
                                     CSV</a>
                             </div>
                         {% endif %}
@@ -110,7 +110,7 @@
             var locations = [
                 {% for bottle in object.bottles.all %}
                     {% if bottle.lat_DDdd and bottle.long_DDdd %}
-                        ['<a href="{% url 'oceanography:bottle_detail' bottle.id %}">Bottle {{bottle.bottle_uid}}</a>', {{bottle.lat_DDdd}}, {{bottle.long_DDdd}}, '{% static "/img/icons/milk_bottle.png" %}'],
+                        ['<a href="{% url 'cruises:bottle_detail' bottle.id %}">Bottle {{bottle.bottle_uid}}</a>', {{bottle.lat_DDdd}}, {{bottle.long_DDdd}}, '{% static "/img/icons/milk_bottle.png" %}'],
                     {% endif %}
                 {% endfor %}
             ];

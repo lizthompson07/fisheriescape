@@ -3,7 +3,7 @@
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import oceanography.models
+import cruises.models
 
 
 class Migration(migrations.Migration):
@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=255)),
                 ('description', models.TextField(blank=True, null=True)),
                 ('source', models.TextField(blank=True, null=True)),
-                ('file', models.FileField(blank=True, null=True, upload_to=oceanography.models.img_file_name)),
+                ('file', models.FileField(blank=True, null=True, upload_to=cruises.models.img_file_name)),
                 ('date_modified', models.DateTimeField(default=django.utils.timezone.now)),
             ],
         ),
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('caption', models.CharField(max_length=255)),
-                ('file', models.FileField(upload_to=oceanography.models.file_directory_path)),
+                ('file', models.FileField(upload_to=cruises.models.file_directory_path)),
                 ('date_created', models.DateTimeField(default=django.utils.timezone.now)),
             ],
             options={

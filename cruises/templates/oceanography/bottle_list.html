@@ -15,10 +15,10 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_year_list' %}">Year Selection</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_list' mission.season %}">Missions</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'oceanography:mission_detail' mission.id %}">{{mission}}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:mission_year_list' %}">Year Selection</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:mission_list' mission.season %}">Missions</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:mission_detail' mission.id %}">{{mission}}</a></li>
             <li class="breadcrumb-item active" aria-current="page">Bottles</li>
         </ol>
     </nav>
@@ -61,7 +61,7 @@
                 <tbody>
 
                 {% for b in object_list %}
-                    <tr href="{% url "oceanography:bottle_detail" b.id %}">
+                    <tr href="{% url "cruises:bottle_detail" b.id %}">
                         <td>{{ forloop.counter }}</td>
                         <td>{{ b.bottle_uid }}</td>
                         <td>{{ b.station|nz:"" }}</td>

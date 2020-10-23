@@ -17,7 +17,7 @@
     {% csrf_token %}
     <p>
       <button type="submit" class="btn btn-lg btn-danger">Delete</button>
-      <a class="btn btn-lg btn-secondary" href="{% url 'oceanography:file_detail' object.id %}">Cancel</a>
+      <a class="btn btn-lg btn-secondary" href="{% url 'cruises:file_detail' object.id %}">Cancel</a>
     </p>
 </form>
 </div>
