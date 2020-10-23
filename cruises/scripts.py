@@ -4,7 +4,7 @@ from django.core import serializers
 from django.core.files import File
 
 from .import models
-
+from shared_models import models as shared_models
 
 
 
@@ -14,7 +14,8 @@ def export_fixtures():
     models_to_export = [
         # models.ReviewerRole,
         # models.HelpText,
-        # shared_models.FiscalYear,
+        shared_models.Institute,
+        shared_models.Vessel,
         # shared_models.Region,
         # shared_models.Branch,
         # shared_models.Division,

@@ -153,52 +153,6 @@ class MissionCreateView(OceanographyAdminRequiredMixin, CreateView):
         return context
 
 
-# BOTTLES #
-###########
-
-class BottleListView(OceanographyAccessRequiredMixin, ListView):
-    template_name = "oceanography/bottle_list.html"
-
-    def get_queryset(self):
-        return models.Bottle.objects.filter(mission=self.kwargs["mission"])
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-
-        context["mission"] = models.Mission.objects.get(id=self.kwargs["mission"])
-        context["bottle"] = models.Bottle.objects.first()
-        return context
-
-
-class BottleDetailView(OceanographyAccessRequiredMixin, UpdateView):
-    template_name = "oceanography/bottle_form.html"
-    model = models.Bottle
-    form_class = forms.BottleForm
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = False
-        return context
-
-
-class BottleUpdateView(OceanographyAdminRequiredMixin, UpdateView):
-    template_name = "oceanography/bottle_form.html"
-    model = models.Bottle
-    form_class = forms.BottleForm
-
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("oceanography:bottle_detail", kwargs={"pk": self.object.id})
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = True
-        return context
-
-
 # CSVs #
 ########
 def export_mission_csv(request, pk):

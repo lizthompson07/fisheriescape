@@ -18,12 +18,6 @@ urlpatterns = [
     path('mission/new/', views.MissionCreateView.as_view(), name='mission_new'),
     path('mission/<int:pk>/export-csv/', views.export_mission_csv, name='mission_export_csv'),
 
-    # BOTTLES #
-    ###########
-    path('missions/<int:mission>/bottles/', views.BottleListView.as_view(), name='bottle_list'),
-    path('bottles/<int:pk>/view/', views.BottleDetailView.as_view(), name='bottle_detail'),
-    path('bottles/<int:pk>/edit/', views.BottleUpdateView.as_view(), name='bottle_edit'),
-
     # FILES #
     #########
     path('mission/<int:mission>/file/new/', views.FileCreateView.as_view(), name='file_create'),

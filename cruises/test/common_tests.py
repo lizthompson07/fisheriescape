@@ -10,5 +10,5 @@ standard_fixtures = [file for file in os.listdir(fixtures_dir)]
 
 
 # here are common tests for Travel. Essentially they will just load the travel fixutres
-class CommonTravelTest(CommonTest):
+class CommonCruisesTest(CommonTest):
     fixtures = standard_fixtures

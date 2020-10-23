@@ -367,7 +367,7 @@ class Vessel(models.Model):
 # snowcrab
 class Cruise(models.Model):
     institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True)
-    mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"))
+    mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"), unique=True)
     mission_name = models.CharField(max_length=255, verbose_name=_("Mission Name"))
     description = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Description"))
     purpose = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Purpose"))
