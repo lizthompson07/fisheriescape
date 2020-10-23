@@ -2580,7 +2580,6 @@ class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
         context = super().get_context_data(**kwargs)
         context["admin_group"] = Group.objects.get(pk=33)
         context["adm_admin_group"] = Group.objects.get(pk=36)
-        context["new_btn_text"] = _("New DM Apps User")
         return context
 
 

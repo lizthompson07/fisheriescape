@@ -18,33 +18,13 @@
   </h3>
 {% endblock %}
 
-
-{% block table_header %}
-  <div class="row">
-    <div class="col">
-      {% trans "(click on a header to sort table)" %}
+{% block new_object_button %}
+  {% if new_object_url %}
+    {% trans 'New' as default_new_btn_text %}
+    <div class="col" style="text-align: right; padding-bottom: 10px">
+      <a href="#" pop-href="{{ new_object_url }}" class="btn btn-sm btn-primary">{% trans "New DM Apps User" %}</a>
     </div>
-    <div class="col" style="text-align: center">
-      {% if paginate_by %}
-        {% show_pages %}
-      {% endif %}
-      {% if filter %}
-        {% if filter_list %}
-          <em>{% trans 'displaying' %} {{ filter_list.count }} {% trans 'of' %} {{ filter.qs.count }}</em>
-        {% else %}
-          <em>{% trans 'displaying' %} {{ filter.qs.count }} {% trans 'of' %} {{ object_list.count }}</em>
-        {% endif %}
-      {% else %}
-        <em>{% trans 'displaying' %} {{ object_list.count }} {% trans "records." %}</em>
-      {% endif %}
-    </div>
-    {% if new_object_url %}
-      {% trans 'New' as default_new_btn_text %}
-      <div class="col" style="text-align: right; padding-bottom: 10px">
-        <a href="#" pop-href="{{ new_object_url }}" class="btn btn-sm btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
-      </div>
-    {% endif %}
-  </div>
+  {% endif %}
 {% endblock %}
 
 {% block table %}

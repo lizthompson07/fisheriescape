@@ -105,8 +105,8 @@ class Region(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['name', ]
-        verbose_name = _("Region / NCR Sector")
-        verbose_name_plural = _("Regions / NCR Sectors")
+        verbose_name = _("Region - Sector (NCR)")
+        verbose_name_plural = _("Regions - Sectors (NCR)")
 
 
 class Branch(SimpleLookupWithUUID):
@@ -126,8 +126,8 @@ class Branch(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['name', ]
-        verbose_name = _("Branch / NCR Directorate")
-        verbose_name_plural = _("Branches / NCR Directorates")
+        verbose_name = _("Branch - Directorate (NCR)")
+        verbose_name_plural = _("Branches - Directorates (NCR)")
 
 
 class Division(SimpleLookupWithUUID):
@@ -146,8 +146,8 @@ class Division(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['name', ]
-        verbose_name = _("Division / NCR Branch")
-        verbose_name_plural = _("Divisions / NCR Branches")
+        verbose_name = _("Division - Branch (NCR)")
+        verbose_name_plural = _("Divisions - Branches (NCR)")
 
 
 # CONNECTED APPS: tickets, travel, projects, inventory
@@ -163,8 +163,8 @@ class Section(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
-        verbose_name = _("Section / NCR Team")
-        verbose_name_plural = _("Sections / NCR Teams")
+        verbose_name = _("Section - Team (NCR)")
+        verbose_name_plural = _("Sections - Teams (NCR)")
 
     @property
     def full_name(self):
