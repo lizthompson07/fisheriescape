@@ -1,0 +1,210 @@
+<em>
+    *** un message en français suivra
+</em>
+<br><br>
+<p>
+    A new incident has been logged with the following details:
+</p>
+<table>
+    <tr>
+        <td><b>Reference number:</b></td>
+        <td>{{ object.id }}</td>
+    </tr>
+    <tr>
+        <td><b>Incident name:</b></td>
+        <td>{{ object.name }}</td>
+    </tr>
+    <tr>
+        <td><b>Number of individuals:</b></td>
+        <td>{{ object.species_count }}</td>
+    </tr>
+    <tr>
+        <td><b>Submitted:</b></td>
+        <td>{{ object.submitted }}</td>
+    </tr>
+    <tr>
+        <td><b>First report:</b></td>
+        <td>{{ object.first_report }}</td>
+    </tr>
+<!--    {% if assigned_to %}-->
+<!--        <tr>-->
+<!--            <td><b>Assigned to:</b></td>-->
+<!--            <td>{{ object.assigned_to.first_name }} {{ object.assigned_to.last_name }}</td>-->
+<!--        </tr>-->
+<!--    {% endif %}-->
+    <tr>
+        <td><b>Latitude:</b></td>
+        <td>{{ object.lat }}</td>
+    </tr>
+    <tr>
+        <td><b>Longitude:</b></td>
+        <td>{{ object.long }}</td>
+    </tr>
+    <tr>
+        <td><b>Location:</b></td>
+        <td>{{ object.location }}</td>
+    </tr>
+    <tr>
+        <td><b>Region:</b></td>
+        <td>{{ object.region }}</td>
+    </tr>
+        <tr>
+        <td><b>Species:</b></td>
+        <td>{{ object.species }}</td>
+    </tr>
+        <tr>
+        <td><b>Sex:</b></td>
+        <td>{{ object.sex }}</td>
+    </tr>
+        <tr>
+        <td><b>Age group:</b></td>
+        <td>{{ object.age_group }}</td>
+    </tr>
+        <tr>
+        <td><b>Incident type:</b></td>
+        <td>{{ object.incident_type }}</td>
+    </tr>
+        <tr>
+        <td><b>Gear presence:</b></td>
+        <td>{{ object.gear_presence }}</td>
+    </tr>
+        <tr>
+        <td><b>Gear description:</b></td>
+        <td>{{ object.gear_desc }}</td>
+    </tr>
+        <tr>
+        <td><b>Examination conducted:</b></td>
+        <td>{{ object.exam }}</td>
+    </tr>
+        <tr>
+        <td><b>Necropsy conducted:</b></td>
+        <td>{{ object.necropsy }}</td>
+    </tr>
+        <tr>
+        <td><b>Results:</b></td>
+        <td>{{ object.results }}</td>
+    </tr>
+        <tr>
+        <td><b>Photos:</b></td>
+        <td>{{ object.photos }}</td>
+    </tr>
+        <tr>
+        <td><b>Data folder:</b></td>
+        <td>{{ object.data_folder }}</td>
+    </tr>
+        <tr>
+        <td><b>Comments:</b></td>
+        <td>{{ object.comments }}</td>
+</table>
+<!--<p>-->
+<!--    At any point, more information about this incident can be viewed -->
+<!--    <a href="{{SITE_FULL_URL}}{% url 'tickets:detail' object.id %}">HERE</a>.-->
+<!--</p>-->
+
+<hr>
+<br>
+<p>
+    Un nouveau incident a été enregistré avec les détails suivants:
+</p>
+<table>
+    <tr>
+        <td><b>Numéro de réference:</b></td>
+        <td>{{ object.id }}</td>
+    </tr>
+    <tr>
+        <td><b>Nom de l'incident:</b></td>
+        <td>{{ object.name }}</td>
+    </tr>
+    <tr>
+        <td><b>Nombre d'individus:</b></td>
+        <td>{{ object.species_count }}</td>
+    </tr>
+    <tr>
+        <td><b>Soumis:</b></td>
+        <td>{{ object.submitted }}</td>
+    </tr>
+    <tr>
+        <td><b>Premier rapport:</b></td>
+        <td>{{ object.first_report }}</td>
+    </tr>
+<!--    {% if assigned_to %}-->
+<!--        <tr>-->
+<!--            <td><b>Assigned to:</b></td>-->
+<!--            <td>{{ object.assigned_to.first_name }} {{ object.assigned_to.last_name }}</td>-->
+<!--        </tr>-->
+<!--    {% endif %}-->
+    <tr>
+        <td><b>Latitude:</b></td>
+        <td>{{ object.lat }}</td>
+    </tr>
+    <tr>
+        <td><b>Longitude:</b></td>
+        <td>{{ object.long }}</td>
+    </tr>
+    <tr>
+        <td><b>Site:</b></td>
+        <td>{{ object.location }}</td>
+    </tr>
+    <tr>
+        <td><b>Région:</b></td>
+        <td>{{ object.region }}</td>
+    </tr>
+        <tr>
+        <td><b>Espèce:</b></td>
+        <td>{{ object.species }}</td>
+    </tr>
+        <tr>
+        <td><b>Sexe:</b></td>
+        <td>{{ object.sex }}</td>
+    </tr>
+        <tr>
+        <td><b>Cohorte:</b></td>
+        <td>{{ object.age_group }}</td>
+    </tr>
+        <tr>
+        <td><b>Genre d'incident:</b></td>
+        <td>{{ object.incident_type }}</td>
+    </tr>
+        <tr>
+        <td><b>Présence de matériel de pêche:</b></td>
+        <td>{{ object.gear_presence }}</td>
+    </tr>
+        <tr>
+        <td><b>Description de matériel:</b></td>
+        <td>{{ object.gear_desc }}</td>
+    </tr>
+        <tr>
+        <td><b>Examination:</b></td>
+        <td>{{ object.exam }}</td>
+    </tr>
+        <tr>
+        <td><b>Nécropsie:</b></td>
+        <td>{{ object.necropsy }}</td>
+    </tr>
+        <tr>
+        <td><b>Résultats:</b></td>
+        <td>{{ object.results }}</td>
+    </tr>
+        <tr>
+        <td><b>Photos:</b></td>
+        <td>{{ object.photos }}</td>
+    </tr>
+        <tr>
+        <td><b>Fichier de données:</b></td>
+        <td>{{ object.data_folder }}</td>
+    </tr>
+    <tr>
+        <td><b>Commentaires:</b></td>
+        <td>{{ object.comments }}</td>
+    </tr>
+</table>
+<!--<p>-->
+<!--A tout moment, plus d'informations sur cet incident peuvent être consultées-->
+<!--    <a href="{{SITE_FULL_URL}}{% url 'tickets:detail' object.id %}">ICI</a>.-->
+<!--</p>-->
+
+<style media="screen">
+    table, td {
+        border: solid 1px black;
+    }
+</style>

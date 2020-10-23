@@ -11,7 +11,9 @@
             <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
         </div>
     </div>
-
+        <p>
+            <a href="{% url 'whalebrary:incident_email' %}" class="btn btn-sm btn-primary">Email Incident</a>
+        </p>
         <div class="row">
             <div class="col-4">
                 <table class="table table-sm table-striped">

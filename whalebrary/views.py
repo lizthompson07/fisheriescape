@@ -10,6 +10,7 @@ from django.utils.translation.trans_null import gettext_lazy
 from idna import unicode
 from unicodecsv import UnicodeWriter
 
+from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from django.utils.safestring import mark_safe
@@ -28,7 +29,7 @@ from django.utils import timezone
 from shared_models.views import CommonPopoutFormView, CommonListView, CommonFilterView, CommonDetailView, \
     CommonDeleteView, CommonCreateView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutDeleteView, \
     CommonFormView, CommonHardDeleteView, CommonFormsetView
-from . import models, admin
+from . import models, admin, emails
 from . import forms
 from . import filters
 from . import reports
@@ -1226,6 +1227,25 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     ]
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
+
+
+def send_incident_email(self):
+    """simple function to send email with detail_view information"""
+    # create a new email object
+    email = emails.NewIncidentEmail(self.object, self.request)
+    # send the email object
+    custom_send_mail(
+        subject=email.subject,
+        html_message=email.message,
+        from_email=email.from_email,
+        recipient_list=email.to_list
+    )
+    messages.success(self.request, "The new ticket has been logged and a confirmation email has been sent!")
+
+    # go to detail page
+    return HttpResponseRedirect(self.get_success_url())
+
+    # return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
 
 class IncidentUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
