@@ -19,7 +19,7 @@ from shared_models import models as shared_models
 
 
 # open basic access up to anybody who is logged in
-def in_oceanography_group(user):
+def in_cruises_group(user):
     if user.id:
         # return user.groups.filter(name='sar_search_access').count() != 0
         return True
@@ -28,7 +28,7 @@ class OceanographyAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
     def test_func(self):
-        return in_oceanography_group(self.request.user)
+        return in_cruises_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -37,16 +37,16 @@ class OceanographyAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-def in_oceanography_admin_group(user):
+def in_cruises_admin_group(user):
     if user:
-        return user.groups.filter(name='oceanography_admin').count() != 0
+        return user.groups.filter(name='cruises_admin').count() != 0
 
 
 class OceanographyAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
     def test_func(self):
-        return in_oceanography_admin_group(self.request.user)
+        return in_cruises_admin_group(self.request.user)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
@@ -59,14 +59,14 @@ class OceanographyAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class IndexTemplateView(TemplateView):
-    template_name = "oceanography/index.html"
+    template_name = "cruises/index.html"
 
 
 # MISSIONS #
 ############
 
 class MissionListView(OceanographyAccessRequiredMixin, FilterView):
-    template_name = "oceanography/mission_list.html"
+    template_name = "cruises/mission_list.html"
     filterset_class = filters.MissionFilter
     queryset = shared_models.Cruise.objects.annotate(
         search_term=Concat('mission_name', 'mission_number', output_field=TextField())).order_by("-start_date", "mission_number")
@@ -92,7 +92,7 @@ class MissionListView(OceanographyAccessRequiredMixin, FilterView):
 
 
 class MissionDetailView(OceanographyAccessRequiredMixin, DetailView):
-    template_name = "oceanography/mission_detail.html"
+    template_name = "cruises/mission_detail.html"
     model = shared_models.Cruise
 
     def get_context_data(self, **kwargs):
@@ -121,12 +121,12 @@ class MissionDetailView(OceanographyAccessRequiredMixin, DetailView):
 
 
 class MissionUpdateView(OceanographyAdminRequiredMixin, UpdateView):
-    template_name = "oceanography/mission_form.html"
+    template_name = "cruises/mission_form.html"
     model = shared_models.Cruise
     form_class = forms.MissionForm
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("oceanography:mission_detail", kwargs={"pk": self.object.id})
+        return reverse_lazy("cruises:mission_detail", kwargs={"pk": self.object.id})
 
     def get_context_data(self, **kwargs):
         # get context
@@ -137,13 +137,13 @@ class MissionUpdateView(OceanographyAdminRequiredMixin, UpdateView):
 
 
 class MissionCreateView(OceanographyAdminRequiredMixin, CreateView):
-    template_name = "oceanography/mission_form.html"
+    template_name = "cruises/mission_form.html"
     model = shared_models.Cruise
     form_class = forms.MissionForm
 
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("oceanography:mission_detail", kwargs={"pk": self.object.id})
+        return reverse_lazy("cruises:mission_detail", kwargs={"pk": self.object.id})
 
     def get_context_data(self, **kwargs):
         # get context
@@ -238,13 +238,13 @@ def export_mission_csv(request, pk):
 #########
 
 class FileCreateView(OceanographyAccessRequiredMixin, CreateView):
-    template_name = "oceanography/file_form.html"
+    template_name = "cruises/file_form.html"
     model = models.File
     form_class = forms.FileForm
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse_lazy("oceanography:mission_detail", kwargs={"pk": object.mission.id}))
+        return HttpResponseRedirect(reverse_lazy("cruises:mission_detail", kwargs={"pk": object.mission.id}))
 
     def get_context_data(self, **kwargs):
         # get context
@@ -259,7 +259,7 @@ class FileCreateView(OceanographyAccessRequiredMixin, CreateView):
 
 
 class FileDetailView(OceanographyAccessRequiredMixin, UpdateView):
-    template_name = "oceanography/file_form.html"
+    template_name = "cruises/file_form.html"
     model = models.File
     form_class = forms.FileForm
 
@@ -271,12 +271,12 @@ class FileDetailView(OceanographyAccessRequiredMixin, UpdateView):
 
 
 class FileUpdateView(OceanographyAdminRequiredMixin, UpdateView):
-    template_name = "oceanography/file_form.html"
+    template_name = "cruises/file_form.html"
     model = models.File
     form_class = forms.FileForm
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("oceanography:mission_detail", kwargs={"pk": self.object.mission.id})
+        return reverse_lazy("cruises:mission_detail", kwargs={"pk": self.object.mission.id})
 
     def get_context_data(self, **kwargs):
         # get context
@@ -286,8 +286,8 @@ class FileUpdateView(OceanographyAdminRequiredMixin, UpdateView):
 
 
 class FileDeleteView(OceanographyAdminRequiredMixin, DeleteView):
-    template_name = "oceanography/file_confirm_delete.html"
+    template_name = "cruises/file_confirm_delete.html"
     model = models.File
 
     def get_success_url(self, **kwargs):
-        return reverse_lazy("oceanography:mission_detail", kwargs={"pk": self.object.mission.id})
+        return reverse_lazy("cruises:mission_detail", kwargs={"pk": self.object.mission.id})

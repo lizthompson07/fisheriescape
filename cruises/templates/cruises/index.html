@@ -1,4 +1,4 @@
-{% extends "oceanography/oceanography_base.html" %}
+{% extends "cruises/cruises_base.html" %}
 {% load static %}
 
 {% block content %}
@@ -13,7 +13,7 @@
     {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
     <div class="container">
         <div class="jumbotron">
-            <h1>Welcome to the Oceanography App!</h1>
+            <h1>Welcome to the Cruises App!</h1>
         </div>
     </div>
 
@@ -26,14 +26,14 @@
         <h3>
             Instructions, regional guidelines, sampling sheets and more are available here:
         </h3>
-        <a href="https://086gc.sharepoint.com/sites/ScienceHubScience/Oceanography1" target="_blank">
+        <a href="https://086gc.sharepoint.com/sites/ScienceHubScience/Cruises1" target="_blank">
             <img src="{% static 'img/sharepoint.png' %}" alt="">
         </a>
         {#        <h2>Please select among the following items:</h2>#}
         {#        <table class="table table-hover">#}
         {#            <tbody>#}
-        {#            <tr href="https://086gc.sharepoint.com/sites/ScienceHubScience/Oceanography1">#}
-        {#                <td>Oceanography Document Library (External Link to SharePoint)</td>#}
+        {#            <tr href="https://086gc.sharepoint.com/sites/ScienceHubScience/Cruises1">#}
+        {#                <td>Cruises Document Library (External Link to SharePoint)</td>#}
         {#            </tr>#}
         {#            <tr href="{% url 'cruises:mission_list' %}">#}
         {#                <td>Search Oceanographic Missions</td>#}

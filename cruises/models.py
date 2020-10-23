@@ -47,7 +47,7 @@ class InstrumentComponent(models.Model):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'cruises/{0}/{1}'.format(instance.mission.mission_number, filename)
+    return 'oceanography/{0}/{1}'.format(instance.mission.mission_number, filename)
 
 
 class File(models.Model):
