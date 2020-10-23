@@ -1,0 +1,21 @@
+{% extends "cruises/cruises_base.html" %}
+{% load bootstrap4 %}
+
+
+{% block content %}
+
+  <div class="container">
+    {% if object.id %}
+    <h1>{{object.title}}</h1>
+    {% else %}
+    <h1>New Document</h1>
+    {% endif %}
+      <form  method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {%bootstrap_form form%}
+        <input type="submit" class="btn btn-primary" value="Submit">
+
+      </form>
+  </div>
+
+{% endblock content %}

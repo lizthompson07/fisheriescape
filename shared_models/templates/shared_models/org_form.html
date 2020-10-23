@@ -4,20 +4,36 @@
 {% load custom_filters %}
 {% load custom_tags %}
 
+
+
+{% block form_field %}
+  {% bootstrap_field field placeholder="" %}
+  {% if "head" in field.name %}
+    {% url 'shared_models:user_new' as new_user_url %}
+    {% blocktrans %}
+      If the user is not in the above list, you can add a new DM Apps User using
+      <a href="#" pop-href="{{ new_user_url }}">this form</a>.
+    {% endblocktrans %}
+  {% endif %}
+
+{% endblock %}
+
 {% block form_buttons %}
-    <div class="mt-3 mb-3">
-        {% trans "Submit" as default_submit_text %}
-        {% trans "Cancel" as default_cancel_text %}
-        {% echo request.META.HTTP_REFERER as default_cancel_url %}
-        <input type="submit" class="btn btn-lg {% block submit_btn_class %}btn-warning{% endblock %}"
-               value="{{ submit_text|nz:default_submit_text }}">
-        <a class="btn btn-lg btn-secondary" href="{{ cancel_url|nz:default_cancel_url }}">
-            {{ cancel_text|nz:default_cancel_text }}
-        </a>
-        <a class="btn btn-lg btn-danger" href="{{ delete_url }}">
-            {% trans "Delete" %}
-        </a>
-    </div>
+  <div class="mt-3 mb-3">
+    {% trans "Submit" as default_submit_text %}
+    {% trans "Cancel" as default_cancel_text %}
+    {% echo request.META.HTTP_REFERER as default_cancel_url %}
+    <input type="submit" class="btn btn-lg {% block submit_btn_class %}btn-warning{% endblock %}"
+           value="{{ submit_text|nz:default_submit_text }}">
+    <a class="btn btn-lg btn-secondary" href="{{ cancel_url|nz:default_cancel_url }}">
+      {{ cancel_text|nz:default_cancel_text }}
+    </a>
+    <a class="btn btn-lg btn-danger" href="{{ delete_url }}">
+      {% trans "Delete" %}
+    </a>
+
+
+  </div>
 {% endblock %}
 
 

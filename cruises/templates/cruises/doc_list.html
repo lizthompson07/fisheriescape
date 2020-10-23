@@ -1,0 +1,55 @@
+{% extends "cruises/cruises_base.html" %}
+
+
+
+{% block content %}
+
+{% load static %}
+<div class="jumbotron">
+  <h1>Cruises Doc Library</h1>
+</div>
+
+<div class="container">
+<p>
+  <a href="{% url 'cruises:doc_create'  %}" class="btn btn-primary">New Doc</a>
+  <a href="{% url 'cruises:index'  %}" class="btn btn-dark">Back</a>
+</p>
+
+  {# <h2>Please select from the following:</h2> #}
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Item</th>
+        <th scope="col">Description</th>
+        <th scope="col">Source</th>
+        <th scope="col" >File Attachment</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for doc in object_list  %}
+        <tr>
+          <td scope="row">{{forloop.counter}}</th>
+          <td><a href="{% url "cruises:doc_edit" doc.id %}">{{doc.title}}</a></td>
+          <td>{{doc.description}}</td>
+          <td>{{doc.source}}</td>
+          <td>
+            {% if doc.file %}
+            <a href="{{doc.file.url}}">
+              <img src="{% static "/img/paperclip-34593.svg" %}" style="width:60px" >
+            </a>
+
+            {% else %}
+            n/a
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+
+
+      </tbody>
+    </table>
+
+
+{% endblock content %}

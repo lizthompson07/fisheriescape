@@ -1730,7 +1730,7 @@ class UserCreateView(LoginRequiredMixin, FormView):
             email=email,
         )
 
-        email = emails.UserCreationEmail(my_user)
+        email = emails.UserCreationEmail(my_user, self.request)
 
         # send the email object
         custom_send_mail(

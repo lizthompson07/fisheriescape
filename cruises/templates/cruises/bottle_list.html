@@ -1,0 +1,91 @@
+{% extends "cruises/cruises_base.html" %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% load static %}
+{% load i18n %}
+
+
+{% block content %}
+
+    <style>
+        .smaller {
+            font-size: 0.8em;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'cruises:index' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:mission_year_list' %}">Year Selection</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:mission_list' mission.season %}">Missions</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'cruises:mission_detail' mission.id %}">{{mission}}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Bottles</li>
+        </ol>
+    </nav>
+    <div class="container-fluid">
+        <h1>Bottle list for {{ mission }}</h1>
+        <br>
+
+        <div class="smaller indent">
+
+            <div class="row">
+                <div class="col">
+                    {% trans "(click on a header to sort table)" %}
+                </div>
+                <div class="col" style="text-align: center">
+                    <em>displaying all {{ object_list.count }} bottles</em>
+                </div>
+                <div class="col" style="text-align: right; padding-bottom: 10px">
+{#                    <a href="" class="btn btn-sm btn-primary"></a>#}
+                </div>
+            </div>
+            <table class="table table-hover table-sm sortable">
+                <thead>
+                <th scope="col">#</th>
+                <th scope="col">{% get_verbose_label bottle "bottle_uid" %}</th>
+                <th scope="col">{% get_verbose_label bottle "station" %}</th>
+                <th scope="col">{% get_verbose_label bottle "set" %}</th>
+                <th scope="col">{% get_verbose_label bottle "event" %}</th>
+                <th scope="col">Date / Time (UTC)</th>
+                <th scope="col">{% get_verbose_label bottle "sounding_m" %}</th>
+                <th scope="col">{% get_verbose_label bottle "bottle_depth_m" %}</th>
+                <th scope="col">{% get_verbose_label bottle "temp_c" %}</th>
+                <th scope="col">{% get_verbose_label bottle "salinity" %}</th>
+                <th scope="col">{% get_verbose_label bottle "sal_units" %}</th>
+                <th scope="col">pH</th>
+                <th scope="col">{% get_verbose_label bottle "lat_DDdd" %}</th>
+                <th scope="col">{% get_verbose_label bottle "long_DDdd" %}</th>
+                <th scope="col">{% get_verbose_label bottle "ctd_filename" %}</th>
+                <th scope="col">{% get_verbose_label bottle "remarks" %}</th>
+                </thead>
+                <tbody>
+
+                {% for b in object_list %}
+                    <tr href="{% url "cruises:bottle_detail" b.id %}">
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ b.bottle_uid }}</td>
+                        <td>{{ b.station|nz:"" }}</td>
+                        <td>{{ b.set|nz:"" }}</td>
+                        <td>{{ b.event|nz:"" }}</td>
+                        <td>{{ b.date_time_UTC |date:"Y-m-d H:i:s" }}</td>
+                        <td>{{ b.sounding_m|nz:"" }}</td>
+                        <td>{{ b.bottle_depth_m|nz:"" }}</td>
+                        <td>{{ b.temp_c|nz:"" }}</td>
+                        <td>{{ b.salinity|nz:"" }}</td>
+                        <td>{{ b.sal_units|nz:"" }}</td>
+                        <td>{{ b.ph|nz:"" }}</td>
+                        <td>{{ b.lat_DDdd|nz:""|floatformat:5 }}</td>
+                        <td>{{ b.long_DDdd|nz:""|floatformat:5 }}</td>
+                        <td>{{ b.ctd_filename|nz:"" }}</td>
+                        <td>{{ b.remarks|nz:"" }}</td>
+
+                    </tr>
+                {% endfor %}
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock content %}
