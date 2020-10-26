@@ -498,12 +498,10 @@ class FishboardTestView(HerringAccessRequired, TemplateView):
     template_name = 'herring/fishboard_test_form.html'
 
 
-
 class LabSampleUpdateView(HerringAccessRequired, UpdateView):
     template_name = 'herring/lab_sample_form.html'
     model = models.FishDetail
     form_class = forms.LabSampleForm
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -588,7 +586,6 @@ class OtolithUpdateView(HerringAccessRequired, UpdateView):
     template_name = 'herring/otolith_form.html'
     model = models.FishDetail
     form_class = forms.OtolithForm
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -866,6 +863,7 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
         r = requests.get(url)
         csv_reader = csv.DictReader(r.text.splitlines())
 
+        i = 0
         # loop through each row of the csv file
         for row in csv_reader:
             # what to do if we are importing a sample data export..
@@ -982,7 +980,8 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                                      "Sample with uuid {} was not found in the hermorrhage db. This length frequecy will be skipped".format(
                                          row.get("sample_uuid")))
                 else:
-                    my_sample.length_frequency_objects.all().delete()
+                    if i ==0:
+                        my_sample.length_frequency_objects.all().delete()
                     my_lf, created = models.LengthFrequency.objects.get_or_create(
                         sample=my_sample,
                         length_bin_id=row.get("length_bin"),
@@ -1002,6 +1001,8 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                 messages.info(self.request,
                               "Due to limited time resources, this import script was not developed. Once fish details are process on "
                               "boats, this function will be built")
+            i += 1
+
         # clear the file in my object
         my_object.delete()
         return HttpResponseRedirect(reverse_lazy('herring:index'))
