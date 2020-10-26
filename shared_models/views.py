@@ -728,8 +728,6 @@ class RegionListView(AdminRequiredMixin, CommonListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["division"] = models.Division.objects.first()
-        context["section"] = models.Section.objects.first()
         return context
 
 

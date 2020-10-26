@@ -117,12 +117,10 @@ urlpatterns = [
     path('default-reviewer/<int:pk>/edit/', views.DefaultReviewerUpdateView.as_view(), name="default_reviewer_edit"),
     path('default-reviewer/<int:pk>/delete/', views.DefaultReviewerDeleteView.as_view(), name="default_reviewer_delete"),
 
-
-    # Admin Users (NOT TESTED)
+    # Admin Users
     path('settings/users/', views.UserListView.as_view(), name='user_list'),
     path('settings/users/travel/<int:travel>/', views.UserListView.as_view(), name='user_list'),
     path('settings/user/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
-
 
     # TRIP REQUEST COST #
     #####################
