@@ -2249,7 +2249,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
+class ReportSearchFormView(TravelAdminRequiredMixin, FormView):
     template_name = 'travel/report_search.html'
     form_class = forms.ReportSearchForm
 

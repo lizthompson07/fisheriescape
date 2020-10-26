@@ -712,8 +712,7 @@ class RegionListView(AdminRequiredMixin, CommonListView):
     queryset = models.Region.objects.order_by("name")
     template_name = 'shared_models/org_list.html'
     field_list = [
-        {"name": "region", },
-        {"name": "tname|{}".format(gettext_lazy("branch")), },
+        {"name": "tname|{}".format(gettext_lazy("Regions - Sectors (NCR)")), },
         {"name": "abbrev", },
         {"name": "head", },
         {"name": "date_last_modified", },
@@ -728,8 +727,6 @@ class RegionListView(AdminRequiredMixin, CommonListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["region"] = models.Region.objects.first()
-        context["branch"] = models.Branch.objects.first()
         context["division"] = models.Division.objects.first()
         context["section"] = models.Section.objects.first()
         return context
@@ -740,11 +737,11 @@ class RegionUpdateView(AdminRequiredMixin, CommonUpdateView):
     template_name = 'shared_models/org_form.html'
     form_class = forms.RegionForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
-    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["delete_url"] = reverse("shared_models:branch_delete", kwargs={"pk": self.get_object().id})
+        context["delete_url"] = reverse("shared_models:region_delete", kwargs={"pk": self.get_object().id})
         return context
 
     def get_initial(self):
@@ -756,7 +753,7 @@ class RegionCreateView(AdminRequiredMixin, CommonCreateView):
     template_name = 'shared_models/generic_form.html'
     form_class = forms.RegionForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
-    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
@@ -764,13 +761,13 @@ class RegionCreateView(AdminRequiredMixin, CommonCreateView):
 
 class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Region
-    success_url = reverse_lazy('shared_models:branch_list')
+    success_url = reverse_lazy('shared_models:region_list')
     template_name = 'shared_models/generic_confirm_delete.html'
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
-    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}
 
     def get_parent_crumb(self):
-        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:branch_edit", kwargs={
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:region_edit", kwargs={
             "pk": self.get_object().id})}
 
 
