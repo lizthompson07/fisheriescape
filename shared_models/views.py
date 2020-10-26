@@ -1,5 +1,6 @@
 from abc import ABC
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy, gettext
@@ -712,8 +713,7 @@ class RegionListView(AdminRequiredMixin, CommonListView):
     queryset = models.Region.objects.order_by("name")
     template_name = 'shared_models/org_list.html'
     field_list = [
-        {"name": "region", },
-        {"name": "tname|{}".format(gettext_lazy("branch")), },
+        {"name": "tname|{}".format(gettext_lazy("Regions - Sectors (NCR)")), },
         {"name": "abbrev", },
         {"name": "head", },
         {"name": "date_last_modified", },
@@ -728,8 +728,6 @@ class RegionListView(AdminRequiredMixin, CommonListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["region"] = models.Region.objects.first()
-        context["branch"] = models.Branch.objects.first()
         context["division"] = models.Division.objects.first()
         context["section"] = models.Section.objects.first()
         return context
@@ -740,11 +738,11 @@ class RegionUpdateView(AdminRequiredMixin, CommonUpdateView):
     template_name = 'shared_models/org_form.html'
     form_class = forms.RegionForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
-    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["delete_url"] = reverse("shared_models:branch_delete", kwargs={"pk": self.get_object().id})
+        context["delete_url"] = reverse("shared_models:region_delete", kwargs={"pk": self.get_object().id})
         return context
 
     def get_initial(self):
@@ -756,7 +754,7 @@ class RegionCreateView(AdminRequiredMixin, CommonCreateView):
     template_name = 'shared_models/generic_form.html'
     form_class = forms.RegionForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
-    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
@@ -764,13 +762,13 @@ class RegionCreateView(AdminRequiredMixin, CommonCreateView):
 
 class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Region
-    success_url = reverse_lazy('shared_models:branch_list')
+    success_url = reverse_lazy('shared_models:region_list')
     template_name = 'shared_models/generic_confirm_delete.html'
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
-    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}
 
     def get_parent_crumb(self):
-        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:branch_edit", kwargs={
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:region_edit", kwargs={
             "pk": self.get_object().id})}
 
 
@@ -781,11 +779,11 @@ class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
 class UserCreateView(LoginRequiredMixin, CommonPopoutFormView):
     form_class = forms.UserCreateForm
     h1 = gettext_lazy("Create a New DM Apps User")
-    h3 = "<span class='red-font'>{}</span> <br><br> <span class='text-muted'>{}</span> <br>".format(
+    h3 = "<span class='red-font'>{}</span> <br><br> <span class='text-muted'>{}</span> <br><br>".format(
         gettext_lazy("Please use extreme vigilance with this form."),
-        gettext_lazy("After this form is submitted, the new user will receive a confirmation e-mail."),
+        gettext_lazy("After this form is submitted, the new user will receive a confirmation e-mail.") if not settings.AZURE_AD else "",
     )
-    height = 800
+    height = 850
 
     def form_valid(self, form):
         # retrieve data from form
@@ -803,16 +801,19 @@ class UserCreateView(LoginRequiredMixin, CommonPopoutFormView):
             email=email,
         )
 
-        email = emails.UserCreationEmail(my_user, self.request)
+        # only send an email if AAD is not on
+        if not settings.AZURE_AD:
+            email = emails.UserCreationEmail(my_user, self.request)
 
-        # send the email object
-        custom_send_mail(
-            subject=email.subject,
-            html_message=email.message,
-            from_email=email.from_email,
-            recipient_list=email.to_list
-        )
-        messages.success(self.request, gettext("The user '{}' was created and an email was sent".format(my_user.get_full_name())))
+            # send the email object
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
+            messages.success(self.request, gettext("The user '{}' was created and an email was sent".format(my_user.get_full_name())))
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
