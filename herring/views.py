@@ -982,7 +982,7 @@ class ImportFileView(HerringAdminAccessRequired, CreateView):
                                      "Sample with uuid {} was not found in the hermorrhage db. This length frequecy will be skipped".format(
                                          row.get("sample_uuid")))
                 else:
-                    my_sample.length_frequencies.delete()
+                    my_sample.length_frequencies.all().delete()
                     my_lf, created = models.LengthFrequency.objects.get_or_create(
                         sample=my_sample,
                         length_bin_id=row.get("length_bin"),
