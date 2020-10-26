@@ -100,7 +100,7 @@ if settings.INSTALLED_APPS.count("shares"):
 else:
     print("not connecting shares app")
 
-if settings.INSTALLED_APPS.count("travel"):
+if settings.INSTALLED_APPS.count("travel") and not settings.FAKE_TRAVEL_APP:
     urlpatterns += i18n_patterns(path('travel-plans/', include('travel.urls')), prefix_default_language=True)
 else:
     print("not connecting travel app")
@@ -159,11 +159,6 @@ if settings.INSTALLED_APPS.count("csas"):
     urlpatterns += i18n_patterns(path('csas/', include('csas.urls')), prefix_default_language=True)
 else:
     print("not connecting csas app")
-
-if settings.INSTALLED_APPS.count("engagements"):
-    urlpatterns += i18n_patterns(path('engagements/', include('engagements.urls')), prefix_default_language=True)
-else:
-    print("Not connecting Engagements app")
 
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,

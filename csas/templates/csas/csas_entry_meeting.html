@@ -1,0 +1,135 @@
+{% extends "csas/csas_entry_form.html" %}
+{% load i18n %}
+{% load static %}
+{% load bootstrap4 %}
+
+{% block body_js %}
+<script>
+    $("#id_quarter").change(function() {
+	    val = $(this).val();
+
+        $("#id_month").children().each(function() {
+		    $(this).show();
+		});
+
+
+		if ( val == 1 ) {
+		    $("#id_month").children().each(function() {
+			    if( $(this).val() < 4 || $(this).val() > 6 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 2 ) {
+		    $("#id_month").children().each(function() {
+			    if( $(this).val() < 7 || $(this).val() > 9 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 3 ) {
+		    $("#id_month").children().each(function() {
+			    if( $(this).val() < 10 || $(this).val() > 12 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 4 ) {
+		    $("#id_month").children().each(function() {
+			    if( $(this).val() > 3 ){
+				    $(this).hide();
+				}
+			});
+		}
+	}
+    );
+</script>
+
+<script>
+    $("#id_location_prov").change(function() {
+	    val = $(this).val();
+
+        $("#id_location_city").children().each(function() {
+		    $(this).show();
+		});
+
+		if ( val == 1 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 1 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 2 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 2 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 3 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 3 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 4 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 4 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 5 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 5 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 6 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 6 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 7 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 7 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 8 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 8 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 9 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 9 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 10 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 10 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 11 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 11 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 12 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 12 ){
+				    $(this).hide();
+				}
+			});
+		} else if ( val == 13 ) {
+		    $("#id_location_city").children().each(function() {
+			    if( $(this).val() != 13 ){
+				    $(this).hide();
+				}
+			});
+		}
+	}
+    );
+</script>
+{% endblock %}
