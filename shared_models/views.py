@@ -1,5 +1,6 @@
 from abc import ABC
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy, gettext
@@ -780,7 +781,7 @@ class UserCreateView(LoginRequiredMixin, CommonPopoutFormView):
     h1 = gettext_lazy("Create a New DM Apps User")
     h3 = "<span class='red-font'>{}</span> <br><br> <span class='text-muted'>{}</span> <br>".format(
         gettext_lazy("Please use extreme vigilance with this form."),
-        gettext_lazy("After this form is submitted, the new user will receive a confirmation e-mail."),
+        gettext_lazy("After this form is submitted, the new user will receive a confirmation e-mail.") if settings.AZURE_AD else "",
     )
     height = 800
 
@@ -800,16 +801,19 @@ class UserCreateView(LoginRequiredMixin, CommonPopoutFormView):
             email=email,
         )
 
-        email = emails.UserCreationEmail(my_user, self.request)
+        # only send an email if AAD is not on
+        if not settings.AZURE_AD:
+            email = emails.UserCreationEmail(my_user, self.request)
 
-        # send the email object
-        custom_send_mail(
-            subject=email.subject,
-            html_message=email.message,
-            from_email=email.from_email,
-            recipient_list=email.to_list
-        )
-        messages.success(self.request, gettext("The user '{}' was created and an email was sent".format(my_user.get_full_name())))
+            # send the email object
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
+            messages.success(self.request, gettext("The user '{}' was created and an email was sent".format(my_user.get_full_name())))
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
