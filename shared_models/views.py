@@ -779,11 +779,11 @@ class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
 class UserCreateView(LoginRequiredMixin, CommonPopoutFormView):
     form_class = forms.UserCreateForm
     h1 = gettext_lazy("Create a New DM Apps User")
-    h3 = "<span class='red-font'>{}</span> <br><br> <span class='text-muted'>{}</span> <br>".format(
+    h3 = "<span class='red-font'>{}</span> <br><br> <span class='text-muted'>{}</span> <br><br>".format(
         gettext_lazy("Please use extreme vigilance with this form."),
-        gettext_lazy("After this form is submitted, the new user will receive a confirmation e-mail.") if settings.AZURE_AD else "",
+        gettext_lazy("After this form is submitted, the new user will receive a confirmation e-mail.") if not settings.AZURE_AD else "",
     )
-    height = 800
+    height = 850
 
     def form_valid(self, form):
         # retrieve data from form
