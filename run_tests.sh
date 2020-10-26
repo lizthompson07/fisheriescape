@@ -28,8 +28,12 @@ python3.6 manage.py test shiny.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: ihub"
-python3.6 manage.py test ihub.test
+python manage.py test ihub.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: csas"
-python3.6 manage.py test csas.test
+python manage.py test csas.test
+
+printf "\n"
+echo "RUNNING TESTS FOR: cruises"
+python manage.py test cruises.test

@@ -132,3 +132,36 @@ class TestDefaultReviewerListView(CommonTest):
             "random_object",
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, self.admin_user)
+
+
+class TestUserListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('travel:user_list')
+        self.test_url1 = reverse_lazy('travel:user_list', args=[1])
+        self.expected_template = 'travel/user_list.html'
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("User", "user_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.UserListView, CommonFilterView)
+
+    @tag("User", "user_list", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_not_broken(self.test_url1)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.user)
+
+    @tag("User", "user_list", "context")
+    def test_context(self):
+        context_vars = [
+            "admin_group",
+            "adm_admin_group",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("User", "user_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:user_list", f"/en/travel-plans/settings/users/")

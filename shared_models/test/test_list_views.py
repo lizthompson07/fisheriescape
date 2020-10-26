@@ -109,12 +109,8 @@ class TestRegionListView(CommonTest):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
-    @tag("region_list", 'list', "context")
-    def test_context(self):
-        context_vars = [
-            "section",
-            "division",
-            "branch",
-            "region",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
+    # @tag("region_list", 'list', "context")
+    # def test_context(self):
+    #     context_vars = [
+    #     ]
+    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)

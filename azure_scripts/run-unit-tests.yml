@@ -6,12 +6,14 @@ trigger:
 steps:
   - script: |
       # install pre-requisites
-      python -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
-      pip install -r requirements.txt
+      python -m pip install --upgrade pip setuptools wheel
+      python -m pip install -r requirements.txt
       mkdir media
       mkdir media/travel
       mkdir media/travel/temp
+      mkdir media/projects
+      mkdir media/projects/temp
       mkdir media/inventory
       mkdir media/inventory/temp
       mkdir media/ihub
