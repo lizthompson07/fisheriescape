@@ -21,3 +21,6 @@ python manage.py test ihub.test --keepdb
 
 :: run tests for csas
 python manage.py test csas.test --keepdb
+
+:: run tests for cruises
+python manage.py test cruises.test --keepdb

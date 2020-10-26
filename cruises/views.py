@@ -11,6 +11,7 @@ from django.utils.text import slugify
 from django.urls import reverse_lazy
 from django_filters.views import FilterView
 
+from shared_models.views import CommonTemplateView
 from . import models
 from . import filters
 from . import forms
@@ -25,8 +26,6 @@ def in_cruises_group(user):
         return True
 
 class OceanographyAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
-
     def test_func(self):
         return in_cruises_group(self.request.user)
 
@@ -58,7 +57,7 @@ class OceanographyAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 
-class IndexTemplateView(TemplateView):
+class IndexTemplateView(OceanographyAccessRequiredMixin, TemplateView):
     template_name = "cruises/index.html"
 
 
