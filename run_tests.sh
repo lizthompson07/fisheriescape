@@ -1,30 +1,30 @@
 #!/bin/bash
 printf "\n"
 echo "RUNNING TESTS FOR: shared_models app"
-python3.6 manage.py test  shared_models.test
+python manage.py test  shared_models.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: projects app"
 mkdir ./media
 mkdir ./media/projects
 mkdir ./media/projects/temp
-python3.6 manage.py test projects.test
+python manage.py test projects.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: travel app"
-python3.6 manage.py test travel.test
+python manage.py test travel.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: whalesdb"
-python3.6 manage.py test whalesdb.test
+python manage.py test whalesdb.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: inventory"
-python3.6 manage.py test inventory.test
+python manage.py test inventory.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: shiny"
-python3.6 manage.py test shiny.test
+python manage.py test shiny.test
 
 printf "\n"
 echo "RUNNING TESTS FOR: ihub"
