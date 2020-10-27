@@ -1,56 +1,36 @@
-{% extends "cruises/cruises_base.html" %}
+{% extends "cruises/base.html" %}
 {% load static %}
+{% load i18n %}
 
-{% block content %}
-    <style>
-        body {
-            background-image: url("{% static 'img/matt-hardy-562566-unsplash_lite.jpg' %}");
-            background-size: cover;
-        }
 
-    </style>
+{% block title_area %}{% endblock %}
 
-    {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
-    <div class="container">
-        <div class="jumbotron">
-            <h1>Welcome to the Cruises App!</h1>
-        </div>
+{% block crumbs %}{% endblock %}
+
+{% block subcontent %}
+
+
+
+
+  <div class="row">
+    <div class="col-7">
+      <div class="mb-2">
+        <img src="{% static 'img/icons/boat.svg' %}" alt="bad img!!" class="text-center" height="200">
+      </div>
+      <h1 style="font-size: 50px">
+        {% trans "Welcome to DFO Cruises!" %}
+      </h1>
     </div>
-
-    <div class="container text-center">
-        <br><br>
-        <h3>Click <a href="{% url 'cruises:mission_list' %}">HERE</a> to find a cruise. </h3>
-
-        <br><br>
-
-        <h3>
-            Instructions, regional guidelines, sampling sheets and more are available here:
-        </h3>
-        <a href="https://086gc.sharepoint.com/sites/ScienceHubScience/Cruises1" target="_blank">
-            <img src="{% static 'img/sharepoint.png' %}" alt="">
-        </a>
-        {#        <h2>Please select among the following items:</h2>#}
-        {#        <table class="table table-hover">#}
-        {#            <tbody>#}
-        {#            <tr href="https://086gc.sharepoint.com/sites/ScienceHubScience/Cruises1">#}
-        {#                <td>Cruises Document Library (External Link to SharePoint)</td>#}
-        {#            </tr>#}
-        {#            <tr href="{% url 'cruises:mission_list' %}">#}
-        {#                <td>Search Oceanographic Missions</td>#}
-        {#            </tr>#}
-        {##}
-        {#            </tbody>#}
-        {#        </table>#}
-        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-        <a style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px"
-           href="#"
-           rel="noopener noreferrer" title="Download free do whatever you want high-resolution photos from Matt Hardy on Unsplash"><span
-                style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg"
-                                                                  style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white"
-                                                                  viewBox="0 0 32 32"><title>unsplash-logo</title><path
-                d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"></path></svg></span><span style="display:inline-block;padding:2px 3px">Photo credit: Matt Hardy</span></a>
+    <div class="col">
+      <div class="mt-3 btn-group-vertical btn-std">
+        <a href="{% url 'cruises:cruise_list' %}" class="btn btn-success btn-lg">Enter a New Cruise</a>
+        <a href="{% url 'cruises:cruise_list' %}" class="btn btn-primary btn-lg">List all Cruises</a>
+      </div>
     </div>
+  </div>
 
 
 
-{% endblock content %}
+
+
+{% endblock %}

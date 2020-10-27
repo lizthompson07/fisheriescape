@@ -5,8 +5,8 @@ from django import forms
 
 chosen_js = {"class": "chosen-select-contains"}
 
-class MissionFilter(django_filters.FilterSet):
-    mission_name = django_filters.CharFilter(field_name='search_term', label="Mission (name or number)", lookup_expr='icontains',
+class CruiseFilter(django_filters.FilterSet):
+    mission_name = django_filters.CharFilter(field_name='search_term', label="Cruise (name or number)", lookup_expr='icontains',
                                             widget=forms.TextInput())
 
     class Meta:
@@ -19,6 +19,6 @@ class MissionFilter(django_filters.FilterSet):
             'season': ['exact'],
         }
         # labels = {
-        #     'mission_name': "Mission name",
-        #     'mission_number': "Mission number",
+        #     'mission_name': "Cruise name",
+        #     'mission_number': "Cruise number",
         # }

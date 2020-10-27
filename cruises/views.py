@@ -1,22 +1,19 @@
+from django.utils.translation import gettext_lazy, gettext
 import csv
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.utils import timezone
+from django.views.generic import TemplateView, CreateView, UpdateView, DetailView, DeleteView
 from django.utils.text import slugify
 from django.urls import reverse_lazy
-from django_filters.views import FilterView
 
-from shared_models.views import CommonTemplateView
+from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonTemplateView
 from . import models
 from . import filters
 from . import forms
 from shared_models import models as shared_models
-
 
 
 # open basic access up to anybody who is logged in
@@ -24,6 +21,7 @@ def in_cruises_group(user):
     if user.id:
         # return user.groups.filter(name='sar_search_access').count() != 0
         return True
+
 
 class OceanographyAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
@@ -38,11 +36,10 @@ class OceanographyAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 def in_cruises_admin_group(user):
     if user:
-        return user.groups.filter(name='cruises_admin').count() != 0
+        return user.groups.filter(name='oceanography_admin').count() != 0
 
 
 class OceanographyAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-
 
     def test_func(self):
         return in_cruises_admin_group(self.request.user)
@@ -54,92 +51,70 @@ class OceanographyAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-
-
-
-class IndexTemplateView(OceanographyAccessRequiredMixin, TemplateView):
+class IndexTemplateView(OceanographyAccessRequiredMixin, CommonTemplateView):
     template_name = "cruises/index.html"
+    h1 = "Home"
 
-
-# MISSIONS #
+# Cruises #
 ############
 
-class MissionListView(OceanographyAccessRequiredMixin, FilterView):
-    template_name = "cruises/mission_list.html"
-    filterset_class = filters.MissionFilter
+class CruiseListView(OceanographyAccessRequiredMixin, CommonFilterView):
+    template_name = "cruises/list.html"
+    paginate_by = 50
+    filterset_class = filters.CruiseFilter
     queryset = shared_models.Cruise.objects.annotate(
         search_term=Concat('mission_name', 'mission_number', output_field=TextField())).order_by("-start_date", "mission_number")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['my_object'] = shared_models.Cruise.objects.first()
-        context["field_list"] = [
-            'institute',
-            'mission_number',
-            'mission_name',
-            'vessel',
-            'chief_scientist',
-            'start_date',
-            'end_date',
-            'meds_id',
-            'season',
-        ]
-        return context
+    field_list = [
+        {"name": 'institute', "class": "", "width": ""},
+        {"name": 'mission_number', "class": "", "width": ""},
+        {"name": 'mission_name', "class": "", "width": ""},
+        {"name": 'vessel', "class": "", "width": ""},
+        {"name": 'chief_scientist', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'end_date', "class": "", "width": ""},
+        {"name": 'meds_id', "class": "", "width": ""},
+        {"name": 'season', "class": "", "width": ""},
+    ]
+    new_object_url = reverse_lazy("cruises:cruise_new")
+    row_object_url_name = "cruises:cruise_detail"
+    home_url_name = "cruises:index"
 
 
-
-
-
-class MissionDetailView(OceanographyAccessRequiredMixin, DetailView):
-    template_name = "cruises/mission_detail.html"
+class CruiseCreateView(OceanographyAdminRequiredMixin, CommonCreateView):
+    template_name = 'cruises/form.html'
     model = shared_models.Cruise
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = False
-        context['google_api_key'] = settings.GOOGLE_API_KEY
-        context['field_list'] = [
-            'institute',
-            'mission_number',
-            'mission_name',
-            'description',
-            'chief_scientist',
-            'samplers',
-            'start_date',
-            'end_date',
-            'probe',
-            'area_of_operation',
-            'number_of_profiles',
-            'meds_id',
-            'notes',
-            'season',
-            'vessel',
-        ]
-        return context
+    form_class = forms.CruiseForm
+    parent_crumb = {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
+    home_url_name = "cruises:index"
 
 
-class MissionUpdateView(OceanographyAdminRequiredMixin, UpdateView):
-    template_name = "cruises/mission_form.html"
+class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
+    template_name = "cruises/cruise_detail.html"
     model = shared_models.Cruise
-    form_class = forms.MissionForm
+    field_list = [
+        'institute',
+        'season',
+        'vessel',
+        'mission_number',
+        'mission_name',
+        'description',
+        'chief_scientist',
+        'samplers',
+        'time_period|time period',
+        'end_date',
+        'probe',
+        'area_of_operation',
+        'number_of_profiles',
+        'meds_id',
+        'notes',
+    ]
+    parent_crumb = {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
+    home_url_name = "cruises:index"
 
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("cruises:mission_detail", kwargs={"pk": self.object.id})
 
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-
-        context["editable"] = True
-        return context
-
-
-class MissionCreateView(OceanographyAdminRequiredMixin, CreateView):
-    template_name = "cruises/mission_form.html"
+class CruiseUpdateView(OceanographyAdminRequiredMixin, UpdateView):
     model = shared_models.Cruise
-    form_class = forms.MissionForm
-
+    form_class = forms.CruiseForm
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("cruises:mission_detail", kwargs={"pk": self.object.id})

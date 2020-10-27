@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 from shared_models import models as shared_models
 
 
-class MissionForm(forms.ModelForm):
+class CruiseForm(forms.ModelForm):
     class Meta:
         model = shared_models.Cruise
         exclude = ["season",]

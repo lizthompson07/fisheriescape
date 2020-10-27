@@ -1,0 +1,38 @@
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'projects:index' %}">
+  {% trans "Home" %}
+</a></li>
+
+<li class="nav-item"><a class="nav-link" href="#">
+  {% trans "Reports" %}
+</a></li>
+
+
+{% for group in user.groups.all %}
+  {% if group.name == "projects_admin" %}
+
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+         aria-haspopup="true" aria-expanded="false">
+        {% trans "Settings" %}
+      </a>
+      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+        <a class="dropdown-item" href="#">
+          {% trans "Institutes" %}
+        </a>
+        <a class="dropdown-item" href="#">
+          {% trans "Vessels" %}
+        </a>
+
+      </div>
+    </li>
+
+  {% endif %}
+
+{% endfor %}
+
+
+
+

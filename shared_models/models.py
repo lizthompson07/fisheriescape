@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.template.defaultfilters import default_if_none
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -401,6 +402,11 @@ class Cruise(models.Model):
         if self.start_date:
             self.season = self.start_date.year
         return super().save(*args, **kwargs)
+
+    @property
+    def time_period(self):
+        return mark_safe(f"FROM: {default_if_none(self.start_date.strftime('%Y-%m-%d'), '--')}  | TO: {default_if_none(self.end_date.strftime('%Y-%m-%d'), '--')}")
+
 
 
 #########################################
