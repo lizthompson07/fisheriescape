@@ -1,11 +1,11 @@
 {% extends "shared_models/generic_base.html" %}
 
 {% block bug_create %}
-    {% include "projects/base/_bug_url.html" %}
+    {% include "cruises/base/_bug_url.html" %}
 {% endblock bug_create %}
 
 {% block title %}
-    {% include "projects/base/_app_title.html" %}
+    {% include "cruises/base/_app_title.html" %}
     {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock title %}
 

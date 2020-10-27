@@ -9,7 +9,8 @@ from django.views.generic import TemplateView, CreateView, UpdateView, DetailVie
 from django.utils.text import slugify
 from django.urls import reverse_lazy
 
-from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonTemplateView
+from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonTemplateView, CommonUpdateView, \
+    CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonHardDeleteView, CommonFormsetView
 from . import models
 from . import filters
 from . import forms
@@ -55,6 +56,7 @@ class IndexTemplateView(OceanographyAccessRequiredMixin, CommonTemplateView):
     template_name = "cruises/index.html"
     h1 = "Home"
 
+
 # Cruises #
 ############
 
@@ -70,8 +72,7 @@ class CruiseListView(OceanographyAccessRequiredMixin, CommonFilterView):
         {"name": 'mission_name', "class": "", "width": ""},
         {"name": 'vessel', "class": "", "width": ""},
         {"name": 'chief_scientist', "class": "", "width": ""},
-        {"name": 'start_date', "class": "", "width": ""},
-        {"name": 'end_date', "class": "", "width": ""},
+        {"name": 'time_period|time_period', "class": "", "width": ""},
         {"name": 'meds_id', "class": "", "width": ""},
         {"name": 'season', "class": "", "width": ""},
     ]
@@ -101,7 +102,6 @@ class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
         'chief_scientist',
         'samplers',
         'time_period|time period',
-        'end_date',
         'probe',
         'area_of_operation',
         'number_of_profiles',
@@ -112,19 +112,17 @@ class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
     home_url_name = "cruises:index"
 
 
-class CruiseUpdateView(OceanographyAdminRequiredMixin, UpdateView):
+class CruiseUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
     model = shared_models.Cruise
     form_class = forms.CruiseForm
+    template_name = 'cruises/form.html'
+    home_url_name = "cruises:index"
 
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("cruises:mission_detail", kwargs={"pk": self.object.id})
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_object().id])}
 
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-
-        context["editable"] = True
-        return context
+    def get_grandparent_crumb(self):
+        return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
 
 
 # CSVs #
@@ -211,57 +209,56 @@ def export_mission_csv(request, pk):
 # FILES #
 #########
 
-class FileCreateView(OceanographyAccessRequiredMixin, CreateView):
-    template_name = "cruises/file_form.html"
+class FileCreateView(OceanographyAccessRequiredMixin, CommonPopoutCreateView):
     model = models.File
     form_class = forms.FileForm
-
-    def form_valid(self, form):
-        object = form.save()
-        return HttpResponseRedirect(reverse_lazy("cruises:mission_detail", kwargs={"pk": object.mission.id}))
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = True
-        context["mission"] = shared_models.Cruise.objects.get(pk=self.kwargs.get("mission"))
-        return context
+    is_multipart_form_data = True
 
     def get_initial(self):
-        mission = shared_models.Cruise.objects.get(pk=self.kwargs['mission'])
+        mission = shared_models.Cruise.objects.get(pk=self.kwargs['cruise'])
         return {'mission': mission}
 
 
-class FileDetailView(OceanographyAccessRequiredMixin, UpdateView):
-    template_name = "cruises/file_form.html"
+class FileUpdateView(OceanographyAdminRequiredMixin, CommonPopoutUpdateView):
     model = models.File
     form_class = forms.FileForm
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = False
-        return context
+    is_multipart_form_data = True
 
 
-class FileUpdateView(OceanographyAdminRequiredMixin, UpdateView):
-    template_name = "cruises/file_form.html"
-    model = models.File
-    form_class = forms.FileForm
-
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("cruises:mission_detail", kwargs={"pk": self.object.mission.id})
-
-    def get_context_data(self, **kwargs):
-        # get context
-        context = super().get_context_data(**kwargs)
-        context["editable"] = True
-        return context
-
-
-class FileDeleteView(OceanographyAdminRequiredMixin, DeleteView):
-    template_name = "cruises/file_confirm_delete.html"
+class FileDeleteView(OceanographyAdminRequiredMixin, CommonPopoutDeleteView):
     model = models.File
 
-    def get_success_url(self, **kwargs):
-        return reverse_lazy("cruises:mission_detail", kwargs={"pk": self.object.mission.id})
+
+# SETTINGS #
+############
+
+class VesselFormsetView(OceanographyAdminRequiredMixin, CommonFormsetView):
+    template_name = 'cruises/formset.html'
+    h1 = "Manage Vessels"
+    queryset = shared_models.Vessel.objects.all()
+    formset_class = forms.VesselFormset
+    success_url_name = "cruises:manage_vessels"
+    home_url_name = "cruises:index"
+    delete_url_name = "cruises:delete_vessel"
+    container_class = "container-fluid"
+
+
+class VesselHardDeleteView(OceanographyAdminRequiredMixin, CommonHardDeleteView):
+    model = shared_models.Vessel
+    success_url = reverse_lazy("cruises:manage_vessels")
+
+
+class InstituteFormsetView(OceanographyAdminRequiredMixin, CommonFormsetView):
+    template_name = 'cruises/formset.html'
+    h1 = "Manage Institutes"
+    queryset = shared_models.Institute.objects.all()
+    formset_class = forms.InstituteFormset
+    success_url_name = "cruises:manage_institutes"
+    home_url_name = "cruises:index"
+    delete_url_name = "cruises:delete_institute"
+    container_class = "container-fluid"
+
+
+class InstituteHardDeleteView(OceanographyAdminRequiredMixin, CommonHardDeleteView):
+    model = shared_models.Institute
+    success_url = reverse_lazy("cruises:manage_institutes")

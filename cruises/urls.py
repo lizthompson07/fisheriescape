@@ -21,9 +21,17 @@ urlpatterns = [
     # FILES #
     #########
     path('cruise/<int:cruise>/file/new/', views.FileCreateView.as_view(), name='file_create'),
-    path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
+
+    # SETTINGS #
+    ############
+    path('settings/vessels/', views.VesselFormsetView.as_view(), name="manage_vessels"),
+    path('settings/vessel/<int:pk>/delete/', views.VesselHardDeleteView.as_view(), name="delete_vessel"),
+
+    path('settings/institutes/', views.InstituteFormsetView.as_view(), name="manage_institutes"),
+    path('settings/institute/<int:pk>/delete/', views.InstituteHardDeleteView.as_view(), name="delete_institute"),
+
 
 ]
 

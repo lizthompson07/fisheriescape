@@ -405,8 +405,7 @@ class Cruise(models.Model):
 
     @property
     def time_period(self):
-        return mark_safe(f"FROM: {default_if_none(self.start_date.strftime('%Y-%m-%d'), '--')}  | TO: {default_if_none(self.end_date.strftime('%Y-%m-%d'), '--')}")
-
+        return mark_safe(f"{default_if_none(self.start_date.strftime('%Y-%m-%d'), '--')}  &rarr; {default_if_none(self.end_date.strftime('%Y-%m-%d'), '--')}")
 
 
 #########################################
