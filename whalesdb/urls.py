@@ -82,8 +82,8 @@ urlpatterns = [
     path('create/rst/<int:rsc>/<str:pop>/', views.RstCreate.as_view(), name="create_rst"),
     path('delete/rst/<int:pk>/', views.rst_delete, name="delete_rst"),
 
-    path('create/ste/<int:dep_id>/<int:pk>/<str:pop>/', views.SteCreate.as_view(), name="create_ste"),
-    path('update/ste/<int:dep_id>/<int:pk>/<str:pop>/', views.SteUpdate.as_view(), name="update_ste"),
+    path('create/ste/<int:dep_id>/<int:set_id>/<str:pop>/', views.SteCreate.as_view(), name="create_ste"),
+    path('update/ste/<int:pk>/<str:pop>/', views.SteUpdate.as_view(), name="update_ste"),
 
     path('create/stn/', views.StnCreate.as_view(), name="create_stn"),
     path('create/stn/<str:pop>/', views.StnCreate.as_view(), name="create_stn"),

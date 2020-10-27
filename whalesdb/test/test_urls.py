@@ -298,8 +298,7 @@ class URLTest(TestCase):
 
     @tag('ste', 'url', 'update', 'pop')
     def test_url_update_set_pop_ste_view(self):
-        # The Station Event object requires a Deployment and a station event type
-        self.basic_en_url_test('whalesdb:update_ste', 'whalesdb/update/ste/1/2/pop/', views.SteUpdate, [1, 2, 'pop'])
+        self.basic_en_url_test('whalesdb:update_ste', 'whalesdb/update/ste/1/pop/', views.SteUpdate, [1, 'pop'])
 
     @tag('tea', 'url', 'create')
     def test_url_create_tea_view(self):

@@ -415,15 +415,7 @@ class StnUpdate(mixins.StnMixin, CommonUpdate):
 
 
 class SteUpdate(mixins.SteMixin, CommonUpdate):
-
-    def get_initial(self):
-        init = super().get_initial()
-        if 'dep_id' in self.kwargs and models.DepDeployment.objects.filter(pk=self.kwargs['dep_id']):
-            init['dep'] = models.DepDeployment.objects.get(pk=self.kwargs['dep_id'])
-
-        if 'set_id' in self.kwargs and models.SetStationEventCode.objects.filter(pk=self.kwargs['set_id']):
-            init['set_type'] = models.SetStationEventCode.objects.get(pk=self.kwargs['set_id'])
-        return init
+    pass
 
 
 class CommonDetails(DetailView):

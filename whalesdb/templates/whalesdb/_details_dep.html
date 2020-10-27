@@ -126,7 +126,7 @@
                                         <div class="card-header">
                                             <div class="row">
                                                 <a class="col h5" href="#fs-evt-{{evt.pk}}" data-toggle="collapse">{% trans 'Details' %}</a>
-                                                <a class="btn btn-primary col-2" href="#" onclick="return pop('{% url 'whalesdb:update_ste' evt.id object.pk 'pop' %}','all')" >{% trans 'Update' %}</a>
+                                                <a class="btn btn-primary col-2" href="#" onclick="return pop('{% url 'whalesdb:update_ste' evt.id 'pop' %}','all')" >{% trans 'Update' %}</a>
                                             </div>
                                         </div>
                                         <div class="card-body collapse" id="fs-evt-{{evt.pk}}">
