@@ -68,6 +68,9 @@ parameters:
   - name: WEB_APP_NAME
     type: string
 
+  - name: AZURE_INSTRUMENTATION_KEY
+    type: string
+
 
 steps:
   - task: UsePythonVersion@0
@@ -129,6 +132,7 @@ steps:
         -DB_PASSWORD ${{parameters.DB_PASSWORD_WEB}}
         -DB_PORT 3306
         -DEBUG ${{parameters.DEBUG}}
+        -AZURE_INSTRUMENTATION_KEY ${{parameters.AZURE_INSTRUMENTATION_KEY}}
         -SENDGRID_API_KEY ${{parameters.SENDGRID_API_KEY}}
         -GITHUB_API_KEY ${{parameters.GITHUB_API_KEY}}
         -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)
