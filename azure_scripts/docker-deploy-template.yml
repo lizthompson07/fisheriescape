@@ -79,7 +79,9 @@ steps:
       # install pre-requisites
       python -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
-      pip install -r requirements.txt
+      python -m pip install -r requirements.txt
+      python -m pip uninstall django-easy-pdf
+      python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 
       # create env file
       python create_env_file.py --db-host "${{parameters.DB_HOST}}" \

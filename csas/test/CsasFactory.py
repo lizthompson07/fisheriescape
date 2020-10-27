@@ -9,7 +9,7 @@ from shared_models import models as shared_models
 faker = Factory.create()
 
 
-class LookupFactory(factory.DjangoModelFactory):
+class LookupFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.Lookup
@@ -36,7 +36,7 @@ class RetTimingFactory(LookupFactory):
         model = models.RetTiming
 
 
-class ReqRequestFactory(factory.DjangoModelFactory):
+class ReqRequestFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.ReqRequest

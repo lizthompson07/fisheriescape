@@ -10,24 +10,29 @@ ENV PYTHONUNBUFFERED 1
 # install and enable ssh service
 ENV SSH_PASSWD "root:Docker!"
 RUN apt-get update \
-        && apt-get install -y --no-install-recommends dialog \
-        && apt-get update \
-  && apt-get install -y --no-install-recommends openssh-server \
-  && echo "$SSH_PASSWD" | chpasswd
+    && apt-get install -y --no-install-recommends dialog \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends openssh-server \
+    && echo "$SSH_PASSWD" | chpasswd
 COPY ./sshd_config /etc/ssh/
 
 # install dependencies
 RUN python -m pip install --upgrade pip setuptools wheel
 
-
 COPY ./requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt \
+    && python -m pip uninstall django-easy-pdf \
+    && python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 
-RUN mkdir media
-RUN mkdir media/travel
-RUN mkdir media/travel/temp
-RUN mkdir media/inventory
-RUN mkdir media/inventory/temp
+RUN mkdir media \
+    && mkdir media/travel \
+    && mkdir media/travel/temp \
+    && mkdir media/inventory \
+    && mkdir media/inventory/temp \
+    && mkdir media/projects \
+    && mkdir media/project/temp \
+    && mkdir media/ihub \
+    && mkdir media/ihub/temp
 
 COPY . /opt/services/djangoapp/src
 

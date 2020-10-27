@@ -136,9 +136,10 @@ INSTALLED_APPS = [
                      'django.contrib.humanize',
                      'bootstrap4',
                      'el_pagination',
-                     'easy_pdf',
+                     # 'easy_pdf',
                      'tracking',
                      'accounts',
+                     # 'debug_toolbar',
                      'lib',
                      'shared_models',
                      'tickets',
@@ -167,6 +168,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'dm_apps.urls'
@@ -308,3 +310,9 @@ if not DEBUG:
                 },
             },
         }
+
+# DJANGO DEBUG TOOLBAR
+
+# INTERNAL_IPS = [
+#     '127.0.0.1',
+# ]

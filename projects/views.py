@@ -1,11 +1,9 @@
-import datetime
 import json
 import os
 from collections import OrderedDict
 from copy import deepcopy
 
 import pandas as pd
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -15,8 +13,6 @@ from django.db.models import Sum, Q, Count, Value, TextField
 from django.db.models.functions import Concat
 from django.shortcuts import render
 from django.utils import timezone
-from django.utils.safestring import mark_safe
-from django.utils.text import slugify
 from django.utils.translation import gettext as _, gettext_lazy
 from django_filters.views import FilterView
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -1363,7 +1359,7 @@ class MyTempListView(LoginRequiredMixin, ListView):
         "section__division__branch__region",
         "section__division",
         "section",
-        "program",
+        "programs",
     )
     template_name = 'projects/my_temp_list.html'
 

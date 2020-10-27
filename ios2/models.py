@@ -44,7 +44,7 @@ class Instrument(models.Model):
              ('422', '422')]
     # fiscal_year = models.CharField(max_length=50, default="2019-2020", verbose_name=_("fiscal year"))
     # year = models.TextField(verbose_name=("Instrument title"))
-    instrument_type = models.CharField(max_length=20, default='SBE16+', verbose_name=_("Instrument Type"),
+    instrument_type = models.CharField(max_length=30, default='SBE16+', verbose_name=_("Instrument Type"),
                                        choices=TYPE_CHOICES)
     serial_number = models.CharField(max_length=20, default='00000', verbose_name=_("Serial ID"))
     purchase_date = models.DateField(blank=True, null=True, verbose_name=_("Purchase Date"))
