@@ -5,17 +5,12 @@ trigger:
 
 steps:
   - task: UsePythonVersion@0
-      displayName: 'Use Python 3.8'
-      inputs:
-        versionSpec: 3.8
+    displayName: 'Use Python 3.8'
+    inputs:
+      versionSpec: 3.8
 
   - script: |
-
       # install pre-requisites
-      whoami
-      . /home/agentsvc/.bashrc
-      python --version | tee
-      python -m pip -V | tee
       python -m pip install --upgrade pip setuptools wheel
       python -m pip install -r requirements.txt
       mkdir media
