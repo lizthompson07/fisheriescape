@@ -36,4 +36,5 @@ EXPOSE 8000 2222
 COPY ./azure_scripts/init.sh /usr/local/bin/
 	
 RUN chmod u+x /usr/local/bin/init.sh
-ENTRYPOINT ["init.sh"]
+
+ENTRYPOINT ["bash","init.sh"]
