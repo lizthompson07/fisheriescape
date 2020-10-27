@@ -4,6 +4,11 @@ trigger:
   - master
 
 steps:
+  - task: UsePythonVersion@0
+      displayName: 'Use Python 3.8'
+      inputs:
+        versionSpec: 3.8
+
   - script: |
 
       # install pre-requisites
