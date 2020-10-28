@@ -260,6 +260,7 @@ class CommonPopoutDeleteView(CommonPopoutFormMixin, CommonDeleteView):
         context.update(super().get_common_context())
         context['width'] = self.width
         context['height'] = self.height
+        context['submit_btn_class'] = 'btn-danger'
         return context
 
 

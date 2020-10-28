@@ -7,12 +7,13 @@ from django.utils.translation import gettext_lazy as _
 
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
-from shared_models.models import SimpleLookup
+from shared_models.models import SimpleLookup, Cruise
 
 
 class Instrument(models.Model):
     name = models.CharField(unique=True, max_length=255, verbose_name=_("name"))
     notes = models.TextField(blank=True, null=True)
+    cruise = models.ForeignKey(shared_models.Cruise, related_name="instruments", on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse("cruises:instrument_detail", kwargs={"pk": self.pk})
@@ -47,14 +48,14 @@ class InstrumentComponent(models.Model):
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'oceanography/{0}/{1}'.format(instance.mission.mission_number, filename)
+    return 'cruises/{0}/{1}'.format(instance.cruise.mission_number, filename)
 
 
 class File(models.Model):
     caption = models.CharField(max_length=255)
-    mission = models.ForeignKey(shared_models.Cruise, related_name="files", on_delete=models.CASCADE)
+    cruise = models.ForeignKey(shared_models.Cruise, related_name="files", on_delete=models.CASCADE)
     file = models.FileField(upload_to=file_directory_path)
-    date_created = models.DateTimeField(default=timezone.now)
+    date_created = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
         ordering = ['-date_created']

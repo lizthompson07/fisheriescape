@@ -1,22 +1,17 @@
 from django.utils.translation import gettext as _
-
-from lib.functions.custom_functions import listrify
-from shared_models import models as shared_models
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db.models import Count, TextField
+from django.db.models import TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
+from django.urls import reverse_lazy
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
 from . import models
 from . import forms
 from . import filters
-from . import reports
 
 class CloserTemplateView(TemplateView):
     template_name = 'vault/close_me.html'

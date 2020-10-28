@@ -26,6 +26,7 @@ urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
     path('tracking/', include('tracking.urls')),
+    # path('__debug__/', include(debug_toolbar.urls)),
 ]
 
 urlpatterns += i18n_patterns(

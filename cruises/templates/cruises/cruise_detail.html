@@ -1,0 +1,134 @@
+{% extends "cruises/base.html" %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load static %}
+{% load i18n %}
+
+
+{% block subcontent %}
+
+  <div class="btns mb-5">
+    <a href="{% url "cruises:cruise_edit" object.id %}" class="btn btn-warning">{% trans "Edit" %}</a>
+    <a href="{% url "cruises:cruise_delete" object.id %}" class="btn btn-danger">{% trans "Delete" %}</a>
+    <a href="#" pop-href="{% url "cruises:file_new" object.id %}" class="btn btn-primary">Add Instruments</a>
+    <a href="#" pop-href="{% url "cruises:file_new" object.id %}" class="btn btn-primary">Add a File</a>
+  </div>
+
+  <table class="table table-sm table-striped">
+    {% for field in field_list %}
+
+      {% verbose_td_display instance=object field_name=field date_format="%d-%b-%Y" %}
+
+    {% endfor %}
+
+
+    {# instruments #}
+    <tr>
+      <th>
+        Instruments:
+      </th>
+      <td>
+        <ul>
+          {% for file in object.files.all %}
+            <li>
+              <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded
+              on: {{ file.date_created|date:"F d Y" }})
+              &nbsp;
+              <a href="#" pop-href="{% url 'cruises:file_edit' file.id %}">
+                <span class="mdi mdi-pencil" style="font-size: large"></span>
+              </a>
+              <a href="#" pop-href="{% url 'cruises:file_delete' file.id %}">
+                <span class="mdi mdi-delete" style="font-size: large"></span>
+              </a>
+
+            </li>
+          {% empty %}
+            <span class="">  <em>There are no files attached to this cruise.</em></span>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+
+
+    {# files #}
+    <tr>
+      <th>
+        Associated Files:
+      </th>
+      <td>
+        <ul>
+          {% for file in object.files.all %}
+            <li>
+              <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded
+              on: {{ file.date_created|date:"F d Y" }})
+              &nbsp;
+              &nbsp;
+              <a href="#" pop-href="{% url 'cruises:file_edit' file.id %}">
+                <span class="mdi mdi-pencil" style="font-size: large"></span>
+              </a>
+              <a href="#" pop-href="{% url 'cruises:file_delete' file.id %}">
+                <span class="mdi mdi-delete" style="font-size: large"></span>
+              </a>
+
+            </li>
+          {% empty %}
+            <span class="">  <em>There are no files attached to this cruise.</em></span>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+
+
+  </table>
+
+
+
+
+  {#        <br><br>#}
+  {##}
+  {#        <div class="row">#}
+  {#            <div class="col">#}
+  {#                <div class="mb-4">#}
+  {#                    <h3>Mission Detail</h3>#}
+  {##}
+  {#                    <table class="table table-striped table-sm">#}
+  {#                        {% for field in field_list %}#}
+  {#                            {% if not filed == "vessel" %}#}
+  {#                                {% verbose_td_display object field %}#}
+  {#                            {% else %}#}
+  {#                                <tr>#}
+  {#                                    <td>field.name</td>#}
+  {#                                    <td></td>#}
+  {#                                </tr>#}
+  {#                            {% endif %}#}
+  {#                        {% endfor %}#}
+  {#                    </table>#}
+  {#                </div>#}
+  {##}
+
+  {##}
+  {#                <div class="mb-4">#}
+  {#                    <div class="mb-2">#}
+  {#                        <div class="neighbours">#}
+  {#                            <h3>Map of Bottles</h3>#}
+  {#                        </div>#}
+  {#                        {% if object.bottles.count %}#}
+  {#                            <div class="neighbours btn-group">#}
+  {#                                <a href="{% url "cruises:bottle_list" object.id %}" class="btn btn-primary">View Bottles</a>#}
+  {#                                <a href="{% url "cruises:mission_export_csv" object.id %}" class="btn btn-success">Export Bottle#}
+  {#                                    CSV</a>#}
+  {#                            </div>#}
+  {#                        {% endif %}#}
+  {#                    </div>#}
+  {#                    {% if object.bottles.count %}#}
+  {#                        <div id="map"></div>#}
+  {#                        <div id="lineMap"></div>#}
+  {#                    {% else %}#}
+  {#                        <em>There are no water samples to display</em>#}
+  {#                    {% endif %}#}
+  {#                </div>#}
+  {#            </div>#}
+  {#        </div>#}
+  {#    </div>#}
+
+{% endblock %}

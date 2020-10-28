@@ -10,20 +10,34 @@ urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name='index'), # TESTED
 
 
-    # MISSIONS #
+    # CRUISES #
     ############
-    path('missions/', views.MissionListView.as_view(), name='mission_list'),
-    path('mission/<int:pk>/view/', views.MissionDetailView.as_view(), name='mission_detail'),
-    path('mission/<int:pk>/edit/', views.MissionUpdateView.as_view(), name='mission_edit'),
-    path('mission/new/', views.MissionCreateView.as_view(), name='mission_new'),
-    path('mission/<int:pk>/export-csv/', views.export_mission_csv, name='mission_export_csv'),
+    path('list/', views.CruiseListView.as_view(), name='cruise_list'),# TESTED
+    path('new/', views.CruiseCreateView.as_view(), name='cruise_new'),# TESTED
+    path('<int:pk>/view/', views.CruiseDetailView.as_view(), name='cruise_detail'),# TESTED
+    path('<int:pk>/edit/', views.CruiseUpdateView.as_view(), name='cruise_edit'),# TESTED
+    path('<int:pk>/delete/', views.CruiseDeleteView.as_view(), name='cruise_delete'),# TESTED
+    # path('cruise/<int:pk>/export-csv/', views.export_cruise_csv, name='cruise_export_csv'),
 
     # FILES #
     #########
-    path('mission/<int:mission>/file/new/', views.FileCreateView.as_view(), name='file_create'),
-    path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
-    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
-    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
+    path('<int:cruise>/file/new/', views.FileCreateView.as_view(), name='file_new'),# TESTED
+    path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),# TESTED
+    path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),# TESTED
+
+    # INSTRUMENTS #
+    ###############
+    path('<int:cruise>/instrument/new/', views.InstrumentCreateView.as_view(), name='instrument_new'),  # TESTED
+    path('instrument/<int:pk>/edit/', views.InstrumentUpdateView.as_view(), name='instrument_edit'),  # TESTED
+    path('instrument/<int:pk>/delete/', views.InstrumentDeleteView.as_view(), name='instrument_delete'),  # TESTED
+
+    # SETTINGS #
+    ############
+    path('settings/vessels/', views.VesselFormsetView.as_view(), name="manage_vessels"),# TESTED
+    path('settings/vessel/<int:pk>/delete/', views.VesselHardDeleteView.as_view(), name="delete_vessel"),# TESTED
+
+    path('settings/institutes/', views.InstituteFormsetView.as_view(), name="manage_institutes"),# TESTED
+    path('settings/institute/<int:pk>/delete/', views.InstituteHardDeleteView.as_view(), name="delete_institute"),# TESTED
 
 ]
 

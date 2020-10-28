@@ -240,7 +240,7 @@ class CommonTest(TestCase):
         self.assertEquals(test_view, expected_form_class)
 
     def assert_success_url(self, test_url, data=None, user=None, expected_url_name=None, expected_success_url=None,
-                           use_anonymous_user=False):
+                           use_anonymous_user=False, file_field_name=None):
         """
         test that upon a successful form the view redirects to the expected success url
         :param data: optional data to use when submitting the form
@@ -255,7 +255,14 @@ class CommonTest(TestCase):
         # if a user is provided in the arg, log in with that user
         if not use_anonymous_user:
             self.get_and_login_user(user)
-        response = self.client.post(test_url, data=data)
+
+        if data and file_field_name:
+            with open('README.md') as fp:
+                data[file_field_name] = fp
+                response = self.client.post(test_url, data=data,)
+        else:
+            response = self.client.post(test_url, data=data)
+
 
         if response.context and 'form' in response.context:
             # If the data in this test is invaild the response will be invalid
@@ -326,7 +333,56 @@ class CommonTest(TestCase):
             form = Form()
         self.assertNotIn(field_name, form.fields)
 
-    # Tests for models
-    ##################
-        # nothing yet :(
 
+ # Tests for models
+    ##################
+    def assert_unique_fields(self, model, field_names):
+        """
+        assert that a field within a model is unique
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for field_name in field_names:
+            field = [field for field in model._meta.fields if field.name == field_name][0]
+            self.assertTrue(field.unique)
+
+    def assert_mandatory_fields(self, model, field_names):
+        """
+        assert that a field within a model is mandatory (blank=True, null=True)
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for field_name in field_names:
+            field = [field for field in model._meta.fields if field.name == field_name][0]
+            self.assertFalse(field.blank)
+            self.assertFalse(field.null)
+
+    def assert_non_mandatory_fields(self, model, field_names):
+        """
+        assert that a field within a model is not mandatory (blank=False, null=False)
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for field_name in field_names:
+            field = [field for field in model._meta.fields if field.name == field_name][0]
+            self.assertTrue(field.blank)
+            self.assertTrue(field.null)
+
+    def assert_has_fields(self, model, fields):
+        """
+        assert that a model has specified field names
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        model_field_list = [field.name for field in model._meta.fields]
+        for field in fields:
+            self.assertIn(field, model_field_list)
+
+    def assert_has_props(self, model, props):
+        """
+        assert that a model has specified props
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for prop in props:
+            self.assertTrue(hasattr(model, prop))

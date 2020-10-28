@@ -46,7 +46,7 @@ class TicketListView(LoginRequiredMixin, CommonFilterView):
     filterset_class = filters.TicketFilter
     template_name = "tickets/list.html"
     queryset = models.Ticket.objects.annotate(
-        search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
+        search_term=Concat('id', 'title', 'notes', output_field=TextField()))
     h1 = gettext_lazy("Data Management Tickets")
     container_class = "container-fluid"
     field_list = [
