@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.template.defaultfilters import default_if_none
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 import uuid
@@ -105,8 +105,8 @@ class Region(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['name', ]
-        verbose_name = _("Region / NCR Sector")
-        verbose_name_plural = _("Regions / NCR Sectors")
+        verbose_name = _("Region - Sector (NCR)")
+        verbose_name_plural = _("Regions - Sectors (NCR)")
 
 
 class Branch(SimpleLookupWithUUID):
@@ -126,8 +126,8 @@ class Branch(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['name', ]
-        verbose_name = _("Branch / NCR Directorate")
-        verbose_name_plural = _("Branches / NCR Directorates")
+        verbose_name = _("Branch - Directorate (NCR)")
+        verbose_name_plural = _("Branches - Directorates (NCR)")
 
 
 class Division(SimpleLookupWithUUID):
@@ -146,8 +146,8 @@ class Division(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['name', ]
-        verbose_name = _("Division / NCR Branch")
-        verbose_name_plural = _("Divisions / NCR Branches")
+        verbose_name = _("Division - Branch (NCR)")
+        verbose_name_plural = _("Divisions - Branches (NCR)")
 
 
 # CONNECTED APPS: tickets, travel, projects, inventory
@@ -163,8 +163,8 @@ class Section(SimpleLookupWithUUID):
 
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
-        verbose_name = _("Section / NCR Team")
-        verbose_name_plural = _("Sections / NCR Teams")
+        verbose_name = _("Section - Team (NCR)")
+        verbose_name_plural = _("Sections - Teams (NCR)")
 
     @property
     def full_name(self):
@@ -367,7 +367,7 @@ class Vessel(models.Model):
 # snowcrab
 class Cruise(models.Model):
     institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True)
-    mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"))
+    mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"), unique=True)
     mission_name = models.CharField(max_length=255, verbose_name=_("Mission Name"))
     description = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Description"))
     purpose = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Purpose"))
@@ -402,6 +402,10 @@ class Cruise(models.Model):
         if self.start_date:
             self.season = self.start_date.year
         return super().save(*args, **kwargs)
+
+    @property
+    def time_period(self):
+        return mark_safe(f"{default_if_none(self.start_date.strftime('%Y-%m-%d'), '--')}  &rarr; {default_if_none(self.end_date.strftime('%Y-%m-%d'), '--')}")
 
 
 #########################################

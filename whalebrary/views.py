@@ -17,7 +17,7 @@ from django.utils.safestring import mark_safe
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
-from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.templatetags.static import static
 from django.db.models import Count, TextField, F, Sum
 from django.db.models.functions import Concat, datetime
 from django.http import HttpResponseRedirect, HttpResponse, Http404

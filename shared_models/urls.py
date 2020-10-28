@@ -40,4 +40,8 @@ urlpatterns = [
     path('region/<int:pk>/delete/', views.RegionDeleteView.as_view(), name="region_delete"),
     path('region/new/', views.RegionCreateView.as_view(), name="region_new"),
 
+    # USER # (NOT TESTED)
+    ########
+    path('user/new/', views.UserCreateView.as_view(), name="user_new"),
+
 ]

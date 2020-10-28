@@ -19,7 +19,7 @@ from .utils import db_connection_values_exist, get_db_connection_dict
 APP_DICT = {
     'inventory': 'Metadata Inventory',
     'grais': 'grAIS',
-    'oceanography': 'Oceanography',
+    'cruises': 'Cruises',
     'herring': 'HerMorrhage',
     'camp': 'CAMP db',
     'meq': 'Marine environmental quality (MEQ)',

@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
 from django.db.models.functions import Concat
 from django.template.defaultfilters import pluralize
@@ -2249,7 +2249,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
+class ReportSearchFormView(TravelAdminRequiredMixin, FormView):
     template_name = 'travel/report_search.html'
     form_class = forms.ReportSearchForm
 
@@ -2550,6 +2550,63 @@ class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
+    template_name = "travel/user_list.html"
+    filterset_class = filters.UserFilter
+    home_url_name = "index"
+    paginate_by = 25
+    h1 = "Travel App User List"
+    field_list = [
+            {"name": 'first_name', "class": "", "width": ""},
+            {"name": 'last_name', "class": "", "width": ""},
+            {"name": 'email', "class": "", "width": ""},
+            {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
+        ]
+    new_object_url = reverse_lazy("shared_models:user_new")
+
+
+    def get_queryset(self):
+        queryset = User.objects.order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
+        )
+        if self.kwargs.get("travel"):
+            queryset = queryset.filter(groups__in=[33, 36]).distinct()
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["admin_group"] = Group.objects.get(pk=33)
+        context["adm_admin_group"] = Group.objects.get(pk=36)
+        return context
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_adm_admin_group, login_url='/accounts/denied/')
+def toggle_user(request, pk, type):
+    my_user = User.objects.get(pk=pk)
+    admin_group = Group.objects.get(pk=33)
+    adm_admin_group = Group.objects.get(pk=36)
+    if type == "admin":
+        # if the user is in the admin group, remove them
+        if admin_group in my_user.groups.all():
+            my_user.groups.remove(admin_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(admin_group)
+    elif type == "adm_admin":
+        # if the user is in the edit group, remove them
+        if adm_admin_group in my_user.groups.all():
+            my_user.groups.remove(adm_admin_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(adm_admin_group)
+
+    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+
+
 
 
 # FILES #

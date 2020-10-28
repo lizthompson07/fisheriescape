@@ -68,6 +68,9 @@ parameters:
   - name: WEB_APP_NAME
     type: string
 
+  - name: AZURE_INSTRUMENTATION_KEY
+    type: string
+
 
 steps:
   - task: UsePythonVersion@0
@@ -79,7 +82,9 @@ steps:
       # install pre-requisites
       python -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
-      pip install -r requirements.txt
+      python -m pip install -r requirements.txt
+      python -m pip uninstall django-easy-pdf
+      python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 
       # create env file
       python create_env_file.py --db-host "${{parameters.DB_HOST}}" \
@@ -127,6 +132,7 @@ steps:
         -DB_PASSWORD ${{parameters.DB_PASSWORD_WEB}}
         -DB_PORT 3306
         -DEBUG ${{parameters.DEBUG}}
+        -AZURE_INSTRUMENTATION_KEY ${{parameters.AZURE_INSTRUMENTATION_KEY}}
         -SENDGRID_API_KEY ${{parameters.SENDGRID_API_KEY}}
         -GITHUB_API_KEY ${{parameters.GITHUB_API_KEY}}
         -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)

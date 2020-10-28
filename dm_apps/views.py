@@ -170,14 +170,14 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["oceanography"] = {
-            "title": _("Oceanography"),
-            "description": _("Collection, processing and storage of regional oceanographic data."),
+        app_dict["cruises"] = {
+            "title": _("Cruises"),
+            "description": _("Collection of regional cruise metadata and oceanographic data."),
             "status": "dev",
             "access": "open",
-            "url": reverse('oceanography:index'),
+            "url": reverse('cruises:index'),
             "icon_path": 'img/icons/boat.svg',
-            "region": "regional",
+            "region": "national",
         }
     except NoReverseMatch:
         pass

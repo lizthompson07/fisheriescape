@@ -1,6 +1,6 @@
 import os
 from django.test import TestCase
-from django.urls import reverse_lazy, resolve
+from django.urls import reverse_lazy, resolve, reverse
 from django.utils.translation import activate
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 
@@ -219,6 +219,13 @@ class CommonTest(TestCase):
 
         self.assertIn(context_var, response.context)
 
+
+
+    def assert_correct_url(self, test_url_name, expected_url_path, test_url_args=None):
+        # arbitrarily activate the english locale
+        activate('en')
+        my_path = reverse(test_url_name, args=test_url_args)
+        self.assertEqual(my_path, f'{expected_url_path}')
 
     # Tests for forms (create, update, delete and form views)
     #################

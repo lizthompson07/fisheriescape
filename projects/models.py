@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q, Sum
 from django.dispatch import receiver
-from django.urls import reverse
 from django.utils import timezone
 from textile import textile
 

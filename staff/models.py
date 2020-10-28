@@ -147,7 +147,7 @@ class StaffingPlan(models.Model):
         return "{} ({})".format(self.fiscal_year, self.name )
 
     class Meta:
-        ordering = ['fiscal_year__name', 'responsibility_center__name', 'position_number', 'position_title']
+        ordering = ['fiscal_year__full', 'responsibility_center__name', 'position_number', 'position_title']
 
 
 class StaffingPlanFunding(models.Model):

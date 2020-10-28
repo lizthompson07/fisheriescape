@@ -16,8 +16,8 @@ urlpatterns = [
 #     # DASHBOARD 1 #
 #     ###########
 
-    path('dashboard/', views.dashboard_with_pivot, name="dashboard_with_pivot"),
-    path('data/', views.pivot_data, name="pivot_data"),
+    # path('dashboard/', views.dashboard_with_pivot, name="dashboard_with_pivot"),
+    # path('data/', views.pivot_data, name="pivot_data"),
 
 #     # SPECIES #
 #     ###########
@@ -43,26 +43,26 @@ urlpatterns = [
     path('instrument/<int:pk>/edit/', views.InstrumentUpdateView.as_view(), name="instrument_edit"),
     path('instrument/<int:pk>/delete/', views.InstrumentDeleteView.as_view(), name="instrument_delete"),
 
-    # # OUTING #
-    path('outing-list/', views.OutingListView.as_view(), name="outing_list"),
-    path('outing/new/', views.OutingCreateView.as_view(), name="outing_new"),
-    path('outing/<int:pk>/view/', views.OutingDetailView.as_view(), name="outing_detail"),
-    path('outing/<int:pk>/edit/', views.OutingUpdateView.as_view(), name="outing_edit"),
-    path('outing/<int:pk>/delete/', views.OutingDeleteView.as_view(), name="outing_delete"),
+    # # # OUTING #
+    # path('outing-list/', views.OutingListView.as_view(), name="outing_list"),
+    # path('outing/new/', views.OutingCreateView.as_view(), name="outing_new"),
+    # path('outing/<int:pk>/view/', views.OutingDetailView.as_view(), name="outing_detail"),
+    # path('outing/<int:pk>/edit/', views.OutingUpdateView.as_view(), name="outing_edit"),
+    # path('outing/<int:pk>/delete/', views.OutingDeleteView.as_view(), name="outing_delete"),
 
-    # # PERSON #
-    path('person-list/', views.PersonListView.as_view(), name="person_list"),
-    path('person/new/', views.PersonCreateView.as_view(), name="person_new"),
-    path('person/<int:pk>/view/', views.PersonDetailView.as_view(), name="person_detail"),
-    path('person/<int:pk>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
-    path('person/<int:pk>/delete/', views.PersonDeleteView.as_view(), name="person_delete"),
-
-    # # OBSERVATION #
-    path('observation-list/', views.ObservationListView.as_view(), name="observation_list"),
-    path('observation/new/', views.ObservationCreateView.as_view(), name="observation_new"),
-    path('observation/<int:pk>/view/', views.ObservationDetailView.as_view(), name="observation_detail"),
-    path('observation/<int:pk>/edit/', views.ObservationUpdateView.as_view(), name="observation_edit"),
-    path('observation/<int:pk>/delete/', views.ObservationDeleteView.as_view(), name="observation_delete"),
+    # # # PERSON #
+    # path('person-list/', views.PersonListView.as_view(), name="person_list"),
+    # path('person/new/', views.PersonCreateView.as_view(), name="person_new"),
+    # path('person/<int:pk>/view/', views.PersonDetailView.as_view(), name="person_detail"),
+    # path('person/<int:pk>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
+    # path('person/<int:pk>/delete/', views.PersonDeleteView.as_view(), name="person_delete"),
+    #
+    # # # OBSERVATION #
+    # path('observation-list/', views.ObservationListView.as_view(), name="observation_list"),
+    # path('observation/new/', views.ObservationCreateView.as_view(), name="observation_new"),
+    # path('observation/<int:pk>/view/', views.ObservationDetailView.as_view(), name="observation_detail"),
+    # path('observation/<int:pk>/edit/', views.ObservationUpdateView.as_view(), name="observation_edit"),
+    # path('observation/<int:pk>/delete/', views.ObservationDeleteView.as_view(), name="observation_delete"),
 
 ]
 

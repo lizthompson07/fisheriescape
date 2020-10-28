@@ -5,7 +5,7 @@ from django_filters.views import FilterView
 from .. import models
 from .. import views
 from .common_tests import CommonTest
-from ..views import CommonListView
+from ..views import CommonListView, CommonFilterView
 
 
 class TestSectionListView(CommonTest):
@@ -17,7 +17,7 @@ class TestSectionListView(CommonTest):
 
     @tag("section_list", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.SectionListView, CommonListView)
+        self.assert_inheritance(views.SectionListView, CommonFilterView)
         self.assert_inheritance(views.SectionListView, views.AdminRequiredMixin)
 
     @tag("section_list", 'list', "access")
@@ -45,7 +45,7 @@ class TestDivisionListView(CommonTest):
 
     @tag("division_list", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.DivisionListView, CommonListView)
+        self.assert_inheritance(views.DivisionListView, CommonFilterView)
         self.assert_inheritance(views.DivisionListView, views.AdminRequiredMixin)
 
     @tag("division_list", 'list', "access")
@@ -73,7 +73,7 @@ class TestBranchListView(CommonTest):
 
     @tag("branch_list", 'list', "view")
     def test_view_class(self):
-        self.assert_inheritance(views.BranchListView, CommonListView)
+        self.assert_inheritance(views.BranchListView, CommonFilterView)
         self.assert_inheritance(views.BranchListView, views.AdminRequiredMixin)
 
     @tag("branch_list", 'list', "access")
@@ -109,12 +109,8 @@ class TestRegionListView(CommonTest):
         self.assert_not_broken(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
-    @tag("region_list", 'list', "context")
-    def test_context(self):
-        context_vars = [
-            "section",
-            "division",
-            "branch",
-            "region",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)
+    # @tag("region_list", 'list', "context")
+    # def test_context(self):
+    #     context_vars = [
+    #     ]
+    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.admin_user)

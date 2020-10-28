@@ -19,7 +19,7 @@ def multiply(value, arg):
 
 
 @register.filter
-def nz(value, arg):
+def nz(value, arg="---"):
     """if a value is equal to None, this function will return arg instead"""
     if value is None or value == "":
         return arg

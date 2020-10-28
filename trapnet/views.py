@@ -3,25 +3,20 @@ import os
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.db.models import Count, TextField, Value
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.templatetags.static import static
+from django.db.models import TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
-from django.utils import timezone
-from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
-from easy_pdf.views import PDFTemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
 from shared_models import models as shared_models
 from . import models
 from . import forms
 from . import filters
 from . import reports
-from lib.functions.custom_functions import nz, listrify
-from django.utils.encoding import smart_str
+from lib.functions.custom_functions import listrify
 
 
 # open basic access up to anybody who is logged in

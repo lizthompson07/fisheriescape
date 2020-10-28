@@ -2,7 +2,7 @@ from django.test import tag
 from django.urls import reverse_lazy
 
 from django.core.files.base import ContentFile
-from django.utils.six import BytesIO
+from six import BytesIO
 from django.utils.translation import activate
 
 from django.test import TestCase

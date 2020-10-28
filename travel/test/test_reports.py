@@ -21,6 +21,7 @@ class TestReportSearchFormView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('travel:report_search')
         self.expected_template = 'travel/report_search.html'
+        self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("travel", 'report', "view")
     def test_view_class(self):
@@ -29,7 +30,7 @@ class TestReportSearchFormView(CommonTest):
     @tag("travel", 'report', "access")
     def test_view(self):
         self.assert_not_broken(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
     # @tag("travel", 'report', "submit")
     # def test_submit(self):
