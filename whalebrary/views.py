@@ -1228,7 +1228,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
 
-
+# TODO get this to work as a standalone instead of form valid
 def send_incident_email(self):
     """simple function to send email with detail_view information"""
     # create a new email object
@@ -1240,7 +1240,7 @@ def send_incident_email(self):
         from_email=email.from_email,
         recipient_list=email.to_list
     )
-    messages.success(self.request, "The new ticket has been logged and a confirmation email has been sent!")
+    messages.success(self.request, "The new incident has been logged and a confirmation email has been sent!")
 
     # go to detail page
     return HttpResponseRedirect(self.get_success_url())
