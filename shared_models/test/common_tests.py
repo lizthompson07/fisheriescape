@@ -240,7 +240,7 @@ class CommonTest(TestCase):
         self.assertEquals(test_view, expected_form_class)
 
     def assert_success_url(self, test_url, data=None, user=None, expected_url_name=None, expected_success_url=None,
-                           use_anonymous_user=False):
+                           use_anonymous_user=False, file_field_name=None):
         """
         test that upon a successful form the view redirects to the expected success url
         :param data: optional data to use when submitting the form
@@ -255,7 +255,14 @@ class CommonTest(TestCase):
         # if a user is provided in the arg, log in with that user
         if not use_anonymous_user:
             self.get_and_login_user(user)
-        response = self.client.post(test_url, data=data)
+
+        if data and file_field_name:
+            with open('README.md') as fp:
+                data[file_field_name] = fp
+                response = self.client.post(test_url, data=data,)
+        else:
+            response = self.client.post(test_url, data=data)
+
 
         if response.context and 'form' in response.context:
             # If the data in this test is invaild the response will be invalid

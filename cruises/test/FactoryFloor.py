@@ -1,12 +1,26 @@
-import datetime
 import factory
-from django.utils import timezone
 from faker import Faker
 
-from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFactory, RegionFactory, BranchFactory
+from shared_models.test.SharedModelsFactoryFloor import CruiseFactory
 from .. import models
 
 faker = Faker()
+
+
+class FileFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.File
+
+    cruise = factory.SubFactory(CruiseFactory)
+    caption = factory.lazy_attribute(lambda o: faker.text())
+    file = factory.lazy_attribute(lambda o: faker.url())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'cruise': CruiseFactory().id,
+            'caption': faker.text(),
+        }
 
 
 class InstrumentFactory(factory.django.DjangoModelFactory):

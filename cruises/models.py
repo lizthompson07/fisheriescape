@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
-from shared_models.models import SimpleLookup
+from shared_models.models import SimpleLookup, Cruise
 
 
 class Instrument(models.Model):
@@ -45,6 +45,12 @@ class InstrumentComponent(models.Model):
         return my_str
 
 
+class CruiseInstruments(models.Model):
+    ''' This can also be defined as a m2m relationship but I wanted to avoid creating a dependency in the shared_models app on the missions app (DJF)'''
+    cruise = models.ForeignKey(Cruise, on_delete=models.CASCADE, related_name="cruise_instruments")
+    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE, related_name="cruise_instruments")
+
+
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'oceanography/{0}/{1}'.format(instance.mission.mission_number, filename)
@@ -52,9 +58,9 @@ def file_directory_path(instance, filename):
 
 class File(models.Model):
     caption = models.CharField(max_length=255)
-    mission = models.ForeignKey(shared_models.Cruise, related_name="files", on_delete=models.CASCADE)
+    cruise = models.ForeignKey(shared_models.Cruise, related_name="files", on_delete=models.CASCADE)
     file = models.FileField(upload_to=file_directory_path)
-    date_created = models.DateTimeField(default=timezone.now)
+    date_created = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-date_created']

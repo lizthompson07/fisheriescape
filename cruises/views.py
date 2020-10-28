@@ -227,8 +227,8 @@ class FileCreateView(OceanographyAccessRequiredMixin, CommonPopoutCreateView):
     is_multipart_form_data = True
 
     def get_initial(self):
-        mission = shared_models.Cruise.objects.get(pk=self.kwargs['cruise'])
-        return {'mission': mission}
+        cruise = shared_models.Cruise.objects.get(pk=self.kwargs['cruise'])
+        return {'cruise': cruise}
 
 
 class FileUpdateView(OceanographyAdminRequiredMixin, CommonPopoutUpdateView):
