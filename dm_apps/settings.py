@@ -171,6 +171,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+if AZURE_INSTRUMENTATION_KEY != "":
+    MIDDLEWARE.append('opencensus.ext.django.middleware.OpencensusMiddleware', )
+
 ROOT_URLCONF = 'dm_apps.urls'
 
 TEMPLATES = [
@@ -292,7 +295,7 @@ if AZURE_INSTRUMENTATION_KEY != "":
         'version': 1,
         "handlers": {
             "azure": {
-                "level": "DEBUG",
+                "level": LOGGING_LEVEL,
                 "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
                 "instrumentation_key": AZURE_INSTRUMENTATION_KEY,
             },
@@ -303,7 +306,7 @@ if AZURE_INSTRUMENTATION_KEY != "":
             },
         },
         "loggers": {
-            "logger_name": {"handlers": ["azure", "console"]},
+            "django": {"handlers": ["azure", "console"]},
         },
     }
 elif not DEBUG:
@@ -329,3 +332,14 @@ elif not DEBUG:
                 },
             },
         }
+
+if AZURE_INSTRUMENTATION_KEY != "":
+    OPENCENSUS = {
+        'TRACE': {
+            'SAMPLER': 'opencensus.trace.samplers.ProbabilitySampler(rate=1)',
+            'EXPORTER': '''opencensus.ext.azure.trace_exporter.AzureExporter(
+                connection_string="InstrumentationKey={}"
+            )'''.format(AZURE_INSTRUMENTATION_KEY),
+            'BLACKLIST_PATHS': ['/static/*'],  # These sites will not be traced if a request is sent to it.
+        }
+    }

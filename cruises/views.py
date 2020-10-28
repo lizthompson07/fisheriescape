@@ -94,19 +94,26 @@ class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
     model = shared_models.Cruise
     field_list = [
         'institute',
-        'season',
-        'vessel',
         'mission_number',
         'mission_name',
         'description',
+        'purpose',
         'chief_scientist',
         'samplers',
-        'time_period|time period',
+        'time_period|{}'.format(gettext_lazy("time period")),
+        'end_date',
         'probe',
         'area_of_operation',
         'number_of_profiles',
         'meds_id',
         'notes',
+        'season',
+        'vessel',
+        'funding_agency_name',
+        'funding_project_title',
+        'funding_project_id',
+        'research_projects_programs',
+        'references',
     ]
     parent_crumb = {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
     home_url_name = "cruises:index"
@@ -239,6 +246,27 @@ class FileUpdateView(OceanographyAdminRequiredMixin, CommonPopoutUpdateView):
 
 class FileDeleteView(OceanographyAdminRequiredMixin, CommonPopoutDeleteView):
     model = models.File
+
+
+# INSTRUMENT #
+##############
+
+class InstrumentCreateView(OceanographyAccessRequiredMixin, CommonPopoutCreateView):
+    model = models.Instrument
+    form_class = forms.InstrumentForm
+
+    def get_initial(self):
+        cruise = shared_models.Cruise.objects.get(pk=self.kwargs['cruise'])
+        return {'cruise': cruise}
+
+
+class InstrumentUpdateView(OceanographyAdminRequiredMixin, CommonPopoutUpdateView):
+    model = models.Instrument
+    form_class = forms.InstrumentForm
+
+
+class InstrumentDeleteView(OceanographyAdminRequiredMixin, CommonPopoutDeleteView):
+    model = models.Instrument
 
 
 # SETTINGS #

@@ -10,7 +10,7 @@ urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name='index'), # TESTED
 
 
-    # MISSIONS #
+    # CRUISES #
     ############
     path('list/', views.CruiseListView.as_view(), name='cruise_list'),# TESTED
     path('new/', views.CruiseCreateView.as_view(), name='cruise_new'),# TESTED
@@ -24,6 +24,12 @@ urlpatterns = [
     path('<int:cruise>/file/new/', views.FileCreateView.as_view(), name='file_new'),# TESTED
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),# TESTED
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),# TESTED
+
+    # INSTRUMENTS #
+    ###############
+    path('<int:cruise>/instrument/new/', views.InstrumentCreateView.as_view(), name='instrument_new'),  # TESTED
+    path('instrument/<int:pk>/edit/', views.InstrumentUpdateView.as_view(), name='instrument_edit'),  # TESTED
+    path('instrument/<int:pk>/delete/', views.InstrumentDeleteView.as_view(), name='instrument_delete'),  # TESTED
 
     # SETTINGS #
     ############

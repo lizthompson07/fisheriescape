@@ -13,6 +13,7 @@ from shared_models.models import SimpleLookup, Cruise
 class Instrument(models.Model):
     name = models.CharField(unique=True, max_length=255, verbose_name=_("name"))
     notes = models.TextField(blank=True, null=True)
+    cruise = models.ForeignKey(shared_models.Cruise, related_name="instruments", on_delete=models.CASCADE)
 
     def get_absolute_url(self):
         return reverse("cruises:instrument_detail", kwargs={"pk": self.pk})
@@ -45,22 +46,16 @@ class InstrumentComponent(models.Model):
         return my_str
 
 
-class CruiseInstruments(models.Model):
-    ''' This can also be defined as a m2m relationship but I wanted to avoid creating a dependency in the shared_models app on the missions app (DJF)'''
-    cruise = models.ForeignKey(Cruise, on_delete=models.CASCADE, related_name="cruise_instruments")
-    instrument = models.ForeignKey(Instrument, on_delete=models.CASCADE, related_name="cruise_instruments")
-
-
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'oceanography/{0}/{1}'.format(instance.mission.mission_number, filename)
+    return 'cruises/{0}/{1}'.format(instance.cruise.mission_number, filename)
 
 
 class File(models.Model):
     caption = models.CharField(max_length=255)
     cruise = models.ForeignKey(shared_models.Cruise, related_name="files", on_delete=models.CASCADE)
     file = models.FileField(upload_to=file_directory_path)
-    date_created = models.DateTimeField(auto_now=True)
+    date_created = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
         ordering = ['-date_created']
