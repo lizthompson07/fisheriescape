@@ -10,8 +10,8 @@ from .. import views
 from .. import models
 from faker import Factory
 from shared_models import models as shared_models
-faker = Factory.create()
 
+faker = Factory.create()
 
 
 class TestAllFormsets(CommonTest):
@@ -21,6 +21,7 @@ class TestAllFormsets(CommonTest):
             "manage_vessels",
             "manage_institutes",
             "manage_component_types",
+            "manage_help_texts",
         ]
 
         self.test_urls = [reverse_lazy("cruises:" + name) for name in self.test_url_names]
@@ -28,6 +29,7 @@ class TestAllFormsets(CommonTest):
             views.VesselFormsetView,
             views.InstituteFormsetView,
             views.ComponentTypeFormsetView,
+            views.HelpTextFormsetView,
         ]
         self.expected_template = 'cruises/formset.html'
         self.user = self.get_and_login_user(in_group="oceanography_admin")
@@ -58,6 +60,7 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": shared_models.Vessel, "url_name": "delete_vessel", "view": views.VesselHardDeleteView},
             {"model": shared_models.Institute, "url_name": "delete_institute", "view": views.InstituteHardDeleteView},
             {"model": models.ComponentType, "url_name": "delete_component_type", "view": views.ComponentTypeHardDeleteView},
+            {"model": models.HelpText, "url_name": "delete_help_text", "view": views.HelpTextHardDeleteView},
         ]
         self.test_dicts = list()
 
@@ -65,7 +68,10 @@ class TestAllHardDeleteViews(CommonTest):
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]
-            obj = m.objects.create(name=faker.word())
+            if m == models.HelpText:
+                obj = m.objects.create(field_name=faker.word(), eng_text=faker.text())
+            else:
+                obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
             new_d["url"] = reverse_lazy("cruises:" + d["url_name"], kwargs={"pk": obj.id})
             self.test_dicts.append(new_d)

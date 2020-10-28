@@ -117,7 +117,7 @@ class CruiseFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def get_valid_data():
         return {
-            'institue': shared_models.Institute.objects.all()[faker.random_int(0, models.FK.objects.count() - 1)],
+            'institue': shared_models.Institute.objects.all()[faker.random_int(0, shared_models.Institute.objects.count() - 1)],
             'mission_number': faker.word(),
             'mission_name': faker.word(),
             'chief_scientist': faker.word(),

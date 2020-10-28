@@ -48,6 +48,9 @@ urlpatterns = [
     path('settings/component-types/', views.ComponentTypeFormsetView.as_view(), name="manage_component_types"), # TESTED
     path('settings/component-type/<int:pk>/delete/', views.ComponentTypeHardDeleteView.as_view(), name="delete_component_type"), # TESTED
 
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
+
 
 ]
 

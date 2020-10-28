@@ -58,8 +58,8 @@ class TestCruiseModel(CommonTest):
             'south_bound_latitude',
             'funding_agency_name',
             'funding_project_title',
-            'funding_project_ID',
-            'research_Projects_Programs',
+            'funding_project_id',
+            'research_projects_programs',
             'references',
         ]
         self.assert_has_fields(Cruise, fields_to_check)

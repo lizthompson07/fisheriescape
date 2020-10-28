@@ -53,6 +53,13 @@ class OceanographyAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+def get_help_text_dict():
+    my_dict = {}
+    for obj in models.HelpText.objects.all():
+        my_dict[obj.field_name] = str(obj)
+    return my_dict
+
+
 class IndexTemplateView(OceanographyAccessRequiredMixin, CommonTemplateView):
     template_name = "cruises/index.html"
     h1 = "Home"
@@ -88,6 +95,11 @@ class CruiseCreateView(OceanographyAdminRequiredMixin, CommonCreateView):
     form_class = forms.CruiseForm
     parent_crumb = {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
     home_url_name = "cruises:index"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+        return context
 
 
 class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
@@ -131,6 +143,11 @@ class CruiseUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
 
     def get_grandparent_crumb(self):
         return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+        return context
 
 
 class CruiseDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
@@ -457,7 +474,22 @@ class ComponentTypeFormsetView(OceanographyAdminRequiredMixin, CommonFormsetView
     home_url_name = "cruises:index"
     delete_url_name = "cruises:delete_component_type"
 
+
 class ComponentTypeHardDeleteView(OceanographyAdminRequiredMixin, CommonHardDeleteView):
     model = models.ComponentType
     success_url = reverse_lazy("cruises:manage_component_types")
 
+
+class HelpTextFormsetView(OceanographyAdminRequiredMixin, CommonFormsetView):
+    template_name = 'cruises/formset.html'
+    h1 = "Manage Help Texts"
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url_name = "cruises:manage_help_texts"
+    home_url_name = "cruises:index"
+    delete_url_name = "cruises:delete_help_text"
+
+
+class HelpTextHardDeleteView(OceanographyAdminRequiredMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("cruises:manage_help_texts")
