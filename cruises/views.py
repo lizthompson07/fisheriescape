@@ -10,7 +10,7 @@ from django.utils.text import slugify
 from django.urls import reverse_lazy
 
 from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonTemplateView, CommonUpdateView, \
-    CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonHardDeleteView, CommonFormsetView
+    CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonHardDeleteView, CommonFormsetView, CommonDeleteView
 from . import models
 from . import filters
 from . import forms
@@ -116,6 +116,18 @@ class CruiseUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
     model = shared_models.Cruise
     form_class = forms.CruiseForm
     template_name = 'cruises/form.html'
+    home_url_name = "cruises:index"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
+
+
+class CruiseDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
+    model = shared_models.Cruise
+    template_name = 'cruises/confirm_delete.html'
     home_url_name = "cruises:index"
 
     def get_parent_crumb(self):

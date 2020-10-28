@@ -8,7 +8,8 @@
 {% block subcontent %}
 
   <div class="btns mb-5">
-    <a href="{% url "cruises:cruise_edit" object.id %}" class="btn btn-warning">Edit</a>
+    <a href="{% url "cruises:cruise_edit" object.id %}" class="btn btn-warning">{% trans "Edit" %}</a>
+    <a href="{% url "cruises:cruise_delete" object.id %}" class="btn btn-danger">{% trans "Delete" %}</a>
     <a href="#" pop-href="{% url "cruises:file_create" object.id %}" class="btn btn-primary">Add a File</a>
   </div>
 

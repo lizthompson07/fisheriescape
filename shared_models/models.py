@@ -324,9 +324,7 @@ class Probe(models.Model):
         ordering = ['name', ]
 
 
-class Institute(models.Model):
-    name = models.CharField(max_length=255)
-    nom = models.CharField(max_length=255, blank=True, null=True)
+class Institute(SimpleLookup):
     abbrev = models.CharField(max_length=255, verbose_name=_("abbreviation"))
     address = models.CharField(max_length=255, blank=True, null=True)
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -344,8 +342,8 @@ class Institute(models.Model):
 
 
 class Vessel(models.Model):
-    name = models.CharField(max_length=255)
-    call_sign = models.CharField(max_length=56, null=True, blank=True)
+    name = models.CharField(max_length=255, unique=True)
+    call_sign = models.CharField(max_length=56, null=True, blank=True, unique=True)
     ices_shipc_ship_codes = models.CharField(max_length=56, null=True, blank=True)
     country_of_origin = models.CharField(max_length=56, null=True, blank=True)
     platform_type = models.CharField(max_length=56, null=True, blank=True)
@@ -366,7 +364,7 @@ class Vessel(models.Model):
 # diets
 # snowcrab
 class Cruise(models.Model):
-    institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True)
+    institute = models.ForeignKey(Institute, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="cruises")
     mission_number = models.CharField(max_length=255, verbose_name=_("Mission Number"), unique=True)
     mission_name = models.CharField(max_length=255, verbose_name=_("Mission Name"))
     description = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("Description"))

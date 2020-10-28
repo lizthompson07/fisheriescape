@@ -12,15 +12,16 @@ urlpatterns = [
 
     # MISSIONS #
     ############
-    path('cruises/', views.CruiseListView.as_view(), name='cruise_list'),
-    path('cruise/<int:pk>/view/', views.CruiseDetailView.as_view(), name='cruise_detail'),
-    path('cruise/<int:pk>/edit/', views.CruiseUpdateView.as_view(), name='cruise_edit'),
-    path('cruise/new/', views.CruiseCreateView.as_view(), name='cruise_new'),
+    path('list/', views.CruiseListView.as_view(), name='cruise_list'),
+    path('new/', views.CruiseCreateView.as_view(), name='cruise_new'),
+    path('<int:pk>/view/', views.CruiseDetailView.as_view(), name='cruise_detail'),
+    path('<int:pk>/edit/', views.CruiseUpdateView.as_view(), name='cruise_edit'),
+    path('<int:pk>/delete/', views.CruiseDeleteView.as_view(), name='cruise_delete'),
     # path('cruise/<int:pk>/export-csv/', views.export_cruise_csv, name='cruise_export_csv'),
 
     # FILES #
     #########
-    path('cruise/<int:cruise>/file/new/', views.FileCreateView.as_view(), name='file_create'),
+    path('<int:cruise>/file/new/', views.FileCreateView.as_view(), name='file_create'),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
 

@@ -326,7 +326,56 @@ class CommonTest(TestCase):
             form = Form()
         self.assertNotIn(field_name, form.fields)
 
-    # Tests for models
-    ##################
-        # nothing yet :(
 
+ # Tests for models
+    ##################
+    def assert_unique_fields(self, model, field_names):
+        """
+        assert that a field within a model is unique
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for field_name in field_names:
+            field = [field for field in model._meta.fields if field.name == field_name][0]
+            self.assertTrue(field.unique)
+
+    def assert_mandatory_fields(self, model, field_names):
+        """
+        assert that a field within a model is mandatory (blank=True, null=True)
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for field_name in field_names:
+            field = [field for field in model._meta.fields if field.name == field_name][0]
+            self.assertFalse(field.blank)
+            self.assertFalse(field.null)
+
+    def assert_non_mandatory_fields(self, model, field_names):
+        """
+        assert that a field within a model is not mandatory (blank=False, null=False)
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for field_name in field_names:
+            field = [field for field in model._meta.fields if field.name == field_name][0]
+            self.assertTrue(field.blank)
+            self.assertTrue(field.null)
+
+    def assert_has_fields(self, model, fields):
+        """
+        assert that a model has specified field names
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        model_field_list = [field.name for field in model._meta.fields]
+        for field in fields:
+            self.assertIn(field, model_field_list)
+
+    def assert_has_props(self, model, props):
+        """
+        assert that a model has specified props
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for prop in props:
+            self.assertTrue(hasattr(model, prop))
