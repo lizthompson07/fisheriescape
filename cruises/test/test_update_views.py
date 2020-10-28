@@ -69,3 +69,59 @@ class TestFileUpdateView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("cruises:file_edit", f"/en/cruises/file/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestInstrumentUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.InstrumentFactory()
+        self.test_url = reverse_lazy('cruises:instrument_edit', args=[self.instance.pk, ])
+        self.expected_template = 'cruises/form.html'
+        self.user = self.get_and_login_user(in_group="oceanography_admin")
+
+    @tag("Instrument", "instrument_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.InstrumentUpdateView, CommonUpdateView)
+
+    @tag("Instrument", "instrument_edit", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Instrument", "instrument_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.InstrumentFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Instrument", "instrument_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("cruises:instrument_edit", f"/en/cruises/instrument/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestInstrumentComponentUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.InstrumentComponentFactory()
+        self.test_url = reverse_lazy('cruises:component_edit', args=[self.instance.pk, ])
+        self.expected_template = 'cruises/form.html'
+        self.user = self.get_and_login_user(in_group="oceanography_admin")
+
+    @tag("InstrumentComponent", "component_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.InstrumentComponentUpdateView, CommonUpdateView)
+
+    @tag("InstrumentComponent", "component_edit", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("InstrumentComponent", "component_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.InstrumentComponentFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("InstrumentComponent", "component_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("cruises:component_edit", f"/en/cruises/component/{self.instance.pk}/edit/", [self.instance.pk])

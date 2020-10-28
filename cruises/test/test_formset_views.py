@@ -20,12 +20,14 @@ class TestAllFormsets(CommonTest):
         self.test_url_names = [
             "manage_vessels",
             "manage_institutes",
+            "manage_component_types",
         ]
 
         self.test_urls = [reverse_lazy("cruises:" + name) for name in self.test_url_names]
         self.test_views = [
             views.VesselFormsetView,
             views.InstituteFormsetView,
+            views.ComponentTypeFormsetView,
         ]
         self.expected_template = 'cruises/formset.html'
         self.user = self.get_and_login_user(in_group="oceanography_admin")
@@ -55,6 +57,7 @@ class TestAllHardDeleteViews(CommonTest):
         self.starter_dicts = [
             {"model": shared_models.Vessel, "url_name": "delete_vessel", "view": views.VesselHardDeleteView},
             {"model": shared_models.Institute, "url_name": "delete_institute", "view": views.InstituteHardDeleteView},
+            {"model": models.ComponentType, "url_name": "delete_component_type", "view": views.ComponentTypeHardDeleteView},
         ]
         self.test_dicts = list()
 

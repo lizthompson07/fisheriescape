@@ -100,7 +100,7 @@ class SectionFactory(factory.django.DjangoModelFactory):
         }
 
 
-class InstituteFacotry(factory.django.DjangoModelFactory):
+class InstituteFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = shared_models.Institute
 
@@ -109,7 +109,7 @@ class CruiseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = shared_models.Cruise
 
-    institute = factory.SubFactory(InstituteFacotry)
+    institute = factory.lazy_attribute(lambda o: shared_models.Institute.objects.all()[faker.random_int(0, shared_models.Institute.objects.count() - 1)])
     mission_number = factory.LazyAttribute(lambda o: faker.word())
     mission_name = factory.LazyAttribute(lambda o: faker.word())
     chief_scientist = factory.LazyAttribute(lambda o: faker.word())
@@ -117,7 +117,7 @@ class CruiseFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def get_valid_data():
         return {
-            'institue': InstituteFacotry().id,
+            'institue': shared_models.Institute.objects.all()[faker.random_int(0, models.FK.objects.count() - 1)],
             'mission_number': faker.word(),
             'mission_name': faker.word(),
             'chief_scientist': faker.word(),
