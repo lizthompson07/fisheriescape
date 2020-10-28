@@ -21,7 +21,6 @@ from django.contrib import admin
 from django.urls import path, include
 from . import views as views
 from accounts import views as acc_views
-import debug_toolbar
 
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
