@@ -30,7 +30,7 @@ RUN mkdir media \
     && mkdir media/inventory \
     && mkdir media/inventory/temp \
     && mkdir media/projects \
-    && mkdir media/project/temp \
+    && mkdir media/projects/temp \
     && mkdir media/ihub \
     && mkdir media/ihub/temp
 
