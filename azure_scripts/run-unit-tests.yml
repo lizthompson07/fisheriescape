@@ -1,23 +1,22 @@
-pool:
-  vmImage: 'Ubuntu 18.04'
+pool: dmapps
 
 trigger:
   - master
 
 steps:
-  - task: UsePythonVersion@0
-    displayName: 'Use Python 3.8'
-    inputs:
-      versionSpec: 3.8
-
   - script: |
       # install pre-requisites
+      whoami
+      python -V
       python -m pip install --upgrade pip setuptools wheel
-      sudo apt-get install libmysqlclient-dev
-      pip install -r requirements.txt
+      python -m pip install -r requirements.txt
+      python -m pip uninstall django-easy-pdf
+      python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
       mkdir media
       mkdir media/travel
       mkdir media/travel/temp
+      mkdir media/projects
+      mkdir media/projects/temp
       mkdir media/inventory
       mkdir media/inventory/temp
       mkdir media/ihub

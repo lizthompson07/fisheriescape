@@ -47,8 +47,10 @@ GOOGLE_API_KEY = config("GOOGLE_API_KEY", cast=str, default="")
 GITHUB_API_KEY = config("GITHUB_API_KEY", cast=str, default="")
 # Should the ticketing app be displayed on the main index page?
 SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
-# Should the ticketing app be displayed on the main index page?
+# DevOps build number to display on index.html
 DEVOPS_BUILD_NUMBER = config("DEVOPS_BUILD_NUMBER", cast=str, default="")
+# Azure Instrumentation KEy for application insights
+AZURE_INSTRUMENTATION_KEY = config("AZURE_INSTRUMENTATION_KEY", cast=str, default="")
 # Fake Apps
 FAKE_TRAVEL_APP = config("FAKE_TRAVEL_APP", cast=bool, default=False)
 
@@ -285,7 +287,26 @@ TRACK_SUPERUSERS = False
 if "win" in sys.platform.lower() and GEODJANGO:
     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
 
-if not DEBUG:
+if AZURE_INSTRUMENTATION_KEY != "":
+    LOGGING = {
+        'version': 1,
+        "handlers": {
+            "azure": {
+                "level": "DEBUG",
+                "class": "opencensus.ext.azure.log_exporter.AzureLogHandler",
+                "instrumentation_key": AZURE_INSTRUMENTATION_KEY,
+            },
+            "console": {
+                "level": "DEBUG",
+                "class": "logging.StreamHandler",
+                "stream": sys.stdout,
+            },
+        },
+        "loggers": {
+            "logger_name": {"handlers": ["azure", "console"]},
+        },
+    }
+elif not DEBUG:
     if not os.path.exists(LOG_FILE_PATH):
         print(f"Cannot use file logs since the log filepath provided does not exist: {LOG_FILE_PATH}")
     else:

@@ -26,6 +26,7 @@ urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
     path('tracking/', include('tracking.urls')),
+    # path('__debug__/', include(debug_toolbar.urls)),
 ]
 
 urlpatterns += i18n_patterns(
@@ -50,10 +51,10 @@ if settings.INSTALLED_APPS.count("tickets"):
 else:
     print("not connecting ticket app")
 
-if settings.INSTALLED_APPS.count("oceanography"):
-    urlpatterns += i18n_patterns(path('oceanography/', include('oceanography.urls')), prefix_default_language=True)
+if settings.INSTALLED_APPS.count("cruises"):
+    urlpatterns += i18n_patterns(path('cruises/', include('cruises.urls')), prefix_default_language=True)
 else:
-    print("not connecting oceanography app")
+    print("not connecting cruises app")
 
 if settings.INSTALLED_APPS.count("grais"):
     urlpatterns += i18n_patterns(path('grais/', include('grais.urls')), prefix_default_language=True)

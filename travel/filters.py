@@ -157,3 +157,8 @@ class TripRequestApprovalFilter(django_filters.FilterSet):
         fields = {
             # 'waiting_on': ['exact'],
         }
+
+
+class UserFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Name contains"), lookup_expr='icontains',
+                                            widget=forms.TextInput())

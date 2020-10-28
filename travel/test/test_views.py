@@ -1,3 +1,4 @@
+from django.contrib.auth.models import Group
 from django.test import tag
 from django.urls import reverse_lazy
 from django.utils.translation import activate
@@ -68,3 +69,41 @@ class TestIndexView(CommonTest):
         admin_user = self.get_and_login_user(in_group="travel_adm_admin")
         response = self.client.get(self.test_url)
         self.assertEqual(response.context["is_adm_admin"], True)
+
+
+class TestUserToggleView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.UserFactory()
+        self.test_url = reverse_lazy('travel:toggle_user', args=[self.instance.pk, 'admin'])
+        self.test_url1 = reverse_lazy('travel:toggle_user', args=[self.instance.pk, 'adm_admin'])
+        self.user = self.get_and_login_user(in_group="travel_adm_admin")
+
+    @tag("UserToggle", "toggle_user", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_not_broken(self.test_url1)
+
+        self.assert_non_public_view(test_url=self.test_url, user=self.user, expected_code=302)
+        self.assert_non_public_view(test_url=self.test_url1, user=self.user, expected_code=302)
+
+    @tag("UserToggle", "toggle_user", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("travel:toggle_user", f"/en/travel-plans/settings/user/{self.instance.pk}/toggle/{'admin'}/",
+                                [self.instance.pk, 'admin'])
+
+    @tag("UserToggle", "toggle_user", "function")
+    def test_view_function(self):
+        admin_group = Group.objects.get(pk=33)
+        adm_admin_group = Group.objects.get(pk=36)
+
+        # check to see if user has admin permissions
+        self.assertNotIn(admin_group, self.instance.groups.all())
+        response = self.client.get(self.test_url)
+        self.assertIn(admin_group, self.instance.groups.all())
+
+        # check to see if user has adm admin permissions
+        self.assertNotIn(adm_admin_group, self.instance.groups.all())
+        response = self.client.get(self.test_url1)
+        self.assertIn(adm_admin_group, self.instance.groups.all())
