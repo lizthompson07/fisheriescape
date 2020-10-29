@@ -7,6 +7,12 @@ from django.core.files import File
 import uuid
 from .import models
 
+
+def resave_sections():
+    for s in models.Section.objects.all():
+        s.save()
+
+
 def save_and_add_uuid():
     model_list = [models.Region, models.Branch, models.Division, models.Section, models.Province]
 
@@ -41,26 +47,26 @@ def export_fixtures():
         myfile.write(data)
         myfile.close()
 
-
 #
+# #
+# #
+# def get_file(request, file):
+#     my_file = models.File.objects.get(pk=file)
+#     blob_name = my_file.file
 #
-def get_file(request, file):
-    my_file = models.File.objects.get(pk=file)
-    blob_name = my_file.file
-
-    if settings.AZURE_STORAGE_ACCOUNT_NAME:
-        AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
-        token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
-        blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
-        blobService.create_blob_from_path()
-        blob_file = blobService.get_blob_to_bytes("media", blob_name)
-        response = HttpResponse(blob_file.content, content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
-    else:
-        response = HttpResponse(my_file.file.read(), content_type='application/zip')
-        response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
-
-    return response
+#     if settings.AZURE_STORAGE_ACCOUNT_NAME:
+#         AZURE_STORAGE_ACCOUNT_NAME = settings.AZURE_STORAGE_ACCOUNT_NAME
+#         token_credential = MSIAuthentication(resource=f'https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net')
+#         blobService = BlockBlobService(account_name=AZURE_STORAGE_ACCOUNT_NAME, token_credential=token_credential)
+#         blobService.create_blob_from_path()
+#         blob_file = blobService.get_blob_to_bytes("media", blob_name)
+#         response = HttpResponse(blob_file.content, content_type='application/zip')
+#         response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
+#     else:
+#         response = HttpResponse(my_file.file.read(), content_type='application/zip')
+#         response['Content-Disposition'] = f'attachment; filename="{blob_name}"'
+#
+#     return response
 
 
 

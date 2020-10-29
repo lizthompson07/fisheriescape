@@ -1,8 +1,9 @@
 import factory
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User, Group
 from faker import Faker
+
 from shared_models import models as shared_models
-from django.contrib.auth.hashers import make_password
 
 faker = Faker()
 
@@ -31,6 +32,19 @@ class UserFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def get_test_password():
         return test_password
+
+    @staticmethod
+    def get_valid_data():
+        first_name = faker.first_name()
+        last_name = faker.last_name()
+        return {
+            'first_name': first_name,
+            'last_name': last_name,
+            'username': f"{first_name}.{last_name}@dfo-mpo.gc.ca",
+            'email1': f"{first_name}.{last_name}@dfo-mpo.gc.ca",
+            'email2': f"{first_name}.{last_name}@dfo-mpo.gc.ca",
+            'password': make_password(test_password),
+        }
 
 
 class RegionFactory(factory.django.DjangoModelFactory):
@@ -109,7 +123,8 @@ class CruiseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = shared_models.Cruise
 
-    institute = factory.lazy_attribute(lambda o: shared_models.Institute.objects.all()[faker.random_int(0, shared_models.Institute.objects.count() - 1)])
+    institute = factory.lazy_attribute(
+        lambda o: shared_models.Institute.objects.all()[faker.random_int(0, shared_models.Institute.objects.count() - 1)])
     mission_number = factory.LazyAttribute(lambda o: faker.word())
     mission_name = factory.LazyAttribute(lambda o: faker.word())
     chief_scientist = factory.LazyAttribute(lambda o: faker.word())
@@ -122,4 +137,21 @@ class CruiseFactory(factory.django.DjangoModelFactory):
             'mission_name': faker.word(),
             'chief_scientist': faker.word(),
 
+        }
+
+
+class ScriptFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = shared_models.Script
+
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    script = factory.lazy_attribute(lambda o: faker.text())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.catch_phrase(),
+            'description_en': faker.text(),
+            'script': faker.text(),
         }

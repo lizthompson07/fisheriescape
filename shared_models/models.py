@@ -1,10 +1,13 @@
+import uuid
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import default_if_none
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-import uuid
+
+from shared_models.utils import get_metadata_string
 
 
 class SimpleLookup(models.Model):
@@ -161,38 +164,42 @@ class Section(SimpleLookupWithUUID):
     date_last_modified = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
+    # calculated fields (for quick acquisition)
+    shortish_name = models.CharField(max_length=1000, blank=True, null=True)
+    full_name = models.CharField(max_length=1000, blank=True, null=True)
+    full_name_ver1 = models.CharField(max_length=1000, blank=True, null=True)
+
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
         verbose_name = _("Section - Team (NCR)")
         verbose_name_plural = _("Sections - Teams (NCR)")
 
-    @property
-    def full_name(self):
+    def get_full_name(self):
         try:
-
-            my_str = "{} - {} - {} - {}".format(self.division.branch.region.tname, self.division.branch.tname, self.division.tname,
-                                                self.tname)
+            my_str = f"{self.division.branch.region.tname} - {self.division.branch.tname} - {self.division.tname} - {self.tname}"
         except AttributeError:
             my_str = self.tname
         return my_str
 
-    @property
-    def full_name_ver1(self):
+    def get_full_name_ver1(self):
         try:
-
             my_str = f"{self.tname} ({self.division.branch.region.tname}/{self.division.tname})"
         except AttributeError:
             my_str = self.tname
         return my_str
 
-    @property
-    def shortish_name(self):
+    def get_shortish_name(self):
         try:
-            my_str = "{} - {} - {} - {}".format(self.division.branch.region.abbrev, self.division.branch.abbrev, self.division.abbrev,
-                                                self.name)
+            my_str = f"{self.division.branch.region.abbrev} - {self.division.branch.abbrev} - {self.division.abbrev} - {self.name}"
         except AttributeError:
             my_str = self.tname
         return my_str
+
+    def save(self, *args, **kwargs):
+        self.shortish_name = self.get_shortish_name()
+        self.full_name = self.get_full_name()
+        self.full_name_ver1 = self.get_full_name_ver1()
+        super().save(*args, **kwargs)
 
 
 class AllotmentCategory(models.Model):
@@ -352,7 +359,8 @@ class Vessel(models.Model):
 
     def __str__(self):
         if self.call_sign:
-            return "{} {}".format(self.name, self.call_sign)  #self.Country_of_origin, self.Platform_type, self.Platform_owner, self.IMO_number
+            return "{} {}".format(self.name,
+                                  self.call_sign)  # self.Country_of_origin, self.Platform_type, self.Platform_owner, self.IMO_number
         else:
             return "{}".format(self.name)
 
@@ -380,15 +388,24 @@ class Cruise(models.Model):
     notes = models.CharField(max_length=255, null=True, blank=True)
     season = models.IntegerField(null=True, blank=True)
     vessel = models.ForeignKey(Vessel, on_delete=models.DO_NOTHING, related_name="cruises", blank=True, null=True)
-    west_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_("West Bound Longitude")) #, verbose_name="Westernmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)")
-    east_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_("East Bound Longitude")) #, verbose_name="Easternmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)")
-    north_bound_latitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_("North Bound Latitude")) #, verbose_name="Northernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)")
-    south_bound_latitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_("South Bound Latitude")) #, verbose_name="Southernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)")
-    funding_agency_name = models.CharField(max_length=255, null=True, blank=True,verbose_name=_("funding agency name")) #, verbose_name="Funding agency of the data collection")
-    funding_project_title = models.CharField(max_length=255, null=True, blank=True,verbose_name=_("funding project title")) #, verbose_name="The title of your funded project")
-    funding_project_id = models.CharField(max_length=255, null=True, blank=True,verbose_name=_("funding project ID")) #, verbose_name="The ID of your funded project")
-    research_projects_programs = models.TextField(null=True, blank=True,verbose_name=_("research projects programs")) #, verbose_name="The collaborative research or programs which the cruise is part of, separate them with comma")
-    references = models.TextField(null=True, blank=True,verbose_name=_("references")) #, verbose_name="Provide the bibliographic citations for publications describing the data set. Example: cruise report, scientific paper")
+    west_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
+        "West Bound Longitude"))  # , verbose_name="Westernmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)")
+    east_bound_longitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
+        "East Bound Longitude"))  # , verbose_name="Easternmost longitude of the sampling (decimal degrees, negative for Western Hemisphere longitude)")
+    north_bound_latitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
+        "North Bound Latitude"))  # , verbose_name="Northernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)")
+    south_bound_latitude = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True, verbose_name=_(
+        "South Bound Latitude"))  # , verbose_name="Southernmost latitude of the sampling (decimal degrees, negative for Southern Hemisphere latitude)")
+    funding_agency_name = models.CharField(max_length=255, null=True, blank=True,
+                                           verbose_name=_("funding agency name"))  # , verbose_name="Funding agency of the data collection")
+    funding_project_title = models.CharField(max_length=255, null=True, blank=True,
+                                             verbose_name=_("funding project title"))  # , verbose_name="The title of your funded project")
+    funding_project_id = models.CharField(max_length=255, null=True, blank=True,
+                                          verbose_name=_("funding project ID"))  # , verbose_name="The ID of your funded project")
+    research_projects_programs = models.TextField(null=True, blank=True, verbose_name=_(
+        "research projects programs"))  # , verbose_name="The collaborative research or programs which the cruise is part of, separate them with comma")
+    references = models.TextField(null=True, blank=True, verbose_name=_(
+        "references"))  # , verbose_name="Provide the bibliographic citations for publications describing the data set. Example: cruise report, scientific paper")
 
     class Meta:
         ordering = ['mission_number', ]
@@ -403,7 +420,8 @@ class Cruise(models.Model):
 
     @property
     def time_period(self):
-        return mark_safe(f"{default_if_none(self.start_date.strftime('%Y-%m-%d'), '--')}  &rarr; {default_if_none(self.end_date.strftime('%Y-%m-%d'), '--')}")
+        return mark_safe(
+            f"{default_if_none(self.start_date.strftime('%Y-%m-%d'), '--')}  &rarr; {default_if_none(self.end_date.strftime('%Y-%m-%d'), '--')}")
 
 
 #########################################
@@ -582,3 +600,16 @@ class PAAItem(models.Model):
 
     class Meta:
         ordering = ['code', ]
+
+
+class Script(Lookup):
+    script = models.CharField(max_length=1000, verbose_name=_("script"))
+
+    # metadata
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+    modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_ocean_samples", blank=True, null=True)
+
+    @property
+    def metadata(self):
+        return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)

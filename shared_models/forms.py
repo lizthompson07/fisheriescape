@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.core import validators
 from django.utils.translation import gettext_lazy, gettext
 
 from . import models
@@ -110,3 +109,12 @@ class UserCreateForm(forms.Form):
             # verify the two emails are the same
             if first_email.lower() != second_email.lower():
                 raise forms.ValidationError(gettext("Please make sure the two email addresses provided match."))
+
+
+class ScriptForm(forms.ModelForm):
+    class Meta:
+        model = models.Script
+        fields = "__all__"
+        widgets = {
+            'modified_by': forms.HiddenInput(),
+        }
