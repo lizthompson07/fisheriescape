@@ -25,6 +25,11 @@ YES_NO_CHOICES = (
     (False, _("No")),
 )
 
+NULL_YES_NO_CHOICES = (
+    (None, _("---------")),
+    (1, _("Yes")),
+    (0, _("No")),
+)
 
 class DefaultReviewer(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
@@ -150,7 +155,7 @@ class Conference(models.Model):
     lead = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
                              verbose_name=_("Which region is the lead on this trip?"),
                              related_name="meeting_leads", blank=False, null=True)
-    has_event_template = models.NullBooleanField(default=False, verbose_name=_(
+    has_event_template = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=0, verbose_name=_(
         "Is there an event template being completed for this conference or meeting?"))
     number = models.IntegerField(blank=True, null=True, verbose_name=_("event number"))
     start_date = models.DateTimeField(verbose_name=_("start date of event"))
