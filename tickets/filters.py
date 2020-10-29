@@ -1,10 +1,9 @@
 import django_filters
 from django import forms
 from django.contrib.auth.models import User
-from django.utils import timezone
+
 from shared_models import models as shared_models
 from . import models
-from . import forms as ticket_forms
 
 try:
     from dm_apps import my_conf as local_conf
@@ -44,9 +43,9 @@ class TicketFilter(django_filters.FilterSet):
             widget=forms.Select(attrs=chosen_js),
         )
 
-        section_choices = [(s.id, s.shortish_name) for s in shared_models.Section.objects.all().order_by(
+        section_choices = [(s.id, s.shortish_name) for s in shared_models.Section.objects.order_by(
             "division__branch__region", "division__branch", "division", "name")]
-        staff_choices = [(dm.id, "{} {}".format(dm.first_name, dm.last_name)) for dm in User.objects.filter(is_staff=True)]
+        staff_choices = [(dm.id, dm.get_full_name()) for dm in User.objects.filter(is_staff=True)]
         self.filters['section'] = django_filters.ChoiceFilter(
             field_name="section",
             choices=section_choices,

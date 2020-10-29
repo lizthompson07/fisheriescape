@@ -1,3 +1,4 @@
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from . import models
@@ -67,3 +68,15 @@ def get_region_choices():
         [models.Division.objects.get(pk=d[0]).branch.region_id for d in get_division_choices()])
     return [(r.id, str(r)) for r in
             models.Region.objects.filter(id__in=region_list).order_by("name", )]
+
+
+def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_modified_by=None):
+    my_str = f"<u>Created:</u> {created_at.strftime('%Y-%m-%d %H:%M:%S %Z')}"
+    if created_by:
+        my_str += f" by {created_by}"
+    if updated_at:
+        my_str += f"<br><u>Updated:</u> {updated_at.strftime('%Y-%m-%d %H:%M:%S %Z')}"
+        if last_modified_by:
+            my_str += f" by {last_modified_by}"
+
+    return mark_safe(my_str)
