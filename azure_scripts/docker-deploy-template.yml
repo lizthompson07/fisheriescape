@@ -73,17 +73,17 @@ parameters:
 
 
 steps:
-  - task: UsePythonVersion@0
-    displayName: 'Use Python 3.8'
-    inputs:
-      versionSpec: 3.8
+#  - task: UsePythonVersion@0
+#    displayName: 'Use Python 3.8'
+#    inputs:
+#      versionSpec: 3.8
 
   - script: |
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
       python3.8 -m pip install -r requirements.txt
-      python3.8 -m pip uninstall django-easy-pdf
+      python3.8 -m pip uninstall -y django-easy-pdf
       python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 
       # create env file
@@ -101,6 +101,8 @@ steps:
       python3.8 manage.py migrate
       python3.8 manage.py collectstatic --no-input
 
+      # remove the env file
+      rm .env
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Run Migrations and Staticfiles'
 
