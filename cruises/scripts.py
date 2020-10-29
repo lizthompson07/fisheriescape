@@ -13,6 +13,7 @@ def export_fixtures():
     fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
     models_to_export = [
         models.ComponentType,
+        models.HelpText,
         shared_models.Institute,
         shared_models.Vessel,
     ]
