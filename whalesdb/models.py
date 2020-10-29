@@ -266,7 +266,7 @@ class SteStationEvent(models.Model):
 
 class StnStation(models.Model):
     stn_name = models.CharField(max_length=100, verbose_name=_("Name"))
-    stn_code = models.CharField(max_length=3, verbose_name=_("Code"))
+    stn_code = models.CharField(max_length=6, verbose_name=_("Code"))
     stn_revision = models.BigIntegerField(verbose_name=_("Revision"))
     stn_planned_lat = models.DecimalField(max_digits=9, decimal_places=6, verbose_name=_("Latitude"))
     stn_planned_lon = models.DecimalField(max_digits=9, decimal_places=6, verbose_name=_("Longitude"))
