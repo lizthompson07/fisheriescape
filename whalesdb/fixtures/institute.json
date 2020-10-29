@@ -1,0 +1,57 @@
+[
+{
+    "model": "shared_models.institute",
+    "pk": 1,
+    "fields": {
+        "name": "Gulf Fisheries Centre",
+        "nom": "Centre des peches du Golfe",
+        "abbrev": "GFC",
+        "address": null,
+        "region": null
+    }
+},
+{
+    "model": "shared_models.institute",
+    "pk": 2,
+    "fields": {
+        "name": "Prince Edward Island, Forests Fish and Wildlife Division",
+        "nom": null,
+        "abbrev": "PEIFW",
+        "address": null,
+        "region": null
+    }
+},
+{
+    "model": "shared_models.institute",
+    "pk": 3,
+    "fields": {
+        "name": "Bedford Institute of Oceanography",
+        "nom": "Institut oc�anographique de Bedford",
+        "abbrev": "BIO",
+        "address": null,
+        "region": null
+    }
+},
+{
+    "model": "shared_models.institute",
+    "pk": 4,
+    "fields": {
+        "name": "Maurice Lamontagne Institute",
+        "nom": "Institut Maurice-Lamontagne",
+        "abbrev": "IML",
+        "address": null,
+        "region": null
+    }
+},
+{
+    "model": "shared_models.institute",
+    "pk": 5,
+    "fields": {
+        "name": "Northwest Atlantic Fisheries Centre",
+        "nom": "Centre des p�ches de l'Atlantique Nord-ouest",
+        "abbrev": "NAFC",
+        "address": null,
+        "region": null
+    }
+}
+]
