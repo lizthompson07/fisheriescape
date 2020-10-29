@@ -21,7 +21,7 @@ RUN python -m pip install --upgrade pip setuptools wheel
 
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt \
-    && python -m pip uninstall django-easy-pdf \
+    && python3.8 -m pip uninstall --yes django-easy-pdf \
     && python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 
 RUN mkdir media \
