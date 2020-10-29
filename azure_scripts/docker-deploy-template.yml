@@ -101,6 +101,8 @@ steps:
       python3.8 manage.py migrate
       python3.8 manage.py collectstatic --no-input
 
+      # remove the env file
+      rm .env
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Run Migrations and Staticfiles'
 
