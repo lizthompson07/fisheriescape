@@ -112,6 +112,7 @@ class CommonAuthCreateView(UserPassesTestMixin, CommonCreateView):
 
 class CommonUpdateView(CommonFormMixin, UpdateView):
     submit_text = None
+    delete_url = None
 
     def get_h1(self):
         if self.h1:
@@ -125,6 +126,9 @@ class CommonUpdateView(CommonFormMixin, UpdateView):
         else:
             return gettext("Save")
 
+    def get_delete_url(self):
+        return self.delete_url
+
     # default template to use to update an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
     template_name = 'shared_models/shared_entry_form.html'
@@ -134,6 +138,8 @@ class CommonUpdateView(CommonFormMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
         context["model_name"] = self.get_object()._meta.verbose_name
+        context["delete_url"] = self.get_delete_url()
+
         return context
 
 

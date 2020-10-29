@@ -73,3 +73,41 @@ InstituteFormset = modelformset_factory(
     form=InstituteForm,
     extra=1,
 )
+
+
+class InstrumentComponentForm(forms.ModelForm):
+    class Meta:
+        model = models.InstrumentComponent
+        fields = "__all__"
+        widgets = {
+            "instrument": forms.HiddenInput(),
+            "notes": forms.Textarea(attrs=dict(rows=3)),
+        }
+
+
+class ComponentTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.ComponentType
+        fields = "__all__"
+
+
+ComponentTypeFormset = modelformset_factory(
+    model=models.ComponentType,
+    form=ComponentTypeForm,
+    extra=1,
+)
+
+class HelpTextForm(forms.ModelForm):
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 2}),
+            'fra_text': forms.Textarea(attrs={"rows": 2}),
+        }
+
+HelpTextFormset = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
+    extra=1,
+)

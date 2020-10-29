@@ -10,7 +10,7 @@
   <div class="btns mb-5">
     <a href="{% url "cruises:cruise_edit" object.id %}" class="btn btn-warning">{% trans "Edit" %}</a>
     <a href="{% url "cruises:cruise_delete" object.id %}" class="btn btn-danger">{% trans "Delete" %}</a>
-    <a href="#" pop-href="{% url "cruises:file_new" object.id %}" class="btn btn-primary">Add Instruments</a>
+    <a href="{% url "cruises:instrument_new" object.id %}" class="btn btn-primary">Add an Instrument</a>
     <a href="#" pop-href="{% url "cruises:file_new" object.id %}" class="btn btn-primary">Add a File</a>
   </div>
 
@@ -29,21 +29,14 @@
       </th>
       <td>
         <ul>
-          {% for file in object.files.all %}
+          {% for instrument in object.instruments.all %}
             <li>
-              <a href="{{ file.file.url }}">{{ file.caption }}</a> (uploaded
-              on: {{ file.date_created|date:"F d Y" }})
-              &nbsp;
-              <a href="#" pop-href="{% url 'cruises:file_edit' file.id %}">
-                <span class="mdi mdi-pencil" style="font-size: large"></span>
+              <a href="{% url 'cruises:instrument_detail' instrument.id %}">
+                {{ instrument }}
               </a>
-              <a href="#" pop-href="{% url 'cruises:file_delete' file.id %}">
-                <span class="mdi mdi-delete" style="font-size: large"></span>
-              </a>
-
             </li>
           {% empty %}
-            <span class="">  <em>There are no files attached to this cruise.</em></span>
+            <span class="">  <em>There are no instruments attached to this cruise.</em></span>
           {% endfor %}
         </ul>
       </td>

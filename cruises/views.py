@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy, gettext
 import csv
 from django.conf import settings
@@ -7,7 +8,7 @@ from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView, CreateView, UpdateView, DetailView, DeleteView
 from django.utils.text import slugify
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 
 from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonTemplateView, CommonUpdateView, \
     CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonHardDeleteView, CommonFormsetView, CommonDeleteView
@@ -52,6 +53,13 @@ class OceanographyAdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+def get_help_text_dict():
+    my_dict = {}
+    for obj in models.HelpText.objects.all():
+        my_dict[obj.field_name] = str(obj)
+    return my_dict
+
+
 class IndexTemplateView(OceanographyAccessRequiredMixin, CommonTemplateView):
     template_name = "cruises/index.html"
     h1 = "Home"
@@ -87,6 +95,11 @@ class CruiseCreateView(OceanographyAdminRequiredMixin, CommonCreateView):
     form_class = forms.CruiseForm
     parent_crumb = {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
     home_url_name = "cruises:index"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+        return context
 
 
 class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
@@ -130,6 +143,11 @@ class CruiseUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
 
     def get_grandparent_crumb(self):
         return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+        return context
 
 
 class CruiseDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
@@ -248,25 +266,168 @@ class FileDeleteView(OceanographyAdminRequiredMixin, CommonPopoutDeleteView):
     model = models.File
 
 
-# INSTRUMENT #
-##############
+# Instruments #
+############
 
-class InstrumentCreateView(OceanographyAccessRequiredMixin, CommonPopoutCreateView):
+class InstrumentCreateView(OceanographyAdminRequiredMixin, CommonCreateView):
+    template_name = 'cruises/form.html'
     model = models.Instrument
     form_class = forms.InstrumentForm
+    home_url_name = "cruises:index"
 
     def get_initial(self):
         cruise = shared_models.Cruise.objects.get(pk=self.kwargs['cruise'])
         return {'cruise': cruise}
 
+    def get_cruise(self):
+        return get_object_or_404(shared_models.Cruise, pk=self.kwargs.get("cruise"))
 
-class InstrumentUpdateView(OceanographyAdminRequiredMixin, CommonPopoutUpdateView):
+    def get_parent_crumb(self):
+        return {"title": self.get_cruise(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_cruise().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
+
+
+class InstrumentDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
+    template_name = "cruises/instrument_detail.html"
+    model = models.Instrument
+    field_list = [
+        'name',
+        'notes',
+    ]
+    home_url_name = "cruises:index"
+
+    def get_cruise(self):
+        return self.get_object().cruise
+
+    def get_parent_crumb(self):
+        return {"title": self.get_cruise(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_cruise().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["component_object"] = models.InstrumentComponent.objects.first()
+        context["component_field_list"] = [
+            "component_type",
+            "model_number",
+            "serial_number",
+            "notes",
+        ]
+
+        return context
+
+
+class InstrumentUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
     model = models.Instrument
     form_class = forms.InstrumentForm
+    template_name = 'cruises/form.html'
+    home_url_name = "cruises:index"
+
+    def get_cruise(self):
+        return self.get_object().cruise
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("cruises:instrument_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_cruise(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_cruise().id])}
+
+    def get_greatgrandparent_crumb(self):
+        return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
 
 
-class InstrumentDeleteView(OceanographyAdminRequiredMixin, CommonPopoutDeleteView):
+class InstrumentDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
     model = models.Instrument
+    template_name = 'cruises/confirm_delete.html'
+    home_url_name = "cruises:index"
+    delete_protection = False
+
+    def get_success_url(self):
+        return self.get_grandparent_crumb().get("url")
+
+    def get_cruise(self):
+        return self.get_object().cruise
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("cruises:instrument_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_cruise(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_cruise().id])}
+
+    def get_greatgrandparent_crumb(self):
+        return {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
+
+
+# Instrument component #
+########################
+
+class InstrumentComponentCreateView(OceanographyAdminRequiredMixin, CommonCreateView):
+    model = models.InstrumentComponent
+    template_name = 'cruises/form.html'
+    form_class = forms.InstrumentComponentForm
+    home_url_name = "index"
+
+    def get_cruise(self):
+        return models.Instrument.objects.get(pk=self.kwargs["instrument"]).cruise
+
+    def get_instrument(self):
+        return models.Instrument.objects.get(pk=self.kwargs["instrument"])
+
+    def get_parent_crumb(self):
+        return {"title": self.get_instrument(),
+                "url": reverse_lazy("cruises:instrument_detail", args=[self.get_instrument().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_cruise(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_cruise().id])}
+
+    def get_initial(self):
+        return {"instrument": self.get_instrument(), }
+
+
+class InstrumentComponentUpdateView(OceanographyAdminRequiredMixin, CommonUpdateView):
+    model = models.InstrumentComponent
+    template_name = 'cruises/form.html'
+    form_class = forms.InstrumentComponentForm
+    home_url_name = "index"
+    grandparent_crumb = {"title": gettext_lazy("Instruments"), "url": reverse_lazy("ocean:instrument_list")}
+
+    def get_cruise(self):
+        return self.get_object().instrument.cruise
+
+    def get_instrument(self):
+        return self.get_object().instrument
+
+    def get_parent_crumb(self):
+        return {"title": self.get_instrument(),
+                "url": reverse_lazy("cruises:instrument_detail", args=[self.get_instrument().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_cruise(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_cruise().id])}
+
+    def get_delete_url(self):
+        return reverse("cruises:component_delete", args=[self.get_object().id])
+
+
+class InstrumentComponentDeleteView(OceanographyAdminRequiredMixin, CommonDeleteView):
+    model = models.InstrumentComponent
+    template_name = 'cruises/confirm_delete.html'
+    home_url_name = "index"
+
+    def get_cruise(self):
+        return self.get_object().instrument.cruise
+
+    def get_instrument(self):
+        return self.get_object().instrument
+
+    def get_parent_crumb(self):
+        return {"title": self.get_instrument(),
+                "url": reverse_lazy("cruises:instrument_detail", args=[self.get_instrument().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_cruise(), "url": reverse_lazy("cruises:cruise_detail", args=[self.get_cruise().id])}
 
 
 # SETTINGS #
@@ -302,3 +463,33 @@ class InstituteFormsetView(OceanographyAdminRequiredMixin, CommonFormsetView):
 class InstituteHardDeleteView(OceanographyAdminRequiredMixin, CommonHardDeleteView):
     model = shared_models.Institute
     success_url = reverse_lazy("cruises:manage_institutes")
+
+
+class ComponentTypeFormsetView(OceanographyAdminRequiredMixin, CommonFormsetView):
+    template_name = 'cruises/formset.html'
+    h1 = "Manage Component Types"
+    queryset = models.ComponentType.objects.all()
+    formset_class = forms.ComponentTypeFormset
+    success_url_name = "cruises:manage_component_types"
+    home_url_name = "cruises:index"
+    delete_url_name = "cruises:delete_component_type"
+
+
+class ComponentTypeHardDeleteView(OceanographyAdminRequiredMixin, CommonHardDeleteView):
+    model = models.ComponentType
+    success_url = reverse_lazy("cruises:manage_component_types")
+
+
+class HelpTextFormsetView(OceanographyAdminRequiredMixin, CommonFormsetView):
+    template_name = 'cruises/formset.html'
+    h1 = "Manage Help Texts"
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url_name = "cruises:manage_help_texts"
+    home_url_name = "cruises:index"
+    delete_url_name = "cruises:delete_help_text"
+
+
+class HelpTextHardDeleteView(OceanographyAdminRequiredMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("cruises:manage_help_texts")
