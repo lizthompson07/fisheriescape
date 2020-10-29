@@ -109,7 +109,7 @@
                             <table class="table sortable">
                                 <thead><tr>
                                     {% with dep.station_events.first as evt %}
-                                    <th scope="col">{% get_verbose_label evt 'ste_date' %}</th>
+                                    <th class="col-2" scope="col">{% get_verbose_label evt 'ste_date' %}</th>
                                     <th scope="col">{% get_verbose_label evt 'crs' %}</th>
                                     <th scope="col">{% get_verbose_label evt 'set_type' %}</th>
                                     <td class="col"></td>
@@ -118,7 +118,10 @@
                                 <tbody>
                             {% for evt in dep.station_events.all %}
                                 <tr>
-                                    <td>{{ evt.ste_date }}</td>
+                                    <td>{{ evt.ste_date }}<br />
+                                    {{ evt.ste_time }}<br />
+                                    {{ evt.rtt_id }}
+                                    </td>
                                     <td>{{ evt.crs }}</td>
                                     <td>{{ evt.set_type.name }}</td>
                                     <td>
