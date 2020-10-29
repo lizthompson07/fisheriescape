@@ -13,10 +13,9 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 import sys
 
-import requests
+from decouple import config
 from django.utils.translation import gettext_lazy as _
-from decouple import config, UndefinedValueError
-from msrestazure.azure_active_directory import MSIAuthentication
+
 from . import utils
 
 # Custom variables
@@ -138,6 +137,7 @@ INSTALLED_APPS = [
                      'django.contrib.humanize',
                      'bootstrap4',
                      'el_pagination',
+                     'debug_toolbar',
                      'easy_pdf',
                      'tracking',
                      'accounts',
@@ -169,6 +169,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 if AZURE_INSTRUMENTATION_KEY != "":
@@ -343,3 +344,8 @@ if AZURE_INSTRUMENTATION_KEY != "":
             'BLACKLIST_PATHS': ['/static/*'],  # These sites will not be traced if a request is sent to it.
         }
     }
+
+# For Django debug toolbar
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
