@@ -8,8 +8,10 @@
 {% block subcontent %}
 
   <div class="btns mb-5">
-    <a href="{% url "cruises:cruise_edit" object.id %}" class="btn btn-warning">Edit</a>
-    <a href="#" pop-href="{% url "cruises:file_create" object.id %}" class="btn btn-primary">Add a File</a>
+    <a href="{% url "cruises:cruise_edit" object.id %}" class="btn btn-warning">{% trans "Edit" %}</a>
+    <a href="{% url "cruises:cruise_delete" object.id %}" class="btn btn-danger">{% trans "Delete" %}</a>
+    <a href="{% url "cruises:instrument_new" object.id %}" class="btn btn-primary">Add an Instrument</a>
+    <a href="#" pop-href="{% url "cruises:file_new" object.id %}" class="btn btn-primary">Add a File</a>
   </div>
 
   <table class="table table-sm table-striped">
@@ -19,6 +21,29 @@
 
     {% endfor %}
 
+
+    {# instruments #}
+    <tr>
+      <th>
+        Instruments:
+      </th>
+      <td>
+        <ul>
+          {% for instrument in object.instruments.all %}
+            <li>
+              <a href="{% url 'cruises:instrument_detail' instrument.id %}">
+                {{ instrument }}
+              </a>
+            </li>
+          {% empty %}
+            <span class="">  <em>There are no instruments attached to this cruise.</em></span>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+
+
+    {# files #}
     <tr>
       <th>
         Associated Files:

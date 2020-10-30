@@ -20,8 +20,8 @@ COPY ./sshd_config /etc/ssh/
 RUN python -m pip install --upgrade pip setuptools wheel
 
 COPY ./requirements.txt .
-RUN pip install -r requirements.txt \
-    && python -m pip uninstall django-easy-pdf \
+RUN python -m pip install -r requirements.txt \
+    && python -m pip uninstall --yes django-easy-pdf \
     && python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 
 RUN mkdir media \
@@ -30,7 +30,7 @@ RUN mkdir media \
     && mkdir media/inventory \
     && mkdir media/inventory/temp \
     && mkdir media/projects \
-    && mkdir media/project/temp \
+    && mkdir media/projects/temp \
     && mkdir media/ihub \
     && mkdir media/ihub/temp
 

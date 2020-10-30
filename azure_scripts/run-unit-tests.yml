@@ -7,11 +7,11 @@ steps:
   - script: |
       # install pre-requisites
       whoami
-      python -V
-      python -m pip install --upgrade pip setuptools wheel
-      python -m pip install -r requirements.txt
-      python -m pip uninstall django-easy-pdf
-      python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
+      python3.8 -V
+      python3.8 -m pip install --upgrade pip setuptools wheel
+      python3.8 -m pip install -r requirements.txt
+      python3.8 -m pip uninstall --yes django-easy-pdf
+      python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
       mkdir media
       mkdir media/travel
       mkdir media/travel/temp
@@ -21,8 +21,8 @@ steps:
       mkdir media/inventory/temp
       mkdir media/ihub
       mkdir media/ihub/temp
-      python manage.py collectstatic --no-input
-      python manage.py migrate
+      python3.8 manage.py collectstatic --no-input
+      python3.8 manage.py migrate
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Install Prerequisites and Run Local Migrations '
 

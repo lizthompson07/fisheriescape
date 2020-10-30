@@ -1,0 +1,28 @@
+{% extends 'shared_models/generic_form.html' %}
+{% load bootstrap4 %}
+{% load static %}
+{% load custom_filters %}
+
+
+
+{% block form_field %}
+
+  {% if field.name in help_text_dict %}
+    {% bootstrap_label field.label %}
+    <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" title="{{ field.label }}"
+         data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover">
+    {% bootstrap_field field placeholder="" show_label=False %}
+  {% else %}
+    {% bootstrap_field field placeholder="" %}
+  {% endif %}
+
+{% endblock %}
+
+{% block body_js %}
+    <script type="application/javascript">
+        $(function () {
+            $('[data-toggle="popover"]').popover(
+            )
+        });
+    </script>
+{% endblock %}
