@@ -83,10 +83,14 @@ class ReportSearchForm(forms.Form):
             (2, _("Organizational Report / Cue Card (PDF)")),
             (3, _("iHub Summary Report (Excel Spreadsheet)")),
             (4, _("iHub Summary Report (PDF)")),
-            (5, _("Engagement Update Log (PDF)")),
-            (6, _("Engagement Update Log (XLSX)")),
+            (6, _("Engagement Update Log")),
             (7, _("Consultation Instructions (PDF)")),
             (8, _("Consultation Instructions - Mail Merge (xlsx)")),
+        )
+        format_choices = (
+            (None, "------"),
+            ('pdf', "Adobe PDF (pdf)"),
+            ('xlsx', "Excel (xlsx)"),
         )
         fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
                       models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
@@ -101,6 +105,7 @@ class ReportSearchForm(forms.Form):
         entry_type_choices = [(obj.id, obj) for obj in models.EntryType.objects.all() if obj.entries.count() > 0]
 
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
+        self.fields['format'] = forms.ChoiceField(required=False, choices=format_choices)
         self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
         self.fields['sectors'] = forms.MultipleChoiceField(required=False,
                                                            label='List of sectors (w/ entries) - Leave blank for all',

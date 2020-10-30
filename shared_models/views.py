@@ -1,13 +1,13 @@
 from abc import ABC
 
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import gettext_lazy, gettext
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.contrib.auth.models import User
+from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
+from django.utils.translation import gettext_lazy, gettext
 from django.views import View
 from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView, ListView, FormView
 from django.views.generic.detail import SingleObjectMixin, DetailView
@@ -16,8 +16,8 @@ from django_filters.views import FilterView
 ###
 from dm_apps.utils import custom_send_mail
 from . import emails, filters
-from . import models
 from . import forms
+from . import models
 from .mixins import CommonMixin, CommonFormMixin, CommonListMixin, CommonPopoutFormMixin, CommonPopoutMixin
 
 
@@ -112,6 +112,7 @@ class CommonAuthCreateView(UserPassesTestMixin, CommonCreateView):
 
 class CommonUpdateView(CommonFormMixin, UpdateView):
     submit_text = None
+    delete_url = None
 
     def get_h1(self):
         if self.h1:
@@ -125,6 +126,9 @@ class CommonUpdateView(CommonFormMixin, UpdateView):
         else:
             return gettext("Save")
 
+    def get_delete_url(self):
+        return self.delete_url
+
     # default template to use to update an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
     template_name = 'shared_models/shared_entry_form.html'
@@ -134,6 +138,8 @@ class CommonUpdateView(CommonFormMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
         context["model_name"] = self.get_object()._meta.verbose_name
+        context["delete_url"] = self.get_delete_url()
+
         return context
 
 
@@ -480,6 +486,18 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
 class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
     template_name = 'shared_models/org_index.html'
     h1 = "<span class='red-font'><span class='font-weight-bold'>{}:</span> {}</span>".format(gettext_lazy("Warning"),
@@ -775,7 +793,7 @@ class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
 ########
 
 # this is a complicated cookie. Therefore we will not use a model view or model form and handle the clean data manually.
-class UserCreateView(LoginRequiredMixin, CommonPopoutFormView):
+class UserCreateView(AdminRequiredMixin, CommonPopoutFormView):
     form_class = forms.UserCreateForm
     h1 = gettext_lazy("Create a New DM Apps User")
     h3 = "<span class='red-font'>{}</span> <br><br> <span class='text-muted'>{}</span> <br><br>".format(
@@ -818,3 +836,81 @@ class UserCreateView(LoginRequiredMixin, CommonPopoutFormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
+# SCRIPTS #
+###########
+
+class ScriptListView(SuperuserRequiredMixin, CommonListView):
+    queryset = models.Script.objects.order_by("name")
+    template_name = 'shared_models/script_list.html'
+    field_list = [
+        {"name": "tname|{}".format(gettext_lazy("name")), },
+        {"name": "tdescription|{}".format(gettext_lazy("description")), },
+        {"name": "script", },
+    ]
+    home_url_name = "shared_models:index"
+    row_object_url_name = "shared_models:script_edit"
+    new_object_url_name = "shared_models:script_new"
+    container_class = "container-fluid"
+    h1 = queryset.model._meta.verbose_name_plural.title()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class ScriptUpdateView(SuperuserRequiredMixin, CommonUpdateView):
+    model = models.Script
+    template_name = 'shared_models/generic_form.html'
+    form_class = forms.ScriptForm
+    home_url_name = "index"
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:script_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_url"] = reverse("shared_models:script_delete", kwargs={"pk": self.get_object().id})
+        return context
+
+    def get_initial(self):
+        return {"last_modified_by": self.request.user, }
+
+
+class ScriptCreateView(SuperuserRequiredMixin, CommonCreateView):
+    model = models.Script
+    template_name = 'shared_models/generic_form.html'
+    form_class = forms.ScriptForm
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:script_list")}
+    home_url_name = "index"
+
+    def get_initial(self):
+        return {"last_modified_by": self.request.user, }
+
+
+class ScriptDeleteView(SuperuserRequiredMixin, CommonDeleteView):
+    model = models.Script
+    success_url = reverse_lazy('shared_models:script_list')
+    template_name = 'shared_models/generic_confirm_delete.html'
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:script_list")}
+    home_url_name = "index"
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:script_edit", kwargs={
+            "pk": self.get_object().id})}
+
+
+def run_script(request, pk):
+    script = models.Script.objects.get(pk=pk)
+    try:
+        mod = script.script.split(".")
+        scr = mod.pop()
+        mod = ".".join(mod)
+        i = __import__(mod, fromlist=[''])
+        getattr(i,scr)()
+        messages.success(request, f"The '{script}' script has been run successfully.")
+
+    except Exception as e:
+        messages.error(request, e)
+    return HttpResponseRedirect(reverse("shared_models:script_list"))

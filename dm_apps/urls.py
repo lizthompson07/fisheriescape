@@ -14,19 +14,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+import debug_toolbar
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from . import views as views
+
 from accounts import views as acc_views
+from . import views as views
 
 urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),
     path('admin/', admin.site.urls),
     path('tracking/', include('tracking.urls')),
-    # path('__debug__/', include(debug_toolbar.urls)),
+    path('__debug__/', include(debug_toolbar.urls)),
 ]
 
 urlpatterns += i18n_patterns(

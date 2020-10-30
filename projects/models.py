@@ -2,24 +2,21 @@ import os
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import Sum
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 from textile import textile
 
+from dm_apps import custom_widgets
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
-from django.utils.translation import gettext_lazy as _
-from django.utils.translation import gettext
-
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-
-from dm_apps import custom_widgets
-from . import emails
-
 # Choices for language
 from shared_models.models import SimpleLookup, Lookup
+from . import emails
 
 ENG = 1
 FRE = 2
@@ -31,6 +28,12 @@ LANGUAGE_CHOICES = (
 YES_NO_CHOICES = (
     (True, gettext("Yes")),
     (False, gettext("No")),
+)
+
+NULL_YES_NO_CHOICES = (
+    (None, _("---------")),
+    (1, _("Yes")),
+    (0, _("No")),
 )
 
 
@@ -220,8 +223,8 @@ class Project(models.Model):
     # choices for is_national
     is_national_choices = (
         (None, _("Unknown")),
-        (True, _("National")),
-        (False, _("Regional")),
+        (1, _("National")),
+        (0, _("Regional")),
     )
 
     year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
@@ -239,13 +242,16 @@ class Project(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords (used for searching)"), related_name="projects")
 
     # details
-    is_national = models.NullBooleanField(default=False, verbose_name=_("National or regional?"), choices=is_national_choices)
+    is_national = models.IntegerField(blank=True, null=True, default=False, verbose_name=_("National or regional?"),
+                                      choices=is_national_choices)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"), limit_choices_to={"used_for": 1})
 
     # DELETE FOLLOWING TWO FIELDS
-    is_competitive = models.NullBooleanField(default=False, verbose_name=_("Is the funding competitive?"))
-    is_approved = models.NullBooleanField(verbose_name=_("Has this project already been approved"))
+    is_competitive = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=0,
+                                         verbose_name=_("Is the funding competitive?"))
+    is_approved = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
+                                      verbose_name=_("Has this project already been approved"))
 
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
@@ -313,7 +319,7 @@ class Project(models.Model):
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
     # approved = models.BooleanField(default=False, verbose_name=_("approved"))
     recommended_for_funding = models.BooleanField(default=False, verbose_name=_("recommended"))
-    approved = models.NullBooleanField(verbose_name=_("approved"))
+    approved = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("approved"))
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"))
     # section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
@@ -326,7 +332,8 @@ class Project(models.Model):
 
     meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
-    is_hidden = models.NullBooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
+    is_hidden = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=False,
+                                    verbose_name=_("Should the project be hidden from other users?"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))

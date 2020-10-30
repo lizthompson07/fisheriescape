@@ -1,39 +1,118 @@
 #!/bin/bash
 printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
 echo "RUNNING TESTS FOR: shared_models app"
-python manage.py test  shared_models.test
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b  shared_models.test
+echo "FINISHED RUNNING TESTS FOR: shared_models app"
 
 printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
 echo "RUNNING TESTS FOR: projects app"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
 mkdir ./media
 mkdir ./media/projects
 mkdir ./media/projects/temp
-python manage.py test projects.test
+python3.8 manage.py test -b projects.test
+echo "FINISHED RUNNING TESTS FOR: projects app"
 
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
 printf "\n"
 echo "RUNNING TESTS FOR: travel app"
-python manage.py test travel.test
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b travel.test
 
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
 printf "\n"
 echo "RUNNING TESTS FOR: whalesdb"
-python manage.py test whalesdb.test
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b whalesdb.test
+echo "FINISHED RUNNING TESTS FOR: whalesdb"
 
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
 printf "\n"
 echo "RUNNING TESTS FOR: inventory"
-python manage.py test inventory.test
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b inventory.test
+echo "FINISHED RUNNING TESTS FOR: inventory"
 
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
 printf "\n"
 echo "RUNNING TESTS FOR: shiny"
-python manage.py test shiny.test
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b shiny.test
+echo "FINISHED RUNNING TESTS FOR: shiny"
 
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
 printf "\n"
 echo "RUNNING TESTS FOR: ihub"
-python manage.py test ihub.test
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b ihub.test
+printf "\n"
+echo "FINISHED RUNNING TESTS FOR: ihub"
 
+
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
 printf "\n"
 echo "RUNNING TESTS FOR: csas"
-python manage.py test csas.test
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b csas.test
+echo "FINISHED RUNNING TESTS FOR: csas"
 
 printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
 echo "RUNNING TESTS FOR: cruises"
-python manage.py test cruises.test
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test -b cruises.test
+echo "FINISHED RUNNING TESTS FOR: cruises"

@@ -49,21 +49,10 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
         # we have to refine the queryset to only the selected sectors
         sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
         entry_list = entry_list.filter(sectors__in=sector_list)
-        # # create the species query object: Q
-        # q_objects = Q()  # Create an empty Q object to start with
-        # for s in sector_list:
-        #     q_objects |= Q(sectors=s)  # 'or' the Q objects together
-        # # apply the filter
     if orgs:
         # we have to refine the queryset to only the selected orgs
         org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
         entry_list = entry_list.filter(organizations__in=org_list)
-        # # create the species query object: Q
-        # q_objects = Q()  # Create an empty Q object to start with
-        # for o in org_list:
-        #     q_objects |= Q(organizations=o)  # 'or' the Q objects together
-        # # apply the filter
-        # entry_list = entry_list.filter(q_objects)
     else:
         # if no orgs were passed in to the report, we need to make an org list based on the orgs in the entries
         # this org_list will serve as basis for spreadsheet tabs
@@ -136,9 +125,9 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
                 str(e.entry_type),
                 e.initial_date.strftime("%Y-%m-%d") if e.initial_date else "n/a",
                 e.anticipated_end_date.strftime("%Y-%m-%d") if e.anticipated_end_date else "",
-                str(e.funding_program),
                 regions,
                 nz(str(e.funding_program), ""),
+                nz(str(e.funding_needed), ""),
                 nz(str(e.funding_purpose), ""),
                 nz(e.amount_requested, 0),
                 nz(e.amount_approved, 0),

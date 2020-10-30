@@ -1,7 +1,9 @@
 import os
+
 from django.test import TestCase
-from django.urls import reverse_lazy, resolve, reverse
+from django.urls import resolve, reverse
 from django.utils.translation import activate
+
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 
 fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fixtures')
@@ -28,11 +30,12 @@ class CommonTest(TestCase):
     expected_form = None
 
     # use when a user needs to be logged in.
-    def get_and_login_user(self, user=None, in_group=None):
+    def get_and_login_user(self, user=None, in_group=None, is_superuser=False):
         """
         this function is a handy way to log in a user to the testing client.
         :param user: optional user to be logged in
         :param in_group: optional group to have the user assigned to
+        :is_superuser: is the user a superuser?
         """
         if not user:
             user = UserFactory()
@@ -41,6 +44,9 @@ class CommonTest(TestCase):
         if in_group:
             group = GroupFactory(name=in_group)
             user.groups.add(group)
+        if is_superuser:
+            user.is_superuser = True
+            user.save()
         return user
 
     def assert_not_accessible_by_user(self, test_url, user, locales=('en', 'fr'), expected_code=302, login_search_term=None):
@@ -67,7 +73,8 @@ class CommonTest(TestCase):
             self.assertIn(f"{login_url}", response.url)
             self.client.logout()
 
-    def assert_non_public_view(self, test_url, locales=('en', 'fr'), expected_template=None, user=None, expected_code=200, login_search_term=None):
+    def assert_non_public_view(self, test_url, locales=('en', 'fr'), expected_template=None, user=None, expected_code=200,
+                               login_search_term=None):
         """
         This test will ensure a view requires a user to be logged in in order to access it. Part 1, will test to see what happens when
         an anonymous user tries accessing the url. Part 2 attempt the same this with a logged in user. If the `user` arg is provided, it
@@ -220,7 +227,6 @@ class CommonTest(TestCase):
         self.assertIn(context_var, response.context)
         self.assertEqual(response.context.get(context_var), expected_value)
 
-
     def assert_correct_url(self, test_url_name, expected_url_path, test_url_args=None):
         # arbitrarily activate the english locale
         activate('en')
@@ -240,7 +246,7 @@ class CommonTest(TestCase):
         self.assertEquals(test_view, expected_form_class)
 
     def assert_success_url(self, test_url, data=None, user=None, expected_url_name=None, expected_success_url=None,
-                           use_anonymous_user=False):
+                           use_anonymous_user=False, file_field_name=None):
         """
         test that upon a successful form the view redirects to the expected success url
         :param data: optional data to use when submitting the form
@@ -255,7 +261,13 @@ class CommonTest(TestCase):
         # if a user is provided in the arg, log in with that user
         if not use_anonymous_user:
             self.get_and_login_user(user)
-        response = self.client.post(test_url, data=data)
+
+        if data and file_field_name:
+            with open('README.md') as fp:
+                data[file_field_name] = fp
+                response = self.client.post(test_url, data=data, )
+        else:
+            response = self.client.post(test_url, data=data)
 
         if response.context and 'form' in response.context:
             # If the data in this test is invaild the response will be invalid
@@ -328,5 +340,53 @@ class CommonTest(TestCase):
 
     # Tests for models
     ##################
-        # nothing yet :(
+    def assert_unique_fields(self, model, field_names):
+        """
+        assert that a field within a model is unique
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for field_name in field_names:
+            field = [field for field in model._meta.fields if field.name == field_name][0]
+            self.assertTrue(field.unique)
 
+    def assert_mandatory_fields(self, model, field_names):
+        """
+        assert that a field within a model is mandatory (blank=True, null=True)
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for field_name in field_names:
+            field = [field for field in model._meta.fields if field.name == field_name][0]
+            self.assertFalse(field.blank)
+            self.assertFalse(field.null)
+
+    def assert_non_mandatory_fields(self, model, field_names):
+        """
+        assert that a field within a model is not mandatory (blank=False, null=False)
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for field_name in field_names:
+            field = [field for field in model._meta.fields if field.name == field_name][0]
+            self.assertTrue(field.blank)
+            self.assertTrue(field.null)
+
+    def assert_has_fields(self, model, fields):
+        """
+        assert that a model has specified field names
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        model_field_list = [field.name for field in model._meta.fields]
+        for field in fields:
+            self.assertIn(field, model_field_list)
+
+    def assert_has_props(self, model, props):
+        """
+        assert that a model has specified props
+        :param model: the model class to test
+        :param field_names: list of  field names to check
+        """
+        for prop in props:
+            self.assertTrue(hasattr(model, prop))

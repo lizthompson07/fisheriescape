@@ -1,23 +1,31 @@
+import os
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-import os
 from django.utils.translation import gettext_lazy as _
 
-from lib.functions.custom_functions import fiscal_year, listrify
+from lib.functions.custom_functions import listrify
 from lib.functions.custom_functions import nz
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup
+
 
 # This can be delete after the next time migrations are crushed
 def audio_file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/entry_<id>/<filename>
     return 'ihub/org_{}/{}'.format(instance.id, filename)
 
+
+NULL_YES_NO_CHOICES = (
+    (None, _("---------")),
+    (1, _("Yes")),
+    (0, _("No")),
+)
 
 
 class EntryType(SimpleLookup):
@@ -27,8 +35,10 @@ class EntryType(SimpleLookup):
 class Status(SimpleLookup):
     color = models.CharField(max_length=25, blank=True, null=True)
 
+
 class FundingPurpose(SimpleLookup):
     pass
+
 
 class FundingProgram(SimpleLookup):
     abbrev_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation (French)"))
@@ -49,7 +59,7 @@ class Entry(models.Model):
     location = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("location"))
     organizations = models.ManyToManyField(ml_models.Organization, related_name="entries",
                                            limit_choices_to={'grouping__is_indigenous': True})
-    initial_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True )
+    initial_date = models.DateTimeField(verbose_name=_("initial activity date"), blank=True, null=True)
     anticipated_end_date = models.DateTimeField(verbose_name=_("anticipated end date"), blank=True, null=True)
     status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
                                related_name="entries")
@@ -63,14 +73,15 @@ class Entry(models.Model):
                                         verbose_name=_("funding program"), related_name="entries")
 
     fiscal_year = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("fiscal year/multiyear"))
-    funding_needed = models.NullBooleanField(verbose_name=_("is funding needed?"))
+    funding_needed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("is funding needed?"))
     funding_purpose = models.ForeignKey(FundingPurpose, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("funding purpose"), related_name="entries")
     amount_requested = models.FloatField(blank=True, null=True, verbose_name=_("funding requested"))  # title case needed
     amount_approved = models.FloatField(blank=True, null=True, verbose_name=_("funding approved"))
     amount_transferred = models.FloatField(blank=True, null=True, verbose_name=_("amount transferred"))
     amount_lapsed = models.FloatField(blank=True, null=True, verbose_name=_("amount lapsed"))
-    amount_owing = models.NullBooleanField(verbose_name=_("does any funding need to be recovered?"))
+    amount_owing = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
+                                       verbose_name=_("does any funding need to be recovered?"))
 
     # meta
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
