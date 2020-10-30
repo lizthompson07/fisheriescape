@@ -26,7 +26,7 @@
     "pk": 3,
     "fields": {
         "name": "Bedford Institute of Oceanography",
-        "nom": "Institut oc�anographique de Bedford",
+        "nom": "Institut océanographique de Bedford",
         "abbrev": "BIO",
         "address": null,
         "region": null
@@ -48,7 +48,7 @@
     "pk": 5,
     "fields": {
         "name": "Northwest Atlantic Fisheries Centre",
-        "nom": "Centre des p�ches de l'Atlantique Nord-ouest",
+        "nom": "Centre des péches de l'Atlantique Nord-ouest",
         "abbrev": "NAFC",
         "address": null,
         "region": null

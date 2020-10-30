@@ -304,6 +304,10 @@ class URLTest(TestCase):
     def test_url_create_tea_view(self):
         self.basic_en_url_test('whalesdb:create_tea', 'whalesdb/create/tea/', views.TeaCreate)
 
+    @tag('tea', 'url', 'update')
+    def test_url_update_tea_view(self):
+        self.basic_en_url_test('whalesdb:update_tea', 'whalesdb/update/tea/1/', views.TeaUpdate, [1,])
+
     @tag('tea', 'url', 'list')
     def test_url_list_tea_view(self):
         self.basic_en_url_test('whalesdb:list_tea', 'whalesdb/list/tea/', views.TeaList)

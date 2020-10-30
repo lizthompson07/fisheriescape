@@ -418,6 +418,11 @@ class SteUpdate(mixins.SteMixin, CommonUpdate):
     pass
 
 
+class TeaUpdate(mixins.TeaMixin, CommonUpdate):
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_tea")
+
+
 class CommonDetails(DetailView):
     # default template to use to create a details view
     template_name = "whalesdb/whales_details.html"
@@ -700,7 +705,6 @@ class TeaList(mixins.TeaMixin, CommonList):
     fields = ["tea_abb", "tea_last_name", "tea_first_name"]
 
     details_url = False
-    update_url = False
 
 
 class CruList(mixins.CruMixin, CommonList):
