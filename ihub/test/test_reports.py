@@ -1,17 +1,13 @@
-import datetime
 from django.test import tag
 from django.urls import reverse_lazy
-from django.views.generic import FormView, DetailView
-from easy_pdf.views import PDFTemplateView
+from django.utils.translation import activate
+from django.views.generic import FormView
 from faker import Faker
 
-from lib.functions.custom_functions import fiscal_year
-from shared_models.test.SharedModelsFactoryFloor import RegionFactory, UserFactory
 from ihub.test import FactoryFloor
-
 from ihub.test.common_tests import CommonIHubTest as CommonTest
-from .. import views
 from .. import models
+from .. import views
 
 faker = Faker()
 
@@ -44,17 +40,18 @@ class TestConsultationLogReport(CommonTest):
         status = models.Status.objects.first()
         sector = FactoryFloor.SectorFactory()
         entry_type = models.EntryType.objects.first()
-        for x in range(1,10):
+        for x in range(1, 10):
             e = FactoryFloor.EntryFactory(status=status)
             e.organizations.add(org)
             e.sectors.add(sector)
+        activate('en')
 
         self.test_urls = [
-            reverse_lazy('ihub:consultation_log', args=["None", org.id, status.id, entry_type.id, "testing report"]),
-            reverse_lazy('ihub:consultation_log_xlsx', args=["None", org.id, status.id, entry_type.id, "testing report"]),
-            reverse_lazy('ihub:summary_xlsx', args=["None", sector.id, org.id]),
-            reverse_lazy('ihub:summary_pdf', args=["None", sector.id, org.id]),
-            reverse_lazy('ihub:capacity_xlsx', args=["None", sector.id, org.id]),
+            reverse_lazy('ihub:consultation_log_pdf') + "?fy=None&sectors=None&orgs=None&statuses=None&entry_types=None&report_title=Test",
+            reverse_lazy('ihub:consultation_log_xlsx') + "?fy=None&sectors=None&orgs=None&statuses=None&entry_types=None&report_title=Test",
+            reverse_lazy('ihub:summary_xlsx') + "?fy=None&sectors=None&orgs=None&from_date=None&to_date=None",
+            reverse_lazy('ihub:summary_pdf') + "?fy=None&sectors=None&orgs=None&from_date=None&to_date=None",
+            reverse_lazy('ihub:capacity_xlsx') + "?fy=None&sectors=None&orgs=None&from_date=None&to_date=None",
             reverse_lazy('ihub:report_q', args=[org.id]),
             reverse_lazy('ihub:consultation_instructions_pdf'),
             reverse_lazy('ihub:consultation_instructions_xlsx'),
@@ -65,5 +62,3 @@ class TestConsultationLogReport(CommonTest):
     def test_view(self):
         for url in self.test_urls:
             self.assert_not_broken(url)
-
-
