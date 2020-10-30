@@ -84,7 +84,7 @@
                         </div>
                     </div>
 
-                     <div class="card border border-dark my-1">
+                     <div class="card border border-dark my-1" id="id_station_event">
                         <div class="card-header h5">
                             <div class="row align-items-center">
                                 <span class="col">
@@ -94,11 +94,11 @@
                         {% if auth %}
                             {% if not dep.station_events.last %}
                                 <span class="px-1">
-                                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 1 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Deployment Event' %}</a>
+                                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 1 'pop' %}','id_station_event')" title="{% trans 'Add' %}">{% trans 'Deployment Event' %}</a>
                                 </span>
                             {% elif dep.station_events.last.set_type.pk == 1 %}
                                 <span class="px-1">
-                                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 2 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Recovery Event' %}</a>
+                                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 2 'pop' %}','id_station_event')" title="{% trans 'Add' %}">{% trans 'Recovery Event' %}</a>
                                 </span>
                             {% endif %}
                         {% endif %}
