@@ -429,7 +429,7 @@ class FollowUpCreateView(LoginRequiredMixin, CommonPopoutCreateView):
 
     def get_h3(self):
         ticket = models.Ticket.objects.get(pk=self.kwargs['ticket'])
-        if ticket.github_issue_number and self.request.is_staff:
+        if ticket.github_issue_number and self.request.user.is_staff:
             return f'HEADS UP: this follow-up will be created as a github comment on issue { ticket.github_issue_number }'
 
 

@@ -106,6 +106,8 @@ class ReportSearchForm(forms.Form):
 
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
         self.fields['format'] = forms.ChoiceField(required=False, choices=format_choices)
+        self.fields['from_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
+        self.fields['to_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
         self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
         self.fields['sectors'] = forms.MultipleChoiceField(required=False,
                                                            label='List of sectors (w/ entries) - Leave blank for all',
@@ -127,6 +129,8 @@ class ReportSearchForm(forms.Form):
         self.fields['single_org'] = forms.ChoiceField(required=False, label='Organization', choices=org_choices_all)
 
         self.fields['report_title'] = forms.CharField(required=False)
+
+
 
 
 class OrganizationForm(forms.ModelForm):

@@ -73,9 +73,11 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/capacity-report/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.capacity_export_spreadsheet,
-         name="capacity_xlsx"),
+
+    path('reports/capacity-report/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
+
     path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
+
     path('reports/summary-report/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.summary_export_spreadsheet,
          name="summary_xlsx"),
     path('reports/summary-report-pdf/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.PDFSummaryReport.as_view(),

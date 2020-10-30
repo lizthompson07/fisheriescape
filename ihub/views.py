@@ -642,14 +642,16 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
         report_title = str(form.cleaned_data["report_title"])
         report = int(form.cleaned_data["report"])
         format = str(form.cleaned_data["format"])
+        from_date = nz(form.cleaned_data["from_date"], "None")
+        to_date = nz(form.cleaned_data["to_date"], "None")
 
-        if report == 1:
-            return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs=
-            {
-                "fy": nz(fy, "None"),
-                "orgs": nz(orgs, "None"),
-                "sectors": nz(sectors, "None"),
-            }))
+        if report == 1: # capacity report
+            qry = f'?fy={nz(fy, "None")}&' \
+                  f'sectors={nz(sectors, "None")}&' \
+                  f'from_date={nz(from_date, "None")}&' \
+                  f'to_date={nz(to_date, "None")}&' \
+                  f'orgs={nz(orgs, "None")}'
+            return HttpResponseRedirect(reverse("ihub:capacity_xlsx") + qry)
 
         elif report == 2:
             return HttpResponseRedirect(reverse("ihub:report_q", kwargs={"org": org}))
@@ -696,8 +698,26 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("ihub:report_search"))
 
 
-def capacity_export_spreadsheet(request, fy, orgs, sectors):
-    file_url = reports.generate_capacity_spreadsheet(fy, orgs, sectors)
+def capacity_export_spreadsheet(request):
+    fy = request.GET["fy"]
+    sectors = request.GET["sectors"]
+    orgs = request.GET["orgs"]
+    from_date = request.GET["from_date"]
+    to_date = request.GET["to_date"]
+
+    if fy == "None":
+        fy = None
+    if sectors == "None":
+        sectors = None
+    if orgs == "None":
+        orgs = None
+    if from_date == "None":
+        from_date = None
+    if to_date == "None":
+        to_date = None
+
+
+    file_url = reports.generate_capacity_spreadsheet(fy, orgs, sectors, from_date, to_date)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -739,7 +759,7 @@ def consultation_log_export_spreadsheet(request):
     if entry_types == "None":
         entry_types = None
 
-    file_url = reports.generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, report_title)
+    file_url = reports.generate_consultation_log_spreadsheet(fy, orgs, sectors, statuses, entry_types, report_title)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
