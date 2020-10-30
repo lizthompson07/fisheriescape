@@ -5,30 +5,27 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
-from dm_apps.utils import custom_send_mail
 from django.db.models import TextField, Q, Value
 from django.db.models.functions import Concat
-from django.shortcuts import render
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
-from django_filters.views import FilterView
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView, ListView
+from django.views.generic import FormView, TemplateView
 ###
 from easy_pdf.views import PDFTemplateView
 
+from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import nz, listrify
-from shared_models.views import CommonFilterView, CommonDetailView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
-    CommonDeleteView, CommonCreateView, CommonFormView, CommonHardDeleteView, CommonFormsetView, CommonPopoutDeleteView
-from . import models
-from . import forms
-from . import filters
-from . import emails
-from . import reports
 from masterlist import models as ml_models
-from shared_models import models as shared_models
+from shared_models.views import CommonFilterView, CommonDetailView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
+    CommonDeleteView, CommonCreateView, CommonHardDeleteView, CommonFormsetView, CommonPopoutDeleteView
+from . import emails
+from . import filters
+from . import forms
+from . import models
+from . import reports
 
 
 def get_ind_organizations():
@@ -644,6 +641,7 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
         fy = str(form.cleaned_data["fiscal_year"])
         report_title = str(form.cleaned_data["report_title"])
         report = int(form.cleaned_data["report"])
+        format = str(form.cleaned_data["format"])
 
         if report == 1:
             return HttpResponseRedirect(reverse("ihub:capacity_xlsx", kwargs=
@@ -671,24 +669,19 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
                 "sectors": nz(sectors, "None"),
             }))
 
-        elif report == 5:
-            return HttpResponseRedirect(reverse("ihub:consultation_log", kwargs=
-            {
-                "fy": nz(fy, "None"),
-                "orgs": nz(orgs, "None"),
-                "statuses": nz(statuses, "None"),
-                "entry_types": nz(entry_types, "None"),
-                "report_title": nz(report_title, "None"),
-            }))
-        elif report == 6:
-            return HttpResponseRedirect(reverse("ihub:consultation_log_xlsx", kwargs=
-            {
-                "fy": nz(fy, "None"),
-                "orgs": nz(orgs, "None"),
-                "statuses": nz(statuses, "None"),
-                "entry_types": nz(entry_types, "None"),
-                "report_title": nz(report_title, "None"),
-            }))
+        elif report == 6:  # Engagement Update Log
+            qry = f'?fy={nz(fy, "None")}&' \
+                  f'sectors={nz(sectors, "None")}&' \
+                  f'orgs={nz(orgs, "None")}&' \
+                  f'statuses={nz(statuses, "None")}&' \
+                  f'entry_types={nz(entry_types, "None")}&' \
+                  f'report_title={nz(report_title, "None")}'
+
+            if format == 'pdf':
+                return HttpResponseRedirect(reverse("ihub:consultation_log_pdf") + qry)
+            else:
+                return HttpResponseRedirect(reverse("ihub:consultation_log_xlsx") + qry)
+
 
         elif report == 7:
             return HttpResponseRedirect(
@@ -726,7 +719,26 @@ def summary_export_spreadsheet(request, fy, orgs, sectors):
     raise Http404
 
 
-def consultation_log_export_spreadsheet(request, fy, orgs, statuses, entry_types, report_title):
+def consultation_log_export_spreadsheet(request):
+    # first, filter out the "none" placeholder
+    fy = request.GET["fy"]
+    sectors = request.GET["sectors"]
+    orgs = request.GET["orgs"]
+    statuses = request.GET["statuses"]
+    entry_types = request.GET["entry_types"]
+    report_title = request.GET["report_title"]
+
+    if fy == "None":
+        fy = None
+    if sectors == "None":
+        sectors = None
+    if orgs == "None":
+        orgs = None
+    if statuses == "None":
+        statuses = None
+    if entry_types == "None":
+        entry_types = None
+
     file_url = reports.generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, report_title)
 
     if os.path.exists(file_url):
@@ -928,14 +940,17 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
         # get an entry list for the fiscal year (if any)
 
         # first, filter out the "none" placeholder
-        fy = self.kwargs["fy"]
-        orgs = self.kwargs["orgs"]
-        statuses = self.kwargs["statuses"]
-        entry_types = self.kwargs["entry_types"]
-        report_title = self.kwargs["report_title"]
+        fy = self.request.GET["fy"]
+        sectors = self.request.GET["sectors"]
+        orgs = self.request.GET["orgs"]
+        statuses = self.request.GET["statuses"]
+        entry_types = self.request.GET["entry_types"]
+        report_title = self.request.GET["report_title"]
 
         if fy == "None":
             fy = None
+        if sectors == "None":
+            sectors = None
         if orgs == "None":
             orgs = None
         if statuses == "None":
@@ -956,6 +971,16 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             q_objects = Q()  # Create an empty Q object to start with
             for o in org_list:
                 q_objects |= Q(organizations=o)  # 'or' the Q objects together
+            # apply the filter
+            entry_list = entry_list.filter(q_objects)
+
+        if sectors:
+            # we have to refine the queryset to only the selected sectors
+            sector_list = [ml_models.Sector.objects.get(pk=int(o)) for o in sectors.split(",")]
+            # create the species query object: Q
+            q_objects = Q()  # Create an empty Q object to start with
+            for o in sector_list:
+                q_objects |= Q(sectors=o)  # 'or' the Q objects together
             # apply the filter
             entry_list = entry_list.filter(q_objects)
 
