@@ -927,6 +927,8 @@ class PDFSummaryReport(PDFTemplateView):
                     id_list.append(e.id)
             entry_list = entry_list.filter(id__in=id_list)
 
+        entry_list.distinct()
+
         context["entry_list"] = entry_list
 
         # remove any orgs without entries
@@ -1009,7 +1011,7 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             entry_types = None
 
         # get an entry list for the fiscal year (if any)
-        entry_list = models.Entry.objects.all().order_by("sectors", "status", "-initial_date")
+        entry_list = models.Entry.objects.all().order_by("status", "-initial_date")
 
         if fy:
             entry_list = models.Entry.objects.filter(fiscal_year=fy)
@@ -1022,7 +1024,7 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             for o in org_list:
                 q_objects |= Q(organizations=o)  # 'or' the Q objects together
             # apply the filter
-            entry_list = entry_list.filter(q_objects)
+            entry_list = entry_list.filter(q_objects).distinct()
 
         if sectors:
             # we have to refine the queryset to only the selected sectors
@@ -1032,7 +1034,7 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             for o in sector_list:
                 q_objects |= Q(sectors=o)  # 'or' the Q objects together
             # apply the filter
-            entry_list = entry_list.filter(q_objects)
+            entry_list = entry_list.filter(q_objects).distinct()
 
         if statuses:
             # we have to refine the queryset to only the selected orgs
@@ -1042,12 +1044,12 @@ class ConsultationLogPDFTemplateView(PDFTemplateView):
             for o in status_list:
                 q_objects |= Q(status=o)  # 'or' the Q objects together
             # apply the filter
-            entry_list = entry_list.filter(q_objects)
+            entry_list = entry_list.filter(q_objects).distinct()
 
         if entry_types:
             # we have to refine the queryset to only the selected orgs
             entry_type_list = [models.EntryType.objects.get(pk=int(o)) for o in entry_types.split(",")]
-            entry_list = entry_list.filter(entry_type__in=entry_type_list)
+            entry_list = entry_list.filter(entry_type__in=entry_type_list).distinct()
 
         context["entry_list"] = entry_list
         context["fy"] = fy

@@ -75,6 +75,8 @@ def generate_capacity_spreadsheet(fy, orgs, sectors, from_date, to_date):
                 id_list.append(e.id)
         entry_list = entry_list.filter(id__in=id_list)
 
+    entry_list.distinct()
+
     # define the header
     header = [
         get_verbose_label(entry_list.first(), 'fiscal_year'),
@@ -276,6 +278,8 @@ def generate_summary_spreadsheet(fy, orgs, sectors, from_date, to_date):
                 id_list.append(e.id)
         entry_list = entry_list.filter(id__in=id_list)
 
+    entry_list.distinct()
+
     # define the header
     header = [
         get_verbose_label(entry_list.first(), 'fiscal_year'),
@@ -470,7 +474,7 @@ def generate_consultation_log_spreadsheet(fy, orgs, sectors, statuses, entry_typ
         entry_types = None
 
     # get an entry list for the fiscal year (if any)
-    entry_list = models.Entry.objects.all().order_by("sectors", "status", "-initial_date")
+    entry_list = models.Entry.objects.all().order_by("status", "-initial_date")
 
     if fy:
         entry_list = models.Entry.objects.filter(fiscal_year=fy)
@@ -509,6 +513,8 @@ def generate_consultation_log_spreadsheet(fy, orgs, sectors, statuses, entry_typ
         # we have to refine the queryset to only the selected orgs
         entry_type_list = [models.EntryType.objects.get(pk=int(o)) for o in entry_types.split(",")]
         entry_list = entry_list.filter(entry_type__in=entry_type_list)
+
+    entry_list.distinct()
 
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
