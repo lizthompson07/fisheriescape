@@ -102,6 +102,7 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
 
             if e.organizations.count() > 0:
                 orgs = str([str(obj) for obj in e.organizations.all()]).replace("[", "").replace("]", "").replace("'", "").replace('"',
+                                                                                                                                   "")
             else:
                 orgs = None
 
