@@ -17,7 +17,7 @@ import os
 
 from dm_apps.utils import custom_send_mail
 from shared_models.views import CommonFilterView, CommonDetailView, CommonUpdateView, CommonDeleteView, CommonCreateView, \
-    CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonPopoutDetailView
+    CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonPopoutDetailView, CommonListView
 from . import models
 from . import forms
 from . import filters
@@ -43,12 +43,15 @@ def index_router(request):
 # Ticket #
 ##########
 class TicketListView(LoginRequiredMixin, CommonFilterView):
+    paginate_by = 50
     filterset_class = filters.TicketFilter
     template_name = "tickets/list.html"
     queryset = models.Ticket.objects.annotate(
-        search_term=Concat('id', 'title', 'description', 'notes', output_field=TextField()))
+        search_term=Concat('id', 'title', 'notes', output_field=TextField()))
     h1 = gettext_lazy("Data Management Tickets")
     container_class = "container-fluid"
+    new_object_url_name = "tickets:create"
+    row_object_url_name = "tickets:detail"
     field_list = [
         {"name": 'id', "class": "", "width": ""},
         {"name": 'priority', "class": "", "width": ""},

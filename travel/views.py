@@ -1,4 +1,4 @@
-import datetime
+import json
 import json
 import os
 from copy import deepcopy
@@ -9,37 +9,35 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import IntegrityError
+from django.db.models import Sum, Q, Value, TextField
 from django.db.models.functions import Concat
+from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse, HttpResponseForbidden
+from django.shortcuts import render
 from django.template.defaultfilters import pluralize
+from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _, gettext_lazy
+from django.views.generic import UpdateView, DeleteView, CreateView, FormView
+###
+from easy_pdf.views import PDFTemplateView
 from msrestazure.azure_active_directory import MSIAuthentication
 
 from dm_apps.context_processor import my_envr
 from dm_apps.utils import custom_send_mail
-from django.db.models import Sum, Q, Value, TextField
-from django.shortcuts import render
-from django.utils import timezone
-from django.utils.translation import gettext as _, gettext_lazy
-from django.http import HttpResponseRedirect, HttpResponse, Http404, JsonResponse, HttpResponseForbidden
-from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, ListView, TemplateView, FormView
-###
-from django_filters.views import FilterView
-from easy_pdf.views import PDFTemplateView
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
+from shared_models import models as shared_models
 from shared_models.views import CommonFormsetView, CommonHardDeleteView, CommonUpdateView, CommonFilterView, CommonFormView, \
     CommonPopoutFormView, CommonPopoutUpdateView, CommonListView, CommonDetailView, CommonTemplateView, CommonCreateView, CommonDeleteView
-from . import models
-from . import forms
-from . import reports
 from . import emails
 from . import filters
+from . import forms
+from . import models
+from . import reports
 from . import utils
-
-from shared_models import models as shared_models
 
 
 def get_file(request, file):
@@ -201,13 +199,18 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["requests_awaiting_changes"] = utils.get_related_trips(self.request.user).filter(status_id=16).count()
-        context["user_trip_requests"] = utils.get_related_trips(self.request.user).count()
+        related_trips = utils.get_related_trips(self.request.user)
+
+        tr_reviews = self.request.user.reviewers
+        trip_reviews = self.request.user.trip_reviewers
+
+        context["requests_awaiting_changes"] = related_trips.filter(status_id=16).count()
+        context["user_trip_requests"] = related_trips.count()
         # show the number of reviews awaiting for the logged in user
-        tr_reviews_waiting = self.request.user.reviewers.filter(status_id=1).filter(
-            ~Q(trip_request__status_id__in=[16, 14,
-                                            8])).count()  # number of requests where review is pending (excluding those that are drafts (from children), changes_requested and pending ADM approval)
-        trip_reviews_waiting = self.request.user.trip_reviewers.filter(status_id=25).count()  # number of trips where review is pending
+        tr_reviews_waiting = tr_reviews.filter(status_id=1).filter(
+            ~Q(trip_request__status_id__in=[16, 14, 8])
+        ).count()  # number of requests where review is pending (excluding those that are drafts (from children), changes_requested and pending ADM approval)
+        trip_reviews_waiting = trip_reviews.filter(status_id=25).count()  # number of trips where review is pending
         context["tr_reviews_waiting"] = tr_reviews_waiting
         context["trip_reviews_waiting"] = trip_reviews_waiting
         context["reviews_waiting"] = trip_reviews_waiting + tr_reviews_waiting
@@ -224,14 +227,6 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
                 trip_request__section__division__branch__region=region,
             ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
             rdg_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'rdg', "region": region.id})
-
-            # ADM
-            # adm_number_waiting = models.Reviewer.objects.filter(
-            #     status_id=1,
-            #     role_id=5,
-            #     trip_request__section__division__branch__region=region,
-            # ).filter(~Q(trip_request__status_id=16)).count()  # number of requests where admin review is pending
-            # adm_approval_list_url = reverse('travel:admin_approval_list', kwargs={"type": 'adm', "region": region.id})
 
             # unverified trips
             unverified_trips = models.Conference.objects.filter(status_id=30, is_adm_approval_required=False, lead=region).count()
@@ -269,10 +264,13 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
         tab_dict[admo_name]["adm_trips_ready"] = adm_ready_trips
         tab_dict[admo_name]["things_to_deal_with"] = unverified_trips + adm_ready_trips  # placeholder :)
 
-        number_of_reviews = self.request.user.reviewers.all().count() + self.request.user.trip_reviewers.all().count()
+        number_of_tr_reviews = tr_reviews.count()
+        number_of_trip_reviews = trip_reviews.count()
+        number_of_reviews = number_of_tr_reviews + number_of_trip_reviews
+
         context["is_reviewer"] = True if number_of_reviews > 0 else False
-        context["is_tr_reviewer"] = True if self.request.user.reviewers.all().count() > 0 else False
-        context["is_trip_reviewer"] = True if self.request.user.trip_reviewers.all().count() > 0 else False
+        context["is_tr_reviewer"] = True if number_of_tr_reviews > 0 else False
+        context["is_trip_reviewer"] = True if number_of_trip_reviews > 0 else False
         context["is_admin"] = in_travel_admin_group(self.request.user)
         context["is_adm_admin"] = in_adm_admin_group(self.request.user)
         context["tab_dict"] = tab_dict
@@ -2249,7 +2247,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 # REPORTS #
 ###########
 
-class ReportSearchFormView(TravelAccessRequiredMixin, FormView):
+class ReportSearchFormView(TravelAdminRequiredMixin, FormView):
     template_name = 'travel/report_search.html'
     form_class = forms.ReportSearchForm
 
@@ -2550,6 +2548,60 @@ class DefaultReviewerDeleteView(TravelAdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+class UserListView(TravelADMAdminRequiredMixin, CommonFilterView):
+    template_name = "travel/user_list.html"
+    filterset_class = filters.UserFilter
+    home_url_name = "index"
+    paginate_by = 25
+    h1 = "Travel App User List"
+    field_list = [
+        {"name": 'first_name', "class": "", "width": ""},
+        {"name": 'last_name', "class": "", "width": ""},
+        {"name": 'email', "class": "", "width": ""},
+        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
+    ]
+    new_object_url = reverse_lazy("shared_models:user_new")
+
+    def get_queryset(self):
+        queryset = User.objects.order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
+        )
+        if self.kwargs.get("travel"):
+            queryset = queryset.filter(groups__in=[33, 36]).distinct()
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["admin_group"] = Group.objects.get(pk=33)
+        context["adm_admin_group"] = Group.objects.get(pk=36)
+        return context
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_adm_admin_group, login_url='/accounts/denied/')
+def toggle_user(request, pk, type):
+    my_user = User.objects.get(pk=pk)
+    admin_group = Group.objects.get(pk=33)
+    adm_admin_group = Group.objects.get(pk=36)
+    if type == "admin":
+        # if the user is in the admin group, remove them
+        if admin_group in my_user.groups.all():
+            my_user.groups.remove(admin_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(admin_group)
+    elif type == "adm_admin":
+        # if the user is in the edit group, remove them
+        if adm_admin_group in my_user.groups.all():
+            my_user.groups.remove(adm_admin_group)
+        # otherwise add them
+        else:
+            my_user.groups.add(adm_admin_group)
+
+    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
 
 
 # FILES #

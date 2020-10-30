@@ -1,29 +1,28 @@
-pool:
-  vmImage: 'Ubuntu 18.04'
+pool: dmapps
 
 trigger:
   - master
 
 steps:
-  - task: UsePythonVersion@0
-    displayName: 'Use Python 3.8'
-    inputs:
-      versionSpec: 3.8
-
   - script: |
       # install pre-requisites
-      python -m pip install --upgrade pip setuptools wheel
-      sudo apt-get install libmysqlclient-dev
-      pip install -r requirements.txt
+      whoami
+      python3.8 -V
+      python3.8 -m pip install --upgrade pip setuptools wheel
+      python3.8 -m pip install -r requirements.txt
+      python3.8 -m pip uninstall --yes django-easy-pdf
+      python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
       mkdir media
       mkdir media/travel
       mkdir media/travel/temp
+      mkdir media/projects
+      mkdir media/projects/temp
       mkdir media/inventory
       mkdir media/inventory/temp
       mkdir media/ihub
       mkdir media/ihub/temp
-      python manage.py collectstatic --no-input
-      python manage.py migrate
+      python3.8 manage.py collectstatic --no-input
+      python3.8 manage.py migrate
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Install Prerequisites and Run Local Migrations '
 

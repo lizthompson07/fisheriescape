@@ -14,6 +14,13 @@ YES_NO_CHOICES = (
     (False, "No"),
 )
 
+NULL_YES_NO_CHOICES = (
+    (None, _("---------")),
+    (1, _("Yes")),
+    (0, _("No")),
+)
+
+
 
 # Create your models here.
 class Sampler(models.Model):
@@ -412,13 +419,13 @@ class IncidentalReport(models.Model):
     requestor_name = models.CharField(max_length=150)
     requestor_type = models.IntegerField(choices=REQUESTOR_TYPE_CHOICES, blank=True, null=True)
     report_source = models.IntegerField(choices=REPORT_SOURCE_CHOICES)
-    species_confirmation = models.NullBooleanField(blank=True, null=True)
-    gulf_ais_confirmed = models.NullBooleanField(blank=True, null=True)
-    seeking_general_info_ais = models.NullBooleanField(blank=True, null=True)
-    seeking_general_info_non_ais = models.NullBooleanField(blank=True, null=True)
-    management_related = models.NullBooleanField(blank=True, null=True)
-    dfo_it_related = models.NullBooleanField(blank=True, null=True)
-    incorrect_region = models.NullBooleanField(blank=True, null=True)
+    species_confirmation = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
+    gulf_ais_confirmed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
+    seeking_general_info_ais = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
+    seeking_general_info_non_ais = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
+    management_related = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
+    dfo_it_related = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
+    incorrect_region = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
 
     # sighting details
     call_answered_by = models.CharField(max_length=150, null=True, blank=True)
@@ -426,7 +433,7 @@ class IncidentalReport(models.Model):
     location_description = models.CharField(max_length=500, null=True, blank=True)
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
-    specimens_retained = models.NullBooleanField(blank=True, null=True)
+    specimens_retained = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES)
     sighting_description = models.TextField(null=True, blank=True)
     identified_by = models.CharField(max_length=150, null=True, blank=True)
     date_of_occurrence = models.DateTimeField()
@@ -517,7 +524,7 @@ class GCSample(models.Model):
     samplers = models.ManyToManyField(Sampler)
     # bottom_type = models.CharField(max_length=100, blank=True, null=True)
     # percent_vegetation_cover = models.IntegerField(blank=True, null=True, verbose_name="vegetation cover (%)", validators=[MinValueValidator(0), MaxValueValidator(100)])
-    eelgrass_assessed = models.NullBooleanField(verbose_name="was eelgrass assessed?")
+    eelgrass_assessed = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name="was eelgrass assessed?")
     eelgrass_percent_coverage = models.IntegerField(blank=True, null=True, verbose_name="eelgrass coverage (%)",
                                                     validators=[MinValueValidator(0), MaxValueValidator(100)])
     vegetation_species = models.ManyToManyField(Species, blank=True, limit_choices_to=Q(

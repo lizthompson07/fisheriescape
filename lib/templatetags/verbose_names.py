@@ -1,11 +1,10 @@
+import markdown
 from django import template
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
 from django.template.defaultfilters import yesno
 from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
-
-import markdown
 
 from lib.templatetags.custom_filters import tohtml
 
@@ -98,11 +97,11 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
     between entering a prop and a real field.
     """
 
+    field_value = nullmark
 
     # first, if there is no instance, we cannot return anything intelligable
     if instance is None:
         return None
-
     #  next, let's see if it is field in another table that we are trying to access (e.g. user.first_name
     elif len(field_name.split(".")) > 1:
         arg = field_name.split(".")[1]
@@ -111,7 +110,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
             field_value = getattr(getattr(instance, field_name), arg)
         except AttributeError:
             # there is no value and therefore the getattr function fails..
-            field_value = nullmark
+            pass
     else:
         # if there is a custom label, we need to shed it.
         if len(field_name.split("|")) > 1:
@@ -120,6 +119,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
 
         try:
             field_instance = instance._meta.get_field(field_name)
+
         except FieldDoesNotExist:
             # perhaps it is a model property
             try:
@@ -128,43 +128,43 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
                 if settings.DB_MODE == "DEV":
                     print(f"Could not evaluate field value for '{field_name} for object {type(instance)}")
         else:
-
+            val = getattr(instance, field_name)
             # first check if there is a value :
-            if getattr(instance, field_name) is not None and getattr(instance, field_name) != "":
+            if val is not None and val != "":
                 # check to see if it is a many to many field
                 if field_instance.get_internal_type() == 'ManyToManyField' or field_instance.get_internal_type() == 'ManyToManyRel':
-                    m2m = getattr(instance, field_name)
+                    m2m = val
                     field_value = str([str(field) for field in m2m.all()]).replace("[", "").replace("]", "").replace("'",
                                                                                                                      "").replace(
                         '"', "")
 
                 # check to see if there are choices
-                elif len(field_instance.choices) > 0:
+                elif field_instance.choices and len(field_instance.choices) > 0:
                     field_value = getattr(instance, "get_{}_display".format(field_name))()
 
                 # check to see if it is a datefield
                 elif field_instance.get_internal_type() == 'DateTimeField':
                     if not date_format:
                         date_format = "%Y-%m-%d"
-                    datetime_obj = getattr(instance, field_name)
+                    datetime_obj = val
                     if display_time:
                         field_value = datetime_obj.strftime('{} %H:%M'.format(date_format))
                     else:
                         field_value = datetime_obj.strftime(date_format)
 
                 # check to see if it is a url
-                elif str(getattr(instance, field_name)).startswith("http"):
-                    field_value = '<a href="{url}" target="_blank">{url}</a>'.format(url=getattr(instance, field_name))
+                elif str(val).startswith("http"):
+                    field_value = '<a href="{url}" target="_blank">{url}</a>'.format(url=val)
 
                 # check to see if it is a BooleanField
                 elif field_instance.get_internal_type() == 'BooleanField' or field_instance.get_internal_type() == 'NullBooleanField':
-                    field_value = yesno(getattr(instance, field_name), "Yes,No,Unknown")
+                    field_value = yesno(val, "Yes,No,Unknown")
 
                 # check to see if hyperlink was provided
                 elif hyperlink:
-                    field_value = mark_safe('<a href="{}">{}</a>'.format(hyperlink, getattr(instance, field_name)))
+                    field_value = mark_safe('<a href="{}">{}</a>'.format(hyperlink, val))
                 else:
-                    field_value = getattr(instance, field_name)
+                    field_value = val
             else:
                 field_value = nullmark
 
@@ -192,7 +192,8 @@ def verbose_field_display(instance, field_name, format=None, display_time=False,
     verbose_name = get_verbose_label(instance, field_name)
 
     # call on the get_field_value func to handle field value prep
-    field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format, hyperlink=hyperlink)
+    field_value = get_field_value(instance, field_name, format=format, display_time=display_time, date_format=date_format,
+                                  hyperlink=hyperlink)
 
     # if url and field_value != "n/a":
     #     html_block = '<p><span class="label">{}:</span><br><a href="{}">{}</a></p>'.format(verbose_name, url, field_value)
@@ -226,7 +227,6 @@ def verbose_td_display(instance, field_name, format=None, display_time=False, ur
     else:
         html_block = '<tr>{}{}</th>{}{}</td></tr>'.format(th_tag_opener, verbose_name, td_tag_opener, field_value)
     return SafeString(html_block)
-
 
 
 @register.filter

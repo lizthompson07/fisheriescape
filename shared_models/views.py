@@ -1,19 +1,23 @@
 from abc import ABC
 
-from django.core.exceptions import ImproperlyConfigured
-from django.utils.translation import gettext_lazy, gettext
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.contrib.auth.models import User
+from django.core.exceptions import ImproperlyConfigured
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
+from django.utils.translation import gettext_lazy, gettext
 from django.views import View
 from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView, ListView, FormView
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django_filters.views import FilterView
 
 ###
-from . import models
+from dm_apps.utils import custom_send_mail
+from . import emails, filters
 from . import forms
+from . import models
 from .mixins import CommonMixin, CommonFormMixin, CommonListMixin, CommonPopoutFormMixin, CommonPopoutMixin
 
 
@@ -108,6 +112,7 @@ class CommonAuthCreateView(UserPassesTestMixin, CommonCreateView):
 
 class CommonUpdateView(CommonFormMixin, UpdateView):
     submit_text = None
+    delete_url = None
 
     def get_h1(self):
         if self.h1:
@@ -121,6 +126,9 @@ class CommonUpdateView(CommonFormMixin, UpdateView):
         else:
             return gettext("Save")
 
+    def get_delete_url(self):
+        return self.delete_url
+
     # default template to use to update an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
     template_name = 'shared_models/shared_entry_form.html'
@@ -130,6 +138,8 @@ class CommonUpdateView(CommonFormMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
         context["model_name"] = self.get_object()._meta.verbose_name
+        context["delete_url"] = self.get_delete_url()
+
         return context
 
 
@@ -256,6 +266,7 @@ class CommonPopoutDeleteView(CommonPopoutFormMixin, CommonDeleteView):
         context.update(super().get_common_context())
         context['width'] = self.width
         context['height'] = self.height
+        context['submit_btn_class'] = 'btn-danger'
         return context
 
 
@@ -349,6 +360,8 @@ class CommonPopoutFormView(CommonPopoutFormMixin, FormView):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
+        context['width'] = self.width
+        context['height'] = self.height
         return context
 
 
@@ -473,6 +486,18 @@ class AdminRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/')
+        return super().dispatch(request, *args, **kwargs)
+
+
 class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
     template_name = 'shared_models/org_index.html'
     h1 = "<span class='red-font'><span class='font-weight-bold'>{}:</span> {}</span>".format(gettext_lazy("Warning"),
@@ -485,7 +510,9 @@ class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
 # SECTION #
 ###########
 
-class SectionListView(AdminRequiredMixin, CommonListView):
+class SectionListView(AdminRequiredMixin, CommonFilterView):
+    paginate_by = 25
+    filterset_class = filters.SectionFilter
     queryset = models.Section.objects.order_by("division__branch__region", "division__branch", "division", "name")
     template_name = 'shared_models/org_list.html'
     field_list = [
@@ -503,6 +530,7 @@ class SectionListView(AdminRequiredMixin, CommonListView):
     row_object_url_name = "shared_models:section_edit"
     new_object_url_name = "shared_models:section_new"
     container_class = "container-fluid"
+    h1 = queryset.model._meta.verbose_name_plural
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -556,7 +584,9 @@ class SectionDeleteView(AdminRequiredMixin, CommonDeleteView):
 ############
 
 
-class DivisionListView(AdminRequiredMixin, CommonListView):
+class DivisionListView(AdminRequiredMixin, CommonFilterView):
+    paginate_by = 25
+    filterset_class = filters.DivisionFilter
     queryset = models.Division.objects.order_by("branch__region", "branch", "name")
     template_name = 'shared_models/org_list.html'
     field_list = [
@@ -573,6 +603,7 @@ class DivisionListView(AdminRequiredMixin, CommonListView):
     row_object_url_name = "shared_models:division_edit"
     new_object_url_name = "shared_models:division_new"
     container_class = "container-fluid"
+    h1 = queryset.model._meta.verbose_name_plural
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -626,7 +657,9 @@ class DivisionDeleteView(AdminRequiredMixin, CommonDeleteView):
 ##########
 
 
-class BranchListView(AdminRequiredMixin, CommonListView):
+class BranchListView(AdminRequiredMixin, CommonFilterView):
+    paginate_by = 25
+    filterset_class = filters.BranchFilter
     queryset = models.Branch.objects.order_by("region", "name")
     template_name = 'shared_models/org_list.html'
     field_list = [
@@ -642,6 +675,7 @@ class BranchListView(AdminRequiredMixin, CommonListView):
     row_object_url_name = "shared_models:branch_edit"
     new_object_url_name = "shared_models:branch_new"
     container_class = "container-fluid"
+    h1 = queryset.model._meta.verbose_name_plural
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -694,13 +728,11 @@ class BranchDeleteView(AdminRequiredMixin, CommonDeleteView):
 # REGION #
 ###########
 
-
 class RegionListView(AdminRequiredMixin, CommonListView):
     queryset = models.Region.objects.order_by("name")
     template_name = 'shared_models/org_list.html'
     field_list = [
-        {"name": "region", },
-        {"name": "tname|{}".format(gettext_lazy("branch")), },
+        {"name": "tname|{}".format(gettext_lazy("Regions - Sectors (NCR)")), },
         {"name": "abbrev", },
         {"name": "head", },
         {"name": "date_last_modified", },
@@ -708,16 +740,13 @@ class RegionListView(AdminRequiredMixin, CommonListView):
     ]
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     home_url_name = "shared_models:index"
-    row_object_url_name = "shared_models:branch_edit"
-    new_object_url_name = "shared_models:branch_new"
+    row_object_url_name = "shared_models:region_edit"
+    new_object_url_name = "shared_models:region_new"
     container_class = "container-fluid"
+    h1 = queryset.model._meta.verbose_name_plural
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["region"] = models.Region.objects.first()
-        context["branch"] = models.Branch.objects.first()
-        context["division"] = models.Division.objects.first()
-        context["section"] = models.Section.objects.first()
         return context
 
 
@@ -726,11 +755,11 @@ class RegionUpdateView(AdminRequiredMixin, CommonUpdateView):
     template_name = 'shared_models/org_form.html'
     form_class = forms.RegionForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
-    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["delete_url"] = reverse("shared_models:branch_delete", kwargs={"pk": self.get_object().id})
+        context["delete_url"] = reverse("shared_models:region_delete", kwargs={"pk": self.get_object().id})
         return context
 
     def get_initial(self):
@@ -742,7 +771,7 @@ class RegionCreateView(AdminRequiredMixin, CommonCreateView):
     template_name = 'shared_models/generic_form.html'
     form_class = forms.RegionForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
-    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}
 
     def get_initial(self):
         return {"last_modified_by": self.request.user, }
@@ -750,95 +779,138 @@ class RegionCreateView(AdminRequiredMixin, CommonCreateView):
 
 class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Region
-    success_url = reverse_lazy('shared_models:branch_list')
+    success_url = reverse_lazy('shared_models:region_list')
     template_name = 'shared_models/generic_confirm_delete.html'
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
-    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}
 
     def get_parent_crumb(self):
-        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:branch_edit", kwargs={
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:region_edit", kwargs={
             "pk": self.get_object().id})}
-#
-#
-# class RegionListView(AdminRequiredMixin, CommonListView):
-#     model = models.Region
-#     template_name = 'shared_models/generic_filter.html'
-#     field_list = [
-#         {"name": "tname|{}".format(_("region")), },
-#         {"name": "abbrev", },
-#         {"name": "head", },
-#         {"name": "date_last_modified", },
-#         {"name": "last_modified_by", },
-#     ]
-#     h1 = _("Regions")
-#     root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["model_name"] = "region"
-#         return context
-#
-#
-# class RegionUpdateView(AdminRequiredMixin, UpdateView):
-#     model = models.Region
-#     template_name = 'shared_models/generic_form.html'
-#     form_class = forms.RegionForm
-#     root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
-#
-#     def get_initial(self):
-#         return {"last_modified_by": self.request.user, }
-#
-#     def form_valid(self, form):
-#         form.save()
-#         return HttpResponseRedirect(reverse_lazy('shared_models:section_list'))
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["title"] = _("Region:")
-#         context["model_name"] = "region"
-#         context["related_names"] = {
-#             "branches": getattr(self.get_object(), "branches").all(),
-#             "cosignee codes": getattr(self.get_object(), "cosigneecode_set").all(),
-#             "trip meeting leads": getattr(self.get_object(), "meeting_leads").all(),
-#             "trip requests": getattr(self.get_object(), "trip_requests").all(),
-#         }
-#         return context
-#
-#
-# class RegionCreateView(AdminRequiredMixin, CreateView):
-#     model = models.Region
-#     template_name = 'shared_models/generic_form.html'
-#     form_class = forms.RegionForm
-#     root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
-#
-#     def get_initial(self):
-#         return {"last_modified_by": self.request.user, }
-#
-#     def form_valid(self, form):
-#         form.save()
-#         return HttpResponseRedirect(reverse_lazy('shared_models:region_list'))
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["title"] = _("New Region")
-#         context["model_name"] = "region"
-#         return context
-#
-#
-# class RegionDeleteView(AdminRequiredMixin, DeleteView):
-#     model = models.Region
-#     success_url = reverse_lazy('shared_models:section_list')
-#     template_name = 'shared_models/generic_confirm_delete.html'
-#     root_crumb = {"title": _("DM Apps Shared Settings"), "url": reverse_lazy("shared_models:index")}
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["title"] = _("Delete Region:")
-#         context["model_name"] = "region"
-#         context["related_names"] = {
-#             "branches": getattr(self.get_object(), "branches").all(),
-#             "cosignee codes": getattr(self.get_object(), "cosigneecode_set").all(),
-#             "trip meeting leads": getattr(self.get_object(), "meeting_leads").all(),
-#             "trip requests": getattr(self.get_object(), "trip_requests").all(),
-#         }
-#         return context
+
+
+# USER #
+########
+
+# this is a complicated cookie. Therefore we will not use a model view or model form and handle the clean data manually.
+class UserCreateView(AdminRequiredMixin, CommonPopoutFormView):
+    form_class = forms.UserCreateForm
+    h1 = gettext_lazy("Create a New DM Apps User")
+    h3 = "<span class='red-font'>{}</span> <br><br> <span class='text-muted'>{}</span> <br><br>".format(
+        gettext_lazy("Please use extreme vigilance with this form."),
+        gettext_lazy("After this form is submitted, the new user will receive a confirmation e-mail.") if not settings.AZURE_AD else "",
+    )
+    height = 850
+
+    def form_valid(self, form):
+        # retrieve data from form
+        first_name = form.cleaned_data['first_name']
+        last_name = form.cleaned_data['last_name']
+        email = form.cleaned_data['email1']
+
+        # create a new user
+        my_user = User.objects.create(
+            username=email,
+            first_name=first_name,
+            last_name=last_name,
+            password="pbkdf2_sha256$120000$ctoBiOUIJMD1$DWVtEKBlDXXHKfy/0wKCpcIDYjRrKfV/wpYMHKVrasw=",
+            is_active=1,
+            email=email,
+        )
+
+        # only send an email if AAD is not on
+        if not settings.AZURE_AD:
+            email = emails.UserCreationEmail(my_user, self.request)
+
+            # send the email object
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
+            messages.success(self.request, gettext("The user '{}' was created and an email was sent".format(my_user.get_full_name())))
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+# SCRIPTS #
+###########
+
+class ScriptListView(SuperuserRequiredMixin, CommonListView):
+    queryset = models.Script.objects.order_by("name")
+    template_name = 'shared_models/script_list.html'
+    field_list = [
+        {"name": "tname|{}".format(gettext_lazy("name")), },
+        {"name": "tdescription|{}".format(gettext_lazy("description")), },
+        {"name": "script", },
+    ]
+    home_url_name = "shared_models:index"
+    row_object_url_name = "shared_models:script_edit"
+    new_object_url_name = "shared_models:script_new"
+    container_class = "container-fluid"
+    h1 = queryset.model._meta.verbose_name_plural.title()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class ScriptUpdateView(SuperuserRequiredMixin, CommonUpdateView):
+    model = models.Script
+    template_name = 'shared_models/generic_form.html'
+    form_class = forms.ScriptForm
+    home_url_name = "index"
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:script_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["delete_url"] = reverse("shared_models:script_delete", kwargs={"pk": self.get_object().id})
+        return context
+
+    def get_initial(self):
+        return {"last_modified_by": self.request.user, }
+
+
+class ScriptCreateView(SuperuserRequiredMixin, CommonCreateView):
+    model = models.Script
+    template_name = 'shared_models/generic_form.html'
+    form_class = forms.ScriptForm
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
+    parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:script_list")}
+    home_url_name = "index"
+
+    def get_initial(self):
+        return {"last_modified_by": self.request.user, }
+
+
+class ScriptDeleteView(SuperuserRequiredMixin, CommonDeleteView):
+    model = models.Script
+    success_url = reverse_lazy('shared_models:script_list')
+    template_name = 'shared_models/generic_confirm_delete.html'
+    root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
+    grandparent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:script_list")}
+    home_url_name = "index"
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:script_edit", kwargs={
+            "pk": self.get_object().id})}
+
+
+def run_script(request, pk):
+    script = models.Script.objects.get(pk=pk)
+    try:
+        mod = script.script.split(".")
+        scr = mod.pop()
+        mod = ".".join(mod)
+        i = __import__(mod, fromlist=[''])
+        getattr(i,scr)()
+        messages.success(request, f"The '{script}' script has been run successfully.")
+
+    except Exception as e:
+        messages.error(request, e)
+    return HttpResponseRedirect(reverse("shared_models:script_list"))

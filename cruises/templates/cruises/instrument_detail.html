@@ -1,0 +1,53 @@
+{% extends "cruises/base.html" %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+{% block subcontent %}
+
+  <div class="mb-3">
+    <a class="btn btn-warning" href="{% url 'cruises:instrument_edit' object.id %}">{% trans "Edit" %}</a>
+    <a class="btn btn-danger" href="{% url 'cruises:instrument_delete' object.id %}">{% trans "Delete" %}</a>
+    <a class="btn btn-primary" href="{% url 'cruises:component_new' object.id %}">{% trans "New Component" %}</a>
+  </div>
+
+  <div class="row">
+    <div class="col-6">
+      <table class="table table-bordered">
+        {% for field in field_list %}
+          {% verbose_td_display object field %}
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+
+
+  {% if object.components.count > 0 %}
+    <h3>
+      {% trans "Components on this Instrument" %}
+    </h3>
+
+    <table class="table table-sm sortable table-hover">
+      <thead>
+      {% for field in component_field_list %}
+        <th>{% get_verbose_label component_object field %}</th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      {% for obj in object.components.all %}
+        <tr href="{% url 'cruises:component_edit' obj.id %}">
+          {% for field in component_field_list %}
+            <td>
+              {% get_field_value obj field %}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <em>      {% trans "No components have been added to this instrument." %}    </em>
+  {% endif %}
+
+
+{% endblock %}

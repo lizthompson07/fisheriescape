@@ -1,6 +1,6 @@
 from django.test import TestCase, tag
 from django.core.files.base import ContentFile
-from django.utils.six import BytesIO
+from six import BytesIO
 from django.conf import settings
 
 from PIL import Image
