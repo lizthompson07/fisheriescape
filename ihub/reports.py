@@ -1,20 +1,21 @@
+import os
+from datetime import datetime
+
 import xlsxwriter as xlsxwriter
+from django.conf import settings
 from django.db.models import Q
 from django.template.defaultfilters import yesno
 from django.utils import timezone
-from django.conf import settings
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from textile import textile
 
 from lib.functions.custom_functions import nz, listrify
 from lib.templatetags.verbose_names import get_verbose_label
-from . import models
-import os
 from masterlist import models as ml_models
+from . import models
+from .utils import get_date_range_overlap
 
 
-def generate_capacity_spreadsheet(fy, orgs, sectors):
+def generate_capacity_spreadsheet(fy, orgs, sectors, from_date, to_date):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -38,6 +39,10 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
         orgs = None
     if sectors == "None":
         sectors = None
+    if from_date == "None":
+        from_date = None
+    if to_date == "None":
+        to_date = None
 
     # build an entry list:
     entry_list = models.Entry.objects.all()
@@ -58,6 +63,17 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
         # this org_list will serve as basis for spreadsheet tabs
         org_id_list = list(set([org.id for entry in entry_list for org in entry.organizations.all()]))
         org_list = ml_models.Organization.objects.filter(id__in=org_id_list).order_by("abbrev")
+
+    if from_date or to_date:
+        id_list = []
+        d0_start = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+        d0_end = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+        for e in entry_list:
+            d1_start = e.initial_date
+            d1_end = e.anticipated_end_date
+            if get_date_range_overlap(d0_start, d0_end, d1_start, d1_end) > 0:
+                id_list.append(e.id)
+        entry_list = entry_list.filter(id__in=id_list)
 
     # define the header
     header = [
@@ -200,7 +216,7 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
     return target_url
 
 
-def generate_summary_spreadsheet(fy, orgs, sectors):
+def generate_summary_spreadsheet(fy, orgs, sectors, from_date, to_date):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -224,6 +240,10 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
         orgs = None
     if sectors == "None":
         sectors = None
+    if from_date == "None":
+        from_date = None
+    if to_date == "None":
+        to_date = None
 
     # build an entry list:
     entry_list = models.Entry.objects.all()
@@ -244,6 +264,17 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
         # this org_list will serve as basis for spreadsheet tabs
         org_id_list = list(set([org.id for entry in entry_list for org in entry.organizations.all()]))
         org_list = ml_models.Organization.objects.filter(id__in=org_id_list).order_by("abbrev")
+
+    if from_date or to_date:
+        id_list = []
+        d0_start = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+        d0_end = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+        for e in entry_list:
+            d1_start = e.initial_date
+            d1_end = e.anticipated_end_date
+            if get_date_range_overlap(d0_start, d0_end, d1_start, d1_end) > 0:
+                id_list.append(e.id)
+        entry_list = entry_list.filter(id__in=id_list)
 
     # define the header
     header = [
@@ -421,7 +452,7 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
     return target_url
 
 
-def generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, report_title):
+def generate_consultation_log_spreadsheet(fy, orgs, sectors, statuses, entry_types, report_title):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -450,6 +481,16 @@ def generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, repor
         # create the species query object: Q
         q_objects = Q()  # Create an empty Q object to start with
         for o in org_list:
+            q_objects |= Q(organizations=o)  # 'or' the Q objects together
+        # apply the filter
+        entry_list = entry_list.filter(q_objects)
+
+    if sectors:
+        # we have to refine the queryset to only the selected orgs
+        sector_list = [ml_models.Sector.objects.get(pk=int(o)) for o in sectors.split(",")]
+        # create the species query object: Q
+        q_objects = Q()  # Create an empty Q object to start with
+        for o in sector_list:
             q_objects |= Q(organizations=o)  # 'or' the Q objects together
         # apply the filter
         entry_list = entry_list.filter(q_objects)
@@ -556,8 +597,6 @@ def generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, repor
     return target_url
 
 
-
-
 def consultation_instructions_export_spreadsheet(orgs=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
@@ -575,7 +614,6 @@ def consultation_instructions_export_spreadsheet(orgs=None):
     else:
         # else return all orgs
         object_list = ml_models.ConsultationInstruction.objects.all()
-
 
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)

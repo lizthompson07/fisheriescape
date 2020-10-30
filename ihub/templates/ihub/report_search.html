@@ -39,9 +39,9 @@
 
       {% csrf_token %}
       {% for field in form %}
-          <div class="{{ field.name }}_div">
-            {% bootstrap_field field %}
-          </div>
+        <div class="{{ field.name }}_div">
+          {% bootstrap_field field %}
+        </div>
       {% endfor %}
       <input id="submit" type="submit" class="btn btn-primary animated bounceOutLeft" value="Generate"><br><br>
 
@@ -63,6 +63,8 @@
     $(".entry_types_div").addClass("gone");
     $(".report_title_div").addClass("gone");
     $(".format_div").addClass("gone");
+    $(".from_date_div").addClass("gone");
+    $(".to_date_div").addClass("gone");
 
     $("#id_report").prop('required', true);
     $("#id_format").prop('required', false);
@@ -74,6 +76,8 @@
     $("#id_statuses").prop('required', false);
     $("#id_entry_types").prop('required', false);
     $("#id_report_title").prop('required', false);
+    $("#id_from_date").prop('required', false);
+    $("#id_to_date").prop('required', false);
   }
 
   function configureForm() {
@@ -88,20 +92,17 @@
     } else if (reportChoice == 2) {
       $(".single_org_div").removeClass("gone");
       $("#id_single_org").prop('required', true);
-    } else if (reportChoice == 4) {
-      $(".sectors_div").removeClass("gone");
-      $(".organizations_div").removeClass("gone");
-      $(".fiscal_year_div").removeClass("gone");
-      $("#id_organizations").multiSelect();
-      $("#id_sectors").multiSelect();
-
     } else if (reportChoice == 3) {
+      $(".format_div").removeClass("gone");
       $(".sectors_div").removeClass("gone");
       $(".organizations_div").removeClass("gone");
       $(".fiscal_year_div").removeClass("gone");
+      $(".from_date_div").removeClass("gone");
+      $(".to_date_div").removeClass("gone");
       $("#id_organizations").multiSelect();
       $("#id_sectors").multiSelect();
-    } else if (reportChoice == 5 || reportChoice == 6) {
+      $("#id_format").prop('required', true);
+    } else if (reportChoice == 6) {
       $(".organizations_div").removeClass("gone");
       $(".sectors_div").removeClass("gone");
       $(".format_div").removeClass("gone");
@@ -117,7 +118,7 @@
       $("#id_report_title").prop('required', true);
       $("#id_format").prop('required', true);
 
-    } else if (reportChoice == 7 ||reportChoice == 8) {
+    } else if (reportChoice == 7 || reportChoice == 8) {
       $(".orgs_w_consultation_instructions_div").removeClass("gone");
       $("#id_orgs_w_consultation_instructions").multiSelect();
     }

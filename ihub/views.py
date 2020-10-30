@@ -1,5 +1,6 @@
 import math
 import os
+from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -26,6 +27,7 @@ from . import filters
 from . import forms
 from . import models
 from . import reports
+from .utils import get_date_range_overlap
 
 
 def get_ind_organizations():
@@ -645,7 +647,7 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
         from_date = nz(form.cleaned_data["from_date"], "None")
         to_date = nz(form.cleaned_data["to_date"], "None")
 
-        if report == 1: # capacity report
+        if report == 1:  # capacity report
             qry = f'?fy={nz(fy, "None")}&' \
                   f'sectors={nz(sectors, "None")}&' \
                   f'from_date={nz(from_date, "None")}&' \
@@ -657,19 +659,15 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("ihub:report_q", kwargs={"org": org}))
 
         elif report == 3:
-            return HttpResponseRedirect(reverse("ihub:summary_xlsx", kwargs=
-            {
-                "fy": nz(fy, "None"),
-                "orgs": nz(orgs, "None"),
-                "sectors": nz(sectors, "None"),
-            }))
-        elif report == 4:
-            return HttpResponseRedirect(reverse("ihub:summary_pdf", kwargs=
-            {
-                "fy": nz(fy, "None"),
-                "orgs": nz(orgs, "None"),
-                "sectors": nz(sectors, "None"),
-            }))
+            qry = f'?fy={nz(fy, "None")}&' \
+                  f'sectors={nz(sectors, "None")}&' \
+                  f'from_date={nz(from_date, "None")}&' \
+                  f'to_date={nz(to_date, "None")}&' \
+                  f'orgs={nz(orgs, "None")}'
+            if format == 'pdf':
+                return HttpResponseRedirect(reverse("ihub:summary_pdf") + qry)
+            else:
+                return HttpResponseRedirect(reverse("ihub:summary_xlsx") + qry)
 
         elif report == 6:  # Engagement Update Log
             qry = f'?fy={nz(fy, "None")}&' \
@@ -683,7 +681,6 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
                 return HttpResponseRedirect(reverse("ihub:consultation_log_pdf") + qry)
             else:
                 return HttpResponseRedirect(reverse("ihub:consultation_log_xlsx") + qry)
-
 
         elif report == 7:
             return HttpResponseRedirect(
@@ -716,7 +713,6 @@ def capacity_export_spreadsheet(request):
     if to_date == "None":
         to_date = None
 
-
     file_url = reports.generate_capacity_spreadsheet(fy, orgs, sectors, from_date, to_date)
 
     if os.path.exists(file_url):
@@ -728,8 +724,25 @@ def capacity_export_spreadsheet(request):
     raise Http404
 
 
-def summary_export_spreadsheet(request, fy, orgs, sectors):
-    file_url = reports.generate_summary_spreadsheet(fy, orgs, sectors)
+def summary_export_spreadsheet(request):
+    fy = request.GET["fy"]
+    sectors = request.GET["sectors"]
+    orgs = request.GET["orgs"]
+    from_date = request.GET["from_date"]
+    to_date = request.GET["to_date"]
+
+    if fy == "None":
+        fy = None
+    if sectors == "None":
+        sectors = None
+    if orgs == "None":
+        orgs = None
+    if from_date == "None":
+        from_date = None
+    if to_date == "None":
+        to_date = None
+
+    file_url = reports.generate_summary_spreadsheet(fy, orgs, sectors, from_date, to_date)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -861,16 +874,22 @@ class PDFSummaryReport(PDFTemplateView):
         # get an entry list for the fiscal year (if any)
 
         # first, filter out the "none" placeholder
-        fy = self.kwargs["fy"]
-        sectors = self.kwargs["sectors"]
-        orgs = self.kwargs["orgs"]
+        fy = self.request.GET["fy"]
+        sectors = self.request.GET["sectors"]
+        orgs = self.request.GET["orgs"]
+        from_date = self.request.GET["from_date"]
+        to_date = self.request.GET["to_date"]
 
         if fy == "None":
             fy = None
-        if orgs == "None":
-            orgs = None
         if sectors == "None":
             sectors = None
+        if orgs == "None":
+            orgs = None
+        if from_date == "None":
+            from_date = None
+        if to_date == "None":
+            to_date = None
 
         # get an entry list for the fiscal year (if any)
         entry_list = models.Entry.objects.all()
@@ -897,6 +916,17 @@ class PDFSummaryReport(PDFTemplateView):
             # apply the filter
             entry_list = entry_list.filter(q_objects)
 
+        if from_date or to_date:
+            id_list = []
+            d0_start = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+            d0_end = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+            for e in entry_list:
+                d1_start = e.initial_date
+                d1_end = e.anticipated_end_date
+                if get_date_range_overlap(d0_start, d0_end, d1_start, d1_end) > 0:
+                    id_list.append(e.id)
+            entry_list = entry_list.filter(id__in=id_list)
+
         context["entry_list"] = entry_list
 
         # remove any orgs without entries
@@ -919,7 +949,7 @@ class PDFSummaryReport(PDFTemplateView):
             my_dict[org.id] = entry_list.filter(organizations=org).order_by("title")
         context["my_dict"] = my_dict
 
-        context["fy"] = self.kwargs["fy"]
+        context["fy"] = self.request.GET["fy"]
         context["field_list"] = [
             'title',
             'location',
