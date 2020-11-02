@@ -925,7 +925,7 @@ class PDFSummaryReport(PDFTemplateView):
         return context
 
 
-class ConsultationLogPDFTemplateView(PDFTemplateView):
+class ConsultationLogPDFTemplateView(TemplateView):
     template_name = "ihub/report_consultation_log.html"
 
     # def get_pdf_filename(self):
