@@ -8,115 +8,117 @@
 {% load static %}
 
 {% block page_title %}
-    {#  HTML Title of the report  #}
+  {#  HTML Title of the report  #}
 {% endblock %}
 
 {% block extra_style %}
-    <style type="text/css">
-        {# Extra CSS styles here #}
-        .label {
-            font-weight: bold;
-        }
+  <style type="text/css">
+  {# Extra CSS styles here #}
+  .label {
+      font-weight: bold;
+  }
 
-        table, td, th {
-            font-size: small;
-            border: 1px solid black;
-            text-align: left;
-            border-collapse: collapse;
-        }
+  table, td, th {
+      font-size: small;
+      border: 1px solid black;
+      text-align: left;
+      border-collapse: collapse;
+  }
 
-        td, th {
-            padding: 2px;
-        }
+  td, th {
+      padding: 2px;
+  }
 
-        th {
-            background-color: lightblue;
-            color: black;
-            border: 1px solid black;
-            font-weight: bold;
-        }
+  th {
+      background-color: lightblue;
+      color: black;
+      border: 1px solid black;
+      font-weight: bold;
+  }
 
-        h2 {
-            {#font-size: 24px;#}
-            margin: 0cm;
-        }
-    </style>
+  h2 {
+  {#font-size: 24px;#} margin: 0cm;
+  }
+  </style>
 {% endblock %}
 
 {% block page_header %}
-    <div style="text-align: right; display: inline-block;">
-        Page <pdf:pagenumber/>
-    </div>
-    <h2>
-        {{ report_title }} {% if fy and fy != "None" %} ({{ fy }}) {% endif %}
-    </h2>
+  <div style="text-align: right; display: inline-block;">
+    Page
+    <pdf:pagenumber/>
+  </div>
+  <h2>
+    {{ report_title }} {% if fy and fy != "None" %} ({{ fy }}) {% endif %}
+  </h2>
 
 
-    <table>
-        <th style="width: 12%">
-            Project / Location
-        </th>
-        <th style="width: 12%">
-            Proponent
-        </th>
-        <th style="width: 12%">
-            Date offer to Consult
-        </th>
-        <th style="width: 12%">
-            Departments Involved<br>(Prov & Fed)
-        </th>
-        <th style="width: 40%">
-            Project Status/ Correspondence / Notes
-        </th>
-        <th style="width: 12%">
-            Follow-up Actions required
-        </th>
-    </table>
+  <table>
+    <th style="width: 12%">
+      Project / Location
+    </th>
+    <th style="width: 12%">
+      Proponent
+    </th>
+    <th style="width: 12%">
+      Date offer to Consult
+    </th>
+    <th style="width: 12%">
+      Departments Involved<br>(Prov & Fed)
+    </th>
+    <th style="width: 40%">
+      Project Status/ Correspondence / Notes
+    </th>
+    <th style="width: 12%">
+      Follow-up Actions required
+    </th>
+  </table>
 {% endblock %}
 
 {% block page_content %}
 
-    <table>
-        {% for entry in entry_list %}
-            <tr>
-                <td style="width: 12%">
-                    TITLE: {{ entry.title }}
-                    <br><br>
-                    TYPE: {{ entry.entry_type }}
-                    <br><br>
-                    LOCATION: {{ entry.location|nz:"----" }}
-                </td>
-                <td style="width: 12%">
-                    ORGANIZATIONS: {{ entry.orgs_str }}
-                    <br><br>
-                    DFO SECTORS: {{ entry.sectors_str }}
-                </td>
-                <td style="width: 12%">
-                    {{ entry.initial_date|date:"M d, Y" }}
-                </td>
-                <td style="width: 12%">
-                    {% for person in entry.people.all %}
-                        {{ person }}<br>
-                    {% endfor %}
-                </td>
-                <td style="width: 40%">
-                    Overall status: {{ entry.status }}
-                    <br><br>
-                    {% for note in entry.other_notes %}
-                        {{ note }}
-                        <br><br>
-                    {% endfor %}
+  <table>
+    {% for entry in entry_list %}
+      <tr>
+        <td style="width: 12%">
+          TITLE: {{ entry.title }}
+          <br><br>
+          TYPE: {{ entry.entry_type }}
+          <br><br>
+          LOCATION: {{ entry.location|nz:"----" }}
+        </td>
+        <td style="width: 12%">
+          ORGANIZATIONS: {{ entry.orgs_str }}
+          <br><br>
+          DFO SECTORS: {{ entry.sectors_str }}
+        </td>
+        <td style="width: 12%">
+          {{ entry.initial_date|date:"M d, Y" }}
+        </td>
+        <td style="width: 12%">
+          {% for person in entry.people.all %}
+            {{ person }}<br>
+          {% endfor %}
+        </td>
+        <td style="width: 40%">
+          Overall status: {{ entry.status }}
+          <br><br>
+          {% for note in entry.other_notes %}
+            <p>
+              {{ note }}
+            </p>
+            <br><br>
+          {% endfor %}
 
-                </td>
-                <td style="width: 12%">
-                    {% for note in entry.followups %}
-                        {{ note }}
-                        <br><br>
-                    {% endfor %}
-                </td>
-            </tr>
-        {% endfor %}
-    </table>
+        </td>
+        <td style="width: 12%">
+          {% for note in entry.followups %}
+            {{ note }}
+            <br><br>
+          {% endfor %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
 
 {% endblock %}
 

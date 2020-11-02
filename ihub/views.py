@@ -21,7 +21,7 @@ from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import nz, listrify
 from masterlist import models as ml_models
 from shared_models.views import CommonFilterView, CommonDetailView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
-    CommonDeleteView, CommonCreateView, CommonHardDeleteView, CommonFormsetView, CommonPopoutDeleteView
+    CommonDeleteView, CommonCreateView, CommonHardDeleteView, CommonFormsetView, CommonPopoutDeleteView, CommonTemplateView
 from . import emails
 from . import filters
 from . import forms
@@ -82,8 +82,9 @@ class SiteLoginRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class IndexTemplateView(SiteLoginRequiredMixin, TemplateView):
+class IndexTemplateView(SiteLoginRequiredMixin, CommonTemplateView):
     template_name = 'ihub/index.html'
+    h1 = gettext_lazy("home")
 
     def dispatch(self, request, *args, **kwargs):
         messages.info(request, mark_safe(_("Please note that only <b>unclassified information</b> may be entered into this application.")))
