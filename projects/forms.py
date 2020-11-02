@@ -15,6 +15,7 @@ multi_select_js = {"class": "multi-select"}
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 # class_editable = {"class": "editable"}
 class_editable = {"class": "widgEditor"}
+row4 = {"rows": "4"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -89,14 +90,15 @@ class ProjectForm(forms.ModelForm):
             "description": forms.Textarea(attrs=class_editable),
             "priorities": forms.Textarea(attrs=class_editable),
             "deliverables": forms.Textarea(attrs=class_editable),
-            "data_collection": forms.Textarea(attrs=class_editable),
-            "data_sharing": forms.Textarea(attrs=class_editable),
-            "data_storage": forms.Textarea(attrs=class_editable),
-            "regional_dm_needs": forms.Textarea(attrs=class_editable),
-            "vehicle_needs": forms.Textarea(attrs=class_editable),
-            "it_needs": forms.Textarea(attrs=class_editable),
-            "chemical_needs": forms.Textarea(attrs=class_editable),
-            "ship_needs": forms.Textarea(attrs=class_editable),
+
+            "data_collection": forms.Textarea(attrs=row4),
+            "data_sharing": forms.Textarea(attrs=row4),
+            "data_storage": forms.Textarea(attrs=row4),
+            "regional_dm_needs": forms.Textarea(attrs=row4),
+            "vehicle_needs": forms.Textarea(attrs=row4),
+            "it_needs": forms.Textarea(attrs=row4),
+            "chemical_needs": forms.Textarea(attrs=row4),
+            "ship_needs": forms.Textarea(attrs=row4),
 
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -110,6 +112,11 @@ class ProjectForm(forms.ModelForm):
             "default_funding_source": forms.Select(attrs=chosen_js),
             "programs": forms.SelectMultiple(attrs=chosen_js),
 
+            "has_new_data": forms.Select(choices=YESNO_CHOICES),
+            "has_travel": forms.Select(choices=YESNO_CHOICES),
+            "has_lab_work": forms.Select(choices=YESNO_CHOICES),
+            "abl_services_required": forms.Select(choices=YESNO_CHOICES),
+            "lab_space_required": forms.Select(choices=YESNO_CHOICES),
             "is_hidden": forms.Select(choices=YESNO_CHOICES),
         }
 
