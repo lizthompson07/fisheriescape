@@ -328,12 +328,12 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date):
                     "[", "").replace("]", "").replace("'", "").replace('"', "").replace(', ', "\n")
             else:
                 people = None
-
-            if e.notes.count() > 0:
+            note_qry = e.notes.filter(~Q(type=5))
+            if note_qry.count() > 0:
                 notes = ""
                 count = 0
-                max_count = e.notes.count()
-                for obj in e.notes.all():
+                max_count = note_qry.count()
+                for obj in note_qry:
                     notes += "{} - {} [STATUS: {}] (Created by {} {} on {})\n".format(
                         obj.get_type_display().upper(),
                         obj.note,

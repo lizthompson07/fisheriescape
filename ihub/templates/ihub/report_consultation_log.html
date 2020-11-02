@@ -11,13 +11,8 @@
 <style type="text/css">
 @page {
     size: legal landscape;
-    margin-top: 0.5cm;
-    margin-bottom: 0.5cm;
-    margin-left: 1cm;
-    margin-right: 1cm;
-    padding-top: 0;
+    margin: 1cm;
 }
-
 
 .label {
     font-weight: bold;
@@ -27,10 +22,6 @@ table, td, th {
     font-size: small;
     border: 1px solid black;
     text-align: left;
-    border-collapse: collapse;
-}
-
-td, th {
     padding: 2px;
     vertical-align: top;
 }
@@ -38,14 +29,13 @@ td, th {
 th {
     background-color: lightblue;
     color: black;
-    border: 1px solid black;
     font-weight: bold;
 }
 
-h2 {
-{#font-size: 24px;#} margin: 0cm;
-}
+
 </style>
+
+
 <h2 class="mb-3">
   {{ report_title }} {% if fy and fy != "None" %} ({{ fy }}) {% endif %}
 </h2>
@@ -74,6 +64,8 @@ h2 {
   </tr>
 
   </thead>
+  <tbody>
+
   {% for entry in entry_list %}
     <tr>
       <td style="width: 12%">
@@ -113,5 +105,7 @@ h2 {
       </td>
     </tr>
   {% endfor %}
+  </tbody>
+
 </table>
 

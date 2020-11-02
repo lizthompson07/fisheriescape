@@ -3,6 +3,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+from dm_apps.utils import compare_strings
 from shared_models import models as shared_models
 
 # Choices for YesNo
@@ -135,8 +137,18 @@ class Organization(models.Model):
 
     @property
     def chief(self):
-        if self.members.filter(role__icontains="chief").exists():
-            return self.members.filter(role__icontains="chief").first()
+        member_qry =self.members.filter(role__icontains="chief")
+        if member_qry.exists():
+            # need to do a better guess at who is chief. Sometimes, a member's role might be previous chief
+            winner = None
+            shortest_dist = 9999
+            for m in member_qry:
+                # using the Levenshtein distance, we can choose the role that has the shortest distance to "chief"
+                dist = compare_strings("chief", m.role)
+                if dist < shortest_dist:
+                    shortest_dist = dist
+                    winner = m
+            return winner
 
 
 class Person(models.Model):
