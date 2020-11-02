@@ -408,6 +408,12 @@ class RetUpdate(mixins.RetMixin, CommonUpdate):
         return reverse_lazy("whalesdb:list_ret")
 
 
+class RscUpdate(mixins.RscMixin, CommonUpdate):
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_rsc")
+
+
 class StnUpdate(mixins.StnMixin, CommonUpdate):
 
     def get_success_url(self):
@@ -683,7 +689,6 @@ class RetList(mixins.RetMixin, CommonList):
 class RscList(mixins.RscMixin, CommonList):
     filterset_class = filters.RscFilter
     fields = ['rsc_name', 'rsc_period']
-    editable = False
 
 
 class RttList(mixins.RttMixin, CommonList):

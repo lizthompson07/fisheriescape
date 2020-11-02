@@ -251,6 +251,10 @@ class URLTest(TestCase):
     def test_url_create_rsc_view(self):
         self.basic_en_url_test('whalesdb:create_rsc', 'whalesdb/create/rsc/', views.RscCreate)
 
+    @tag('rsc', 'url', 'update')
+    def test_url_update_rsc_view(self):
+        self.basic_en_url_test('whalesdb:update_rsc', 'whalesdb/update/rsc/1/', views.RscUpdate, [1])
+
     @tag('rsc', 'url', 'list')
     def test_url_list_rsc_view(self):
         self.basic_en_url_test('whalesdb:list_rsc', 'whalesdb/list/rsc/', views.RscList)

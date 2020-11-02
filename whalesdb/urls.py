@@ -76,6 +76,7 @@ urlpatterns = [
     path('list/prj/', views.PrjList.as_view(), name="list_prj"),
 
     path('create/rsc/', views.RscCreate.as_view(), name="create_rsc"),
+    path('update/rsc/<int:pk>/', views.RscUpdate.as_view(), name="update_rsc"),
     path('details/rsc/<int:pk>/', views.RscDetails.as_view(), name="details_rsc"),
     path('list/rsc/', views.RscList.as_view(), name="list_rsc"),
 
