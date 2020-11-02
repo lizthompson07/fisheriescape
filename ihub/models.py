@@ -114,7 +114,7 @@ class Entry(models.Model):
 
     @property
     def other_notes(self):
-        return self.notes.filter(~Q(type=4)).order_by("")
+        return self.notes.filter(~Q(type=4))
 
     @property
     def orgs_str(self):
