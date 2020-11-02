@@ -91,9 +91,6 @@ class ReportSearchForm(forms.Form):
             ('pdf', "Adobe PDF (pdf)"),
             ('xlsx', "Excel (xlsx)"),
         )
-        fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
-                      models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
-        fy_choices.insert(0, (None, "all years"))
 
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         org_choices_has_entry = [(obj.id, obj) for obj in get_ind_organizations() if obj.entries.count() > 0]
@@ -107,7 +104,6 @@ class ReportSearchForm(forms.Form):
         self.fields['format'] = forms.ChoiceField(required=False, choices=format_choices)
         self.fields['from_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
         self.fields['to_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
-        self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
         self.fields['sectors'] = forms.MultipleChoiceField(required=False,
                                                            label='List of sectors (w/ entries) - Leave blank for all',
                                                            choices=sector_choices)

@@ -15,7 +15,7 @@ from . import models
 from .utils import get_date_range_overlap
 
 
-def generate_capacity_spreadsheet(fy, orgs, sectors, from_date, to_date):
+def generate_capacity_spreadsheet(orgs, sectors, from_date, to_date):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -33,8 +33,6 @@ def generate_capacity_spreadsheet(fy, orgs, sectors, from_date, to_date):
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
 
     # first, filter out the "none" placeholder
-    if fy == "None":
-        fy = None
     if orgs == "None":
         orgs = None
     if sectors == "None":
@@ -46,9 +44,6 @@ def generate_capacity_spreadsheet(fy, orgs, sectors, from_date, to_date):
 
     # build an entry list:
     entry_list = models.Entry.objects.all()
-
-    if fy:
-        entry_list = models.Entry.objects.filter(fiscal_year=fy)
 
     if sectors:
         # we have to refine the queryset to only the selected sectors
@@ -218,7 +213,7 @@ def generate_capacity_spreadsheet(fy, orgs, sectors, from_date, to_date):
     return target_url
 
 
-def generate_summary_spreadsheet(fy, orgs, sectors, from_date, to_date):
+def generate_summary_spreadsheet(orgs, sectors, from_date, to_date):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -236,12 +231,10 @@ def generate_summary_spreadsheet(fy, orgs, sectors, from_date, to_date):
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
 
     # first, filter out the "none" placeholder
-    if fy == "None":
-        fy = None
-    if orgs == "None":
-        orgs = None
     if sectors == "None":
         sectors = None
+    if orgs == "None":
+        orgs = None
     if from_date == "None":
         from_date = None
     if to_date == "None":
@@ -249,9 +242,6 @@ def generate_summary_spreadsheet(fy, orgs, sectors, from_date, to_date):
 
     # build an entry list:
     entry_list = models.Entry.objects.all()
-
-    if fy:
-        entry_list = models.Entry.objects.filter(fiscal_year=fy)
 
     if sectors:
         # we have to refine the queryset to only the selected sectors
@@ -269,8 +259,8 @@ def generate_summary_spreadsheet(fy, orgs, sectors, from_date, to_date):
 
     if from_date or to_date:
         id_list = []
-        d0_start = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
-        d0_end = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+        d0_start = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone()) if from_date else None
+        d0_end = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone()) if to_date else None
         for e in entry_list:
             d1_start = e.initial_date
             d1_end = e.anticipated_end_date
@@ -456,7 +446,7 @@ def generate_summary_spreadsheet(fy, orgs, sectors, from_date, to_date):
     return target_url
 
 
-def generate_consultation_log_spreadsheet(fy, orgs, sectors, statuses, entry_types, report_title):
+def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, report_title, from_date, to_date):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -464,55 +454,52 @@ def generate_consultation_log_spreadsheet(fy, orgs, sectors, statuses, entry_typ
     target_url = os.path.join(settings.MEDIA_ROOT, 'ihub', 'temp', target_file)
 
     # first, filter out the "none" placeholder
-    if fy == "None":
-        fy = None
+    if sectors == "None":
+        sectors = None
     if orgs == "None":
         orgs = None
     if statuses == "None":
         statuses = None
     if entry_types == "None":
         entry_types = None
+    if from_date == "None":
+        from_date = None
+    if to_date == "None":
+        to_date = None
 
     # get an entry list for the fiscal year (if any)
     entry_list = models.Entry.objects.all().order_by("status", "-initial_date")
 
-    if fy:
-        entry_list = models.Entry.objects.filter(fiscal_year=fy)
-
     if orgs:
         # we have to refine the queryset to only the selected orgs
         org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
-        # create the species query object: Q
-        q_objects = Q()  # Create an empty Q object to start with
-        for o in org_list:
-            q_objects |= Q(organizations=o)  # 'or' the Q objects together
-        # apply the filter
-        entry_list = entry_list.filter(q_objects)
+        entry_list = entry_list.filter(organizations__in=org_list)
 
     if sectors:
-        # we have to refine the queryset to only the selected orgs
-        sector_list = [ml_models.Sector.objects.get(pk=int(o)) for o in sectors.split(",")]
-        # create the species query object: Q
-        q_objects = Q()  # Create an empty Q object to start with
-        for o in sector_list:
-            q_objects |= Q(organizations=o)  # 'or' the Q objects together
-        # apply the filter
-        entry_list = entry_list.filter(q_objects)
+        # we have to refine the queryset to only the selected sectors
+        sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
+        entry_list = entry_list.filter(sectors__in=sector_list)
 
     if statuses:
-        # we have to refine the queryset to only the selected orgs
+        # we have to refine the queryset to only the selected statuses
         status_list = [models.Status.objects.get(pk=int(o)) for o in statuses.split(",")]
-        # create the species query object: Q
-        q_objects = Q()  # Create an empty Q object to start with
-        for o in status_list:
-            q_objects |= Q(status=o)  # 'or' the Q objects together
-        # apply the filter
-        entry_list = entry_list.filter(q_objects)
+        entry_list = entry_list.filter(organizations__in=status_list)
 
     if entry_types:
         # we have to refine the queryset to only the selected orgs
         entry_type_list = [models.EntryType.objects.get(pk=int(o)) for o in entry_types.split(",")]
         entry_list = entry_list.filter(entry_type__in=entry_type_list)
+
+    if from_date or to_date:
+        id_list = []
+        d0_start = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone()) if from_date else None
+        d0_end = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone()) if to_date else None
+        for e in entry_list:
+            d1_start = e.initial_date
+            d1_end = e.anticipated_end_date
+            if get_date_range_overlap(d0_start, d0_end, d1_start, d1_end) > 0:
+                id_list.append(e.id)
+        entry_list = entry_list.filter(id__in=id_list)
 
     entry_list.distinct()
 
