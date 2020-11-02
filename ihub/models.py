@@ -138,7 +138,7 @@ class EntryPerson(models.Model):
     )
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="people", blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
-    name = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("name"))
+    name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name"))
     organization = models.CharField(max_length=50)
     role = models.IntegerField(choices=ROLE_CHOICES, blank=True, null=True, verbose_name=_("role"))
 
