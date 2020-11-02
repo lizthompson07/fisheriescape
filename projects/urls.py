@@ -200,8 +200,6 @@ urlpatterns = [
          views.PDFAgreementsReport.as_view(), name="pdf_agreements"),
     path('reports/dougs-report/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.dougs_spreadsheet, name="doug_report"),
-    path('reports/feedback/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-         views.PDFFeedbackReport.as_view(), name="pdf_feedback"),
     path('reports/data-management/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFDataReport.as_view(), name="pdf_data"),
     path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>',

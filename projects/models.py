@@ -266,8 +266,9 @@ class Project(models.Model):
     # HTML field
     deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables / activities"))
 
-    # data
+    # DATA
     #######
+    has_new_data = models.BooleanField(default=False, verbose_name=_("Will new data be collected?"))
     # HTML field
     data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
     # HTML field
@@ -284,23 +285,40 @@ class Project(models.Model):
 
     # DELETE ME!! #
     regional_dm_needs = models.TextField(blank=True, null=True,
-                                         verbose_name=_("Describe assistance required from the branch data manager, if applicable"))
-    # DELETE ME!! #
-    sectional_dm_needs = models.TextField(blank=True, null=True,
-                                          verbose_name=_("Describe assistance required from the section data manager, if applicable"))
+                                         verbose_name=_("Describe what data management support is required, if any."))
+
+
+
+    # TRAVEL
+    ########
+    has_travel = models.BooleanField(default=False, verbose_name=_("Is travel required (i.e., project involves a field component)?"))
 
     # HTML field
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_(
                                          "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
     # HTML field
-    it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
+    ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
+
+
+    # LAB WORK
+    ########
+    has_lab_work = models.BooleanField(default=False, verbose_name=_("Does this project involve laboratory work?"))
+
+    # maritimes only
+    abl_services_required = models.BooleanField(default=False, verbose_name=_(
+        "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"))
+
+    lab_space_required = models.BooleanField(default=False, verbose_name=_("Is laboratory space required?"))
+
     # HTML field
     chemical_needs = models.TextField(blank=True, null=True,
                                       verbose_name=_(
                                           "Please provide details regarding chemical needs and the plan for storage and disposal."))
+
+
     # HTML field
-    ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
+    it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
 
     # HTML field
     notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))
@@ -313,9 +331,6 @@ class Project(models.Model):
                                        related_name='projects_projects', verbose_name=_("allotment code (if known)"))
     existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"))
 
-    feedback = models.TextField(blank=True, null=True,
-                                verbose_name=_("Do you have any feedback you would like to submit about this process"))
-
     # admin
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
     # approved = models.BooleanField(default=False, verbose_name=_("approved"))
@@ -323,14 +338,6 @@ class Project(models.Model):
     approved = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("approved"))
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"))
-    # section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
-
-    # manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))
-    # manager_feedback = models.TextField(blank=True, null=True, verbose_name=_("division manager feedback"))
-
-    # rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
-    # rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
-
     meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     is_hidden = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=False,
@@ -802,6 +809,9 @@ class ReferenceMaterial(SimpleLookup):
             return mark_safe(
                 f"<a href='{self.file.url}'> <span class='mdi mdi-file'></span></a>"
             )
+
+    class Meta:
+        ordering = ["region", "file"]
 
 
 @receiver(models.signals.post_delete, sender=ReferenceMaterial)

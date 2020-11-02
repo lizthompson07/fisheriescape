@@ -416,7 +416,6 @@ project_field_list = [
     'data_storage',
     'metadata_url',
     'regional_dm_needs',
-    'sectional_dm_needs',
     'vehicle_needs',
     'it_needs',
     'chemical_needs',
@@ -433,7 +432,6 @@ gulf_field_list.remove("is_competitive")
 gulf_field_list.remove("is_approved")
 gulf_field_list.remove("metadata_url")
 gulf_field_list.remove("regional_dm_needs")
-gulf_field_list.remove("sectional_dm_needs")
 
 
 def get_section_choices(all=False, full_name=True, region_filter=None, division_filter=None):
@@ -2058,8 +2056,6 @@ class ProjectApprovalFormsetView(AdminRequiredMixin, CommonFormsetView):
 
 
 # Reference Materials
-
-
 class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
     template_name = "projects/list.html"
     model = models.ReferenceMaterial
@@ -2413,13 +2409,6 @@ class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
             }))
         elif report == 14:
             return HttpResponseRedirect(reverse("projects:doug_report", kwargs={
-                'fiscal_year': fiscal_year,
-                'regions': regions,
-                'divisions': divisions,
-                'sections': sections,
-            }))
-        elif report == 16:
-            return HttpResponseRedirect(reverse("projects:pdf_feedback", kwargs={
                 'fiscal_year': fiscal_year,
                 'regions': regions,
                 'divisions': divisions,
@@ -2863,24 +2852,6 @@ class PDFAgreementsReport(PDFReportTemplate):
         return context
 
 
-class PDFFeedbackReport(PDFReportTemplate):
-    template_name = "projects/report_pdf_feedback.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        self.project_list = self.project_list.filter(~Q(feedback=""))
-        context["object_list"] = self.project_list
-        context["my_object"] = self.project_list.first()
-        context["field_list"] = [
-            'id',
-            'project_title',
-            'project_leads|Project leads',
-            'feedback',
-        ]
-
-        return context
-
 
 class PDFDataReport(PDFReportTemplate):
     template_name = "projects/report_pdf_data.html"
@@ -2899,7 +2870,6 @@ class PDFDataReport(PDFReportTemplate):
             'data_storage',
             'metadata_url',
             'regional_dm_needs',
-            'sectional_dm_needs',
         ]
 
         return context

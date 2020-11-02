@@ -93,12 +93,10 @@ class ProjectForm(forms.ModelForm):
             "data_sharing": forms.Textarea(attrs=class_editable),
             "data_storage": forms.Textarea(attrs=class_editable),
             "regional_dm_needs": forms.Textarea(attrs=class_editable),
-            "sectional_dm_needs": forms.Textarea(attrs=class_editable),
             "vehicle_needs": forms.Textarea(attrs=class_editable),
             "it_needs": forms.Textarea(attrs=class_editable),
             "chemical_needs": forms.Textarea(attrs=class_editable),
             "ship_needs": forms.Textarea(attrs=class_editable),
-            "feedback": forms.Textarea(attrs=class_editable),
 
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -134,8 +132,6 @@ class ProjectForm(forms.ModelForm):
             del self.fields["is_approved"]
             del self.fields["metadata_url"]
             del self.fields["regional_dm_needs"]
-            del self.fields["sectional_dm_needs"]
-            del self.fields["feedback"]
 
 
 class ProjectSubmitForm(forms.ModelForm):
@@ -372,7 +368,6 @@ class ReportSearchForm(forms.Form):
         (3, "Project Summary Report (PDF - section head approved projects)"),
         (2, "Batch Workplan Export (PDF - section head approved projects)"),
         (1, "Master spreadsheet (MS Excel)"),
-        (16, _("Feedback summary")),
         (17, _("Data management summary")),
         (21, _("COVID Assessment")),
 
