@@ -775,6 +775,9 @@ class OrderUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView)
 
 def mark_order_received(request, order):
     """function to mark order received and create new transaction"""
+    # put in check to see if user wants to do this, javascript
+    # XYZ
+
     # record received date
     my_order = models.Order.objects.get(pk=order)
     my_order.date_received = timezone.now()
@@ -790,7 +793,7 @@ def mark_order_received(request, order):
         location=Location.objects.get(location='Temp'),
         created_by=my_user
     )
-    my_transaction.tag.add(3)
+    # my_transaction.tag.add(3)
     my_order.transaction = my_transaction
     my_order.save()
 
@@ -1228,11 +1231,11 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
 
-# TODO get this to work as a standalone instead of form valid
-def send_incident_email(self):
+def send_incident_email(request, pk):
     """simple function to send email with detail_view information"""
     # create a new email object
-    email = emails.NewIncidentEmail(self.object, self.request)
+    incident = get_object_or_404(models.Incident, pk=pk)
+    email = emails.NewIncidentEmail(incident, request)
     # send the email object
     custom_send_mail(
         subject=email.subject,
@@ -1240,12 +1243,11 @@ def send_incident_email(self):
         from_email=email.from_email,
         recipient_list=email.to_list
     )
-    messages.success(self.request, "The new incident has been logged and a confirmation email has been sent!")
-
-    # go to detail page
-    return HttpResponseRedirect(self.get_success_url())
-
-    # return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+    messages.success(request, "The new incident has been logged and a confirmation email has been sent!")
+    # incident.date_email_sent = timezone.now()
+    # incident.save()
+    # go to previous page
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
 class IncidentUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):

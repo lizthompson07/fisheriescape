@@ -138,7 +138,8 @@ class Item(models.Model):
             qty = purchase_qty - removed_quantity
         else:
             purchase_qty = sum([item.quantity for item in self.transactions.filter(category=1, location=location)])
-            removed_quantity = sum([item.quantity for item in self.transactions.filter(category__in=[2, 3], location=location)])
+            removed_quantity = sum(
+                [item.quantity for item in self.transactions.filter(category__in=[2, 3], location=location)])
             qty = purchase_qty - removed_quantity
         return qty
 
@@ -408,13 +409,7 @@ class Incident(models.Model):
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
+        return "{}".format(self.name)
 
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})
@@ -527,7 +522,8 @@ class Order(models.Model):
     cost = models.FloatField(blank=True, null=True, verbose_name=_("order cost"))
     date_ordered = models.DateTimeField(default=datetime.now(), verbose_name=_("order date"))
     date_received = models.DateTimeField(blank=True, null=True, verbose_name=_("received date"))
-    transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING, related_name="orders",
+    transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING,
+                                       related_name="orders",
                                        verbose_name=_("transaction"))
 
     def __str__(self):
@@ -538,4 +534,3 @@ class Order(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             return "{}".format(self.id)
-

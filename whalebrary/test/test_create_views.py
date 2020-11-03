@@ -87,7 +87,7 @@ class TestTransactionCreateView(CommonTest):
         self.assert_success_url(self.test_url2, data=data, user=self.user)
 
 
-#TODO this one fails - ask David about this error
+#TODO this one fails - ask David about this error (date_ordered) -- seems to work fine now since patch?
 class TestOrderCreateView(CommonTest):
     def setUp(self):
         super().setUp()

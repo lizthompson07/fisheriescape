@@ -106,7 +106,7 @@ urlpatterns = [
     path('incident/new/', views.IncidentCreateView.as_view(), name="incident_new"),
     path('incident/<int:pk>/edit/', views.IncidentUpdateView.as_view(), name="incident_edit"),
     path('incident/<int:pk>/delete/', views.IncidentDeleteView.as_view(), name="incident_delete"),
-    path('incident/email/', views.send_incident_email, name="incident_email"),
+    path('incident/<int:pk>/email/', views.send_incident_email, name="incident_email"),
 
     # REPORTS #
 

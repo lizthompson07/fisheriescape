@@ -10,6 +10,7 @@ from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
 from .. import views
 from .. import models
 
+
 # Example how to run with keyword tags
 # python manage.py test whalebrary.test --tag transaction_new
 
@@ -85,12 +86,14 @@ class TestTransactionUpdateView(CommonTest):
         data = FactoryFloor.TransactionFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-#TODO check that kwargs can be static
+
+# TODO check that kwargs can be static -- why 3 kwargs?
 class TestOrderReceivedTransactionUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.TransactionFactory()
-        self.test_url = reverse_lazy('whalebrary:transaction_edit', kwargs={"pk": 1, "user": 1, "pop": 1})
+        self.test_url = reverse_lazy('whalebrary:transaction_edit',
+                                     kwargs={"pk": self.instance.id, "user": 1, "pop": 1})
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="whalebrary_edit")
 
@@ -110,7 +113,6 @@ class TestOrderReceivedTransactionUpdateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
 
-#TODO something wrong with date_ordered -- ask David
 class TestOrderUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -134,7 +136,7 @@ class TestOrderUpdateView(CommonTest):
         data = FactoryFloor.OrderFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-#TODO something wrong with date_ordered -- ask David
+
 class TestOrderUpdatePopoutView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -253,7 +255,7 @@ class TestFileUpdateView(CommonTest):
         data = FactoryFloor.FileFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-#TODO - str translation error
+
 class TestIncidentUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -276,9 +278,6 @@ class TestIncidentUpdateView(CommonTest):
     def test_submit(self):
         data = FactoryFloor.IncidentFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
-
-
-
 
 # class TestTripRequestUpdateView(CommonTest):
 #     def setUp(self):

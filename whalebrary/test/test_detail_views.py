@@ -177,7 +177,7 @@ class TestSupplierDetailView(CommonTest):
         ]
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
-# TODO -- ask David about this fail - related to translation?
+
 class TestIncidentDetailView(CommonTest):
     def setUp(self):
         super().setUp()

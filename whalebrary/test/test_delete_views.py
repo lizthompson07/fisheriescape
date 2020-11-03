@@ -8,6 +8,7 @@ from whalebrary import views
 from whalebrary.test import FactoryFloor
 from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
 
+
 # Example how to run with keyword tags
 # python manage.py test whalebrary.test --tag transaction_new
 
@@ -34,7 +35,7 @@ class TestItemDeleteView(CommonTest):
     def test_submit(self):
         data = FactoryFloor.ItemFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
-        
+
         # for delete views...
         self.assertEqual(models.Item.objects.filter(pk=self.instance.pk).count(), 0)
 
@@ -93,7 +94,6 @@ class TestTransactionDeleteView(CommonTest):
         self.assertEqual(models.Transaction.objects.filter(pk=self.instance.pk).count(), 0)
 
 
-#TODO Ask David about how to do popout view -- added kwargs and seems to work, should these be static like this?
 class TestTransactionDeletePopoutView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -116,7 +116,7 @@ class TestTransactionDeletePopoutView(CommonTest):
     def test_submit(self):
         data = FactoryFloor.TransactionFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
-        
+
         # for delete views...
         self.assertEqual(models.Transaction.objects.filter(pk=self.instance.pk).count(), 0)
 
@@ -174,7 +174,7 @@ class TestOrderDeleteView(CommonTest):
         # for delete views...
         self.assertEqual(models.Order.objects.filter(pk=self.instance.pk).count(), 0)
 
-# TODO fix popout test -- i think fixed with kwargs?
+
 class TestOrderDeletePopoutView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -256,7 +256,6 @@ class TestSupplierDeleteView(CommonTest):
         self.assertEqual(models.Supplier.objects.filter(pk=self.instance.pk).count(), 0)
 
 
-#TODO fix popout tests - fixed I think with kwargs
 class TestSupplierDeletePopoutView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -311,7 +310,6 @@ class TestFileDeleteView(CommonTest):
         self.assertEqual(models.File.objects.filter(pk=self.instance.pk).count(), 0)
 
 
-#TODO incident error with translation again
 class TestIncidentDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -337,10 +335,6 @@ class TestIncidentDeleteView(CommonTest):
 
         # for delete views...
         self.assertEqual(models.Incident.objects.filter(pk=self.instance.pk).count(), 0)
-
-
-
-
 
 # class IndividualTripRequestDelete(CommonTravelTest):
 #     def setUp(self):
