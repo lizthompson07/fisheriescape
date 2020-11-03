@@ -76,14 +76,15 @@ urlpatterns = [
     path('list/prj/', views.PrjList.as_view(), name="list_prj"),
 
     path('create/rsc/', views.RscCreate.as_view(), name="create_rsc"),
+    path('update/rsc/<int:pk>/', views.RscUpdate.as_view(), name="update_rsc"),
     path('details/rsc/<int:pk>/', views.RscDetails.as_view(), name="details_rsc"),
     path('list/rsc/', views.RscList.as_view(), name="list_rsc"),
 
     path('create/rst/<int:rsc>/<str:pop>/', views.RstCreate.as_view(), name="create_rst"),
     path('delete/rst/<int:pk>/', views.rst_delete, name="delete_rst"),
 
-    path('create/ste/<int:dep_id>/<int:pk>/<str:pop>/', views.SteCreate.as_view(), name="create_ste"),
-    path('update/ste/<int:dep_id>/<int:pk>/<str:pop>/', views.SteUpdate.as_view(), name="update_ste"),
+    path('create/ste/<int:dep_id>/<int:set_id>/<str:pop>/', views.SteCreate.as_view(), name="create_ste"),
+    path('update/ste/<int:pk>/<str:pop>/', views.SteUpdate.as_view(), name="update_ste"),
 
     path('create/stn/', views.StnCreate.as_view(), name="create_stn"),
     path('create/stn/<str:pop>/', views.StnCreate.as_view(), name="create_stn"),
@@ -93,6 +94,7 @@ urlpatterns = [
     path('list/stn/', views.StnList.as_view(), name="list_stn"),
 
     path('create/tea/', views.TeaCreate.as_view(), name="create_tea"),
+    path('update/tea/<int:pk>/', views.TeaUpdate.as_view(), name="update_tea"),
     path('list/tea/', views.TeaList.as_view(), name="list_tea"),
 
     path('create/rtt/', views.RttCreate.as_view(), name="create_rtt"),
@@ -108,7 +110,6 @@ urlpatterns = [
     path('create/ret/', views.RetCreate.as_view(), name="create_ret"),
     path('list/ret/', views.RetList.as_view(), name="list_ret"),
     path('update/ret/<int:pk>/', views.RetUpdate.as_view(), name="update_ret"),
-    path('delete/ret/<int:pk>/', views.ret_delete, name="delete_ret"),
 
     path('create/rci/<int:rec_id>/<str:pop>/', views.RciCreate.as_view(), name="create_rci"),
 
