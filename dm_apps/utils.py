@@ -1,10 +1,10 @@
-import requests
-from decouple import config, UndefinedValueError
+from Levenshtein._levenshtein import distance
+from decouple import config
 from django.conf import settings
+from django.core.mail import send_mail as django_send_mail
 from python_http_client import BadRequestsError
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email, Personalization
-from django.core.mail import send_mail as django_send_mail
 
 
 def get_azure_connection_dict():
@@ -128,3 +128,13 @@ def custom_send_mail(subject, html_message, from_email, recipient_list):
     else:
         print('No email configuration present in application...')
         print("FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(from_email, recipient_list, subject, html_message))
+
+
+def compare_strings(str1, str2):
+    def __strip_string__(string):
+        return str(string.lower().replace(" ", "").split(",")[0])
+
+    try:
+        return distance(__strip_string__(str1), __strip_string__(str2))
+    except AttributeError:
+        return 9999

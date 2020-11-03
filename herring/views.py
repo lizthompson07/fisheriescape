@@ -1,29 +1,29 @@
+import collections
+import csv
+import math
 from datetime import datetime
 
 import requests
-from django.db.models.functions import Concat
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView, ListView
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Q, TextField
-from django.urls import reverse_lazy, reverse
+from django.db.models.functions import Concat
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.urls import reverse_lazy, reverse
+from django.utils.safestring import mark_safe
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView, ListView
 from django_filters.views import FilterView
-from django.utils import timezone
-
-from lib.templatetags.custom_filters import nz
-from . import models
-from . import forms
-from . import filters
-from . import reports
-
 from numpy import arange
-import math
-import collections
-import csv
+
+from lib.functions.custom_functions import listrify
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
+from . import filters
+from . import forms
+from . import models
+from . import reports
 
 
 # Create your views here.
@@ -827,6 +827,18 @@ def export_hlen(request, year):
 
 
 def export_hdet(request, year):
+    # we will want to let the user know if there is a fish that has not been fully processed in the lab
+    fishies = models.FishDetail.objects.filter(sample__season=year, lab_processed_date__isnull=True).order_by("sample__sample_date",
+                                                                                                              "fish_number")
+    # if there are fish details that are currently incomplete...
+    if fishies.exists():
+        mylist = []
+        for fish in fishies:
+            mylist.append(f"<a href='{reverse('herring:fish_detail', args=[fish.sample.id, fish.id])}'>{fish.fish_number}</a>")
+        messages.warning(request, mark_safe(
+            f'Warning: There are incomplete fish detail records in this query. Those fish will not be returned in the HDET file. {listrify(mylist)}'
+        ))
+
     response = reports.generate_hdet(year)
     return response
 

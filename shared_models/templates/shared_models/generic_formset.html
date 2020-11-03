@@ -19,8 +19,7 @@
   {% trans "Back" as default_cancel_text %}
   {% echo request.META.HTTP_REFERER as default_cancel_url %}
   {% bootstrap_messages size='small' %}
-
-  <form method="post" class="form">
+  <form method="post" class="form" {% if is_multipart_form_data %}enctype="multipart/form-data"{% endif %}>
     {% csrf_token %}
 
     {{ formset.management_form }}

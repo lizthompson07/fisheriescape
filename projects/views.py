@@ -8,28 +8,29 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
-from dm_apps.utils import custom_send_mail
 from django.db.models import Sum, Q, Count, Value, TextField
 from django.db.models.functions import Concat
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render
+from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
-from django_filters.views import FilterView
-from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
+
+from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.functions.custom_functions import nz
+from shared_models import models as shared_models
 from shared_models.views import CommonHardDeleteView, CommonFormsetView, CommonTemplateView, CommonFormView, CommonCreateView, \
-    CommonDetailView, CommonFilterView, CommonPopoutUpdateView, CommonDeleteView, CommonUpdateView
-from . import models
-from . import forms
+    CommonDetailView, CommonFilterView, CommonPopoutUpdateView, CommonDeleteView, CommonUpdateView, CommonListView
 from . import emails
 from . import filters
+from . import forms
+from . import models
 from . import reports
 from . import stat_holidays
-from shared_models import models as shared_models
 
 
 def get_help_text_dict():
@@ -1851,19 +1852,19 @@ class LevelFormsetView(AdminRequiredMixin, CommonFormsetView):
     delete_url_name = "projects:delete_level"
 
 
-class ProgramHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-    model = models.Program
-    success_url = reverse_lazy("projects:manage_programs")
-
-
-class ProgramFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'projects/formset.html'
-    h1 = "Manage Program"
-    queryset = models.Program.objects.all()
-    formset_class = forms.ProgramFormset
-    success_url = reverse_lazy("projects:manage_programs")
-    home_url_name = "projects:index"
-    delete_url_name = "projects:delete_program"
+# class ProgramHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+#     model = models.Program
+#     success_url = reverse_lazy("projects:manage_programs")
+#
+#
+# class ProgramFormsetView(AdminRequiredMixin, CommonFormsetView):
+#     template_name = 'projects/formset.html'
+#     h1 = "Manage Program"
+#     queryset = models.Program.objects.all()
+#     formset_class = forms.ProgramFormset
+#     success_url = reverse_lazy("projects:manage_programs")
+#     home_url_name = "projects:index"
+#     delete_url_name = "projects:delete_program"
 
 
 class ActivityTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
@@ -2055,6 +2056,51 @@ class ProjectApprovalFormsetView(AdminRequiredMixin, CommonFormsetView):
         else:
             return self.render_to_response(self.get_context_data(formset=formset))
 
+
+# Reference Materials
+
+
+class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
+    template_name = "projects/list.html"
+    model = models.ReferenceMaterial
+    field_list = [
+        {"name": "tname|{}".format(gettext_lazy("name")), "class": "", "width": ""},
+        {"name": "region", "class": "", "width": ""},
+        {"name": "file_display|{}".format(gettext_lazy("File attachment")), "class": "", "width": ""},
+        {"name": "date_created", "class": "", "width": ""},
+        {"name": "date_modified", "class": "", "width": ""},
+    ]
+    new_object_url_name = "projects:ref_mat_new"
+    row_object_url_name = "projects:ref_mat_edit"
+    home_url_name = "projects:index"
+    h1 = gettext_lazy("Reference Materials")
+
+
+class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "projects:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects:ref_mat_list")}
+    template_name = "projects/form.html"
+    is_multipart_form_data = True
+
+
+class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "projects:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects:ref_mat_list")}
+    template_name = "projects/form.html"
+    is_multipart_form_data = True
+
+
+class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.ReferenceMaterial
+    success_url = reverse_lazy('projects:ref_mat_list')
+    home_url_name = "projects:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects:ref_mat_list")}
+    template_name = "projects/confirm_delete.html"
+    delete_protection = False
 
 
 # STATUS REPORT #

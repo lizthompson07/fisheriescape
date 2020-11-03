@@ -9,7 +9,6 @@ from dm_apps.utils import custom_send_mail
 from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from Levenshtein import distance
 
 from lib.templatetags.custom_filters import nz
 from . import models
@@ -376,16 +375,6 @@ def clear_empty_trip_request_costs(trip_request):
         for cost in models.TripRequestCost.objects.filter(trip_request=trip_request, cost=obj):
             if (cost.amount_cad is None or cost.amount_cad == 0):
                 cost.delete()
-
-
-def compare_strings(str1, str2):
-    def __strip_string__(string):
-        return str(string.lower().replace(" ", "").split(",")[0])
-
-    try:
-        return distance(__strip_string__(str1), __strip_string__(str2))
-    except AttributeError:
-        return 9999
 
 
 def manage_trip_warning(trip, request):

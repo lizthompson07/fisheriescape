@@ -427,6 +427,7 @@ class CommonFormsetView(TemplateView, CommonFormMixin):
         context["field_list"] = [f for f in self.formset_class.form.base_fields]
         context["pre_display_fields"] = self.get_pre_display_fields()
         context["post_display_fields"] = self.get_post_display_fields()
+
         return context
 
     def get(self, request, *args, **kwargs):
