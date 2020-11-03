@@ -288,7 +288,7 @@ class TestSteUpdate(CommonUpdateTest, TestCase):
 
         self.data['dep'] = obj.dep_id
 
-        self.test_url = reverse_lazy('whalesdb:update_ste', args=(obj.dep_id, obj.pk, 'pop',))
+        self.test_url = reverse_lazy('whalesdb:update_ste', args=(obj.pk, 'pop',))
 
         self.test_expected_template = 'shared_models/shared_entry_form.html'
 

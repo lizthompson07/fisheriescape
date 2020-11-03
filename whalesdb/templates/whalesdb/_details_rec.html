@@ -62,7 +62,13 @@
         <div class="card-text" id="id_events">
             <ul>
             {% for ree in rec.events.all %}
-            <li>{{ree.ret_id.ret_name}} : {{ree.rec_id}}</li>
+            <li>{{ree.ret_id.ret_name}} : <ul>
+                {% with ree.tea_id as tea %}
+                <li>{{tea.tea_last_name}}, {{tea.tea_first_name}}</li>
+                {% endwith %}
+                <li>{% trans "Date" %} :{{ree.ree_date}}</li>
+                <li>{% trans "Time" %} :{{ree.ree_time}}</li>
+            </ul></li>
             {% endfor %}
             </ul>
         </div>
