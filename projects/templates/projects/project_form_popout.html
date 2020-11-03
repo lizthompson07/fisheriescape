@@ -113,10 +113,6 @@
     window.opener.location.reload();
   }
 
-  $(document).ready(function () {
-    // Stuff to do as soon as the DOM is ready
-    $("#id_digestion_level")[0].focus()
-  });
   </script>
 
 
@@ -158,10 +154,14 @@
       $(".data_collection_div").removeClass("gone")
       $(".data_sharing_div").removeClass("gone")
       $(".data_storage_div").removeClass("gone")
+      $(".metadata_url_div").removeClass("gone")
+      $(".regional_dm_needs_div").removeClass("gone")
     } else {
       $(".data_collection_div").addClass("gone")
       $(".data_sharing_div").addClass("gone")
       $(".data_storage_div").addClass("gone")
+      $(".metadata_url_div").addClass("gone")
+      $(".regional_dm_needs_div").addClass("gone")
     }
   }
 

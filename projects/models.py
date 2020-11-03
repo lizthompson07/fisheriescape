@@ -248,9 +248,10 @@ class Project(models.Model):
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"), limit_choices_to={"used_for": 1})
 
-    # DELETE FOLLOWING TWO FIELDS
+    # DELETE ME!!!! ############################################
     is_competitive = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=0,
                                          verbose_name=_("Is the funding competitive?"))
+    # DELETE ME!!!! ############################################
     is_approved = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
                                       verbose_name=_("Has this project already been approved"))
 
@@ -277,13 +278,15 @@ class Project(models.Model):
                                         "Which of these data / data products will be placed on the Open Data Platform this year?"))
     # HTML field
     data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
+
+    # DELETE ME!!!! ############################################
     metadata_url = models.CharField(max_length=1000, blank=True, null=True,
                                     verbose_name=_("Provide link to existing metadata record, if available"))
 
     # needs
     ########
 
-    # DELETE ME!! #
+    # DELETE ME!!!! ############################################
     regional_dm_needs = models.TextField(blank=True, null=True,
                                          verbose_name=_("Describe what data management support is required, if any."))
 

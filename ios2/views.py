@@ -274,13 +274,13 @@ class InstrumentUpdateView(LoginRequiredMixin, UpdateView):
             my_dict["start_date"] = "{}-{:02d}-{:02d}".format(self.object.start_date.year, self.object.start_date.month,
                                                               self.object.start_date.day)
         except:
-            print("no start date...")
+            pass
 
         try:
             my_dict["end_date"] = "{}-{:02d}-{:02d}".format(self.object.end_date.year, self.object.end_date.month,
                                                             self.object.end_date.day)
         except:
-            print("no end date...")
+            pass
 
         return my_dict
 
