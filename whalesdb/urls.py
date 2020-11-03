@@ -110,7 +110,6 @@ urlpatterns = [
     path('create/ret/', views.RetCreate.as_view(), name="create_ret"),
     path('list/ret/', views.RetList.as_view(), name="list_ret"),
     path('update/ret/<int:pk>/', views.RetUpdate.as_view(), name="update_ret"),
-    path('delete/ret/<int:pk>/', views.ret_delete, name="delete_ret"),
 
     path('create/rci/<int:rec_id>/<str:pop>/', views.RciCreate.as_view(), name="create_rci"),
 

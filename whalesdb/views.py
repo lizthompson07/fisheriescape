@@ -46,16 +46,6 @@ def rst_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
-def ret_delete(request, pk):
-    ret = models.RetRecordingEventType.objects.get(pk=pk)
-    if utils.whales_authorized(request.user):
-        ret.delete()
-        messages.success(request, _("The recording Event Type has been successfully deleted."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
-
-
 class IndexView(CommonTemplateView):
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
@@ -683,7 +673,6 @@ class RetList(mixins.RetMixin, CommonList):
     fields = ['ret_name', 'ret_desc']
 
     details_url = False
-    delete_url = "whalesdb:delete_ret"
 
 
 class RscList(mixins.RscMixin, CommonList):
