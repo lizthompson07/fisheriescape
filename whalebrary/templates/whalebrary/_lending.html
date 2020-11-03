@@ -35,8 +35,7 @@
             </td>
             {% endfor %}
             <td>
-                <a href="#"
-                   pop-href="{% url 'whalebrary:lending_return_item' obj.id %}">
+                <a href="{% url 'whalebrary:lending_return_item' obj.id %}" id="lendRtrnBtn">
                     <img src="{% static "/admin/img/icon-no.svg" %}" data-toggle="tooltip" title="Return">
                 </a>
             </td>
@@ -48,3 +47,11 @@
 <br>
 <br>
 <br>
+
+<script>
+    $("#lendRtrnBtn").click(function (e) {
+        e.preventDefault()
+        userInput = confirm("Are you certain you want to do this? I could be a GINORMOUS error!!! ;)")
+        if (userInput) popitup($(this).attr("href"))
+    })
+</script>

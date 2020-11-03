@@ -595,6 +595,24 @@ class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
         return {'item': self.kwargs.get('pk')}
 
 
+class TransactionLendCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Transaction
+    form_class = forms.TransactionForm2
+    template_name = 'shared_models/generic_popout_form.html'
+    home_url_name = "whalebrary:index"
+    submit_text = "Borrow"
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk'),
+                'category': TransactionCategory.objects.get(id=3)
+                }
+
+
 class TransactionDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     model = models.Transaction
     permission_required = "__all__"
@@ -706,7 +724,7 @@ class OrderListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'cost', "class": "", "width": ""},
         {"name": 'date_ordered', "class": "", "width": ""},
         {"name": 'date_received', "class": "", "width": ""},
-        {"name": 'transaction', "class": "", "width": ""},
+        {"name": 'trans_id|Transaction id', "class": "", "width": ""},
 
     ]
 
@@ -723,7 +741,7 @@ class OrderDetailView(WhalebraryAccessRequired, CommonDetailView):
         'cost',
         'date_ordered',
         'date_received',
-        'transaction',
+        'trans_id|Transaction id',
 
     ]
     home_url_name = "whalebrary:index"
@@ -1196,6 +1214,7 @@ class IncidentListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'species', "class": "", "width": ""},
         {"name": 'incident_type', "class": "", "width": ""},
         {"name": 'exam', "class": "", "width": ""},
+        {"name": 'date_email_sent', "class": "", "width": ""},
     ]
 
     def get_new_object_url(self):
@@ -1226,6 +1245,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         'photos',
         'data_folder',
         'comments',
+        'date_email_sent',
 
     ]
     home_url_name = "whalebrary:index"
@@ -1244,8 +1264,9 @@ def send_incident_email(request, pk):
         recipient_list=email.to_list
     )
     messages.success(request, "The new incident has been logged and a confirmation email has been sent!")
-    # incident.date_email_sent = timezone.now()
-    # incident.save()
+    # log when the email was sent
+    incident.date_email_sent = timezone.now()
+    incident.save()
     # go to previous page
     return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 

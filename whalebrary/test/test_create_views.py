@@ -218,3 +218,4 @@ class TestIncidentCreateView(CommonTest):
     def test_submit(self):
         data = FactoryFloor.IncidentFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
+

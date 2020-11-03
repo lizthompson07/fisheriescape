@@ -43,6 +43,7 @@ urlpatterns = [
     path('transaction/<int:pk>/delete/pop/<int:pop>/', views.TransactionDeletePopoutView.as_view(), name="transaction_delete"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="transaction_delete"),
     path('transaction/return/item/<int:item_return>/', views.lending_return_item, name="lending_return_item"),
+    path('transaction/lend/item/<int:pk>/', views.TransactionLendCreateView.as_view(), name="transaction_lend"),
 
     # BULK TRANSACTIONS #
 

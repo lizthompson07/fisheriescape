@@ -11,10 +11,11 @@
     <div class="btn-group">
         <h3>
         <span class="badge badge-warning">
-            <a class="" href="#" pop-href="{% url 'whalebrary:order_new' object.id %}">{% trans "Create New Order" %}</a>
+            <a class="" href="#"
+               pop-href="{% url 'whalebrary:order_new' object.id %}">{% trans "Create New Order" %}</a>
        </span>
-       </h3>
-       </div>
+        </h3>
+    </div>
 </div>
 
 {% if object.active_orders.count == 0 %}
@@ -26,10 +27,10 @@
     <table class="table table-hover table-sm" style="width: auto">
         <tr>
             {% for field in ord_field_list %}
-            <th>
+                <th>
 
-            {% get_verbose_label random_ord field %}
-            </th>
+                    {% get_verbose_label random_ord field %}
+                </th>
             {% endfor %}
             <th>
                 {% trans "Received?" %}
@@ -38,34 +39,26 @@
         <tbody>
         {% for obj in object.active_orders %}
             <tr>
-            {% for field in ord_field_list %}
-                {% if field == "id" %}
-                    <td>
-                        <a href="{% url 'whalebrary:order_detail' obj.id %}">{{obj.id}}</a>
-                    </td>
-                {% elif field == "cost" %}
-                    <td>
-                        {% get_field_value obj field format="currency" nullmark="n/a"%}
-                    </td>
-                {% else %}
-                    <td>
-                    {% get_field_value obj field %}
-                    </td>
-                {% endif %}
-            {% endfor %}
+                {% for field in ord_field_list %}
+                    {% if field == "id" %}
+                        <td>
+                            <a href="{% url 'whalebrary:order_detail' obj.id %}">{{ obj.id }}</a>
+                        </td>
+                    {% elif field == "cost" %}
+                        <td>
+                            {% get_field_value obj field format="currency" nullmark="n/a" %}
+                        </td>
+                    {% else %}
+                        <td>
+                            {% get_field_value obj field %}
+                        </td>
+                    {% endif %}
+                {% endfor %}
                 <td align="center">
-                    <a href="#"
-                       pop-href="{% url 'whalebrary:mark_order_received' obj.id %}">
-                        <img src="{% static "/admin/img/icon-addlink.svg" %}" data-toggle="tooltip" title="Mark received">
+                    <a href="{% url 'whalebrary:mark_order_received' obj.id %}" id="orderRcvdBtn">
+                        <img src="{% static "/admin/img/icon-addlink.svg" %}" data-toggle="tooltip"
+                             title="Mark received">
                     </a>
-                </td>
-                <td>
-                <form class="col-sm-10" method='POST' action="{% url 'whalebrary:mark_order_received' obj.id %}">
-                {% csrf_token %}
-                    <button type="submit" onclick="return confirm('Are you sure you want to receive this order?');">
-                        <img src="{% static "/admin/img/icon-addlink.svg" %}" data-toggle="tooltip" title="Mark received">
-                    </button>
-                </form>
                 </td>
             </tr>
         {% endfor %}
@@ -76,3 +69,11 @@
 <br>
 <br>
 <br>
+
+<script>
+    $("#orderRcvdBtn").click(function (e) {
+        e.preventDefault()
+        userInput = confirm("Are you certain you want to do this? I could be a GINORMOUS error!!! ;)")
+        if (userInput) popitup($(this).attr("href"))
+    })
+</script>

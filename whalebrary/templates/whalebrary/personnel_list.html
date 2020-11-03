@@ -6,7 +6,7 @@
 
     {% block table_td %}
         {% if field.name == "exp_level" %}
-            <span style="background-color:red">{% get_field_value object field.name %}</span>
+            <span style="background-color:#9aaff6">{% get_field_value object field.name %}</span>
         {% else %}
             {% get_field_value object field.name %}
         {% endif %}

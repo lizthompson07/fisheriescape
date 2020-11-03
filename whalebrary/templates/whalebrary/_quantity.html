@@ -52,6 +52,10 @@
   {% trans "(Add Inventory)" %}
 </a>
 <br>
+<a class="" href="#" style="color:red" pop-href="{% url 'whalebrary:transaction_lend' object.id %}">
+  {% trans "(Borrow Item)" %}
+</a>
+<br>
 <br>
 <br>
 

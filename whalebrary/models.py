@@ -407,6 +407,7 @@ class Incident(models.Model):
     photos = models.BooleanField(blank=True, null=True, choices=BOOL_CHOICES, verbose_name=_("photos?"))
     data_folder = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("data folder"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
+    date_email_sent = models.DateTimeField(blank=True, null=True, verbose_name="date incident emailed")
 
     def __str__(self):
         return "{}".format(self.name)
@@ -520,7 +521,7 @@ class Order(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="orders", verbose_name=_("item"))
     quantity = models.IntegerField(null=True, blank=True, verbose_name=_("quantity"))
     cost = models.FloatField(blank=True, null=True, verbose_name=_("order cost"))
-    date_ordered = models.DateTimeField(default=datetime.now(), verbose_name=_("order date"))
+    date_ordered = models.DateTimeField(default=timezone.now, verbose_name=_("order date"))
     date_received = models.DateTimeField(blank=True, null=True, verbose_name=_("received date"))
     transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING,
                                        related_name="orders",
@@ -534,3 +535,12 @@ class Order(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             return "{}".format(self.id)
+
+    @property
+    def trans_id(self):
+        if self.transaction:
+            my_str = "# {}".format(self.transaction_id)
+            return my_str
+        else:
+            no_str = "---"
+            return no_str

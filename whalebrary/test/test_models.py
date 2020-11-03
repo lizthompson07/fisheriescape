@@ -1,11 +1,16 @@
-from django.test import tag, TestCase
 from django.urls import reverse_lazy
-from django.utils.translation import activate
+from django.test import tag
 
-from inventory.test import FactoryFloor
-from inventory.test.common_tests import CommonInventoryTest
+import shared_models
+from whalebrary import models
+from whalebrary.test import FactoryFloor
+from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
+from faker import Faker
 
-#
+faker = Faker()
+
+
+
 # class TestTravelModels(CommonTravelTest):
 #
 #     @tag('models', 'trip')
