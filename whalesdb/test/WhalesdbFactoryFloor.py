@@ -252,8 +252,7 @@ class EqrFactory(factory.django.DjangoModelFactory):
         model = models.EqrRecorderProperties
 
     emm = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.EmmFactory",
-                             eqt=factory.lazy_attribute(lambda o: models.EqtEquipmentTypeCode.objects.get(
-                                 pk=faker.random_int(1, 3))))
+                             eqt=factory.lazy_attribute(lambda o: models.EqtEquipmentTypeCode.objects.get(pk=faker.random_int(1, 3))))
     ert = factory.lazy_attribute(lambda o: models.ErtRecorderType.objects.get(pk=faker.random_int(1, 4)))
     eqr_internal_hydro = factory.lazy_attribute(lambda o: faker.boolean())
 
@@ -532,16 +531,19 @@ class SteFactory(factory.django.DjangoModelFactory):
 
     crs = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.CruiseFactory")
     ste_date = factory.lazy_attribute(lambda o: faker.date())
+    rtt_id = factory.SubFactory("whalesdb.test.WhalesdbFactoryFloor.RttFactory")
 
     @staticmethod
     def get_valid_data():
         dep = DepFactory()
         crs = CruiseFactory()
         ste = SteFactory.build()
+        rtt = RttFactory()
 
         valid_data = {
             "dep": dep.pk,
             "set_type": ste.set_type.pk,
+            'rtt_id': rtt.pk,
             "crs": crs.pk,
             "ste_date": ste.ste_date
         }

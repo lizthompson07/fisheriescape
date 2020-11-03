@@ -2,23 +2,28 @@
 {% load i18n %}
 {% block subcontent %}
 
-    <div class="container mt-5">
+  <div class="container mt-5">
 
-        <ul>
-            <li>
-                <a href="{% url 'shared_models:region_list' %}">{% trans "Region - Sector (NCR)" %}</a>
-            </li>
-            <li>
-                <a href="{% url 'shared_models:branch_list' %}">{% trans "Branch - Directorate (NCR)" %}</a>
-            </li>
-            <li>
-                <a href="{% url 'shared_models:division_list' %}">{% trans "Division - Branch (NCR)" %}</a>
-            </li>
-            <li>
-                <a href="{% url 'shared_models:section_list' %}">{% trans "Section - Team (NCR)" %}</a>
-            </li>
-        </ul>
-
-    </div>
+    <ul>
+      <li>
+        <a href="{% url 'shared_models:region_list' %}">{% trans "Region - Sector (NCR)" %}</a>
+      </li>
+      <li>
+        <a href="{% url 'shared_models:branch_list' %}">{% trans "Branch - Directorate (NCR)" %}</a>
+      </li>
+      <li>
+        <a href="{% url 'shared_models:division_list' %}">{% trans "Division - Branch (NCR)" %}</a>
+      </li>
+      <li>
+        <a href="{% url 'shared_models:section_list' %}">{% trans "Section - Team (NCR)" %}</a>
+      </li>
+    </ul>
+    <br>
+    <ul>
+      <li>
+        <a href='#' pop-href="{% url 'shared_models:user_new' %}">{% trans "Add a new DM Apps User" %}</a>
+      </li>
+    </ul>
+  </div>
 
 {% endblock %}

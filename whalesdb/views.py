@@ -46,16 +46,6 @@ def rst_delete(request, pk):
         return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
 
 
-def ret_delete(request, pk):
-    ret = models.RetRecordingEventType.objects.get(pk=pk)
-    if utils.whales_authorized(request.user):
-        ret.delete()
-        messages.success(request, _("The recording Event Type has been successfully deleted."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    else:
-        return HttpResponseRedirect(reverse_lazy('accounts:denied_access'))
-
-
 class IndexView(CommonTemplateView):
     nav_menu = 'whalesdb/whale_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
@@ -408,6 +398,12 @@ class RetUpdate(mixins.RetMixin, CommonUpdate):
         return reverse_lazy("whalesdb:list_ret")
 
 
+class RscUpdate(mixins.RscMixin, CommonUpdate):
+
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_rsc")
+
+
 class StnUpdate(mixins.StnMixin, CommonUpdate):
 
     def get_success_url(self):
@@ -415,15 +411,12 @@ class StnUpdate(mixins.StnMixin, CommonUpdate):
 
 
 class SteUpdate(mixins.SteMixin, CommonUpdate):
+    pass
 
-    def get_initial(self):
-        init = super().get_initial()
-        if 'dep_id' in self.kwargs and models.DepDeployment.objects.filter(pk=self.kwargs['dep_id']):
-            init['dep'] = models.DepDeployment.objects.get(pk=self.kwargs['dep_id'])
 
-        if 'set_id' in self.kwargs and models.SetStationEventCode.objects.filter(pk=self.kwargs['set_id']):
-            init['set_type'] = models.SetStationEventCode.objects.get(pk=self.kwargs['set_id'])
-        return init
+class TeaUpdate(mixins.TeaMixin, CommonUpdate):
+    def get_success_url(self):
+        return reverse_lazy("whalesdb:list_tea")
 
 
 class CommonDetails(DetailView):
@@ -680,13 +673,11 @@ class RetList(mixins.RetMixin, CommonList):
     fields = ['ret_name', 'ret_desc']
 
     details_url = False
-    delete_url = "whalesdb:delete_ret"
 
 
 class RscList(mixins.RscMixin, CommonList):
     filterset_class = filters.RscFilter
     fields = ['rsc_name', 'rsc_period']
-    editable = False
 
 
 class RttList(mixins.RttMixin, CommonList):
@@ -708,7 +699,6 @@ class TeaList(mixins.TeaMixin, CommonList):
     fields = ["tea_abb", "tea_last_name", "tea_first_name"]
 
     details_url = False
-    update_url = False
 
 
 class CruList(mixins.CruMixin, CommonList):
