@@ -1,4 +1,6 @@
-pool: dmapps
+pool:
+  vmImage: 'Ubuntu 18.04'
+#pool: dmapps
 
 trigger:
   - none
