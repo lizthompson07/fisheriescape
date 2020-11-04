@@ -47,10 +47,10 @@ class TestConsultationLogReport(CommonTest):
         activate('en')
 
         self.test_urls = [
-            reverse_lazy('ihub:consultation_log_pdf') + "?fy=None&sectors=None&orgs=None&statuses=None&entry_types=None&report_title=Test&from_date=None&to_date=None",
-            reverse_lazy('ihub:consultation_log_xlsx') + "?fy=None&sectors=None&orgs=None&statuses=None&entry_types=None&report_title=Test&from_date=None&to_date=None",
-            reverse_lazy('ihub:summary_xlsx') + "?fy=None&sectors=None&orgs=None&from_date=None&to_date=None",
-            reverse_lazy('ihub:summary_pdf') + "?fy=None&sectors=None&orgs=None&from_date=None&to_date=None",
+            reverse_lazy('ihub:consultation_log_pdf') + "?fy=None&sectors=None&orgs=None&statuses=None&entry_types=None&report_title=Test&from_date=None&to_date=None&entry_note_types=None&entry_note_statuses=None",
+            reverse_lazy('ihub:consultation_log_xlsx') + "?fy=None&sectors=None&orgs=None&statuses=None&entry_types=None&report_title=Test&from_date=None&to_date=None&entry_note_types=None&entry_note_statuses=None",
+            reverse_lazy('ihub:summary_xlsx') + "?fy=None&sectors=None&orgs=None&from_date=None&to_date=None&entry_note_types=None&entry_note_statuses=None",
+            reverse_lazy('ihub:summary_pdf') + "?fy=None&sectors=None&orgs=None&from_date=None&to_date=None&entry_note_types=None&entry_note_statuses=None",
             reverse_lazy('ihub:capacity_xlsx') + "?fy=None&sectors=None&orgs=None&from_date=None&to_date=None",
             reverse_lazy('ihub:report_q', args=[org.id]),
             reverse_lazy('ihub:consultation_instructions_pdf'),

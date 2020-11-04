@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.9-slim
 
 RUN mkdir -p /opt/services/djangoapp/src
 WORKDIR /opt/services/djangoapp/src
@@ -17,6 +17,7 @@ RUN apt-get update \
 COPY ./sshd_config /etc/ssh/
 
 # install dependencies
+RUN apt-get install -y python3-dev default-libmysqlclient-dev build-essential libgeos-dev git
 RUN python -m pip install --upgrade pip setuptools wheel
 
 COPY ./requirements.txt .
@@ -33,6 +34,8 @@ RUN mkdir media \
     && mkdir media/projects/temp \
     && mkdir media/ihub \
     && mkdir media/ihub/temp
+#    && mkdir logs \
+#    && touch error.log
 
 COPY . /opt/services/djangoapp/src
 
