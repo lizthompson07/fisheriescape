@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.9-slim
 
 RUN mkdir -p /opt/services/djangoapp/src
 WORKDIR /opt/services/djangoapp/src
@@ -17,6 +17,7 @@ RUN apt-get update \
 COPY ./sshd_config /etc/ssh/
 
 # install dependencies
+RUN apt-get install python3-dev default-libmysqlclient-dev build-essential
 RUN python -m pip install --upgrade pip setuptools wheel
 
 COPY ./requirements.txt .
