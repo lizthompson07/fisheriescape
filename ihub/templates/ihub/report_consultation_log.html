@@ -69,7 +69,10 @@ th {
   {% for entry in entry_list %}
     <tr>
       <td style="width: 12%">
-        TITLE: {{ entry.title }}
+        TITLE:
+        <a href="{% url 'ihub:entry_detail' entry.id %}">
+          {{ entry.title }}
+        </a>
         <br><br>
         TYPE: {{ entry.entry_type }}
         <br><br>
@@ -89,11 +92,16 @@ th {
         {% endfor %}
       </td>
       <td style="width: 40%">
-        Overall status: {{ entry.status }}
+        <b><u>Overall status:</u></b> {{ entry.status }}
         <br><br>
+
         {% for note in entry.other_notes %}
-          {{ note }}
-          <br><br>
+          {% if not entry_note_types or note.type in entry_note_types %}
+            {% if not entry_note_statuses or note.status_id in entry_note_statuses %}
+              {{ note }}
+              <br><br>
+            {% endif %}
+          {% endif %}
         {% endfor %}
 
       </td>

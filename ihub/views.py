@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User, Group
-from django.db.models import TextField, Q, Value
+from django.db.models import TextField, Value
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.urls import reverse_lazy, reverse
@@ -646,6 +646,8 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
         format = str(form.cleaned_data["format"])
         from_date = nz(form.cleaned_data["from_date"], "None")
         to_date = nz(form.cleaned_data["to_date"], "None")
+        entry_note_types = listrify(form.cleaned_data["entry_note_types"])
+        entry_note_statuses = listrify(form.cleaned_data["entry_note_statuses"])
 
         if report == 1:  # capacity report
             qry = f'?sectors={nz(sectors, "None")}&' \
@@ -661,7 +663,9 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
             qry = f'?sectors={nz(sectors, "None")}&' \
                   f'from_date={nz(from_date, "None")}&' \
                   f'to_date={nz(to_date, "None")}&' \
-                  f'orgs={nz(orgs, "None")}'
+                  f'orgs={nz(orgs, "None")}&' \
+                  f'entry_note_types={nz(entry_note_types, "None")}&' \
+                  f'entry_note_statuses={nz(entry_note_statuses, "None")}'
             if format == 'pdf':
                 return HttpResponseRedirect(reverse("ihub:summary_pdf") + qry)
             else:
@@ -674,7 +678,9 @@ class ReportSearchFormView(SiteLoginRequiredMixin, FormView):
                   f'orgs={nz(orgs, "None")}&' \
                   f'statuses={nz(statuses, "None")}&' \
                   f'entry_types={nz(entry_types, "None")}&' \
-                  f'report_title={nz(report_title, "None")}'
+                  f'report_title={nz(report_title, "None")}&' \
+                  f'entry_note_types={nz(entry_note_types, "None")}&' \
+                  f'entry_note_statuses={nz(entry_note_statuses, "None")}'
 
             if format == 'pdf':
                 return HttpResponseRedirect(reverse("ihub:consultation_log_pdf") + qry)
@@ -716,8 +722,10 @@ def summary_export_spreadsheet(request):
     orgs = request.GET["orgs"]
     from_date = request.GET["from_date"]
     to_date = request.GET["to_date"]
+    entry_note_types = request.GET["entry_note_types"]
+    entry_note_statuses = request.GET["entry_note_statuses"]
 
-    file_url = reports.generate_summary_spreadsheet(orgs, sectors, from_date, to_date)
+    file_url = reports.generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_types, entry_note_statuses)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -736,8 +744,11 @@ def consultation_log_export_spreadsheet(request):
     report_title = request.GET["report_title"]
     from_date = request.GET["from_date"]
     to_date = request.GET["to_date"]
+    entry_note_types = request.GET["entry_note_types"]
+    entry_note_statuses = request.GET["entry_note_statuses"]
 
-    file_url = reports.generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, report_title, from_date, to_date)
+    file_url = reports.generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, report_title, from_date, to_date,
+                                                             entry_note_types, entry_note_statuses)
 
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
@@ -842,6 +853,8 @@ class PDFSummaryReport(PDFTemplateView):
         orgs = self.request.GET["orgs"]
         from_date = self.request.GET["from_date"]
         to_date = self.request.GET["to_date"]
+        entry_note_types = self.request.GET["entry_note_types"]
+        entry_note_statuses = self.request.GET["entry_note_statuses"]
 
         if sectors == "None":
             sectors = None
@@ -851,6 +864,15 @@ class PDFSummaryReport(PDFTemplateView):
             from_date = None
         if to_date == "None":
             to_date = None
+        if entry_note_types == "None":
+            entry_note_types = None
+        else:
+            entry_note_types = [int(i) for i in entry_note_types.split(",")] if entry_note_types else None
+
+        if entry_note_statuses == "None":
+            entry_note_statuses = None
+        else:
+            entry_note_statuses = [int(i) for i in entry_note_statuses.split(",")] if entry_note_statuses else None
 
         # get an entry list for the fiscal year (if any)
         entry_list = models.Entry.objects.all()
@@ -919,6 +941,8 @@ class PDFSummaryReport(PDFTemplateView):
             'amount_lapsed',
             'amount_owing'
         ]
+        context["entry_note_types"] = entry_note_types
+        context["entry_note_statuses"] = entry_note_statuses
 
         return context
 
@@ -942,6 +966,8 @@ class ConsultationLogPDFTemplateView(TemplateView):
         report_title = self.request.GET["report_title"]
         from_date = self.request.GET["from_date"]
         to_date = self.request.GET["to_date"]
+        entry_note_types = self.request.GET["entry_note_types"]
+        entry_note_statuses = self.request.GET["entry_note_statuses"]
 
         if sectors == "None":
             sectors = None
@@ -955,7 +981,15 @@ class ConsultationLogPDFTemplateView(TemplateView):
             from_date = None
         if to_date == "None":
             to_date = None
+        if entry_note_types == "None":
+            entry_note_types = None
+        else:
+            entry_note_types = [int(i) for i in entry_note_types.split(",")] if entry_note_types else None
 
+        if entry_note_statuses == "None":
+            entry_note_statuses = None
+        else:
+            entry_note_statuses = [int(i) for i in entry_note_statuses.split(",")] if entry_note_statuses else None
 
         # get an entry list for the fiscal year (if any)
         entry_list = models.Entry.objects.all().order_by("status", "-initial_date")
@@ -992,6 +1026,8 @@ class ConsultationLogPDFTemplateView(TemplateView):
             entry_list = entry_list.filter(id__in=id_list)
 
         context["entry_list"] = entry_list
+        context["entry_note_types"] = entry_note_types
+        context["entry_note_statuses"] = entry_note_statuses
         context["report_title"] = report_title
 
         return context
