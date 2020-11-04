@@ -17,7 +17,7 @@ RUN apt-get update \
 COPY ./sshd_config /etc/ssh/
 
 # install dependencies
-RUN apt-get install python3-dev default-libmysqlclient-dev build-essential
+RUN apt-get install -y python3-dev default-libmysqlclient-dev build-essential
 RUN python -m pip install --upgrade pip setuptools wheel
 
 COPY ./requirements.txt .
