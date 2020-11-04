@@ -5,7 +5,6 @@ from django.contrib.auth import views as auth_views
 app_name = 'projects'
 
 urlpatterns = [
-    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # PROJECTS #
@@ -25,12 +24,9 @@ urlpatterns = [
     # path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
     path('recommendation/project/<int:pk>/', views.ProjectRecommendationUpdateView.as_view(), name="project_recommend"),
 
-    # From management views
+    # management views
     ################
-    # the following 3 should be deleted once fully phased out
-    path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
-    #
-    path('section/<int:section>/', views.SectionListView.as_view(), name="section_project_list"),
+    path('section/<int:section>/', views.SectionProjectListView.as_view(), name="section_project_list"),
     path('project/<int:pk>/overview/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
     path('project/<int:pk>/overview/popout/<int:pop>/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
 

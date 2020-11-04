@@ -1,12 +1,11 @@
 import json
 import os
-from collections import OrderedDict
 from copy import deepcopy
 
 import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q, Count, Value, TextField
 from django.db.models.functions import Concat
@@ -15,7 +14,7 @@ from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
@@ -31,8 +30,9 @@ from . import forms
 from . import models
 from . import reports
 from . import stat_holidays
-
-
+from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
+from .utils import multiple_projects_financial_summary, financial_summary_data, can_modify_project, get_help_text_dict, \
+    get_division_choices, get_section_choices, in_projects_admin_group, is_section_head, get_omcatagory_choices, pdf_financial_summary_data
 
 project_field_list = [
     'id',
@@ -54,7 +54,6 @@ project_field_list = [
     'description',
     'priorities',
     'deliverables',
-
 
     'has_new_data',
     'data_collection',
@@ -86,8 +85,6 @@ gulf_field_list.remove("is_approved")
 gulf_field_list.remove("metadata_url")
 gulf_field_list.remove("regional_dm_needs")
 gulf_field_list.remove("abl_services_required")
-
-
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -155,10 +152,12 @@ class MyProjectListView(LoginRequiredMixin, CommonFilterView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        object_list = context.get("object_list")
+        # Based on the default sorting order, we get the fiscal year from the first project instance
+        object_list = context.get("object_list")  # grab the projects returned by the filter
         fy = object_list.first().year if object_list.count() > 0 else None
 
         staff_instances = self.request.user.staff_instances.filter(project__year=fy)
+
         context['fte_approved_projects'] = staff_instances.filter(
             project__recommended_for_funding=True, project__submitted=True
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
@@ -166,9 +165,11 @@ class MyProjectListView(LoginRequiredMixin, CommonFilterView):
         context['fte_unapproved_projects'] = staff_instances.filter(
             project__recommended_for_funding=False, project__submitted=True
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+
         context['fte_unsubmitted_projects'] = staff_instances.filter(
             project__submitted=False
         ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+
         context['fy'] = fy
 
         context["project_list"] = models.Project.objects.filter(
@@ -191,24 +192,19 @@ class MyProjectListView(LoginRequiredMixin, CommonFilterView):
         return context
 
 
-class SectionListView(LoginRequiredMixin, CommonFilterView):
+class SectionProjectListView(LoginRequiredMixin, CommonFilterView):
     template_name = 'projects/section_project_list.html'
     filterset_class = filters.SectionFilter
     home_url_name = "projects:index"
     container_class = "container-fluid"
 
     def get_h1(self):
-        my_qry = self.get_queryset()
-        if my_qry.exists():
-            return my_qry.first().section
-        else:
-            return shared_models.Section.objects.get(pk=self.kwargs.get("section"))
+        return str(shared_models.Section.objects.get(pk=self.kwargs.get("section")))
 
     def get_queryset(self):
-        return models.Project.objects.filter(section_id=self.kwargs.get("section")).order_by('-year',
-                                                                                             'section__division',
-                                                                                             'section',
-                                                                                             'project_title')
+        return models.Project.objects.filter(
+            section_id=self.kwargs.get("section")).order_by(
+            '-year', 'section__division', 'section', 'project_title')
 
     def get_filterset_kwargs(self, filterset_class):
         kwargs = super().get_filterset_kwargs(filterset_class)
@@ -243,17 +239,6 @@ class SectionListView(LoginRequiredMixin, CommonFilterView):
         context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
         context['unrecommended_projects'] = object_list.filter(recommended_for_funding=False, submitted=True)
         context['unsubmitted_projects'] = object_list.filter(submitted=False)
-
-        # CAN PROBABLY DELETE THIS
-        # in FY 2021, MAR Region is looking at only submitted projects (don't care about approved status for now)
-        # This should be delete once the process in both regions is the same
-        # context['really_recommended_projects'] = really_recommended_projects
-
-        # if object_list.first().section.division.branch.region.id == 1:
-        #     approved_projects = object_list.filter(approved=True, submitted=True)
-        # else:
-        #     approved_projects = object_list.filter(submitted=True)
-        # approved_projects = object_list.filter(submitted=True)
 
         recommended_projects = object_list.filter(recommended_for_funding=True, submitted=True)
         context['recommended_projects'] = recommended_projects
@@ -326,35 +311,10 @@ class SectionListView(LoginRequiredMixin, CommonFilterView):
         return context
 
 
-#
-#
-#
-#
-# CAN THIS VIEW BE DELETED?????
-#
-#
-#
-class MySectionListView(LoginRequiredMixin, FilterView):
-    template_name = 'projects/my_section_list.html'
-    filterset_class = filters.MySectionFilter
-
-    def get_queryset(self):
-        return models.Project.objects.filter(section__head=self.request.user).order_by('-year', 'section__division',
-                                                                                       'section',
-                                                                                       'project_title')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['fy_form'] = forms.FYForm(user=self.request.user.id)
-
-        context['type'] = _("section")
-        context['next_fiscal_year'] = shared_models.FiscalYear.objects.get(pk=fiscal_year(next=True, sap_style=True))
-        context['has_section'] = models.Project.objects.filter(section__head=self.request.user).count() > 0
-        return context
-
-
 class ProjectListView(LoginRequiredMixin, CommonFilterView):
     template_name = 'projects/project_list.html'
+
+    # get all submitted and unhidden projects
     queryset = models.Project.objects.filter(
         is_hidden=False, submitted=True,
     ).order_by('-year', 'section__division', 'section', 'project_title')
@@ -362,22 +322,17 @@ class ProjectListView(LoginRequiredMixin, CommonFilterView):
     home_url_name = "projects:index"
     container_class = "container-fluid"
     h1 = gettext_lazy("Projects")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["field_list"] = [
-            "id",
-            "year",
-            "region",
-            "division",
-            "section",
-            "project_title",
-            "default_funding_source",
-            "project_leads|{}".format("Project Leads"),
-            "tags",
-        ]
-        return context
+    field_list = [
+            {"name": 'id', "class": "", "width": ""},
+            {"name": 'year', "class": "", "width": ""},
+            {"name": 'region', "class": "", "width": ""},
+            {"name": 'division', "class": "", "width": ""},
+            {"name": 'section', "class": "", "width": ""},
+            {"name": 'project_title', "class": "", "width": ""},
+            {"name": 'default_funding_source', "class": "", "width": ""},
+            {"name": 'project_leads|{}'.format(gettext_lazy("Project Leads")), "class": "", "width": ""},
+            {"name": 'tags', "class": "", "width": ""},
+    ]
 
 
 class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
