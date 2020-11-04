@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.8-slim
 
 RUN mkdir -p /opt/services/djangoapp/src
 WORKDIR /opt/services/djangoapp/src
@@ -32,7 +32,9 @@ RUN mkdir media \
     && mkdir media/projects \
     && mkdir media/projects/temp \
     && mkdir media/ihub \
-    && mkdir media/ihub/temp
+    && mkdir media/ihub/temp \
+    && mkdir logs \
+    && touch error.log
 
 COPY . /opt/services/djangoapp/src
 
