@@ -616,7 +616,11 @@ class SectionListView(LoginRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
 
     def get_h1(self):
-        return self.get_queryset().first().section
+        my_qry = self.get_queryset()
+        if my_qry.exists():
+            return my_qry.first().section
+        else:
+            return shared_models.Section.objects.get(pk=self.kwargs.get("section"))
 
     def get_queryset(self):
         return models.Project.objects.filter(section_id=self.kwargs.get("section")).order_by('-year',
@@ -974,7 +978,7 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
             # Send out an email only when a project is submitted
             if my_object.submitted:
                 # create a new email object
-                email = emails.ProjectSubmissionEmail(self.object)
+                email = emails.ProjectSubmissionEmail(self.object, self.request)
                 # send the email object
                 custom_send_mail(
                     subject=email.subject,
@@ -2005,9 +2009,9 @@ class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterVie
 class ProjectApprovalsSearchView(AdminRequiredMixin, CommonFormView):
     template_name = 'projects/form.html'
     form_class = forms.ApprovalQueryBuildForm
-    h1 = _("Find Projects to Approve")
+    h1 = gettext_lazy("Find Projects to Approve")
     home_url_name = "projects:index"
-    cancel_text = _("Back")
+    cancel_text = gettext_lazy("Back")
 
     def form_valid(self, form):
         region = int(form.cleaned_data.get("region"))

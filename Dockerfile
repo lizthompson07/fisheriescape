@@ -34,8 +34,8 @@ RUN mkdir media \
     && mkdir media/projects/temp \
     && mkdir media/ihub \
     && mkdir media/ihub/temp \
-    && mkdir logs \
-    && touch error.log
+#    && mkdir logs \
+#    && touch error.log
 
 COPY . /opt/services/djangoapp/src
 
