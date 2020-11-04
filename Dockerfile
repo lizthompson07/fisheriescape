@@ -17,7 +17,7 @@ RUN apt-get update \
 COPY ./sshd_config /etc/ssh/
 
 # install dependencies
-RUN apt-get install -y python3-dev default-libmysqlclient-dev build-essential libgeos-dev geos-devel
+RUN apt-get install -y python3-dev default-libmysqlclient-dev build-essential libgeos-dev
 RUN python -m pip install --upgrade pip setuptools wheel
 
 COPY ./requirements.txt .
