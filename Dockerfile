@@ -33,7 +33,7 @@ RUN mkdir media \
     && mkdir media/projects \
     && mkdir media/projects/temp \
     && mkdir media/ihub \
-    && mkdir media/ihub/temp \
+    && mkdir media/ihub/temp
 #    && mkdir logs \
 #    && touch error.log
 
