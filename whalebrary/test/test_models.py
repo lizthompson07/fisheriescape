@@ -11,6 +11,7 @@ faker = Faker()
 
 
 
+
 # class TestTravelModels(CommonTravelTest):
 #
 #     @tag('models', 'trip')

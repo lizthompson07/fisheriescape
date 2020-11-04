@@ -468,13 +468,14 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
     ##TRANSACTION##
 
 
-def lending_return_item(request, item_return):
+def lending_return_item(request, transaction):
     """simple function to change item status from lend to return"""
-    my_return = models.Transaction.objects.get(pk=item_return)
+    my_return = models.Transaction.objects.get(pk=transaction)
     my_return.category_id = 4
     my_return.save()
     messages.success(request, "Items returned")
     return HttpResponseRedirect(reverse_lazy('shared_models:close_me')) # TODO Ideally want to have a confirm step using 'confirm_status_change.html'
+
 
 # TODO create the location lend out function
 def lend_out_item_at_location():
@@ -567,6 +568,8 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
         messages.success(self.request, _(f"Transaction record successfully updated for : {my_object}"))
         return HttpResponseRedirect(reverse("whalebrary:transaction_detail", kwargs=self.kwargs))
 
+    def get_initial(self):
+        return {'created_by': self.request.user}
 
 # TODO change this to a lending by location popout view/form
 # class TransactionUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
@@ -592,7 +595,8 @@ class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
             reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy('whalebrary:transaction_list'))
 
     def get_initial(self):
-        return {'item': self.kwargs.get('pk')}
+        return {'item': self.kwargs.get('pk'),
+                'created_by': self.request.user}
 
 
 class TransactionLendCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
@@ -609,7 +613,8 @@ class TransactionLendCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
 
     def get_initial(self):
         return {'item': self.kwargs.get('pk'),
-                'category': TransactionCategory.objects.get(id=3)
+                'category': TransactionCategory.objects.get(id=3),
+                'created_by': self.request.user
                 }
 
 
@@ -815,7 +820,7 @@ def mark_order_received(request, order):
     my_order.transaction = my_transaction
     my_order.save()
 
-    return HttpResponseRedirect(reverse('whalebrary:transaction_edit', kwargs={'pk': my_transaction.id, 'user': my_user.id, 'pop': my_order.id}))
+    return HttpResponseRedirect(reverse('whalebrary:transaction_edit', kwargs={'pk': my_transaction.id, 'pop': my_order.id}))
 
 
 class OrderReceivedTransactionUpdateView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
@@ -1250,6 +1255,7 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     ]
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
+
 
 def send_incident_email(request, pk):
     """simple function to send email with detail_view information"""

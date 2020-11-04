@@ -25,6 +25,7 @@ class TransactionForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'tag': forms.SelectMultiple(attrs=chosen_js),
+            'created_by': forms.HiddenInput(),
 
         }
 
@@ -36,7 +37,7 @@ class TransactionForm1(forms.ModelForm):
         widgets = {
             'item': forms.HiddenInput(),
             'tag': forms.SelectMultiple(attrs=chosen_js),
-
+            'created_by': forms.HiddenInput(),
         }
 
 
@@ -48,6 +49,7 @@ class TransactionForm2(forms.ModelForm):
             'item': forms.HiddenInput(),
             'category': forms.HiddenInput(),
             'tag': forms.SelectMultiple(attrs=chosen_js),
+            'created_by': forms.HiddenInput(),
 
         }
 
@@ -61,6 +63,7 @@ class TransactionForm3(forms.ModelForm):
             'category': forms.HiddenInput(),
             'location': forms.HiddenInput(),
             'tag': forms.SelectMultiple(attrs=chosen_js),
+            'created_by': forms.HiddenInput(),
 
         }
 

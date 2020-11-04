@@ -128,7 +128,7 @@ class Item(models.Model):
         """find all category=3 (lent out) transactions"""
         return self.transactions.filter(category=3)
         # same as:
-        # return Transaction.objects.filter(item=self, statuses=3)
+        # return Transaction.objects.filter(item=self, category=3)
 
     def get_oh_quantity(self, location=None):
         """find total quantity for item regardless of location"""
