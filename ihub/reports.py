@@ -483,7 +483,7 @@ def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, 
     if statuses:
         # we have to refine the queryset to only the selected statuses
         status_list = [models.Status.objects.get(pk=int(o)) for o in statuses.split(",")]
-        entry_list = entry_list.filter(organizations__in=status_list)
+        entry_list = entry_list.filter(statuses__in=status_list)
 
     if entry_types:
         # we have to refine the queryset to only the selected orgs
