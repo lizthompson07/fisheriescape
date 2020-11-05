@@ -60,7 +60,7 @@ class Theme(SimpleLookup):
 
 
 class UpcomingDate(models.Model):
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, related_name="project_upcoming_dates",
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, related_name="project_upcoming_dates2",
                                verbose_name=_("region"))
     description_en = models.TextField(verbose_name=_("description (en)"))
     description_fr = models.TextField(blank=True, null=True, verbose_name=_("description (fr)"))
@@ -82,7 +82,7 @@ class UpcomingDate(models.Model):
 
 
 class FunctionalGroup(SimpleLookup):
-    sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups", blank=True)
+    sections = models.ManyToManyField(shared_models.Section, related_name="functional_groups2", blank=True)
     theme = models.ForeignKey(Theme, on_delete=models.DO_NOTHING, related_name="functional_groups", blank=True, null=True)
 
 
@@ -157,10 +157,10 @@ class Project(models.Model):
         (0, _("Regional")),
     )
 
-    year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
+    year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects2",
                              verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
     # basic
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects",
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects2",
                                 verbose_name=_("section"))
     project_title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
     activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
@@ -246,11 +246,12 @@ class Project(models.Model):
 
     # coding
     responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
-                                              null=True, related_name='projects_projects',
+                                              null=True, related_name='projects_projects2',
                                               verbose_name=_("responsibility center (if known)"))
     allotment_code = models.ForeignKey(shared_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                       related_name='projects_projects', verbose_name=_("allotment code (if known)"))
-    existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"))
+                                       related_name='projects_projects2', verbose_name=_("allotment code (if known)"))
+    existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"),
+                                                    related_name="projects")
 
     # admin
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
@@ -265,7 +266,8 @@ class Project(models.Model):
                                     verbose_name=_("Should the project be hidden from other users?"))
 
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"),
+                                         related_name="projects_last_modified_by")
 
     class Meta:
         ordering = ['id']
@@ -410,7 +412,7 @@ class Staff(models.Model):
     funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="staff_members",
                                        verbose_name=_("funding source"), default=1)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"),
-                             related_name="staff_instances")
+                             related_name="staff_instances2")
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True,
                             null=True)
     level = models.ForeignKey(Level, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("level"))
@@ -648,7 +650,8 @@ class StatusReport(models.Model):
     section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"))
 
     date_created = models.DateTimeField(default=timezone.now, verbose_name=_("date created"))
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"))
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("created by"),
+                                   related_name="status_report_created_by")
 
     def save(self, *args, **kwargs):
         return super().save(*args, **kwargs)
@@ -688,7 +691,7 @@ class MilestoneUpdate(models.Model):
 
 class Note(models.Model):
     # fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
-    section = models.ForeignKey(shared_models.Section, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
+    section = models.ForeignKey(shared_models.Section, related_name="notes2", on_delete=models.CASCADE, blank=True, null=True)
     funding_source = models.ForeignKey(FundingSource, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     functional_group = models.ForeignKey(FunctionalGroup, related_name="notes", on_delete=models.CASCADE, blank=True, null=True)
     summary = models.TextField(blank=True, null=True, verbose_name=_("executive summary"))
@@ -715,7 +718,7 @@ def ref_mat_directory_path(instance, filename):
 
 class ReferenceMaterial(SimpleLookup):
     file = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment"))
-    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, related_name="reference_materials",
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, related_name="reference_materials2",
                                verbose_name=_("region"), blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True, editable=False)

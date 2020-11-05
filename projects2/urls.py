@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 
-app_name = 'projects'
+app_name = 'projects2'
 
 urlpatterns = [
     path('', views.IndexTemplateView.as_view(), name="index"),
