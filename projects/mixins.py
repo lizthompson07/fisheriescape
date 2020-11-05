@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from .utils import can_modify_project, is_project_lead, in_projects_admin_group, is_management_or_admin
 

@@ -82,7 +82,7 @@ project_field_list = [
     'chemical_needs',
 
     'it_needs',
-    'additional_notes',
+    'notes|{}'.format("additional notes"),
     'coding|Known financial coding',
     'last_modified_by',
     'date_last_modified',

@@ -209,14 +209,12 @@ class Project(models.Model):
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_("Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
     ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
-    coip_reference_id = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("If this project links to a ship time request in COIP, "
-                                                                               "please include the COIP application number here."))
+    coip_reference_id = models.CharField(max_length=100, blank=True, null=True, verbose_name=_(
+        "If this project links to a ship time request in COIP, please include the COIP application number here."))
     instrumentation = models.TextField(blank=True, null=True,
-                                       verbose_name=_("What field instrumentation will be deployed during this project? "
-                                                      "(e.g., sensors and samplers, moorings and buoys, "
-                                                      "floats and drifters, camera systems, etc.)  "))
-    owner_of_instrumentation = models.TextField(blank=True, null=True, verbose_name=_("Who is the owner/curator of this instrumentation, "
-                                                                                      "if known?"))
+                                       verbose_name=_("What field instrumentation will be deployed during this project?"))
+    owner_of_instrumentation = models.TextField(blank=True, null=True, verbose_name=_(
+        "Who is the owner/curator of this instrumentation, if known?"))
     # -- > Field staff
     requires_field_staff = models.BooleanField(default=False, verbose_name=_("Does this project involved a field component?"))
     field_staff_needs = models.TextField(blank=True, null=True, verbose_name=_("If so, please include some additional detail, "
