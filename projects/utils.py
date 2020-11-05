@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.utils.translation import gettext as _
 
 from shared_models import models as shared_models

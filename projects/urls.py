@@ -37,11 +37,6 @@ urlpatterns = [
     path('staff/<int:pk>/delete/', views.staff_delete, name="staff_delete"),
     path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
 
-    #  this was used to walk over program to programs
-    path('project-formset/region/<int:region>/fy/<int:fy>/', views.temp_formset, name="formset"),
-    path('project-formset/region/<int:region>/fy/<int:fy>/section/<str:section_str>/', views.temp_formset, name="formset"),
-    path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
-
     # USER #
     ########
     path('user/new/', views.UserCreateView.as_view(), name="user_new"),
@@ -152,10 +147,6 @@ urlpatterns = [
     path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),
 
     path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
-    path('admin/project-program-list/', views.AdminProjectProgramListView.as_view(), name="admin_project_program_list"),
-    path('admin/project-program/<int:pk>/edit/<str:qry>/', views.AdminProjectProgramUpdateView.as_view(), name="admin_pp_edit"),
-    path('admin/project-program/<int:pk>/edit/', views.AdminProjectProgramUpdateView.as_view(), name="admin_pp_edit"),
-
     path('admin/staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
     path('admin/staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
 

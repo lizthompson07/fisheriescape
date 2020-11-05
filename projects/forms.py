@@ -1,14 +1,12 @@
 from django import forms
-from django.db.models import Q
+from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from lib.templatetags.verbose_names import get_verbose_label
-from . import models
-from . import views
-from django.contrib.auth.models import User
 from shared_models import models as shared_models
+from . import models, utils
+from . import views
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
@@ -58,11 +56,11 @@ class NewProjectForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        region_choices = views.get_region_choices(all=True)
+        region_choices = utils.get_region_choices(all=True)
         region_choices.insert(0, tuple((None, "---")))
-        division_choices = views.get_division_choices(all=True)
+        division_choices = utils.get_division_choices(all=True)
         division_choices.insert(0, tuple((None, "---")))
-        section_choices = views.get_section_choices(all=True)
+        section_choices = utils.get_section_choices(all=True)
         section_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -121,7 +119,7 @@ class ProjectForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        SECTION_CHOICES = views.get_section_choices(all=True)
+        SECTION_CHOICES = utils.get_section_choices(all=True)
         SECTION_CHOICES.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -234,16 +232,6 @@ class AdminStaffForm(forms.ModelForm):
             #     'project': forms.HiddenInput(),
             #     'overtime_description': forms.Textarea(attrs={"rows": 5}),
             'user': forms.Select(attrs=chosen_js),
-        }
-
-
-class AdminProjectProgramForm(forms.ModelForm):
-    class Meta:
-        model = models.Project
-        fields = ["project_title", "programs", "recommended_for_funding", "approved", "meeting_notes"]
-
-        widgets = {
-            'programs': forms.SelectMultiple(attrs=chosen_js),
         }
 
 
@@ -411,11 +399,11 @@ class ReportSearchForm(forms.Form):
 
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         fy_choices.insert(0, (None, "-----"))
-        self.fields['funding_src'].choices = views.get_funding_sources()
-        self.fields['region'].choices = views.get_region_choices()
-        self.fields['division'].choices = views.get_division_choices()
-        self.fields["section"].choices = views.get_section_choices()
-        self.fields["omcatagory"].choices = views.get_omcatagory_choices()
+        self.fields['funding_src'].choices = utils.get_funding_sources()
+        self.fields['region'].choices = utils.get_region_choices()
+        self.fields['division'].choices = utils.get_division_choices()
+        self.fields["section"].choices = utils.get_section_choices()
+        self.fields["omcatagory"].choices = utils.get_omcatagory_choices()
         self.fields["fiscal_year"].choices = fy_choices
 
 
@@ -550,29 +538,6 @@ HelpTextFormset = modelformset_factory(
 )
 
 
-class ProgramForm(forms.ModelForm):
-    class Meta:
-        model = models.Program
-        fields = "__all__"
-        widgets = {
-            'national_responsibility_eng': forms.Textarea(attrs={"rows": 3}),
-            'national_responsibility_fra': forms.Textarea(attrs={"rows": 3}),
-            'program_inventory': forms.Textarea(attrs={"rows": 3}),
-            'funding_source_and_type': forms.Textarea(attrs={"rows": 3}),
-            'regional_program_name_eng': forms.Textarea(attrs={"rows": 3}),
-            'regional_program_name_fra': forms.Textarea(attrs={"rows": 3}),
-            'examples': forms.Textarea(attrs={"rows": 3}),
-            'short_name': forms.Textarea(attrs={"rows": 3}),
-        }
-
-
-ProgramFormset = modelformset_factory(
-    model=models.Program,
-    form=ProgramForm,
-    extra=1,
-)
-
-
 class FunctionalGroupForm(forms.ModelForm):
     class Meta:
         model = models.FunctionalGroup
@@ -585,7 +550,7 @@ class FunctionalGroupForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        section_choices = views.get_section_choices(all=False)
+        section_choices = utils.get_section_choices(all=False)
 
         super().__init__(*args, **kwargs)
         self.fields['sections'].choices = section_choices
@@ -649,8 +614,6 @@ ReferenceMaterialFormset = modelformset_factory(
 )
 
 
-
-
 class LevelForm(forms.ModelForm):
     class Meta:
         model = models.Level
@@ -661,38 +624,6 @@ LevelFormset = modelformset_factory(
     model=models.Level,
     form=LevelForm,
     extra=1,
-)
-
-
-class TempForm(forms.ModelForm):
-    class Meta:
-        model = models.Project
-        fields = [
-            # "project_title",
-            # "section",
-            # "funding_sources",
-            "activity_type",
-            "default_funding_source",
-            "functional_group",
-        ]
-        widgets = {
-            'default_funding_source': forms.Select(attrs=chosen_js),
-            'functional_group': forms.Select(attrs=chosen_js),
-            # 'activity_type': forms.SelectMultiple(attrs=chosen_js),
-            # 'tags': forms.SelectMultiple(attrs=chosen_js),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups.all()]
-        functional_group_choices.insert(0, tuple((None, "---")))
-        self.fields['functional_group'].choices = functional_group_choices
-
-
-TempFormset = modelformset_factory(
-    model=models.Project,
-    form=TempForm,
-    extra=0,
 )
 
 
@@ -723,25 +654,25 @@ class IWForm(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-        region_choices = views.get_region_choices()
+        region_choices = utils.get_region_choices()
         region_choices.insert(0, tuple((None, "---")))
 
-        division_choices = views.get_division_choices()
-        section_choices = views.get_section_choices(full_name=False)
+        division_choices = utils.get_division_choices()
+        section_choices = utils.get_section_choices(full_name=False)
 
         # if there is a region, we should limit the divisions and sections
         if kwargs.get("initial"):
             if kwargs.get("initial").get("region"):
                 # overwrite the current choice list if a region is present
-                division_choices = views.get_division_choices(region_filter=kwargs.get("initial").get("region"))
-                section_choices = views.get_section_choices(region_filter=kwargs.get("initial").get("region"), full_name=False)
+                division_choices = utils.get_division_choices(region_filter=kwargs.get("initial").get("region"))
+                section_choices = utils.get_section_choices(region_filter=kwargs.get("initial").get("region"), full_name=False)
         division_choices.insert(0, tuple((None, "---")))
 
         # if there is a division, we should limit the sections
         if kwargs.get("initial"):
             if kwargs.get("initial").get("division"):
                 # overwrite the current choice list if a division is present
-                section_choices = views.get_section_choices(division_filter=kwargs.get("initial").get("division"), full_name=False)
+                section_choices = utils.get_section_choices(division_filter=kwargs.get("initial").get("division"), full_name=False)
         section_choices.insert(0, tuple((None, "---")))
 
         self.fields['fiscal_year'].choices = fy_choices
@@ -761,9 +692,9 @@ class ApprovalQueryBuildForm(forms.Form):
         super().__init__(*args, **kwargs)
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         fy_choices.insert(0, (None, "-----"))
-        self.fields['region'].choices = views.get_region_choices()
-        # self.fields['division'].choices = views.get_division_choices()
-        # self.fields["section"].choices = views.get_section_choices()
+        self.fields['region'].choices = utils.get_region_choices()
+        # self.fields['division'].choices = utils.get_division_choices()
+        # self.fields["section"].choices = utils.get_section_choices()
         self.fields["fiscal_year"].choices = fy_choices
 
 

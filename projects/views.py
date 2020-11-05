@@ -4,17 +4,15 @@ from copy import deepcopy
 
 import pandas as pd
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db.models import Sum, Q, Count, Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
-from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
@@ -43,7 +41,6 @@ project_field_list = [
     'functional_group',
     'default_funding_source',
     'funding_sources|{}'.format(_("Complete list of funding sources")),
-    # 'programs',
     'tags',
     'is_national',
     'status',
@@ -55,6 +52,22 @@ project_field_list = [
     'priorities',
     'deliverables',
 
+    # specialized equipment
+    'requires_specialized_equipment',
+    'technical_service_needs',
+    'mobilization_needs',
+
+    # travel
+    'has_travel',
+    'vehicle_needs',
+    'ship_needs',
+    'coip_reference_id',
+    'instrumentation',
+    'owner_of_instrumentation',
+    'requires_field_staff',
+    'field_staff_needs',
+
+    # data
     'has_new_data',
     'data_collection',
     'data_sharing',
@@ -62,10 +75,7 @@ project_field_list = [
     'metadata_url',
     'regional_dm_needs',
 
-    'has_travel',
-    'vehicle_needs',
-    'ship_needs',
-
+    # lab work
     'has_lab_work',
     'abl_services_required',
     'lab_space_required',
@@ -82,7 +92,6 @@ project_field_list = [
 gulf_field_list = deepcopy(project_field_list)
 gulf_field_list.remove("is_competitive")
 gulf_field_list.remove("is_approved")
-gulf_field_list.remove("metadata_url")
 gulf_field_list.remove("regional_dm_needs")
 gulf_field_list.remove("abl_services_required")
 
@@ -323,15 +332,15 @@ class ProjectListView(LoginRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
     h1 = gettext_lazy("Projects")
     field_list = [
-            {"name": 'id', "class": "", "width": ""},
-            {"name": 'year', "class": "", "width": ""},
-            {"name": 'region', "class": "", "width": ""},
-            {"name": 'division', "class": "", "width": ""},
-            {"name": 'section', "class": "", "width": ""},
-            {"name": 'project_title', "class": "", "width": ""},
-            {"name": 'default_funding_source', "class": "", "width": ""},
-            {"name": 'project_leads|{}'.format(gettext_lazy("Project Leads")), "class": "", "width": ""},
-            {"name": 'tags', "class": "", "width": ""},
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'year', "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 'division', "class": "", "width": ""},
+        {"name": 'section', "class": "", "width": ""},
+        {"name": 'project_title', "class": "", "width": ""},
+        {"name": 'default_funding_source', "class": "", "width": ""},
+        {"name": 'project_leads|{}'.format(gettext_lazy("Project Leads")), "class": "", "width": ""},
+        {"name": 'tags', "class": "", "width": ""},
     ]
 
 
@@ -846,64 +855,6 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy('projects:staff_edit', kwargs={"pk": object.id}))
-
-
-# this is a temp view DJF created to walkover the `program` field to the new `programs` field
-@login_required(login_url='/accounts/login/')
-@user_passes_test(in_projects_admin_group, login_url='/accounts/denied/')
-def temp_formset(request, region, fy, section_str=None):
-    context = {}
-    # if the formset is being submitted
-    if request.method == 'POST':
-        # choose the appropriate formset based on the `extra` arg
-        formset = forms.TempFormSet(request.POST)
-
-        if formset.is_valid():
-            formset.save()
-            # pass the specimen through the make_flags helper function to assign any QC flags
-
-            # redirect back to the observation_formset with the blind intention of getting another observation
-            return HttpResponseRedirect(
-                reverse("projects:formset", kwargs={"region": region, "fy": fy, "section_str": section_str}))
-    # otherwise the formset is just being displayed
-    else:
-        # prep the formset...for display
-        qs = models.Project.objects.filter(
-            year=fy,
-            section__division__branch__region__id=region,
-            functional_group__isnull=True
-        ).order_by("functional_group")
-
-        if section_str:
-            qs = qs.filter(section__name__icontains=section_str)
-
-        formset = forms.TempFormSet(
-            queryset=qs
-        )
-    context['formset'] = formset
-    context['my_object'] = models.Project.objects.first()
-    context['field_list'] = [
-        "project_title",
-        "section",
-        "leads",
-        "programs",
-        "funding_sources",
-        "activity_type",
-        "default_funding_source",
-        "functional_group",
-    ]
-    return render(request, 'projects/temp_formset.html', context)
-
-
-# this is a temp view DJF created to walkover the `program` field to the new `programs` field
-class MyTempListView(LoginRequiredMixin, ListView):
-    queryset = models.Project.objects.filter(section__division__branch__region__id=2).order_by(
-        "section__division__branch__region",
-        "section__division",
-        "section",
-        "programs",
-    )
-    template_name = 'projects/my_temp_list.html'
 
 
 # COLLABORATOR #
@@ -1470,29 +1421,6 @@ class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
     def form_valid(self, form):
         my_object = form.save()
         return HttpResponseRedirect(reverse("projects:admin_staff_list") + "?" + nz(self.kwargs.get("qry"), ""))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['help_text_dict'] = get_help_text_dict()
-        return context
-
-
-class AdminProjectProgramListView(ManagerOrAdminRequiredMixin, FilterView):
-    template_name = 'projects/admin_project_program_list.html'
-    queryset = models.Project.objects.all().order_by('-year', 'id')
-    filterset_class = filters.AdminProjectProgramFilter
-
-
-class AdminProjectProgramUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
-    '''This is really just for the admin view'''
-    model = models.Project
-    template_name = 'projects/admin_project_program_form.html'
-    form_class = forms.AdminProjectProgramForm
-
-    def form_valid(self, form):
-        my_object = form.save()
-        return HttpResponseRedirect(
-            reverse("projects:admin_project_program_list") + "?" + nz(self.kwargs.get("qry"), ""))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
