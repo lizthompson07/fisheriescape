@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from django.utils.translation import gettext as _
 
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from . import models
 
