@@ -241,7 +241,7 @@ class Project(models.Model):
     requires_other_lab_support = models.BooleanField(default=False, verbose_name=_(
         "Does this project require other specialized laboratory support or services (provide details below)?"))
     other_lab_support_needs = models.TextField(blank=True, null=True, verbose_name=_(
-        "Describe laboratory requirements relevant for project planning purposes."))
+        "Describe other laboratory requirements relevant for project planning purposes."))
 
     it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))

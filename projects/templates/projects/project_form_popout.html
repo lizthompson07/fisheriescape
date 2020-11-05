@@ -180,7 +180,6 @@
 
       // there is another question..
       if ($requires_field_staff.val() === "True") {
-        console.log(123)
         $(".field_staff_needs_div").removeClass("gone")
       } else {
         $(".field_staff_needs_div").addClass("gone")
@@ -201,10 +200,12 @@
     if ($has_lab_work.val() === "True") {
       $(".abl_services_required_div").removeClass("gone")
       $(".lab_space_required_div").removeClass("gone")
+      $(".requires_other_lab_support_div").removeClass("gone")
       $(".other_lab_support_needs_div").removeClass("gone")
     } else {
       $(".abl_services_required_div").addClass("gone")
       $(".lab_space_required_div").addClass("gone")
+      $(".requires_other_lab_support_div").addClass("gone")
       $(".other_lab_support_needs_div").addClass("gone")
     }
   }
@@ -233,6 +234,7 @@
   })
 
   $requires_specialized_equipment.change(function () {
+    console.log(1)
     refreshSpecializedEquipmentSection()
   })
 
