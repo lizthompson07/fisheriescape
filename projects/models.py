@@ -206,30 +206,30 @@ class Project(models.Model):
     # TRAVEL
     ########
     has_travel = models.BooleanField(default=False, verbose_name=_("Does this project involved a field component?"))
-    vehicle_needs = models.TextField(blank=True, null=True,
-                                     verbose_name=_("Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
+    vehicle_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
     ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
     coip_reference_id = models.CharField(max_length=100, blank=True, null=True, verbose_name=_(
         "If this project links to a ship time request in COIP, please include the COIP application number here."))
-    instrumentation = models.TextField(blank=True, null=True,
-                                       verbose_name=_("What field instrumentation will be deployed during this project?"))
-    owner_of_instrumentation = models.TextField(blank=True, null=True, verbose_name=_(
+    instrumentation = models.TextField(blank=True, null=True, verbose_name=_(
+        "What field instrumentation will be deployed during this project?"))
+    owner_of_instrumentation = models.CharField(max_length=500, blank=True, null=True, verbose_name=_(
         "Who is the owner/curator of this instrumentation, if known?"))
     # -- > Field staff
-    requires_field_staff = models.BooleanField(default=False, verbose_name=_("Does this project involved a field component?"))
-    field_staff_needs = models.TextField(blank=True, null=True, verbose_name=_("If so, please include some additional detail, "
-                                                                               "e.g., how many people are likely to be required and when"))
+    requires_field_staff = models.BooleanField(default=False, verbose_name=_("Do you require field support staff?"))
+    field_staff_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "If so, please include some additional detail, e.g., how many people are likely to be required and when"))
 
     # DATA
     #######
     has_new_data = models.BooleanField(default=False, verbose_name=_("Will new data be collected or generated?"))
     data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
     data_products = models.TextField(blank=True, null=True, verbose_name=_("What data products will be generated (e.g. models, indices)?"))
-    open_data_eligible = models.BooleanField(default=True, verbose_name=_("Are these data / data products eligible "
-                                                                          "to be placed on the Open Data Platform?"))
+    open_data_eligible = models.BooleanField(default=True, verbose_name=_(
+        "Are these data / data products eligible to be placed on the Open Data Platform?"))
     data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
-    regional_dm_needs = models.TextField(blank=True, null=True, verbose_name=_("Describe what data management support is required, "
-                                                                               "if any."))
+    regional_dm_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "Describe what data management support is required, if any."))
 
     # LAB WORK
     ##########
@@ -238,8 +238,10 @@ class Project(models.Model):
     abl_services_required = models.BooleanField(default=False, verbose_name=_(
         "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"))
     lab_space_required = models.BooleanField(default=False, verbose_name=_("Is laboratory space required?"))
-    chemical_needs = models.TextField(blank=True, null=True, verbose_name=_("Please provide details regarding chemical "
-                                                                            "needs and the plan for storage and disposal."))
+    requires_other_lab_support = models.BooleanField(default=False, verbose_name=_(
+        "Does this project require other specialized laboratory support or services (provide details below)?"))
+    other_lab_support_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "Describe laboratory requirements relevant for project planning purposes."))
 
     it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))

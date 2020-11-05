@@ -134,6 +134,8 @@
   var $has_new_data = $("#id_has_new_data");
   var $has_travel = $("#id_has_travel");
   var $has_lab_work = $("#id_has_lab_work");
+  var $requires_specialized_equipment = $("#id_requires_specialized_equipment");
+  var $requires_field_staff = $("#id_requires_field_staff");
 
   $(document).ready(function () {
     // Stuff to do as soon as the DOM is ready
@@ -141,6 +143,7 @@
     refreshDataSection()
     refreshTravelSection()
     refreshLabSection()
+    refreshSpecializedEquipmentSection()
 
   });
 
@@ -152,15 +155,15 @@
   function refreshDataSection() {
     if ($has_new_data.val() === "True") {
       $(".data_collection_div").removeClass("gone")
-      $(".data_sharing_div").removeClass("gone")
+      $(".data_products_div").removeClass("gone")
       $(".data_storage_div").removeClass("gone")
-      $(".metadata_url_div").removeClass("gone")
+      $(".open_data_eligible_div").removeClass("gone")
       $(".regional_dm_needs_div").removeClass("gone")
     } else {
       $(".data_collection_div").addClass("gone")
-      $(".data_sharing_div").addClass("gone")
+      $(".data_products_div").addClass("gone")
       $(".data_storage_div").addClass("gone")
-      $(".metadata_url_div").addClass("gone")
+      $(".open_data_eligible_div").addClass("gone")
       $(".regional_dm_needs_div").addClass("gone")
     }
   }
@@ -169,9 +172,28 @@
     if ($has_travel.val() === "True") {
       $(".vehicle_needs_div").removeClass("gone")
       $(".ship_needs_div").removeClass("gone")
+      $(".coip_reference_id_div").removeClass("gone")
+      $(".instrumentation_div").removeClass("gone")
+      $(".owner_of_instrumentation_div").removeClass("gone")
+      $(".requires_field_staff_div").removeClass("gone")
+      $(".field_staff_needs_div").removeClass("gone")
+
+      // there is another question..
+      if ($requires_field_staff.val() === "True") {
+        console.log(123)
+        $(".field_staff_needs_div").removeClass("gone")
+      } else {
+        $(".field_staff_needs_div").addClass("gone")
+      }
+
     } else {
       $(".vehicle_needs_div").addClass("gone")
       $(".ship_needs_div").addClass("gone")
+      $(".coip_reference_id_div").addClass("gone")
+      $(".instrumentation_div").addClass("gone")
+      $(".owner_of_instrumentation_div").addClass("gone")
+      $(".requires_field_staff_div").addClass("gone")
+      $(".field_staff_needs_div").addClass("gone")
     }
   }
 
@@ -179,11 +201,21 @@
     if ($has_lab_work.val() === "True") {
       $(".abl_services_required_div").removeClass("gone")
       $(".lab_space_required_div").removeClass("gone")
-      $(".chemical_needs_div").removeClass("gone")
+      $(".other_lab_support_needs_div").removeClass("gone")
     } else {
       $(".abl_services_required_div").addClass("gone")
       $(".lab_space_required_div").addClass("gone")
-      $(".chemical_needs_div").addClass("gone")
+      $(".other_lab_support_needs_div").addClass("gone")
+    }
+  }
+
+  function refreshSpecializedEquipmentSection() {
+    if ($requires_specialized_equipment.val() === "True") {
+      $(".technical_service_needs_div").removeClass("gone")
+      $(".mobilization_needs_div").removeClass("gone")
+    } else {
+      $(".technical_service_needs_div").addClass("gone")
+      $(".mobilization_needs_div").addClass("gone")
     }
   }
 
@@ -199,5 +231,14 @@
   $has_lab_work.change(function () {
     refreshLabSection()
   })
+
+  $requires_specialized_equipment.change(function () {
+    refreshSpecializedEquipmentSection()
+  })
+
+  $requires_field_staff.change(function () {
+    refreshTravelSection()
+  })
+
   </script>
 {% endblock %}

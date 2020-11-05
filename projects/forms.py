@@ -90,13 +90,17 @@ class ProjectForm(forms.ModelForm):
             "deliverables": forms.Textarea(attrs=class_editable),
 
             "data_collection": forms.Textarea(attrs=row4),
-            "data_sharing": forms.Textarea(attrs=row4),
+            "data_products": forms.Textarea(attrs=row4),
             "data_storage": forms.Textarea(attrs=row4),
             "regional_dm_needs": forms.Textarea(attrs=row4),
             "vehicle_needs": forms.Textarea(attrs=row4),
             "it_needs": forms.Textarea(attrs=row4),
-            "chemical_needs": forms.Textarea(attrs=row4),
+            "other_lab_support_needs": forms.Textarea(attrs=row4),
             "ship_needs": forms.Textarea(attrs=row4),
+            "technical_service_needs": forms.Textarea(attrs=row4),
+            "mobilization_needs": forms.Textarea(attrs=row4),
+            "instrumentation": forms.Textarea(attrs=row4),
+            "field_staff_needs": forms.Textarea(attrs=row4),
 
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
@@ -113,6 +117,11 @@ class ProjectForm(forms.ModelForm):
             "has_new_data": forms.Select(choices=YESNO_CHOICES),
             "has_travel": forms.Select(choices=YESNO_CHOICES),
             "has_lab_work": forms.Select(choices=YESNO_CHOICES),
+            "requires_specialized_equipment": forms.Select(choices=YESNO_CHOICES),
+            "requires_field_staff": forms.Select(choices=YESNO_CHOICES),
+            "open_data_eligible": forms.Select(choices=YESNO_CHOICES),
+            "requires_other_lab_support": forms.Select(choices=YESNO_CHOICES),
+
             "abl_services_required": forms.Select(choices=YESNO_CHOICES),
             "lab_space_required": forms.Select(choices=YESNO_CHOICES),
             "is_hidden": forms.Select(choices=YESNO_CHOICES),
@@ -135,7 +144,6 @@ class ProjectForm(forms.ModelForm):
             # del self.fields["programs"]
             del self.fields["is_competitive"]
             del self.fields["is_approved"]
-            del self.fields["metadata_url"]
             del self.fields["regional_dm_needs"]
 
 
