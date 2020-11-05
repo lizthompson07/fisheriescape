@@ -70,17 +70,16 @@ project_field_list = [
     # data
     'has_new_data',
     'data_collection',
-    'data_products',
+    'data_sharing',
     'data_storage',
-    'open_data_eligible',
+    'metadata_url',
     'regional_dm_needs',
 
     # lab work
     'has_lab_work',
     'abl_services_required',
     'lab_space_required',
-    'requires_other_lab_support',
-    'other_lab_support_needs',
+    'chemical_needs',
 
     'it_needs',
     'notes|{}'.format("additional notes"),
@@ -343,7 +342,6 @@ class ProjectListView(LoginRequiredMixin, CommonFilterView):
         {"name": 'project_leads|{}'.format(gettext_lazy("Project Leads")), "class": "", "width": ""},
         {"name": 'tags', "class": "", "width": ""},
     ]
-    paginate_by = 50
 
 
 class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
@@ -2338,9 +2336,9 @@ class PDFDataReport(PDFReportTemplate):
             'project_title',
             'project_leads|Project leads',
             'data_collection',
-            'data_products',
+            'data_sharing',
             'data_storage',
-            'open_data_eligible',
+            'metadata_url',
             'regional_dm_needs',
         ]
 

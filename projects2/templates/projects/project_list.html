@@ -1,0 +1,19 @@
+{% extends "projects/list.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% load i18n %}
+{% load el_pagination_tags %}
+
+
+
+{% block table_td %}
+  {% if field.name == 'region' %}
+    {{ object.section.division.branch.region.tname }}
+  {% elif field.name == 'division' %}
+    {{ object.section.division.tname }}
+  {% else %}
+    {% get_field_value object field.name %}
+  {% endif %}
+{% endblock %}

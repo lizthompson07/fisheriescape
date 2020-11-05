@@ -1,0 +1,57 @@
+{% extends "projects/base.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block content %}
+    {% get_current_language as LANG %}
+    {% load bootstrap4 %}
+
+    <style>
+        form, input {
+            font-size: small;
+        }
+
+        table, td {
+            font-size: 14px;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'projects:admin_staff_list' %}">
+                    Non-registered Staff List
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">
+                {{ object }}
+            </li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        <h1>
+            {{ object }}
+        </h1>
+
+        <b>Project:</b><br> {{ object.project }}
+        <hr>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">submit</button>
+            <a href="{% url 'projects:admin_staff_list'  %}?{{ view.kwargs.qry }}">back</a>
+        </form>
+        <br> <br>
+        <h4>
+            click <a href="#" pop-href="{% url 'projects:user_new' %}" class="btn btn-lg btn-success">HERE</a> to add a new user to the system
+
+        </h4>
+
+    </div>
+
+{% endblock content %}
+

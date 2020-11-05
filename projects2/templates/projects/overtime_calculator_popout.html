@@ -1,0 +1,254 @@
+{% load bootstrap4 %}
+{% load i18n %}
+{% load static %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'css/master.css' %}">
+    <style>
+        body {
+            font-size: small;
+        }
+
+        table, td, th {
+            font-size: small;
+        }
+    </style>
+    <script>
+        window.resizeTo(width = 1200, height = 1000);
+
+        window.onunload = refreshParent;
+
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+    </script>
+    <div class="indent-med">
+        <h1>
+            {% trans "Overtime Calculator" %}: {{ object }}
+        </h1>
+        <h3>
+
+        </h3>
+        <p>
+        <ul>
+            <li>
+                {% blocktrans with next_fiscal_year as year %}
+                    Enter overtime hours worked for each day in the {{ year }} fiscal year
+                {% endblocktrans %}
+            </li>
+            <li>
+                {% trans "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes" %}
+            </li>
+            <li>
+                {% trans "For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard working day</b>" %}
+            </li>
+
+            <li>
+                {% trans "For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to be worked" %}
+            </li>
+            <li>
+                {% trans "When you are done, submit the form" %}
+            </li>
+        </ul>
+
+        </p>
+        <div class="row">
+            <div class="col">
+                <table class="table table-sm" id="ot_table">
+                    <thead>
+                    <th style="width:50px">
+                        {% trans "Date" %}
+                    </th>
+                    <th>
+                        {% trans "Weekday" %}
+                    </th>
+                    <th style="width:20px">
+                        {% trans "Overtime hours" %}
+                    </th>
+                    </thead>
+                    {% for date in datelist %}
+                        <tr>
+                            {% with date|date:"w" as daynum %}
+                                {% with date|date:"D, M d:" as full_date %}
+                                    <td>
+                                        {{ date|date:"F d, Y" }}<br>
+                                    </td>
+
+                                    {% if date in stat_holiday_list %}
+                                        <td class="bad">
+                                            {% elif daynum == "0" %}
+                                        <td class="concern">
+                                            {% elif daynum == "6" %}
+                                        <td class="mild-concern">
+                                            {% else %}
+                                        <td class="good">
+                                    {% endif %}
+
+                                {{ date|date:"l" }}
+                                </td>
+                                    <td><input
+                                            class="ot_input {% if date in stat_holiday_list %}stat{% elif daynum == "0" %}sunday{% elif daynum == "6" %}saturday{% else %}weekday{% endif %}"
+                                            type="number" placeholder="{% trans "hours" %}" style="width:100px"
+                                            date_str="{{ full_date }}"></td>
+                                {% endwith %}
+                            {% endwith %}
+
+                        </tr>
+
+                    {% endfor %}
+
+                </table>
+
+
+            </div>
+            <div class="col">
+
+                <table class="table table-striped">
+                    <tr>
+                        <th>{% trans "Extra Hours to be Worked:" %}</th>
+                        <td>
+                            <span id="extra_hours"></span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            {% trans "OT Description:" %}
+                        </th>
+                        <td>
+                            <span id="ot_description"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            {% trans "Calculated Overtime Hours:" %}
+                        </th>
+                        <td>
+                            <span id="ot_hours"></span>
+                        </td>
+                    </tr>
+
+                </table>
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {% bootstrap_field field placeholder="hours" %}
+                    {% endfor %}
+                    <input class="btn btn-primary" type="submit">
+                    <a class="btn btn-secondary" href="{% url 'projects:staff_edit' object.id %}">Cancel </a>
+                </form>
+                {% if object.overtime_description %}
+                    Current Description: <br>
+                    <textarea disabled id="old_descr" cols="40" rows="10">{{ object.overtime_description }}</textarea>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+    <script type="application/javascript">
+        // declare vars
+
+        {#console.log(x);#}
+        $(document).ready(function () {
+            // Stuff to do as soon as the DOM is ready
+            updateVars();
+            $("#id_weekdays")[0].focus();
+            {#$("#old_descr").val(x);#}
+
+        });
+
+        $("#ot_table").keyup(function functionName() {
+            updateVars()
+        });
+
+        function updateVars() {
+            var totalHoursWorked;
+            var totalOTHours;
+            var OTDescription;
+            var OTDescriptionHTML;
+
+
+            var weekdayHoursWorked = 0;
+            $('.weekday').each(function () {
+                weekdayHoursWorked += Number($(this).val());  // Or this.innerHTML, this.innerText
+            });
+            var weekdayOT = weekdayHoursWorked * 1.5;
+
+            var satHoursWorked = 0;
+            var satSpecialHoursWorked = 0;
+            $('.saturday').each(function () {
+                var myVal = Number($(this).val());
+
+                if (myVal <= 7.5) {
+                    satHoursWorked += myVal;  // Or this.innerHTML, this.innerText
+                } else {
+                    satHoursWorked += 7.5;
+                    satSpecialHoursWorked += myVal - 7.5;
+                }
+            });
+            var satOT = (satHoursWorked * 1.5) + (satSpecialHoursWorked * 2);
+
+            var sunHoursWorked = 0;
+            $('.sunday').each(function () {
+                sunHoursWorked += Number($(this).val());  // Or this.innerHTML, this.innerText
+            });
+            var sunOT = sunHoursWorked * 2;
+
+            var statHoursWorked = 0;
+            $('.stat').each(function () {
+                statHoursWorked += Number($(this).val());  // Or this.innerHTML, this.innerText
+            });
+            var statOT = statHoursWorked * 2;
+
+            var OTDescriptionHTML = "";
+            $('.ot_input').each(function () {
+                if ($(this).val() != "") {
+                    if ($(this).hasClass("weekday")) {
+                        myStr = $(this).attr("date_str") + " " + $(this).val() + " x 1.5 = " + $(this).val() * 1.5 + "h";
+                    } else if ($(this).hasClass("saturday")) {
+                        var myVal = $(this).val();
+                        if (Number(myVal) <= 7.5) {
+                            myStr = $(this).attr("date_str") + " " + myVal + " x 1.5 = " + myVal * 1.5 + "h";
+                        } else {
+                            var myFirstPart = 7.5;
+                            var myLastPart = myVal - myFirstPart;
+                            myStr = $(this).attr("date_str") + " " + myFirstPart + " x 1.5 = " + myFirstPart * 1.5 + "h" + "<br>" + $(this).attr("date_str") + " " + myLastPart + " x 2 = " + myLastPart * 2 + "h";
+                        }
+                    } else if ($(this).hasClass("sunday")) {
+                        myStr = $(this).attr("date_str") + " " + $(this).val() + " x 2 = " + $(this).val() * 2 + "h";
+                    } else if ($(this).hasClass("stat")) {
+                        myStr = $(this).attr("date_str") + " " + $(this).val() + " x 2 = " + $(this).val() * 2 + "h (stat)";
+                    } else {
+                        myStr = ""
+                    }
+
+                    if (OTDescriptionHTML == "") {
+                        OTDescriptionHTML = myStr;
+                    } else {
+                        if (myStr != "") {
+                            OTDescriptionHTML = OTDescriptionHTML + "<br>" + myStr;
+                        }
+                    }
+                }
+            });
+
+
+            totalHoursWorked = weekdayHoursWorked + satHoursWorked + sunHoursWorked + statHoursWorked;
+            totalOTHours = weekdayOT + satOT + sunOT + statOT;
+
+            OTDescription = OTDescriptionHTML.replace(/<br>/gi, "\n");
+            $("#extra_hours").text(totalHoursWorked);
+            $("#ot_hours").text(totalOTHours);
+            $("#ot_description").html(OTDescriptionHTML);
+            $("#id_overtime_hours").val(totalOTHours);
+            $("#id_overtime_description").val(OTDescription);
+
+        }
+
+
+    </script>
+{% endblock content %}

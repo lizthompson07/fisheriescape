@@ -1,0 +1,51 @@
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+
+<div class="">
+    <h4>
+        {% trans "Financial Summary:" %}
+    </h4>
+</div>
+
+<table class="table table-bordered table-sm" style="width: auto">
+    <tr>
+        <th style="width: 150px;">
+            {% trans "Type" %}
+        </th>
+        <th style="width: 150px;">
+            {% trans "Funding source" %}
+        </th>
+        <th style="width: 150px;">
+            {% trans "Salary (excluding FTE)" %}
+        </th>
+        <th style="width: 150px;">
+            {% trans "O & M" %}
+        </th>
+        <th style="width: 150px;">
+            {% trans "Captial" %}
+        </th>
+        <th style="width: 150px;">
+            {% trans "Total" %}
+        </th>
+    </tr>
+    <tbody>
+    {% with "---" as na %}
+        {% for fs in financial_summary_dict %}
+            {% with financial_summary_dict|lookup:fs  as fs_dict %}
+                <tr style="background-color: {{ fs.funding_source_type.color }}">
+                    <td>{{ fs.funding_source_type|nz:_("Total") }}</td>
+                    <td>{{ fs.tname|nz:"---" }}</td>
+                    <td>{{ fs_dict|lookup:"salary"|currency }}</td>
+                    <td>{{ fs_dict|lookup:"om"|currency }}</td>
+                    <td>{{ fs_dict|lookup:"capital"|currency }}</td>
+                    <td>{{ fs_dict|lookup:"total"|currency }}</td>
+                </tr>
+            {% endwith %}
+        {% endfor %}
+    {% endwith %}
+
+    </tbody>
+</table>

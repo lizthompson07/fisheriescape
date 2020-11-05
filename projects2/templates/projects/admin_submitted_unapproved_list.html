@@ -1,0 +1,155 @@
+{% extends "projects/base.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block content %}
+    {% get_current_language as LANG %}
+    {% load bootstrap4 %}
+
+    <style>
+        form, input {
+            font-size: small;
+        }
+
+        table, td {
+            font-size: 14px;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">
+                Project Program List
+            </li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        <h1>
+            Submitted + Unapproved Projects
+        </h1>
+        <h3>
+            The purpose of this view is twofold:
+
+            1) view all projects that were submitted but not approved by the section head and 2)
+
+            to view any submitted projects that were not attached to a program.
+        </h3>
+        <br><br>
+
+        <form class="form" action="." method="get" id="filter-form">
+            <div class="row">
+
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+
+                </div>
+            </div>
+        </form>
+        <br>
+
+
+        <div class="row">
+            <div class="col">
+                {% trans "(click on a header to sort table)" %}
+            </div>
+            <div class="col" style="text-align: center">
+                {#                <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>#}
+            </div>
+        </div>
+        <table class="table table-bordered table-sm sortable">
+            <thead>
+            <th scope="col" style="">
+                {% trans "Fiscal year" %}
+            </th>
+            <th scope="col">
+                {% trans "Section" %}
+            </th>
+            <th scope="col">
+                {% trans "Section head" %}
+            </th>
+{#            <th scope="col" style="">#}
+{#                {% trans "Number of projects" %}#}
+{#            </th>#}
+{#            <th scope="col" style="">#}
+{#                {% trans "Program List" %}#}
+            </th>
+            <th scope="col" style="">
+                {% trans "Projects List" %}
+            </th>
+            </thead>
+            <tbody>
+
+            {% for obj in my_qs %}
+                <tr>
+                    <td>{{ fy_dict|lookup:obj.year_id }}</td>
+                    {% with section_dict|lookup:obj.section_id as s %}
+                        <td>{{ s }}</td>
+                        <td>{{ s.head }}</td>
+                    {% endwith %}
+{#                    <td>{{ obj.dcount }}</td>#}
+{#                    <td>#}
+{#                        {% with section_year_program_dict|lookup:obj.year_id|lookup:obj.section_id|lookup:"programs" as programs %}#}
+{#                            <ul>#}
+{#                                {% for p in programs %}#}
+{#                                    <li>#}
+{#                                        {{ p }}#}
+{#                                    </li>#}
+{#                                {% endfor %}#}
+{#                            </ul>#}
+{##}
+{#                        {% endwith %}#}
+{##}
+{##}
+{#                    </td>#}
+                    <td>
+                        {% with section_year_program_dict|lookup:obj.year_id|lookup:obj.section_id|lookup:"project_list" as projects %}
+                            <ol>
+                                {% for p in projects %}
+                                    <li>
+                                        {% if p.programs.count > 0 %}
+                                            <span class="purple-font">[{{ p.core_status|upper }}]</span>
+                                        {% else %}
+                                            <span class="blink-me red-font">[NO PROGRAM ASSIGNED]</span>
+                                        {% endif %}
+                                        {{ p }}
+                                        (<a href="{% url 'projects:admin_pp_edit' p.id %}">admin link</a>)
+                                    </li>
+                                {% endfor %}
+                            </ol>
+
+                            <div class="red-font">
+                                <ul>
+                                    {% for p in problems %}
+                                        <li>
+                                            {{ p }}
+                                            (<a href="{% url 'projects:admin_pp_edit' p.id %}">admin link</a>)
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endwith %}
+                    </td>
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <b>
+            TOTAL: {{ object_list.count }}
+        </b>
+    </div>
+
+{% endblock content %}
+

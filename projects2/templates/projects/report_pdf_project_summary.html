@@ -1,0 +1,454 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% bootstrap_css %}
+
+{% block extra_style %}
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    table, td, th {
+        font-size: small;
+        border: 1px solid black;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    td, th {
+        padding: 2px;
+    }
+
+    th {
+        background-color: lightblue;
+    {#color: white;#} border: 1px solid black;
+        font-weight: bold;
+    }
+
+    .total {
+        background-color: lightgray;
+        color: black;
+    }
+
+
+    h1 {
+        font-size: 24px;
+    }
+
+    @page {
+        margin: 1cm;
+        @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
+    }
+
+</style>
+
+
+<div id="footerContent">
+    {% block page_foot %}
+        <pdf:pagenumber/>
+    {% endblock %}
+</div>
+
+
+{# list of projects by section #}
+<h1>{{ fy }} Submitted{% if approved %} and Approved{% endif %} Projects </h1>
+{% for division in division_list %}
+    <h2>
+        <u>
+            {{ division }} Division
+        </u>
+    </h2>
+    <ul>
+        {% for section in division.sections.all %}
+            <h3>
+                <em>
+                    {{ section.name }}
+                </em>
+            </h3>
+            <ol>
+                {% for project in section.projects.all %}
+                    {% if project.submitted and project.approved %}
+                        {{ project.id }} - {{ project }}<br>
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        {% endfor %}
+    </ul>
+{% endfor %}
+<h2>
+    TOTAL PROJECTS: {{ object_list.count }}
+</h2>
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# financial summary #}
+{% with "" as na %}
+
+    <h1>{{ fy }} Financial Summary</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th rowspan="2" style="width: 75px">Division</th>
+            <th rowspan="2" style="width: 125px">Section</th>
+            <th colspan="3" style="text-align: center">A-Base</th>
+            <th colspan="3" style="text-align: center">B-Base</th>
+            <th colspan="3" style="text-align: center">C-Base</th>
+            <th colspan="3" style="text-align: center">Total</th>
+            <th rowspan="2" style="text-align: center">Students</th>
+            <th rowspan="2" style="text-align: center">Causals</th>
+            <th rowspan="2" style="text-align: center">OT</th>
+        </tr>
+        <tr>
+            <th style="text-align: center">Salary</th>
+            <th style="text-align: center">O&M</th>
+            <th style="text-align: center">Capital</th>
+            <th style="text-align: center">Salary</th>
+            <th style="text-align: center">O&M</th>
+            <th style="text-align: center">Capital</th>
+            <th style="text-align: center">Salary</th>
+            <th style="text-align: center">O&M</th>
+            <th style="text-align: center">Capital</th>
+            <th style="text-align: center">Salary</th>
+            <th style="text-align: center">O&M</th>
+            <th style="text-align: center">Capital</th>
+        </tr>
+
+        </thead>
+        <tbody>
+        {% for division in division_list %}
+            {% for section in division.sections.all %}
+                <tr>
+                    {% if forloop.counter == 1 %}
+                        <td rowspan="
+                    {% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}
+                    ">{{ division }}</td>
+                    {% endif %}
+                    <td>{{ section }}</td>
+                    {% with summary_section=financial_summary_data|lookup:"sections"|lookup:section.id %}
+                        <td style="text-align: center">{% with val=summary_section|lookup:"salary_abase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"om_abase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"capital_abase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                        <td style="text-align: center">{% with val=summary_section|lookup:"salary_bbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"om_bbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"capital_bbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                        <td style="text-align: center">{% with val=summary_section|lookup:"salary_cbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"om_cbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"capital_cbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                        <td style="text-align: center">{% with val=summary_section|lookup:"salary_total" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"om_total" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"capital_total" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                        <td style="text-align: center">{% with val=summary_section|lookup:"students" %}
+                            {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"casuals" %}
+                            {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na }}{% endwith %}</td>
+                        <td style="text-align: center">{% with val=summary_section|lookup:"OT" %}
+                            {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:1|zero2val:na }}{% endwith %}</td>
+                    {% endwith %}
+                </tr>
+            {% endfor %}
+            {% if division.sections.count > 0 %}
+                <tr>
+                    <td class="total"><em>SUB-TOTAL</em></td>
+                    {% with summary_division=financial_summary_data|lookup:"divisions"|lookup:division.id %}
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"salary_abase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"om_abase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"capital_abase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"salary_bbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"om_bbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"capital_bbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"salary_cbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"om_cbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"capital_cbase" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"salary_total" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"om_total" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"capital_total" %}
+                            {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"students" %}
+                            {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"casuals" %}
+                            {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na }}{% endwith %}</td>
+                        <td class="total"
+                            style="text-align: center">{% with val=summary_division|lookup:"OT" %}
+                            {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:1|zero2val:na }}{% endwith %}</td>
+                    {% endwith %}
+                </tr>
+            {% endif %}
+        {% endfor %}
+        <tr>
+            <td colspan="2" class="total">TOTAL</td>
+            {% with summary_total=financial_summary_data|lookup:"total" %}
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"salary_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"om_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"capital_abase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"salary_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"om_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"capital_bbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"salary_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"om_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"capital_cbase" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"salary_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"om_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"capital_total" %}
+                    {{ val|default_if_none:"&nbsp;"|zero2val:na|kmark:"1,True" }}{% endwith %}</td>
+
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"students" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"casuals" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:0|zero2val:na }}{% endwith %}</td>
+                <td class="total"
+                    style="text-align: center">{% with val=summary_total|lookup:"OT" %}
+                    {{ val|default_if_none:"&nbsp;"|nz:0|floatformat:1|zero2val:na }}{% endwith %}</td>
+            {% endwith %}
+        </tr>
+        </tbody>
+
+    </table>
+
+{% endwith %}
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+{# list of capital requests #}
+
+<h1>{{ fy }} Capital Request List</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th>Section</th>
+        <th>Project</th>
+        <th>Category</th>
+        <th>Description</th>
+        <th>Funding Source</th>
+        <th>Request</th>
+    </tr>
+    <tbody>
+    {% for obj in capital_list %}
+        <tr>
+            <td>{{ obj.project.section }}</td>
+            <td>{{ obj.project }}</td>
+            <td>{{ obj.get_category_display }}</td>
+            <td>{{ obj.description|nz:"" }}</td>
+            <td>{{ obj.funding_source }}</td>
+            <td>{{ obj.budget_requested|currency }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# list of G&Cs #}
+
+<h1>{{ fy }} Grants & Contributions List</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th>
+            {% trans "Recipient Organization" %}
+        </th>
+        <th>
+            {% trans "Project Lead" %}
+        </th>
+        <th>
+            {% trans "Proposed Title" %}
+        </th>
+        <th>
+            {% trans "G&C Program" %}
+        </th>
+        <th>
+            {% trans "Amount" %}
+        </th>
+        <th>
+            {% trans "DFO Project" %}
+        </th>
+    </tr>
+
+    <tbody>
+    {% for obj in gc_list %}
+        <tr>
+            <td>{{ obj.recipient_org }}</td>
+            <td>{{ obj.project_lead }}</td>
+            <td>{{ obj.proposed_title }}</td>
+            <td>{{ obj.gc_program }}</td>
+            <td>{{ obj.budget_requested|currency }}</td>
+            <td>{{ obj.project }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if not gc_list %}
+    There are no G&Cs to show.
+{% endif %}
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# list of Collaborators #}
+
+<h1>{{ fy }} List of Collaborators and Partners</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th> Name</th>
+        <th> Type</th>
+        <th style="text-align: center"> Critical to project?</th>
+        <th> Notes</th>
+        <th> DFO Project</th>
+    </tr>
+
+    <tbody>
+    {% for obj in collaborator_list %}
+        <tr>
+            <td>{{ obj.name }}</td>
+            <td>{{ obj.get_type_display }}</td>
+            <td style="text-align: center">{{ obj.critical|yesno }}</td>
+            <td>{{ obj.notes }}</td>
+            <td>{{ obj.project }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if not collaborator_list %}
+    There are no Collaborators and/or Partners to show.
+{% endif %}
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+
+{# list of Agreements #}
+
+<h1>{{ fy }} List of Collaborative Agreements</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th> Partner Organization</th>
+        <th> Project Lead</th>
+        <th> Agreement Title</th>
+        <th style="text-align: center"> New or Existing</th>
+        <th> Notes</th>
+        <th> DFO Project</th>
+    </tr>
+
+    <tbody>
+    {% for obj in agreement_list %}
+        <tr>
+            <td>{{ obj.partner_organization }}</td>
+            <td>{{ obj.project_lead }}</td>
+            <td>{{ obj.agreement_title }}</td>
+            <td style="text-align: center">{{ obj.get_new_or_existing_display }}</td>
+            <td>{{ obj.notes }}</td>
+            <td>{{ obj.project }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+{% if not agreement_list %}
+    There are no Collaborative Agreements to show.
+{% endif %}
+
+<div>
+    <pdf:nextpage/>
+</div>
+

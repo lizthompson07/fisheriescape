@@ -1,0 +1,79 @@
+{% extends "projects/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+{% block content %}
+
+    <style>
+
+        td {
+            padding-right: 10px;
+        }
+    </style>
+
+
+    <div class="container-fluid">
+        <h1>
+            {% blocktrans with observation_type as ot %}
+                Managing Categories for {{ ot }}
+            {% endblocktrans %}
+        </h1>
+        <br>
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            {{ formset.management_form }}
+            {#            {% bootstrap_formset_errors formset %}#}
+
+            <table class="table-sm table-bordered table sortable" style="font-size: small">
+                <thead>
+                <tr>
+                    {% for field in field_list %}
+                        {% if field == "programs" %}
+                            <th style="width: 20%;">{% get_verbose_label my_object field %}</th>
+{#                        {% elif field == "section" %}#}
+{#                            <th style="width: 10%;">{% get_verbose_label my_object field %}</th>#}
+
+                        {% else %}
+                            <th scope="col">{% get_verbose_label my_object field %}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for form in formset %}
+                    <tr>
+
+                        <td style="width: 20%">{{ form.instance.project_title }}</td>
+                        <td style="width: 15%">{{ form.instance.section }}</td>
+                        <td>{{ form.instance.project_leads }}</td>
+                        <td>{% get_field_value form.instance "programs" %}
+                        <td>{{ form.instance.funding_sources }}</td>
+                        {% for field in form %}
+                            <td>
+                                {% bootstrap_field field size='small' show_label=False placeholder="" %}
+                            </td>
+                        {% endfor %}
+                        {% if form.instance.id %}
+                        {% else %}
+                            <td>(new record)</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+
+                </tbody>
+            </table>
+
+            <p>
+                <button id="submit" type="submit" class="btn btn-primary">
+                    {% trans "Save" %}
+                </button>
+                <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">
+                    {% trans "Back" %}
+                </a>
+            </p>
+
+        </form>
+    </div>
+{% endblock content %}
