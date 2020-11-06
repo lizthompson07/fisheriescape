@@ -240,8 +240,11 @@ class ProjectYear(models.Model):
     abl_services_required = models.BooleanField(default=False, verbose_name=_(
         "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"))
     lab_space_required = models.BooleanField(default=False, verbose_name=_("Is laboratory space required?"))
-    chemical_needs = models.TextField(blank=True, null=True, verbose_name=_("Please provide details regarding chemical "
-                                                                            "needs and the plan for storage and disposal."))
+    requires_other_lab_support = models.BooleanField(default=False, verbose_name=_(
+        "Does this project require other specialized laboratory support or services (provide details below)?"))
+    other_lab_support_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "Describe other laboratory requirements relevant for project planning purposes."))
+
 
     it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
     additional_notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))

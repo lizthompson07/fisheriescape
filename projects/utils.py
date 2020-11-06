@@ -358,3 +358,67 @@ def multiple_projects_financial_summary(project_list):
         my_dict["total"]["total"] += my_dict[fs]["total"]
 
     return my_dict
+
+
+def get_project_field_list(project=None):
+    my_list = [
+        'id',
+        'year',
+        'section',
+        'project_title',
+        'activity_type',
+        'functional_group',
+        'default_funding_source',
+        'funding_sources|{}'.format(_("Complete list of funding sources")),
+        'tags',
+        'is_national',
+        'status',
+        'is_competitive',
+        'is_approved',
+        'start_date',
+        'end_date',
+        'description',
+        'priorities',
+        'deliverables',
+
+        # specialized equipment
+        'requires_specialized_equipment',
+        'technical_service_needs' if not project or project.requires_specialized_equipment else None,
+        'mobilization_needs' if not project or project.requires_specialized_equipment else None,
+
+        # travel
+        'has_travel',
+        'vehicle_needs' if not project or project.has_travel else None,
+        'ship_needs' if not project or project.has_travel else None,
+        'coip_reference_id' if not project or project.has_travel else None,
+        'instrumentation' if not project or project.has_travel else None,
+        'owner_of_instrumentation' if not project or project.has_travel else None,
+        'requires_field_staff' if not project or project.has_travel else None,
+        'field_staff_needs' if not project or project.has_travel and project.requires_field_staff else None,
+
+        # data
+        'has_new_data',
+        'data_collection' if not project or project.has_new_data else None,
+        'data_products' if not project or project.has_new_data else None,
+        'data_storage' if not project or project.has_new_data else None,
+        'open_data_eligible' if not project or project.has_new_data else None,
+        'regional_dm_needs' if not project or project.has_new_data else None,
+
+        # lab work
+        'has_lab_work',
+        'abl_services_required' if not project or project.has_lab_work else None,
+        'lab_space_required' if not project or project.has_lab_work else None,
+        'requires_other_lab_support' if not project or project.has_lab_work else None,
+        'other_lab_support_needs' if not project or project.has_lab_work else None,
+
+        'it_needs',
+        'notes|{}'.format("additional notes"),
+        'coding|Known financial coding',
+        'last_modified_by',
+        'date_last_modified',
+    ]
+
+    # remove any instances of None
+    while None in my_list: my_list.remove(None)
+
+    return my_list

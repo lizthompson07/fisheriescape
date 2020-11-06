@@ -30,71 +30,11 @@ from . import reports
 from . import stat_holidays
 from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
 from .utils import multiple_projects_financial_summary, financial_summary_data, can_modify_project, get_help_text_dict, \
-    get_division_choices, get_section_choices, in_projects_admin_group, is_section_head, get_omcatagory_choices, pdf_financial_summary_data
+    get_division_choices, get_section_choices, in_projects_admin_group, is_section_head, get_omcatagory_choices, pdf_financial_summary_data, \
+    get_project_field_list
 
-project_field_list = [
-    'id',
-    'year',
-    'section',
-    'project_title',
-    'activity_type',
-    'functional_group',
-    'default_funding_source',
-    'funding_sources|{}'.format(_("Complete list of funding sources")),
-    'tags',
-    'is_national',
-    'status',
-    'is_competitive',
-    'is_approved',
-    'start_date',
-    'end_date',
-    'description',
-    'priorities',
-    'deliverables',
-
-    # specialized equipment
-    'requires_specialized_equipment',
-    'technical_service_needs',
-    'mobilization_needs',
-
-    # travel
-    'has_travel',
-    'vehicle_needs',
-    'ship_needs',
-    'coip_reference_id',
-    'instrumentation',
-    'owner_of_instrumentation',
-    'requires_field_staff',
-    'field_staff_needs',
-
-    # data
-    'has_new_data',
-    'data_collection',
-    'data_products',
-    'data_storage',
-    'open_data_eligible',
-    'regional_dm_needs',
-
-    # lab work
-    'has_lab_work',
-    'abl_services_required',
-    'lab_space_required',
-    'requires_other_lab_support',
-    'other_lab_support_needs',
-
-    'it_needs',
-    'notes|{}'.format("additional notes"),
-    'coding|Known financial coding',
-    'last_modified_by',
-    'date_last_modified',
-]
 
 # this needs to be harmonized between regions
-gulf_field_list = deepcopy(project_field_list)
-gulf_field_list.remove("is_competitive")
-gulf_field_list.remove("is_approved")
-gulf_field_list.remove("regional_dm_needs")
-gulf_field_list.remove("abl_services_required")
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -366,10 +306,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         project = self.get_object()
 
         # If this is a gulf region project, only show the gulf region fields
-        if project.section.division.branch.region.id == 1:
-            context["field_list"] = gulf_field_list
-        else:
-            context["field_list"] = project_field_list
+        context["field_list"] = get_project_field_list(project)
 
         context["files"] = project.files.all()
         context["financial_summary_dict"] = financial_summary_data(project)
@@ -414,7 +351,7 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         project = models.Project.objects.get(pk=self.kwargs["pk"])
         context["report_mode"] = True
         context["object"] = project
-        context["field_list"] = project_field_list
+        context["field_list"] = get_project_field_list(project)
 
         # bring in financial summary data
         my_context = financial_summary_data(project)
@@ -503,11 +440,7 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
             context["btn_color"] = btn_color
 
         # If this is a gulf region project, only show the gulf region fields
-        if project.section.division.branch.region.id == 1:
-            context["field_list"] = gulf_field_list
-        else:
-            context["field_list"] = project_field_list
-
+        context["field_list"] = get_project_field_list(project)
         context["report_mode"] = True
 
         # bring in financial summary data
@@ -2027,7 +1960,7 @@ class PDFFundingReport(PDFReportTemplate):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["field_list"] = project_field_list
+        context["field_list"] = get_project_field_list()
 
         funding = int(self.kwargs["funding"])
         self.funding_src = models.FundingSource.objects.get(pk=funding)
@@ -2122,7 +2055,7 @@ class PDFProjectSummaryReport(PDFReportTemplate):
 
         context["report_mode"] = True
         context["object_list"] = self.project_list
-        context["field_list"] = project_field_list
+        context["field_list"] = get_project_field_list()
         context["division_list"] = [shared_models.Division.objects.get(pk=item["section__division"]) for item in
                                     self.project_list.values("section__division").order_by(
                                         "section__division").distinct()]
@@ -2229,7 +2162,7 @@ class PDFProjectPrintoutReport(PDFReportTemplate):
 
         context["report_mode"] = True
         context["object_list"] = self.project_list
-        context["field_list"] = project_field_list
+        context["field_list"] = get_project_field_list()
         context["division_list"] = set([s.division for s in self.section_list])
         # bring in financial summary data for each project:
         context["financial_summary_data"] = {}

@@ -408,9 +408,10 @@ def get_project_year_field_list(project_year):
         'has_lab_component',
         'abl_services_required' if project_year.has_lab_component else None,
         'lab_space_required' if project_year.has_lab_component else None,
-        'chemical_needs' if project_year.has_lab_component else None,
+        'requires_other_lab_support' if project_year.has_lab_component else None,
+        'other_lab_support_needs' if project_year.has_lab_component else None,
 
-        'it_needs',
+    'it_needs',
         'additional_notes',
         'metadata|{}'.format(_("metadata")),
     ]
