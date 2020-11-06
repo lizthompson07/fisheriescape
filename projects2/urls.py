@@ -11,9 +11,11 @@ urlpatterns = [
     ############
 
     path('projects/new/', views.ProjectCreateView.as_view(), name="project_new"),
+    path('admin/projects/all/', views.ProjectListView.as_view(), name="project_list"),
+
+    # path('all/', views.ProjectListView.as_view(), name="project_list"),
 
     path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
-    path('all/', views.ProjectListView.as_view(), name="project_list"),
     path('<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),
     path('project/<int:pk>/print/', views.ProjectPrintDetailView.as_view(), name="project_print"),
     path('project/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),

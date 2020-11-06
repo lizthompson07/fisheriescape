@@ -54,16 +54,17 @@ class ActivityType(SimpleLookup):
         ordering = ['id', ]
 
 
-class FundingSourceType(SimpleLookup):
-    color = models.CharField(max_length=10, blank=True, null=True)
-
-
 class FundingSource(SimpleLookup):
+    funding_source_choices = (
+        (1, _("A-base")),  # #a7aef9
+        (2, _("B-base")),  # #d9a7f9
+        (3, _("C-base")),  # #eff9a7
+    )
     name = models.CharField(max_length=255)
-    funding_source_type = models.ForeignKey(FundingSourceType, on_delete=models.DO_NOTHING, related_name="funding_sources")
+    funding_source_type = models.IntegerField(choices=funding_source_choices)
 
     def __str__(self):
-        return "{} - {}".format(self.funding_source_type, self.tname)
+        return f"{self.tname} ({self.get_funding_source_type_display()})"
 
     class Meta:
         ordering = ['funding_source_type', 'name', ]
@@ -94,7 +95,7 @@ class Project(models.Model):
                                          verbose_name=_("Functional group"))
     default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True, related_name="projects",
                                                verbose_name=_("primary funding source"))
-    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords (used for searching)"), related_name="projects")
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
 
     # HTML field
     overview = models.TextField(blank=True, null=True, verbose_name=_("Project overview"))
@@ -113,6 +114,9 @@ class Project(models.Model):
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"), editable=False)
+    fiscal_years = models.ManyToManyField(shared_models.FiscalYear, editable=False, verbose_name=_("fiscal years"))
+    funding_sources = models.ManyToManyField(FundingSource, editable=False, verbose_name=_("complete list of funding sources"))
+    staff_search_field = models.CharField(editable=False, max_length=1000, blank=True, null=True)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -122,10 +126,29 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
         project_years = self.years.order_by("fiscal_year")  # being explicit about ordering here is impnt
 
-        # set the start and end dates based on project years
-        if self.years.exists():
+        # list of things to do if there are project years
+        if project_years.exists():
+            # set the start and end dates based on project years
             self.start_date = self.years.first().start_date
             self.end_date = self.years.last().end_date
+
+            # reset some calculated fields
+            self.staff_search_field = ""
+            self.fiscal_years.clear()
+            self.funding_sources.clear()
+
+            for y in project_years:
+
+                # search for and staff and concatenate into a search field
+                for s in project_years.staff_set.all():
+                    self.staff_search_field += s.smart_name + " "
+
+                # add the fiscal year
+                self.fiscal_years.add(y.fiscal_year)
+
+                # cycle through all costs and pull out funding sources
+                for c in y.costs:
+                    self.funding_sources.add(c.funding_source)
 
         super().save(*args, **kwargs)
 
@@ -149,6 +172,14 @@ class Project(models.Model):
     @property
     def has_unsubmitted_years(self):
         return self.years.filter(submitted__isnull=True).exists()
+
+    @property
+    def region(self):
+        return self.division.branch.region
+
+    @property
+    def division(self):
+        return self.section.division
 
 
 class ProjectYear(models.Model):
@@ -216,7 +247,7 @@ class ProjectYear(models.Model):
     additional_notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))
 
     # admin
-    submitted = models.DateTimeField(editable=False)
+    submitted = models.DateTimeField(editable=False, blank=True, null=True)
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"))
 
@@ -232,6 +263,25 @@ class ProjectYear(models.Model):
 
     class Meta:
         ordering = ["project", "fiscal_year"]
+
+    def save(self, *args, **kwargs):
+        # save the project whenever a project year is saved
+        self.project.save()
+        super().save(*args, **kwargs)
+
+    @property
+    def costs(self):
+        om_qry = self.omcost_set
+        capital_qry = self.capitalcost_set
+        staff_qry = self.staff_set
+        my_list = []
+        if om_qry.exists():
+            my_list.extend([c for c in om_qry.all()])
+        if capital_qry.exists():
+            my_list.extend([c for c in capital_qry.all()])
+        if staff_qry.exists():
+            my_list.extend([c for c in staff_qry.all()])
+        return my_list
 
 
 class GenericCost(models.Model):
@@ -281,6 +331,11 @@ class Staff(GenericCost):
     class Meta:
         ordering = ['employee_type', 'level']
         unique_together = [('project_year', 'user'), ]
+
+    @property
+    def smart_name(self):
+        if self.user or self.name:
+            return self.user.get_full_name() if self.user else self.name
 
 
 class OMCategory(models.Model):

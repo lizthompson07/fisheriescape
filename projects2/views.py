@@ -1,92 +1,30 @@
 import json
-import os
 from copy import deepcopy
 
 import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
-from django.db.models import Sum, Q, Count, Value, TextField
-from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.db.models import Sum
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView
-from django_filters.views import FilterView
+from django.views.generic import UpdateView, CreateView
 from easy_pdf.views import PDFTemplateView
 
 from dm_apps.utils import custom_send_mail
-from lib.functions.custom_functions import fiscal_year, listrify
-from lib.functions.custom_functions import nz
+from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
-from shared_models.views import CommonHardDeleteView, CommonFormsetView, CommonTemplateView, CommonFormView, CommonCreateView, \
+from shared_models.views import CommonTemplateView, CommonCreateView, \
     CommonDetailView, CommonFilterView, CommonPopoutUpdateView, CommonDeleteView, CommonUpdateView, CommonListView
 from . import emails
 from . import filters
 from . import forms
 from . import models
-from . import reports
 from . import stat_holidays
-from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
+from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import multiple_projects_financial_summary, financial_summary_data, can_modify_project, get_help_text_dict, \
-    get_division_choices, get_section_choices, in_projects_admin_group, is_section_head, get_omcatagory_choices, pdf_financial_summary_data
-
-project_field_list = [
-    'id',
-    'year',
-    'section',
-    'project_title',
-    'activity_type',
-    'functional_group',
-    'default_funding_source',
-    'funding_sources|{}'.format(_("Complete list of funding sources")),
-    'tags',
-    'is_national',
-    'status',
-    'is_competitive',
-    'is_approved',
-    'start_date',
-    'end_date',
-    'description',
-    'priorities',
-    'deliverables',
-
-    # specialized equipment
-    'requires_specialized_equipment',
-    'technical_service_needs',
-    'mobilization_needs',
-
-    # travel
-    'has_travel',
-    'vehicle_needs',
-    'ship_needs',
-    'coip_reference_id',
-    'instrumentation',
-    'owner_of_instrumentation',
-    'requires_field_staff',
-    'field_staff_needs',
-
-    # data
-    'has_new_data',
-    'data_collection',
-    'data_sharing',
-    'data_storage',
-    'metadata_url',
-    'regional_dm_needs',
-
-    # lab work
-    'has_lab_work',
-    'abl_services_required',
-    'lab_space_required',
-    'chemical_needs',
-
-    'it_needs',
-    'notes|{}'.format("additional notes"),
-    'coding|Known financial coding',
-    'last_modified_by',
-    'date_last_modified',
-]
+    get_division_choices, get_section_choices, get_project_field_list
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -136,6 +74,27 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 # PROJECTS #
 ############
 
+class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
+    template_name = 'projects2/list.html'
+    paginate_by = 50
+    # get all submitted and unhidden projects
+    queryset = models.Project.objects.order_by('section__division', 'section', 'title')
+    filterset_class = filters.ProjectFilter
+    home_url_name = "projects2:index"
+    container_class = "container-fluid"
+    row_object_url_name = "projects2:project_detail"
+    h1 = gettext_lazy("Full Project List")
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
+        {"name": 'division', "class": "", "width": ""},
+        {"name": 'section', "class": "", "width": ""},
+        {"name": 'title', "class": "", "width": ""},
+        {"name": 'default_funding_source', "class": "", "width": ""},
+        {"name": 'tags', "class": "", "width": ""},
+    ]
+
+
 
 class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
     model = models.Project
@@ -172,7 +131,16 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         return context
 
     def form_valid(self, form):
-        my_object = form.save()
+        my_object = form.save(commit=False)
+        # modifications to project instance before saving
+        my_object.modified_by = self.request.user
+        my_object.save()
+
+        # create a first year of the project
+        models.ProjectYear.objects.create(
+            project=my_object,
+            fiscal_year_id=fiscal_year(timezone.now(), sap_style=True)
+        )
         models.Staff.objects.create(project=my_object, lead=True, employee_type_id=1, user_id=self.request.user.id,
                                     funding_source=my_object.default_funding_source)
 
@@ -185,6 +153,38 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
+
+
+
+class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
+    model = models.Project
+    template_name = 'projects2/project_detail.html'
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
+
+    def get_active_page_name_crumb(self):
+        return str(self.get_object())
+
+    def get_h1(self):
+        mystr = str(self.get_object())
+        if not self.get_object().has_unsubmitted_years:
+            mystr += ' <span class="red-font">{}</span>'.format(_("UNSUBMITTED"))
+        return mystr
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        project = self.get_object()
+
+        # If this is a gulf region project, only show the gulf region fields
+        context["field_list"] = get_project_field_list(project)
+
+        context["files"] = project.files.all()
+        # context["financial_summary_dict"] = financial_summary_data(project)
+
+        # Determine if the user will be able to edit the project.
+        # context["can_edit"] = can_modify_project(self.request.user, project.id)
+        # context["is_lead"] = self.request.user in [staff.user for staff in project.staff_members.filter(lead=True)]
+        return context
 
 
 
@@ -363,63 +363,6 @@ class SectionProjectListView(LoginRequiredMixin, CommonListView):
             'section_head_comment',
             'section_head_reviewed',
         ]
-        return context
-
-
-class ProjectListView(LoginRequiredMixin, CommonFilterView):
-    template_name = 'projects2/project_list.html'
-
-    # get all submitted and unhidden projects
-    queryset = models.Project.objects.filter(
-        is_hidden=False    ).order_by('section__division', 'section', 'title')
-    filterset_class = filters.ProjectFilter
-    home_url_name = "projects2:index"
-    container_class = "container-fluid"
-    h1 = gettext_lazy("Projects")
-    field_list = [
-        {"name": 'id', "class": "", "width": ""},
-        {"name": 'year', "class": "", "width": ""},
-        {"name": 'region', "class": "", "width": ""},
-        {"name": 'division', "class": "", "width": ""},
-        {"name": 'section', "class": "", "width": ""},
-        {"name": 'project_title', "class": "", "width": ""},
-        {"name": 'default_funding_source', "class": "", "width": ""},
-        {"name": 'project_leads|{}'.format(gettext_lazy("Project Leads")), "class": "", "width": ""},
-        {"name": 'tags', "class": "", "width": ""},
-    ]
-
-
-class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
-    model = models.Project
-    template_name = 'projects2/project_detail.html'
-    home_url_name = "projects2:index"
-    parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
-
-    def get_active_page_name_crumb(self):
-        return str(self.get_object())
-
-    def get_h1(self):
-        mystr = str(self.get_object())
-        if not self.get_object().submitted:
-            mystr += ' <span class="red-font">{}</span>'.format(_("UNSUBMITTED"))
-        return mystr
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        project = self.get_object()
-
-        # If this is a gulf region project, only show the gulf region fields
-        if project.section.division.branch.region.id == 1:
-            context["field_list"] = gulf_field_list
-        else:
-            context["field_list"] = project_field_list
-
-        context["files"] = project.files.all()
-        context["financial_summary_dict"] = financial_summary_data(project)
-
-        # Determine if the user will be able to edit the project.
-        context["can_edit"] = can_modify_project(self.request.user, project.id)
-        context["is_lead"] = self.request.user in [staff.user for staff in project.staff_members.filter(lead=True)]
         return context
 
 

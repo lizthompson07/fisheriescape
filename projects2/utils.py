@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from django.utils.translation import gettext as _
 
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from . import models
 
@@ -12,15 +13,6 @@ def get_help_text_dict():
         my_dict[obj.field_name] = str(obj)
 
     return my_dict
-    #
-    # help_text_dict = {
-    #     "user": _("This field should be used if the staff member is a DFO employee (as opposed to the 'Person name' field)"),
-    #     "start_date": _("This is the start date of the project, not the fiscal year"),
-    #     "is_negotiable": _("Is this program a part of DFO's core mandate?"),
-    #     "is_competitive": _("For example, is the funding for this project coming from a program like ACRDP, PARR, SPERA, etc.?"),
-    #     "priorities": _("What will be the project emphasis in this particular fiscal year?"),
-    #     "deliverables": _("Please provide this information in bulleted form, if possible."),
-    # }
 
 
 def in_projects_admin_group(user):
@@ -140,7 +132,7 @@ def get_section_choices(all=False, full_name=True, region_filter=None, division_
                               "division__branch",
                               "division",
                               "name"
-                          ).filter(**div_kwargs).filter(**reg_kwargs) if s.projects.count() > 0]
+                          ).filter(**div_kwargs).filter(**reg_kwargs) if s.projects2.count() > 0]
     else:
         my_choice_list = [(s.id, getattr(s, my_attr)) for s in
                           shared_models.Section.objects.filter(
@@ -357,3 +349,58 @@ def multiple_projects_financial_summary(project_list):
         my_dict["total"]["total"] += my_dict[fs]["total"]
 
     return my_dict
+
+
+def get_project_field_list(project):
+    my_list = [
+        'id',
+        'section',
+        'title',
+        'overview',
+        'activity_type',
+        'functional_group',
+        'default_funding_source',
+        'start_date',
+        'end_date',
+        'fiscal_years',
+        'funding_sources',
+        'tags',
+        'metadata|{}'.format(_("metadata")),
+    ]
+    return my_list
+
+
+# # specialized equipment
+# 'requires_specialized_equipment',
+# 'technical_service_needs',
+# 'mobilization_needs',
+#
+# # travel
+# 'has_travel',
+# 'vehicle_needs',
+# 'ship_needs',
+# 'coip_reference_id',
+# 'instrumentation',
+# 'owner_of_instrumentation',
+# 'requires_field_staff',
+# 'field_staff_needs',
+#
+# # data
+# 'has_new_data',
+# 'data_collection',
+# 'data_sharing',
+# 'data_storage',
+# 'metadata_url',
+# 'regional_dm_needs',
+#
+# # lab work
+# 'has_lab_work',
+# 'abl_services_required',
+# 'lab_space_required',
+# 'chemical_needs',
+#
+# 'it_needs',
+# 'notes|{}'.format(_("additional notes")),
+# 'coding|Known financial coding',
+# 'last_modified_by',
+# 'date_last_modified',

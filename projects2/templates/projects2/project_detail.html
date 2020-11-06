@@ -1,0 +1,45 @@
+{% extends "projects2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% block header %}
+  {{ block.super }}
+  <style>
+  .toolbar {
+      background-color: #dfd2f6;
+      border: #4c4c4c;
+      border-radius: 10px;
+  }
+  .custom-group{
+      width: 100%;
+      margin-bottom: 25px;
+  }
+  .custom-btn{
+      text-align: left;
+  }
+  .icon {
+      padding-right: 5px;
+  }
+  </style>
+{% endblock %}
+
+{% block subcontent %}
+
+  <div class="row">
+    <div class="col-2 toolbar py-3 px-3 ml-2">
+      {% include "projects2/_project_console.html" %}
+    </div>
+    <div class="col">
+      <table class="table table-sm">
+        {% for field in field_list %}
+          {% verbose_td_display object field th_width="30%" td_width="80%" %}
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+
+{% endblock %}
