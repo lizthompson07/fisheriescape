@@ -24,7 +24,7 @@ from . import models
 from . import stat_holidays
 from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import multiple_projects_financial_summary, financial_summary_data, can_modify_project, get_help_text_dict, \
-    get_division_choices, get_section_choices, get_project_field_list
+    get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -177,7 +177,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         project = self.get_object()
 
         # If this is a gulf region project, only show the gulf region fields
-        context["field_list"] = get_project_field_list(project)
+        context["project_field_list"] = get_project_field_list(project)
 
         # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)

@@ -2,13 +2,16 @@
 {% load static %}
 {% load custom_tags %}
 
-{% echo "btn btn-outline-dark btn-sm custom-btn" as btn_class_1 %}
+{% echo "btn btn-outline-dark btn-sm custom-btn" as btn_class_black %}
+{% echo "btn btn-outline-primary btn-sm custom-btn" as btn_class_blue %}
+{% echo "btn btn-outline-success btn-sm custom-btn" as btn_class_green %}
+{% echo "btn btn-outline-danger btn-sm custom-btn" as btn_class_red %}
 
 <h6>
   {% trans "Reports" %}
 </h6>
 <div class="btn-group-vertical vgroup">
-  <a class="{{ btn_class_1 }}" href="{% url 'projects2:project_print' object.id %}">
+  <a class="{{ btn_class_black }}" href="{% url 'projects2:project_print' object.id %}">
     <span class="icon mdi mdi-file-pdf"></span>
     {% trans "Export PDF" %}
   </a>
@@ -20,33 +23,33 @@
 
 <div class="btn-group-vertical vgroup">
 
-  <a class="{{ btn_class_1 }} {% if object.submitted %}disabled{% endif %}"
+  <a class="{{ btn_class_black }} {% if object.submitted %}disabled{% endif %}"
      href="{% url 'projects2:project_edit' object.id %}">
     <span class="icon mdi mdi-pencil"></span>
     {% trans "Edit" %}
   </a>
 
-  <a class="{{ btn_class_1 }}  {% if object.submitted %}disabled{% endif %}"
+  <a class="{{ btn_class_black }}  {% if object.submitted %}disabled{% endif %}"
      href="{% url 'projects2:project_delete' object.id %}">
     <span class="icon mdi mdi-delete"></span>
     {% trans "Delete" %}
   </a>
 
   {% if object.has_unsubmitted_years %}
-    <a class="{{ btn_class_1 }}" href="{% url 'projects2:project_submit' object.id %}">
+    <a class="{{ btn_class_black }}" href="{% url 'projects2:project_submit' object.id %}">
       <span class="icon mdi mdi-cancel"></span>
       {% trans "Submit" %}
     </a>
   {% else %}
     {% if object.years.exists %}
-      <a class="{{ btn_class_1 }}" href="{% url 'projects2:project_submit' object.id %}">
+      <a class="{{ btn_class_black }}" href="{% url 'projects2:project_submit' object.id %}">
         <span class="icon mdi mdi-cancel"></span>
         {% trans "Unsubmit" %}
       </a>
     {% endif %}
   {% endif %}
 
-  <a href="{% url 'projects2:project_clone' object.id %}" class="{{ btn_class_1 }} " data-toggle="tooltip"
+  <a href="{% url 'projects2:project_clone' object.id %}" class="{{ btn_class_black }} " data-toggle="tooltip"
      title="{% trans "Use this project as a template for a new project" %}">
     <span class="icon mdi mdi-content-copy"></span>
     {% trans "Clone" %}
@@ -60,22 +63,25 @@
 
 
 <div class="btn-group-vertical vgroup">
+  <a href="#" class="{{ btn_class_black }}">
+    <span class="icon mdi mdi-menu-right-outline"></span>
+    {% trans "Overview" %}
+  </a>
 
-  <a href="#" class="{{ btn_class_1 }}" data-toggle="modal" data-target="#new-year-modal"
+  {# add a button for each project year #}
+  {% for year in object.years.all %}
+    <a href="#" class="{% if year.submitted %}{{ btn_class_blue }}{% else %}{{ btn_class_red }}{% endif %}">
+      <span class="icon mdi mdi-menu-right-outline"></span>
+      {{ year }}
+    </a>
+  {% endfor %}
+
+  <a href="#" class="{{ btn_class_green }} " data-toggle="modal" data-target="#new-year-modal"
      title="{% trans "Add a new year to this project" %}">
     <span class="icon mdi mdi-plus"></span>
     {% trans "Add New Year" %}
   </a>
-  {% if object.years.exists %}
-    {% for year in object.years.all %}
-      <a href="#" class="{{ btn_class_1 }}">
-    <span class="icon mdi mdi-menu-right-outline"></span>
-        {{ year }}
-      </a>
 
-    {% endfor %}
-
-  {% endif %}
 
 </div>
 
@@ -98,9 +104,13 @@
         </h4>
         <div class="btn-group-vertical">
           {% for year in object.years.all %}
-            <a href="#" class="btn btn-warning">{{ year }}</a>
+            <a href="#" class="btn btn-warning">
+              {% blocktrans %}
+                Clone from {{ year }}
+              {% endblocktrans %}
+            </a>
           {% endfor %}
-          <a href="#" class="btn btn-success">{% trans "Start from Scratch" %}</a>
+          <a href="#" class="btn btn-success">{% trans "From Scratch" %}</a>
         </div>
       </div>
       <div class="modal-footer">

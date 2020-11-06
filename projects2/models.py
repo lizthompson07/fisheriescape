@@ -233,8 +233,8 @@ class ProjectYear(models.Model):
     data_management_needs = models.TextField(blank=True, null=True, verbose_name=_("Describe what data management support is required, "
                                                                                    "if any."))
 
-    # LAB WORK
-    ##########
+    # LAB COMPONENT
+    ###############
     has_lab_component = models.BooleanField(default=False, verbose_name=_("Does this project involve laboratory work?"))
     # maritimes only
     abl_services_required = models.BooleanField(default=False, verbose_name=_(
@@ -297,6 +297,12 @@ class ProjectYear(models.Model):
     def clear_empty_om_costs(self):
         self.omcost_set.filter(amount__isnull=True, description__isnull=True).delete()
 
+    @property
+    def dates(self):
+        my_str = date(self.start_date)
+        if self.end_date:
+            my_str += f" &rarr; {date(self.end_date)}"
+        return mark_safe(my_str)
 
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))

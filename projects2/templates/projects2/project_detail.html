@@ -4,6 +4,8 @@
 {% load verbose_names %}
 {% load custom_filters %}
 {% load i18n %}
+{% load project_tags %}
+
 
 {% block header %}
   {{ block.super }}
@@ -11,19 +13,66 @@
 {% endblock %}
 
 {% block subcontent %}
+  <div id="app">
+    <div class="row">
 
-  <div class="row">
-    <div class="col-2 toolbar py-3 px-3 ml-2">
-      {% include "projects2/_project_console.html" %}
-    </div>
-    <div class="col">
-      <table class="table table-sm">
-        {% for field in field_list %}
-          {% verbose_td_display object field th_width="30%" td_width="80%" %}
+      <div class="col-2 toolbar py-3 px-3 ml-2">
+        {% include "projects2/_project_console.html" %}
+      </div>
+
+      <div class="col">
+        <div v-if="showDetail">
+          <h4>
+            {% trans "Overview" %}
+          </h4>
+          <table class="table table-sm">
+            {% for field in project_field_list %}
+              {% if "fiscal" in field %}
+                <tr>
+                  <th>{% trans "Project years" %}</th>
+                  <td>
+                    <ul>
+                      {% for year in object.years.all %}
+                        <li>{{ year }}</li>
+                      {% empty %}
+                        <em>This project has no fiscal years added yet.</em>
+                      {% endfor %}
+
+                    </ul>
+                  </td>
+                </tr>
+              {% else %}
+                {% verbose_td_display object field th_width="30%" td_width="70%" %}
+              {% endif %}
+            {% endfor %}
+          </table>
+        </div>
+
+        {% for year in object.years.all %}
+          <div v-if="showDetail">
+            <h4>
+              {{ year }}
+            </h4>
+            <table class="table table-sm">
+            {% get_project_year_field_list year as fields %}
+              {% for field in fields %}
+                  {% verbose_td_display year field th_width="40%" td_width="60%" %}
+              {% endfor %}
+            </table>
+          </div>
         {% endfor %}
-      </table>
+      </div>
+
+
     </div>
+
   </div>
 
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.3" type="application/javascript"></script>
 
 {% endblock %}

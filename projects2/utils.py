@@ -355,7 +355,7 @@ def get_project_field_list(project):
     my_list = [
         'id',
         'section',
-        'title',
+        # 'title',
         'overview',
         'activity_type',
         'functional_group',
@@ -365,42 +365,57 @@ def get_project_field_list(project):
         'fiscal_years',
         'funding_sources',
         'tags',
+        'coding|Known financial coding',
         'metadata|{}'.format(_("metadata")),
     ]
     return my_list
 
 
-# # specialized equipment
-# 'requires_specialized_equipment',
-# 'technical_service_needs',
-# 'mobilization_needs',
-#
-# # travel
-# 'has_travel',
-# 'vehicle_needs',
-# 'ship_needs',
-# 'coip_reference_id',
-# 'instrumentation',
-# 'owner_of_instrumentation',
-# 'requires_field_staff',
-# 'field_staff_needs',
-#
-# # data
-# 'has_new_data',
-# 'data_collection',
-# 'data_sharing',
-# 'data_storage',
-# 'metadata_url',
-# 'regional_dm_needs',
-#
-# # lab work
-# 'has_lab_work',
-# 'abl_services_required',
-# 'lab_space_required',
-# 'chemical_needs',
-#
-# 'it_needs',
-# 'notes|{}'.format(_("additional notes")),
-# 'coding|Known financial coding',
-# 'last_modified_by',
-# 'date_last_modified',
+def get_project_year_field_list(project_year):
+    my_list = [
+        'dates|dates',
+        'priorities',
+        'deliverables',
+
+        # SPECIALIZED EQUIPMENT COMPONENT
+        #################################
+        'requires_specialized_equipment',
+        'technical_service_needs' if project_year.requires_specialized_equipment else None,
+        'mobilization_needs' if project_year.requires_specialized_equipment else None,
+
+        # FIELD COMPONENT
+        #################
+        'has_field_component',
+        'vehicle_needs' if project_year.has_field_component else None,
+        'ship_needs' if project_year.has_field_component else None,
+        'coip_reference_id' if project_year.has_field_component else None,
+        'instrumentation' if project_year.has_field_component else None,
+        'owner_of_instrumentation' if project_year.has_field_component else None,
+        'requires_field_staff' if project_year.has_field_component else None,
+        'field_staff_needs' if project_year.has_field_component and project_year.requires_field_staff else None,
+
+        # DATA COMPONENT
+        ################
+        'has_data_component',
+        'data_collected' if project_year.has_data_component else None,
+        'data_products' if project_year.has_data_component else None,
+        'open_data_eligible' if project_year.has_data_component else None,
+        'data_storage_plan' if project_year.has_data_component else None,
+        'data_management_needs' if project_year.has_data_component else None,
+
+        # LAB COMPONENT
+        ###############
+        'has_lab_component',
+        'abl_services_required' if project_year.has_lab_component else None,
+        'lab_space_required' if project_year.has_lab_component else None,
+        'chemical_needs' if project_year.has_lab_component else None,
+
+        'it_needs',
+        'additional_notes',
+        'metadata|{}'.format(_("metadata")),
+    ]
+
+    # remove any instances of None
+    while None in my_list: my_list.remove(None)
+
+    return my_list

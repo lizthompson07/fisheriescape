@@ -31,6 +31,12 @@ urlpatterns = [
     path('__debug__/', include(debug_toolbar.urls)),
 ]
 
+# Add application APIs
+if settings.INSTALLED_APPS.count("projects2"):
+    urlpatterns.append(
+        path('api/', include('projects2.api.urls')),
+    )
+
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
     path('accounts/', include('accounts.urls')),
@@ -82,8 +88,9 @@ if settings.INSTALLED_APPS.count("projects"):
     urlpatterns += i18n_patterns(path('projects/', include('projects.urls')), prefix_default_language=True)
 else:
     print("not connecting projects app")
+
 if settings.INSTALLED_APPS.count("projects2"):
-    urlpatterns += i18n_patterns(path('project2/', include('projects2.urls')), prefix_default_language=True)
+    urlpatterns += i18n_patterns(path('project-planning/', include('projects2.urls')), prefix_default_language=True)
 else:
     print("not connecting projects2 app")
 

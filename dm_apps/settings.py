@@ -133,6 +133,7 @@ INSTALLED_APPS = [
                      'django.contrib.messages',
                      'django.contrib.staticfiles',
                      'django.contrib.gis',
+                     'rest_framework',
                      'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
@@ -348,3 +349,12 @@ if AZURE_INSTRUMENTATION_KEY != "":
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+
+# Django REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',  # best used with a web client; that is why we will keep both
+        # 'rest_framework.authentication.TokenAuthentication',
+    )
+}

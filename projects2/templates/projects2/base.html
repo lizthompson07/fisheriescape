@@ -1,23 +1,31 @@
 {% extends "shared_models/generic_base.html" %}
 
 {% block bug_create %}
-    {% include "projects2/base/_bug_url.html" %}
+  {% include "projects2/base/_bug_url.html" %}
 {% endblock bug_create %}
 
 {% block title %}
-    {% include "projects2/base/_app_title.html" %}
-    {% block subtitle %} - {{ subtitle }}{% endblock %}
+  {% include "projects2/base/_app_title.html" %}
+  {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock title %}
 
 {% block header %}
-    {{ block.super }}
-    {% include "projects2/base/_style.html" %}
+  {{ block.super }}
+  {% include "projects2/base/_style.html" %}
 {% endblock %}
 
 {% block body %}
-    {{ block.super }}
+  {{ block.super }}
 {% endblock body %}
 
 {% block left_auth %}
-    {% include "projects2/base/_nav_left_auth.html" %}
+  {% include "projects2/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
+
+{% block body_js %}
+
+{#  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>#}
+{#<script src="https://cdn.jsdelivr.net/npm/vue@2.6.11/dist/vue.min.js"></script>#}
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+{% endblock %}
