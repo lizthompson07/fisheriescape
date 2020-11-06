@@ -2,17 +2,34 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
-    showDetail: true,
+    showOverview: true,
+    projectYear: {},
+    py_loading: false,
     // specimenList: [],
     // specimenSummary: null,
     // error_msg: null,
     // startingBoxIsFocused: false,
     // currentItemId: 0,
     // modalIsOpened: false,
-    // loading1: true,
     // loading2: true,
   },
   methods: {
+    displayOverview() {
+      this.showOverview = true
+    },
+    displayProjectYear(yearId) {
+      this.showOverview = false
+      this.getProjectYear(yearId)
+    },
+    getProjectYear(yearId) {
+      this.py_loading = true;
+      let endpoint = `/api/project-years/${yearId}/`;
+      apiService(endpoint)
+          .then(response => {
+            this.py_loading = false;
+            this.projectYear = response;
+          })
+    },
     // goBack() {
     //   this.$refs.back.click();
     // },
@@ -35,14 +52,7 @@ var app = new Vue({
     //       }
     //   )
     // },
-    // getSpecimenSummary: function () {
-    //   let endpoint = `/api/catch/${catch_id}/specimen-summary/`;
-    //   apiService(endpoint)
-    //       .then(response => {
-    //         this.loading2 = false;
-    //         this.specimenSummary = response;
-    //       })
-    // },
+
   },
   filters: {
     floatformat: function (value, precision = 2) {

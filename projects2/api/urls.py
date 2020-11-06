@@ -1,8 +1,13 @@
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
 from . import views
 
-urlpatterns = [
+router = DefaultRouter()
+router.register(r'project-years', views.ProjectYearViewSet)
 
+urlpatterns = [
+    path("", include(router.urls)),
     path("user/", views.CurrentUserAPIView.as_view(), name="current-user"),
 
     # CRUISE SUMMARY

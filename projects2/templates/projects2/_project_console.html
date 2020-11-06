@@ -63,14 +63,17 @@
 
 
 <div class="btn-group-vertical vgroup">
-  <a href="#" class="{{ btn_class_black }}">
+  <a href="#" class="{{ btn_class_black }}" @click="displayOverview">
     <span class="icon mdi mdi-menu-right-outline"></span>
     {% trans "Overview" %}
   </a>
 
   {# add a button for each project year #}
   {% for year in object.years.all %}
-    <a href="#" class="{% if year.submitted %}{{ btn_class_blue }}{% else %}{{ btn_class_red }}{% endif %}">
+    <a
+      @click="displayProjectYear({{ year.id }})"
+      href="#" class="{% if year.submitted %}{{ btn_class_blue }}{% else %}{{ btn_class_red }}{% endif %}"
+    >
       <span class="icon mdi mdi-menu-right-outline"></span>
       {{ year }}
     </a>
