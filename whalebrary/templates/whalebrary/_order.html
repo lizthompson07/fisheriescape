@@ -55,7 +55,7 @@
                     {% endif %}
                 {% endfor %}
                 <td align="center">
-                    <a href="{% url 'whalebrary:mark_order_received' obj.id %}" id="orderRcvdBtn">
+                    <a href="{% url 'whalebrary:mark_order_received' obj.id %}" class="orderRcvdBtn">
                         <img src="{% static "/admin/img/icon-addlink.svg" %}" data-toggle="tooltip"
                              title="Mark received">
                     </a>
@@ -71,7 +71,7 @@
 <br>
 
 <script>
-    $("#orderRcvdBtn").click(function (e) {
+    $(".orderRcvdBtn").click(function (e) {
         e.preventDefault()
         userInput = confirm("Are you certain you want to do this? I could be a GINORMOUS error!!! ;)")
         if (userInput) popitup($(this).attr("href"))
