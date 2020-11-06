@@ -24,7 +24,7 @@ from . import models
 from . import stat_holidays
 from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import multiple_projects_financial_summary, financial_summary_data, can_modify_project, get_help_text_dict, \
-    get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list
+    get_division_choices, get_section_choices, get_project_field_list
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -138,7 +138,6 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         # create a first year of the project
         year = models.ProjectYear.objects.create(
             project=my_object,
-            fiscal_year_id=fiscal_year(timezone.now(), sap_style=True)
         )
         # populate some initial staff and om costs
         models.Staff.objects.create(
@@ -218,6 +217,60 @@ class ProjectDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     def get_template_names(self):
         return "projects2/confirm_delete.html"
 
+
+# PROJECT YEAR #
+################
+
+
+class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
+    model = models.ProjectYear
+    form_class = forms.ProjectYearForm
+    home_url_name = "projects2:index"
+    template_name = 'projects2/project_year_form.html'
+
+    def get_initial(self):
+        # this is an important method to keep since it is accessed by the Form class 
+        # TODO: TEST ME
+        return dict(project=self.get_project())
+
+    def get_project(self):
+        return models.Project.objects.get(pk=self.kwargs["project"])
+
+    def get_parent_crumb(self):
+        return {"title": self.get_project(), "url": reverse_lazy("projects2:project_detail", args=[self.get_project().id])}
+
+    def form_valid(self, form):
+        year = form.save(commit=False)
+        year.modified_by = self.request.user
+        year.save()
+        
+        return super().form_valid(form)
+
+
+class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+    model = models.ProjectYear
+    form_class = forms.ProjectYearForm
+    home_url_name = "projects2:index"
+    template_name = 'projects2/project_year_form.html'
+
+    def get_h1(self):
+        return _("Edit ") + str(self.get_object())
+
+    def get_project(self):
+        return self.get_object().project
+
+    def get_parent_crumb(self):
+        return {"title": self.get_project(), "url": reverse_lazy("projects2:project_detail", args=[self.get_project().id])}
+
+    def form_valid(self, form):
+        year = form.save(commit=False)
+        year.modified_by = self.request.user
+        year.save()
+
+        return super().form_valid(form)
+
+
+########################################
 
 class MyProjectListView(LoginRequiredMixin, CommonListView):
     template_name = 'projects2/my_project_list.html'

@@ -140,7 +140,7 @@ class Project(models.Model):
             for y in project_years:
 
                 # search for and staff and concatenate into a search field
-                for s in project_years.staff_set.all():
+                for s in y.staff_set.all():
                     self.staff_search_field += s.smart_name + " "
 
                 # add the fiscal year
@@ -184,18 +184,13 @@ class Project(models.Model):
 
 class ProjectYear(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="years", verbose_name=_("project"))
-
-    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                    verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
-
-    # should check to make sure these are within the correct fiscal year!!
-    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
-    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"), editable=False)
+    start_date = models.DateTimeField(default=timezone.now, verbose_name=_("Start date of project"))
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
 
     # HTML field
-    priorities = models.TextField(blank=True, null=True, verbose_name=_("Year-specific priorities"))
+    deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"))
     # HTML field
-    deliverables = models.TextField(blank=True, null=True, verbose_name=_("Deliverables / activities specific to year"))
+    priorities = models.TextField(blank=True, null=True, verbose_name=_("year-specific priorities"))
 
     # SPECIALIZED EQUIPMENT
     ########################
@@ -218,7 +213,7 @@ class ProjectYear(models.Model):
     owner_of_instrumentation = models.TextField(blank=True, null=True, verbose_name=_(
         "Who is the owner/curator of this instrumentation, if known?"))
     # -- > Field staff
-    requires_field_staff = models.BooleanField(default=False, verbose_name=_("Does this project involved a field component?"))
+    requires_field_staff = models.BooleanField(default=False, verbose_name=_("Do you require field support staff?"))
     field_staff_needs = models.TextField(blank=True, null=True, verbose_name=_("If so, please include some additional detail, "
                                                                                "e.g., how many people are likely to be required and when"))
 
@@ -227,8 +222,8 @@ class ProjectYear(models.Model):
     has_data_component = models.BooleanField(default=False, verbose_name=_("Will new data be collected or generated?"))
     data_collected = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
     data_products = models.TextField(blank=True, null=True, verbose_name=_("What data products will be generated (e.g. models, indices)?"))
-    open_data_eligible = models.BooleanField(default=True, verbose_name=_("Are these data / data products eligible "
-                                                                          "to be placed on the Open Data Platform?"))
+    open_data_eligible = models.BooleanField(default=False, verbose_name=_("Are these data / data products eligible "
+                                                                           "to be placed on the Open Data Platform?"))
     data_storage_plan = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
     data_management_needs = models.TextField(blank=True, null=True, verbose_name=_("Describe what data management support is required, "
                                                                                    "if any."))
@@ -245,14 +240,13 @@ class ProjectYear(models.Model):
     other_lab_support_needs = models.TextField(blank=True, null=True, verbose_name=_(
         "Describe other laboratory requirements relevant for project planning purposes."))
 
-
     it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
     additional_notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))
 
     # admin
     submitted = models.DateTimeField(editable=False, blank=True, null=True)
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
-    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"))
+    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -260,20 +254,29 @@ class ProjectYear(models.Model):
     modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_projectyear", blank=True,
                                     null=True)
 
+    # calculated
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True,
+                                    verbose_name=_("fiscal year"))
+
     @property
     def metadata(self):
         return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
 
     class Meta:
         ordering = ["project", "fiscal_year"]
+        unique_together = ["project", "fiscal_year"]
 
     def save(self, *args, **kwargs):
+        # get the fiscal year based on the start date
+        self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
+
         # save the project whenever a project year is saved
         self.project.save()
+
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return str(self.fiscal_year)
+        return str(self.fiscal_year) if self.fiscal_year else gettext("NEW PROJECT YEAR")
 
     @property
     def costs(self):
@@ -306,6 +309,7 @@ class ProjectYear(models.Model):
         if self.end_date:
             my_str += f" &rarr; {date(self.end_date)}"
         return mark_safe(my_str)
+
 
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))

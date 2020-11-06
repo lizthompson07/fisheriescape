@@ -110,7 +110,7 @@
               {% endblocktrans %}
             </a>
           {% endfor %}
-          <a href="#" class="btn btn-success">{% trans "From Scratch" %}</a>
+          <a href="{% url 'projects2:year_new' object.id %}" class="btn btn-success">{% trans "From Scratch" %}</a>
         </div>
       </div>
       <div class="modal-footer">

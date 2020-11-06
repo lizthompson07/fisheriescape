@@ -1,6 +1,9 @@
 from django import forms
-from django.utils.translation import gettext_lazy as _
+from django.db.models import Q
+from django.utils.translation import gettext_lazy as _, gettext
 
+from lib.functions.custom_functions import fiscal_year
+from shared_models import models as shared_models
 from . import models, utils
 
 chosen_js = {"class": "chosen-select-contains"}
@@ -102,60 +105,101 @@ class ProjectForm(forms.ModelForm):
 
 class ProjectYearForm(forms.ModelForm):
     class Meta:
-        model = models.Project
+        model = models.ProjectYear
         exclude = [
-            'updated_at',
-            'meeting_notes',
-            'programs',
+            # 'project',
             "allocated_budget",
+            "notification_email_sent",
+            "modified_by",
         ]
         widgets = {
-            "title": forms.Textarea(attrs={"rows": "3"}),
-            "description": forms.Textarea(attrs=class_editable),
-            "priorities": forms.Textarea(attrs=class_editable),
-            "deliverables": forms.Textarea(attrs=class_editable),
-
-            "data_collection": forms.Textarea(attrs=row4),
-            "data_sharing": forms.Textarea(attrs=row4),
-            "data_storage": forms.Textarea(attrs=row4),
-            "regional_dm_needs": forms.Textarea(attrs=row4),
-            "vehicle_needs": forms.Textarea(attrs=row4),
-            "it_needs": forms.Textarea(attrs=row4),
-            "chemical_needs": forms.Textarea(attrs=row4),
-            "ship_needs": forms.Textarea(attrs=row4),
-
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
-            'last_modified_by': forms.HiddenInput(),
-            "section": forms.Select(attrs=chosen_js),
-            "responsibility_center": forms.Select(attrs=chosen_js),
-            "allotment_code": forms.Select(attrs=chosen_js),
-            "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
+            'priorities': forms.Textarea(attrs=class_editable),
+            'deliverables': forms.Textarea(attrs=class_editable),
 
-            "tags": forms.SelectMultiple(attrs=chosen_js),
-            "default_funding_source": forms.Select(attrs=chosen_js),
-            "programs": forms.SelectMultiple(attrs=chosen_js),
+            # SPECIALIZED EQUIPMENT
+            ########################
 
-            "has_new_data": forms.Select(choices=YESNO_CHOICES),
-            "has_travel": forms.Select(choices=YESNO_CHOICES),
-            "has_lab_work": forms.Select(choices=YESNO_CHOICES),
-            "abl_services_required": forms.Select(choices=YESNO_CHOICES),
-            "lab_space_required": forms.Select(choices=YESNO_CHOICES),
-            "is_hidden": forms.Select(choices=YESNO_CHOICES),
+            'requires_specialized_equipment': forms.Select(choices=YESNO_CHOICES),
+            'technical_service_needs': forms.Textarea(attrs=row4),
+            'mobilization_needs': forms.Textarea(attrs=row4),
+
+            # FIELD COMPONENT
+            #################
+            'has_field_component': forms.Select(choices=YESNO_CHOICES),
+            'vehicle_needs': forms.Textarea(attrs=row4),
+            'ship_needs': forms.Textarea(attrs=row4),
+            'coip_reference_id': forms.Textarea(attrs=row4),
+            'instrumentation': forms.Textarea(attrs=row4),
+            'owner_of_instrumentation': forms.Textarea(attrs=row4),
+            'requires_field_staff': forms.Select(choices=YESNO_CHOICES),
+            'field_staff_needs': forms.Textarea(attrs=row4),
+
+            # DATA COMPONENT
+            ################
+            'has_data_component': forms.Select(choices=YESNO_CHOICES),
+            'data_collected': forms.Textarea(attrs=row4),
+            'data_products': forms.Textarea(attrs=row4),
+            'open_data_eligible': forms.Select(choices=YESNO_CHOICES),
+            'data_storage_plan': forms.Textarea(attrs=row4),
+            'data_management_needs': forms.Textarea(attrs=row4),
+
+            # LAB COMPONENT
+            ###############
+            'has_lab_component': forms.Select(choices=YESNO_CHOICES),
+            'abl_services_required': forms.Select(choices=YESNO_CHOICES),
+            'lab_space_required': forms.Select(choices=YESNO_CHOICES),
+            'requires_other_lab_support': forms.Select(choices=YESNO_CHOICES),
+            'other_lab_support_needs': forms.Textarea(attrs=row4),
+
+            'it_needs': forms.Textarea(attrs=row4),
+            'additional_notes': forms.Textarea(attrs=row4),
+
         }
 
     def __init__(self, *args, **kwargs):
-        SECTION_CHOICES = utils.get_section_choices(all=True)
-        SECTION_CHOICES.insert(0, tuple((None, "---")))
-
         super().__init__(*args, **kwargs)
-        self.fields['section'].choices = SECTION_CHOICES
-        # self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
-        #                                                  _("mandatory - select multiple, if necessary"))
 
-        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups2.all()]
-        functional_group_choices.insert(0, tuple((None, "---")))
-        self.fields['functional_group'].choices = functional_group_choices
+    def clean_start_date(self):
+        start_date = self.cleaned_data['start_date']
+        fy = shared_models.FiscalYear.objects.get(pk=fiscal_year(start_date, sap_style=True))
+
+        # is there already a fiscal year?
+        if self.instance.fiscal_year:
+            # there if we remove this instance, there should not be another projectyear with the same fiscal year as fy
+            project = self.instance.project
+            other_years = project.years.filter(~Q(id=self.instance.id))
+            if other_years.filter(fiscal_year=fy).exists():
+                raise forms.ValidationError(gettext(
+                    f"Sorry, there is already a {fy} year in this project."
+                ))
+            pass
+        else:
+            project = self.initial["project"]
+            if project.years.filter(fiscal_year=fy).exists():
+                raise forms.ValidationError(gettext(
+                    f"Sorry, there is already a {fy} year in this project."
+                ))
+        return start_date
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # we have to make sure 1) the end date is after the start date and 2)the start and end dates are within the same fiscal year
+        end_date = cleaned_data.get("end_date")
+        if end_date:
+            start_date = cleaned_data.get("start_date")
+            if end_date < start_date:
+                self.add_error('end_date', gettext(
+                    "The end date must be after the start date!"
+                ))
+
+            if fiscal_year(start_date) != fiscal_year(end_date):
+                self.add_error('end_date', gettext(
+                    "The start and end dates must be within the same fiscal year!"
+                ))
+
 
 
 class ProjectSubmitForm(forms.ModelForm):
@@ -235,6 +279,7 @@ class StaffForm(forms.ModelForm):
             'overtime_description': forms.Textarea(attrs={"rows": 5}),
             'user': forms.Select(attrs=chosen_js),
         }
+
 
 # class AdminStaffForm(forms.ModelForm):
 #     class Meta:
