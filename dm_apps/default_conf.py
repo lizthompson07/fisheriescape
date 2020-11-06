@@ -101,10 +101,7 @@ if USE_LOCAL_DB:
 else:
 
     my_default_db = {
-        # 'ENGINE': 'django.db.backends.mysql',
         'ENGINE': 'django.contrib.gis.db.backends.mysql' if GEODJANGO else 'django.db.backends.mysql',
-        'TIME_ZONE': 'America/Halifax',
-
         'HOST': db_connections["DB_HOST"],
         'PORT': db_connections["DB_PORT"],
         'NAME': db_connections["DB_NAME"],
