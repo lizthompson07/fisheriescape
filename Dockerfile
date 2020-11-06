@@ -22,7 +22,7 @@ COPY ./requirements.txt .
 RUN set -ex \
     && buildDeps="build-essential libpq-dev git default-libmysqlclient-dev libgeos-dev" \
     && deps="gdal-bin gettext" \
-    && apt-get update && apt-get install -y $buildDeps $deps --no-install-recommends \
+    && apt-get update && apt-get install -y $buildDeps $deps --no-install-recommends
 
 # install python dependencies for project
 RUN python -m pip install --upgrade pip setuptools wheel \
@@ -32,7 +32,7 @@ RUN python -m pip install --upgrade pip setuptools wheel \
 
 # remove any unrequired dependencies
 RUN apt-get purge -y --auto-remove $buildDeps \
-       $(! command -v gpg > /dev/null || echo 'gnupg dirmngr') \
+       $(! command -v gpg > /dev/null || echo 'gnupg dirmngr')
 
 RUN mkdir media \
     && mkdir media/travel \
