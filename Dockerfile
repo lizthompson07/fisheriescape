@@ -25,7 +25,7 @@ RUN set -ex \
     && apt-get update && apt-get install -y $buildDeps $deps --no-install-recommends \
 
 # install python dependencies for project
-RUN python -m pip install --upgrade pip setuptools wheel
+RUN python -m pip install --upgrade pip setuptools wheel \
     && python -m pip install -r requirements.txt \
     && python -m pip uninstall --yes django-easy-pdf \
     && python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
