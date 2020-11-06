@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.9-slim-buster
 
 RUN mkdir -p /opt/services/djangoapp/src
 WORKDIR /opt/services/djangoapp/src
@@ -16,14 +16,23 @@ RUN apt-get update \
     && echo "$SSH_PASSWD" | chpasswd
 COPY ./sshd_config /etc/ssh/
 
-# install dependencies
-RUN apt-get install -y python3-dev default-libmysqlclient-dev build-essential libgeos-dev git
-RUN python -m pip install --upgrade pip setuptools wheel
-
 COPY ./requirements.txt .
-RUN python -m pip install -r requirements.txt \
+
+# install any build dependencies
+RUN set -ex \
+    && buildDeps="build-essential libpq-dev git default-libmysqlclient-dev libgeos-dev" \
+    && deps="gdal-bin gettext" \
+    && apt-get update && apt-get install -y $buildDeps $deps --no-install-recommends \
+
+# install python dependencies for project
+RUN python -m pip install --upgrade pip setuptools wheel
+    && python -m pip install -r requirements.txt \
     && python -m pip uninstall --yes django-easy-pdf \
     && python -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
+
+# remove any unrequired dependencies
+RUN apt-get purge -y --auto-remove $buildDeps \
+       $(! command -v gpg > /dev/null || echo 'gnupg dirmngr') \
 
 RUN mkdir media \
     && mkdir media/travel \
