@@ -1,0 +1,123 @@
+{% extends "projects2/form.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+
+
+{% block body_js %}
+  {# only do this if we are in the project create view #}
+  <script type="application/javascript">
+
+  let divisionObj = {{ division_json|safe }};
+  let sectionObj = {{ section_json|safe }};
+  var $region = $("#id_region")
+  var $division = $("#id_division")
+  var $section = $("#id_section")
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    resetFields()
+  });
+
+  function resetFields() {
+    // if the region is null, clear and disable both subsequent fields
+    if ($region.val() == "") {
+      $division.val("").prop('disabled', true).empty();
+      $section.val("").prop('disabled', true).empty();
+      // if the division is null, clear and disable section field
+    } else if ($division.val() == "") {
+      $section.val("").prop('disabled', true).empty();
+    }
+  }
+
+  $region.change(function () {
+    if ($(this).val() != "") {
+      // enable the division field
+      $division.prop('disabled', false);
+
+      // define options based on region selection
+      var newOptions = {"---": ""};
+      for (var i = 0; i < Object.keys(divisionObj).length; i++) {
+        var key = Object.keys(divisionObj)[i];
+        var searchTerm = $("#id_region option:selected").val();
+        if (divisionObj[key].region_id == searchTerm) {
+          newOptions[divisionObj[key].display] = key
+        }
+      }
+      $division.empty(); // remove old options
+      $.each(newOptions, function (key, value) {
+        $division.append($("<option></option>")
+            .attr("value", value).text(key));
+      });
+
+      // disable the section field again, empty choices
+      $section.val("").prop('disabled', true);
+
+      $section.empty(); // remove old options
+
+      // sort the options
+      // https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+      var options = $('#id_division option');
+      var arr = options.map(function (_, o) {
+        return {t: $(o).text(), v: o.value};
+      }).get();
+      arr.sort(function (o1, o2) {
+        return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0;
+      });
+      options.each(function (i, o) {
+        o.value = arr[i].v;
+        $(o).text(arr[i].t);
+      });
+
+
+    } else {
+      resetFields()
+    }
+  });
+
+
+  $division.change(function () {
+    if ($(this).val() != "") {
+      // enable the section field
+      $section.prop('disabled', false);
+
+      // define options based on division selection
+      var newOptions = {"---": ""};
+
+      for (var i = 0; i < Object.keys(sectionObj).length; i++) {
+        var key = Object.keys(sectionObj)[i];
+        var searchTerm = $("#id_division option:selected").val();
+        if (sectionObj[key].division_id == searchTerm) {
+          newOptions[sectionObj[key].display] = key
+        }
+      }
+      var $el = $section;
+      $el.empty(); // remove old options
+      $.each(newOptions, function (key, value) {
+        $el.append($("<option></option>")
+            .attr("value", value).text(key));
+      });
+
+      // sort the options
+      // https://stackoverflow.com/questions/12073270/sorting-options-elements-alphabetically-using-jquery
+      var options = $('#id_section option');
+      var arr = options.map(function (_, o) {
+        return {t: $(o).text(), v: o.value};
+      }).get();
+      arr.sort(function (o1, o2) {
+        return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0;
+      });
+      options.each(function (i, o) {
+        o.value = arr[i].v;
+        $(o).text(arr[i].t);
+      });
+
+    } else {
+      resetFields()
+    }
+  });
+
+  </script>
+
+{% endblock %}

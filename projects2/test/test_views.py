@@ -14,7 +14,7 @@ faker = Factory.create()
 class TestProjectApprovalSearchView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('projects:admin_project_approval_search')
+        self.test_url = reverse_lazy('projects2:admin_project_approval_search')
         self.expected_template = 'projects/form.html'
         self.user = self.get_and_login_user(in_group="projects_admin")
 
@@ -40,7 +40,7 @@ class TestProjectApprovalFormsetView(CommonTest):
         super().setUp()
         fy = shared_models.FiscalYear.objects.all()[faker.random_int(0, shared_models.FiscalYear.objects.count() - 1)].id
         region = RegionFactory().id
-        self.test_url = reverse_lazy('projects:admin_project_approval', kwargs={"region": region, "fy": fy})
+        self.test_url = reverse_lazy('projects2:admin_project_approval', kwargs={"region": region, "fy": fy})
         self.expected_template = 'projects/formset.html'
         self.user = self.get_and_login_user(in_group="projects_admin")
 

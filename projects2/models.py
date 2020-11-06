@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.template.defaultfilters import date
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
@@ -95,9 +96,6 @@ class Project(models.Model):
                                                verbose_name=_("primary funding source"))
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords (used for searching)"), related_name="projects")
 
-    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"))
-    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project (leave blank is indeterminate"))
-
     # HTML field
     overview = models.TextField(blank=True, null=True, verbose_name=_("Project overview"))
 
@@ -112,25 +110,57 @@ class Project(models.Model):
     existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"),
                                                     related_name="projects")
 
+    # calculated fields
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"), editable=False)
+
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_project", blank=True, null=True)
 
-    @property
-    def metadata(self):
-        return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+    def save(self, *args, **kwargs):
+        project_years = self.years.order_by("fiscal_year")  # being explicit about ordering here is impnt
+
+        # set the start and end dates based on project years
+        if self.years.exists():
+            self.start_date = self.years.first().start_date
+            self.end_date = self.years.last().end_date
+
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['id']
 
     def __str__(self):
-        return self.project_title
+        return self.title
+
+    @property
+    def metadata(self):
+        return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+
+    @property
+    def dates(self):
+        my_str = date(self.start_date)
+        if self.end_date:
+            my_str += f" &rarr; {date(self.end_date)}"
+        return mark_safe(my_str)
+
+    @property
+    def has_unsubmitted_years(self):
+        return self.years.filter(submitted__isnull=True).exists()
 
 
 class ProjectYear(models.Model):
-    year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True,
-                             verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="years", verbose_name=_("project"))
+
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                    verbose_name=_("fiscal year"), default=fiscal_year(next=True, sap_style=True))
+
+    # should check to make sure these are within the correct fiscal year!!
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"), editable=False)
+
     # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_("Year-specific priorities"))
     # HTML field
@@ -145,7 +175,7 @@ class ProjectYear(models.Model):
         "Do you anticipate needing assistance with mobilization/demobilization of this equipment?"))
 
     # FIELD COMPONENT
-    ########
+    #################
     has_field_component = models.BooleanField(default=False, verbose_name=_("Does this project involved a field component?"))
     vehicle_needs = models.TextField(blank=True, null=True,
                                      verbose_name=_("Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
@@ -161,8 +191,8 @@ class ProjectYear(models.Model):
     field_staff_needs = models.TextField(blank=True, null=True, verbose_name=_("If so, please include some additional detail, "
                                                                                "e.g., how many people are likely to be required and when"))
 
-    # DATA
-    #######
+    # DATA COMPONENT
+    ################
     has_data_component = models.BooleanField(default=False, verbose_name=_("Will new data be collected or generated?"))
     data_collected = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
     data_products = models.TextField(blank=True, null=True, verbose_name=_("What data products will be generated (e.g. models, indices)?"))
@@ -185,9 +215,8 @@ class ProjectYear(models.Model):
     it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
     additional_notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))
 
-    submitted = models.DateTimeField(editable=False)
-
     # admin
+    submitted = models.DateTimeField(editable=False)
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"))
 
@@ -200,6 +229,18 @@ class ProjectYear(models.Model):
     @property
     def metadata(self):
         return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+
+    class Meta:
+        ordering = ["project", "fiscal_year"]
+
+
+class GenericCost(models.Model):
+    project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))
+    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, verbose_name=_("funding source"), default=1)
+    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
+
+    class Meta:
+        abstract = True
 
 
 class EmployeeType(SimpleLookup):
@@ -215,16 +256,13 @@ class Level(SimpleLookup):
     pass
 
 
-class Staff(models.Model):
+class Staff(GenericCost):
     student_program_choices = [
         (1, "FSWEP"),
         (2, "Coop"),
     ]
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="staff_members", verbose_name=_("project"))
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.DO_NOTHING, verbose_name=_("employee type"))
     is_lead = models.BooleanField(default=False, verbose_name=_("project lead"), choices=((True, _("yes")), (False, _("no"))))
-    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="staff_members",
-                                       verbose_name=_("funding source"), default=1)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"),
                              related_name="staff_instances2")
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True, null=True)
@@ -233,7 +271,6 @@ class Staff(models.Model):
     duration_weeks = models.FloatField(default=0, blank=True, null=True, verbose_name=_("duration in weeks"))
     overtime_hours = models.FloatField(default=0, blank=True, null=True, verbose_name=_("overtime in hours"))
     overtime_description = models.TextField(blank=True, null=True, verbose_name=_("overtime description"))
-    amount = models.FloatField(blank=True, null=True, verbose_name=_("amount (CAD)"))
 
     def __str__(self):
         if self.user:
@@ -243,41 +280,7 @@ class Staff(models.Model):
 
     class Meta:
         ordering = ['employee_type', 'level']
-        unique_together = [('project', 'user'), ]
-
-
-class Collaborator(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="collaborators",
-                                verbose_name=_("project"))
-    name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True)
-    critical = models.BooleanField(default=True, verbose_name=_("Critical to project delivery"), choices=YES_NO_CHOICES)
-    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-
-    class Meta:
-        ordering = ['name', ]
-
-    def __str__(self):
-        return "{}".format(self.name)
-
-
-class CollaborativeAgreement(models.Model):
-    new_or_existing_choices = [
-        (1, _("New")),
-        (2, _("Existing")),
-    ]
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="agreements", verbose_name=_("project"))
-    partner_organization = models.CharField(max_length=255, blank=True, null=True,
-                                            verbose_name=_("collaborating organization"))
-    project_lead = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("project lead"))
-    agreement_title = models.CharField(max_length=255, verbose_name=_("Title of the agreement"), blank=True, null=True)
-    new_or_existing = models.IntegerField(choices=new_or_existing_choices, verbose_name=_("new or existing"))
-    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-
-    class Meta:
-        ordering = ['partner_organization', ]
-
-    def __str__(self):
-        return "{}".format(self.partner_organization)
+        unique_together = [('project_year', 'user'), ]
 
 
 class OMCategory(models.Model):
@@ -297,65 +300,89 @@ class OMCategory(models.Model):
         ordering = ['group', 'name']
 
     def __str__(self):
-        return "{} ({})".format(self.tname, self.get_group_display())
+        return f"{self.tname} ({self.get_group_display()})"
 
     @property
     def tname(self):
         return getattr(self, str(_("name")))
 
 
-class OMCost(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="om_costs", verbose_name=_("project"))
+class OMCost(GenericCost):
     om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("category"))
-    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="om_costs",
-                                       verbose_name=_("funding source"), default=1)
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
-    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
 
     def __str__(self):
-        return "{}".format(self.om_category)
+        return f"{self.om_category}"
 
     class Meta:
         ordering = ['om_category', ]
 
 
-class CapitalCost(models.Model):
+class CapitalCost(GenericCost):
     category_choices = (
         (1, _("IM / IT - computers, hardware")),
         (2, _("Lab Equipment")),
         (3, _("Field Equipment")),
         (4, _("Other")),
     )
-
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="capital_costs",
-                                verbose_name=_("project"))
     category = models.IntegerField(choices=category_choices, verbose_name=_("category"))
-    funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, related_name="capital_costs",
-                                       verbose_name=_("funding source"), default=1)
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
-    amount = models.FloatField(default=0, verbose_name=_("amount"))
 
     def __str__(self):
-        return "{}".format(self.get_category_display())
+        return f"{self.get_category_display()}"
 
     class Meta:
         ordering = ['category', ]
 
 
 class GCCost(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="gc_costs", verbose_name=_("project"))
+    project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="gc_costs", verbose_name=_("project year"))
     recipient_org = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Recipient organization"))
     project_lead = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("project lead"))
     proposed_title = models.CharField(max_length=255, blank=True, null=True,
                                       verbose_name=_("Proposed title of agreement"))
     gc_program = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name of G&C program"))
-    amount = models.FloatField(default=0, verbose_name=_("amount"))
+    amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"))
 
     def __str__(self):
-        return "{} - {}".format(self.recipient_org, self.gc_program)
+        return f"{self.recipient_org} - {self.gc_program}"
 
     class Meta:
         ordering = ['recipient_org', ]
+
+
+class Collaborator(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project"))
+    name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True)
+    critical = models.BooleanField(default=True, verbose_name=_("Critical to project delivery"), choices=YES_NO_CHOICES)
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
+    project_years = models.ManyToManyField(ProjectYear, verbose_name=_("Applicable to which years"))
+
+    class Meta:
+        ordering = ['name', ]
+
+    def __str__(self):
+        return "{}".format(self.name)
+
+
+class CollaborativeAgreement(models.Model):
+    new_or_existing_choices = [
+        (1, _("New")),
+        (2, _("Existing")),
+    ]
+    partner_organization = models.CharField(max_length=255, blank=True, null=True,
+                                            verbose_name=_("collaborating organization"))
+    project_lead = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("project lead"))
+    agreement_title = models.CharField(max_length=255, verbose_name=_("Title of the agreement"), blank=True, null=True)
+    new_or_existing = models.IntegerField(choices=new_or_existing_choices, verbose_name=_("new or existing"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
+    project_years = models.ManyToManyField(ProjectYear, verbose_name=_("Applicable to which years"))
+
+    class Meta:
+        ordering = ['partner_organization', ]
+
+    def __str__(self):
+        return "{}".format(self.partner_organization)
 
 
 def file_directory_path(instance, filename):
@@ -367,12 +394,13 @@ class File(models.Model):
     project = models.ForeignKey(Project, related_name="files", on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("resource name"))
     file = models.FileField(upload_to=file_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
+    project_year = models.ForeignKey(ProjectYear, related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     status_report = models.ForeignKey("StatusReport", related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     external_url = models.URLField(blank=True, null=True, verbose_name=_("external URL"))
     date_created = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ['project', 'status_report', 'name']
+        ordering = ['project', 'project_year', 'status_report', 'name']
 
     def __str__(self):
         return self.name
@@ -382,23 +410,6 @@ class File(models.Model):
         return self.status_report if self.status_report else "Core project"
 
 
-class Milestone(models.Model):
-    project = models.ForeignKey(Project, related_name="milestones", on_delete=models.CASCADE)
-    name = models.CharField(max_length=500, verbose_name=_("name"))
-    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
-
-    class Meta:
-        ordering = ['project', 'name']
-
-    def __str__(self):
-        # what is the number of this report?
-        return "{}".format(self.name)
-
-    @property
-    def latest_update(self):
-        return self.updates.first()
-
-
 class StatusReport(models.Model):
     status_choices = (
         (1, _("On-track")),
@@ -406,15 +417,14 @@ class StatusReport(models.Model):
         (3, _("Encountering issues")),
         (4, _("Aborted / cancelled")),
     )
-    project = models.ForeignKey(Project, related_name="reports", on_delete=models.CASCADE)
+    project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE)
     status = models.IntegerField(default=1, editable=False, choices=status_choices)
-    major_accomplishments = models.TextField(blank=True, null=True,
-                                             verbose_name=_(
-                                                 "major accomplishments (this can be left blank if reported at the milestone level)"))
+    major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_(
+        "major accomplishments (this can be left blank if reported at the milestone level)"))
     major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
     target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
-    rationale_for_modified_completion_date = models.TextField(blank=True, null=True,
-                                                              verbose_name=_("rationale for a modified completion date"))
+    rationale_for_modified_completion_date = models.TextField(blank=True, null=True, verbose_name=_(
+        "rationale for a modified completion date"))
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
     section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"))
@@ -437,14 +447,30 @@ class StatusReport(models.Model):
 
     @property
     def report_number(self):
-        return [report for report in self.project.reports.order_by("date_created")].index(self) + 1
+        return [report for report in self.project_year.reports.order_by("date_created")].index(self) + 1
 
     def __str__(self):
         # what is the number of this report?
         return "{}{}".format(
-            _("Status Report #"),
+            gettext("Status Report #"),
             self.report_number,
         )
+
+
+class Milestone(models.Model):
+    project_year = models.ForeignKey(ProjectYear, related_name="milestones", on_delete=models.CASCADE)
+    name = models.CharField(max_length=500, verbose_name=_("name"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+
+    class Meta:
+        ordering = ['project_year', 'name']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def latest_update(self):
+        return self.updates.first()
 
 
 class MilestoneUpdate(models.Model):
@@ -465,7 +491,7 @@ class MilestoneUpdate(models.Model):
     def __str__(self):
         # what is the number of this report?
         return "{} {}".format(
-            _("Update on "),
+            gettext("Update on "),
             self.milestone,
         )
 

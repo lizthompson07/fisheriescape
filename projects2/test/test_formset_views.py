@@ -29,7 +29,7 @@ class TestAllFormsets(CommonTest):
             "manage-upcoming-dates",
         ]
 
-        self.test_urls = [reverse_lazy("projects:" + name) for name in self.test_url_names]
+        self.test_urls = [reverse_lazy("projects2:" + name) for name in self.test_url_names]
         self.test_views = [
             views.FundingSourceFormsetView,
             views.ActivityTypeFormsetView,
@@ -100,7 +100,7 @@ class TestAllHardDeleteViews(CommonTest):
             else:
                 obj = m.objects.create(name=faker.word())
             new_d["obj"] = obj
-            new_d["url"] = reverse_lazy("projects:" + d["url_name"], kwargs={"pk": obj.id})
+            new_d["url"] = reverse_lazy("projects2:" + d["url_name"], kwargs={"pk": obj.id})
             self.test_dicts.append(new_d)
 
     @tag('hard_delete', "view")

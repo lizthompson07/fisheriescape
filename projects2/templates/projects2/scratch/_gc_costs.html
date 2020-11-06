@@ -1,0 +1,77 @@
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+<div class="mb-2 neighbours">
+<h4>
+    {% trans "Grant & Contributions" %}
+</h4>
+</div>
+{% if can_edit %}
+    <div class="mb-3 neighbours">
+        <a class="btn btn-sm btn-outline-primary" href="#"
+           onclick="return popitup('{% url 'projects2:gc_new' object.id %}','popoutWindow')">
+            {% trans "Add G&C" %}
+        </a>
+    </div>
+{% endif %}
+
+{% if object.gc_costs.count == 0 %}
+    <div class="mb-3">
+        <em>
+            {% trans "No G&Cs" %}...
+        </em>
+    </div>
+
+
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            {% if can_edit %}
+                <th></th>
+            {% endif %}
+            <th>
+                {% trans "Recipient Organization" %}
+            </th>
+            <th>
+                {% trans "Project Lead" %}
+            </th>
+            <th>
+                {% trans "Proposed Title" %}
+            </th>
+            <th>
+                {% trans "G&C Program" %}
+            </th>
+            <th class="center-col">
+                {% trans "Funding Amount" %}
+            </th>
+
+
+        </tr>
+        <tbody>
+        {% for obj in object.gc_costs.all %}
+            <tr  {% if can_edit %} href="{% url 'projects2:gc_edit' obj.id %}" pop data-toggle="tooltip" title="Edit" {% endif %}>
+                {% if can_edit %}
+                    <td>
+                        <a class="gc-delete-me" href="#" val="{{ obj.id }}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete" width="20px">
+                        </a>
+                        <a id="gc-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects2:gc_delete' obj.id %}" class="hidden"></a>
+                    </td>
+                {% endif %}
+                <td>{{ obj.recipient_org|nz:"-----" }}</td>
+                <td>{{ obj.project_lead|nz:"-----" }}</td>
+                <td>{{ obj.proposed_title|nz:"-----" }}</td>
+                <td>{{ obj.gc_program|nz:"-----" }}</td>
+                <td class="center-col {% if not obj.budget_requested %} major-error{% endif %}">
+                    {{ obj.budget_requested|currency }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

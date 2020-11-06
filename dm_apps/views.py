@@ -40,7 +40,7 @@ def get_app_dict(request):
     if settings.SHOW_TICKETING_APP:
         try:
             app_dict["tickets"] = {
-                "title": _("Data Management Tickets"),
+                "title": _("DM Apps Tickets"),
                 "description": _("Submit and track data management service requests."),
                 "status": "production",
                 "access": "open",

@@ -88,16 +88,9 @@ project_field_list = [
     'date_last_modified',
 ]
 
-# this needs to be harmonized between regions
-gulf_field_list = deepcopy(project_field_list)
-gulf_field_list.remove("is_competitive")
-gulf_field_list.remove("is_approved")
-gulf_field_list.remove("regional_dm_needs")
-gulf_field_list.remove("abl_services_required")
-
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
-    template_name = 'projects/index.html'
+    template_name = 'projects2/index.html'
     h1 = gettext_lazy("DFO Science Project Planning")
     active_page_name_crumb = gettext_lazy("Home")
 
@@ -142,11 +135,64 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 # PROJECTS #
 ############
+
+
+class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
+    model = models.Project
+    form_class = forms.NewProjectForm
+    home_url_name = "projects2:index"
+    template_name = 'projects2/project_form.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+
+        # here are the option objects we want to send in through context
+        # only from the science branches of each region
+
+        division_dict = {}
+        for d in get_division_choices(all=True):
+            my_division = shared_models.Division.objects.get(pk=d[0])
+            division_dict[my_division.id] = {}
+            division_dict[my_division.id]["display"] = "{} - {}".format(
+                getattr(my_division.branch, _("name")),
+                getattr(my_division, _("name")),
+            )
+            division_dict[my_division.id]["region_id"] = my_division.branch.region_id
+
+        section_dict = {}
+        for s in get_section_choices(all=True):
+            my_section = shared_models.Section.objects.get(pk=s[0])
+            section_dict[my_section.id] = {}
+            section_dict[my_section.id]["display"] = str(my_section)
+            section_dict[my_section.id]["division_id"] = my_section.division_id
+        context['division_json'] = json.dumps(division_dict)
+        context['section_json'] = json.dumps(section_dict)
+
+        return context
+
+    def form_valid(self, form):
+        my_object = form.save()
+        models.Staff.objects.create(project=my_object, lead=True, employee_type_id=1, user_id=self.request.user.id,
+                                    funding_source=my_object.default_funding_source)
+
+        for obj in models.OMCategory.objects.all():
+            new_item = models.OMCost.objects.create(project=my_object, om_category=obj,
+                                                    funding_source=my_object.default_funding_source)
+            new_item.save()
+
+        return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": my_object.id}))
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+
+
 class MyProjectListView(LoginRequiredMixin, CommonListView):
-    template_name = 'projects/my_project_list.html'
+    template_name = 'projects2/my_project_list.html'
     # filterset_class = filters.MyProjectFilter
     h1 = gettext_lazy("My projects")
-    home_url_name = "projects:index"
+    home_url_name = "projects2:index"
     container_class = "container-fluid"
 
     def get_queryset(self):
@@ -202,9 +248,9 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
 
 
 class SectionProjectListView(LoginRequiredMixin, CommonListView):
-    template_name = 'projects/section_project_list.html'
+    template_name = 'projects2/section_project_list.html'
     # filterset_class = filters.SectionFilter
-    home_url_name = "projects:index"
+    home_url_name = "projects2:index"
     container_class = "container-fluid"
 
     def get_h1(self):
@@ -321,13 +367,13 @@ class SectionProjectListView(LoginRequiredMixin, CommonListView):
 
 
 class ProjectListView(LoginRequiredMixin, CommonFilterView):
-    template_name = 'projects/project_list.html'
+    template_name = 'projects2/project_list.html'
 
     # get all submitted and unhidden projects
     queryset = models.Project.objects.filter(
         is_hidden=False    ).order_by('section__division', 'section', 'title')
     filterset_class = filters.ProjectFilter
-    home_url_name = "projects:index"
+    home_url_name = "projects2:index"
     container_class = "container-fluid"
     h1 = gettext_lazy("Projects")
     field_list = [
@@ -345,9 +391,9 @@ class ProjectListView(LoginRequiredMixin, CommonFilterView):
 
 class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Project
-    template_name = 'projects/project_detail.html'
-    home_url_name = "projects:index"
-    parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects:my_project_list")}
+    template_name = 'projects2/project_detail.html'
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
 
     def get_active_page_name_crumb(self):
         return str(self.get_object())
@@ -381,9 +427,9 @@ class ProjectOverviewDetailView(ProjectDetailView):
 
     def get_template_names(self):
         if self.kwargs.get("pop"):
-            return 'projects/project_overview_pop.html'
+            return 'projects2/project_overview_pop.html'
         else:
-            return 'projects/project_overview.html'
+            return 'projects2/project_overview.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -392,7 +438,7 @@ class ProjectOverviewDetailView(ProjectDetailView):
 
 class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
     model = models.Project
-    template_name = "projects/project_report.html"
+    template_name = "projects2/project_report.html"
 
     def get_pdf_filename(self):
         project = models.Project.objects.get(pk=self.kwargs["pk"])
@@ -423,7 +469,7 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
 class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonPopoutUpdateView):
     model = models.Project
     form_class = forms.ProjectForm
-    template_name = 'projects/project_form_popout.html'
+    template_name = 'projects2/project_form_popout.html'
     h1 = gettext_lazy("Edit project details")
 
     def get_context_data(self, **kwargs):
@@ -454,11 +500,11 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonPopoutUpdateView):
 class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
     model = models.Project
     form_class = forms.ProjectSubmitForm
-    home_url_name = "projects:index"
+    home_url_name = "projects2:index"
     submit_text = gettext_lazy("Submit")
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("projects:project_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
 
     def get_active_page_name_crumb(self):
         if self.get_object().submitted:
@@ -474,9 +520,9 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
 
     def get_template_names(self):
         if self.kwargs.get("pop"):
-            return "projects/project_action_form_popout.html"
+            return "projects2/project_action_form_popout.html"
         else:
-            return "projects/project_submit_form.html"
+            return "projects2/project_submit_form.html"
 
     def get_initial(self):
         if self.object.submitted:
@@ -518,7 +564,7 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
 
         # if this is a popout, it is a manager or admin doing the submission and no email is needed
         if self.kwargs.get("pop"):
-            return HttpResponseRedirect(reverse('projects:close_me'))
+            return HttpResponseRedirect(reverse('projects2:close_me'))
         else:
             # Send out an email only when a project is submitted
             if my_object.submitted:
@@ -533,13 +579,13 @@ class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
                 )
             messages.success(self.request,
                              _("The project was submitted and an email has been sent to notify the section head!"))
-            return HttpResponseRedirect(reverse('projects:project_detail', kwargs={"pk": my_object.id}))
+            return HttpResponseRedirect(reverse('projects2:project_detail', kwargs={"pk": my_object.id}))
 
 
 class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectNotesForm
-    template_name = "projects/project_action_form_popout.html"
+    template_name = "projects2/project_action_form_popout.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -552,13 +598,13 @@ class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         my_object = form.save()
-        return HttpResponseRedirect(reverse('projects:close_me'))
+        return HttpResponseRedirect(reverse('projects2:close_me'))
 
 
 # class ProjectRecommendationUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 #     model = models.Project
-#     template_name = "projects/project_action_form_popout.html"
-#     success_url = reverse_lazy("projects:close_me")
+#     template_name = "projects2/project_action_form_popout.html"
+#     success_url = reverse_lazy("projects2:close_me")
 #     form_class = forms.ProjectRecommendationForm
 #
 #     def get_initial(self):
@@ -581,82 +627,32 @@ class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 #         else:
 #             my_object.recommended_for_funding = True
 #         my_object.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
-
-
-class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
-    model = models.Project
-    form_class = forms.NewProjectForm
-    home_url_name = "projects:index"
-    template_name = 'projects/project_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['help_text_dict'] = get_help_text_dict()
-
-        # here are the option objects we want to send in through context
-        # only from the science branches of each region
-
-        division_dict = {}
-        for d in get_division_choices(all=True):
-            my_division = shared_models.Division.objects.get(pk=d[0])
-            division_dict[my_division.id] = {}
-            division_dict[my_division.id]["display"] = "{} - {}".format(
-                getattr(my_division.branch, _("name")),
-                getattr(my_division, _("name")),
-            )
-            division_dict[my_division.id]["region_id"] = my_division.branch.region_id
-
-        section_dict = {}
-        for s in get_section_choices(all=True):
-            my_section = shared_models.Section.objects.get(pk=s[0])
-            section_dict[my_section.id] = {}
-            section_dict[my_section.id]["display"] = str(my_section)
-            section_dict[my_section.id]["division_id"] = my_section.division_id
-        context['division_json'] = json.dumps(division_dict)
-        context['section_json'] = json.dumps(section_dict)
-
-        return context
-
-    def form_valid(self, form):
-        my_object = form.save()
-        models.Staff.objects.create(project=my_object, lead=True, employee_type_id=1, user_id=self.request.user.id,
-                                    funding_source=my_object.default_funding_source)
-
-        for obj in models.OMCategory.objects.all():
-            new_item = models.OMCost.objects.create(project=my_object, om_category=obj,
-                                                    funding_source=my_object.default_funding_source)
-            new_item.save()
-
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": my_object.id}))
-
-    def get_initial(self):
-        return {'last_modified_by': self.request.user}
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 
 
 class ProjectDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     model = models.Project
     delete_protection = False
-    home_url_name = "projects:index"
+    home_url_name = "projects2:index"
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("projects:project_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
 
     def get_template_names(self):
         if self.kwargs.get("pop"):
-            return "projects/project_action_form_popout.html"
+            return "projects2/project_action_form_popout.html"
         else:
-            return "projects/confirm_delete.html"
+            return "projects2/confirm_delete.html"
 
     def get_success_url(self):
         if self.kwargs.get("pop"):
-            return reverse('projects:close_me')
+            return reverse('projects2:close_me')
         else:
-            return reverse_lazy('projects:my_project_list')
+            return reverse_lazy('projects2:my_project_list')
 
 
 class ProjectCloneUpdateView(ProjectUpdateView):
-    template_name = 'projects/project_form.html'
+    template_name = 'projects2/project_form.html'
     h1 = gettext_lazy("Please enter the new project details...")
 
     def test_func(self):
@@ -762,7 +758,7 @@ class ProjectCloneUpdateView(ProjectUpdateView):
             new_rel_obj.project = new_obj
             new_rel_obj.save()
 
-        return HttpResponseRedirect(reverse_lazy("projects:project_detail", kwargs={"pk": new_obj.id}))
+        return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.id}))
 
 
 # STAFF #
@@ -770,7 +766,7 @@ class ProjectCloneUpdateView(ProjectUpdateView):
 
 class StaffCreateView(CanModifyProjectRequiredMixin, CreateView):
     model = models.Staff
-    template_name = 'projects/staff_form_popout.html'
+    template_name = 'projects2/staff_form_popout.html'
     form_class = forms.StaffForm
 
     def get_initial(self):
@@ -790,19 +786,19 @@ class StaffCreateView(CanModifyProjectRequiredMixin, CreateView):
     def form_valid(self, form):
         object = form.save()
         if form.cleaned_data["save_then_go_OT"] == "1":
-            return HttpResponseRedirect(reverse_lazy('projects:ot_calc', kwargs={"pk": object.id}))
+            return HttpResponseRedirect(reverse_lazy('projects2:ot_calc', kwargs={"pk": object.id}))
         else:
-            return HttpResponseRedirect(reverse('projects:close_me'))
+            return HttpResponseRedirect(reverse('projects2:close_me'))
 
 
 class StaffUpdateView(CanModifyProjectRequiredMixin, UpdateView):
     model = models.Staff
-    template_name = 'projects/staff_form_popout.html'
+    template_name = 'projects2/staff_form_popout.html'
     form_class = forms.StaffForm
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse('projects:close_me'))
+        return HttpResponseRedirect(reverse('projects2:close_me'))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -822,7 +818,7 @@ def staff_delete(request, pk):
 
 
 class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
-    template_name = 'projects/overtime_calculator_popout.html'
+    template_name = 'projects2/overtime_calculator_popout.html'
     form_class = forms.OTForm
     model = models.Staff
 
@@ -853,7 +849,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         object = form.save()
-        return HttpResponseRedirect(reverse_lazy('projects:staff_edit', kwargs={"pk": object.id}))
+        return HttpResponseRedirect(reverse_lazy('projects2:staff_edit', kwargs={"pk": object.id}))
 
 #
 # # COLLABORATOR #
@@ -861,7 +857,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class CollaboratorCreateView(CanModifyProjectRequiredMixin, CreateView):
 #     model = models.Collaborator
-#     template_name = 'projects/collaborator_form_popout.html'
+#     template_name = 'projects2/collaborator_form_popout.html'
 #     form_class = forms.CollaboratorForm
 #
 #     def get_initial(self):
@@ -878,17 +874,17 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #
 # class CollaboratorUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 #     model = models.Collaborator
-#     template_name = 'projects/collaborator_form_popout.html'
+#     template_name = 'projects2/collaborator_form_popout.html'
 #     form_class = forms.CollaboratorForm
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #
 # def collaborator_delete(request, pk):
@@ -906,7 +902,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class AgreementCreateView(CanModifyProjectRequiredMixin, CreateView):
 #     model = models.CollaborativeAgreement
-#     template_name = 'projects/agreement_form_popout.html'
+#     template_name = 'projects2/agreement_form_popout.html'
 #     form_class = forms.AgreementForm
 #
 #     def get_initial(self):
@@ -923,17 +919,17 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #
 # class AgreementUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 #     model = models.CollaborativeAgreement
-#     template_name = 'projects/agreement_form_popout.html'
+#     template_name = 'projects2/agreement_form_popout.html'
 #     form_class = forms.AgreementForm
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #
 # def agreement_delete(request, pk):
@@ -951,7 +947,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class OMCostCreateView(CanModifyProjectRequiredMixin, CreateView):
 #     model = models.OMCost
-#     template_name = 'projects/cost_form_popout.html'
+#     template_name = 'projects2/cost_form_popout.html'
 #     form_class = forms.OMCostForm
 #
 #     def get_initial(self):
@@ -970,17 +966,17 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #
 # class OMCostUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 #     model = models.OMCost
-#     template_name = 'projects/cost_form_popout.html'
+#     template_name = 'projects2/cost_form_popout.html'
 #     form_class = forms.OMCostForm
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -1032,7 +1028,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class CapitalCostCreateView(CanModifyProjectRequiredMixin, CreateView):
 #     model = models.CapitalCost
-#     template_name = 'projects/cost_form_popout.html'
+#     template_name = 'projects2/cost_form_popout.html'
 #     form_class = forms.CapitalCostForm
 #
 #     def get_initial(self):
@@ -1051,12 +1047,12 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #
 # class CapitalCostUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 #     model = models.CapitalCost
-#     template_name = 'projects/cost_form_popout.html'
+#     template_name = 'projects2/cost_form_popout.html'
 #     form_class = forms.CapitalCostForm
 #
 #     def get_context_data(self, **kwargs):
@@ -1066,7 +1062,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #
 # def capital_cost_delete(request, pk):
@@ -1084,7 +1080,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class GCCostCreateView(CanModifyProjectRequiredMixin, CreateView):
 #     model = models.GCCost
-#     template_name = 'projects/cost_form_popout.html'
+#     template_name = 'projects2/cost_form_popout.html'
 #     form_class = forms.GCCostForm
 #
 #     def get_initial(self):
@@ -1102,17 +1098,17 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #
 # class GCCostUpdateView(CanModifyProjectRequiredMixin, UpdateView):
 #     model = models.GCCost
-#     template_name = 'projects/cost_form_popout.html'
+#     template_name = 'projects2/cost_form_popout.html'
 #     form_class = forms.GCCostForm
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -1134,7 +1130,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # #########
 #
 # class FileCreateView(CanModifyProjectRequiredMixin, CreateView):
-#     template_name = "projects/file_form.html"
+#     template_name = "projects2/file_form.html"
 #     model = models.File
 #     form_class = forms.FileForm
 #
@@ -1162,12 +1158,12 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class FileUpdateView(CanModifyProjectRequiredMixin, UpdateView):
-#     template_name = "projects/file_form.html"
+#     template_name = "projects2/file_form.html"
 #     model = models.File
 #     form_class = forms.FileForm
 #
 #     def get_success_url(self, **kwargs):
-#         return reverse_lazy("projects:file_detail", kwargs={"pk": self.object.id})
+#         return reverse_lazy("projects2:file_detail", kwargs={"pk": self.object.id})
 #
 #     def get_context_data(self, **kwargs):
 #         # get context
@@ -1184,7 +1180,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class FileDeleteView(CanModifyProjectRequiredMixin, DeleteView):
-#     template_name = "projects/file_confirm_delete.html"
+#     template_name = "projects2/file_confirm_delete.html"
 #     model = models.File
 #
 #     def get_success_url(self, **kwargs):
@@ -1197,10 +1193,10 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # # this is a complicated cookie. Therefore we will not use a model view or model form and handle the clean data manually.
 # class UserCreateView(LoginRequiredMixin, FormView):
 #     form_class = forms.UserCreateForm
-#     template_name = 'projects/user_form.html'
+#     template_name = 'projects2/user_form.html'
 #
 #     def get_success_url(self):
-#         return reverse_lazy('projects:close_me')
+#         return reverse_lazy('projects2:close_me')
 #
 #     def form_valid(self, form):
 #         # retrieve data from form
@@ -1240,171 +1236,171 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # ############
 # class FundingSourceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.FundingSource
-#     success_url = reverse_lazy("projects:manage_funding_sources")
+#     success_url = reverse_lazy("projects2:manage_funding_sources")
 #
 #
 # class FundingSourceFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage Funding Source"
 #     queryset = models.FundingSource.objects.all()
 #     formset_class = forms.FundingSourceFormset
-#     success_url = reverse_lazy("projects:manage_funding_sources")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete_funding_source"
+#     success_url = reverse_lazy("projects2:manage_funding_sources")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete_funding_source"
 #
 #
 # class OMCategoryHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.OMCategory
-#     success_url = reverse_lazy("projects:manage_om_cats")
+#     success_url = reverse_lazy("projects2:manage_om_cats")
 #
 #
 # class OMCategoryFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage OMCategory"
 #     queryset = models.OMCategory.objects.all()
 #     formset_class = forms.OMCategoryFormset
-#     success_url = reverse_lazy("projects:manage_om_cats")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete_om_cat"
+#     success_url = reverse_lazy("projects2:manage_om_cats")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete_om_cat"
 #
 #
 # class EmployeeTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.EmployeeType
-#     success_url = reverse_lazy("projects:manage_employee_types")
+#     success_url = reverse_lazy("projects2:manage_employee_types")
 #
 #
 # class EmployeeTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage Employee Type"
 #     queryset = models.EmployeeType.objects.all()
 #     formset_class = forms.EmployeeTypeFormset
-#     success_url = reverse_lazy("projects:manage_employee_types")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete_employee_type"
+#     success_url = reverse_lazy("projects2:manage_employee_types")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete_employee_type"
 #
 #
 # class StatusHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.Status
-#     success_url = reverse_lazy("projects:manage_statuses")
+#     success_url = reverse_lazy("projects2:manage_statuses")
 #
 #
 # class StatusFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage Status"
 #     queryset = models.Status.objects.all()
 #     formset_class = forms.StatusFormset
-#     success_url = reverse_lazy("projects:manage_statuses")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete_status"
+#     success_url = reverse_lazy("projects2:manage_statuses")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete_status"
 #
 #
 # class TagHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.Tag
-#     success_url = reverse_lazy("projects:manage_tags")
+#     success_url = reverse_lazy("projects2:manage_tags")
 #
 #
 # class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage Tag"
 #     queryset = models.Tag.objects.all()
 #     formset_class = forms.TagFormset
-#     success_url = reverse_lazy("projects:manage_tags")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete_tag"
+#     success_url = reverse_lazy("projects2:manage_tags")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete_tag"
 #
 #
 # class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.HelpText
-#     success_url = reverse_lazy("projects:manage_help_text")
+#     success_url = reverse_lazy("projects2:manage_help_text")
 #
 #
 # class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage Help Text"
 #     queryset = models.HelpText.objects.all()
 #     formset_class = forms.HelpTextFormset
-#     success_url = reverse_lazy("projects:manage_help_text")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete_help_text"
+#     success_url = reverse_lazy("projects2:manage_help_text")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete_help_text"
 #
 #
 # class LevelHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.Level
-#     success_url = reverse_lazy("projects:manage_levels")
+#     success_url = reverse_lazy("projects2:manage_levels")
 #
 #
 # class LevelFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage Level"
 #     queryset = models.Level.objects.all()
 #     formset_class = forms.LevelFormset
-#     success_url = reverse_lazy("projects:manage_levels")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete_level"
+#     success_url = reverse_lazy("projects2:manage_levels")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete_level"
 #
 #
 # # class ProgramHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 # #     model = models.Program
-# #     success_url = reverse_lazy("projects:manage_programs")
+# #     success_url = reverse_lazy("projects2:manage_programs")
 # #
 # #
 # # class ProgramFormsetView(AdminRequiredMixin, CommonFormsetView):
-# #     template_name = 'projects/formset.html'
+# #     template_name = 'projects2/formset.html'
 # #     h1 = "Manage Program"
 # #     queryset = models.Program.objects.all()
 # #     formset_class = forms.ProgramFormset
-# #     success_url = reverse_lazy("projects:manage_programs")
-# #     home_url_name = "projects:index"
-# #     delete_url_name = "projects:delete_program"
+# #     success_url = reverse_lazy("projects2:manage_programs")
+# #     home_url_name = "projects2:index"
+# #     delete_url_name = "projects2:delete_program"
 #
 #
 # class ActivityTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.ActivityType
-#     success_url = reverse_lazy("projects:manage_activity_types")
+#     success_url = reverse_lazy("projects2:manage_activity_types")
 #
 #
 # class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage ActivityType"
 #     queryset = models.ActivityType.objects.all()
 #     formset_class = forms.ActivityTypeFormset
-#     success_url = reverse_lazy("projects:manage_activity_types")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete_activity_type"
+#     success_url = reverse_lazy("projects2:manage_activity_types")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete_activity_type"
 #
 #
 # class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.Theme
-#     success_url = reverse_lazy("projects:manage_themes")
+#     success_url = reverse_lazy("projects2:manage_themes")
 #
 #
 # class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage Theme"
 #     queryset = models.Theme.objects.all()
 #     formset_class = forms.ThemeFormset
-#     success_url = reverse_lazy("projects:manage_themes")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete_theme"
+#     success_url = reverse_lazy("projects2:manage_themes")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete_theme"
 #
 #
 # class UpcomingDateHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.UpcomingDate
-#     success_url = reverse_lazy("projects:manage-upcoming-dates")
+#     success_url = reverse_lazy("projects2:manage-upcoming-dates")
 #
 #
 # class UpcomingDateFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     h1 = "Manage Upcoming Dates"
 #     queryset = models.UpcomingDate.objects.all()
 #     formset_class = forms.UpcomingDateFormset
-#     success_url = reverse_lazy("projects:manage-upcoming-dates")
-#     home_url_name = "projects:index"
-#     delete_url_name = "projects:delete-upcoming-date"
+#     success_url = reverse_lazy("projects2:manage-upcoming-dates")
+#     home_url_name = "projects2:index"
+#     delete_url_name = "projects2:delete-upcoming-date"
 #
 #
 # class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
-#     template_name = 'projects/admin_staff_list.html'
+#     template_name = 'projects2/admin_staff_list.html'
 #     queryset = models.Staff.objects.filter(user__isnull=True).order_by('-project__year', 'project__section__division',
 #                                                                        'project__section',
 #                                                                        'project__project_title')
@@ -1414,12 +1410,12 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 #     '''This is really just for the admin view'''
 #     model = models.Staff
-#     template_name = 'projects/admin_staff_form.html'
+#     template_name = 'projects2/admin_staff_form.html'
 #     form_class = forms.AdminStaffForm
 #
 #     def form_valid(self, form):
 #         my_object = form.save()
-#         return HttpResponseRedirect(reverse("projects:admin_staff_list") + "?" + nz(self.kwargs.get("qry"), ""))
+#         return HttpResponseRedirect(reverse("projects2:admin_staff_list") + "?" + nz(self.kwargs.get("qry"), ""))
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -1428,7 +1424,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class SubmittedUnapprovedProjectsListView(ManagerOrAdminRequiredMixin, FilterView):
-#     template_name = 'projects/admin_submitted_unapproved_list.html'
+#     template_name = 'projects2/admin_submitted_unapproved_list.html'
 #     queryset = models.Project.objects.filter(submitted=True, approved=False).order_by('-year', 'id')
 #     filterset_class = filters.AdminSubmittedUnapprovedFilter
 #
@@ -1471,23 +1467,23 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class ProjectApprovalsSearchView(AdminRequiredMixin, CommonFormView):
-#     template_name = 'projects/form.html'
+#     template_name = 'projects2/form.html'
 #     form_class = forms.ApprovalQueryBuildForm
 #     h1 = gettext_lazy("Find Projects to Approve")
-#     home_url_name = "projects:index"
+#     home_url_name = "projects2:index"
 #     cancel_text = gettext_lazy("Back")
 #
 #     def form_valid(self, form):
 #         region = int(form.cleaned_data.get("region"))
 #         fy = int(form.cleaned_data.get("fiscal_year"))
-#         return HttpResponseRedirect(reverse("projects:admin_project_approval", kwargs={"region": region, "fy": fy}))
+#         return HttpResponseRedirect(reverse("projects2:admin_project_approval", kwargs={"region": region, "fy": fy}))
 #
 #
 # class ProjectApprovalFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects/formset.html'
+#     template_name = 'projects2/formset.html'
 #     formset_class = forms.ProjectApprovalFormset
-#     home_url_name = "projects:index"
-#     parent_crumb = {"title": _("Find Projects to Approve"), "url": reverse_lazy("projects:admin_project_approval_search")}
+#     home_url_name = "projects2:index"
+#     parent_crumb = {"title": _("Find Projects to Approve"), "url": reverse_lazy("projects2:admin_project_approval_search")}
 #     pre_display_fields = ["id", "project_title", "total_cost|total budget requested"]
 #     post_display_fields = ["notification_email_sent", ]
 #
@@ -1495,7 +1491,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #         return models.Project.objects.first()
 #
 #     def get_success_url(self):
-#         return reverse("projects:admin_project_approval", kwargs=self.kwargs)
+#         return reverse("projects2:admin_project_approval", kwargs=self.kwargs)
 #
 #     def get_queryset(self):
 #         return models.Project.objects.filter(
@@ -1527,7 +1523,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # # Reference Materials
 # class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
-#     template_name = "projects/list.html"
+#     template_name = "projects2/list.html"
 #     model = models.ReferenceMaterial
 #     field_list = [
 #         {"name": "tname|{}".format(gettext_lazy("name")), "class": "", "width": ""},
@@ -1536,36 +1532,36 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #         {"name": "date_created", "class": "", "width": ""},
 #         {"name": "date_modified", "class": "", "width": ""},
 #     ]
-#     new_object_url_name = "projects:ref_mat_new"
-#     row_object_url_name = "projects:ref_mat_edit"
-#     home_url_name = "projects:index"
+#     new_object_url_name = "projects2:ref_mat_new"
+#     row_object_url_name = "projects2:ref_mat_edit"
+#     home_url_name = "projects2:index"
 #     h1 = gettext_lazy("Reference Materials")
 #
 #
 # class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
 #     model = models.ReferenceMaterial
 #     form_class = forms.ReferenceMaterialForm
-#     home_url_name = "projects:index"
-#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects:ref_mat_list")}
-#     template_name = "projects/form.html"
+#     home_url_name = "projects2:index"
+#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+#     template_name = "projects2/form.html"
 #     is_multipart_form_data = True
 #
 #
 # class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateView):
 #     model = models.ReferenceMaterial
 #     form_class = forms.ReferenceMaterialForm
-#     home_url_name = "projects:index"
-#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects:ref_mat_list")}
-#     template_name = "projects/form.html"
+#     home_url_name = "projects2:index"
+#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+#     template_name = "projects2/form.html"
 #     is_multipart_form_data = True
 #
 #
 # class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
 #     model = models.ReferenceMaterial
-#     success_url = reverse_lazy('projects:ref_mat_list')
-#     home_url_name = "projects:index"
-#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects:ref_mat_list")}
-#     template_name = "projects/confirm_delete.html"
+#     success_url = reverse_lazy('projects2:ref_mat_list')
+#     home_url_name = "projects2:index"
+#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+#     template_name = "projects2/confirm_delete.html"
 #     delete_protection = False
 #
 #
@@ -1574,7 +1570,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class StatusReportCreateView(ProjectLeadRequiredMixin, CreateView):
 #     model = models.StatusReport
-#     template_name = 'projects/status_report_form_popout.html'
+#     template_name = 'projects2/status_report_form_popout.html'
 #     form_class = forms.StatusReportForm
 #
 #     def get_initial(self):
@@ -1596,12 +1592,12 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #     def form_valid(self, form):
 #         my_object = form.save()
-#         return HttpResponseRedirect(reverse_lazy('projects:report_edit', kwargs={"pk": my_object.id}))
+#         return HttpResponseRedirect(reverse_lazy('projects2:report_edit', kwargs={"pk": my_object.id}))
 #
 #
 # class StatusReportUpdateView(ProjectLeadRequiredMixin, UpdateView):
 #     model = models.StatusReport
-#     template_name = 'projects/status_report_form_popout.html'
+#     template_name = 'projects2/status_report_form_popout.html'
 #
 #     # form_class = forms.StatusReportForm
 #
@@ -1648,11 +1644,11 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #     def form_valid(self, form):
 #         my_object = form.save()
-#         return HttpResponseRedirect(reverse_lazy('projects:report_edit', kwargs={"pk": my_object.id}))
+#         return HttpResponseRedirect(reverse_lazy('projects2:report_edit', kwargs={"pk": my_object.id}))
 #
 #
 # class StatusReportDeleteView(CanModifyProjectRequiredMixin, DeleteView):
-#     template_name = "projects/status_report_confirm_delete.html"
+#     template_name = "projects2/status_report_confirm_delete.html"
 #     model = models.StatusReport
 #
 #     def get_success_url(self, **kwargs):
@@ -1662,7 +1658,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # class StatusReportPrintDetailView(LoginRequiredMixin, PDFTemplateView):
 #     model = models.Project
 #
-#     template_name = "projects/status_report_pdf.html"
+#     template_name = "projects2/status_report_pdf.html"
 #
 #     def get_pdf_filename(self):
 #         my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
@@ -1699,7 +1695,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class MilestoneCreateView(ProjectLeadRequiredMixin, CreateView):
 #     model = models.Milestone
-#     template_name = 'projects/milestone_form_popout.html'
+#     template_name = 'projects2/milestone_form_popout.html'
 #     form_class = forms.MilestoneForm
 #
 #     def get_initial(self):
@@ -1717,17 +1713,17 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #
 # class MilestoneUpdateView(ProjectLeadRequiredMixin, UpdateView):
 #     model = models.Milestone
-#     template_name = 'projects/milestone_form_popout.html'
+#     template_name = 'projects2/milestone_form_popout.html'
 #     form_class = forms.MilestoneForm
 #
 #     def form_valid(self, form):
 #         object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -1751,12 +1747,12 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class MilestoneUpdateUpdateView(UpdateView):
 #     model = models.MilestoneUpdate
-#     template_name = 'projects/milestone_form_popout.html'
+#     template_name = 'projects2/milestone_form_popout.html'
 #     form_class = forms.MilestoneUpdateForm
 #
 #     def form_valid(self, form):
 #         my_object = form.save()
-#         return HttpResponseRedirect(reverse('projects:close_me'))
+#         return HttpResponseRedirect(reverse('projects2:close_me'))
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -1768,7 +1764,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # ###########
 #
 # class ReportSearchFormView(ManagerOrAdminRequiredMixin, FormView):
-#     template_name = 'projects/report_search.html'
+#     template_name = 'projects2/report_search.html'
 #     form_class = forms.ReportSearchForm
 #
 #     def get_initial(self):
@@ -1819,80 +1815,80 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #             omcatagory = "None"
 #
 #         if report == 1:
-#             return HttpResponseRedirect(reverse("projects:report_master", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:report_master", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 2:
-#             return HttpResponseRedirect(reverse("projects:pdf_printout", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:pdf_printout", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 3:
-#             return HttpResponseRedirect(reverse("projects:pdf_project_summary", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:pdf_project_summary", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 4:
-#             return HttpResponseRedirect(reverse("projects:export_program_list", kwargs={}))
+#             return HttpResponseRedirect(reverse("projects2:export_program_list", kwargs={}))
 #
 #         elif report == 10:
-#             return HttpResponseRedirect(reverse("projects:pdf_fte_summary", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:pdf_fte_summary", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 11:
-#             return HttpResponseRedirect(reverse("projects:pdf_ot", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:pdf_ot", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 12:
-#             return HttpResponseRedirect(reverse("projects:pdf_costs", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:pdf_costs", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 13:
-#             return HttpResponseRedirect(reverse("projects:pdf_collab", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:pdf_collab", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 15:
-#             return HttpResponseRedirect(reverse("projects:pdf_agreements", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:pdf_agreements", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 14:
-#             return HttpResponseRedirect(reverse("projects:doug_report", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:doug_report", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 17:
-#             return HttpResponseRedirect(reverse("projects:pdf_data", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:pdf_data", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
 #                 'sections': sections,
 #             }))
 #         elif report == 18:
-#             return HttpResponseRedirect(reverse("projects:pdf_funding", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:pdf_funding", kwargs={
 #                 'funding': funding,
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
@@ -1900,7 +1896,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #                 'sections': sections,
 #             }))
 #         elif report == 19:
-#             return HttpResponseRedirect(reverse("projects:xls_funding", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:xls_funding", kwargs={
 #                 'funding': funding,
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
@@ -1908,7 +1904,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #                 'sections': sections,
 #             }))
 #         elif report == 20:
-#             return HttpResponseRedirect(reverse("projects:xls_funding_by_om", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:xls_funding_by_om", kwargs={
 #                 'funding': funding,
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
@@ -1917,7 +1913,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #                 'omcatagory': omcatagory,
 #             }))
 #         elif report == 21:
-#             return HttpResponseRedirect(reverse("projects:xls_covid", kwargs={
+#             return HttpResponseRedirect(reverse("projects2:xls_covid", kwargs={
 #                 'fiscal_year': fiscal_year,
 #                 'regions': regions,
 #                 'divisions': divisions,
@@ -1925,7 +1921,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #             }))
 #         else:
 #             messages.error(self.request, "Report is not available. Please select another report.")
-#             return HttpResponseRedirect(reverse("projects:report_search"))
+#             return HttpResponseRedirect(reverse("projects2:report_search"))
 #
 #
 # def master_spreadsheet(request, fiscal_year, regions=None, divisions=None, sections=None, user=None):
@@ -2014,7 +2010,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class PDFFundingReport(PDFReportTemplate):
-#     template_name = "projects/report_pdf_funding.html"
+#     template_name = "projects2/report_pdf_funding.html"
 #     funding_src = None
 #
 #     def get_pdf_filename(self):
@@ -2105,7 +2101,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class PDFProjectSummaryReport(PDFReportTemplate):
-#     template_name = "projects/report_pdf_project_summary.html"
+#     template_name = "projects2/report_pdf_project_summary.html"
 #
 #     def get_pdf_filename(self):
 #         fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
@@ -2214,7 +2210,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class PDFProjectPrintoutReport(PDFReportTemplate):
-#     template_name = "projects/report_pdf_printout.html"
+#     template_name = "projects2/report_pdf_printout.html"
 #
 #     def get_pdf_filename(self):
 #         fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
@@ -2277,7 +2273,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class PDFCollaboratorReport(PDFReportTemplate):
-#     template_name = "projects/report_pdf_collaborators.html"
+#     template_name = "projects2/report_pdf_collaborators.html"
 #
 #     # def get_pdf_filename(self):
 #     #     fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
@@ -2302,7 +2298,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class PDFAgreementsReport(PDFReportTemplate):
-#     template_name = "projects/report_pdf_agreements.html"
+#     template_name = "projects2/report_pdf_agreements.html"
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -2323,7 +2319,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class PDFDataReport(PDFReportTemplate):
-#     template_name = "projects/report_pdf_data.html"
+#     template_name = "projects2/report_pdf_data.html"
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -2345,7 +2341,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class PDFFTESummaryReport(PDFReportTemplate):
-#     template_name = "projects/report_pdf_fte_summary.html"
+#     template_name = "projects2/report_pdf_fte_summary.html"
 #
 #     # def get_pdf_filename(self):
 #     #     fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
@@ -2379,7 +2375,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class PDFOTSummaryReport(PDFReportTemplate):
-#     template_name = "projects/report_pdf_ot_summary.html"
+#     template_name = "projects2/report_pdf_ot_summary.html"
 #
 #     # def get_pdf_filename(self):
 #     #     fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
@@ -2455,7 +2451,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class PDFCostSummaryReport(PDFReportTemplate):
-#     template_name = "projects/report_pdf_cost_summary.html"
+#     template_name = "projects2/report_pdf_cost_summary.html"
 #
 #     # def get_pdf_filename(self):
 #     #     fy = shared_models.FiscalYear.objects.get(pk=self.kwargs["fiscal_year"])
@@ -2546,10 +2542,10 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # # EXTRAS #
 # ##########
 # class IWGroupList(LoginRequiredMixin, CommonFormView):
-#     template_name = 'projects/iw_group_list.html'
+#     template_name = 'projects2/iw_group_list.html'
 #     form_class = forms.IWForm
 #     active_page_name_crumb = gettext_lazy("Functional Group Summary")
-#     home_url_name = "projects:index"
+#     home_url_name = "projects2:index"
 #     h1 = "dud"
 #     container_class = "container-fluid"
 #
@@ -2726,7 +2722,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #             else:
 #                 region = nz(form.cleaned_data['region'], 0)
 #
-#         return HttpResponseRedirect(reverse("projects:iw_group_list", kwargs={
+#         return HttpResponseRedirect(reverse("projects2:iw_group_list", kwargs={
 #             "region": region,
 #             "division": division,
 #             "section": section,
@@ -2736,7 +2732,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 #
 # class IWProjectList(ManagerOrAdminRequiredMixin, CommonTemplateView):
-#     template_name = 'projects/iw_project_list.html'
+#     template_name = 'projects2/iw_project_list.html'
 #     h1 = "temp"
 #
 #     def get_context_data(self, **kwargs):
@@ -2844,7 +2840,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # #####################
 #
 # class FunctionalGroupListView(AdminRequiredMixin, FilterView):
-#     template_name = 'projects/functionalgroup_list.html'
+#     template_name = 'projects2/functionalgroup_list.html'
 #     filterset_class = filters.FunctionalGroupFilter
 #
 #     def get_queryset(self):
@@ -2870,22 +2866,22 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # class FunctionalGroupUpdateView(AdminRequiredMixin, UpdateView):
 #     model = models.FunctionalGroup
 #     form_class = forms.FunctionalGroupForm
-#     success_url = reverse_lazy('projects:group_list')
-#     template_name = 'projects/functionalgroup_form.html'
+#     success_url = reverse_lazy('projects2:group_list')
+#     template_name = 'projects2/functionalgroup_form.html'
 #
 #
 # class FunctionalGroupCreateView(AdminRequiredMixin, CreateView):
 #     model = models.FunctionalGroup
 #     form_class = forms.FunctionalGroupForm
-#     success_url = reverse_lazy('projects:group_list')
-#     template_name = 'projects/functionalgroup_form.html'
+#     success_url = reverse_lazy('projects2:group_list')
+#     template_name = 'projects2/functionalgroup_form.html'
 #
 #
 # class FunctionalGroupDeleteView(AdminRequiredMixin, DeleteView):
 #     model = models.FunctionalGroup
-#     success_url = reverse_lazy('projects:group_list')
+#     success_url = reverse_lazy('projects2:group_list')
 #     success_message = 'The functional group was successfully deleted!'
-#     template_name = 'projects/functionalgroup_confirm_delete.html'
+#     template_name = 'projects2/functionalgroup_confirm_delete.html'
 #
 #     def delete(self, request, *args, **kwargs):
 #         messages.success(self.request, self.success_message)
@@ -2894,7 +2890,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class FunctionalGroupDetailView(AdminRequiredMixin, DetailView):
 #     model = models.FunctionalGroup
-#     template_name = 'projects/functionalgroup_detail.html'
+#     template_name = 'projects2/functionalgroup_detail.html'
 #
 #     def get_context_data(self, **kwargs):
 #         context = super().get_context_data(**kwargs)
@@ -2911,7 +2907,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #
 # class NoteUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 #     model = models.Note
-#     template_name = 'projects/note_form_popout.html'
+#     template_name = 'projects2/note_form_popout.html'
 #     form_class = forms.NoteForm
 #
 #     def get_context_data(self, **kwargs):

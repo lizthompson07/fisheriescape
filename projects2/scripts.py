@@ -41,21 +41,21 @@ def export_fixtures():
 
 
 # def resave_all(projects = models.Project.objects.all()):
-#     for p in projects:
+#     for p in projects2:
 #         for obj in models.OMCategory.objects.all():
 #             if not models.OMCost.objects.filter(project=p, om_category=obj).count():
 #                 new_item = models.OMCost.objects.create(project=p, om_category=obj)
 #                 new_item.save()
 
 def resave_all(projects = models.Project.objects.all()):
-    for p in projects:
+    for p in projects2:
         p.save()
 
 
 def compare_html():
     projects = models.Project.objects.all()
 
-    for p in projects:
+    for p in projects2:
         if p.description:
             if not textile(p.description) == p.description_html:
                 print("mismatch in project {}".format(p.id))
@@ -70,7 +70,7 @@ def compare_html():
 def replace_html():
     projects = models.Project.objects.all()
 
-    for p in projects:
+    for p in projects2:
         should_save = False
         if p.description:
             p.description = p.description_html
@@ -91,7 +91,7 @@ def replace_html():
 def clean_project():
     projects = models.Project.objects.all()
 
-    for p in projects:
+    for p in projects2:
         p.is_negotiable = None
         p.save()
 
@@ -99,7 +99,7 @@ def clean_project():
 def copy_over_project_codes():
     projects = models.Project.objects.filter(existing_project_code__isnull=False)
 
-    for p in projects:
+    for p in projects2:
         p.existing_project_codes.add(p.existing_project_code)
 
 
@@ -107,7 +107,7 @@ def copy_over_project_codes():
 def recommend_approved_projects():
     projects = models.Project.objects.filter(approved=True)
 
-    for p in projects:
+    for p in projects2:
         p.recommended_for_funding = True
         p.approved = False
         p.save()
@@ -115,7 +115,7 @@ def recommend_approved_projects():
 
 def clear_all_approvals():
     projects = models.Project.objects.filter(approved=False)
-    for p in projects:
+    for p in projects2:
         p.approved = None
         p.save()
 

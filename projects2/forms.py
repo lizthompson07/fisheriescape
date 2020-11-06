@@ -335,7 +335,7 @@ class StaffForm(forms.ModelForm):
 #         super().__init__(*args, **kwargs)
 #
 #         fy_choices = [(
-#             reverse("projects:report_sh", kwargs={"fiscal_year": fy.id, "user": user}), str(fy)) for fy in
+#             reverse("projects2:report_sh", kwargs={"fiscal_year": fy.id, "user": user}), str(fy)) for fy in
 #             shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
 #         fy_choices.insert(0, (None, "-----"))
 #

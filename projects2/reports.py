@@ -440,7 +440,7 @@ def write_funding_omcategory_sheet(worksheet, header_format, header, projects, o
     write_funding_header(worksheet=worksheet, header_format=header_format, header=header)
 
     row = 1
-    for project in projects:
+    for project in projects2:
 
         prj_desc = html2text.html2text(project.description) if project.description else None
 
@@ -473,7 +473,7 @@ def write_funding_sheet(worksheet, header_format, header, projects, funding):
     write_funding_header(worksheet=worksheet, header_format=header_format, header=header)
 
     row = 1
-    for project in projects:
+    for project in projects2:
         om_cost = project.om_costs.filter(funding_source=funding).aggregate(Sum("budget_requested"))
 
         staff_list = project.staff_members.all()
