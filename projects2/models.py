@@ -269,6 +269,9 @@ class ProjectYear(models.Model):
         self.project.save()
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return str(self.fiscal_year)
+
     @property
     def costs(self):
         om_qry = self.omcost_set
@@ -282,6 +285,17 @@ class ProjectYear(models.Model):
         if staff_qry.exists():
             my_list.extend([c for c in staff_qry.all()])
         return my_list
+
+    def add_all_om_costs(self):
+        for obj in OMCategory.objects.all():
+            OMCost.objects.create(
+                project_year=self,
+                om_category=obj,
+                funding_source=self.project.default_funding_source
+            )
+
+    def clear_empty_om_costs(self):
+        self.omcost_set.filter(amount__isnull=True, description__isnull=True).delete()
 
 
 class GenericCost(models.Model):
@@ -407,11 +421,10 @@ class GCCost(models.Model):
 
 
 class Collaborator(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project"))
+    project_year = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project year"))
     name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True)
     critical = models.BooleanField(default=True, verbose_name=_("Critical to project delivery"), choices=YES_NO_CHOICES)
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-    project_years = models.ManyToManyField(ProjectYear, verbose_name=_("Applicable to which years"))
 
     class Meta:
         ordering = ['name', ]

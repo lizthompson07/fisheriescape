@@ -75,6 +75,42 @@ class ProjectForm(forms.ModelForm):
         ]
         widgets = {
             "title": forms.Textarea(attrs={"rows": "3"}),
+            "overview": forms.Textarea(attrs=class_editable),
+            'modified_by': forms.HiddenInput(),
+            "section": forms.Select(attrs=chosen_js),
+            "responsibility_center": forms.Select(attrs=chosen_js),
+            "allotment_code": forms.Select(attrs=chosen_js),
+            "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
+            "tags": forms.SelectMultiple(attrs=chosen_js),
+            "default_funding_source": forms.Select(attrs=chosen_js),
+            "is_hidden": forms.Select(choices=YESNO_CHOICES),
+        }
+
+    def __init__(self, *args, **kwargs):
+        SECTION_CHOICES = utils.get_section_choices(all=True)
+        SECTION_CHOICES.insert(0, tuple((None, "---")))
+
+        super().__init__(*args, **kwargs)
+        self.fields['section'].choices = SECTION_CHOICES
+        # self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
+        #                                                  _("mandatory - select multiple, if necessary"))
+
+        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups2.all()]
+        functional_group_choices.insert(0, tuple((None, "---")))
+        self.fields['functional_group'].choices = functional_group_choices
+
+
+class ProjectYearForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        exclude = [
+            'updated_at',
+            'meeting_notes',
+            'programs',
+            "allocated_budget",
+        ]
+        widgets = {
+            "title": forms.Textarea(attrs={"rows": "3"}),
             "description": forms.Textarea(attrs=class_editable),
             "priorities": forms.Textarea(attrs=class_editable),
             "deliverables": forms.Textarea(attrs=class_editable),
@@ -117,16 +153,9 @@ class ProjectForm(forms.ModelForm):
         # self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
         #                                                  _("mandatory - select multiple, if necessary"))
 
-        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups.all()]
+        functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups2.all()]
         functional_group_choices.insert(0, tuple((None, "---")))
         self.fields['functional_group'].choices = functional_group_choices
-
-        if kwargs.get("instance").section.division.branch.region.id == 1:
-            # del self.fields["programs"]
-            del self.fields["is_competitive"]
-            del self.fields["is_approved"]
-            del self.fields["metadata_url"]
-            del self.fields["regional_dm_needs"]
 
 
 class ProjectSubmitForm(forms.ModelForm):

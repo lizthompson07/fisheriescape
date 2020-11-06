@@ -7,7 +7,7 @@
 <h6>
   {% trans "Reports" %}
 </h6>
-<div class="btn-group-vertical custom-group">
+<div class="btn-group-vertical vgroup">
   <a class="{{ btn_class_1 }}" href="{% url 'projects2:project_print' object.id %}">
     <span class="icon mdi mdi-file-pdf"></span>
     {% trans "Export PDF" %}
@@ -18,7 +18,7 @@
   {% trans "Actions" %}
 </h6>
 
-<div class="btn-group-vertical custom-group">
+<div class="btn-group-vertical vgroup">
 
   <a class="{{ btn_class_1 }} {% if object.submitted %}disabled{% endif %}"
      href="{% url 'projects2:project_edit' object.id %}">
@@ -59,7 +59,7 @@
 </h6>
 
 
-<div class="btn-group-vertical custom-group">
+<div class="btn-group-vertical vgroup">
 
   <a href="#" class="{{ btn_class_1 }}" data-toggle="modal" data-target="#new-year-modal"
      title="{% trans "Add a new year to this project" %}">
@@ -67,10 +67,14 @@
     {% trans "Add New Year" %}
   </a>
   {% if object.years.exists %}
-    <a href="#" class="{{ btn_class_1 }} " data-toggle="modal" data-target="#new-year-modal"
-       title="{% trans "Add a new year to this project" %}">
-      {{ year }}
-    </a>
+    {% for year in object.years.all %}
+      <a href="#" class="{{ btn_class_1 }}">
+    <span class="icon mdi mdi-menu-right-outline"></span>
+        {{ year }}
+      </a>
+
+    {% endfor %}
+
   {% endif %}
 
 </div>

@@ -4,14 +4,10 @@
 {% load custom_tags %}
 
 {% block content %}
-  <style>
-  .w3 {
-      width: 300px
-  }
-  h1 {
-      font-size: 60px;
-  }
-  </style>
+
+      {% echo "btn btn-outline-dark btn-lg" as btn_class %}
+      {% echo "btn btn-outline-danger btn-lg" as admin_btn_class %}
+
 
   <div class="container mb-3 mt-3">
 
@@ -25,21 +21,27 @@
     {% url 'projects2:my_project_list' as my_proj_url %}
     {% url 'projects2:project_list' as all_proj_url %}
 
-    {% echo "btn btn-outline-dark btn-lg" as btn_class %}
 
     <div class="row mb-4">
       <div class="col">
-        <div class="btn-group-vertical w3">
+        <div class="btn-group-vertical vgroup">
           <a href="{{ new_proj_url }}" class="{{ btn_class }}">
-            {% trans "Create a New Project" %}
+            {% trans "Start a New Project" %}
           </a>
           <a href="{{ my_proj_url }}" class="{{ btn_class }}">
             {% trans "Your Projects" %} ({{ user.staff_instances2.count }})
           </a>
-          <a href="{{ all_proj_url }}" class="{{ btn_class }}">
+          <a href="#" class="{{ btn_class }}">
             {% trans "Explore Projects" %}
           </a>
 
+        </div>
+
+
+        <div class="btn-group-vertical vgroup">
+          <a href="{{ all_proj_url }}" class="{{ admin_btn_class }}">
+            {% trans "View All Projects" %}
+          </a>
         </div>
       </div>
       <div class="col-8">

@@ -16,7 +16,7 @@ from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
-    CommonDetailView, CommonFilterView, CommonPopoutUpdateView, CommonDeleteView, CommonUpdateView, CommonListView
+    CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView
 from . import emails
 from . import filters
 from . import forms
@@ -95,7 +95,6 @@ class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
     ]
 
 
-
 class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
     model = models.Project
     form_class = forms.NewProjectForm
@@ -137,17 +136,19 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         my_object.save()
 
         # create a first year of the project
-        models.ProjectYear.objects.create(
+        year = models.ProjectYear.objects.create(
             project=my_object,
             fiscal_year_id=fiscal_year(timezone.now(), sap_style=True)
         )
-        models.Staff.objects.create(project=my_object, lead=True, employee_type_id=1, user_id=self.request.user.id,
-                                    funding_source=my_object.default_funding_source)
-
-        for obj in models.OMCategory.objects.all():
-            new_item = models.OMCost.objects.create(project=my_object, om_category=obj,
-                                                    funding_source=my_object.default_funding_source)
-            new_item.save()
+        # populate some initial staff and om costs
+        models.Staff.objects.create(
+            project_year=year,
+            is_lead=True,
+            employee_type_id=1,
+            user_id=self.request.user.id,
+            funding_source=my_object.default_funding_source
+        )
+        year.add_all_om_costs()
 
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": my_object.id}))
 
@@ -155,12 +156,12 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         return {'last_modified_by': self.request.user}
 
 
-
 class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Project
     template_name = 'projects2/project_detail.html'
     home_url_name = "projects2:index"
-    parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
+
+    # parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
 
     def get_active_page_name_crumb(self):
         return str(self.get_object())
@@ -178,7 +179,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         # If this is a gulf region project, only show the gulf region fields
         context["field_list"] = get_project_field_list(project)
 
-        context["files"] = project.files.all()
+        # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)
 
         # Determine if the user will be able to edit the project.
@@ -186,6 +187,36 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         # context["is_lead"] = self.request.user in [staff.user for staff in project.staff_members.filter(lead=True)]
         return context
 
+
+class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+    model = models.Project
+    form_class = forms.ProjectForm
+    template_name = 'projects2/project_form.html'
+    home_url_name = "projects2:index"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+        return context
+
+    def get_initial(self):
+        return dict(modified_by=self.request.user)
+
+
+class ProjectDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
+    model = models.Project
+    delete_protection = False
+    home_url_name = "projects2:index"
+    success_url = reverse_lazy("projects2:index")
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
+
+    def get_template_names(self):
+        return "projects2/confirm_delete.html"
 
 
 class MyProjectListView(LoginRequiredMixin, CommonListView):
@@ -409,37 +440,6 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonPopoutUpdateView):
-    model = models.Project
-    form_class = forms.ProjectForm
-    template_name = 'projects2/project_form_popout.html'
-    h1 = gettext_lazy("Edit project details")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['help_text_dict'] = get_help_text_dict()
-        return context
-
-    def get_initial(self):
-        my_dict = {
-            'last_modified_by': self.request.user,
-        }
-
-        try:
-            my_dict["start_date"] = "{}-{:02d}-{:02d}".format(self.object.start_date.year, self.object.start_date.month,
-                                                              self.object.start_date.day)
-        except Exception as e:
-            pass
-
-        try:
-            my_dict["end_date"] = "{}-{:02d}-{:02d}".format(self.object.end_date.year, self.object.end_date.month,
-                                                            self.object.end_date.day)
-        except Exception as e:
-            pass
-
-        return my_dict
-
-
 class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
     model = models.Project
     form_class = forms.ProjectSubmitForm
@@ -571,27 +571,6 @@ class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 #             my_object.recommended_for_funding = True
 #         my_object.save()
 #         return HttpResponseRedirect(reverse('projects2:close_me'))
-
-
-class ProjectDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
-    model = models.Project
-    delete_protection = False
-    home_url_name = "projects2:index"
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
-
-    def get_template_names(self):
-        if self.kwargs.get("pop"):
-            return "projects2/project_action_form_popout.html"
-        else:
-            return "projects2/confirm_delete.html"
-
-    def get_success_url(self):
-        if self.kwargs.get("pop"):
-            return reverse('projects2:close_me')
-        else:
-            return reverse_lazy('projects2:my_project_list')
 
 
 class ProjectCloneUpdateView(ProjectUpdateView):
