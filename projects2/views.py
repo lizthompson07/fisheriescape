@@ -296,6 +296,11 @@ class ProjectYearCloneView(ProjectYearUpdateView):
     template_name = 'projects2/project_year_form.html'
     h1 = gettext_lazy("Please enter the new project details...")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloning"] = True
+        return context
+
     def dispatch(self, request, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse('accounts:login_required'))
@@ -304,6 +309,7 @@ class ProjectYearCloneView(ProjectYearUpdateView):
     def get_initial(self):
         init = super().get_initial()
         init["start_date"] = timezone.now()
+        init["cloning"] = True
         return init
 
     def form_valid(self, form):
@@ -327,61 +333,52 @@ class ProjectYearCloneView(ProjectYearUpdateView):
         # we have to just make sure that the user is a lead on the project. Otherwise they will not be able to edit.
         my_staff, created = models.Staff.objects.get_or_create(
             user=self.request.user,
-            project=new_obj,
+            project_year=new_obj,
             employee_type_id=1,
         )
         my_staff.lead = True
         my_staff.save()
 
-        models.Staff.objects.create(
-            project_year=year,
-            is_lead=True,
-            employee_type_id=1,
-            user_id=self.request.user.id,
-            funding_source=my_object.default_funding_source
-        )
-        year.add_all_om_costs()
-
         # 2) O&M
         for old_rel_obj in old_obj.omcost_set.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
+            new_rel_obj.project_year = new_obj
             new_rel_obj.save()
 
         # 3) Capital
         for old_rel_obj in old_obj.capitalcost_set.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
+            new_rel_obj.project_year = new_obj
             new_rel_obj.save()
 
         # 4) G&C
         for old_rel_obj in old_obj.gc_costs.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
+            new_rel_obj.project_year = new_obj
             new_rel_obj.save()
 
         # 5) Collaborators and Partners
         for old_rel_obj in old_obj.collaborators.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
+            new_rel_obj.project_year = new_obj
             new_rel_obj.save()
 
         # 6) Collaborative Agreements
         for old_rel_obj in old_obj.agreements.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
+            new_rel_obj.project_year = new_obj
             new_rel_obj.save()
 
         # 7) Milestones
         for old_rel_obj in old_obj.milestones.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
+            new_rel_obj.project_year = new_obj
             new_rel_obj.save()
 
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.project.id}))

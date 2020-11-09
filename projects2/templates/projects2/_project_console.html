@@ -37,7 +37,7 @@
 
   {% if object.has_unsubmitted_years %}
     <a class="{{ btn_class_black }}" href="{% url 'projects2:project_submit' object.id %}">
-      <span class="icon mdi mdi-cancel"></span>
+      <span class="icon mdi mdi-email"></span>
       {% trans "Submit" %}
     </a>
   {% else %}
@@ -109,19 +109,19 @@
         <h4>
           {% trans "Please select among the following:" %}
         </h4>
-        <div class="btn-group-vertical">
+        <div class="btns">
           {% for year in object.years.all %}
-            <a href="#" class="btn btn-warning">
+            <a href="{% url 'projects2:year_clone'  year.id  %}" class="btn btn-warning mb-1">
               {% blocktrans %}
                 Clone from {{ year }}
               {% endblocktrans %}
-            </a>
+            </a> <br>
           {% endfor %}
-          <a href="{% url 'projects2:year_new' object.id %}" class="btn btn-success">{% trans "From Scratch" %}</a>
+          <a href="{% url 'projects2:year_new' object.id %}" class="btn btn-success">{% trans "Start from Scratch" %}</a>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Close" %}</button>
       </div>
     </div>
   </div>

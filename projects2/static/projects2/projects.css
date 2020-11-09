@@ -1,10 +1,4 @@
 
-body {
-    background-image: url("{% static 'projects2/img/alexander-andrews-4JdvOwrVzfY-unsplash.jpg' %}");
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
-}
 
 .container-fluid, .container {
     margin-top: 15px;

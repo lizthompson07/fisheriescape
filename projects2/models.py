@@ -184,7 +184,8 @@ class Project(models.Model):
 
     @property
     def overview_html(self):
-        return mark_safe(markdown(self.overview))
+        if self.overview:
+            return mark_safe(markdown(self.overview))
 
 
 class ProjectYear(models.Model):
@@ -317,11 +318,13 @@ class ProjectYear(models.Model):
 
     @property
     def deliverables_html(self):
-        return mark_safe(markdown(self.deliverables))
+        if self.deliverables:
+            return mark_safe(markdown(self.deliverables))
 
     @property
     def priorities_html(self):
-        return mark_safe(markdown(self.priorities))
+        if self.priorities:
+            return mark_safe(markdown(self.priorities))
 
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))
@@ -446,7 +449,7 @@ class GCCost(models.Model):
 
 
 class Collaborator(models.Model):
-    project_year = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project year"))
+    project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project year"))
     name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True)
     critical = models.BooleanField(default=True, verbose_name=_("Critical to project delivery"), choices=YES_NO_CHOICES)
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
@@ -469,7 +472,7 @@ class CollaborativeAgreement(models.Model):
     agreement_title = models.CharField(max_length=255, verbose_name=_("Title of the agreement"), blank=True, null=True)
     new_or_existing = models.IntegerField(choices=new_or_existing_choices, verbose_name=_("new or existing"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-    project_year = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="agreements", verbose_name=_("project year"))
+    project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="agreements", verbose_name=_("project year"))
 
     class Meta:
         ordering = ['partner_organization', ]

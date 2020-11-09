@@ -41,7 +41,7 @@ class NewProjectForm(forms.ModelForm):
         model = models.Project
         fields = [
             'title',
-            'activity_type',
+            # 'activity_type',
             'default_funding_source',
             'section',
             'modified_by',
@@ -166,8 +166,8 @@ class ProjectYearForm(forms.ModelForm):
         start_date = self.cleaned_data['start_date']
         fy = shared_models.FiscalYear.objects.get(pk=fiscal_year(start_date, sap_style=True))
 
-        # is there already a fiscal year?
-        if self.instance.fiscal_year:
+        # is there already a fiscal year? There is a special case when there will be a fiscal year, but we are cloning
+        if not self.initial.get("cloning") and self.instance.fiscal_year:
             # there if we remove this instance, there should not be another projectyear with the same fiscal year as fy
             project = self.instance.project
             other_years = project.years.filter(~Q(id=self.instance.id))
@@ -177,7 +177,10 @@ class ProjectYearForm(forms.ModelForm):
                 ))
             pass
         else:
-            project = self.initial["project"]
+            if self.initial.get("cloning"):
+                project = self.instance.project
+            else:
+                project = self.initial["project"]
             if project.years.filter(fiscal_year=fy).exists():
                 raise forms.ValidationError(gettext(
                     f"Sorry, there is already a {fy} year in this project."
