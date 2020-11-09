@@ -469,7 +469,7 @@ class CollaborativeAgreement(models.Model):
     agreement_title = models.CharField(max_length=255, verbose_name=_("Title of the agreement"), blank=True, null=True)
     new_or_existing = models.IntegerField(choices=new_or_existing_choices, verbose_name=_("new or existing"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-    project_years = models.ManyToManyField(ProjectYear, verbose_name=_("Applicable to which years"))
+    project_year = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="agreements", verbose_name=_("project year"))
 
     class Meta:
         ordering = ['partner_organization', ]

@@ -14,7 +14,7 @@
     {% trans "Delete" %}
   </a>
   <a class=""
-     href="{% url 'projects2:project_delete' object.id %}">
+     :href="`/project-planning/project-year/${projectYear.id}/clone/`">
     <span class="ml-3 mdi mdi-content-copy"></span>
     {% trans "Clone" %}
   </a>
@@ -22,7 +22,7 @@
 
 </div>
 
-<h4 v-html="projectYear.display_name"></h4>
+<h2 class="font-weight-bold">${projectYear.display_name}</h2>
 
 <table class="table table-sm">
   {% for field in project_year_field_list %}

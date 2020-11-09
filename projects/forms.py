@@ -45,7 +45,7 @@ class NewProjectForm(forms.ModelForm):
         fields = [
             'year',
             'project_title',
-            'activity_type',
+            # 'activity_type',
             'default_funding_source',
             'section',
             'last_modified_by',

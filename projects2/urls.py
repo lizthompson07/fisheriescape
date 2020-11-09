@@ -22,6 +22,7 @@ urlpatterns = [
     path('projects/<int:project>/new-project-year/', views.ProjectYearCreateView.as_view(), name="year_new"),
     path('project-year/<int:pk>/edit/', views.ProjectYearUpdateView.as_view(), name="year_edit"),
     path('project-year/<int:pk>/delete/', views.ProjectYearDeleteView.as_view(), name="year_delete"),
+    path('project-year/<int:pk>/clone/', views.ProjectYearCloneView.as_view(), name="year_clone"),
 
 
 ###################################
@@ -34,7 +35,7 @@ urlpatterns = [
     path('project/<int:pk>/submit/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
     path('project/<int:pk>/submit/popout/<int:pop>/', views.ProjectSubmitUpdateView.as_view(), name="project_submit"),
     path('project/<int:pk>/notes/', views.ProjectNotesUpdateView.as_view(), name="project_notes"),
-    path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
+    # path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
     # path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
     # path('recommendation/project/<int:pk>/', views.ProjectRecommendationUpdateView.as_view(), name="project_recommend"),
 
