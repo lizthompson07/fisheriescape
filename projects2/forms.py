@@ -148,8 +148,8 @@ class ProjectYearForm(forms.ModelForm):
             # LAB COMPONENT
             ###############
             'has_lab_component': forms.Select(choices=YESNO_CHOICES),
-            'abl_services_required': forms.Select(choices=YESNO_CHOICES),
-            'lab_space_required': forms.Select(choices=YESNO_CHOICES),
+            'requires_abl_services': forms.Select(choices=YESNO_CHOICES),
+            'requires_lab_space': forms.Select(choices=YESNO_CHOICES),
             'requires_other_lab_support': forms.Select(choices=YESNO_CHOICES),
             'other_lab_support_needs': forms.Textarea(attrs=row4),
 

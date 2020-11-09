@@ -90,13 +90,13 @@
 
   function refreshLabSection() {
     if ($has_lab_work.val() === "True") {
-      $(".abl_services_required_div").removeClass("gone")
-      $(".lab_space_required_div").removeClass("gone")
+      $(".requires_abl_services_div").removeClass("gone")
+      $(".requires_lab_space_div").removeClass("gone")
       $(".requires_other_lab_support_div").removeClass("gone")
       $(".other_lab_support_needs_div").removeClass("gone")
     } else {
-      $(".abl_services_required_div").addClass("gone")
-      $(".lab_space_required_div").addClass("gone")
+      $(".requires_abl_services_div").addClass("gone")
+      $(".requires_lab_space_div").addClass("gone")
       $(".requires_other_lab_support_div").addClass("gone")
       $(".other_lab_support_needs_div").addClass("gone")
     }

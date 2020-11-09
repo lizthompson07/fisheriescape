@@ -24,7 +24,7 @@ from . import models
 from . import stat_holidays
 from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import multiple_projects_financial_summary, financial_summary_data, can_modify_project, get_help_text_dict, \
-    get_division_choices, get_section_choices, get_project_field_list
+    get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -177,6 +177,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
 
         # If this is a gulf region project, only show the gulf region fields
         context["project_field_list"] = get_project_field_list(project)
+        context["project_year_field_list"] = get_project_year_field_list()
 
         # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)
@@ -273,14 +274,35 @@ class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
 ########################################
 
 class MyProjectListView(LoginRequiredMixin, CommonListView):
-    template_name = 'projects2/my_project_list.html'
+    template_name = 'projects2/list.html'
     # filterset_class = filters.MyProjectFilter
     h1 = gettext_lazy("My projects")
     home_url_name = "projects2:index"
     container_class = "container-fluid"
+    row_object_url_name = "projects2:project_detail"
+    new_object_url = "projects2:project_new"
+    field_list = [
+            {"name": 'section', "class": "", "width": ""},
+            {"name": 'title', "class": "", "width": ""},
+            {"name": 'allocated_budget', "class": "", "width": ""},
+            {"name": "is_lead|{}?".format("Are you a project lead"), "class": "", "width": ""},
+        ]
+    # x = [
+    #     "year",
+    #     "submitted|{}".format("Submitted"),
+    #     "recommended_for_funding",
+    #     "approved",
+    #     "allocated_budget",
+    #     "section|Section",
+    #     "project_title",
+    #     "is_hidden|is this a hidden project?",
+    #     "is_lead|{}?".format("Are you a project lead"),
+    #     "status_report|{}".format("Status reports"),
+    # ]
 
     def get_queryset(self):
-        return models.Project.objects.filter(staff_members__user=self.request.user).order_by("-year", "project_title")
+        project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
+        return models.Project.objects.filter(id__in=project_ids).order_by("-start_date", "title")
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
@@ -291,42 +313,42 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Based on the default sorting order, we get the fiscal year from the first project instance
-        object_list = context.get("object_list")  # grab the projects returned by the filter
-        fy = object_list.first().year if object_list.count() > 0 else None
-
-        staff_instances = self.request.user.staff_instances.filter(project__year=fy)
-
-        context['fte_approved_projects'] = staff_instances.filter(
-            project__recommended_for_funding=True, project__submitted=True
-        ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
-
-        context['fte_unapproved_projects'] = staff_instances.filter(
-            project__recommended_for_funding=False, project__submitted=True
-        ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
-
-        context['fte_unsubmitted_projects'] = staff_instances.filter(
-            project__submitted=False
-        ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
-
-        context['fy'] = fy
-
-        context["project_list"] = models.Project.objects.filter(
-            id__in=[s.project.id for s in self.request.user.staff_instances.all()]
-        )
-
-        context["project_field_list"] = [
-            "year",
-            "submitted|{}".format("Submitted"),
-            "recommended_for_funding",
-            "approved",
-            "allocated_budget",
-            "section|Section",
-            "project_title",
-            "is_hidden|is this a hidden project?",
-            "is_lead|{}?".format("Are you a project lead"),
-            "status_report|{}".format("Status reports"),
-        ]
+        # # Based on the default sorting order, we get the fiscal year from the first project instance
+        # object_list = context.get("object_list")  # grab the projects returned by the filter
+        # fy = object_list.first().year if object_list.count() > 0 else None
+        #
+        # staff_instances = self.request.user.staff_instances2.filter(project__year=fy)
+        #
+        # context['fte_approved_projects'] = staff_instances.filter(
+        #     project__recommended_for_funding=True, project__submitted=True
+        # ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+        #
+        # context['fte_unapproved_projects'] = staff_instances.filter(
+        #     project__recommended_for_funding=False, project__submitted=True
+        # ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+        #
+        # context['fte_unsubmitted_projects'] = staff_instances.filter(
+        #     project__submitted=False
+        # ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
+        #
+        # context['fy'] = fy
+        #
+        # context["project_list"] = models.Project.objects.filter(
+        #     id__in=[s.project.id for s in self.request.user.staff_instances.all()]
+        # )
+        #
+        # context["project_field_list"] = [
+        #     "year",
+        #     "submitted|{}".format("Submitted"),
+        #     "recommended_for_funding",
+        #     "approved",
+        #     "allocated_budget",
+        #     "section|Section",
+        #     "project_title",
+        #     "is_hidden|is this a hidden project?",
+        #     "is_lead|{}?".format("Are you a project lead"),
+        #     "status_report|{}".format("Status reports"),
+        # ]
 
         return context
 

@@ -356,7 +356,7 @@ def get_project_field_list(project):
         'id',
         'section',
         # 'title',
-        'overview',
+        'overview',  # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
         'functional_group',
         'default_funding_source',
@@ -371,47 +371,47 @@ def get_project_field_list(project):
     return my_list
 
 
-def get_project_year_field_list(project_year):
+def get_project_year_field_list(project_year=None):
     my_list = [
         'dates|dates',
-        'priorities',
-        'deliverables',
+        'priorities',  # do not call the html field directly or we loose the ability to get the model's verbose name
+        'deliverables',  # do not call the html field directly or we loose the ability to get the model's verbose name
 
         # SPECIALIZED EQUIPMENT COMPONENT
         #################################
         'requires_specialized_equipment',
-        'technical_service_needs' if project_year.requires_specialized_equipment else None,
-        'mobilization_needs' if project_year.requires_specialized_equipment else None,
+        'technical_service_needs' if not project_year or project_year.requires_specialized_equipment else None,
+        'mobilization_needs' if not project_year or project_year.requires_specialized_equipment else None,
 
         # FIELD COMPONENT
         #################
         'has_field_component',
-        'vehicle_needs' if project_year.has_field_component else None,
-        'ship_needs' if project_year.has_field_component else None,
-        'coip_reference_id' if project_year.has_field_component else None,
-        'instrumentation' if project_year.has_field_component else None,
-        'owner_of_instrumentation' if project_year.has_field_component else None,
-        'requires_field_staff' if project_year.has_field_component else None,
-        'field_staff_needs' if project_year.has_field_component and project_year.requires_field_staff else None,
+        'vehicle_needs' if not project_year or project_year.has_field_component else None,
+        'ship_needs' if not project_year or project_year.has_field_component else None,
+        'coip_reference_id' if not project_year or project_year.has_field_component else None,
+        'instrumentation' if not project_year or project_year.has_field_component else None,
+        'owner_of_instrumentation' if not project_year or project_year.has_field_component else None,
+        'requires_field_staff' if not project_year or project_year.has_field_component else None,
+        'field_staff_needs' if not project_year or project_year.has_field_component and project_year.requires_field_staff else None,
 
         # DATA COMPONENT
         ################
         'has_data_component',
-        'data_collected' if project_year.has_data_component else None,
-        'data_products' if project_year.has_data_component else None,
-        'open_data_eligible' if project_year.has_data_component else None,
-        'data_storage_plan' if project_year.has_data_component else None,
-        'data_management_needs' if project_year.has_data_component else None,
+        'data_collected' if not project_year or project_year.has_data_component else None,
+        'data_products' if not project_year or project_year.has_data_component else None,
+        'open_data_eligible' if not project_year or project_year.has_data_component else None,
+        'data_storage_plan' if not project_year or project_year.has_data_component else None,
+        'data_management_needs' if not project_year or project_year.has_data_component else None,
 
         # LAB COMPONENT
         ###############
         'has_lab_component',
-        'abl_services_required' if project_year.has_lab_component else None,
-        'lab_space_required' if project_year.has_lab_component else None,
-        'requires_other_lab_support' if project_year.has_lab_component else None,
-        'other_lab_support_needs' if project_year.has_lab_component else None,
+        'requires_abl_services' if not project_year or project_year.has_lab_component else None,
+        'requires_lab_space' if not project_year or project_year.has_lab_component else None,
+        'requires_other_lab_support' if not project_year or project_year.has_lab_component else None,
+        'other_lab_support_needs' if not project_year or project_year.has_lab_component else None,
 
-    'it_needs',
+        'it_needs',
         'additional_notes',
         'metadata|{}'.format(_("metadata")),
     ]

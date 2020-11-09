@@ -41,6 +41,13 @@
                     </ul>
                   </td>
                 </tr>
+              {% elif "overview" in field %}
+                <tr>
+                  <th>{% get_verbose_label object field %}</th>
+                  <td>
+                    {{ object.overview_html }}
+                  </td>
+                </tr>
               {% else %}
                 {% verbose_td_display object field th_width="30%" td_width="70%" %}
               {% endif %}
@@ -56,10 +63,7 @@
           </div>
 
           <div v-if="projectYear">
-            <h4 v-html="projectYear.display_name"></h4>
-            <table class="table table-sm">
-              Yayy!!
-            </table>
+            {% include "projects2/_project_year_detail.html" %}
           </div>
 
 

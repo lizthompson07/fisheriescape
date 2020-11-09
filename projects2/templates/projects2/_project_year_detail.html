@@ -1,0 +1,44 @@
+{% load verbose_names %}
+{% load project_filters %}
+
+<h4 v-html="projectYear.display_name"></h4>
+
+<table class="table table-sm">
+  {% for field in project_year_field_list %}
+
+    {% if field|in_field_group:"specialized_equipment" %}
+      <tr v-if="projectYear.requires_specialized_equipment">
+        <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+        {% include "projects2/_project_year_field.html" %}
+      </tr>
+
+    {% elif field|in_field_group:"field" %}
+      <tr v-if="projectYear.has_field_component">
+        <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+        {% include "projects2/_project_year_field.html" %}
+      </tr>
+
+    {% elif field|in_field_group:"data" %}
+      <tr v-if="projectYear.has_data_component">
+        <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+        {% include "projects2/_project_year_field.html" %}
+      </tr>
+
+    {% elif field|in_field_group:"lab" %}
+      <tr v-if="projectYear.has_lab_component">
+        <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+        {% include "projects2/_project_year_field.html" %}
+      </tr>
+
+    {% else %}
+      <tr>
+        <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+        {% include "projects2/_project_year_field.html" %}
+
+      </tr>
+
+    {% endif %}
+
+  {% endfor %}
+
+</table>

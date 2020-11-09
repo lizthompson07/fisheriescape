@@ -5,6 +5,24 @@
 {% load custom_filters %}
 
 
+
+{% block form_field %}
+  {% if "overview" in field.name %}
+
+    <label for="id_overview">{{ field.label }}</label>
+    <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank"
+       title="{% trans "Markdown syntax is supported in this field" %}">
+      <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px"></span>
+    </a>
+
+    {% bootstrap_field field placeholder="" show_label=False %}
+
+  {% else %}
+    {% bootstrap_field field placeholder="" %}
+  {% endif %}
+
+{% endblock %}
+
 {% block body_js %}
   {# only do this if we are in the project create view #}
   <script type="application/javascript">

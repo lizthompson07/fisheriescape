@@ -1,0 +1,53 @@
+
+body {
+    background-image: url("{% static 'projects2/img/alexander-andrews-4JdvOwrVzfY-unsplash.jpg' %}");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.container-fluid, .container {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: white;
+    background-color: rgba(255, 255, 255, 0.98);
+    font-size: small;
+    border-radius: 10px;
+
+}
+
+.label {
+    font-weight: bold;
+}
+
+table, td {
+    font-size: small;
+}
+
+
+h1 {
+    font-size: 60px;
+}
+
+.toolbar {
+    background-color: #dfd2f6;
+    border: #4c4c4c;
+    border-radius: 10px;
+}
+
+.vgroup {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.custom-btn {
+    text-align: left;
+}
+
+.icon {
+    padding-right: 5px;
+}
+
+.narrow-col{
+    width: 30%
+}

@@ -4,6 +4,7 @@ from django.template.defaultfilters import date
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
+from markdown import markdown
 
 from dm_apps import custom_widgets
 from lib.functions.custom_functions import fiscal_year
@@ -181,6 +182,10 @@ class Project(models.Model):
     def division(self):
         return self.section.division
 
+    @property
+    def overview_html(self):
+        return mark_safe(markdown(self.overview))
+
 
 class ProjectYear(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="years", verbose_name=_("project"))
@@ -224,7 +229,7 @@ class ProjectYear(models.Model):
     data_products = models.TextField(blank=True, null=True, verbose_name=_("What data products will be generated (e.g. models, indices)?"))
     open_data_eligible = models.BooleanField(default=False, verbose_name=_("Are these data / data products eligible "
                                                                            "to be placed on the Open Data Platform?"))
-    data_storage_plan = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
+    data_storage_plan = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving plan"))
     data_management_needs = models.TextField(blank=True, null=True, verbose_name=_("Describe what data management support is required, "
                                                                                    "if any."))
 
@@ -232,9 +237,9 @@ class ProjectYear(models.Model):
     ###############
     has_lab_component = models.BooleanField(default=False, verbose_name=_("Does this project involve laboratory work?"))
     # maritimes only
-    abl_services_required = models.BooleanField(default=False, verbose_name=_(
+    requires_abl_services = models.BooleanField(default=False, verbose_name=_(
         "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"))
-    lab_space_required = models.BooleanField(default=False, verbose_name=_("Is laboratory space required?"))
+    requires_lab_space = models.BooleanField(default=False, verbose_name=_("Is laboratory space required?"))
     requires_other_lab_support = models.BooleanField(default=False, verbose_name=_(
         "Does this project require other specialized laboratory support or services (provide details below)?"))
     other_lab_support_needs = models.TextField(blank=True, null=True, verbose_name=_(
@@ -310,6 +315,13 @@ class ProjectYear(models.Model):
             my_str += f" &rarr; {date(self.end_date)}"
         return mark_safe(my_str)
 
+    @property
+    def deliverables_html(self):
+        return mark_safe(markdown(self.deliverables))
+
+    @property
+    def priorities_html(self):
+        return mark_safe(markdown(self.priorities))
 
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))
