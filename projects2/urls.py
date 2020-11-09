@@ -21,6 +21,7 @@ urlpatterns = [
     ################
     path('projects/<int:project>/new-project-year/', views.ProjectYearCreateView.as_view(), name="year_new"),
     path('project-year/<int:pk>/edit/', views.ProjectYearUpdateView.as_view(), name="year_edit"),
+    path('project-year/<int:pk>/delete/', views.ProjectYearDeleteView.as_view(), name="year_delete"),
 
 
 ###################################

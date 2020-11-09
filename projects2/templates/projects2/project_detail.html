@@ -78,11 +78,20 @@
 
   </div>
 
+
+
 {% endblock %}
 
 
 {% block body_js %}
   {{ block.super }}
   <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.0.3" type="application/javascript"></script>
+
+  {% if request.GET.project_year %}
+    <script type="application/javascript">
+      app.displayProjectYear({{request.GET.project_year}})
+    </script>
+
+  {% endif %}
 
 {% endblock %}

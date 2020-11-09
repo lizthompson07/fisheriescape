@@ -1,5 +1,26 @@
 {% load verbose_names %}
 {% load project_filters %}
+{% load i18n %}
+
+<div class="float-right">
+  <a class=""
+     :href="`/project-planning/project-year/${projectYear.id}/edit/`">
+    <span class="mdi mdi-pencil"></span>
+    {% trans "Edit" %}
+  </a>
+  <a class=""
+     :href="`/project-planning/project-year/${projectYear.id}/delete/`">
+    <span class="ml-3 mdi mdi-delete"></span>
+    {% trans "Delete" %}
+  </a>
+  <a class=""
+     href="{% url 'projects2:project_delete' object.id %}">
+    <span class="ml-3 mdi mdi-content-copy"></span>
+    {% trans "Clone" %}
+  </a>
+
+
+</div>
 
 <h4 v-html="projectYear.display_name"></h4>
 

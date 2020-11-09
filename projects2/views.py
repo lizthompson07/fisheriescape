@@ -211,12 +211,10 @@ class ProjectDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     delete_protection = False
     home_url_name = "projects2:index"
     success_url = reverse_lazy("projects2:index")
+    template_name = "projects2/confirm_delete.html"
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
-
-    def get_template_names(self):
-        return "projects2/confirm_delete.html"
 
 
 # PROJECT YEAR #
@@ -244,8 +242,10 @@ class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
         year = form.save(commit=False)
         year.modified_by = self.request.user
         year.save()
-        
-        return super().form_valid(form)
+
+        return HttpResponseRedirect(
+            super().get_success_url() + f"?project_year={year.id}"
+        )
 
 
 class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
@@ -267,8 +267,29 @@ class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
         year = form.save(commit=False)
         year.modified_by = self.request.user
         year.save()
-
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return super().get_success_url() + f"?project_year={self.get_object().id}"
+
+
+class ProjectYearDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
+    model = models.ProjectYear
+    delete_protection = False
+    home_url_name = "projects2:index"
+    template_name = "projects2/confirm_delete.html"
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_project(), "url": reverse("projects2:project_detail", args=[self.get_project().id])}
+
+    def get_project(self):
+        return self.get_object().project
+
+    def delete(self, request, *args, **kwargs):
+        project = self.get_project()
+        self.get_object().delete()
+        project.save()
+        return HttpResponseRedirect(reverse("projects2:project_detail", args=[project.id]))
 
 
 ########################################
@@ -282,11 +303,12 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
     row_object_url_name = "projects2:project_detail"
     new_object_url = "projects2:project_new"
     field_list = [
-            {"name": 'section', "class": "", "width": ""},
-            {"name": 'title', "class": "", "width": ""},
-            {"name": 'allocated_budget', "class": "", "width": ""},
-            {"name": "is_lead|{}?".format("Are you a project lead"), "class": "", "width": ""},
-        ]
+        {"name": 'section', "class": "", "width": ""},
+        {"name": 'title', "class": "", "width": ""},
+        {"name": 'allocated_budget', "class": "", "width": ""},
+        {"name": "is_lead|{}?".format("Are you a project lead"), "class": "", "width": ""},
+    ]
+
     # x = [
     #     "year",
     #     "submitted|{}".format("Submitted"),

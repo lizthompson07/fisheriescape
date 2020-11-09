@@ -113,6 +113,7 @@ class ProjectYearForm(forms.ModelForm):
             "modified_by",
         ]
         widgets = {
+            'project': forms.HiddenInput(),
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'priorities': forms.Textarea(attrs=class_editable),
