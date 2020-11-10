@@ -1,0 +1,89 @@
+{% load static %}
+{% load custom_filters %}
+{% load i18n %}
+
+<div class="mb-2 neighbours">
+    <h4>
+        {% trans "Status Reports:" %}
+    </h4>
+</div>
+{% if can_edit or is_lead %}
+    <div class="mb-3 neighbours">
+        <a class="btn btn-sm btn-outline-primary" href="#" pop-href="{% url 'projects2:report_new' object.id %}">
+            {% trans "Add Report" %}
+        </a>
+    </div>
+
+{% endif %}
+{% if object.reports.count == 0 %}
+    <div class="mb-3">
+        <em>
+            {% trans "No Reports" %}...
+        </em>
+    </div>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+
+        <tr>
+            <th>
+                {% trans "Number" %}
+            </th>
+            <th>
+                {% trans "Created By" %}
+            </th>
+            <th width="10%">
+                {% trans "Status" %}
+            </th>
+            <th>
+                {% trans "Major Accomplishments" %}
+            </th>
+            <th>
+                {% trans "Major Issues Encountered" %}
+            </th>
+            <th>
+                {% trans "Target Completion Date" %}
+            </th>
+            <th>
+                {% trans "General Comments" %}
+            </th>
+            <th>
+                {% trans "Supporting Resources" %}
+            </th>
+            <th>
+                {% trans "Reviewed by Section Head" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.reports.all %}
+            <tr {% if can_edit or is_lead %}
+                data-toggle="tooltip" title="Edit" href="{% url 'projects2:report_edit' obj.id %}" pop
+            {% endif %}>
+                <td>{{ obj.report_number }}</td>
+                <td>{{ obj.created_by }}</td>
+                <td>{{ obj.status }}</td>
+                <td>{{ obj.major_accomplishments|nz:"----"|safe }}</td>
+                <td>{{ obj.major_issues|nz:"----"|safe }}</td>
+                <td>{{ obj.target_completion_date|date:"Y-m-d"|nz:"----" }}</td>
+                <td>{{ obj.general_comment|nz:"----"|safe }}</td>
+                <td>{{ obj.files.count }}</td>
+                <td>{{ obj.section_head_reviewed|yesno }}</td>
+                <td class="center-col">
+                    <a href="{% url 'projects2:report_print' obj.id %}" data-toggle="tooltip"
+                       title="{% trans "Open the the report as a PDF" %}" class="stop-blank">
+                        <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+                    </a>
+                </td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<script type="application/javascript">
+    $("#file_link").click(function (e) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        window.location.href = $(this).attr("href");
+    })
+</script>

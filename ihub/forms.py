@@ -1,10 +1,11 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from django.utils.translation import gettext as _
-from . import models
-from django.contrib.auth.models import User
+
 from masterlist import models as ml_models
 from shared_models import models as shared_models
+from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
@@ -34,6 +35,7 @@ class EntryCreateForm(forms.ModelForm):
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         self.fields["organizations"].choices = org_choices_all
 
+
 class EntryForm(forms.ModelForm):
     class Meta:
         model = models.Entry
@@ -51,7 +53,7 @@ class EntryForm(forms.ModelForm):
             'sectors': forms.SelectMultiple(attrs={'class': "multi-select"}),
         }
 
-    def __init__(self,*args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
@@ -81,27 +83,38 @@ class ReportSearchForm(forms.Form):
             (None, "------"),
             (1, _("Capacity Report (Excel Spreadsheet)")),
             (2, _("Organizational Report / Cue Card (PDF)")),
-            (3, _("iHub Summary Report (Excel Spreadsheet)")),
-            (4, _("iHub Summary Report (PDF)")),
-            (5, _("Engagement Update Log (PDF)")),
-            (6, _("Engagement Update Log (XLSX)")),
+            (3, _("iHub Summary Report")),
+            (6, _("Engagement Update Log")),
             (7, _("Consultation Instructions (PDF)")),
             (8, _("Consultation Instructions - Mail Merge (xlsx)")),
         )
-        fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
-                      models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
-        fy_choices.insert(0, (None, "all years"))
+        format_choices = (
+            (None, "------"),
+            ('pdf', "Adobe PDF (pdf)"),
+            ('xlsx', "Excel (xlsx)"),
+        )
 
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         org_choices_has_entry = [(obj.id, obj) for obj in get_ind_organizations() if obj.entries.count() > 0]
-        org_choices_has_ci = [(obj.id, obj) for obj in get_ind_organizations() if hasattr(obj,"consultation_instructions")]
+        org_choices_has_ci = [(obj.id, obj) for obj in get_ind_organizations() if hasattr(obj, "consultation_instructions")]
 
         sector_choices = [(obj.id, obj) for obj in ml_models.Sector.objects.all() if obj.entries.count() > 0]
         status_choices = [(obj.id, obj) for obj in models.Status.objects.all() if obj.entries.count() > 0]
         entry_type_choices = [(obj.id, obj) for obj in models.EntryType.objects.all() if obj.entries.count() > 0]
 
+        note_type_choices = list(models.EntryNote.TYPE_CHOICES)
+        # we need to modify one of the descriptions...
+        note_type_choices = list(models.EntryNote.TYPE_CHOICES)
+        note_type_choices.remove((models.EntryNote.INTERNAL, 'Internal'))
+        note_type_choices.append((models.EntryNote.INTERNAL, 'Internal (** for internal reports only)'))
+        note_type_choices.remove((models.EntryNote.FOLLOWUP, 'Follow-up (*)'))
+
+        note_status_choices = [(obj.id, obj) for obj in models.Status.objects.all() if obj.entry_notes.count() > 0]
+
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
-        self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
+        self.fields['format'] = forms.ChoiceField(required=False, choices=format_choices)
+        self.fields['from_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
+        self.fields['to_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
         self.fields['sectors'] = forms.MultipleChoiceField(required=False,
                                                            label='List of sectors (w/ entries) - Leave blank for all',
                                                            choices=sector_choices)
@@ -109,8 +122,8 @@ class ReportSearchForm(forms.Form):
                                                                  label='List of organizations (w/ entries) - Leave blank for all',
                                                                  choices=org_choices_has_entry)
         self.fields['orgs_w_consultation_instructions'] = forms.MultipleChoiceField(required=False,
-                                                                 label='List of organizations (w/ consultation instructions) - Leave blank for all',
-                                                                 choices=org_choices_has_ci)
+                                                                                    label='List of organizations (w/ consultation instructions) - Leave blank for all',
+                                                                                    choices=org_choices_has_ci)
         self.fields['statuses'] = forms.MultipleChoiceField(required=False,
                                                             label='Status - Leave blank for all',
                                                             choices=status_choices,
@@ -121,6 +134,12 @@ class ReportSearchForm(forms.Form):
                                                                )
         self.fields['single_org'] = forms.ChoiceField(required=False, label='Organization', choices=org_choices_all)
 
+        self.fields['entry_note_types'] = forms.MultipleChoiceField(required=False,
+                                                                           label='Include which types of entry notes (blank for all)',
+                                                                           choices=note_type_choices)
+        self.fields['entry_note_statuses'] = forms.MultipleChoiceField(required=False,
+                                                                             label='Include entry notes with which statuses (blank for all)',
+                                                                             choices=note_status_choices)
         self.fields['report_title'] = forms.CharField(required=False)
 
 

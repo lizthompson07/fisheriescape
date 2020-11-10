@@ -1,0 +1,165 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div class="float-right">
+    <button
+      v-if="!staff_loading"
+      @click="openStaffModal()"
+    >
+      <span class="mdi mdi-plus"></span> {% trans "Add Staff" %}
+    </button>
+  </div>
+  <h2>{% trans "Staff" %}</h2>
+
+  <div v-if="staff_loading">
+    <button class="btn btn-primary" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+
+  <div v-else>
+
+    <div
+      v-if="!staff.length"
+      class="font-italic"
+    >
+      {% trans "No staff have been added to this year of the project" %}
+    </div>
+
+    <table
+      v-else
+      class="table table-sm sortable"
+    >
+      <thead>
+      {% get_staff_field_list as staff_field_list %}
+      {% for field in staff_field_list %}
+        <th>
+          {% get_verbose_label object.years.first.staff_set.first field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      <tr v-for="s in staff">
+        {% for field in staff_field_list %}
+          {% if "smart_name" in field %}
+            <td>${s.smart_name}</td>
+          {% elif "lead" in field %}
+            <td>${s.is_lead | yesNo}</td>
+          {% elif "funding_source" in field %}
+            <td>${s.funding_source_display }</td>
+          {% elif "level" in field %}
+            <td>${s.level_display }</td>
+          {% elif "employee_type" in field %}
+            <td>${s.employee_type_display }</td>
+
+          {% else %}
+            <td>${ s.{{ field }} }</td>
+          {% endif %}
+        {% endfor %}
+        <td>
+          <button><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteStaffMember(s)"><span class="mdi mdi-delete"></span></button>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+  {#     <table class="table table-sm sortable" style="width: auto">#}
+  {#        <thead>#}
+  {#        {% if can_edit %}#}
+  {#            <th></th>#}
+  {#        {% endif %}#}
+  {#        <th>#}
+  {#            {% trans "Name" %}#}
+  {#        </th>#}
+  {#        <th class="center-col">#}
+  {#            {% trans "Project Lead" %}#}
+  {#        </th>#}
+  {#        <th>#}
+  {#            {% trans "Employee type" %}#}
+  {#        </th>#}
+  {#        <th class="center-col">#}
+  {#            {% trans "Level" %}#}
+  {#        </th>#}
+  {#        <th class="center-col">#}
+  {#            {% trans "Duration (weeks)" %}#}
+  {#        </th>#}
+  {#        <th class="center-col">#}
+  {#            {% trans "Overtime hours" %}#}
+  {#        </th>#}
+  {#        <th class="center-col">#}
+  {#            {% trans "Cost Category" %}#}
+  {#        </th>#}
+  {#        <th class="center-col">#}
+  {#            {% trans "Funding Source" %}#}
+  {#        </th>#}
+  {#        <th class="center-col">#}
+  {#            {% trans "Cost" %}#}
+  {#        </th>#}
+  {#        </thead>#}
+  {#        <tbody>#}
+  {#        {% for obj in object.staff_members.all %}#}
+  {#            <tr id="staff-{{ obj.id }}"#}
+  {#                    {% if can_edit %} href="{% url 'projects2:staff_edit' obj.id %}" pop data-toggle="tooltip" title="Edit" {% endif %}>#}
+  {#                {% if can_edit %}#}
+  {#                    <td>#}
+  {#                        <a class="staff-delete-me" href="#" val="{{ obj.id }}" user_id="{{ obj.user.id }}">#}
+  {#                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete" width="20px">#}
+  {#                        </a>#}
+  {#                        <a id="staff-secrect-delete-btn-{{ obj.id }}" href="{% url 'projects2:staff_delete' obj.id %}" class="hidden"></a>#}
+  {#                    </td>#}
+  {#                {% endif %}#}
+  {##}
+  {#                <td>#}
+  {#                    {% if obj.user.id %} {{ obj.user }} {% else %} {{ obj.name }}{% endif %}#}
+  {#                </td>#}
+  {#                <td class="{% if obj.lead %}blue-font{% endif %} center-col">{{ obj.lead|yesno }}</td>#}
+  {#                <td class="{% if obj.employee_type %}{% else %}major-error{% endif %}">#}
+  {#                    {{ obj.employee_type }} {% if  obj.employee_type.id == 4 %} ({{ obj.get_student_program_display }}) {% endif %}#}
+  {#                </td>#}
+  {##}
+  {#                <td>#}
+  {#                    {{ obj.level|nz:"-----" }}#}
+  {#                </td>#}
+  {##}
+  {##}
+  {#                <td class="center-col {% if not obj.duration_weeks %}major-error{% endif %}">#}
+  {#                    {{ obj.duration_weeks }}#}
+  {#                </td>#}
+  {##}
+  {#                <td class="center-col">#}
+  {#                    {{ obj.overtime_hours }}#}
+  {#                </td>#}
+  {##}
+  {#                <td class="center-col">{{ obj.employee_type.get_cost_type_display }}</td>#}
+  {##}
+  {#                <td style="background-color: {{ obj.funding_source.funding_source_type.color }}" class="center-col">#}
+  {#                    {{ obj.funding_source.tname }}#}
+  {#                </td>#}
+  {##}
+  {#                <td class="center-col"#}
+  {#                    class="{% if not obj.cost and not obj.employee_type.exclude_from_rollup %} major-error{% endif %}">#}
+  {#                    {% if obj.employee_type.exclude_from_rollup %}#}
+  {#                        {% trans "n/a" %}#}
+  {#                    {% else %}#}
+  {#                        {{ obj.cost|nz:0|currency }}#}
+  {#                    {% endif %}#}
+  {##}
+  {#                </td>#}
+  {##}
+  {#            </tr>#}
+  {#        {% endfor %}#}
+  {#        </tbody>#}
+  {#    </table>#}
+
+
+</div>
+</tr>

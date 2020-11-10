@@ -427,6 +427,7 @@ class CommonFormsetView(TemplateView, CommonFormMixin):
         context["field_list"] = [f for f in self.formset_class.form.base_fields]
         context["pre_display_fields"] = self.get_pre_display_fields()
         context["post_display_fields"] = self.get_post_display_fields()
+
         return context
 
     def get(self, request, *args, **kwargs):
@@ -559,7 +560,7 @@ class SectionUpdateView(AdminRequiredMixin, CommonUpdateView):
 
 class SectionCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Section
-    template_name = 'shared_models/generic_form.html'
+    template_name = 'shared_models/org_form.html'
     form_class = forms.SectionForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:section_list")}
@@ -632,7 +633,7 @@ class DivisionUpdateView(AdminRequiredMixin, CommonUpdateView):
 
 class DivisionCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Division
-    template_name = 'shared_models/generic_form.html'
+    template_name = 'shared_models/org_form.html'
     form_class = forms.DivisionForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:division_list")}
@@ -704,7 +705,7 @@ class BranchUpdateView(AdminRequiredMixin, CommonUpdateView):
 
 class BranchCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Branch
-    template_name = 'shared_models/generic_form.html'
+    template_name = 'shared_models/org_form.html'
     form_class = forms.BranchForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:branch_list")}
@@ -768,7 +769,7 @@ class RegionUpdateView(AdminRequiredMixin, CommonUpdateView):
 
 class RegionCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Region
-    template_name = 'shared_models/generic_form.html'
+    template_name = 'shared_models/org_form.html'
     form_class = forms.RegionForm
     root_crumb = {"title": gettext_lazy("DFO Orgs"), "url": reverse_lazy("shared_models:index")}
     parent_crumb = {"title": model._meta.verbose_name_plural, "url": reverse_lazy("shared_models:region_list")}

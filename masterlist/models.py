@@ -3,6 +3,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+from dm_apps.utils import compare_strings
 from shared_models import models as shared_models
 
 # Choices for YesNo
@@ -59,9 +61,8 @@ class Organization(models.Model):
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("province"))
     phone = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("phone"))
     fax = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("fax"))
-    dfo_contact_instructions = models.TextField(blank=True, null=True, verbose_name=_("DFO contact instructions"))
+    dfo_contact_instructions = models.TextField(blank=True, null=True, verbose_name=_("DFO contacts"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-    consultation_protocol = models.TextField(blank=True, null=True, verbose_name=_("consultation protocol"))
     key_species = models.TextField(blank=True, null=True, verbose_name=_("key species"))
     grouping = models.ManyToManyField(Grouping, verbose_name=_("grouping"), blank=False)
     regions = models.ManyToManyField(shared_models.Region, verbose_name=_("region"), blank=True)
@@ -135,8 +136,18 @@ class Organization(models.Model):
 
     @property
     def chief(self):
-        if self.members.filter(role__icontains="chief").exists():
-            return self.members.filter(role__icontains="chief").first()
+        member_qry =self.members.filter(role__icontains="chief")
+        if member_qry.exists():
+            # need to do a better guess at who is chief. Sometimes, a member's role might be previous chief
+            winner = None
+            shortest_dist = 9999
+            for m in member_qry:
+                # using the Levenshtein distance, we can choose the role that has the shortest distance to "chief"
+                dist = compare_strings("chief", m.role)
+                if dist < shortest_dist:
+                    shortest_dist = dist
+                    winner = m
+            return winner
 
 
 class Person(models.Model):

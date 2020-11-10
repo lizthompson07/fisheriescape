@@ -1,20 +1,21 @@
+import os
+from datetime import datetime
+
 import xlsxwriter as xlsxwriter
+from django.conf import settings
 from django.db.models import Q
 from django.template.defaultfilters import yesno
 from django.utils import timezone
-from django.conf import settings
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from textile import textile
 
 from lib.functions.custom_functions import nz, listrify
 from lib.templatetags.verbose_names import get_verbose_label
-from . import models
-import os
 from masterlist import models as ml_models
+from . import models
+from .utils import get_date_range_overlap
 
 
-def generate_capacity_spreadsheet(fy, orgs, sectors):
+def generate_capacity_spreadsheet(orgs, sectors, from_date, to_date):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -32,43 +33,44 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
 
     # first, filter out the "none" placeholder
-    if fy == "None":
-        fy = None
     if orgs == "None":
         orgs = None
     if sectors == "None":
         sectors = None
+    if from_date == "None":
+        from_date = None
+    if to_date == "None":
+        to_date = None
 
     # build an entry list:
     entry_list = models.Entry.objects.all()
-
-    if fy:
-        entry_list = models.Entry.objects.filter(fiscal_year=fy)
 
     if sectors:
         # we have to refine the queryset to only the selected sectors
         sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
         entry_list = entry_list.filter(sectors__in=sector_list)
-        # # create the species query object: Q
-        # q_objects = Q()  # Create an empty Q object to start with
-        # for s in sector_list:
-        #     q_objects |= Q(sectors=s)  # 'or' the Q objects together
-        # # apply the filter
     if orgs:
         # we have to refine the queryset to only the selected orgs
         org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
         entry_list = entry_list.filter(organizations__in=org_list)
-        # # create the species query object: Q
-        # q_objects = Q()  # Create an empty Q object to start with
-        # for o in org_list:
-        #     q_objects |= Q(organizations=o)  # 'or' the Q objects together
-        # # apply the filter
-        # entry_list = entry_list.filter(q_objects)
     else:
         # if no orgs were passed in to the report, we need to make an org list based on the orgs in the entries
         # this org_list will serve as basis for spreadsheet tabs
         org_id_list = list(set([org.id for entry in entry_list for org in entry.organizations.all()]))
         org_list = ml_models.Organization.objects.filter(id__in=org_id_list).order_by("abbrev")
+
+    if from_date or to_date:
+        id_list = []
+        d0_start = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+        d0_end = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone())
+        for e in entry_list:
+            d1_start = e.initial_date
+            d1_end = e.anticipated_end_date
+            if get_date_range_overlap(d0_start, d0_end, d1_start, d1_end) > 0:
+                id_list.append(e.id)
+        entry_list = entry_list.filter(id__in=id_list)
+
+    entry_list.distinct()
 
     # define the header
     header = [
@@ -136,9 +138,9 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
                 str(e.entry_type),
                 e.initial_date.strftime("%Y-%m-%d") if e.initial_date else "n/a",
                 e.anticipated_end_date.strftime("%Y-%m-%d") if e.anticipated_end_date else "",
-                str(e.funding_program),
                 regions,
                 nz(str(e.funding_program), ""),
+                nz(str(e.funding_needed), ""),
                 nz(str(e.funding_purpose), ""),
                 nz(e.amount_requested, 0),
                 nz(e.amount_approved, 0),
@@ -211,7 +213,7 @@ def generate_capacity_spreadsheet(fy, orgs, sectors):
     return target_url
 
 
-def generate_summary_spreadsheet(fy, orgs, sectors):
+def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_types, entry_note_statuses):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -229,18 +231,25 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
     normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
 
     # first, filter out the "none" placeholder
-    if fy == "None":
-        fy = None
-    if orgs == "None":
-        orgs = None
     if sectors == "None":
         sectors = None
+    if orgs == "None":
+        orgs = None
+    if from_date == "None":
+        from_date = None
+    if to_date == "None":
+        to_date = None
+    if entry_note_types == "None":
+        entry_note_types = None
+    else:
+        entry_note_types = [int(i) for i in entry_note_types.split(",")] if entry_note_types else None
 
+    if entry_note_statuses == "None":
+        entry_note_statuses = None
+    else:
+        entry_note_statuses = [int(i) for i in entry_note_statuses.split(",")] if entry_note_statuses else None
     # build an entry list:
     entry_list = models.Entry.objects.all()
-
-    if fy:
-        entry_list = models.Entry.objects.filter(fiscal_year=fy)
 
     if sectors:
         # we have to refine the queryset to only the selected sectors
@@ -255,6 +264,19 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
         # this org_list will serve as basis for spreadsheet tabs
         org_id_list = list(set([org.id for entry in entry_list for org in entry.organizations.all()]))
         org_list = ml_models.Organization.objects.filter(id__in=org_id_list).order_by("abbrev")
+
+    if from_date or to_date:
+        id_list = []
+        d0_start = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone()) if from_date else None
+        d0_end = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone()) if to_date else None
+        for e in entry_list:
+            d1_start = e.initial_date
+            d1_end = e.anticipated_end_date
+            if get_date_range_overlap(d0_start, d0_end, d1_start, d1_end) > 0:
+                id_list.append(e.id)
+        entry_list = entry_list.filter(id__in=id_list)
+
+    entry_list.distinct()
 
     # define the header
     header = [
@@ -314,23 +336,24 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
                     "[", "").replace("]", "").replace("'", "").replace('"', "").replace(', ', "\n")
             else:
                 people = None
-
-            if e.notes.count() > 0:
+            note_qry = e.notes.all()
+            if note_qry.count() > 0:
                 notes = ""
                 count = 0
-                max_count = e.notes.count()
-                for obj in e.notes.all():
-                    notes += "{} - {} [STATUS: {}] (Created by {} {} on {})\n".format(
-                        obj.get_type_display().upper(),
-                        obj.note,
-                        obj.status,
-                        obj.author.first_name,
-                        obj.author.last_name,
-                        obj.creation_date.strftime("%Y-%m-%d"),
-                    )
-                    if not count == max_count:
-                        notes += "\n"
-
+                max_count = note_qry.count()
+                for obj in note_qry:
+                    if not entry_note_types or (obj.type in entry_note_types):
+                        if not entry_note_statuses or (obj.status_id in entry_note_statuses):
+                            notes += "{} - {} [STATUS: {}] (Created by {} {} on {})\n".format(
+                                obj.get_type_display().upper(),
+                                obj.note,
+                                obj.status,
+                                obj.author.first_name,
+                                obj.author.last_name,
+                                obj.creation_date.strftime("%Y-%m-%d"),
+                            )
+                            if not count == max_count:
+                                notes += "\n"
             else:
                 notes = None
 
@@ -432,7 +455,8 @@ def generate_summary_spreadsheet(fy, orgs, sectors):
     return target_url
 
 
-def generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, report_title):
+def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, report_title, from_date, to_date, entry_note_types,
+                                          entry_note_statuses):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -440,45 +464,62 @@ def generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, repor
     target_url = os.path.join(settings.MEDIA_ROOT, 'ihub', 'temp', target_file)
 
     # first, filter out the "none" placeholder
-    if fy == "None":
-        fy = None
+    if sectors == "None":
+        sectors = None
     if orgs == "None":
         orgs = None
     if statuses == "None":
         statuses = None
     if entry_types == "None":
         entry_types = None
+    if from_date == "None":
+        from_date = None
+    if to_date == "None":
+        to_date = None
+    if entry_note_types == "None":
+        entry_note_types = None
+    else:
+        entry_note_types = [int(i) for i in entry_note_types.split(",")] if entry_note_types else None
+    if entry_note_statuses == "None":
+        entry_note_statuses = None
+    else:
+        entry_note_statuses = [int(i) for i in entry_note_statuses.split(",")] if entry_note_statuses else None
 
     # get an entry list for the fiscal year (if any)
-    entry_list = models.Entry.objects.all().order_by("sectors", "status", "-initial_date")
-
-    if fy:
-        entry_list = models.Entry.objects.filter(fiscal_year=fy)
+    entry_list = models.Entry.objects.all().order_by("status", "-initial_date")
 
     if orgs:
         # we have to refine the queryset to only the selected orgs
         org_list = [ml_models.Organization.objects.get(pk=int(o)) for o in orgs.split(",")]
-        # create the species query object: Q
-        q_objects = Q()  # Create an empty Q object to start with
-        for o in org_list:
-            q_objects |= Q(organizations=o)  # 'or' the Q objects together
-        # apply the filter
-        entry_list = entry_list.filter(q_objects)
+        entry_list = entry_list.filter(organizations__in=org_list)
+
+    if sectors:
+        # we have to refine the queryset to only the selected sectors
+        sector_list = [ml_models.Sector.objects.get(pk=int(s)) for s in sectors.split(",")]
+        entry_list = entry_list.filter(sectors__in=sector_list)
 
     if statuses:
-        # we have to refine the queryset to only the selected orgs
+        # we have to refine the queryset to only the selected statuses
         status_list = [models.Status.objects.get(pk=int(o)) for o in statuses.split(",")]
-        # create the species query object: Q
-        q_objects = Q()  # Create an empty Q object to start with
-        for o in status_list:
-            q_objects |= Q(status=o)  # 'or' the Q objects together
-        # apply the filter
-        entry_list = entry_list.filter(q_objects)
+        entry_list = entry_list.filter(status__in=status_list)
 
     if entry_types:
         # we have to refine the queryset to only the selected orgs
         entry_type_list = [models.EntryType.objects.get(pk=int(o)) for o in entry_types.split(",")]
         entry_list = entry_list.filter(entry_type__in=entry_type_list)
+
+    if from_date or to_date:
+        id_list = []
+        d0_start = datetime.strptime(from_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone()) if from_date else None
+        d0_end = datetime.strptime(to_date, "%Y-%m-%d").replace(tzinfo=timezone.get_current_timezone()) if to_date else None
+        for e in entry_list:
+            d1_start = e.initial_date
+            d1_end = e.anticipated_end_date
+            if get_date_range_overlap(d0_start, d0_end, d1_start, d1_end) > 0:
+                id_list.append(e.id)
+        entry_list = entry_list.filter(id__in=id_list)
+
+    entry_list.distinct()
 
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)
@@ -525,7 +566,9 @@ def generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, repor
         other_notes = "Overall status: {}".format(e.status)
         if e.other_notes.count() > 0:
             for n in e.other_notes.all():
-                other_notes += "\n\n*************************\n" + str(n)
+                if not entry_note_types or (n.type in entry_note_types):
+                    if not entry_note_statuses or (n.status_id in entry_note_statuses):
+                        other_notes += "\n\n*************************\n" + str(n)
 
         followups = ""
         for n in e.followups.all():
@@ -567,8 +610,6 @@ def generate_consultation_log_spreadsheet(fy, orgs, statuses, entry_types, repor
     return target_url
 
 
-
-
 def consultation_instructions_export_spreadsheet(orgs=None):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
@@ -586,7 +627,6 @@ def consultation_instructions_export_spreadsheet(orgs=None):
     else:
         # else return all orgs
         object_list = ml_models.ConsultationInstruction.objects.all()
-
 
     # create workbook and worksheets
     workbook = xlsxwriter.Workbook(target_file_path)

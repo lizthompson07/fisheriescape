@@ -120,6 +120,36 @@
     }
 },
 {
+    "model": "csas.cotexpertise",
+    "pk": 1,
+    "fields": {
+        "name": "Armature",
+        "nom": " Armature (fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cotexpertise",
+    "pk": 2,
+    "fields": {
+        "name": "Novice",
+        "nom": " Novice (fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cotexpertise",
+    "pk": 3,
+    "fields": {
+        "name": "Expert",
+        "nom": " Expert (fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
     "model": "csas.lanlanguage",
     "pk": 1,
     "fields": {
@@ -286,7 +316,7 @@
         "region": 2,
         "sector": 1,
         "role": 1,
-        "expertise": "diverse....",
+        "expertise": 1,
         "cc_grad": true,
         "notes": "Tana is super awesome!"
     }
@@ -308,7 +338,7 @@
         "region": 2,
         "sector": 1,
         "role": 2,
-        "expertise": "SSRs",
+        "expertise": 2,
         "cc_grad": false,
         "notes": "Lottie is also super awesome!"
     }
@@ -330,7 +360,7 @@
         "region": 6,
         "sector": 1,
         "role": 3,
-        "expertise": "everything",
+        "expertise": 3,
         "cc_grad": false,
         "notes": "Laura is awesome"
     }
@@ -352,7 +382,7 @@
         "region": 2,
         "sector": 1,
         "role": 1,
-        "expertise": "fisheries",
+        "expertise": 1,
         "cc_grad": false,
         "notes": "active participant."
     }

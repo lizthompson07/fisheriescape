@@ -1,5 +1,6 @@
 {% load custom_filters %}
 {% load i18n %}
+
 {% with trip.get_cost_comparison_dict as cc_dict %}
     {% with cc_dict|lookup:"costs" as cost_dict %}
         {% with cc_dict|lookup:"trip_requests" as trip_requests_dict %}

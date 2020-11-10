@@ -236,7 +236,7 @@ class Conference(models.Model):
             self.name, self.nom, self.location,
             self.start_date.strftime("%Y-%m-%d"),
             self.end_date.strftime("%Y-%m-%d"),
-            "<a href='(click here)' target='_blank'>{}</a>".format(self.meeting_url) if self.meeting_url else "n/a",
+            "<a href='{}' target='_blank'>{}</a>".format(self.meeting_url, self.meeting_url) if self.meeting_url else "n/a",
             "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
@@ -975,9 +975,10 @@ class TripRequestCost(models.Model):
 
     def save(self, *args, **kwargs):
         # if a user is providing a rate and number of days, we use this to calc the total amount.
+        if not self.amount_cad:
+            self.amount_cad = 0
         if (self.rate_cad and self.rate_cad != 0) and (self.number_of_days and self.number_of_days != 0):
             self.amount_cad = self.rate_cad * self.number_of_days
-
         super().save(*args, **kwargs)
 
 

@@ -1,4 +1,4 @@
-{% extends "projects/base.html" %}
+{% extends "projects2/base.html" %}
 {% load static %}
 {% load humanize %}
 {% load custom_filters %}
@@ -23,19 +23,17 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item active" aria-current="page">
-                Project Program List
+                Non-registered Staff List
             </li>
         </ol>
     </nav>
 
     <div class="container-fluid">
         <h1>
-            Project Program List
+            NON REGISTERED STAFF LIST
         </h1>
-        <h3>
-            The purpose of this list view is to verify which programs have been selected by individual projects and to be able to re-assign
-            them if necessary.
-        </h3>
+        <h3>The purpose of this list view is to check if any DFO staff were listed on projects, but were not connected to their user
+            accounts</h3>
         <br><br>
 
         <form class="form" action="." method="get" id="filter-form">
@@ -80,42 +78,35 @@
                 {% trans "Title" %}
             </th>
             <th scope="col" style="">
-                {% trans "Program List" %}
+                {% trans "Staff name" %}
             </th>
-            <th scope="col" style="">
-                {% trans "Submitted" %}
+            <th scope="col">
+                {% trans "Lead?" %}
             </th>
-            <th scope="col" style="">
-                {% trans "Approved" %}
+            <th scope="col">
+                {% trans "Employee type" %}
             </th>
             </thead>
             <tbody>
 
             {% for obj in filter_list %}
                 {% if request.META.QUERY_STRING %}
-                    {% url 'projects:admin_pp_edit' obj.id request.META.QUERY_STRING as url %}
+                    {% url 'projects2:admin_staff_edit' obj.id request.META.QUERY_STRING as url %}
                 {% else %}
-                    {% url 'projects:admin_pp_edit' obj.id as url %}
+                    {% url 'projects2:admin_staff_edit' obj.id as url %}
                 {% endif %}
-                <tr href="{{ url }}">
+                <tr href="{{url}}">
 
-                    <td>{{ obj.year }}</td>
-                    <td>{{ obj.section.division.branch.region.name }} - {{ obj.section.division.name }}
-                        - {{ obj.section.name }}</td>
+                    <td>{{ obj.project.year }}</td>
+                    <td>{{ obj.project.section.division.branch.region.name }} - {{ obj.project.section.division.name }}
+                        - {{ obj.project.section.name }}</td>
                     <td>
-                        {{ obj.project_title }}
+                        {{ obj.project.project_title }} {% if not obj.project.submitted %} - <span class="red-font">UNSUBMITTED</span>   {% endif %}
                     </td>
-                    <td class="{% if obj.programs.count == 0 %}bad{% endif %}">
-                        {% for program in obj.programs.all %}
-                            {{ program }}<br>
-                        {% endfor %}
-                    </td>
-                    <td>
-                        {{ obj.submitted|yesno }}
-                    </td>
-                    <td>
-                        {{ obj.approved|yesno }}
-                    </td>
+                    <td>{{ obj }}</td>
+
+                    <td>{{ obj.lead|yesno }}</td>
+                    <td>{{ obj.employee_type }}</td>
 
                 </tr>
             {% endfor %}

@@ -48,7 +48,7 @@ class TicketListView(LoginRequiredMixin, CommonFilterView):
     template_name = "tickets/list.html"
     queryset = models.Ticket.objects.annotate(
         search_term=Concat('id', 'title', 'notes', output_field=TextField()))
-    h1 = gettext_lazy("Data Management Tickets")
+    h1 = gettext_lazy("DM Apps Tickets")
     container_class = "container-fluid"
     new_object_url_name = "tickets:create"
     row_object_url_name = "tickets:detail"
@@ -429,9 +429,8 @@ class FollowUpCreateView(LoginRequiredMixin, CommonPopoutCreateView):
 
     def get_h3(self):
         ticket = models.Ticket.objects.get(pk=self.kwargs['ticket'])
-        if ticket.github_issue_number and self.request.is_staff:
+        if ticket.github_issue_number and self.request.user.is_staff:
             return f'HEADS UP: this follow-up will be created as a github comment on issue { ticket.github_issue_number }'
-
 
     def get_initial(self):
         ticket = models.Ticket.objects.get(pk=self.kwargs['ticket'])

@@ -1,0 +1,236 @@
+{% extends "projects2/form.html" %}
+
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+
+{% block form_field %}
+  <div class="{{ field.name }}_div">
+    {% if "deliverable" in field.name or "priorit" in field.name %}
+
+      <label for="id_priorities">{{ field.label}}</label>
+      <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+         title="{% trans "Markdown syntax is supported in this field" %}">
+        <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px"></span>
+      </a>
+      {% bootstrap_field field placeholder="" show_label=False %}
+
+    {% else %}
+      {% bootstrap_field field placeholder="" %}
+    {% endif %}
+
+  </div>
+{% endblock %}
+
+
+{% block body_js %}
+
+
+  <script type="application/javascript">
+
+  var $has_new_data = $("#id_has_data_component");
+  var $has_travel = $("#id_has_field_component");
+  var $has_lab_work = $("#id_has_lab_component");
+  var $requires_specialized_equipment = $("#id_requires_specialized_equipment");
+  var $requires_field_staff = $("#id_requires_field_staff");
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    refreshDataSection()
+    refreshTravelSection()
+    refreshLabSection()
+    refreshSpecializedEquipmentSection()
+
+  });
+
+  function refreshDataSection() {
+    if ($has_new_data.val() === "True") {
+      $(".data_collected_div").removeClass("gone")
+      $(".data_products_div").removeClass("gone")
+      $(".data_storage_plan_div").removeClass("gone")
+      $(".open_data_eligible_div").removeClass("gone")
+      $(".data_management_needs_div").removeClass("gone")
+    } else {
+      $(".data_collected_div").addClass("gone")
+      $(".data_products_div").addClass("gone")
+      $(".data_storage_plan_div").addClass("gone")
+      $(".open_data_eligible_div").addClass("gone")
+      $(".data_management_needs_div").addClass("gone")
+    }
+  }
+
+  function refreshTravelSection() {
+    if ($has_travel.val() === "True") {
+      $(".vehicle_needs_div").removeClass("gone")
+      $(".ship_needs_div").removeClass("gone")
+      $(".coip_reference_id_div").removeClass("gone")
+      $(".instrumentation_div").removeClass("gone")
+      $(".owner_of_instrumentation_div").removeClass("gone")
+      $(".requires_field_staff_div").removeClass("gone")
+      $(".field_staff_needs_div").removeClass("gone")
+
+      // there is another question..
+      if ($requires_field_staff.val() === "True") {
+        $(".field_staff_needs_div").removeClass("gone")
+      } else {
+        $(".field_staff_needs_div").addClass("gone")
+      }
+
+    } else {
+      $(".vehicle_needs_div").addClass("gone")
+      $(".ship_needs_div").addClass("gone")
+      $(".coip_reference_id_div").addClass("gone")
+      $(".instrumentation_div").addClass("gone")
+      $(".owner_of_instrumentation_div").addClass("gone")
+      $(".requires_field_staff_div").addClass("gone")
+      $(".field_staff_needs_div").addClass("gone")
+    }
+  }
+
+  function refreshLabSection() {
+    if ($has_lab_work.val() === "True") {
+      $(".requires_abl_services_div").removeClass("gone")
+      $(".requires_lab_space_div").removeClass("gone")
+      $(".requires_other_lab_support_div").removeClass("gone")
+      $(".other_lab_support_needs_div").removeClass("gone")
+    } else {
+      $(".requires_abl_services_div").addClass("gone")
+      $(".requires_lab_space_div").addClass("gone")
+      $(".requires_other_lab_support_div").addClass("gone")
+      $(".other_lab_support_needs_div").addClass("gone")
+    }
+  }
+
+  function refreshSpecializedEquipmentSection() {
+    if ($requires_specialized_equipment.val() === "True") {
+      $(".technical_service_needs_div").removeClass("gone")
+      $(".mobilization_needs_div").removeClass("gone")
+    } else {
+      $(".technical_service_needs_div").addClass("gone")
+      $(".mobilization_needs_div").addClass("gone")
+    }
+  }
+
+
+  $has_new_data.change(function () {
+    refreshDataSection()
+  })
+
+  $has_travel.change(function () {
+    refreshTravelSection()
+  })
+
+  $has_lab_work.change(function () {
+    refreshLabSection()
+  })
+
+  $requires_specialized_equipment.change(function () {
+    console.log(1)
+    refreshSpecializedEquipmentSection()
+  })
+
+  $requires_field_staff.change(function () {
+    refreshTravelSection()
+  })
+  </script>
+{% endblock %}
+
+
+{##}
+{#{% block body %}#}
+{#  <style>#}
+{#  label {#}
+{#      font-weight: bold;#}
+{#  }#}
+{#  </style>#}
+{##}
+{##}
+{##}
+{##}
+{#  <div class="container">#}
+{#    <h1>#}
+{#      {{ object }}#}
+{#    </h1>#}
+{#    <br><br>#}
+{##}
+{#    <form method="post" class="form">#}
+{#      {% bootstrap_form_errors form %}#}
+{#      {% csrf_token %}#}
+{#      {% buttons %}#}
+{#        <div class="btn-group">#}
+{#          <button type="submit" class="btn btn-primary">#}
+{#            {% trans "Update" %}#}
+{#          </button>#}
+{#          <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">#}
+{#            {% trans "Close" %}#}
+{#          </a>#}
+{#        </div>#}
+{#      {% endbuttons %}#}
+{##}
+{#      {% for field in form %}#}
+{#        <div class="{{ field.name }}_div">#}
+{#          {% if 'editable' in field.field.widget.attrs|lookup:"class" %}#}
+{##}
+{#            {% if field.name in help_text_dict %}#}
+{#              {% bootstrap_label field.label %}#}
+{#              {% with help_text_dict|lookup:field.name as help_text %}#}
+{#                <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"#}
+{#                     data-trigger="hover"#}
+{#                     title="{{ field.label }}"#}
+{#                     data-content="{{ help_text }}">#}
+{##}
+{##}
+{#                {% bootstrap_field field %}#}
+{#              {% endwith %}#}
+{##}
+{#            {% else %}#}
+{##}
+{#              {% bootstrap_label field.label %}#}
+{#              {% bootstrap_field field %}#}
+{##}
+{#            {% endif %}#}
+{##}
+{##}
+{##}
+{#          {% else %}#}
+{#            {% if field.name in help_text_dict %}#}
+{#              {% bootstrap_label field.label %}#}
+{#              {% with help_text_dict|lookup:field.name as help_text %}#}
+{#                <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"#}
+{#                     data-trigger="hover"#}
+{#                     title="{{ field.label }}"#}
+{#                     data-content="{{ help_text }}">#}
+{#                {% bootstrap_field field placeholder="" show_label=False %}#}
+{#              {% endwith %}#}
+{##}
+{#            {% else %}#}
+{#              {% bootstrap_field field placeholder="" %}#}
+{#            {% endif %}#}
+{#          {% endif %}#}
+{#        </div>#}
+{##}
+{#      {% endfor %}#}
+{##}
+{##}
+{#      {% buttons %}#}
+{#        <div class="btn-group">#}
+{#          <button type="submit" class="btn btn-primary">#}
+{#            {% trans "Update" %}#}
+{#          </button>#}
+{#          <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">#}
+{#            {% trans "Close" %}#}
+{#          </a>#}
+{#        </div>#}
+{#      {% endbuttons %}#}
+{#    </form>#}
+{##}
+{##}
+{#  </div>#}
+{# only do this if we are in the project create view #}
+{##}
+{##}
+{##}
+{##}
+{#{% endblock %}#}
+{##}

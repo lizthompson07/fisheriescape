@@ -1,0 +1,93 @@
+{% load static %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="mb-2 neighbours">
+    <h4>
+        {% trans "Supporting Resources" %}
+    </h4>
+</div>
+{% if not object %}
+    <div class="mb-3">
+        <em>
+            {% trans "Once you save this report, you will be able to add supporting resources" %}...
+        </em>
+    </div>
+{% else %}
+
+    {% if can_edit or is_lead %}
+        {% if status_report %}
+            {% url 'projects2:file_new' project.id status_report.id as add_url %}
+        {% else %}
+            {% url 'projects2:file_new' project.id as add_url %}
+        {% endif %}
+        <div class="mb-3 neighbours">
+            <a class="btn btn-sm btn-outline-primary add-btn" href="#" pop-href="{{ add_url }}">
+                {% trans "Add Resource" %}
+            </a>
+        </div>
+    {% endif %}
+    {% if files.count == 0 %}
+        <div class="mb-3">
+            <em>
+                {% trans "No Files" %}...
+            </em>
+        </div>
+    {% else %}
+
+        <table class="table table-hover table-sm" style="width: auto">
+            <tr>
+                <th>
+                    {% trans "Resource Name" %}
+                </th>
+                <th>
+                    {% trans "Reference" %}
+                </th>
+                <th class="center-col">
+                    {% trans "External URL" %}
+                </th>
+                <th class="center-col">
+                    {% trans "File Attachment" %}
+                </th>
+
+                <th>
+                    {% trans "Date Created" %}
+                </th>
+
+            </tr>
+            <tbody>
+            {% for obj in files.all %}
+                <tr {% if can_edit or is_lead %}
+                    data-toggle="tooltip" title="Edit" href="{% url 'projects2:file_detail' obj.id %}" pop
+                {% endif %}>
+                    <td>{{ obj.name }}</td>
+                    <td>{{ obj.ref }}</td>
+                    <td class="center-col">
+                        {% if obj.external_url %}
+                            <a href="{{ obj.external_url }}" target="_blank" class="stop-blank" data-toggle="tooltip"
+                               title="{% trans "open the external URL in a new window" %}">
+                                <img src="{% static 'img/icons/www.svg' %}" alt="" width="20px">
+                            </a>
+                        {% else %}
+                            ----
+                        {% endif %}
+                    </td>
+                    <td class="center-col">
+                        {% if obj.file %}
+                            <a href="{{ obj.file.url }}" data-toggle="tooltip" title="{% trans "Open the file" %}" class="stop-blank">
+                                <img src="{% static 'img/paperclip-1332775_1920.png' %}" alt="" width="20px">
+                            </a>
+
+                        {% else %}
+                            ----
+                        {% endif %}
+                    </td>
+                    <td>{{ obj.date_created }}</td>
+
+                    </a>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endif %}

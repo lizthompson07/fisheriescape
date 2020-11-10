@@ -1,4 +1,5 @@
 from django.urls import path
+
 from . import views
 
 app_name = 'ihub'
@@ -72,22 +73,21 @@ urlpatterns = [
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    path('reports/capacity-report/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.capacity_export_spreadsheet,
-         name="capacity_xlsx"),
-    path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
-    path('reports/summary-report/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.summary_export_spreadsheet,
-         name="summary_xlsx"),
-    path('reports/summary-report-pdf/fy/<str:fy>/sectors/<str:sectors>/orgs/<str:orgs>/', views.PDFSummaryReport.as_view(),
-         name="summary_pdf"),
-    path(
-        'reports/consultation-log/fy/<str:fy>/orgs/<str:orgs>/statuses/<str:statuses>/entry-types/<str:entry_types>/report-title/<str:report_title>/',
-        views.ConsultationLogPDFTemplateView.as_view(), name="consultation_log"),
-    path(
-        'reports/consultation-log/fy/<str:fy>/orgs/<str:orgs>/statuses/<str:statuses>/entry-types/<str:entry_types>/report-title/<str:report_title>/xlsx/',
-        views.consultation_log_export_spreadsheet, name="consultation_log_xlsx"),
 
-    path('reports/consultation-instructions/pdf/', views.ReportConsultationInstructionsPDFView.as_view(), name="consultation_instructions_pdf"),
-    path('reports/consultation-instructions/xlsx/', views.consultation_instructions_export_spreadsheet, name="consultation_instructions_xlsx"),
+    path('reports/capacity-report/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
+
+    path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
+
+    path('reports/summary-report-xlsx/', views.summary_export_spreadsheet, name="summary_xlsx"),
+    path('reports/summary-report-pdf/', views.PDFSummaryReport.as_view(), name="summary_pdf"),
+
+    path('reports/consultation-log-pdf/', views.ConsultationLogPDFTemplateView.as_view(), name="consultation_log_pdf"),
+    path('reports/consultation-log-excel/', views.consultation_log_export_spreadsheet, name="consultation_log_xlsx"),
+
+    path('reports/consultation-instructions/pdf/', views.ReportConsultationInstructionsPDFView.as_view(),
+         name="consultation_instructions_pdf"),
+    path('reports/consultation-instructions/xlsx/', views.consultation_instructions_export_spreadsheet,
+         name="consultation_instructions_xlsx"),
 
     # SETTINGS #
     ############

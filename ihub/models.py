@@ -114,7 +114,7 @@ class Entry(models.Model):
 
     @property
     def other_notes(self):
-        return self.notes.filter(~Q(type=4))
+        return self.notes.filter(~Q(type__in=[4]))
 
     @property
     def orgs_str(self):
@@ -138,7 +138,7 @@ class EntryPerson(models.Model):
     )
     entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_name="people", blank=True, null=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"))
-    name = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("name"))
+    name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("name"))
     organization = models.CharField(max_length=50)
     role = models.IntegerField(choices=ROLE_CHOICES, blank=True, null=True, verbose_name=_("role"))
 
@@ -171,11 +171,13 @@ class EntryNote(models.Model):
     NEXTSTEP = 2
     COMMENT = 3
     FOLLOWUP = 4
+    INTERNAL = 5
     TYPE_CHOICES = (
         (ACTION, 'Action'),
         (NEXTSTEP, 'Next step'),
         (COMMENT, 'Comment'),
         (FOLLOWUP, 'Follow-up (*)'),
+        (INTERNAL, 'Internal'),
     )
 
     entry = models.ForeignKey(Entry, related_name='notes', on_delete=models.CASCADE)
@@ -184,7 +186,8 @@ class EntryNote(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True, editable=False)
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("author"))
     note = models.TextField()
-    status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"))
+    status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
+                               related_name="entry_notes")
 
     def __str__(self):
         my_str = "{} - {} [STATUS: {}] (Created by {} {} on {})".format(

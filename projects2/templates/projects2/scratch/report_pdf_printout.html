@@ -1,0 +1,107 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% bootstrap_css %}
+
+{% block extra_style %}
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    table, td, th {
+        font-size: small;
+        border: 1px solid black;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    td, th {
+        padding: 2px;
+    }
+
+    th {
+        background-color: lightblue;
+    {#color: white;#} border: 1px solid black;
+        font-weight: bold;
+    }
+
+    .total {
+        background-color: lightgray;
+        color: black;
+    }
+
+
+    h1 {
+        font-size: 24px;
+    }
+
+    @page {
+        margin: 1cm;
+        @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
+    }
+
+</style>
+
+
+<div id="footerContent">
+    {% block page_foot %}
+        <pdf:pagenumber/>
+    {% endblock %}
+</div>
+
+
+{# list of projects by section #}
+<h1>{{ fy }} Submitted{% if approved %} and Approved{% endif %} Projects </h1>
+{% for division in division_list %}
+    <h2>
+        <u>
+            {{ division }} Division
+        </u>
+    </h2>
+    <ul>
+        {% for section in division.sections.all %}
+            <h3>
+                <em>
+                    {{ section.name }}
+                </em>
+            </h3>
+            <ul>
+                {% for project in section.projects.all %}
+                    {% if project in object_list %}
+                        {{ project.id }} - {{ project }}<br>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </ul>
+{% endfor %}
+<h2>
+    TOTAL PROJECTS: {{ object_list|length }}
+</h2>
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+{# project details #}
+
+{% for object in object_list %}
+    {% include "projects2/_project_content.html" %}
+    <div>
+        <pdf:nextpage/>
+    </div>
+{% endfor %}
+

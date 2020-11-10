@@ -1,0 +1,103 @@
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load static %}
+<!-- template for the modal component -->
+<script type="text/x-template" id="modal-template">
+<transition name="modal">
+  <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+
+        <div class="modal-header">
+          <slot name="header">
+            <h3 v-if="type === 'staff'">
+              {% trans "Staff Form" %}
+            </h3>
+          </slot>
+        </div>
+
+        <div class="modal-body">
+          <slot name="body">
+
+            <form method="post" @submit.prevent="onSubmit" class="form">
+              <div class="row">
+                <div class="col">
+                  {% bootstrap_field staff_form.employee_type %}
+                </div>
+                <div class="col">
+                  {% bootstrap_field staff_form.is_lead %}
+                </div>
+                <div class="col">
+                  {% bootstrap_field staff_form.funding_source %}
+                </div>
+                <div class="col-3">
+                  {% bootstrap_field staff_form.amount placeholder="" %}
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col">
+                  {% bootstrap_label staff_form.user.label %}
+                  {% with help_text_dict|lookup:user as help_text %}
+                    <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                         title="{{ staff_form.user.label }}"
+                         data-content="{{ help_text|safe }}">
+                    {% bootstrap_field staff_form.user show_label=False %}
+                  {% endwith %}
+
+                </div>
+                <div class="col">
+                  {% bootstrap_field staff_form.name placeholder="" %}
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col">
+                  {% bootstrap_field staff_form.level %}
+                </div>
+                <div class="col">
+                  {% bootstrap_field staff_form.student_program %}
+                </div>
+                <div class="col">
+                  {% bootstrap_field staff_form.duration_weeks placeholder="" %}
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col">
+                  {% bootstrap_field staff_form.overtime_hours %}
+                </div>
+                <div class="col">
+                  {% bootstrap_field staff_form.overtime_description placeholder="" %}
+                </div>
+                <div class="col">
+                  <p style="text-align: center;">
+                    <a href="#" id="ot_calc">
+                      <img src="{% static "/img/calculator.png" %}" alt="" style="width:75%"
+                           data-toggle="tooltip" title="{% trans "OT Calculator" %}">
+
+                      <br>{% trans "(Open OT Calculator)" %}<br>
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </form>
+          </slot>
+        </div>
+
+        <div class="modal-footer">
+          <slot name="footer">
+            <button class="modal-default-button" @click="onSubmit" id="closeBtn">
+              {% trans "Save" %}
+            </button>
+            <button class="modal-default-button" @click="$emit('close')" id="closeBtn">
+              {% trans "Close" %}
+            </button>
+          </slot>
+        </div>
+      </div>
+    </div>
+  </div>
+</transition>
+</script>
