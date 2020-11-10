@@ -199,3 +199,20 @@ def getattribute(value, arg):
     else:
         return value
 
+
+@register.filter
+def get_model_name(obj):
+    try:
+        return obj._meta.model_name
+    except (TypeError, ValueError):
+        return None
+
+@register.filter
+def get_model_verbose_name(obj, plural=False):
+    try:
+        if plural:
+            return obj._meta.model._meta.verbose_name_plural
+        else:
+            return obj._meta.model._meta.verbose_name
+    except (TypeError, ValueError):
+        return None

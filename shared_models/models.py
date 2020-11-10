@@ -146,7 +146,7 @@ class Branch(SimpleLookupWithUUID):
 
     def __str__(self):
         # check to see if a french value is given
-        return "{} ({})".format(self.tname, self.region)
+         return f"{self.tname} ({self.region})"
 
     class Meta:
         ordering = ['name', ]
