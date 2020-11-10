@@ -31,6 +31,9 @@
                 <div class="col">
                   {% bootstrap_field staff_form.funding_source %}
                 </div>
+                <div class="col-3">
+                  {% bootstrap_field staff_form.amount placeholder="" %}
+                </div>
               </div>
 
               <div class="row">
@@ -57,7 +60,7 @@
                   {% bootstrap_field staff_form.student_program %}
                 </div>
                 <div class="col">
-                  {% bootstrap_field staff_form.duration_weeks %}
+                  {% bootstrap_field staff_form.duration_weeks placeholder="" %}
                 </div>
               </div>
 
@@ -66,7 +69,7 @@
                   {% bootstrap_field staff_form.overtime_hours %}
                 </div>
                 <div class="col">
-                  {% bootstrap_field staff_form.overtime_description %}
+                  {% bootstrap_field staff_form.overtime_description placeholder="" %}
                 </div>
                 <div class="col">
                   <p style="text-align: center;">
@@ -80,22 +83,16 @@
                 </div>
               </div>
             </form>
-
-
-            <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
-              <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-                <span class="sr-only">Loading...</span>
-              </div>
-            </div>
-
-
           </slot>
         </div>
 
         <div class="modal-footer">
           <slot name="footer">
+            <button class="modal-default-button" @click="onSubmit" id="closeBtn">
+              {% trans "Save" %}
+            </button>
             <button class="modal-default-button" @click="$emit('close')" id="closeBtn">
-              Close (Esc)
+              {% trans "Close" %}
             </button>
           </slot>
         </div>

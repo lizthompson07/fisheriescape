@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -205,7 +206,6 @@ class ProjectYearForm(forms.ModelForm):
                 ))
 
 
-
 class ProjectSubmitForm(forms.ModelForm):
     class Meta:
         model = models.Project
@@ -279,11 +279,29 @@ class StaffForm(forms.ModelForm):
             "user": _("DFO User"),
         }
         widgets = {
+
             'overtime_description': forms.Textarea(attrs={"rows": 5}),
             'user': forms.Select(attrs=chosen_js),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["overtime_description"].widget.attrs = {"v-model":"staff.overtime_description"}
+        self.fields["amount"].widget.attrs = {"v-model":"staff.amount", ":disabled":"disableAmountField"}
+        self.fields["funding_source"].widget.attrs = {"v-model":"staff.funding_source"}
+        self.fields["is_lead"].widget.attrs = {"v-model":"staff.is_lead", "@change":"adjustStaffFields",}
+        self.fields["employee_type"].widget.attrs = {"v-model":"staff.employee_type", "@change":"adjustStaffFields"}
+        self.fields["level"].widget.attrs = {"v-model":"staff.level", ":disabled":"disableLevelField"}
+        self.fields["duration_weeks"].widget.attrs = {"v-model":"staff.duration_weeks"}
+        self.fields["overtime_hours"].widget.attrs = {"v-model":"staff.overtime_hours"}
+        self.fields["student_program"].widget.attrs = {"v-model":"staff.student_program", ":disabled":"disableStudentProgramField"}
 
+        self.fields["name"].widget.attrs = {"v-model":"staff.name", ":disabled":"disableNameField"}
+        self.fields["user"].widget.attrs = {"v-model":"staff.user", "@change":"adjustStaffFields", "class": "chosen-select-contains"}
+        self.fields["user"].queryset = User.objects.order_by("first_name", "last_name")
+
+
+# attrs = dict(v-model="new_size_class")
 # class AdminStaffForm(forms.ModelForm):
 #     class Meta:
 #         model = models.Staff

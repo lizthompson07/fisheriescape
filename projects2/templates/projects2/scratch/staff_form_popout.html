@@ -196,7 +196,6 @@
         });
 
         var warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
-
         $("#id_lead").change(function () {
             currentUser = {{ user.id }}
                 selectedUser = $("#id_user").val();

@@ -29,6 +29,8 @@ class StaffListCreateAPIView(ListCreateAPIView):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
         return year.staff_set.all()
 
+    # def post(self, request, *args, **kwargs):
+    #     super().post(request, *args, **kwargs)
 
 class StaffRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = models.Staff.objects.all()

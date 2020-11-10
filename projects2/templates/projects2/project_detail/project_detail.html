@@ -64,6 +64,10 @@
 
           <div v-if="projectYear">
             {% include "projects2/project_detail/_project_year_detail.html" %}
+
+            {% include "projects2/project_detail/_project_year_modal_form.html" %}
+            <modal v-if="showStaffModal" @close="closeModals(projectYear)" :year="projectYear" :type="'staff'"></modal>
+
           </div>
 
 
@@ -76,8 +80,6 @@
 
     </div>
 
-    {% include "projects2/project_detail/_project_year_modal_form.html" %}
-    <modal v-if="showStaffModal" @close="closeModals" :projectYear="projectYear" :type="'staff'"></modal>
 
   </div>
 
@@ -88,7 +90,25 @@
 
 {% block body_js %}
   {{ block.super }}
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.0.7" type="application/javascript"></script>
+  <script type="application/javascript">
+
+  var warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
+  var currentUser = "{{ user.id }}"
+
+  function activateChosen() {
+    var config = {
+      '.chosen-select': {placeholder_text_multiple: "Select multiple", search_contains: false},
+      '.chosen-select-contains': {placeholder_text_multiple: "Select multiple", search_contains: true},
+    };
+    for (var selector in config) {
+      $(selector).chosen(config[selector]);
+    }
+  }
+
+  </script>
+
+
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.0" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">

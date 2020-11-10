@@ -50,24 +50,18 @@ var app = new Vue({
     },
     openStaffModal() {
       this.showStaffModal = true;
-      this.$nextTick(() => this.activateChosen())
-
     },
 
-    closeModals() {
+    closeModals(projectYear = null) {
       this.showStaffModal = false;
-    },
 
-    activateChosen() {
-      var config = {
-        '.chosen-select': {placeholder_text_multiple: "Select multiple", search_contains: false},
-        '.chosen-select-contains': {placeholder_text_multiple: "Select multiple", search_contains: true},
-      };
-      for (var selector in config) {
-        $(selector).chosen(config[selector]);
+      if (projectYear) {
+        this.$nextTick(() => {
+          this.getStaff(projectYear.id)
+
+        })
       }
-    }
-
+    },
 
 
     // goBack() {
@@ -154,22 +148,88 @@ Vue.component("modal", {
       type: String,
       required: true,
     },
-    projectYear: {
+    year: {
       type: Object,
       required: true,
     }
   },
   data() {
     return {
-      species_query: "",
-      species_list: [],
-      loading: false,
-      currentItemId: -1,
+      staff: {
+        project_year: this.year.id,
+        name: null,
+        user: null,
+        funding_source: null,
+        is_lead: null,
+        employee_type: null,
+        level: null,
+        duration_weeks: null,
+        overtime_hours: null,
+        overtime_description: null,
+        student_program: null,
+        amount: 0,
+      },
+      disableNameField: false,
+      disableStudentProgramField: false,
+      disableAmountField: false,
+      disableLevelField: false,
+      projectLeadWarningIssued: false,
     }
   },
   methods: {
     onSubmit() {
+      if (this.type === "staff") {
+
+        let endpoint = `/api/project-planning/project-years/${this.year.id}/staff/`;
+        apiService(endpoint, "POST", this.staff)
+            .then(this.$emit('close'))
+      }
+
+      // regardless of what happens, emit a `close` signal
+      this.$emit('close')
 
     },
+    adjustStaffFields() {
+
+
+      // if not a student, disable the student program field
+      if (this.staff.employee_type !== "4") {
+        this.staff.student_program = null;
+        this.disableStudentProgramField = true;
+      } else {
+        this.disableStudentProgramField = false;
+      }
+
+      // if employee type is fte, disable "cost" field and the "level" field.
+      // do the same If they are a seasonal indeterminate  paid from a-base
+      if (this.staff.employee_type === "1" || (this.staff.employee_type === "6" && this.staff.funding_source === "1")) {
+        this.staff.amount = null;
+        this.disableAmountField = true;
+        this.staff.level = null;
+        this.disableLevelField = true;
+      } else {
+        this.disableAmountField = false;
+        this.disableLevelField = false;
+      }
+
+
+      // if there is a DFO user, disable the text name field
+      if (this.staff.user && this.staff.user.length) {
+        this.staff.name = null;
+        this.disableNameField = true;
+      } else {
+        this.disableNameField = false;
+      }
+      // if the current user is changing themselves away from project lead, give them a warning
+      if (currentUser === this.staff.user && !this.staff.is_lead && !this.projectLeadWarningIssued) alert(warningMsg);
+
+    }
+  },
+  created() {
+    this.$nextTick(() => {
+      this.adjustStaffFields()
+      activateChosen()
+    })
+
   }
 });

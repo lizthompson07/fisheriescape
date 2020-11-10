@@ -142,7 +142,8 @@ class Project(models.Model):
 
                 # search for and staff and concatenate into a search field
                 for s in y.staff_set.all():
-                    self.staff_search_field += s.smart_name + " "
+                    if s.smart_name:
+                        self.staff_search_field += s.smart_name + " "
 
                 # add the fiscal year
                 self.fiscal_years.add(y.fiscal_year)

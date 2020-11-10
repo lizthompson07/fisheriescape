@@ -54,9 +54,9 @@ class StaffSerializer(serializers.ModelSerializer):
         model = models.Staff
         fields = "__all__"
 
-    employee_type = serializers.StringRelatedField()
-    level = serializers.StringRelatedField()
-    funding_source = serializers.StringRelatedField()
+    # employee_type = serializers.StringRelatedField()
+    # level = serializers.StringRelatedField()
+    # funding_source = serializers.StringRelatedField()
 
     smart_name = serializers.SerializerMethodField()
     def get_smart_name(self, instance):
