@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from projects2.models import ReferenceMaterial, File
+from projects2.models import ReferenceMaterial, File, Staff
 
 
 @receiver(models.signals.post_delete, sender=File)
@@ -68,3 +68,13 @@ def auto_delete_ReferenceMaterial_on_change(sender, instance, **kwargs):
     if old_file and old_file != new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+@receiver(models.signals.post_delete, sender=Staff)
+def save_project_on_staff_delete(sender, instance, **kwargs):
+    instance.project_year.project.save()
+
+
+@receiver(models.signals.post_save, sender=Staff)
+def save_project_on_staff_creation(sender, instance, created, **kwargs):
+    instance.project_year.project.save()

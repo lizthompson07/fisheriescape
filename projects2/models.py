@@ -326,6 +326,11 @@ class ProjectYear(models.Model):
         if self.priorities:
             return mark_safe(markdown(self.priorities))
 
+    @property
+    def get_project_leads_as_users(self):
+        return [s.user for s in self.staff_set.filter(is_lead=True)]
+
+
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))
     funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, verbose_name=_("funding source"), default=1)
@@ -360,8 +365,8 @@ class Staff(GenericCost):
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True, null=True)
     level = models.ForeignKey(Level, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("level"))
     student_program = models.IntegerField(choices=student_program_choices, blank=True, null=True, verbose_name=_("student program"))
-    duration_weeks = models.FloatField(default=0, blank=True, null=True, verbose_name=_("duration in weeks"))
-    overtime_hours = models.FloatField(default=0, blank=True, null=True, verbose_name=_("overtime in hours"))
+    duration_weeks = models.FloatField(default=0, blank=True, null=True, verbose_name=_("duration (weeks)"))
+    overtime_hours = models.FloatField(default=0, blank=True, null=True, verbose_name=_("overtime (hours)"))
     overtime_description = models.TextField(blank=True, null=True, verbose_name=_("overtime description"))
 
     def __str__(self):

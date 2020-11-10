@@ -56,13 +56,19 @@ def is_rds(user, project):
         pass
 
 
-def is_project_lead(user, project_id):
+def is_project_lead(user, project_id=None, project_year_id=None):
     """
     returns True if user is among the project's project leads
     """
     if user.id:
-        project = models.Project.objects.get(pk=project_id)
-        return user in project.project_leads_as_users
+        project = None
+        if project_year_id:
+            project = models.ProjectYear.objects.get(pk=project_year_id).project
+        elif project_id:
+            project = models.Project.objects.get(pk=project_id)
+
+        if project:
+            return user in [s.user for s in models.Staff.objects.filter(project_year__project=project, is_lead=True)]
 
 
 def can_modify_project(user, project_id):
@@ -82,9 +88,8 @@ def can_modify_project(user, project_id):
         if is_section_head(user, project) or is_division_manager(user, project) or is_rds(user, project):
             return True
 
-        # if the project is unsubmitted, the project lead is also able to edit the project... obviously
         # check to see if they are a project lead
-        if not project.submitted and is_project_lead(user, project.id):
+        if is_project_lead(user, project_id=project.id):
             return True
 
 
@@ -419,4 +424,20 @@ def get_project_year_field_list(project_year=None):
     # remove any instances of None
     while None in my_list: my_list.remove(None)
 
+    return my_list
+
+
+def get_staff_field_list():
+    my_list = [
+        'smart_name|{}'.format(_("name")),
+        'funding_source',
+        'is_lead',
+        'employee_type',
+        'level',
+        'duration_weeks',
+        'overtime_hours',
+        # 'overtime_description',
+        'student_program',
+        'amount',
+    ]
     return my_list

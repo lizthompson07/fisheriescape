@@ -3,15 +3,13 @@ var app = new Vue({
   delimiters: ["${", "}"],
   data: {
     showOverview: true,
-    projectYear: {},
+
     py_loading: false,
-    // specimenList: [],
-    // specimenSummary: null,
-    // error_msg: null,
-    // startingBoxIsFocused: false,
-    // currentItemId: 0,
-    // modalIsOpened: false,
-    // loading2: true,
+    projectYear: {},
+
+    staff_loading: false,
+    staff: [],
+    showStaffModal: false,
   },
   methods: {
     displayOverview() {
@@ -23,13 +21,55 @@ var app = new Vue({
     },
     getProjectYear(yearId) {
       this.py_loading = true;
-      let endpoint = `/api/project-years/${yearId}/`;
+      let endpoint = `/api/project-planning/project-years/${yearId}/`;
       apiService(endpoint)
           .then(response => {
             this.py_loading = false;
             this.projectYear = response;
+            // now let's get all the related data
+            this.getStaff(yearId)
+
+
           })
     },
+    getStaff(yearId) {
+      this.staff_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/staff/`;
+      apiService(endpoint)
+          .then(response => {
+            this.staff_loading = false;
+            this.staff = response;
+          })
+    },
+    deleteStaffMember(staffMember) {
+      let endpoint = `/api/project-planning/staff/${staffMember.id}/`;
+      apiService(endpoint, "DELETE")
+          .then(response => {
+            this.getStaff(staffMember.project_year);
+          })
+    },
+    openStaffModal() {
+      this.showStaffModal = true;
+      this.$nextTick(() => this.activateChosen())
+
+    },
+
+    closeModals() {
+      this.showStaffModal = false;
+    },
+
+    activateChosen() {
+      var config = {
+        '.chosen-select': {placeholder_text_multiple: "Select multiple", search_contains: false},
+        '.chosen-select-contains': {placeholder_text_multiple: "Select multiple", search_contains: true},
+      };
+      for (var selector in config) {
+        $(selector).chosen(config[selector]);
+      }
+    }
+
+
+
     // goBack() {
     //   this.$refs.back.click();
     // },
@@ -106,3 +146,30 @@ var app = new Vue({
 });
 
 
+Vue.component("modal", {
+  template: "#modal-template",
+  delimiters: ["${", "}"],
+  props: {
+    type: {
+      type: String,
+      required: true,
+    },
+    projectYear: {
+      type: Object,
+      required: true,
+    }
+  },
+  data() {
+    return {
+      species_query: "",
+      species_list: [],
+      loading: false,
+      currentItemId: -1,
+    }
+  },
+  methods: {
+    onSubmit() {
+
+    },
+  }
+});

@@ -20,7 +20,7 @@ class ProjectLeadRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             except AttributeError:
                 project_id = obj.id
         finally:
-            return can_modify_project(self.request.user, project_id) or is_project_lead(self.request.user, project_id)
+            return can_modify_project(self.request.user, project_id=project_id) or is_project_lead(self.request.user, project_id)
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()

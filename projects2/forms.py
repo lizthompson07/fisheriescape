@@ -274,12 +274,11 @@ class StaffForm(forms.ModelForm):
 
     class Meta:
         model = models.Staff
-        fields = "__all__"
+        exclude = ["project_year"]
         labels = {
             "user": _("DFO User"),
         }
         widgets = {
-            'project': forms.HiddenInput(),
             'overtime_description': forms.Textarea(attrs={"rows": 5}),
             'user': forms.Select(attrs=chosen_js),
         }

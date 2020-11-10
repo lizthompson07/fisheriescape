@@ -17,14 +17,14 @@
     <div class="row">
 
       <div class="col-2 toolbar py-3 px-3 ml-2">
-        {% include "projects2/_project_console.html" %}
+        {% include "projects2/project_detail/_project_console.html" %}
       </div>
 
       <div class="col">
         <div v-if="showOverview">
-          <h4>
-            {% trans "Overview" %}
-          </h4>
+          <h2>
+            {% trans "Project Overview" %}
+          </h2>
           <table class="table table-sm">
             {% for field in project_field_list %}
               {% if "fiscal" in field %}
@@ -63,7 +63,7 @@
           </div>
 
           <div v-if="projectYear">
-            {% include "projects2/_project_year_detail.html" %}
+            {% include "projects2/project_detail/_project_year_detail.html" %}
           </div>
 
 
@@ -76,6 +76,9 @@
 
     </div>
 
+    {% include "projects2/project_detail/_project_year_modal_form.html" %}
+    <modal v-if="showStaffModal" @close="closeModals" :projectYear="projectYear" :type="'staff'"></modal>
+
   </div>
 
 
@@ -85,11 +88,11 @@
 
 {% block body_js %}
   {{ block.super }}
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.0.3" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.0.7" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">
-      app.displayProjectYear({{request.GET.project_year}})
+    app.displayProjectYear({{request.GET.project_year}})
     </script>
 
   {% endif %}

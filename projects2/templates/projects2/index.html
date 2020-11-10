@@ -5,8 +5,8 @@
 
 {% block content %}
 
-      {% echo "btn btn-outline-dark btn-lg" as btn_class %}
-      {% echo "btn btn-outline-danger btn-lg" as admin_btn_class %}
+  {% echo "btn btn-outline-dark btn-lg" as btn_class %}
+  {% echo "btn btn-outline-danger btn-lg" as admin_btn_class %}
 
 
   <div class="container mb-3 mt-3">
@@ -37,12 +37,14 @@
 
         </div>
 
+        {% if is_management_or_admin %}
 
-        <div class="btn-group-vertical vgroup">
-          <a href="{{ all_proj_url }}" class="{{ admin_btn_class }}">
-            {% trans "View All Projects" %}
-          </a>
-        </div>
+          <div class="btn-group-vertical vgroup">
+            <a href="{{ all_proj_url }}" class="{{ admin_btn_class }}">
+              {% trans "View All Projects" %}
+            </a>
+          </div>
+        {% endif %}
       </div>
       <div class="col-8">
         {% include "projects2/_upcoming_dates.html" %}

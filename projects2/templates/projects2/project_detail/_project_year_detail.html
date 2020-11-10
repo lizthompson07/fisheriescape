@@ -1,0 +1,106 @@
+{% load verbose_names %}
+{% load project_filters %}
+{% load i18n %}
+
+<div class="float-right">
+  <button class=""
+     :href="`/project-planning/project-year/${projectYear.id}/edit/`">
+    <span class="mdi mdi-pencil"></span>
+    {% trans "Edit" %}
+  </button>
+  <button class=""
+     :href="`/project-planning/project-year/${projectYear.id}/delete/`">
+    <span class="mdi mdi-delete"></span>
+    {% trans "Delete" %}
+  </button>
+  <button class=""
+     :href="`/project-planning/project-year/${projectYear.id}/clone/`">
+    <span class="mdi mdi-content-copy"></span>
+    {% trans "Clone" %}
+  </button>
+
+</div>
+
+
+{# OVERVIEW #}
+<div class="mb-5">
+  <h2>${projectYear.display_name}</h2>
+  <table class="table table-sm">
+    {% for field in project_year_field_list %}
+
+      {% if field|in_field_group:"specialized_equipment" %}
+        <tr v-if="projectYear.requires_specialized_equipment">
+          <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+          {% include "projects2/project_detail/_project_year_field.html" %}
+        </tr>
+
+      {% elif field|in_field_group:"field" %}
+        <tr v-if="projectYear.has_field_component">
+          <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+          {% include "projects2/project_detail/_project_year_field.html" %}
+        </tr>
+
+      {% elif field|in_field_group:"data" %}
+        <tr v-if="projectYear.has_data_component">
+          <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+          {% include "projects2/project_detail/_project_year_field.html" %}
+        </tr>
+
+      {% elif field|in_field_group:"lab" %}
+        <tr v-if="projectYear.has_lab_component">
+          <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+          {% include "projects2/project_detail/_project_year_field.html" %}
+        </tr>
+
+      {% else %}
+        <tr>
+          <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+          {% include "projects2/project_detail/_project_year_field.html" %}
+        </tr>
+      {% endif %}
+    {% endfor %}
+
+
+
+
+  </table>
+</div>
+
+
+    {% include "projects2/project_detail/_staff.html" %}
+
+
+{##}
+{#    <tr>#}
+{#      <th class="narrow-col">{% trans "O&M Costs" %}</th>#}
+{#      <td></td>#}
+{#    </tr>#}
+{##}
+{#    <tr>#}
+{#      <th class="narrow-col">{% trans "Grant & Contributions" %}</th>#}
+{#      <td></td>#}
+{#    </tr>#}
+{#    <tr>#}
+{#      <th class="narrow-col">{% trans "External Collaborators" %}</th>#}
+{#      <td></td>#}
+{#    </tr>#}
+{#    <tr>#}
+{#      <th class="narrow-col">{% trans "Collaborative Agreements" %}</th>#}
+{#      <td></td>#}
+{#    </tr>#}
+{#    <tr>#}
+{#      <th class="narrow-col">{% trans "Project Milestones" %}</th>#}
+{#      <td></td>#}
+{#    </tr>#}
+{#    <tr>#}
+{#      <th class="narrow-col">{% trans "Supporting Resources" %}</th>#}
+{#      <td></td>#}
+{#    </tr>#}
+{#    <tr>#}
+{#      <th class="narrow-col">{% trans "Status Reports" %}</th>#}
+{#      <td></td>#}
+{#    </tr>#}
+{#    <tr>#}
+{#      <th class="narrow-col">{% trans "Financial Summary" %}</th>#}
+{#      <td></td>#}
+{#    </tr>#}
