@@ -29,6 +29,9 @@ class StaffListCreateAPIView(ListCreateAPIView):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
         return year.staff_set.all()
 
+    def perform_create(self, serializer):
+        serializer.save(project_year_id=self.kwargs.get("project_year"))
+
     # def post(self, request, *args, **kwargs):
     #     super().post(request, *args, **kwargs)
 

@@ -156,7 +156,6 @@ Vue.component("modal", {
   data() {
     return {
       staff: {
-        project_year: this.year.id,
         name: null,
         user: null,
         funding_source: null,
@@ -168,6 +167,7 @@ Vue.component("modal", {
         overtime_description: null,
         student_program: null,
         amount: 0,
+        form_error: null
       },
       disableNameField: false,
       disableStudentProgramField: false,
@@ -181,12 +181,15 @@ Vue.component("modal", {
       if (this.type === "staff") {
 
         let endpoint = `/api/project-planning/project-years/${this.year.id}/staff/`;
-        apiService(endpoint, "POST", this.staff)
-            .then(this.$emit('close'))
+        apiService(endpoint, "POST", this.staff).then(response => {
+          console.log(response)
+          
+          // this.$emit('close')
+        })
       }
 
       // regardless of what happens, emit a `close` signal
-      this.$emit('close')
+      // this.$emit('close')
 
     },
     adjustStaffFields() {

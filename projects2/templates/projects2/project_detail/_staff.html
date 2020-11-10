@@ -50,7 +50,14 @@
           {% if "smart_name" in field %}
             <td>${s.smart_name}</td>
           {% elif "lead" in field %}
-            <td>${s.smart_name | yesNo}</td>
+            <td>${s.is_lead | yesNo}</td>
+          {% elif "funding_source" in field %}
+            <td>${s.funding_source_display }</td>
+          {% elif "level" in field %}
+            <td>${s.level_display }</td>
+          {% elif "employee_type" in field %}
+            <td>${s.employee_type_display }</td>
+
           {% else %}
             <td>${ s.{{ field }} }</td>
           {% endif %}

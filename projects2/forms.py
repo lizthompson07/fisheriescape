@@ -297,7 +297,7 @@ class StaffForm(forms.ModelForm):
         self.fields["student_program"].widget.attrs = {"v-model":"staff.student_program", ":disabled":"disableStudentProgramField"}
 
         self.fields["name"].widget.attrs = {"v-model":"staff.name", ":disabled":"disableNameField"}
-        self.fields["user"].widget.attrs = {"v-model":"staff.user", "@change":"adjustStaffFields", "class": "chosen-select-contains"}
+        self.fields["user"].widget.attrs = {"v-model":"staff.user", "@change":"adjustStaffFields"} # , "class": "chosen-select-contains"
         self.fields["user"].queryset = User.objects.order_by("first_name", "last_name")
 
 
