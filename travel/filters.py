@@ -1,68 +1,15 @@
 # from accounts import models as account_models
 # from  import gettext as _
-from django.utils.translation import gettext as _
-from django import forms
 import django_filters
+from django import forms
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.utils.translation import gettext as _
 
 from shared_models import models as shared_models
 from . import models
+from .utils import get_region_choices, get_division_choices, get_section_choices
 
 chosen_js = {"class": "chosen-select-contains"}
-
-
-def get_section_choices(all=False, full_name=True):
-    if full_name:
-        my_attr = "full_name"
-    else:
-        my_attr = _("name")
-
-    return [(s.id, getattr(s, my_attr)) for s in
-            shared_models.Section.objects.all().order_by(
-                "division__branch__region",
-                "division__branch",
-                "division",
-                "name"
-            ) if s.trip_requests.count() > 0] if not all else [(s.id, getattr(s, my_attr)) for s in
-                                                               shared_models.Section.objects.filter(
-                                                                   division__branch__name__icontains="science").order_by(
-                                                                   "division__branch__region",
-                                                                   "division__branch",
-                                                                   "division",
-                                                                   "name"
-                                                               )]
-
-
-def get_division_choices(all=False):
-    if all:
-        division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices(all=True)])
-    else:
-        division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices()])
-    q_objects = Q()  # Create an empty Q object to start with
-    for d in division_list:
-        q_objects |= Q(id=d.id)  # 'or' the Q objects together
-
-    return [(d.id, str(d)) for d in
-            shared_models.Division.objects.filter(q_objects).order_by(
-                "branch__region",
-                "name"
-            )]
-
-
-def get_region_choices(all=False):
-    if all:
-        region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices(all=True)])
-    else:
-        region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices()])
-    q_objects = Q()  # Create an empty Q object to start with
-    for r in region_list:
-        q_objects |= Q(id=r.id)  # 'or' the Q objects together
-
-    return [(r.id, str(r)) for r in
-            shared_models.Region.objects.filter(q_objects).order_by(
-                "name",
-            )]
 
 
 class TripRequestFilter(django_filters.FilterSet):
@@ -77,8 +24,10 @@ class TripRequestFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in User.objects.all().order_by("last_name", "first_name")
-                        if u.user_trip_requests.count() > 0]
+
+        user_choices = [(u.id, "{}, {}".format(u.last_name, u.first_name)) for u in
+                        User.objects.filter(user_trip_requests=True).order_by("last_name", "first_name")]
+
         self.filters['user'] = django_filters.ChoiceFilter(field_name='user', lookup_expr='exact', choices=user_choices,
                                                            widget=forms.Select(attrs=chosen_js), label=_('User'))
 

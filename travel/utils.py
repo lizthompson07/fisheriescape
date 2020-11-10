@@ -1,19 +1,70 @@
-import datetime
-
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.db.models import Q
-
-from dm_apps.utils import custom_send_mail
 from django.db import IntegrityError
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from lib.templatetags.custom_filters import nz
-from . import models
-from . import emails
+from dm_apps.utils import custom_send_mail
 from shared_models import models as shared_models
+from . import emails
+from . import models
+
+
+def get_section_choices(all=False, full_name=True):
+    if full_name:
+        my_attr = "full_name"
+    else:
+        my_attr = _("name")
+
+    if not all:
+        return [(s.id, getattr(s, my_attr)) for s in
+                shared_models.Section.objects.filter(trip_requests=True).order_by(
+                    "division__branch__region",
+                    "division__branch",
+                    "division",
+                    "name"
+                ) ]
+    else:
+        return [(s.id, getattr(s, my_attr)) for s in
+                                                               shared_models.Section.objects.filter(
+                                                                   division__branch__name__icontains="science").order_by(
+                                                                   "division__branch__region",
+                                                                   "division__branch",
+                                                                   "division",
+                                                                   "name"
+                                                               )]
+
+
+def get_division_choices(all=False):
+    if all:
+        division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices(all=True)])
+    else:
+        division_list = set([shared_models.Section.objects.get(pk=s[0]).division for s in get_section_choices()])
+    q_objects = Q()  # Create an empty Q object to start with
+    for d in division_list:
+        q_objects |= Q(id=d.id)  # 'or' the Q objects together
+
+    return [(d.id, str(d)) for d in
+            shared_models.Division.objects.filter(q_objects).order_by(
+                "branch__region",
+                "name"
+            )]
+
+
+def get_region_choices(all=False):
+    if all:
+        region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices(all=True)])
+    else:
+        region_list = set([shared_models.Division.objects.get(pk=d[0]).branch.region for d in get_division_choices()])
+    q_objects = Q()  # Create an empty Q object to start with
+    for r in region_list:
+        q_objects |= Q(id=r.id)  # 'or' the Q objects together
+
+    return [(r.id, str(r)) for r in
+            shared_models.Region.objects.filter(q_objects).order_by(
+                "name",
+            )]
 
 
 def get_trip_reviewers(trip):
@@ -306,7 +357,7 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
             if next_reviewer.role_id in [1, 2, 3, 4, ] and request:  # essentially, just not the RDG or ADM
                 email = emails.ReviewAwaitingEmail(trip_request, next_reviewer, request)
 
-            elif next_reviewer.role_id in [5, 6]  and request:  # if we are going for ADM or RDG signature...
+            elif next_reviewer.role_id in [5, 6] and request:  # if we are going for ADM or RDG signature...
                 email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role_id, request)
 
             if email and not suppress_email:
