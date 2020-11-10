@@ -49,6 +49,7 @@ SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 # DevOps build number to display on index.html
 DEVOPS_BUILD_NUMBER = config("DEVOPS_BUILD_NUMBER", cast=str, default="")
 # Azure Instrumentation KEy for application insights
+USE_AZURE_APPLICATION_INSIGHT = config("USE_AZURE_APPLICATION_INSIGHT", cast=bool, default=False)
 AZURE_INSTRUMENTATION_KEY = config("AZURE_INSTRUMENTATION_KEY", cast=str, default="")
 # Fake Apps
 FAKE_TRAVEL_APP = config("FAKE_TRAVEL_APP", cast=bool, default=False)
@@ -172,7 +173,7 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
-if AZURE_INSTRUMENTATION_KEY != "":
+if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
     MIDDLEWARE.append('opencensus.ext.django.middleware.OpencensusMiddleware', )
 
 ROOT_URLCONF = 'dm_apps.urls'
@@ -291,7 +292,7 @@ TRACK_SUPERUSERS = False
 if "win" in sys.platform.lower() and GEODJANGO:
     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
 
-if AZURE_INSTRUMENTATION_KEY != "":
+if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
     LOGGING = {
         'version': 1,
         "handlers": {
@@ -334,7 +335,7 @@ elif not DEBUG:
             },
         }
 
-if AZURE_INSTRUMENTATION_KEY != "":
+if USE_AZURE_APPLICATION_INSIGHT and AZURE_INSTRUMENTATION_KEY != "":
     OPENCENSUS = {
         'TRACE': {
             'SAMPLER': 'opencensus.trace.samplers.ProbabilitySampler(rate=1)',
