@@ -1,6 +1,6 @@
-pool: dmapps
-#pool:
-#  vmImage: 'Ubuntu 18.04'
+#pool: dmapps
+pool:
+  vmImage: 'Ubuntu 18.04'
 
 trigger:
 - none
@@ -9,7 +9,7 @@ resources:
 - repo: self
 
 variables:
-  azureServiceConnection: 'SP.dmappsdevacr'
+  azureServiceConnection: 'SP.dmappsdevtestacr'
   imageRepository: 'dmapps_img'
   tag: '$(Build.BuildNumber)'
 
