@@ -10,8 +10,6 @@ from django.utils.translation import gettext as _
 from shared_models.utils import get_metadata_string
 
 
-
-
 class SimpleLookup(models.Model):
     class Meta:
         abstract = True
@@ -57,7 +55,6 @@ class Lookup(SimpleLookup):
         else:
             my_str = self.description_en
         return my_str
-
 
 
 class HelpTextLookup(models.Model):
@@ -146,7 +143,7 @@ class Branch(SimpleLookupWithUUID):
 
     def __str__(self):
         # check to see if a french value is given
-         return f"{self.tname} ({self.region})"
+        return f"{self.tname} ({self.region})"
 
     class Meta:
         ordering = ['name', ]
@@ -169,7 +166,7 @@ class Division(SimpleLookupWithUUID):
         return "{} ({})".format(self.tname, self.branch.region)
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ["branch__region", "name"]
         verbose_name = _("Division - Branch (NCR)")
         verbose_name_plural = _("Divisions - Branches (NCR)")
 
