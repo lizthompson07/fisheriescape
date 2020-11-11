@@ -5,22 +5,18 @@ trigger:
 
 steps:
   - script: |
-      # log into acr
+      # log into acr using msi
       az login --identity
-      # az acr login --name dmappsdevtestacr
 
-      # navigate to working directory
-      # cd /home/agentsvc/myagent/_work/2/s/
-
-      # import the latest from devops repo
-      # git fetch
-      # git reset --hard origin/glf_dev
-
-      # build the new docker image
+      # build the new docker image for the "latest" and the build number
       docker build \
         -t dmappsdevtestacr.azurecr.io/dmapps_img:latest \
-        -t dmappsdevtestacr.azurecr.io/dmapps_img:$(Build.BuildNumber) \
-        -t dmappsdevtestacr.azurecr.io/dmapps_img:$(productionTag) .
+        -t dmappsdevtestacr.azurecr.io/dmapps_img:$(Build.BuildNumber) .
+
+      # as a hack, we will do another build for the production tag is available
+      docker build -t dmappsdevtestacr.azurecr.io/dmapps_img:$(productionTag) .
+
+      # push image (and all associated tags) to ACR
       docker push dmappsdevtestacr.azurecr.io/dmapps_img
 
     workingDirectory: '$(System.DefaultWorkingDirectory)'
