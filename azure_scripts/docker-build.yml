@@ -7,14 +7,14 @@ steps:
   - script: |
       # log into acr
       az login --identity
-#      az acr login --name dmappsdevtestacr
+      # az acr login --name dmappsdevtestacr
 
       # navigate to working directory
-#      cd /home/agentsvc/myagent/_work/2/s/
+      # cd /home/agentsvc/myagent/_work/2/s/
 
       # import the latest from devops repo
-#      git fetch
-#      git reset --hard origin/glf_dev
+      # git fetch
+      # git reset --hard origin/glf_dev
 
       # build the new docker image
       docker build \
