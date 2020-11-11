@@ -92,7 +92,7 @@ class TripFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.filter(trips__isnull=False)]
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.filter(trips__isnull=False).distinct()]
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='fiscal_year', lookup_expr='exact', choices=fy_choices,
                                                                   label=_("Fiscal year"))
         self.filters['name'] = django_filters.CharFilter(field_name='search_term', label=_("Trip Title"), lookup_expr='icontains',
