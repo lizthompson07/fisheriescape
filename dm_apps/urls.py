@@ -33,10 +33,13 @@ urlpatterns = [
 
 # Add application APIs
 if settings.INSTALLED_APPS.count("projects2"):
-    urlpatterns.extend([
+    urlpatterns.append(
         path('api/', include('projects2.api.urls')),
+    )
+if settings.INSTALLED_APPS.count("travel"):
+    urlpatterns.append(
         path('api/', include('travel.api.urls')),
-    ])
+    )
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),

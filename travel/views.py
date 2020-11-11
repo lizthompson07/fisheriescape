@@ -1474,6 +1474,7 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
     subtitle = _("Trips")
     home_url_name = "travel:index"
+    paginate_by = 10
 
     def get_new_object_url(self):
         return reverse("travel:trip_new", kwargs=self.kwargs)

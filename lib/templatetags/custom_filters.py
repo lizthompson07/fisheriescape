@@ -214,5 +214,5 @@ def get_model_verbose_name(obj, plural=False):
             return obj._meta.model._meta.verbose_name_plural
         else:
             return obj._meta.model._meta.verbose_name
-    except (TypeError, ValueError):
+    except (AttributeError, TypeError, ValueError):
         return None

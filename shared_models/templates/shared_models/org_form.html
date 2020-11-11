@@ -63,35 +63,41 @@
       {% endif %}
 
     {% elif object|get_model_name == "branch" %}
-      <h3>
-        {% blocktrans with object as parent_entity and object.divisions.first|get_model_verbose_name:True as child_entity %}
-          {{ child_entity }} under {{ parent_entity }}:
-        {% endblocktrans %}
-      </h3>
-      <ul>
-        {% for obj in object.divisions.all %}
-          <li>
-            <a href="{% url 'shared_models:division_edit' obj.id %}">{{ obj }}</a>
-          </li>
-        {% endfor %}
-      </ul>
+      {% if object.divisions.exists %}
 
+        <h3>
+          {% blocktrans with object as parent_entity and object.divisions.first|get_model_verbose_name:True as child_entity %}
+            {{ child_entity }} under {{ parent_entity }}:
+          {% endblocktrans %}
+        </h3>
+        <ul>
+          {% for obj in object.divisions.all %}
+            <li>
+              <a href="{% url 'shared_models:division_edit' obj.id %}">{{ obj }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+
+      {% endif %}
 
     {% elif object|get_model_name == "division" %}
-      <h3>
-        {% blocktrans with object as parent_entity and object.sections.first|get_model_verbose_name:True as child_entity %}
-          {{ child_entity }} under {{ parent_entity }}:
-        {% endblocktrans %}
-      </h3>
-      <ul>
-        {% for obj in object.sections.all %}
-          <li>
-            <a href="{% url 'shared_models:section_edit' obj.id %}">{{ obj }}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+      {% if object.sections.exists %}
 
+        <h3>
+          {% blocktrans with object as parent_entity and object.sections.first|get_model_verbose_name:True as child_entity %}
+            {{ child_entity }} under {{ parent_entity }}:
+          {% endblocktrans %}
+        </h3>
+        <ul>
+          {% for obj in object.sections.all %}
+            <li>
+              <a href="{% url 'shared_models:section_edit' obj.id %}">{{ obj }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+    {% endif %}
   {% endif %}
 
 {% endblock %}
