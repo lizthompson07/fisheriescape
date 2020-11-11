@@ -6,6 +6,7 @@ trigger:
 steps:
   - script: |
       # log into acr
+      az login --identity
       az acr login --name dmappsdevtestacr
 
       # navigate to working directory
