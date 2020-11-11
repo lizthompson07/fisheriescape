@@ -1,45 +1,72 @@
 pool: dmapps
-#pool:
-#  vmImage: 'Ubuntu 18.04'
 
 trigger:
-- none
+  - none
 
-resources:
-- repo: self
+steps:
+  - script: |
+      # log into acr
+      az acr login --name dmappsdevtestacr
 
-variables:
-  azureServiceConnection: 'SP.dmappsdevacr'
-  imageRepository: 'dmapps_img'
-  tag: '$(Build.BuildNumber)'
+      # navigate to working directory
+      cd /home/agentsvc/myagent/_work/2/s/
 
-stages:
-- stage: Build
-  displayName: Build image
-  jobs:
-  - job: Build
-    displayName: Build
-    steps:
-    - task: Docker@2
-      displayName: Login to ACR
-      inputs:
-        command: login
-        containerRegistry: $(azureServiceConnection)
+      # import the latest from devops repo
+      git fetch
+      git reset --hard origin/master
 
-    - task: Docker@2
-      displayName: Build and push image to Azure container registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
-        containerRegistry: $(azureServiceConnection)
-        tags: |
-          latest
-          $(tag)
-          $(productionTag)
+      # build the new docker image
+      docker build \
+        -t dmappsdevtestacr.azurecr.io/dmapps_img:latest \
+        -t dmappsdevtestacr.azurecr.io/dmapps_img:$(Build.BuildNumber) \
+        -t dmappsdevtestacr.azurecr.io/dmapps_img:$(productionTag) .
+      docker push dmappsdevtestacr.azurecr.io/dmapps_img
 
-    - task: Docker@2
-      displayName: Logout from ACR
-      inputs:
-       command: logout
-       containerRegistry: $(azureServiceConnection)
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    displayName: 'Install Prerequisites and Run Local Migrations '
+
+
+#pool:
+#  vmImage: 'Ubuntu 18.04'
+#
+#trigger:
+#- none
+#
+#resources:
+#- repo: self
+#
+#variables:
+#  azureServiceConnection: 'SP.dmappsdevacr'
+#  imageRepository: 'dmapps_img'
+#  tag: '$(Build.BuildNumber)'
+#
+#stages:
+#- stage: Build
+#  displayName: Build image
+#  jobs:
+#  - job: Build
+#    displayName: Build
+#    steps:
+#    - task: Docker@2
+#      displayName: Login to ACR
+#      inputs:
+#        command: login
+#        containerRegistry: $(azureServiceConnection)
+#
+#    - task: Docker@2
+#      displayName: Build and push image to Azure container registry
+#      inputs:
+#        command: buildAndPush
+#        repository: $(imageRepository)
+#        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+#        containerRegistry: $(azureServiceConnection)
+#        tags: |
+#          latest
+#          $(tag)
+#          $(productionTag)
+#
+#    - task: Docker@2
+#      displayName: Logout from ACR
+#      inputs:
+#       command: logout
+#       containerRegistry: $(azureServiceConnection)
