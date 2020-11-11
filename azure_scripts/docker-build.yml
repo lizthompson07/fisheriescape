@@ -9,7 +9,7 @@ resources:
 - repo: self
 
 variables:
-  azureServiceConnection: 'SP.dmappsdevtestacr'
+  azureServiceConnection: 'SP.dmappsdevacr'
   imageRepository: 'dmapps_img'
   tag: '$(Build.BuildNumber)'
 
