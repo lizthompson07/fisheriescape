@@ -6,99 +6,14 @@
 {% load i18n %}
 {% load el_pagination_tags %}
 
-{% block subcontent %}
-    {% get_current_language as LANG %}
-    {% load bootstrap4 %}
-
-    <style>
-        form, input {
-            font-size: small;
-        }
-
-        table, td {
-            font-size: 14px;
-        }
-    </style>
 
 
-    <div class="container-fluid">
-
-
-        <form class="form" action="." method="get" id="filter-form">
-            <div class="row">
-
-                {% for field in filter.form %}
-                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
-                    <div class="col">
-                        {% bootstrap_field field placeholder="" size="small" %}
-                    </div>
-
-                {% endfor %}
-                <div class="col">
-                    <br>
-                    <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
-
-                </div>
-            </div>
-        </form>
-        <br>
-        {% paginate 100 filter.qs as filter_list %}
-
-
-        <div class="row">
-            <div class="col">
-                {% trans "(click on a header to sort table)" %}
-            </div>
-            <div class="col" style="text-align: center">
-                {% show_pages %}
-                <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
-            </div>
-            <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'projects:project_new' %}" class="btn btn-sm btn-primary">
-                    {% trans "New" %}
-                </a>
-            </div>
-        </div>
-        <table class="table table-hover table-sm sortable">
-            <thead>
-            {% for field in field_list %}
-                {% if field == 'tags' %}
-                    <th style="width: 10%;">{% get_verbose_label object_list.first field %}</th>
-                {% elif "year" in field %}
-                    <th style="width: 80px;">{% get_verbose_label object_list.first field %}</th>
-                {% elif "title" in field %}
-                    <th style="width: 25%;">{% get_verbose_label object_list.first field %}</th>
-                {% elif "leads" in field %}
-                    <th style="width: 18%;">{% get_verbose_label object_list.first field %}</th>
-                {% else %}
-                    <th>{% get_verbose_label object_list.first field %}</th>
-                {% endif %}
-            {% endfor %}
-
-            </thead>
-            <tbody>
-
-            {% for obj in filter_list %}
-                <tr href="{% url 'projects:project_detail' obj.id %}">
-                    {% for field in field_list %}
-                        {% if field == 'region' %}
-                            <td>{{ obj.section.division.branch.region.tname }}</td>
-                        {% elif field == 'division' %}
-                            <td>{{ obj.section.division.tname }}</td>
-                        {% else %}
-                            <td>{% get_field_value obj field %}</td>
-                        {% endif %}
-                    {% endfor %}
-
-
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <b>
-            TOTAL: {{ object_list.count }}
-        </b>
-    </div>
-
+{% block table_td %}
+  {% if field.name == 'region' %}
+    {{ object.section.division.branch.region.tname }}
+  {% elif field.name == 'division' %}
+    {{ object.section.division.tname }}
+  {% else %}
+    {% get_field_value object field.name %}
+  {% endif %}
 {% endblock %}
-

@@ -2,8 +2,9 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.urls import reverse, NoReverseMatch
-from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
+from django.views.generic import TemplateView
+
 from accounts.models import Announcement
 
 
@@ -39,7 +40,7 @@ def get_app_dict(request):
     if settings.SHOW_TICKETING_APP:
         try:
             app_dict["tickets"] = {
-                "title": _("Data Management Tickets"),
+                "title": _("DM Apps Tickets"),
                 "description": _("Submit and track data management service requests."),
                 "status": "production",
                 "access": "open",
@@ -363,6 +364,18 @@ def get_app_dict(request):
     #     }
     # except NoReverseMatch:
     #     pass
+    try:
+        app_dict["projects2"] = {
+            "title": _("Project Planning V2"),
+            "description": _("Tool for the tracking, development and coordination of science project workplans."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('projects2:index'),
+            "icon_path": 'img/icons/scope.svg',
+            "region": "all",
+        }
+    except NoReverseMatch:
+        pass
 
     return OrderedDict(app_dict)
 

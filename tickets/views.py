@@ -48,7 +48,7 @@ class TicketListView(LoginRequiredMixin, CommonFilterView):
     template_name = "tickets/list.html"
     queryset = models.Ticket.objects.annotate(
         search_term=Concat('id', 'title', 'notes', output_field=TextField()))
-    h1 = gettext_lazy("Data Management Tickets")
+    h1 = gettext_lazy("DM Apps Tickets")
     container_class = "container-fluid"
     new_object_url_name = "tickets:create"
     row_object_url_name = "tickets:detail"

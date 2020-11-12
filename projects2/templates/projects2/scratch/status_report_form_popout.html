@@ -1,0 +1,123 @@
+{% extends 'pop_base.html' %}
+
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load static %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{% block body %}
+
+
+
+    <div class="container">
+        <h3>
+            {% if object %}
+                {% trans "Editing " %} {{ object }}
+            {% else %}
+                {% trans "New Status Report for: " %} {{ project }}
+            {% endif %}
+        </h3>
+        <br>
+
+        <form method="post" class="form">
+            {% csrf_token %}
+
+            {% for field in form %}
+                {% if 'editable' in field.field.widget.attrs|lookup:"class" %}
+
+                    {% if field.name in help_text_dict %}
+                        {% bootstrap_label field.label %}
+                        {% with help_text_dict|lookup:field.name as help_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ help_text }}">
+                            {{ field }}<br>
+
+                        {% endwith %}
+
+                    {% else %}
+
+                        {% bootstrap_label field.label %}
+                        {{ field }}<br>
+                    {% endif %}
+
+
+
+                {% else %}
+                    {% if field.name in help_text_dict %}
+                        {% bootstrap_label field.label %}
+                        {% with help_text_dict|lookup:field.name as help_text %}
+                            <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                                 title="{{ field.label }}"
+                                 data-content="{{ help_text }}">
+                            {% bootstrap_field field placeholder="" show_label=False %}
+                        {% endwith %}
+
+                    {% else %}
+                        {% bootstrap_field field placeholder="" %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            <br>
+            <div class="row">
+                <div class="col">
+                    {% include "projects2/_milestone_updates.html" %}
+                </div>
+                <div class="col">
+                    {% include "projects2/_files.html" %}
+                </div>
+                <br><br>
+            </div>
+
+
+            <div class="btn-group">
+                {% if can_edit or is_lead %}
+
+
+                    <button type="submit" class="btn btn-primary" onclick="refreshParent()">
+                        {% trans "Save" %}
+                    </button>
+                    {% if object %}
+                        <a class="btn btn-danger" href="{% url 'projects2:report_delete' object.id %}">
+                            {% trans "Delete" %}
+                        </a>
+                    {% endif %}
+                {% endif %}
+                <a class="btn btn-secondary" onclick="refreshParent(); window.close()" href="#">
+                    {% trans "Close" %}
+                </a>
+            </div>
+        </form>
+        <br><br>
+    </div>
+
+{% endblock %}
+{% block body_js %}
+    {# A script to refresh the parent window; to be called in when the buttons are pushed #}
+    <script>
+        window.resizeTo(width = 1200, height = 800);
+
+        window.onunload = refreshParent;
+
+        function refreshParent() {
+            window.opener.location.reload();
+        }
+
+        $(".add-btn").click(function () {
+            $("form").submit()
+        });
+        $(".milestone-delete-me").click(function (e) {
+            var objectId = $(this)[0].getAttribute("val");
+
+            var userInput = "";
+            userInput = confirm("{% trans "Are you sure you want to delete this milestone request from the project?" %}");
+            if (userInput === true) {
+                document.location.href = $("#milestone-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+            }
+            e.stopImmediatePropagation();
+        });
+    </script>
+{% endblock %}

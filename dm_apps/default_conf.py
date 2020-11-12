@@ -25,6 +25,7 @@ APP_DICT = {
     'meq': 'Marine environmental quality (MEQ)',
     'diets': 'Marine diets',
     'projects': 'Science project planning',
+    'projects2': 'Science project planning v2.0',
     'ihub': 'iHub',  # dependency on masterlist
     'scifi': 'SciFi',
     'masterlist': 'Masterlist',
@@ -100,10 +101,7 @@ if USE_LOCAL_DB:
 else:
 
     my_default_db = {
-        # 'ENGINE': 'django.db.backends.mysql',
         'ENGINE': 'django.contrib.gis.db.backends.mysql' if GEODJANGO else 'django.db.backends.mysql',
-        'TIME_ZONE': 'America/Halifax',
-
         'HOST': db_connections["DB_HOST"],
         'PORT': db_connections["DB_PORT"],
         'NAME': db_connections["DB_NAME"],
