@@ -141,14 +141,19 @@ urlpatterns = [
     path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),
     path('settings/level/<int:pk>/delete/', views.LevelHardDeleteView.as_view(), name="delete_level"),
 
-    path('settings/programs/', views.ProgramFormsetView.as_view(), name="manage_programs"),
-    path('settings/program/<int:pk>/delete/', views.ProgramHardDeleteView.as_view(), name="delete_program"),
+    # path('settings/programs/', views.ProgramFormsetView.as_view(), name="manage_programs"),
+    # path('settings/program/<int:pk>/delete/', views.ProgramHardDeleteView.as_view(), name="delete_program"),
 
     path('settings/themes/', views.ThemeFormsetView.as_view(), name="manage_themes"),
     path('settings/theme/<int:pk>/delete/', views.ThemeHardDeleteView.as_view(), name="delete_theme"),
 
     path('settings/upcoming-dates/', views.UpcomingDateFormsetView.as_view(), name="manage-upcoming-dates"),
     path('settings/upcoming-date/<int:pk>/delete/', views.UpcomingDateHardDeleteView.as_view(), name="delete-upcoming-date"),
+
+    path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),
+    path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),
+    path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),
+    path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),
 
     path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
     path('admin/project-program-list/', views.AdminProjectProgramListView.as_view(), name="admin_project_program_list"),

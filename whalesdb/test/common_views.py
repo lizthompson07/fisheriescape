@@ -33,7 +33,7 @@ class CommonFormTest(TestCase):
 # a redirect if permissions are required to access a view
 ###########################################################################################
 class CommonTest(object):
-    fixtures = ['initial_whale_data.json']
+    fixtures = ['initial_whale_data.json', 'institute.json']
 
     test_url = None
     test_expected_template = None

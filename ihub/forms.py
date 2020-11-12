@@ -81,8 +81,7 @@ class ReportSearchForm(forms.Form):
             (None, "------"),
             (1, _("Capacity Report (Excel Spreadsheet)")),
             (2, _("Organizational Report / Cue Card (PDF)")),
-            (3, _("iHub Summary Report (Excel Spreadsheet)")),
-            (4, _("iHub Summary Report (PDF)")),
+            (3, _("iHub Summary Report")),
             (6, _("Engagement Update Log")),
             (7, _("Consultation Instructions (PDF)")),
             (8, _("Consultation Instructions - Mail Merge (xlsx)")),
@@ -92,9 +91,6 @@ class ReportSearchForm(forms.Form):
             ('pdf', "Adobe PDF (pdf)"),
             ('xlsx', "Excel (xlsx)"),
         )
-        fy_choices = [("{}".format(y["fiscal_year"]), "{}".format(y["fiscal_year"])) for y in
-                      models.Entry.objects.all().values("fiscal_year").order_by("fiscal_year").distinct() if y is not None]
-        fy_choices.insert(0, (None, "all years"))
 
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         org_choices_has_entry = [(obj.id, obj) for obj in get_ind_organizations() if obj.entries.count() > 0]
@@ -106,7 +102,8 @@ class ReportSearchForm(forms.Form):
 
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
         self.fields['format'] = forms.ChoiceField(required=False, choices=format_choices)
-        self.fields['fiscal_year'] = forms.ChoiceField(required=False, choices=fy_choices, label='Fiscal year')
+        self.fields['from_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
+        self.fields['to_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
         self.fields['sectors'] = forms.MultipleChoiceField(required=False,
                                                            label='List of sectors (w/ entries) - Leave blank for all',
                                                            choices=sector_choices)
@@ -127,6 +124,8 @@ class ReportSearchForm(forms.Form):
         self.fields['single_org'] = forms.ChoiceField(required=False, label='Organization', choices=org_choices_all)
 
         self.fields['report_title'] = forms.CharField(required=False)
+
+
 
 
 class OrganizationForm(forms.ModelForm):
