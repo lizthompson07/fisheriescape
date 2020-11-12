@@ -974,7 +974,7 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
                 r.save()
 
             # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(my_trip_request)
+            email = emails.StatusUpdateEmail(my_trip_request, self.request)
             # # send the email object
             custom_send_mail(
                 subject=email.subject,
@@ -2230,7 +2230,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 
                 # send an email to the trip_request owner, if the user has an email address.
                 if tr.user:
-                    email = emails.StatusUpdateEmail(tr)
+                    email = emails.StatusUpdateEmail(tr, self.request)
                     # # send the email object
                     custom_send_mail(
                         subject=email.subject,
