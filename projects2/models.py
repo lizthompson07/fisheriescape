@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
 
 from dm_apps import custom_widgets
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup, Lookup, HelpTextLookup
@@ -81,12 +81,6 @@ class HelpText(HelpTextLookup):
 
 
 class Project(models.Model):
-    is_national_choices = (
-        (None, _("Unknown")),
-        (1, _("National")),
-        (0, _("Regional")),
-    )
-
     # basic
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects2",
                                 verbose_name=_("section"))
@@ -103,21 +97,14 @@ class Project(models.Model):
 
     is_hidden = models.BooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
 
-    # coding
-    responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
-                                              null=True, related_name='projects_projects2',
-                                              verbose_name=_("responsibility center (if known)"))
-    allotment_code = models.ForeignKey(shared_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                       related_name='projects_projects2', verbose_name=_("allotment code (if known)"))
-    existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"),
-                                                    related_name="projects")
-
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"), editable=False)
     fiscal_years = models.ManyToManyField(shared_models.FiscalYear, editable=False, verbose_name=_("fiscal years"))
     funding_sources = models.ManyToManyField(FundingSource, editable=False, verbose_name=_("complete list of funding sources"))
     staff_search_field = models.CharField(editable=False, max_length=1000, blank=True, null=True)
+    lead_staff = models.ManyToManyField("Staff", editable=False, verbose_name=_("project leads"))
+
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -137,6 +124,7 @@ class Project(models.Model):
             self.staff_search_field = ""
             self.fiscal_years.clear()
             self.funding_sources.clear()
+            self.lead_staff.clear()
 
             for y in project_years:
 
@@ -144,7 +132,8 @@ class Project(models.Model):
                 for s in y.staff_set.all():
                     if s.smart_name:
                         self.staff_search_field += s.smart_name + " "
-
+                    if s.is_lead:
+                        self.lead_staff.add(s)
                 # add the fiscal year
                 self.fiscal_years.add(y.fiscal_year)
 
@@ -250,10 +239,22 @@ class ProjectYear(models.Model):
     it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
     additional_notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))
 
+    # CODING
+    ########
+    # coding
+    responsibility_center = models.ForeignKey(shared_models.ResponsibilityCenter, on_delete=models.DO_NOTHING, blank=True,
+                                              null=True, related_name='projects_projects2',
+                                              verbose_name=_("responsibility center (if known)"))
+    allotment_code = models.ForeignKey(shared_models.AllotmentCode, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                       related_name='projects_projects2', verbose_name=_("allotment code (if known)"))
+    existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"),
+                                                    related_name="projects")
+
     # admin
     submitted = models.DateTimeField(editable=False, blank=True, null=True)
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
+    administrative_notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -264,6 +265,7 @@ class ProjectYear(models.Model):
     # calculated
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True,
                                     verbose_name=_("fiscal year"))
+    coding = models.TextField(blank=True, null=True, verbose_name=_("financial coding"), editable=False)
 
     @property
     def metadata(self):
@@ -275,9 +277,10 @@ class ProjectYear(models.Model):
 
     def save(self, *args, **kwargs):
         # get the fiscal year based on the start date
-        self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
-
+        if self.start_date:
+            self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
         # save the project whenever a project year is saved
+        self.coding = self.get_coding()
         self.project.save()
 
         super().save(*args, **kwargs)
@@ -327,9 +330,27 @@ class ProjectYear(models.Model):
         if self.priorities:
             return mark_safe(markdown(self.priorities))
 
-    @property
     def get_project_leads_as_users(self):
         return [s.user for s in self.staff_set.filter(is_lead=True)]
+
+    def get_coding(self):
+        if self.responsibility_center:
+            rc = self.responsibility_center.code
+        else:
+            rc = "xxxxx"
+        if self.allotment_code:
+            ac = self.allotment_code.code
+        else:
+            ac = "xxx"
+
+        # needs to have a value for field "id" before this many-to-many relationship can be used
+        if self.id and self.existing_project_codes.exists() >= 1:
+            pc = listrify([project_code.code for project_code in self.existing_project_codes.all()])
+            if self.existing_project_codes.count() > 1:
+                pc = "[" + pc + "]"
+        else:
+            pc = "xxxxx"
+        return "{}-{}-{}".format(rc, ac, pc)
 
 
 class GenericCost(models.Model):
@@ -519,10 +540,10 @@ class File(models.Model):
 
 class StatusReport(models.Model):
     status_choices = (
-        (1, _("On-track")),
-        (2, _("Complete")),
-        (3, _("Encountering issues")),
-        (4, _("Aborted / cancelled")),
+        (3, _("On-track")),
+        (4, _("Complete")),
+        (5, _("Encountering issues")),
+        (6, _("Aborted / cancelled")),
     )
     project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE)
     status = models.IntegerField(default=1, editable=False, choices=status_choices)
@@ -582,9 +603,9 @@ class Milestone(models.Model):
 
 class MilestoneUpdate(models.Model):
     status_choices = (
-        (1, _("In progress")),
-        (2, _("Completed")),
-        (3, _("Aborted / cancelled")),
+        (7, _("In progress")),
+        (8, _("Completed")),
+        (9, _("Aborted / cancelled")),
     )
     milestone = models.ForeignKey(Milestone, related_name="updates", on_delete=models.CASCADE)
     status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)

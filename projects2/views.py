@@ -78,7 +78,7 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
     template_name = 'projects2/list.html'
-    paginate_by = 50
+    paginate_by = 15
     # get all submitted and unhidden projects
     queryset = models.Project.objects.order_by('section__division', 'section', 'title')
     filterset_class = filters.ProjectFilter
@@ -91,8 +91,9 @@ class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
         {"name": 'region', "class": "", "width": ""},
         {"name": 'division', "class": "", "width": ""},
         {"name": 'section', "class": "", "width": ""},
-        {"name": 'title', "class": "", "width": ""},
+        {"name": 'title', "class": "", "width": "400px"},
         {"name": 'default_funding_source', "class": "", "width": ""},
+        {"name": 'lead_staff', "class": "", "width": ""},
         {"name": 'tags', "class": "", "width": ""},
     ]
 
@@ -109,26 +110,21 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
     field_list = [
         {"name": 'section', "class": "", "width": ""},
         {"name": 'title', "class": "", "width": ""},
-        {"name": 'allocated_budget', "class": "", "width": ""},
-        {"name": "is_lead|{}?".format("Are you a project lead"), "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'lead_staff', "class": "", "width": ""},
+        {"name": 'is_hidden', "class": "", "width": ""},
+        {"name": 'updated_at', "class": "", "width": ""},
     ]
 
     # x = [
-    #     "year",
-    #     "submitted|{}".format("Submitted"),
     #     "recommended_for_funding",
     #     "approved",
-    #     "allocated_budget",
-    #     "section|Section",
-    #     "project_title",
-    #     "is_hidden|is this a hidden project?",
-    #     "is_lead|{}?".format("Are you a project lead"),
     #     "status_report|{}".format("Status reports"),
     # ]
 
     def get_queryset(self):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
-        return models.Project.objects.filter(id__in=project_ids).order_by("-start_date", "title")
+        return models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title")
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)

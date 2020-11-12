@@ -108,7 +108,7 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.1" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.2" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">
@@ -116,5 +116,11 @@
     </script>
 
   {% endif %}
+
+  // reload other scripts that we care about
+
+  <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
+  <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
+  <script type=" text/javascript" src="{% static "js/underDevelopment.js" %}?version=1.2.3"></script>
 
 {% endblock %}

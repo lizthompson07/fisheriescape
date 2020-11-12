@@ -11,7 +11,7 @@
   {% trans "Reports" %}
 </h6>
 <div class="btn-group-vertical vgroup">
-  <a class="{{ btn_class_black }}" href="{% url 'projects2:project_print' object.id %}">
+  <a class="{{ btn_class_black }} under-dev" href="#">
     <span class="icon mdi mdi-file-pdf"></span>
     {% trans "Export PDF" %}
   </a>
@@ -51,7 +51,7 @@
 
   <a
     href="#"
-    class="{{ btn_class_black }} "
+    class="{{ btn_class_black }} under-dev"
     data-toggle="tooltip"
     title="{% trans "Use this project as a template for a new project" %}"
   >

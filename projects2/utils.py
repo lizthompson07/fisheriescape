@@ -370,7 +370,6 @@ def get_project_field_list(project):
         'fiscal_years',
         'funding_sources',
         'tags',
-        'coding|Known financial coding',
         'metadata|{}'.format(_("metadata")),
     ]
     return my_list
@@ -418,6 +417,9 @@ def get_project_year_field_list(project_year=None):
 
         'it_needs',
         'additional_notes',
+        'coding',
+        'submitted',
+        'allocated_budget',
         'metadata|{}'.format(_("metadata")),
     ]
 

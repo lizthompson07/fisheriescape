@@ -90,8 +90,8 @@ var app = new Vue({
   },
   filters: {
     floatformat: function (value, precision = 2) {
-      if (!value) return '';
-      value = value.toFixed(precision);
+      if (value == null) return '';
+      value = Number(value).toFixed(precision);
       return value
     },
     zero2NullMark: function (value) {
@@ -99,7 +99,7 @@ var app = new Vue({
       return value
     },
     nz: function (value, arg = "---") {
-      if (value == null) return arg;
+      if (value == null || value === "None") return arg;
       return value
     },
     yesNo: function (value) {

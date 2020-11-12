@@ -48,18 +48,20 @@
       <tr v-for="s in staff">
         {% for field in staff_field_list %}
           {% if "smart_name" in field %}
-            <td>${s.smart_name}</td>
+            <td>${s.smart_name| nz}</td>
           {% elif "lead" in field %}
             <td>${s.is_lead | yesNo}</td>
           {% elif "funding_source" in field %}
-            <td>${s.funding_source_display }</td>
+            <td>${s.funding_source_display | nz }</td>
           {% elif "level" in field %}
-            <td>${s.level_display }</td>
+            <td>${s.level_display | nz }</td>
           {% elif "employee_type" in field %}
-            <td>${s.employee_type_display }</td>
+            <td>${s.employee_type_display | nz}</td>
+          {% elif "amount" in field %}
+            <td>${s.amount | floatformat}</td>
 
           {% else %}
-            <td>${ s.{{ field }} }</td>
+            <td>${ s.{{ field }} | nz}</td>
           {% endif %}
         {% endfor %}
         <td>
