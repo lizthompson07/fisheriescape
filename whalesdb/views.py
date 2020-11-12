@@ -155,7 +155,8 @@ class EheCreate(mixins.EheMixin, CommonCreate):
 
     def get_initial(self):
         initial = super().get_initial()
-        initial['ecp'] = self.kwargs['ecp']
+        initial['rec'] = self.kwargs['rec']
+        initial['ecp_channel_no'] = self.kwargs['ecp_channel_no']
 
         return initial
 
