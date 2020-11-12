@@ -270,6 +270,22 @@ class IndexTemplateView(TemplateView):
         return context
 
 
+# Create index view for National
+#
+class IndexNAView(TemplateView):
+    template_name = 'csas/index_national.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.user:
+            context['auth'] = utils.csas_authorized(self.request.user)
+            context['csas_admin'] = utils.csas_admin(self.request.user)
+            context['csas_super'] = utils.csas_super(self.request.user)
+
+        return context
+
+
 # Create index view for Newfoundland & Labrador
 #
 class IndexNLView(TemplateView):
@@ -474,6 +490,16 @@ class RequestList(CsasListCommon):
     fields = ['id', 'assigned_req_id', 'title', 'region', 'client_sector', 'client_name', 'client_email', 'funding']
 
 
+class RequestListNA(CsasListCommon):
+    key = 'req'
+    title = _('National Region Request List')
+    model = models.ReqRequest
+    filterset_class = filters.RequestFilterReg
+    template_name = "csas/csas_filter_national.html"
+
+    fields = ['id', 'assigned_req_id', 'title', 'client_sector', 'client_name', 'client_email', 'funding']
+
+
 class RequestListMA(CsasListCommon):
     key = 'req'
     title = _('Maritimes Region Request List')
@@ -603,6 +629,16 @@ class ContactList(CsasListCommon):
     title = _('Contact List')
     model = models.ConContact
     filterset_class = filters.ContactFilter
+    fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
+
+
+class ContactListNA(CsasListCommon):
+    key = 'con'
+    title = _('National Region Contact List')
+    model = models.ConContact
+    filterset_class = filters.ContactFilterReg
+    template_name = 'csas/csas_filter_national.html'
+
     fields = ['id', 'last_name', 'first_name', 'affiliation', 'contact_type', 'region', 'role', 'email', 'phone']
 
 
@@ -856,6 +892,16 @@ class MeetingList(CsasListCommon):
     title = _('Meeting List')
     model = models.MetMeeting
     filterset_class = filters.MeetingFilter
+    fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
+
+
+class MeetingListNA(CsasListCommon):
+    key = 'met'
+    title = _('National Region Meeting List')
+    model = models.MetMeeting
+    filterset_class = filters.MeetingFilterReg
+    template_name = "csas/csas_filter_national.html"
+
     fields = ['id', 'start_date', 'title_en', 'title_fr', 'location_city', 'process_type']
 
 
@@ -1136,6 +1182,16 @@ class PublicationList(CsasListCommon):
     title = _('Publication List')
     model = models.PubPublication
     filterset_class = filters.PublicationFilter
+
+    fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
+
+
+class PublicationListNA(CsasListCommon):
+    key = 'pub'
+    title = _('National Region Publication List')
+    model = models.PubPublication
+    filterset_class = filters.PublicationFilterReg
+    template_name = "csas/csas_filter_national.html"
 
     fields = ['id', 'series', 'title_en', 'lead_region', 'lead_author', 'other_author', 'pub_year']
 

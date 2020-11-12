@@ -6,6 +6,7 @@ app_name = 'csas'
 urlpatterns = [
     # for home/index page
     path('',                                        views.IndexTemplateView.as_view(),    name="index"),
+    path('index_national/',                         views.IndexNAView.as_view(),          name="index_na"),
     path('index_newfoundland_labrador/',            views.IndexNLView.as_view(),          name="index_nl"),
     path('index_gulf/',                             views.IndexGFView.as_view(),          name="index_gf"),
     path('index_quebec/',                           views.IndexQBView.as_view(),          name="index_qb"),
@@ -13,10 +14,11 @@ urlpatterns = [
     path('index_ontario_prairie/',                  views.IndexOPView.as_view(),          name="index_op"),
     path('index_pacific/',                          views.IndexPCView.as_view(),          name="index_pc"),
     path('index_meeting/',                          views.IndexMeetingView.as_view(),     name="index_met"),
-    path('index_publication',                       views.IndexPublicationView.as_view(), name="index_pub"),
+    path('index_publication/',                      views.IndexPublicationView.as_view(), name="index_pub"),
 
     # for Requests
     path('request/',                                views.RequestList.as_view(),          name="list_req"),
+    path('request/national/',                       views.RequestListNA.as_view(),        name="list_req_na"),
     path('request/maritimes/',                      views.RequestListMA.as_view(),        name="list_req_ma"),
     path('request/newfoundland_labrador/',          views.RequestListNL.as_view(),        name="list_req_nl"),
     path('request/gulf/',                           views.RequestListGF.as_view(),        name="list_req_gf"),
@@ -40,6 +42,7 @@ urlpatterns = [
 
     # for Meetings
     path('meeting/',                       views.MeetingList.as_view(),          name="list_met"),
+    path('meeting/national/',              views.MeetingListNA.as_view(),        name="list_met_na"),
     path('meeting/maritimes/',             views.MeetingListMA.as_view(),        name="list_met_ma"),
     path('meeting/newfoundland_labrador/', views.MeetingListNL.as_view(),        name="list_met_nl"),
     path('meeting/gulf/',                  views.MeetingListGF.as_view(),        name="list_met_gf"),
@@ -84,6 +87,7 @@ urlpatterns = [
 
     # for Publications
     path('publication/',                                         views.PublicationList.as_view(),             name="list_pub"),
+    path('publication/national/',                                views.PublicationListNA.as_view(),           name="list_pub_na"),
     path('publication/maritimes/',                               views.PublicationListMA.as_view(),           name="list_pub_ma"),
     path('publication/newfoundland_labrador/',                   views.PublicationListNL.as_view(),           name="list_pub_nl"),
     path('publication/gulf/',                                    views.PublicationListGF.as_view(),           name="list_pub_gf"),
@@ -126,6 +130,7 @@ urlpatterns = [
 
     # for Contacts
     path('contacts/',                              views.ContactList.as_view(),        name="list_con"),
+    path('contacts/national/',                     views.ContactListNA.as_view(),      name="list_con_na"),
     path('contacts/maritimes/',                    views.ContactListMA.as_view(),      name="list_con_ma"),
     path('contacts/newfoundland_labrador/',        views.ContactListNL.as_view(),      name="list_con_nl"),
     path('contacts/gulf/',                         views.ContactListGF.as_view(),      name="list_con_gf"),
