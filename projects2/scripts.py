@@ -144,4 +144,10 @@ def fetch_project_data():
 
         # tags
         for t in old_p.tags.all():
-            new_p.tags.add(t)
+            if not models.Tag.objects.filter(id=t.id).exists():
+                models.Tag.objects.create(
+                    id=t.id,
+                    name=t.name,
+                    nom=t.nom,
+                )
+            new_p.tags.add(t.id)
