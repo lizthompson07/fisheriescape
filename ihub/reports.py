@@ -213,7 +213,7 @@ def generate_capacity_spreadsheet(orgs, sectors, from_date, to_date):
     return target_url
 
 
-def generate_summary_spreadsheet(orgs, sectors, from_date, to_date):
+def generate_summary_spreadsheet(orgs, sectors, from_date, to_date, entry_note_types, entry_note_statuses):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -239,7 +239,15 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date):
         from_date = None
     if to_date == "None":
         to_date = None
+    if entry_note_types == "None":
+        entry_note_types = None
+    else:
+        entry_note_types = [int(i) for i in entry_note_types.split(",")] if entry_note_types else None
 
+    if entry_note_statuses == "None":
+        entry_note_statuses = None
+    else:
+        entry_note_statuses = [int(i) for i in entry_note_statuses.split(",")] if entry_note_statuses else None
     # build an entry list:
     entry_list = models.Entry.objects.all()
 
@@ -328,23 +336,24 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date):
                     "[", "").replace("]", "").replace("'", "").replace('"', "").replace(', ', "\n")
             else:
                 people = None
-            note_qry = e.notes.filter(~Q(type=5))
+            note_qry = e.notes.all()
             if note_qry.count() > 0:
                 notes = ""
                 count = 0
                 max_count = note_qry.count()
                 for obj in note_qry:
-                    notes += "{} - {} [STATUS: {}] (Created by {} {} on {})\n".format(
-                        obj.get_type_display().upper(),
-                        obj.note,
-                        obj.status,
-                        obj.author.first_name,
-                        obj.author.last_name,
-                        obj.creation_date.strftime("%Y-%m-%d"),
-                    )
-                    if not count == max_count:
-                        notes += "\n"
-
+                    if not entry_note_types or (obj.type in entry_note_types):
+                        if not entry_note_statuses or (obj.status_id in entry_note_statuses):
+                            notes += "{} - {} [STATUS: {}] (Created by {} {} on {})\n".format(
+                                obj.get_type_display().upper(),
+                                obj.note,
+                                obj.status,
+                                obj.author.first_name,
+                                obj.author.last_name,
+                                obj.creation_date.strftime("%Y-%m-%d"),
+                            )
+                            if not count == max_count:
+                                notes += "\n"
             else:
                 notes = None
 
@@ -446,7 +455,8 @@ def generate_summary_spreadsheet(orgs, sectors, from_date, to_date):
     return target_url
 
 
-def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, report_title, from_date, to_date):
+def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, report_title, from_date, to_date, entry_note_types,
+                                          entry_note_statuses):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'ihub', 'temp')
     target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
@@ -466,6 +476,14 @@ def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, 
         from_date = None
     if to_date == "None":
         to_date = None
+    if entry_note_types == "None":
+        entry_note_types = None
+    else:
+        entry_note_types = [int(i) for i in entry_note_types.split(",")] if entry_note_types else None
+    if entry_note_statuses == "None":
+        entry_note_statuses = None
+    else:
+        entry_note_statuses = [int(i) for i in entry_note_statuses.split(",")] if entry_note_statuses else None
 
     # get an entry list for the fiscal year (if any)
     entry_list = models.Entry.objects.all().order_by("status", "-initial_date")
@@ -483,7 +501,7 @@ def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, 
     if statuses:
         # we have to refine the queryset to only the selected statuses
         status_list = [models.Status.objects.get(pk=int(o)) for o in statuses.split(",")]
-        entry_list = entry_list.filter(organizations__in=status_list)
+        entry_list = entry_list.filter(status__in=status_list)
 
     if entry_types:
         # we have to refine the queryset to only the selected orgs
@@ -548,7 +566,9 @@ def generate_consultation_log_spreadsheet(orgs, sectors, statuses, entry_types, 
         other_notes = "Overall status: {}".format(e.status)
         if e.other_notes.count() > 0:
             for n in e.other_notes.all():
-                other_notes += "\n\n*************************\n" + str(n)
+                if not entry_note_types or (n.type in entry_note_types):
+                    if not entry_note_statuses or (n.status_id in entry_note_statuses):
+                        other_notes += "\n\n*************************\n" + str(n)
 
         followups = ""
         for n in e.followups.all():

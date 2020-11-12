@@ -1,0 +1,17 @@
+{% if "dates" in field %}
+  <td v-html='projectYear.dates'></td>
+
+{% elif "metadata" in field %}
+  <td v-html='projectYear.metadata'></td>
+
+{% elif "priorit" in field %}
+  <td v-html='projectYear.priorities_html'></td>
+
+{% elif "deliver" in field %}
+  <td v-html='projectYear.deliverables_html'></td>
+
+{% elif "coip" in field or "requires_" in field or "has_" in field or "eligible" in field %}
+  <td>${ projectYear.{{ field }} | yesNo }</td>
+{% else %}
+  <td v-html='projectYear.{{ field }}'></td>
+{% endif %}

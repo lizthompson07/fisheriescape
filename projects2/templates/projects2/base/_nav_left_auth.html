@@ -1,0 +1,84 @@
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'projects2:index' %}">
+  {% trans "Home" %}
+</a></li>
+
+{#<li class="nav-item"><a class="nav-link" href="{% url 'projects2:report_search' %}">#}
+{#  {% trans "Reports" %}#}
+{#</a></li>#}
+
+
+{% for group in user.groups.all %}
+  {% if group.name == "projects_admin" %}
+
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+         aria-haspopup="true" aria-expanded="false">
+        {% trans "Settings" %}
+      </a>
+      <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_funding_sources' %}">#}
+{#          {% trans "Manage Funding Sources" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_om_cats' %}">#}
+{#          {% trans "Manage O & M Categories" %}#}
+{#        </a>#}
+{##}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_employee_types' %}">#}
+{#          {% trans "Manage Employee Types" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_tags' %}">#}
+{#          {% trans "Manage Tags" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_statuses' %}">#}
+{#          {% trans "Manage Statuses" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_help_text' %}">#}
+{#          {% trans "Manage Help Text" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_levels' %}">#}
+{#          {% trans "Manage Staff Levels" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_activity_types' %}">#}
+{#          {% trans "Manage Activity Types" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_themes' %}">#}
+{#          {% trans "Manage Themes" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage-upcoming-dates' %}">#}
+{#          {% trans "Manage Upcoming Dates" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:ref_mat_list' %}">#}
+{#          {% trans "Manage Reference Materials" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:manage_programs' %}">#}
+{#          {% trans "Manage Programs" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:group_list' %}">#}
+{#          {% trans "Manage Functional Groups" %}#}
+{#        </a>#}
+{##}
+{#        <a class="dropdown-item" href="{% url 'shared_models:index' %}" target="_blank">#}
+{#          {% trans "ADMIN: Manage DFO Organizations" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:admin_staff_list' %}">#}
+{#          {% trans "ADMIN: Non-registered Staff List" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:admin_submitted_unapproved' %}">#}
+{#          {% trans "ADMIN: Submitted + Unapproved Projects" %}#}
+{#        </a>#}
+{#        <a class="dropdown-item" href="{% url 'projects2:admin_project_approval_search' %}">#}
+{#          {% trans "ADMIN: Project Approvals" %}#}
+{#        </a>#}
+
+      </div>
+    </li>
+
+  {% endif %}
+
+{% endfor %}
+
+
+
+

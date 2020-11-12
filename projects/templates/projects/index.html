@@ -3,141 +3,155 @@
 {% load static %}
 
 {% block content %}
-    <style>
-        .btn1 {
-            width: 200px
-        }
+  <style>
+  .btn1 {
+      width: 200px
+  }
 
-    </style>
-    <br>
-    <br>
-    <div class="container mb-3 mt-3">
-        <h1 class="three-em center-col">
-            {% trans "DFO Science Project Planning" %}
-        </h1>
+  </style>
+  <br>
+  <br>
+  <div class="container mb-3 mt-3">
+    <h1 class="three-em center-col">
+      {% trans "DFO Science Project Planning" %}
+    </h1>
 
-        {% url 'projects:project_new' as new_proj_url %}
-        {% url 'projects:my_project_list' as my_proj_url %}
-        {% url 'projects:project_list' as all_proj_url %}
+    {% url 'projects:project_new' as new_proj_url %}
+    {% url 'projects:my_project_list' as my_proj_url %}
+    {% url 'projects:project_list' as all_proj_url %}
 
-        <div class="mb-3 mt-3 row justify-content-center">
-            <div class="col center-col">
-                <a href="{{ new_proj_url }}" class="btn btn-dark btn-lg btn1">
-                    {% trans "New Project" %}
-                </a>
-            </div>
-            <div class="col center-col">
-                <a href="{{ my_proj_url }}" class="btn btn-dark btn-lg btn1">
-                    {% trans "Your Projects" %} ({{ user.staff_instances.count }})
-                </a>
-            </div>
-            <div class="col center-col">
-                <a href="{{ all_proj_url }}" class="btn btn-dark btn-lg btn1">
-                    {% trans "Explore Projects" %}
-                </a>
-            </div>
-        </div>
-        <hr>
-        <div class="row">
-            <div class="col">
-                <div class="mb-4 mt-3">
-                    <h4>
-                        {% trans "Regional Views" %}
-                    </h4>
-                    <ul>
-                        <li>
-                            2020-2021 Gulf Region Interactive Workplan <br>
-                            (<a href="{% url 'projects:iw_group_list' 1 0 0 2021 'division' %}">
-                            {% trans "by Section" %}
-                        </a>)
-                            (<a href="{% url 'projects:iw_group_list' 1 0 0 2021 'theme' %}">
-                            {% trans "by Theme" %}
-                        </a>)
-                            (<a href="{% url 'projects:iw_group_list' 1 0 0 2021 'funding_source' %}">
-                            {% trans "by Funding source" %}
-                        </a>)
-                        </li>
-                        <li>
-                            2020-2021 Maritimes Region Interactive Workplan <br>
-                            (<a href="{% url 'projects:iw_group_list' 2 0 0 2021 'division' %}">
-                            {% trans "by Section" %}
-                        </a>)
-                            (<a href="{% url 'projects:iw_group_list' 2 0 0 2021 'theme' %}">
-                            {% trans "by Theme" %}
-                        </a>)
-                            (<a href="{% url 'projects:iw_group_list' 2 0 0 2021 'funding_source' %}">
-                            {% trans "by Funding source" %}
-                        </a>)
-                        </li>
-                    </ul>
-                </div>
+    <div class="mb-3 mt-3 row justify-content-center">
+      <div class="col center-col">
+        <a href="{{ new_proj_url }}" class="btn btn-dark btn-lg btn1">
+          {% trans "New Project" %}
+        </a>
+      </div>
+      <div class="col center-col">
+        <a href="{{ my_proj_url }}" class="btn btn-dark btn-lg btn1">
+          {% trans "Your Projects" %} ({{ user.staff_instances.count }})
+        </a>
+      </div>
+      <div class="col center-col">
+        <a href="{{ all_proj_url }}" class="btn btn-dark btn-lg btn1">
+          {% trans "Explore Projects" %}
+        </a>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col">
+        <div class="mb-4 mt-3">
+          <h4>
+            {% trans "Regional Views" %}
+          </h4>
+          <ul>
+            <li>
+              2021-2022 Gulf Region Interactive Workplan <br>
+              (<a href="{% url 'projects:iw_group_list' 1 0 0 2022 'division' %}">
+              {% trans "by Section" %}
+            </a>)
+              (<a href="{% url 'projects:iw_group_list' 1 0 0 2022 'theme' %}">
+              {% trans "by Theme" %}
+            </a>)
+              (<a href="{% url 'projects:iw_group_list' 1 0 0 2022 'funding_source' %}">
+              {% trans "by Funding source" %}
+            </a>)
+            </li>
+            <li>
+              2021-2022 Maritimes Region Interactive Workplan <br>
+              (<a href="{% url 'projects:iw_group_list' 2 0 0 2022 'division' %}">
+              {% trans "by Section" %}
+            </a>)
+              (<a href="{% url 'projects:iw_group_list' 2 0 0 2022 'theme' %}">
+              {% trans "by Theme" %}
+            </a>)
+              (<a href="{% url 'projects:iw_group_list' 2 0 0 2022 'funding_source' %}">
+              {% trans "by Funding source" %}
+            </a>)
+            </li>
 
+            <li>
+              2021-2022 Pacific Region Interactive Workplan <br>
+              (<a href="{% url 'projects:iw_group_list' 8 0 0 2022 'division' %}">
+              {% trans "by Section" %}
+            </a>)
+              (<a href="{% url 'projects:iw_group_list' 8 0 0 2022 'theme' %}">
+              {% trans "by Theme" %}
+            </a>)
+              (<a href="{% url 'projects:iw_group_list' 8 0 0 2022 'funding_source' %}">
+              {% trans "by Funding source" %}
+            </a>)
+            </li>
 
-                {% if section_list.count %}
-
-                    <div class="mb-4">
-                        <h4>
-                            {% trans "Your Sections" %}
-                        </h4>
-                        <ul>
-                            {% for section in user.shared_models_sections.all %}
-                                <li>
-                                    <a href="{% url 'projects:section_project_list' section.id %}">
-                                        {{ section }}
-                                    </a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-
-                    {% if section_list.count > user.shared_models_sections.count %}
-
-                        <div class="mb-4">
-                            <h4>
-                                {% trans "Other Sections Opened to You" %}
-                            </h4>
-                            <ul>
-                                {% for section in section_list %}
-                                    {% if section not in user.shared_models_sections.all %}
-                                        <li>
-                                            <a href="{% url 'projects:section_project_list' section.id %}">
-                                                {{ section.full_name_ver1 }}
-                                            </a>
-                                        </li>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% else %}
-                        <br>    <br>
-                    {% endif %}
-                {% endif %}
-            </div>
-
-
-            <div class="col-7">
-                {% include "projects/_upcoming_dates.html" %}
-            </div>
+          </ul>
         </div>
 
 
+        {% if section_list.count %}
+
+          <div class="mb-4">
+            <h4>
+              {% trans "Your Sections" %}
+            </h4>
+            <ul>
+              {% for section in user.shared_models_sections.all %}
+                <li>
+                  <a href="{% url 'projects:section_project_list' section.id %}">
+                    {{ section }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          {% if section_list.count > user.shared_models_sections.count %}
+
+            <div class="mb-4">
+              <h4>
+                {% trans "Other Sections Opened to You" %}
+              </h4>
+              <ul>
+                {% for section in section_list %}
+                  {% if section not in user.shared_models_sections.all %}
+                    <li>
+                      <a href="{% url 'projects:section_project_list' section.id %}">
+                        {{ section.full_name_ver1 }}
+                      </a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            </div>
+          {% else %}
+            <br>    <br>
+          {% endif %}
+        {% endif %}
+      </div>
+
+
+      <div class="col-7">
+        {% include "projects/_upcoming_dates.html" %}
+      </div>
     </div>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <div class="center-col">
-        <a class=""
-           style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px"
-           href="#"
-           target="_blank" rel="noopener noreferrer"
-           title="Photo by Alexander Andrews on Unsplash"><span
-                style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg"
-                                                                  style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white"
-                                                                  viewBox="0 0 32 32"><title>unsplash-logo</title><path
-                d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"></path></svg></span><span style="display:inline-block;padding:2px 3px">Photo by Alexander Andrews on Unsplash</span></a>
-    </div>
+
+
+  </div>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <div class="center-col">
+    <a class=""
+       style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px"
+       href="#"
+       target="_blank" rel="noopener noreferrer"
+       title="Photo by Alexander Andrews on Unsplash"><span
+      style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg"
+                                                        style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white"
+                                                        viewBox="0 0 32 32"><title>unsplash-logo</title><path
+      d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"></path></svg></span><span style="display:inline-block;padding:2px 3px">Photo by Alexander Andrews on Unsplash</span></a>
+  </div>
 {% endblock %}
 
 

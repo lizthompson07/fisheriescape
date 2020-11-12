@@ -541,7 +541,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
             if form.cleaned_data.get("stay_on_page"):
                 return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs=self.kwargs))
             else:
-                return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs))
+                return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs) + "#costs")
         else:
             return HttpResponseRedirect(reverse("shared_models:close_me"))
 
@@ -636,14 +636,14 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
                     reverse_lazy("travel:request_edit", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}))
             else:
                 return HttpResponseRedirect(
-                    reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}))
+                    reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}) + "#costs")
         # if this is a child record
         else:
             if form.cleaned_data.get("stay_on_page"):
                 messages.success(self.request, _(
                     "{} has been added as a traveller to this request. Please add any costs associated with this traveller.".format(
                         my_object.requester_name)))
-                return HttpResponseRedirect(reverse("travel:request_edit", kwargs={"pk": my_object.id, "type": "pop"}))
+                return HttpResponseRedirect(reverse("travel:request_edit", kwargs={"pk": my_object.id, "type": "pop"}) + "#costs")
             else:
                 return HttpResponseRedirect(reverse("shared_models:close_me"))
 
@@ -1523,8 +1523,8 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
             # {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", },
             # {"name": 'lead|{}'.format(_("Regional lead")), "class": "center-col", },
             {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
-            {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
-            {"name": 'date_eligible_for_adm_review', "class": "center-col", "width": "100px"},
+            # {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
+            {"name": 'date_eligible_for_adm_review', "class": "center-col", "width": "140px"},
             # {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
             # {"name": 'verified_by', "class": "", },
         ]
@@ -1554,7 +1554,7 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["paginate_by"] = None if self.kwargs.get("type") == "adm-hit-list" else 50
+        context["paginate_by"] = 10 if self.kwargs.get("type") != "adm-hit-list" else 50
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
 
@@ -2717,7 +2717,7 @@ def tr_cost_delete(request, pk):
     if can_modify_request(request.user, object.trip_request.id):
         object.delete()
         messages.success(request, _("The cost has been successfully deleted."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER') + "#costs")
     else:
         return HttpResponseRedirect('/accounts/denied/')
 
@@ -2727,7 +2727,7 @@ def tr_cost_clear(request, trip_request):
     if can_modify_request(request.user, my_trip_request.id):
         utils.clear_empty_trip_request_costs(my_trip_request)
         messages.success(request, _("All empty costs have been cleared."))
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER') + "#costs")
     else:
         return HttpResponseRedirect('/accounts/denied/')
 
@@ -2736,6 +2736,6 @@ def tr_cost_populate(request, trip_request):
     my_trip_request = models.TripRequest.objects.get(pk=trip_request)
     if can_modify_request(request.user, my_trip_request.id):
         utils.populate_trip_request_costs(request, my_trip_request)
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER') + "#costs")
     else:
         return HttpResponseRedirect('/accounts/denied/')

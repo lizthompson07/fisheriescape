@@ -1,24 +1,20 @@
 import datetime
-import os
 
 import textile
-from django.conf import settings
 from django.contrib.auth.models import User as AuthUser
 from django.db import models
 from django.db.models import Q, Sum
-from django.dispatch import receiver
 from django.template.defaultfilters import pluralize, date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 
+from lib.functions.custom_functions import fiscal_year, listrify
+from lib.templatetags.custom_filters import nz, currency
 from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
-from lib.templatetags.custom_filters import nz, currency
-from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models.models import Lookup, SimpleLookup
-from . import utils
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -30,6 +26,7 @@ NULL_YES_NO_CHOICES = (
     (1, _("Yes")),
     (0, _("No")),
 )
+
 
 class DefaultReviewer(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
@@ -176,12 +173,43 @@ class Conference(models.Model):
                                limit_choices_to={"used_for": 4}, verbose_name=_("trip status"), default=30)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
-    adm_review_deadline = models.DateTimeField(verbose_name=_("ADM Office review deadline"), blank=True, null=True)
-    date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"),
-                                                        blank=True, null=True)
     last_modified = models.DateTimeField(verbose_name=_("last modified"), auto_now=True, editable=False)
     last_modified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trips_last_modified_by",
                                          verbose_name=_("last_modified_by"), blank=True, null=True)
+
+    # calculated fields
+    adm_review_deadline = models.DateTimeField(verbose_name=_("ADM Office review deadline"), blank=True, null=True)
+    date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"),
+                                                        blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.fiscal_year = shared_models.FiscalYear.objects.get(
+            pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
+
+        # TESTED
+        # go through all the associated requests and update dates if applicable
+        for tr in self.trip_requests.all():
+            tr.save()
+
+        # ensure the process order makes sense
+        count = 1
+        for reviewer in self.reviewers.all():  # use the default sorting
+            reviewer.order = count
+            reviewer.save()
+            count += 1
+
+        if self.is_adm_approval_required and self.trip_subcategory:
+            # trips must be reviewed by ADMO before two weeks to the closest date
+            self.adm_review_deadline = self.closest_date - datetime.timedelta(
+                days=21)  # 14 business days -- > 21 calendar days?
+
+            # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
+            # else they can start the review closer to the date: eight business weeks (60 days)
+            # this is stored in the table
+            self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(
+                days=self.trip_subcategory.trip_category.days_when_eligible_for_review)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # check to see if a french value is given
@@ -236,7 +264,7 @@ class Conference(models.Model):
             self.name, self.nom, self.location,
             self.start_date.strftime("%Y-%m-%d"),
             self.end_date.strftime("%Y-%m-%d"),
-            "<a href='(click here)' target='_blank'>{}</a>".format(self.meeting_url) if self.meeting_url else "n/a",
+            "<a href='{}' target='_blank'>{}</a>".format(self.meeting_url, self.meeting_url) if self.meeting_url else "n/a",
             "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
@@ -345,35 +373,6 @@ class Conference(models.Model):
         else:
             my_str = "{}".format(self.name)
         return my_str
-
-    def save(self, *args, **kwargs):
-        self.fiscal_year = shared_models.FiscalYear.objects.get(
-            pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
-
-        # TODO: make sure this gets tested
-        # go through all the associated requests and update dates if applicable
-        for tr in self.trip_requests.all():
-            tr.save()
-
-        # ensure the process order makes sense
-        count = 1
-        for reviewer in self.reviewers.all():  # use the default sorting
-            reviewer.order = count
-            reviewer.save()
-            count += 1
-
-        if self.is_adm_approval_required and self.trip_subcategory:
-            # trips must be reviewed by ADMO before two weeks to the closest date
-            self.adm_review_deadline = self.closest_date - datetime.timedelta(
-                days=21)  # 14 business days -- > 21 calendar days?
-
-            # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
-            # else they can start the review closer to the date: eight business weeks (60 days)
-            # this is stored in the table
-            self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(
-                days=self.trip_subcategory.trip_category.days_when_eligible_for_review)
-
-        super().save(*args, **kwargs)
 
     def get_connected_requests(self):
         """
@@ -629,7 +628,7 @@ class TripRequest(models.Model):
     def save(self, *args, **kwargs):
         # if the start and end dates are null, but there is a trip, use those.. to populate
         ## but also, if this is a group request, the start date should always be populated from the trip
-        # TODO: test me
+        # TESTED
         if (self.trip and not self.start_date) or self.is_group_request:
             self.start_date = self.trip.start_date
 
@@ -975,9 +974,10 @@ class TripRequestCost(models.Model):
 
     def save(self, *args, **kwargs):
         # if a user is providing a rate and number of days, we use this to calc the total amount.
+        if not self.amount_cad:
+            self.amount_cad = 0
         if (self.rate_cad and self.rate_cad != 0) and (self.number_of_days and self.number_of_days != 0):
             self.amount_cad = self.rate_cad * self.number_of_days
-
         super().save(*args, **kwargs)
 
 
@@ -1109,41 +1109,6 @@ class File(models.Model):
 
     def __str__(self):
         return self.name
-
-
-@receiver(models.signals.post_delete, sender=File)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.file:
-        try:
-            if os.path.isfile(instance.file.path):
-                os.remove(instance.file.path)
-        except:
-            instance.file.delete()
-            instance.delete()
-
-@receiver(models.signals.pre_save, sender=File)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = File.objects.get(pk=instance.pk).file
-    except File.DoesNotExist:
-        return False
-
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
 
 
 class HelpText(models.Model):

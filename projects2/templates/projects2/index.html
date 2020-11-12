@@ -1,0 +1,74 @@
+{% extends "projects2/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content %}
+
+  {% echo "btn btn-outline-dark btn-lg" as btn_class %}
+  {% echo "btn btn-outline-danger btn-lg" as admin_btn_class %}
+
+
+  <div class="container mb-3 mt-3">
+
+    <h1 class="text-center mt-3 mb-5">
+      {% trans "DFO Science Project Planning" %}
+    </h1>
+
+    <div class="mb-5"></div>
+
+    {% url 'projects2:project_new' as new_proj_url %}
+    {% url 'projects2:my_project_list' as my_proj_url %}
+    {% url 'projects2:project_list' as all_proj_url %}
+
+
+    <div class="row mb-4">
+      <div class="col">
+        <div class="btn-group-vertical vgroup">
+          <a href="{{ new_proj_url }}" class="{{ btn_class }}">
+            {% trans "Start a New Project" %}
+          </a>
+          <a href="{{ my_proj_url }}" class="{{ btn_class }}">
+            {% trans "Your Projects" %} ({{ user.staff_instances2.count }})
+          </a>
+          <a href="#" class="{{ btn_class }}">
+            {% trans "Explore Projects" %}
+          </a>
+
+        </div>
+
+        {% if is_management_or_admin %}
+
+          <div class="btn-group-vertical vgroup">
+            <a href="{{ all_proj_url }}" class="{{ admin_btn_class }}">
+              {% trans "View All Projects" %}
+            </a>
+          </div>
+        {% endif %}
+      </div>
+      <div class="col-8">
+        {% include "projects2/_upcoming_dates.html" %}
+      </div>
+    </div>
+
+
+  </div>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <div class="center-col">
+    <a class=""
+       style="background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &quot;San Francisco&quot;, &quot;Helvetica Neue&quot;, Helvetica, Ubuntu, Roboto, Noto, &quot;Segoe UI&quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px"
+       href="#"
+       target="_blank" rel="noopener noreferrer"
+       title="Photo by Alexander Andrews on Unsplash"><span
+      style="display:inline-block;padding:2px 3px"><svg xmlns="http://www.w3.org/2000/svg"
+                                                        style="height:12px;width:auto;position:relative;vertical-align:middle;top:-2px;fill:white"
+                                                        viewBox="0 0 32 32"><title>unsplash-logo</title><path
+      d="M10 9V0h12v9H10zm12 5h10v18H0V14h10v9h12v-9z"></path></svg></span><span style="display:inline-block;padding:2px 3px">Photo by Alexander Andrews on Unsplash</span></a>
+  </div>
+{% endblock %}
+
+

@@ -1,0 +1,120 @@
+{% extends "projects2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% load project_tags %}
+
+
+{% block header %}
+  {{ block.super }}
+
+{% endblock %}
+
+{% block subcontent %}
+  <div id="app">
+    <div class="row">
+
+      <div class="col-2 toolbar py-3 px-3 ml-2">
+        {% include "projects2/project_detail/_project_console.html" %}
+      </div>
+
+      <div class="col">
+        <div v-if="showOverview">
+          <h2>
+            {% trans "Project Overview" %}
+          </h2>
+          <table class="table table-sm">
+            {% for field in project_field_list %}
+              {% if "fiscal" in field %}
+                <tr>
+                  <th>{% trans "Project years" %}</th>
+                  <td>
+                    <ul>
+                      {% for year in object.years.all %}
+                        <li>{{ year }}</li>
+                      {% empty %}
+                        <em>This project has no fiscal years added yet.</em>
+                      {% endfor %}
+
+                    </ul>
+                  </td>
+                </tr>
+              {% elif "overview" in field %}
+                <tr>
+                  <th>{% get_verbose_label object field %}</th>
+                  <td>
+                    {{ object.overview_html }}
+                  </td>
+                </tr>
+              {% else %}
+                {% verbose_td_display object field th_width="30%" td_width="70%" %}
+              {% endif %}
+            {% endfor %}
+          </table>
+        </div>
+
+        <div v-if="!showOverview">
+          <div v-if="py_loading" class="loading mb-3 mt-3 text-center mt-5">
+            <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+              <span class="sr-only"></span>
+            </div>
+          </div>
+
+          <div v-if="projectYear">
+            {% include "projects2/project_detail/_project_year_detail.html" %}
+
+            {% include "projects2/project_detail/_project_year_modal_form.html" %}
+            <modal v-if="showStaffModal" @close="closeModals(projectYear)" :year="projectYear" :type="'staff'"></modal>
+
+          </div>
+
+
+          <div v-else>
+            <h3>Uh oh. something bad happened</h3>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  <script type="application/javascript">
+
+  var warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
+  var currentUser = "{{ user.id }}"
+
+  function activateChosen() {
+    var config = {
+      '.chosen-select': {placeholder_text_multiple: "Select multiple", search_contains: false},
+      '.chosen-select-contains': {placeholder_text_multiple: "Select multiple", search_contains: true},
+    };
+    for (var selector in config) {
+      $(selector).chosen(config[selector]);
+    }
+  }
+
+  </script>
+
+
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.1" type="application/javascript"></script>
+
+  {% if request.GET.project_year %}
+    <script type="application/javascript">
+    app.displayProjectYear({{request.GET.project_year}})
+    </script>
+
+  {% endif %}
+
+{% endblock %}

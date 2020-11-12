@@ -121,7 +121,7 @@
             {% endif %}
             <a class="" href="{{ obj.file.url }}">
               {{ obj }}
-            </a> ({{ obj.date_modified }})
+            </a> ({{ obj.date_modified|date}})
           </li>
         {% endfor %}
 

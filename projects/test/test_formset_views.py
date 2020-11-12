@@ -25,7 +25,6 @@ class TestAllFormsets(CommonTest):
             "manage_tags",
             "manage_help_text",
             "manage_levels",
-            "manage_programs",
             "manage_themes",
             "manage-upcoming-dates",
         ]
@@ -40,7 +39,6 @@ class TestAllFormsets(CommonTest):
             views.TagFormsetView,
             views.HelpTextFormsetView,
             views.LevelFormsetView,
-            views.ProgramFormsetView,
             views.ThemeFormsetView,
             views.UpcomingDateFormsetView,
         ]
@@ -78,7 +76,6 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.Tag, "url_name": "delete_tag", "view": views.TagHardDeleteView},
             {"model": models.HelpText, "url_name": "delete_help_text", "view": views.HelpTextHardDeleteView},
             {"model": models.Level, "url_name": "delete_level", "view": views.LevelHardDeleteView},
-            {"model": models.Program, "url_name": "delete_program", "view": views.ProgramHardDeleteView},
             {"model": models.Theme, "url_name": "delete_theme", "view": views.ThemeHardDeleteView},
             {"model": models.UpcomingDate, "url_name": "delete-upcoming-date", "view": views.UpcomingDateHardDeleteView},
         ]
@@ -98,8 +95,6 @@ class TestAllHardDeleteViews(CommonTest):
                 obj = m.objects.create(name=faker.word(), used_for=1)
             elif m == models.HelpText:
                 obj = m.objects.create(field_name=faker.word(), eng_text=faker.word())
-            elif m == models.Program:
-                obj = m.objects.create(regional_program_name_eng=faker.word(), is_core=True)
             elif m == models.UpcomingDate:
                 obj = FactoryFloor.UpcomingDateFactory()
             else:

@@ -11,7 +11,9 @@ class SectionForm(forms.ModelForm):
     class Meta:
         model = models.Section
         exclude = [
-            'date_last_modified',
+            'shortish_name',
+            'full_name',
+            'full_name_ver1',
         ]
         widgets = {
             'last_modified_by': forms.HiddenInput(),
