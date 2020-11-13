@@ -974,7 +974,7 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
                 r.save()
 
             # send an email to the trip_request owner
-            email = emails.StatusUpdateEmail(my_trip_request)
+            email = emails.StatusUpdateEmail(my_trip_request, self.request)
             # # send the email object
             custom_send_mail(
                 subject=email.subject,
@@ -1474,7 +1474,6 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
     container_class = "container-fluid"
     subtitle = _("Trips")
     home_url_name = "travel:index"
-    paginate_by = 10
 
     def get_new_object_url(self):
         return reverse("travel:trip_new", kwargs=self.kwargs)
@@ -1524,8 +1523,8 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
             # {"name": 'number_of_days|{}'.format(_("length (days)")), "class": "center-col", },
             # {"name": 'lead|{}'.format(_("Regional lead")), "class": "center-col", },
             {"name": 'is_adm_approval_required|{}'.format(_("ADM approval required?")), "class": "center-col", },
-            {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
-            {"name": 'date_eligible_for_adm_review', "class": "center-col", "width": "100px"},
+            # {"name": 'total_travellers|{}'.format(_("Total travellers")), "class": "center-col", },
+            {"name": 'date_eligible_for_adm_review', "class": "center-col", "width": "140px"},
             # {"name": 'connected_requests|{}'.format(_("Connected requests")), "class": "center-col", },
             # {"name": 'verified_by', "class": "", },
         ]
@@ -1555,7 +1554,7 @@ class TripListView(TravelAccessRequiredMixin, CommonFilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["paginate_by"] = None if self.kwargs.get("type") == "adm-hit-list" else 50
+        context["paginate_by"] = 10 if self.kwargs.get("type") != "adm-hit-list" else 50
         context["is_admin"] = in_travel_admin_group(self.request.user)
         return context
 
@@ -2231,7 +2230,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
 
                 # send an email to the trip_request owner, if the user has an email address.
                 if tr.user:
-                    email = emails.StatusUpdateEmail(tr)
+                    email = emails.StatusUpdateEmail(tr, self.request)
                     # # send the email object
                     custom_send_mail(
                         subject=email.subject,

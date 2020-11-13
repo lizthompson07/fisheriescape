@@ -7,6 +7,7 @@ steps:
   - script: |
       # log into acr using msi
       az login --identity
+      az acr login --name dmappsdevtestacr
 
       # build the new docker image for the "latest" and the build number
       docker build \

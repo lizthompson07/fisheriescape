@@ -4,8 +4,9 @@ from django.core import serializers
 from django.core.files import File
 from textile import textile
 
-from . import models
 from shared_models import models as shared_models
+from . import models
+
 
 def export_fixtures():
     """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
@@ -47,7 +48,7 @@ def export_fixtures():
 #                 new_item = models.OMCost.objects.create(project=p, om_category=obj)
 #                 new_item.save()
 
-def resave_all(projects = models.Project.objects.all()):
+def resave_all(projects=models.Project.objects.all()):
     for p in projects2:
         p.save()
 
@@ -103,7 +104,6 @@ def copy_over_project_codes():
         p.existing_project_codes.add(p.existing_project_code)
 
 
-
 def recommend_approved_projects():
     projects = models.Project.objects.filter(approved=True)
 
@@ -120,3 +120,34 @@ def clear_all_approvals():
         p.save()
 
 
+def fetch_project_data():
+    from projects import models as omodels
+    """ objective of this function is to port over data from projects app to projects2"""
+    projects = omodels.Project.objects.all()
+    for old_p in projects:
+        new_p, created = models.Project.objects.get_or_create(
+            id=old_p.id,
+        )
+        # easy things to assign
+
+        new_p.title = old_p.project_title
+        new_p.section = old_p.section
+        new_p.activity_type_id = old_p.activity_type_id
+        new_p.functional_group_id = old_p.functional_group_id
+        new_p.default_funding_source_id = old_p.default_funding_source_id
+        new_p.overview = old_p.description
+        new_p.is_hidden = old_p.is_hidden
+        new_p.updated_at = old_p.date_last_modified
+        new_p.modified_by = old_p.last_modified_by
+
+        new_p.save()
+
+        # tags
+        for t in old_p.tags.all():
+            if not models.Tag.objects.filter(id=t.id).exists():
+                models.Tag.objects.create(
+                    id=t.id,
+                    name=t.name,
+                    nom=t.nom,
+                )
+            new_p.tags.add(t.id)
