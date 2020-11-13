@@ -98,7 +98,6 @@ class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
     ]
 
 
-
 class MyProjectListView(LoginRequiredMixin, CommonListView):
     template_name = 'projects2/project_list.html'
     # filterset_class = filters.MyProjectFilter
@@ -270,6 +269,9 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["capital_cost_form"] = forms.CapitalCostForm
         context["random_capital_cost"] = models.CapitalCost.objects.first()
 
+        context["milestone_form"] = forms.MilestoneForm
+        context["random_milestone"] = models.Milestone.objects.first()
+
         # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)
 
@@ -386,7 +388,6 @@ class ProjectYearDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
 class ProjectYearCloneView(ProjectYearUpdateView):
     template_name = 'projects2/project_year_form.html'
 
-
     def get_h1(self):
         return _("Cloning: ") + str(self.get_object())
 
@@ -473,6 +474,7 @@ class ProjectYearCloneView(ProjectYearUpdateView):
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
             new_rel_obj.project_year = new_obj
+            new_rel_obj.target_date = None  # clear the target date
             new_rel_obj.save()
 
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.project.id}))

@@ -595,6 +595,7 @@ class Milestone(models.Model):
     project_year = models.ForeignKey(ProjectYear, related_name="milestones", on_delete=models.CASCADE)
     name = models.CharField(max_length=500, verbose_name=_("name"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+    target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
 
     class Meta:
         ordering = ['project_year', 'name']

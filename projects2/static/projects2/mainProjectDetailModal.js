@@ -2,7 +2,7 @@ Vue.component("modal", {
   template: "#modal-template",
   delimiters: ["${", "}"],
   props: {
-    type: {
+    mtype: {
       type: String,
       required: true,
     },
@@ -19,6 +19,10 @@ Vue.component("modal", {
       required: false,
     },
     my_capital_cost: {
+      type: Object,
+      required: false,
+    },
+    my_milestone: {
       type: Object,
       required: false,
     },
@@ -61,6 +65,7 @@ Vue.component("modal", {
         description: "",
         amount: 0,
       },
+
       // capital costs
       capital_cost: {
         funding_source: this.year.default_funding_source_id,
@@ -69,12 +74,19 @@ Vue.component("modal", {
         amount: 0,
       },
 
+      // milestones
+      milestone: {
+        name: "",
+        description: "",
+        target_date: null,
+      },
+
     }
   },
   methods: {
     onSubmit() {
       this.errors = null
-      if (this.type === "staff") {
+      if (this.mtype === "staff") {
         if (this.my_staff) {
           let endpoint = `/api/project-planning/staff/${this.my_staff.id}/`;
           apiService(endpoint, "PATCH", this.staff).then(response => {
@@ -104,7 +116,7 @@ Vue.component("modal", {
         }
       }
       // om cost
-      else if (this.type === "om_cost") {
+      else if (this.mtype === "om_cost") {
         if (this.my_om_cost) {
           let endpoint = `/api/project-planning/om-costs/${this.my_om_cost.id}/`;
           apiService(endpoint, "PATCH", this.om_cost).then(response => {
@@ -132,11 +144,9 @@ Vue.component("modal", {
             }
           })
         }
-
-
       }
       // capital cost
-      else if (this.type === "capital_cost") {
+      else if (this.mtype === "capital_cost") {
         if (this.my_capital_cost) {
           let endpoint = `/api/project-planning/capital-costs/${this.my_capital_cost.id}/`;
           apiService(endpoint, "PATCH", this.capital_cost).then(response => {
@@ -153,6 +163,38 @@ Vue.component("modal", {
         } else {
           let endpoint = `/api/project-planning/project-years/${this.year.id}/capital-costs/`;
           apiService(endpoint, "POST", this.capital_cost).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+      }
+
+      // milestone
+      else if (this.mtype === "milestone") {
+        if(this.milestone.target_date === "") this.milestone.target_date = null
+        if (this.my_milestone) {
+          let endpoint = `/api/project-planning/milestones/${this.my_milestone.id}/`;
+          apiService(endpoint, "PATCH", this.milestone).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/milestones/`;
+          apiService(endpoint, "POST", this.milestone).then(response => {
             if (response.id) this.$emit('close')
             else {
               var myString = "";
@@ -257,7 +299,7 @@ Vue.component("modal", {
   computed: {},
   created() {
     this.$nextTick(() => {
-      if (this.type === "staff") {
+      if (this.mtype === "staff") {
         if (this.my_staff && this.my_staff.id) {
           this.staff = this.my_staff
           // there is an annoying thing that has to happen to convert the html to js to pytonese...
@@ -267,15 +309,24 @@ Vue.component("modal", {
         this.adjustStaffFields()
       }
       // om costs
-      else if (this.type === "om_cost") {
+      else if (this.mtype === "om_cost") {
         if (this.my_om_cost && this.my_om_cost.id) {
           this.om_cost = this.my_om_cost
         }
       }
       // capital costs
-      else if (this.type === "capital_cost") {
+      else if (this.mtype === "capital_cost") {
         if (this.my_capital_cost && this.my_capital_cost.id) {
           this.capital_cost = this.my_capital_cost
+        }
+      }
+      // milestones
+      else if (this.mtype === "milestone") {
+        if (this.my_milestone && this.my_milestone.id) {
+          this.milestone = this.my_milestone
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.milestone.target_date) this.milestone.target_date = this.milestone.target_date.slice(0,10)
+          else this.milestone.target_date = null
         }
       }
 

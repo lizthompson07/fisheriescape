@@ -1,0 +1,73 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div v-if="!milestone_loading" class="float-right">
+    <button @click="openMilestoneModal()">
+      <span class="mdi mdi-plus"></span> {% trans "Add Milestone" %}
+    </button>
+  </div>
+  <h2>{% trans "Milestones" %}</h2>
+
+  <div v-if="milestone_loading">
+    <button class="btn btn-primary" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+
+  <div v-else>
+
+    <div
+      v-if="!milestones.length"
+      class="font-italic"
+    >
+      {% trans "No milestones have been added to this year of the project" %}
+    </div>
+
+    <table
+      v-else
+      class="table table-sm sortable"
+    >
+      <thead>
+      {% get_milestone_field_list as milestone_field_list %}
+      {% for field in milestone_field_list %}
+        <th>
+          {% get_verbose_label random_milestone field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      <tr v-for="(item, index) in milestones">
+        {% for field in milestone_field_list %}
+          {% if "funding_source" in field %}
+            <td>
+              <span v-if="isABase(item.funding_source_display)" class="a-base py-1 px-1">${item.funding_source_display | nz }</span>
+              <span v-else-if="isBBase(item.funding_source_display)" class="b-base py-1 px-1">${item.funding_source_display | nz }</span>
+              <span v-else-if="isCBase(item.funding_source_display)" class="c-base py-1 px-1">${item.funding_source_display | nz }</span>
+              <span v-else>${item.funding_source_display | nz }</span>
+            </td>
+          {% elif "latest_update" in field %}
+            <td>${item.latest_update | nz }</td>
+          {% elif "target" in field %}
+            <td>${item.target_date_display | nz }</td>
+          {% else %}
+            <td>${ item.{{ field }} | nz}</td>
+          {% endif %}
+        {% endfor %}
+        <td>
+          <button @click="openMilestoneModal(item)"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteMilestone(item)"><span class="mdi mdi-delete"></span></button>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>
+</tr>

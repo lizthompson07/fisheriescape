@@ -465,3 +465,14 @@ def get_capital_field_list():
         'amount',
     ]
     return my_list
+
+
+def get_milestone_field_list():
+    my_list = [
+        'name',
+        'description',
+        'target_date',
+        'latest_update|{}'.format(_("latest status")),
+
+    ]
+    return my_list

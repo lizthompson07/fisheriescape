@@ -12,18 +12,22 @@
         <div class="modal-header">
           <slot name="header">
 
-            <h3 v-if="type === 'staff'">
+            <h3 v-if="mtype === 'staff'">
               <span v-if="showOTCalc">{% trans "Overtime Calculator" %}</span>
               <span v-else-if="!my_staff">{% trans "New Staff Form" %}</span>
               <span v-else>{% trans "Edit Staff" %}</span>
             </h3>
-            <h3 v-else-if="type === 'om_cost'">
+            <h3 v-else-if="mtype === 'om_cost'">
               <span v-if="!my_om_cost">{% trans "New O&M Cost" %}</span>
               <span v-else>{% trans "Edit O&M Cost" %}</span>
             </h3>
-            <h3 v-else-if="type === 'capital_cost'">
+            <h3 v-else-if="mtype === 'capital_cost'">
               <span v-if="!my_om_cost">{% trans "New Capital Cost" %}</span>
               <span v-else>{% trans "Edit Capital Cost" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'milestone'">
+              <span v-if="!my_om_cost">{% trans "New Milestone" %}</span>
+              <span v-else>{% trans "Edit Milestone" %}</span>
             </h3>
             <div v-if="errors" class="alert alert-danger" role="alert">
               <h4 class="alert-heading">
@@ -40,7 +44,7 @@
             <slot name="body">
 
               {#  STAFF FORM #}
-              <div v-if="type === 'staff'">
+              <div v-if="mtype === 'staff'">
                 <div class="row">
                   <div class="col">
                     {% bootstrap_label staff_form.user.label %}
@@ -105,15 +109,18 @@
               </div>
 
               {# OM COST FORM             #}
-              <div v-else-if="type=='om_cost'">
+              <div v-else-if="mtype=='om_cost'">
                 {% bootstrap_form om_cost_form %}
               </div>
 
               {# CAPITAL COST FORM             #}
-              <div v-else-if="type=='capital_cost'">
+              <div v-else-if="mtype=='capital_cost'">
                 {% bootstrap_form capital_cost_form %}
               </div>
-
+              {# MILESTONE FORM             #}
+              <div v-else-if="mtype=='milestone'">
+                {% bootstrap_form milestone_form %}
+              </div>
             </slot>
           </div>
 

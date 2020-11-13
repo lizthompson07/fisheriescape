@@ -341,6 +341,20 @@ class CapitalCostForm(forms.ModelForm):
         self.fields["funding_source"].choices = funding_source_choices
 
 
+class MilestoneForm(forms.ModelForm):
+    field_order = ["name", "description", "target_date"]
+
+    class Meta:
+        model = models.Milestone
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["name"].widget.attrs = {"v-model": "milestone.name"}
+        self.fields["description"].widget.attrs = {"v-model": "milestone.description"}
+        self.fields["target_date"].widget.attrs = {"v-model": "milestone.target_date", "type": "date"}
+
+
 # attrs = dict(v-model="new_size_class")
 # class AdminStaffForm(forms.ModelForm):
 #     class Meta:

@@ -28,6 +28,10 @@ urlpatterns = [
     path("project-planning/project-years/<int:project_year>/capital-costs/", views.CapitalCostListCreateAPIView.as_view(), name="capital-list"),
     path("project-planning/capital-costs/<int:pk>/", views.CapitalCostRetrieveUpdateDestroyAPIView.as_view(), name="capital-detail"),
 
+    # milestones
+    path("project-planning/project-years/<int:project_year>/milestones/", views.MilestoneListCreateAPIView.as_view(), name="milestone-list"),
+    path("project-planning/milestones/<int:pk>/", views.MilestoneRetrieveUpdateDestroyAPIView.as_view(), name="milestone-detail"),
+
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),
     #

@@ -27,6 +27,14 @@ var app = new Vue({
     capitalCostToEdit: {},
     showNewCapitalCostModal: false,
     showOldCapitalCostModal: false,
+
+    // milestones
+    milestone_loading: false,
+    milestones: [],
+    milestoneToEdit: {},
+    showNewMilestoneModal: false,
+    showOldMilestoneModal: false,
+
   },
   methods: {
     displayOverview() {
@@ -47,6 +55,7 @@ var app = new Vue({
             this.getStaff(yearId)
             this.getOMCosts(yearId)
             this.getCapitalCosts(yearId)
+            this.getMilestones(yearId)
           })
     },
 
@@ -162,6 +171,37 @@ var app = new Vue({
       }
     },
 
+    // Milestones
+    getMilestones(yearId) {
+      this.milestone_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/milestones/`;
+      apiService(endpoint)
+          .then(response => {
+            this.milestone_loading = false;
+            this.milestones = response;
+          })
+    },
+    deleteMilestone(milestone) {
+      userInput = confirm(deleteMsg + milestone.name)
+      if (userInput) {
+        let endpoint = `/api/project-planning/milestones/${milestone.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.milestones, this.milestones.indexOf(milestone));
+            })
+      }
+    },
+
+    openMilestoneModal(milestone) {
+      if (!milestone) {
+        this.showNewMilestoneModal = true;
+      } else {
+        this.milestoneToEdit = milestone;
+        this.showOldMilestoneModal = true;
+      }
+    },
+
+
 
     closeModals(projectYear) {
       this.showNewStaffModal = false;
@@ -173,11 +213,15 @@ var app = new Vue({
       this.showNewCapitalCostModal = false;
       this.showOldCapitalCostModal = false;
 
+      this.showNewMilestoneModal = false;
+      this.showOldMilestoneModal = false;
+
       if (projectYear) {
         this.$nextTick(() => {
           this.getStaff(projectYear.id)
           this.getOMCosts(projectYear.id)
           this.getCapitalCosts(projectYear.id)
+          this.getMilestones(projectYear.id)
 
         })
       }

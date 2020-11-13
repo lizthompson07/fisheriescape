@@ -180,3 +180,24 @@ class CapitalCostSerializer(serializers.ModelSerializer):
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
+
+class MilestoneSerializer(serializers.ModelSerializer):
+    target_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+    class Meta:
+        model = models.Milestone
+        exclude = ["project_year"]
+
+    latest_update = serializers.SerializerMethodField()
+    target_date_display = serializers.SerializerMethodField()
+    project_year_id = serializers.SerializerMethodField()
+
+    def get_latest_update(self, instance):
+        return instance.latest_update
+
+    def get_target_date_display(self, instance):
+        if instance.target_date:
+            return instance.target_date.strftime("%Y-%m-%d")
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id
