@@ -107,6 +107,8 @@ class OMCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class AddAllCostsAPIView(APIView):
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
     def post(self, request, project_year):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
         year.add_all_om_costs()
@@ -115,8 +117,33 @@ class AddAllCostsAPIView(APIView):
 
 
 class RemoveEmptyCostsAPIView(APIView):
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
     def post(self, request, project_year):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
         year.clear_empty_om_costs()
         serializer = serializers.OMCostSerializer(instance=year.omcost_set.all(), many=True)
         return Response(serializer.data, status.HTTP_200_OK)
+
+
+
+# CAPITAL
+#########
+class CapitalCostListCreateAPIView(ListCreateAPIView):
+    queryset = models.CapitalCost.objects.all()
+    serializer_class = serializers.CapitalCostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        return year.capitalcost_set.all()
+
+    def perform_create(self, serializer):
+        serializer.save(project_year_id=self.kwargs.get("project_year"))
+
+
+class CapitalCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.CapitalCost.objects.all()
+    serializer_class = serializers.CapitalCostSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+

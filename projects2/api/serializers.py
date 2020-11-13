@@ -161,3 +161,22 @@ class OMCostSerializer(serializers.ModelSerializer):
 
     def get_category_type(self, instance):
         return instance.category_type
+
+
+class CapitalCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CapitalCost
+        exclude = ["project_year"]
+
+    funding_source_display = serializers.SerializerMethodField()
+    category_display = serializers.SerializerMethodField()
+    project_year_id = serializers.SerializerMethodField()
+
+    def get_funding_source_display(self, instance):
+        return str(instance.funding_source)
+
+    def get_category_display(self, instance):
+        return str(instance.get_category_display())
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id

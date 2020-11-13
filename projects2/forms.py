@@ -61,7 +61,6 @@ class NewProjectForm(forms.ModelForm):
         funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
 
-
         super().__init__(*args, **kwargs)
         self.fields['region'].choices = region_choices
 
@@ -285,36 +284,61 @@ class StaffForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["overtime_description"].widget.attrs = {"v-model":"staff.overtime_description", "rows": 7}
-        self.fields["amount"].widget.attrs = {"v-model":"staff.amount", ":disabled":"disableAmountField"}
-        self.fields["funding_source"].widget.attrs = {"v-model":"staff.funding_source"}
-        self.fields["is_lead"].widget.attrs = {"v-model":"staff.is_lead", "@change":"adjustStaffFields",}
+        self.fields["overtime_description"].widget.attrs = {"v-model": "staff.overtime_description", "rows": 7}
+        self.fields["amount"].widget.attrs = {"v-model": "staff.amount", ":disabled": "disableAmountField"}
+        self.fields["funding_source"].widget.attrs = {"v-model": "staff.funding_source"}
+        self.fields["is_lead"].widget.attrs = {"v-model": "staff.is_lead", "@change": "adjustStaffFields", }
 
-        self.fields["employee_type"].widget.attrs = {"v-model":"staff.employee_type", "@change":"adjustStaffFields"}
-        self.fields["level"].widget.attrs = {"v-model":"staff.level", ":disabled":"disableLevelField"}
-        self.fields["duration_weeks"].widget.attrs = {"v-model":"staff.duration_weeks"}
-        self.fields["overtime_hours"].widget.attrs = {"v-model":"staff.overtime_hours"}
-        self.fields["student_program"].widget.attrs = {"v-model":"staff.student_program", ":disabled":"disableStudentProgramField"}
+        self.fields["employee_type"].widget.attrs = {"v-model": "staff.employee_type", "@change": "adjustStaffFields"}
+        self.fields["level"].widget.attrs = {"v-model": "staff.level", ":disabled": "disableLevelField"}
+        self.fields["duration_weeks"].widget.attrs = {"v-model": "staff.duration_weeks"}
+        self.fields["overtime_hours"].widget.attrs = {"v-model": "staff.overtime_hours"}
+        self.fields["student_program"].widget.attrs = {"v-model": "staff.student_program", ":disabled": "disableStudentProgramField"}
 
-        self.fields["name"].widget.attrs = {"v-model":"staff.name", ":disabled":"disableNameField"}
-        self.fields["user"].widget.attrs = {"v-model":"staff.user", "@change":"adjustStaffFields"} # , "class": "chosen-select-contains"
-        user_choices = [(u.id, f"{u.last_name}, {u.first_name}") for u in User.objects.order_by( "last_name", "first_name")]
+        self.fields["name"].widget.attrs = {"v-model": "staff.name", ":disabled": "disableNameField"}
+        self.fields["user"].widget.attrs = {"v-model": "staff.user", "@change": "adjustStaffFields"}  # , "class": "chosen-select-contains"
+        user_choices = [(u.id, f"{u.last_name}, {u.first_name}") for u in User.objects.order_by("last_name", "first_name")]
         user_choices.insert(0, (None, "-----"))
         self.fields["user"].choices = user_choices
+        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+        self.fields["funding_source"].choices = funding_source_choices
 
 
 class OMCostForm(forms.ModelForm):
     field_order = ["om_category", "funding_source", "description", "amount"]
+
     class Meta:
         model = models.OMCost
         exclude = ["project_year"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["amount"].widget.attrs = {"v-model":"om_cost.amount"}
-        self.fields["funding_source"].widget.attrs = {"v-model":"om_cost.funding_source"}
-        self.fields["description"].widget.attrs = {"v-model":"om_cost.description"}
-        self.fields["om_category"].widget.attrs = {"v-model":"om_cost.om_category"}
+        self.fields["amount"].widget.attrs = {"v-model": "om_cost.amount"}
+        self.fields["funding_source"].widget.attrs = {"v-model": "om_cost.funding_source"}
+        self.fields["description"].widget.attrs = {"v-model": "om_cost.description"}
+        self.fields["om_category"].widget.attrs = {"v-model": "om_cost.om_category"}
+        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+        self.fields["funding_source"].choices = funding_source_choices
+
+
+class CapitalCostForm(forms.ModelForm):
+    field_order = ["category", "funding_source", "description", "amount"]
+
+    class Meta:
+        model = models.CapitalCost
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].widget.attrs = {"v-model": "capital_cost.amount"}
+        self.fields["funding_source"].widget.attrs = {"v-model": "capital_cost.funding_source"}
+        self.fields["description"].widget.attrs = {"v-model": "capital_cost.description"}
+        self.fields["category"].widget.attrs = {"v-model": "capital_cost.category"}
+        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+        self.fields["funding_source"].choices = funding_source_choices
 
 
 # attrs = dict(v-model="new_size_class")

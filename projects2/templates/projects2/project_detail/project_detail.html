@@ -76,6 +76,8 @@
             <modal v-if="showNewOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :type="'om_cost'"></modal>
             <modal v-if="showOldOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :type="'om_cost'" :my_om_cost="omCostToEdit"></modal>
 
+            <modal v-if="showNewCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :type="'capital_cost'"></modal>
+            <modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :type="'capital_cost'" :my_capital_cost="capitalCostToEdit"></modal>
 
           </div>
 
@@ -119,8 +121,8 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.7" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.0.7" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.8" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.0.8" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">

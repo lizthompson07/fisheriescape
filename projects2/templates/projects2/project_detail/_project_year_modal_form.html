@@ -21,6 +21,10 @@
               <span v-if="!my_om_cost">{% trans "New O&M Cost" %}</span>
               <span v-else>{% trans "Edit O&M Cost" %}</span>
             </h3>
+            <h3 v-else-if="type === 'capital_cost'">
+              <span v-if="!my_om_cost">{% trans "New Capital Cost" %}</span>
+              <span v-else>{% trans "Edit Capital Cost" %}</span>
+            </h3>
             <div v-if="errors" class="alert alert-danger" role="alert">
               <h4 class="alert-heading">
                 {% trans "The form has a few errors:" %}
@@ -103,6 +107,11 @@
               {# OM COST FORM             #}
               <div v-else-if="type=='om_cost'">
                 {% bootstrap_form om_cost_form %}
+              </div>
+
+              {# CAPITAL COST FORM             #}
+              <div v-else-if="type=='capital_cost'">
+                {% bootstrap_form capital_cost_form %}
               </div>
 
             </slot>

@@ -260,8 +260,15 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         # If this is a gulf region project, only show the gulf region fields
         context["project_field_list"] = get_project_field_list(project)
         context["project_year_field_list"] = get_project_year_field_list()
+
         context["staff_form"] = forms.StaffForm
+        context["random_staff"] = models.Staff.objects.first()
+
         context["om_cost_form"] = forms.OMCostForm
+        context["random_om_cost"] = models.OMCost.objects.first()
+
+        context["capital_cost_form"] = forms.CapitalCostForm
+        context["random_capital_cost"] = models.CapitalCost.objects.first()
 
         # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)

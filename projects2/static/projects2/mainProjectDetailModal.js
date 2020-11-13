@@ -18,6 +18,10 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
+    my_capital_cost: {
+      type: Object,
+      required: false,
+    },
   },
   data() {
     return {
@@ -57,6 +61,13 @@ Vue.component("modal", {
         description: "",
         amount: 0,
       },
+      // capital costs
+      capital_cost: {
+        funding_source: this.year.default_funding_source_id,
+        category: "",
+        description: "",
+        amount: 0,
+      },
 
     }
   },
@@ -91,7 +102,9 @@ Vue.component("modal", {
             }
           })
         }
-      } else if (this.type === "om_cost") {
+      }
+      // om cost
+      else if (this.type === "om_cost") {
         if (this.my_om_cost) {
           let endpoint = `/api/project-planning/om-costs/${this.my_om_cost.id}/`;
           apiService(endpoint, "PATCH", this.om_cost).then(response => {
@@ -121,6 +134,36 @@ Vue.component("modal", {
         }
 
 
+      }
+      // capital cost
+      else if (this.type === "capital_cost") {
+        if (this.my_capital_cost) {
+          let endpoint = `/api/project-planning/capital-costs/${this.my_capital_cost.id}/`;
+          apiService(endpoint, "PATCH", this.capital_cost).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/capital-costs/`;
+          apiService(endpoint, "POST", this.capital_cost).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
       }
     },
     adjustStaffFields() {
@@ -211,8 +254,7 @@ Vue.component("modal", {
       }
     },
   },
-  computed: {
-  },
+  computed: {},
   created() {
     this.$nextTick(() => {
       if (this.type === "staff") {
@@ -224,9 +266,16 @@ Vue.component("modal", {
         }
         this.adjustStaffFields()
       }
+      // om costs
       else if (this.type === "om_cost") {
         if (this.my_om_cost && this.my_om_cost.id) {
           this.om_cost = this.my_om_cost
+        }
+      }
+      // capital costs
+      else if (this.type === "capital_cost") {
+        if (this.my_capital_cost && this.my_capital_cost.id) {
+          this.capital_cost = this.my_capital_cost
         }
       }
 

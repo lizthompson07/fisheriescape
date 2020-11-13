@@ -20,6 +20,13 @@ var app = new Vue({
     omCostToEdit: {},
     showNewOMCostModal: false,
     showOldOMCostModal: false,
+
+    // capital costs
+    capital_cost_loading: false,
+    capital_costs: [],
+    capitalCostToEdit: {},
+    showNewCapitalCostModal: false,
+    showOldCapitalCostModal: false,
   },
   methods: {
     displayOverview() {
@@ -39,8 +46,7 @@ var app = new Vue({
             // now let's get all the related data
             this.getStaff(yearId)
             this.getOMCosts(yearId)
-
-
+            this.getCapitalCosts(yearId)
           })
     },
 
@@ -126,6 +132,36 @@ var app = new Vue({
 
     },
 
+    // Capital
+    getCapitalCosts(yearId) {
+      this.capital_cost_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/capital-costs/`;
+      apiService(endpoint)
+          .then(response => {
+            this.capital_cost_loading = false;
+            this.capital_costs = response;
+          })
+    },
+    deleteCapitalCost(capitalCost) {
+      userInput = confirm(deleteMsg + capitalCost.category_display)
+      if (userInput) {
+        let endpoint = `/api/project-planning/capital-costs/${capitalCost.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.capital_costs, this.capital_costs.indexOf(capitalCost));
+            })
+      }
+    },
+
+    openCapitalCostModal(capitalCost) {
+      if (!capitalCost) {
+        this.showNewCapitalCostModal = true;
+      } else {
+        this.capitalCostToEdit = capitalCost;
+        this.showOldCapitalCostModal = true;
+      }
+    },
+
 
     closeModals(projectYear) {
       this.showNewStaffModal = false;
@@ -134,10 +170,14 @@ var app = new Vue({
       this.showNewOMCostModal = false;
       this.showOldOMCostModal = false;
 
+      this.showNewCapitalCostModal = false;
+      this.showOldCapitalCostModal = false;
+
       if (projectYear) {
         this.$nextTick(() => {
           this.getStaff(projectYear.id)
           this.getOMCosts(projectYear.id)
+          this.getCapitalCosts(projectYear.id)
 
         })
       }

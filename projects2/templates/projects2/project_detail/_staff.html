@@ -40,7 +40,7 @@
       {% get_staff_field_list as staff_field_list %}
       {% for field in staff_field_list %}
         <th>
-          {% get_verbose_label object.years.first.staff_set.first field %}
+          {% get_verbose_label random_staff field %}
         </th>
       {% endfor %}
       </thead>
