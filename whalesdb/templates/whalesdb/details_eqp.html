@@ -41,7 +41,7 @@
 
     {% trans "Make and Model" as title %}
     {% with field_array='eqt emm_make emm_model emm_depth_rating emm_description' %}
-    {% include "whalesdb/_details_emm.html" with rec_id=object.pk emm=object.emm auth=false fields=field_array.split %}
+    {% include "whalesdb/_details_emm.html" with rec=object emm=object.emm auth=false fields=field_array.split %}
     {% endwith %}
 </div>
 {% endblock %}

@@ -99,8 +99,8 @@ class TestEdaForm(CommonFormTest):
         hydrophone.eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
         hydrophone.save()
 
-        rec_1 = factory.EqpFactory.create(emm=recorder)
-        rec_2 = factory.EqpFactory.create(emm=recorder)
+        rec_1 = factory.EqpFactory(emm=recorder)
+        rec_2 = factory.EqpFactory(emm=recorder)
 
         hydro_1 = factory.EqpFactory(emm=hydrophone)
 
@@ -127,6 +127,30 @@ class TestEheForm(CommonFormTest):
     @tag('ehe', 'form', 'field')
     def test_ehe_field_create(self):
         form = self.form_class()
+
+    # The only Recorders should be able to be attached to a deployment so the equipment drop down should
+    # filter out hydrophones
+    @tag('ehe', 'form', 'field')
+    def test_ehe_field_filter(self):
+        recorder = factory.EmmFactory()
+        recorder.eqt = models.EqtEquipmentTypeCode.objects.get(pk=1)
+        recorder.save()
+
+        hydrophone = factory.EmmFactory()
+        hydrophone.eqt = models.EqtEquipmentTypeCode.objects.get(pk=4)
+        hydrophone.save()
+
+        rec_1 = factory.EqpFactory(emm=recorder)
+        rec_2 = factory.EqpFactory(emm=recorder)
+
+        hydro_1 = factory.EqpFactory(emm=hydrophone)
+
+        form = self.form_class()
+
+        self.assertIn("hyd", form.fields)
+        self.assertNotIn(rec_1, form.fields['hyd'].queryset)
+        self.assertNotIn(rec_2, form.fields['hyd'].queryset)
+        self.assertIn(hydro_1, form.fields['hyd'].queryset)
 
 
 class TestEqhForm(CommonFormTest):

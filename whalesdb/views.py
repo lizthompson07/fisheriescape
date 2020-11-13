@@ -348,6 +348,16 @@ class EcaUpdate(mixins.EcaMixin, CommonUpdate):
         return reverse_lazy("whalesdb:details_eca", args=(self.kwargs['pk'],))
 
 
+class EheUpdateRemove(mixins.EheMixin, CommonUpdate):
+
+    def get_initial(self):
+        initial = super().get_initial()
+
+        initial['rec'] = None
+        initial['ecp_channel_no'] = 0
+        return initial
+
+
 class EmmUpdate(mixins.EmmMixin, CommonUpdate):
 
     def get_success_url(self):
@@ -504,6 +514,16 @@ class EtrDetails(mixins.EtrMixin, CommonDetails):
 class EqpDetails(mixins.EqpMixin, CommonDetails):
     template_name = "whalesdb/details_eqp.html"
     fields = ['emm', 'eqp_serial', 'eqp_asset_id', 'eqp_date_purchase', 'eqp_notes', 'eqp_retired', 'eqo_owned_by']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        channels = {}
+        for hyd in self.object.hydrophones.all():
+            channels[hyd.ecp_channel_no] = hyd
+
+        context["channels"] = channels
+        return context
 
 
 class MorDetails(mixins.MorMixin, CommonDetails):

@@ -87,11 +87,18 @@ class EmmForm(forms.ModelForm):
 
 
 class EheForm(forms.ModelForm):
+
     class Meta:
         model = models.EheHydrophoneEvent
         exclude = []
         widgets = {
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # exclude hydrophones from the equipment selection list
+        self.fields['hyd'].queryset = self.fields['hyd'].queryset.filter(emm__eqt=4)
 
 
 class EqhForm(forms.ModelForm):

@@ -40,6 +40,7 @@ urlpatterns = [
     path('list/emm/', views.EmmList.as_view(), name="list_emm"),
 
     path('create/ehe/<int:rec>/<int:ecp_channel_no>/<str:pop>/', views.EheCreate.as_view(), name="create_ehe"),
+    path('remove/ehe/<int:pk>/<str:pop>/', views.EheUpdateRemove.as_view(), name="remove_ehe"),
 
     path('create/eqh/<int:pk>/<str:pop>/', views.EqhCreate.as_view(), name="create_eqh"),
     path('update/eqh/<int:pk>/<str:pop>/', views.EqhUpdate.as_view(), name="update_eqh"),
