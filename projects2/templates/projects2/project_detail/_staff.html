@@ -68,7 +68,7 @@
             <td>${s.amount | floatformat}</td>
           {% elif "duration" in field %}
             <td>
-              <span v-if="s.duration_weeks == 0" class="major-error py-1 px-1">${s.amount | floatformat}</span>
+              <span v-if="s.duration_weeks == 0||!s.duration_weeks" class="major-error py-1 px-1">${s.amount | floatformat}</span>
               <span v-else>${s.duration_weeks | floatformat}</span>
             </td>
 

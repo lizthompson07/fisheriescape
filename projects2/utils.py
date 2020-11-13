@@ -369,6 +369,7 @@ def get_project_field_list(project):
         'end_date',
         'fiscal_years',
         'funding_sources',
+        'lead_staff',
         'tags',
         'metadata|{}'.format(_("metadata")),
     ]

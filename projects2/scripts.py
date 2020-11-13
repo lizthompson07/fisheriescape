@@ -52,7 +52,7 @@ def export_fixtures():
 #                 new_item.save()
 
 def resave_all(projects=models.Project.objects.all()):
-    for p in projects2:
+    for p in models.Project.objects.all():
         p.save()
 
 
@@ -236,22 +236,25 @@ def fetch_project_data():
         # STAFF
         qry = omodels.Staff.objects.filter(project=old_p)
         for obj in qry:
-            new_staff, created = models.Staff.objects.get_or_create(
-                id=obj.id,
-                project_year=new_py,
-                employee_type_id=obj.employee_type_id,
-            )
-            new_staff.is_lead = obj.lead
-            new_staff.funding_source_id = obj.funding_source_id
-            new_staff.user = obj.user
-            new_staff.name = obj.name
-            new_staff.level_id = obj.level_id
-            new_staff.student_program = obj.student_program
-            new_staff.duration_weeks = obj.duration_weeks
-            new_staff.overtime_hours = obj.overtime_hours
-            new_staff.overtime_description = obj.overtime_description
-            new_staff.amount = obj.cost
-            new_staff.save()
+            try:
+                new_staff, created = models.Staff.objects.get_or_create(
+                    id=obj.id,
+                    project_year=new_py,
+                    employee_type_id=obj.employee_type_id,
+                )
+                new_staff.is_lead = obj.lead
+                new_staff.funding_source_id = obj.funding_source_id
+                new_staff.user = obj.user
+                new_staff.name = obj.name
+                new_staff.level_id = obj.level_id
+                new_staff.student_program = obj.student_program
+                new_staff.duration_weeks = obj.duration_weeks
+                new_staff.overtime_hours = obj.overtime_hours
+                new_staff.overtime_description = obj.overtime_description
+                new_staff.amount = obj.cost
+                new_staff.save()
+            except Exception as e:
+                print(e)
 
         # OM COST
         qry = omodels.OMCost.objects.filter(project=old_p)
@@ -386,7 +389,7 @@ def fetch_project_data():
             new_obj.date_created = obj.date_created
             new_obj.save()
 
-
+        new_p.save()
 """
 
     

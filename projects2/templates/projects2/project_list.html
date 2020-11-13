@@ -1,0 +1,16 @@
+{% extends 'projects2/list.html' %}
+{% load verbose_names %}
+
+{% block table_td %}
+  {% if "unsubmitted" in field.name %}
+
+    {% get_field_value object field.name as my_val %}
+    {% if my_val %}
+      <span class="py-1 px-1 highlight">{{ my_val|yesno }}</span>
+    {% else %}
+      <span>{{ my_val|yesno }}</span>
+    {% endif %}
+  {% else %}
+    {% get_field_value object field.name safe=True %}
+  {% endif %}
+{% endblock %}

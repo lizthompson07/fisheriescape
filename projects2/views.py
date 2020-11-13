@@ -100,7 +100,7 @@ class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
 
 
 class MyProjectListView(LoginRequiredMixin, CommonListView):
-    template_name = 'projects2/list.html'
+    template_name = 'projects2/project_list.html'
     # filterset_class = filters.MyProjectFilter
     h1 = gettext_lazy("My projects")
     home_url_name = "projects2:index"
@@ -112,7 +112,8 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
         {"name": 'title', "class": "", "width": ""},
         {"name": 'start_date', "class": "", "width": ""},
         {"name": 'lead_staff', "class": "", "width": ""},
-        {"name": 'is_hidden', "class": "", "width": ""},
+        {"name": 'has_unsubmitted_years|{}'.format("has unsubmitted years?"), "class": "", "width": ""},
+        {"name": 'is_hidden', "class": "", "width": "150px"},
         {"name": 'updated_at', "class": "", "width": ""},
     ]
 
@@ -248,7 +249,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
 
     def get_h1(self):
         mystr = str(self.get_object())
-        if not self.get_object().has_unsubmitted_years:
+        if self.get_object().has_unsubmitted_years:
             mystr += ' <span class="red-font">{}</span>'.format(_("UNSUBMITTED"))
         return mystr
 

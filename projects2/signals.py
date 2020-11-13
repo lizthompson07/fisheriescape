@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from projects2.models import ReferenceMaterial, File, Staff, ProjectYear
+from .models import ReferenceMaterial, File, Staff, ProjectYear
 
 
 @receiver(models.signals.post_delete, sender=File)
