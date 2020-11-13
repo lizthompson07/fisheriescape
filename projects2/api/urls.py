@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from . import views
@@ -9,6 +9,7 @@ router = DefaultRouter()
 urlpatterns = [
     # path("", include(router.urls)),
     path("project-planning/user/", views.CurrentUserAPIView.as_view(), name="current-user"),
+    path("project-planning/get-dates/", views.GetDatesAPIView.as_view(), name="get-dates"),
 
     # Project year
     path("project-planning/project-years/<int:pk>/", views.ProjectYearRetrieveAPIView.as_view(), name="year-detail"),
@@ -16,7 +17,6 @@ urlpatterns = [
     # Staff
     path("project-planning/project-years/<int:project_year>/staff/", views.StaffListCreateAPIView.as_view(), name="staff-list"),
     path("project-planning/staff/<int:pk>/", views.StaffRetrieveUpdateDestroyAPIView.as_view(), name="staff-detail"),
-
 
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),

@@ -70,3 +70,14 @@
     -webkit-transform: scale(1.1);
     transform: scale(1.1);
 }
+
+
+.my-custom-scrollbar {
+    position: relative;
+    height: 375px;
+    overflow: auto;
+}
+
+.table-wrapper-scroll-y {
+    display: block;
+}

@@ -36,8 +36,15 @@ Vue.component("modal", {
       disableAmountField: false,
       disableLevelField: false,
       projectLeadWarningIssued: false,
-
       showOTCalc: false,
+      dates: [],
+      dates_loading: false,
+      new_ot_desc: null,
+
+      //cal field but for some reason cannot use computed fields
+      totalOTHours: 0,
+      totalOTCalcHours: 0,
+      totalOTDescription: "",
     }
   },
   methods: {
@@ -111,9 +118,85 @@ Vue.component("modal", {
       if (currentUser === this.staff.user && !this.staff.is_lead && !this.projectLeadWarningIssued) alert(warningMsg);
 
     },
-    toggleOTCalc () {
-      this.showOTCalc = ! this.showOTCalc;
-    }
+    toggleOTCalc() {
+      this.showOTCalc = !this.showOTCalc;
+      // if the modal is open, let's fetch the dates
+      if (this.showOTCalc) this.getDates(this.year.fiscal_year);
+    },
+    getDates(fiscalYearId) {
+      this.dates_loading = true;
+      let endpoint = `/api/project-planning/get-dates/?year=${fiscalYearId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.dates_loading = false;
+            this.dates = response;
+          })
+    },
+    processOT() {
+      userInput = confirm(processOTMsg)
+      if (userInput) {
+        this.staff.overtime_hours = this.totalOTCalcHours;
+        this.staff.overtime_description = this.totalOTDescription.replaceAll("<br>", "\n");
+        this.toggleOTCalc()
+      }
+    },
+    updateDate(date) {
+      // we need 2 things: calculated OT and description of OT
+      if (date.is_stat || date.int_weekdy === "0") {
+        date.calc_ot = date.ot_hours * 2
+        date.ot_description = `${date.short_weekday} ${date.formatted_short_date}: ${date.ot_hours}h x 2 = ${date.calc_ot}h`
+        if (date.is_stat) date.ot_description += " (stat.)<br>"
+        else date.ot_description += "<br>"
+      } else {
+        // a little more complicated
+        if (date.int_weekday === "6" && Number(date.ot_hours) > 7.5) {
+          diff = date.ot_hours - 7.5
+          date.calc_ot = (7.5 * 1.5) + diff * 2
+          date.ot_description = `${date.short_weekday} ${date.formatted_short_date}: 7.5h x 1.5 = 11.25h<br>`
+          date.ot_description += `${date.short_weekday} ${date.formatted_short_date}: ${diff}h x 2 = ${Number(diff) * 2}h<br>`
+        } else {
+          date.calc_ot = date.ot_hours * 1.5
+          date.ot_description = `${date.short_weekday} ${date.formatted_short_date}: ${date.ot_hours}h x 1.5 = ${date.calc_ot}h<br>`
+        }
+      }
+
+      // total OT hours
+      this.totalOTHours = 0;
+      this.totalOTCalcHours = 0;
+      this.totalOTDescription = "";
+      for (var i = 0; i < this.dates.length; i++) {
+        var d = this.dates[i];
+        if (d.ot_hours) this.totalOTHours += Number(d.ot_hours)
+        if (d.calc_ot) this.totalOTCalcHours += Number(d.calc_ot)
+        if (d.ot_description) this.totalOTDescription += d.ot_description
+      }
+    },
+  },
+  computed: {
+    // totalOTHours() {
+    //   var total = 0;
+    //   for (var i = 0; i < this.dates.length; i++) {
+    //     var d = this.dates[i];
+    //     if (d.ot_hours) total += Number(d.ot_hours)
+    //   }
+    //   return total
+    // },
+    // totalOTCalcHours() {
+    //   var total = 0;
+    //   for (var i = 0; i < this.dates.length; i++) {
+    //     var d = this.dates[i];
+    //     if (d.calc_ot) total += Number(d.calc_ot)
+    //   }
+    //   return total
+    // },
+    // totalOTDescription() {
+    //   var myStr = "";
+    //   for (var i = 0; i < this.dates.length; i++) {
+    //     var d = this.dates[i];
+    //     if (d.ot_description) myStr += d.ot_description
+    //   }
+    //   return myStr
+    // },
   },
   created() {
     this.$nextTick(() => {

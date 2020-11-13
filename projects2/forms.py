@@ -112,6 +112,7 @@ class ProjectYearForm(forms.ModelForm):
             "allocated_budget",
             "notification_email_sent",
             "modified_by",
+            "administrative_notes",
         ]
         widgets = {
             'project': forms.HiddenInput(),

@@ -74,16 +74,16 @@
               </div>
 
               <div class="row">
-                <div class="col">
+                <div class="col-2">
                   {% bootstrap_field staff_form.overtime_hours %}
                 </div>
-                <div class="col">
+                <div class="col-6">
                   {% bootstrap_field staff_form.overtime_description placeholder="" %}
                 </div>
                 <div class="col">
-                  <p style="text-align: center;" class="mt-2">
-                    <button @click="toggleOTCalc" href="#" id="ot_calc" type="button">
-                      <img src="{% static "/img/calculator.png" %}" alt="" style="width:150px"
+                  <p style="text-align: center;" class="">
+                    <button @click="toggleOTCalc" href="#" id="ot_calc" type="button" class="btn btn-outline-primary mt-3">
+                      <img src="{% static "/img/calculator.png" %}" alt="" style="width:100px"
                            data-toggle="tooltip" title="{% trans "OT Calculator" %}">
                       <br>
                       {% trans "Overtime Calculator" %}<br>
@@ -106,7 +106,8 @@
         </form>
 
         {# OVERTIME CALC #}
-        <div v-else>
+
+        <form v-else @submit.prevent="processOT">
           <div class="">
             <ul>
               <li>
@@ -131,52 +132,35 @@
           </div>
           <div class="row">
             <div class="col">
-              <table class="table table-sm" id="ot_table">
-                <thead>
-                <th style="width:50px">
-                  {% trans "Date" %}
-                </th>
-                <th>
-                  {% trans "Weekday" %}
-                </th>
-                <th style="width:20px">
-                  {% trans "Overtime hours" %}
-                </th>
-                </thead>
-                {% for date in datelist %}
-                  <tr>
-                    {% with date|date:"w" as daynum %}
-                      {% with date|date:"D, M d:" as full_date %}
-                        <td>
-                          {{ date|date:"F d, Y" }}<br>
-                        </td>
+              <div class="table-wrapper-scroll-y my-custom-scrollbar">
 
-                        {% if date in stat_holiday_list %}
-                          <td class="bad">
-                            {% elif daynum == "0" %}
-                          <td class="concern">
-                            {% elif daynum == "6" %}
-                          <td class="mild-concern">
-                            {% else %}
-                          <td class="good">
-                        {% endif %}
+                <table class="table table-sm" id="ot_table">
+                  <thead>
+                  <th style="width:150px">{% trans "Date" %}</th>
+                  <th>{% trans "Weekday" %}</th>
+                  <th style="width:150px">{% trans "Overtime hours" %}</th>
+                  </thead>
 
-                      {{ date|date:"l" }}
-                      </td>
-                        <td><input
-                          class="ot_input {% if date in stat_holiday_list %}stat{% elif daynum == "0" %}sunday{% elif daynum == "6" %}saturday{% else %}weekday{% endif %}"
-                          type="number" placeholder="{% trans "hours" %}" style="width:100px"
-                          date_str="{{ full_date }}"></td>
-                      {% endwith %}
-                    {% endwith %}
+                  <tr v-for="(d, index) in dates">
+                    <td v-html="d.formatted_date"></td>
 
+                    <td v-if="d.is_stat" class="bad" v-html="d.weekday"></td>
+                    <td v-else-if="d.int_weekday==0" class="concern" v-html="d.weekday"></td>
+                    <td v-else-if="d.int_weekday==6" class="mild-concern" v-html="d.weekday"></td>
+                    <td v-else class="good" v-html="d.weekday"></td>
+                    <td>
+                      <input
+                        v-model="d.ot_hours"
+                        @keyup="updateDate(d)"
+                        @change="updateDate(d)"
+                        type="number"
+                        placeholder="{% trans "hours" %}"
+                        style="width:100px"
+                      >
+                    </td>
                   </tr>
-
-                {% endfor %}
-
-              </table>
-
-
+                </table>
+              </div>
             </div>
             <div class="col">
 
@@ -184,46 +168,33 @@
                 <tr>
                   <th>{% trans "Extra Hours to be Worked:" %}</th>
                   <td>
-                    <span id="extra_hours"></span>
-                  </td>
-                </tr>
-
-                <tr>
-                  <th>
-                    {% trans "OT Description:" %}
-                  </th>
-                  <td>
-                    <span id="ot_description"></span>
+                    <span v-html="totalOTHours"></span> hours
                   </td>
                 </tr>
                 <tr>
-                  <th>
-                    {% trans "Calculated Overtime Hours:" %}
-                  </th>
+                  <th>{% trans "Calculated Overtime Hours:" %}</th>
                   <td>
-                    <span id="ot_hours"></span>
+                    <span v-html="totalOTCalcHours"></span> hours
                   </td>
                 </tr>
-
+                <tr>
+                  <th>{% trans "Overtime Description:" %}</th>
+                  <td>
+                    <span v-html="totalOTDescription"></span>
+                  </td>
+                </tr>
               </table>
-              <form method="post">
-                {% csrf_token %}
-                {% for field in form %}
-                  {% bootstrap_field field placeholder="hours" %}
-                {% endfor %}
-                <input class="btn btn-primary" type="submit">
-                <a class="btn btn-secondary" href="{% url 'projects:staff_edit' object.id %}">Cancel </a>
-              </form>
-              {% trans "Current Overtime Description" %}: <br>
-              <textarea disabled id="old_descr" cols="60" rows="10" v-model="staff.overtime_description"></textarea>
+
             </div>
 
           </div>
-
-          <button class="modal-default-button" @click="toggleOTCalc">
-            {% trans "Back" %}
-          </button>
-        </div>
+           <div class="modal-footer">
+            <slot name="footer">
+          <button class="modal-default-button" type="submit">{% trans "Submit" %}</button>
+          <button class="modal-default-button" @click="toggleOTCalc" type="button">{% trans "Cancel" %}</button>
+            </slot>
+          </div>
+        </form>
 
       </div>
     </div>

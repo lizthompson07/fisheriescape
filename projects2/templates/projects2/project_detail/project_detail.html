@@ -100,6 +100,7 @@
   var warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
   var currentUser = "{{ user.id }}"
   var deleteMsg = "{% trans "Are you sure you want to delete this staff member?" %}"
+  var processOTMsg = "{% trans "Do you want to add this OT description to the current staff member?" %}"
 
   function activateChosen() {
     var config = {
@@ -115,7 +116,7 @@
 
 
   <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.5" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.0.4" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.0.5" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">
