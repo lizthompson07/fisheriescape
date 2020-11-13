@@ -9,7 +9,9 @@ var app = new Vue({
 
     staff_loading: false,
     staff: [],
-    showStaffModal: false,
+    staffToEdit: {},
+    showNewStaffModal: false,
+    showOldStaffModal: false,
   },
   methods: {
     displayOverview() {
@@ -48,12 +50,20 @@ var app = new Vue({
             this.getStaff(staffMember.project_year);
           })
     },
-    openStaffModal() {
-      this.showStaffModal = true;
+    openStaffModal(staff=null) {
+      if(!staff) {
+        this.showNewStaffModal = true;
+      }
+      else{
+        this.staffToEdit = staff;
+        this.showOldStaffModal = true;
+      }
+
     },
 
     closeModals(projectYear = null) {
-      this.showStaffModal = false;
+      this.showNewStaffModal = false;
+      this.showOldStaffModal = false;
 
       if (projectYear) {
         this.$nextTick(() => {
@@ -151,6 +161,10 @@ Vue.component("modal", {
     year: {
       type: Object,
       required: true,
+    },
+    mystaff: {
+      type: Object,
+      required: false,
     }
   },
   data() {
@@ -230,6 +244,12 @@ Vue.component("modal", {
   },
   created() {
     this.$nextTick(() => {
+      if (this.mystaff.id) {
+        this.staff = this.mystaff
+
+      }
+
+
       this.adjustStaffFields()
       activateChosen()
     })

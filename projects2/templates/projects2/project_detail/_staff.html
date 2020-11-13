@@ -65,7 +65,7 @@
           {% endif %}
         {% endfor %}
         <td>
-          <button><span class="mdi mdi-pencil"></span></button>
+          <button @click="openStaffModal(s)"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteStaffMember(s)"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>

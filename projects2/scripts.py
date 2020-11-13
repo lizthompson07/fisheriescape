@@ -127,7 +127,8 @@ def fetch_project_data():
     from projects import models as omodels
     import html2markdown
     """ objective of this function is to port over data from projects app to projects2"""
-    projects = omodels.Project.objects.filter(id=414)
+    projects = omodels.Project.objects.all()
+    # projects = omodels.Project.objects.filter(id=414)
     for old_p in projects:
         new_p, created = models.Project.objects.get_or_create(
             id=old_p.id,

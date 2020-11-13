@@ -12,7 +12,8 @@
         <div class="modal-header">
           <slot name="header">
             <h3 v-if="type === 'staff'">
-              {% trans "Staff Form" %}
+              <span v-if="!mystaff">{% trans "New Staff Form" %}</span>
+              <span v-else>{% trans "Edit Staff" %}</span>
             </h3>
           </slot>
         </div>

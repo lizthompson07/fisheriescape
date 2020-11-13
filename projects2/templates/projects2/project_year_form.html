@@ -9,7 +9,6 @@
 
 {% block form_field %}
   <div class="{{ field.name }}_div">
-  {{ field.name|is_markdown_field }}
     {% if field.name|is_markdown_field %}
 
       <label for="id_priorities">{{ field.label}}</label>

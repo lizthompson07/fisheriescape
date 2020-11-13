@@ -36,13 +36,13 @@
   </a>
 
   {% if object.has_unsubmitted_years %}
-    <a class="{{ btn_class_black }}" href="{% url 'projects2:project_submit' object.id %}">
+    <a class="{{ btn_class_black }} under-dev" href="#">
       <span class="icon mdi mdi-email"></span>
       {% trans "Submit" %}
     </a>
   {% else %}
     {% if object.years.exists %}
-      <a class="{{ btn_class_black }}" href="{% url 'projects2:project_submit' object.id %}">
+      <a class="{{ btn_class_black }} under-dev" href="#">
         <span class="icon mdi mdi-cancel"></span>
         {% trans "Unsubmit" %}
       </a>

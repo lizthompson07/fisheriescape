@@ -298,7 +298,9 @@ class StaffForm(forms.ModelForm):
 
         self.fields["name"].widget.attrs = {"v-model":"staff.name", ":disabled":"disableNameField"}
         self.fields["user"].widget.attrs = {"v-model":"staff.user", "@change":"adjustStaffFields"} # , "class": "chosen-select-contains"
-        self.fields["user"].queryset = User.objects.order_by("first_name", "last_name")
+        user_choices = [(u.id, f"{u.last_name}, {u.first_name}") for u in User.objects.order_by( "last_name", "first_name")]
+        user_choices.insert(0, (None, "-----"))
+        self.fields["user"].choices = user_choices
 
 
 # attrs = dict(v-model="new_size_class")
