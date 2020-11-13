@@ -9,7 +9,6 @@ router = DefaultRouter()
 urlpatterns = [
     # path("", include(router.urls)),
     path("project-planning/user/", views.CurrentUserAPIView.as_view(), name="current-user"),
-    path("project-planning/get-dates/", views.GetDatesAPIView.as_view(), name="get-dates"),
 
     # Project year
     path("project-planning/project-years/<int:pk>/", views.ProjectYearRetrieveAPIView.as_view(), name="year-detail"),
@@ -17,10 +16,14 @@ urlpatterns = [
     # Staff
     path("project-planning/project-years/<int:project_year>/staff/", views.StaffListCreateAPIView.as_view(), name="staff-list"),
     path("project-planning/staff/<int:pk>/", views.StaffRetrieveUpdateDestroyAPIView.as_view(), name="staff-detail"),
+    path("project-planning/get-dates/", views.GetDatesAPIView.as_view(), name="get-dates"),
 
     # O&M
     path("project-planning/project-years/<int:project_year>/om-costs/", views.OMCostListCreateAPIView.as_view(), name="om-list"),
     path("project-planning/om-costs/<int:pk>/", views.OMCostRetrieveUpdateDestroyAPIView.as_view(), name="om-detail"),
+    path("project-planning/project-years/<int:project_year>/add-all-costs/", views.AddAllCostsAPIView.as_view(), name="add-all-costs"),
+    path("project-planning/project-years/<int:project_year>/remove-empty-costs/", views.RemoveEmptyCostsAPIView.as_view(), name="remove-empty-costs"),
+
 
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),

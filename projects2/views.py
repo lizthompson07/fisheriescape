@@ -261,6 +261,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["project_field_list"] = get_project_field_list(project)
         context["project_year_field_list"] = get_project_year_field_list()
         context["staff_form"] = forms.StaffForm
+        context["om_cost_form"] = forms.OMCostForm
 
         # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)

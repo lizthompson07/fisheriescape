@@ -52,8 +52,6 @@ class GetDatesAPIView(APIView):
         raise ValidationError("missing query parameter 'year'")
 
 
-
-
 class ProjectYearRetrieveAPIView(RetrieveAPIView):
     queryset = models.ProjectYear.objects.all().order_by("-created_at")
     serializer_class = serializers.ProjectYearSerializer
@@ -106,3 +104,19 @@ class OMCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = models.OMCost.objects.all()
     serializer_class = serializers.OMCostSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+
+
+class AddAllCostsAPIView(APIView):
+    def post(self, request, project_year):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        year.add_all_om_costs()
+        serializer = serializers.OMCostSerializer(instance=year.omcost_set.all(), many=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+
+class RemoveEmptyCostsAPIView(APIView):
+    def post(self, request, project_year):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        year.clear_empty_om_costs()
+        serializer = serializers.OMCostSerializer(instance=year.omcost_set.all(), many=True)
+        return Response(serializer.data, status.HTTP_200_OK)

@@ -14,8 +14,12 @@
 
             <h3 v-if="type === 'staff'">
               <span v-if="showOTCalc">{% trans "Overtime Calculator" %}</span>
-              <span v-else-if="!mystaff">{% trans "New Staff Form" %}</span>
+              <span v-else-if="!my_staff">{% trans "New Staff Form" %}</span>
               <span v-else>{% trans "Edit Staff" %}</span>
+            </h3>
+            <h3 v-else-if="type === 'om_cost'">
+              <span v-if="!my_om_cost">{% trans "New O&M Cost" %}</span>
+              <span v-else>{% trans "Edit O&M Cost" %}</span>
             </h3>
             <div v-if="errors" class="alert alert-danger" role="alert">
               <h4 class="alert-heading">
@@ -30,73 +34,83 @@
         <form v-if="!showOTCalc" method="post" @submit.prevent="onSubmit" class="form">
           <div class="modal-body">
             <slot name="body">
-              <div class="row">
-                <div class="col">
-                  {% bootstrap_label staff_form.user.label %}
-                  {% with help_text_dict|lookup:user as help_text %}
-                    <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
-                         title="{{ staff_form.user.label }}"
-                         data-content="{{ help_text|safe }}">
-                    {% bootstrap_field staff_form.user show_label=False %}
-                  {% endwith %}
 
+              {#  STAFF FORM #}
+              <div v-if="type === 'staff'">
+                <div class="row">
+                  <div class="col">
+                    {% bootstrap_label staff_form.user.label %}
+                    {% with help_text_dict|lookup:user as help_text %}
+                      <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                           title="{{ staff_form.user.label }}"
+                           data-content="{{ help_text|safe }}">
+                      {% bootstrap_field staff_form.user show_label=False %}
+                    {% endwith %}
+
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.name placeholder="" %}
+                  </div>
                 </div>
-                <div class="col">
-                  {% bootstrap_field staff_form.name placeholder="" %}
+
+                <div class="row">
+                  <div class="col">
+                    {% bootstrap_field staff_form.employee_type %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.is_lead %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.funding_source %}
+                  </div>
+                  <div class="col-3">
+                    {% bootstrap_field staff_form.amount placeholder="" %}
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col">
+                    {% bootstrap_field staff_form.level %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.student_program %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.duration_weeks placeholder="" %}
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-2">
+                    {% bootstrap_field staff_form.overtime_hours %}
+                  </div>
+                  <div class="col-6">
+                    {% bootstrap_field staff_form.overtime_description placeholder="" %}
+                  </div>
+                  <div class="col">
+                    <p style="text-align: center;" class="">
+                      <button @click="toggleOTCalc" href="#" id="ot_calc" type="button" class="btn btn-outline-primary mt-3">
+                        <img src="{% static "/img/calculator.png" %}" alt="" style="width:100px"
+                             data-toggle="tooltip" title="{% trans "OT Calculator" %}">
+                        <br>
+                        {% trans "Overtime Calculator" %}<br>
+                      </button>
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div class="row">
-                <div class="col">
-                  {% bootstrap_field staff_form.employee_type %}
-                </div>
-                <div class="col">
-                  {% bootstrap_field staff_form.is_lead %}
-                </div>
-                <div class="col">
-                  {% bootstrap_field staff_form.funding_source %}
-                </div>
-                <div class="col-3">
-                  {% bootstrap_field staff_form.amount placeholder="" %}
-                </div>
+              {# OM COST FORM             #}
+              <div v-else-if="type=='om_cost'">
+                {% bootstrap_form om_cost_form %}
               </div>
 
-              <div class="row">
-                <div class="col">
-                  {% bootstrap_field staff_form.level %}
-                </div>
-                <div class="col">
-                  {% bootstrap_field staff_form.student_program %}
-                </div>
-                <div class="col">
-                  {% bootstrap_field staff_form.duration_weeks placeholder="" %}
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-2">
-                  {% bootstrap_field staff_form.overtime_hours %}
-                </div>
-                <div class="col-6">
-                  {% bootstrap_field staff_form.overtime_description placeholder="" %}
-                </div>
-                <div class="col">
-                  <p style="text-align: center;" class="">
-                    <button @click="toggleOTCalc" href="#" id="ot_calc" type="button" class="btn btn-outline-primary mt-3">
-                      <img src="{% static "/img/calculator.png" %}" alt="" style="width:100px"
-                           data-toggle="tooltip" title="{% trans "OT Calculator" %}">
-                      <br>
-                      {% trans "Overtime Calculator" %}<br>
-                    </button>
-                  </p>
-                </div>
-              </div>
             </slot>
           </div>
 
           <div class="modal-footer">
             <slot name="footer">
-              <button v-if="mystaff" class="modal-default-button" id="closeBtn">{% trans "Update" %}</button>
+              <button v-if="my_staff" class="modal-default-button" id="closeBtn">{% trans "Update" %}</button>
               <button v-else class="modal-default-button" id="closeBtn">{% trans "Add" %}</button>
               <button class="modal-default-button" @click="$emit('close')" id="closeBtn">
                 {% trans "Close" %}
@@ -188,10 +202,10 @@
             </div>
 
           </div>
-           <div class="modal-footer">
+          <div class="modal-footer">
             <slot name="footer">
-          <button class="modal-default-button" type="submit">{% trans "Submit" %}</button>
-          <button class="modal-default-button" @click="toggleOTCalc" type="button">{% trans "Cancel" %}</button>
+              <button class="modal-default-button" type="submit">{% trans "Submit" %}</button>
+              <button class="modal-default-button" @click="toggleOTCalc" type="button">{% trans "Cancel" %}</button>
             </slot>
           </div>
         </form>

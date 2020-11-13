@@ -85,7 +85,7 @@ var app = new Vue({
           })
     },
     deleteOMCost(OMCost) {
-      userInput = confirm(deleteMsg)
+      userInput = confirm(deleteMsg + OMCost.om_category_display)
       if (userInput) {
         let endpoint = `/api/project-planning/om-costs/${OMCost.id}/`;
         apiService(endpoint, "DELETE")
@@ -94,9 +94,31 @@ var app = new Vue({
             })
       }
     },
-    openOMCostModal(OMCost = null) {
+    addAllOMCosts() {
+      if (this.projectYear.id) {
+        this.om_cost_loading = true;
+        let endpoint = `/api/project-planning/project-years/${this.projectYear.id}/add-all-costs/`;
+        apiService(endpoint, "POST")
+            .then(response => {
+              this.om_cost_loading = false;
+              this.om_costs = response;
+            })
+      }
+    },
+    clearEmptyOMCosts() {
+      if (this.projectYear.id) {
+        this.om_cost_loading = true;
+        let endpoint = `/api/project-planning/project-years/${this.projectYear.id}/remove-empty-costs/`;
+        apiService(endpoint, "POST")
+            .then(response => {
+              this.om_cost_loading = false;
+              this.om_costs = response;
+            })
+      }
+    },
+    openOMCostModal(OMCost) {
       if (!OMCost) {
-        this.showNewStaffModal = true;
+        this.showNewOMCostModal = true;
       } else {
         this.omCostToEdit = OMCost;
         this.showOldOMCostModal = true;
@@ -115,7 +137,7 @@ var app = new Vue({
       if (projectYear) {
         this.$nextTick(() => {
           this.getStaff(projectYear.id)
-          this.getOMCost(projectYear.id)
+          this.getOMCosts(projectYear.id)
 
         })
       }
@@ -130,12 +152,12 @@ var app = new Vue({
       window.location.href = `/project-planning/project-year/${projectYearId}/clone/`
     },
     isABase(name) {
-      if(name && name.length) {
+      if (name && name.length) {
         return name.toLowerCase().search("a-base") > -1
       }
     },
     isBBase(name) {
-      if(name && name.length) {
+      if (name && name.length) {
         return name.toLowerCase().search("b-base") > -1
       }
     },

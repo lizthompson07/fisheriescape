@@ -10,10 +10,14 @@ Vue.component("modal", {
       type: Object,
       required: true,
     },
-    mystaff: {
+    my_staff: {
       type: Object,
       required: false,
-    }
+    },
+    my_om_cost: {
+      type: Object,
+      required: false,
+    },
   },
   data() {
     return {
@@ -45,14 +49,23 @@ Vue.component("modal", {
       totalOTHours: 0,
       totalOTCalcHours: 0,
       totalOTDescription: "",
+
+      // om costs
+      om_cost: {
+        funding_source: this.year.default_funding_source_id,
+        om_category: "",
+        description: "",
+        amount: 0,
+      },
+
     }
   },
   methods: {
     onSubmit() {
       this.errors = null
       if (this.type === "staff") {
-        if (this.mystaff) {
-          let endpoint = `/api/project-planning/staff/${this.mystaff.id}/`;
+        if (this.my_staff) {
+          let endpoint = `/api/project-planning/staff/${this.my_staff.id}/`;
           apiService(endpoint, "PATCH", this.staff).then(response => {
             if (response.id) this.$emit('close')
             else {
@@ -78,11 +91,37 @@ Vue.component("modal", {
             }
           })
         }
+      } else if (this.type === "om_cost") {
+        if (this.my_om_cost) {
+          let endpoint = `/api/project-planning/om-costs/${this.my_om_cost.id}/`;
+          apiService(endpoint, "PATCH", this.om_cost).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/om-costs/`;
+          apiService(endpoint, "POST", this.om_cost).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+
+
       }
-
-      // regardless of what happens, emit a `close` signal
-      // this.$emit('close')
-
     },
     adjustStaffFields() {
 
@@ -173,40 +212,24 @@ Vue.component("modal", {
     },
   },
   computed: {
-    // totalOTHours() {
-    //   var total = 0;
-    //   for (var i = 0; i < this.dates.length; i++) {
-    //     var d = this.dates[i];
-    //     if (d.ot_hours) total += Number(d.ot_hours)
-    //   }
-    //   return total
-    // },
-    // totalOTCalcHours() {
-    //   var total = 0;
-    //   for (var i = 0; i < this.dates.length; i++) {
-    //     var d = this.dates[i];
-    //     if (d.calc_ot) total += Number(d.calc_ot)
-    //   }
-    //   return total
-    // },
-    // totalOTDescription() {
-    //   var myStr = "";
-    //   for (var i = 0; i < this.dates.length; i++) {
-    //     var d = this.dates[i];
-    //     if (d.ot_description) myStr += d.ot_description
-    //   }
-    //   return myStr
-    // },
   },
   created() {
     this.$nextTick(() => {
-      if (this.mystaff && this.mystaff.id) {
-        this.staff = this.mystaff
-        // there is an annoying thing that has to happen to convert the html to js to pytonese...
-        if (this.staff.is_lead) this.staff.is_lead = "True"
-        else this.staff.is_lead = "False"
+      if (this.type === "staff") {
+        if (this.my_staff && this.my_staff.id) {
+          this.staff = this.my_staff
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.staff.is_lead) this.staff.is_lead = "True"
+          else this.staff.is_lead = "False"
+        }
+        this.adjustStaffFields()
       }
-      this.adjustStaffFields()
+      else if (this.type === "om_cost") {
+        if (this.my_om_cost && this.my_om_cost.id) {
+          this.om_cost = this.my_om_cost
+        }
+      }
+
     })
 
   },

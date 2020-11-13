@@ -31,7 +31,6 @@ class NewProjectForm(forms.ModelForm):
     division = forms.ChoiceField()
     field_order = [
         'title',
-        'activity_type',
         'default_funding_source',
         'region',
         'division',
@@ -42,7 +41,6 @@ class NewProjectForm(forms.ModelForm):
         model = models.Project
         fields = [
             'title',
-            # 'activity_type',
             'default_funding_source',
             'section',
             'modified_by',
@@ -50,6 +48,7 @@ class NewProjectForm(forms.ModelForm):
         widgets = {
             'modified_by': forms.HiddenInput(),
             'title': forms.Textarea(attrs={"rows": 3}),
+            'default_funding_source': forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
@@ -59,6 +58,9 @@ class NewProjectForm(forms.ModelForm):
         division_choices.insert(0, tuple((None, "---")))
         section_choices = utils.get_section_choices(all=True)
         section_choices.insert(0, tuple((None, "---")))
+        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+
 
         super().__init__(*args, **kwargs)
         self.fields['region'].choices = region_choices
@@ -66,6 +68,7 @@ class NewProjectForm(forms.ModelForm):
         # even though these are overwritten by js scripts you have to define these so that the validation kicks in properly
         self.fields['division'].choices = division_choices
         self.fields['section'].choices = section_choices
+        self.fields['default_funding_source'].choices = funding_source_choices
 
 
 class ProjectForm(forms.ModelForm):
@@ -300,6 +303,20 @@ class StaffForm(forms.ModelForm):
         self.fields["user"].choices = user_choices
 
 
+class OMCostForm(forms.ModelForm):
+    field_order = ["om_category", "funding_source", "description", "amount"]
+    class Meta:
+        model = models.OMCost
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].widget.attrs = {"v-model":"om_cost.amount"}
+        self.fields["funding_source"].widget.attrs = {"v-model":"om_cost.funding_source"}
+        self.fields["description"].widget.attrs = {"v-model":"om_cost.description"}
+        self.fields["om_category"].widget.attrs = {"v-model":"om_cost.om_category"}
+
+
 # attrs = dict(v-model="new_size_class")
 # class AdminStaffForm(forms.ModelForm):
 #     class Meta:
@@ -333,13 +350,7 @@ class StaffForm(forms.ModelForm):
 #         }
 #
 #
-# class OMCostForm(forms.ModelForm):
-#     class Meta:
-#         model = models.OMCost
-#         fields = "__all__"
-#         widgets = {
-#             'project': forms.HiddenInput(),
-#         }
+
 #
 #
 # class CapitalCostForm(forms.ModelForm):

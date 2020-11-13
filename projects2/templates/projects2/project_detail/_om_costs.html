@@ -5,12 +5,15 @@
 {% load bootstrap4 %}
 
 <div class="mb-5">
-  <div class="float-right">
-    <button
-      v-if="!om_cost_loading"
-      @click="openOMCostModal()"
-    >
-      <span class="mdi mdi-plus"></span> {% trans "Add O&M" %}
+  <div v-if="!om_cost_loading" class="float-right">
+    <button @click="openOMCostModal()">
+      <span class="mdi mdi-plus"></span> {% trans "Add O&M Cost" %}
+    </button>
+    <button @click="addAllOMCosts()">
+      <span class="mdi mdi-table-column-plus-after"></span> {% trans "Add All Categories" %}
+    </button>
+    <button @click="clearEmptyOMCosts()">
+      <span class="mdi mdi-table-column-remove"></span> {% trans "Clear Empty Lines" %}
     </button>
   </div>
   <h2>{% trans "O&M Costs" %}</h2>

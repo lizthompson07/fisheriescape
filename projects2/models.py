@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.template.defaultfilters import date
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -304,14 +305,15 @@ class ProjectYear(models.Model):
 
     def add_all_om_costs(self):
         for obj in OMCategory.objects.all():
-            OMCost.objects.create(
-                project_year=self,
-                om_category=obj,
-                funding_source=self.project.default_funding_source
-            )
+            if not self.omcost_set.filter(om_category=obj).exists():
+                OMCost.objects.create(
+                    project_year=self,
+                    om_category=obj,
+                    funding_source=self.project.default_funding_source
+                )
 
     def clear_empty_om_costs(self):
-        self.omcost_set.filter(amount__isnull=True, description__isnull=True).delete()
+        self.omcost_set.filter(Q(amount__isnull=True)|Q(amount=0)).filter(description__isnull=True).delete()
 
     @property
     def dates(self):

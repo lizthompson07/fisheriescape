@@ -68,10 +68,14 @@
 
           <div v-if="projectYear">
             {% include "projects2/project_detail/_project_year_detail.html" %}
-
             {% include "projects2/project_detail/_project_year_modal_form.html" %}
+
             <modal v-if="showNewStaffModal" @close="closeModals(projectYear)" :year="projectYear" :type="'staff'"></modal>
-            <modal v-if="showOldStaffModal" @close="closeModals(projectYear)" :year="projectYear" :type="'staff'" :mystaff="staffToEdit"></modal>
+            <modal v-if="showOldStaffModal" @close="closeModals(projectYear)" :year="projectYear" :type="'staff'" :my_staff="staffToEdit"></modal>
+
+            <modal v-if="showNewOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :type="'om_cost'"></modal>
+            <modal v-if="showOldOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :type="'om_cost'" :my_om_cost="omCostToEdit"></modal>
+
 
           </div>
 
@@ -99,7 +103,7 @@
 
   var warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
   var currentUser = "{{ user.id }}"
-  var deleteMsg = "{% trans "Are you sure you want to delete this staff member?" %}"
+  var deleteMsg = "{% trans "Are you sure you want to delete this item: " %} \n\n"
   var processOTMsg = "{% trans "Do you want to add this OT description to the current staff member?" %}"
 
   function activateChosen() {
@@ -115,8 +119,8 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.6" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.0.5" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.7" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.0.7" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">
