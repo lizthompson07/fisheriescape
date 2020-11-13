@@ -26,6 +26,10 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
+    my_collaborator: {
+      type: Object,
+      required: false,
+    },
   },
   data() {
     return {
@@ -33,7 +37,7 @@ Vue.component("modal", {
         name: null,
         user: null,
         funding_source: null,
-        is_lead: null,
+        is_lead: false,
         employee_type: null,
         level: null,
         duration_weeks: null,
@@ -81,6 +85,12 @@ Vue.component("modal", {
         target_date: null,
       },
 
+      // collaborators
+      collaborator: {
+        name: "",
+        critical: false,
+        notes: null,
+      },
     }
   },
   methods: {
@@ -178,7 +188,7 @@ Vue.component("modal", {
 
       // milestone
       else if (this.mtype === "milestone") {
-        if(this.milestone.target_date === "") this.milestone.target_date = null
+        if (this.milestone.target_date === "") this.milestone.target_date = null
         if (this.my_milestone) {
           let endpoint = `/api/project-planning/milestones/${this.my_milestone.id}/`;
           apiService(endpoint, "PATCH", this.milestone).then(response => {
@@ -207,6 +217,39 @@ Vue.component("modal", {
           })
         }
       }
+
+      // collaborator
+      else if (this.mtype === "collaborator") {
+        if (this.collaborator.target_date === "") this.collaborator.target_date = null
+        if (this.my_collaborator) {
+          let endpoint = `/api/project-planning/collaborators/${this.my_collaborator.id}/`;
+          apiService(endpoint, "PATCH", this.collaborator).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/collaborators/`;
+          apiService(endpoint, "POST", this.collaborator).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+      }
+
     },
     adjustStaffFields() {
 
@@ -325,8 +368,18 @@ Vue.component("modal", {
         if (this.my_milestone && this.my_milestone.id) {
           this.milestone = this.my_milestone
           // there is an annoying thing that has to happen to convert the html to js to pytonese...
-          if (this.milestone.target_date) this.milestone.target_date = this.milestone.target_date.slice(0,10)
+          if (this.milestone.target_date) this.milestone.target_date = this.milestone.target_date.slice(0, 10)
           else this.milestone.target_date = null
+        }
+      }
+      // collaborators
+      else if (this.mtype === "collaborator") {
+        if (this.my_collaborator && this.my_collaborator.id) {
+          console.log(this.my_collaborator)
+          this.collaborator = this.my_collaborator
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.collaborator.critical) this.collaborator.critical = "True"
+          else this.collaborator.critical = "False"
         }
       }
 

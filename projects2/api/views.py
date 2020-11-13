@@ -169,3 +169,24 @@ class MilestoneRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.MilestoneSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
+
+# COLLABORATOR
+##############
+class CollaboratorListCreateAPIView(ListCreateAPIView):
+    queryset = models.Collaborator.objects.all()
+    serializer_class = serializers.CollaboratorSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        return year.collaborators.all()
+
+    def perform_create(self, serializer):
+        serializer.save(project_year_id=self.kwargs.get("project_year"))
+
+
+class CollaboratorRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Collaborator.objects.all()
+    serializer_class = serializers.CollaboratorSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+

@@ -80,7 +80,10 @@
             <modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'" :my_capital_cost="capitalCostToEdit"></modal>
 
             <modal v-if="showNewMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'"></modal>
-            <modal v-if="showOldMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'" :my_milestone="milestoneToEdit"></modal>
+            <modal v-if="showOldMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'" :my_collaborator="milestoneToEdit"></modal>
+
+            <modal v-if="showNewCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'"></modal>
+            <modal v-if="showOldCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'" :my_collaborator="collaboratorToEdit"></modal>
 
           </div>
 
@@ -124,8 +127,8 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.1.9" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.0.9" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.2.0" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.1.0" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">

@@ -352,7 +352,19 @@ class MilestoneForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["name"].widget.attrs = {"v-model": "milestone.name"}
         self.fields["description"].widget.attrs = {"v-model": "milestone.description"}
-        self.fields["target_date"].widget.attrs = {"v-model": "milestone.target_date", "type": "date"}
+        self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "milestone.target_date", "type": "date"})
+
+
+class CollaboratorForm(forms.ModelForm):
+    class Meta:
+        model = models.Collaborator
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["name"].widget.attrs = {"v-model": "collaborator.name"}
+        self.fields["critical"].widget.attrs = {"v-model": "collaborator.critical"}
+        self.fields["notes"].widget.attrs = {"v-model": "collaborator.notes"}
 
 
 # attrs = dict(v-model="new_size_class")

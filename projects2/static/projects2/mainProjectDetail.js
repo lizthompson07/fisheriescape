@@ -35,6 +35,13 @@ var app = new Vue({
     showNewMilestoneModal: false,
     showOldMilestoneModal: false,
 
+    // collaborators
+    collaborator_loading: false,
+    collaborators: [],
+    collaboratorToEdit: {},
+    showNewCollaboratorModal: false,
+    showOldCollaboratorModal: false,
+
   },
   methods: {
     displayOverview() {
@@ -56,6 +63,7 @@ var app = new Vue({
             this.getOMCosts(yearId)
             this.getCapitalCosts(yearId)
             this.getMilestones(yearId)
+            this.getCollaborators(yearId)
           })
     },
 
@@ -202,6 +210,36 @@ var app = new Vue({
     },
 
 
+    // Collaborator
+    getCollaborators(yearId) {
+      this.collaborator_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/collaborators/`;
+      apiService(endpoint)
+          .then(response => {
+            this.collaborator_loading = false;
+            this.collaborators = response;
+          })
+    },
+    deleteCollaborator(collaborator) {
+      userInput = confirm(deleteMsg + collaborator.name)
+      if (userInput) {
+        let endpoint = `/api/project-planning/collaborators/${collaborator.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.collaborators, this.collaborators.indexOf(collaborator));
+            })
+      }
+    },
+
+    openCollaboratorModal(collaborator) {
+      if (!collaborator) {
+        this.showNewCollaboratorModal = true;
+      } else {
+        this.collaboratorToEdit = collaborator;
+        this.showOldCollaboratorModal = true;
+      }
+    },
+
 
     closeModals(projectYear) {
       this.showNewStaffModal = false;
@@ -216,12 +254,16 @@ var app = new Vue({
       this.showNewMilestoneModal = false;
       this.showOldMilestoneModal = false;
 
+      this.showNewCollaboratorModal = false;
+      this.showOldCollaboratorModal = false;
+
       if (projectYear) {
         this.$nextTick(() => {
           this.getStaff(projectYear.id)
           this.getOMCosts(projectYear.id)
           this.getCapitalCosts(projectYear.id)
           this.getMilestones(projectYear.id)
+          this.getCollaborators(projectYear.id)
 
         })
       }

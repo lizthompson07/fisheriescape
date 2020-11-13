@@ -272,6 +272,9 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["milestone_form"] = forms.MilestoneForm
         context["random_milestone"] = models.Milestone.objects.first()
 
+        context["collaborator_form"] = forms.CollaboratorForm
+        context["random_collaborator"] = models.Collaborator.objects.first()
+
         # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)
 

@@ -473,6 +473,14 @@ def get_milestone_field_list():
         'description',
         'target_date',
         'latest_update|{}'.format(_("latest status")),
+    ]
+    return my_list
 
+
+def get_collaborator_field_list():
+    my_list = [
+        'name',
+        'critical',
+        'notes',
     ]
     return my_list

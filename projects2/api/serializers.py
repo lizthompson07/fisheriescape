@@ -201,3 +201,15 @@ class MilestoneSerializer(serializers.ModelSerializer):
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
+
+
+class CollaboratorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Collaborator
+        exclude = ["project_year"]
+
+    project_year_id = serializers.SerializerMethodField()
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id

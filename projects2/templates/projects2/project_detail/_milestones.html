@@ -19,7 +19,6 @@
     </button>
   </div>
 
-
   <div v-else>
 
     <div
@@ -29,10 +28,7 @@
       {% trans "No milestones have been added to this year of the project" %}
     </div>
 
-    <table
-      v-else
-      class="table table-sm sortable"
-    >
+    <table v-else class="table table-sm" >
       <thead>
       {% get_milestone_field_list as milestone_field_list %}
       {% for field in milestone_field_list %}
@@ -44,14 +40,7 @@
       <tbody>
       <tr v-for="(item, index) in milestones">
         {% for field in milestone_field_list %}
-          {% if "funding_source" in field %}
-            <td>
-              <span v-if="isABase(item.funding_source_display)" class="a-base py-1 px-1">${item.funding_source_display | nz }</span>
-              <span v-else-if="isBBase(item.funding_source_display)" class="b-base py-1 px-1">${item.funding_source_display | nz }</span>
-              <span v-else-if="isCBase(item.funding_source_display)" class="c-base py-1 px-1">${item.funding_source_display | nz }</span>
-              <span v-else>${item.funding_source_display | nz }</span>
-            </td>
-          {% elif "latest_update" in field %}
+          {% if "latest_update" in field %}
             <td>${item.latest_update | nz }</td>
           {% elif "target" in field %}
             <td>${item.target_date_display | nz }</td>
