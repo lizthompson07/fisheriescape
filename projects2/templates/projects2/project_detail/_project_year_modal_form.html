@@ -11,32 +11,25 @@
 
         <div class="modal-header">
           <slot name="header">
+
             <h3 v-if="type === 'staff'">
-              <span v-if="!mystaff">{% trans "New Staff Form" %}</span>
+              <span v-if="showOTCalc">{% trans "Overtime Calculator" %}</span>
+              <span v-else-if="!mystaff">{% trans "New Staff Form" %}</span>
               <span v-else>{% trans "Edit Staff" %}</span>
             </h3>
+            <div v-if="errors" class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">
+                {% trans "The form has a few errors:" %}
+              </h4>
+              <hr>
+              <span v-html="errors"></span>
+            </div>
           </slot>
         </div>
 
-        <div class="modal-body">
-          <slot name="body">
-
-            <form method="post" @submit.prevent="onSubmit" class="form">
-              <div class="row">
-                <div class="col">
-                  {% bootstrap_field staff_form.employee_type %}
-                </div>
-                <div class="col">
-                  {% bootstrap_field staff_form.is_lead %}
-                </div>
-                <div class="col">
-                  {% bootstrap_field staff_form.funding_source %}
-                </div>
-                <div class="col-3">
-                  {% bootstrap_field staff_form.amount placeholder="" %}
-                </div>
-              </div>
-
+        <form v-if="!showOTCalc" method="post" @submit.prevent="onSubmit" class="form">
+          <div class="modal-body">
+            <slot name="body">
               <div class="row">
                 <div class="col">
                   {% bootstrap_label staff_form.user.label %}
@@ -50,6 +43,21 @@
                 </div>
                 <div class="col">
                   {% bootstrap_field staff_form.name placeholder="" %}
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col">
+                  {% bootstrap_field staff_form.employee_type %}
+                </div>
+                <div class="col">
+                  {% bootstrap_field staff_form.is_lead %}
+                </div>
+                <div class="col">
+                  {% bootstrap_field staff_form.funding_source %}
+                </div>
+                <div class="col-3">
+                  {% bootstrap_field staff_form.amount placeholder="" %}
                 </div>
               </div>
 
@@ -73,30 +81,150 @@
                   {% bootstrap_field staff_form.overtime_description placeholder="" %}
                 </div>
                 <div class="col">
-                  <p style="text-align: center;">
-                    <a href="#" id="ot_calc">
-                      <img src="{% static "/img/calculator.png" %}" alt="" style="width:75%"
+                  <p style="text-align: center;" class="mt-2">
+                    <button @click="toggleOTCalc" href="#" id="ot_calc" type="button">
+                      <img src="{% static "/img/calculator.png" %}" alt="" style="width:150px"
                            data-toggle="tooltip" title="{% trans "OT Calculator" %}">
-
-                      <br>{% trans "(Open OT Calculator)" %}<br>
-                    </a>
+                      <br>
+                      {% trans "Overtime Calculator" %}<br>
+                    </button>
                   </p>
                 </div>
               </div>
-            </form>
-          </slot>
+            </slot>
+          </div>
+
+          <div class="modal-footer">
+            <slot name="footer">
+              <button v-if="mystaff" class="modal-default-button" id="closeBtn">{% trans "Update" %}</button>
+              <button v-else class="modal-default-button" id="closeBtn">{% trans "Add" %}</button>
+              <button class="modal-default-button" @click="$emit('close')" id="closeBtn">
+                {% trans "Close" %}
+              </button>
+            </slot>
+          </div>
+        </form>
+
+        {# OVERTIME CALC #}
+        <div v-else>
+          <div class="">
+            <ul>
+              <li>
+                {% blocktrans with next_fiscal_year as year %}
+                  Enter overtime hours worked for each day in the {{ year }} fiscal year
+                {% endblocktrans %}
+              </li>
+              <li>
+                {% trans "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes" %}
+              </li>
+              <li>
+                {% trans "For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard working day</b>" %}
+              </li>
+
+              <li>
+                {% trans "For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to be worked" %}
+              </li>
+              <li>
+                {% trans "When you are done, submit the form" %}
+              </li>
+            </ul>
+          </div>
+          <div class="row">
+            <div class="col">
+              <table class="table table-sm" id="ot_table">
+                <thead>
+                <th style="width:50px">
+                  {% trans "Date" %}
+                </th>
+                <th>
+                  {% trans "Weekday" %}
+                </th>
+                <th style="width:20px">
+                  {% trans "Overtime hours" %}
+                </th>
+                </thead>
+                {% for date in datelist %}
+                  <tr>
+                    {% with date|date:"w" as daynum %}
+                      {% with date|date:"D, M d:" as full_date %}
+                        <td>
+                          {{ date|date:"F d, Y" }}<br>
+                        </td>
+
+                        {% if date in stat_holiday_list %}
+                          <td class="bad">
+                            {% elif daynum == "0" %}
+                          <td class="concern">
+                            {% elif daynum == "6" %}
+                          <td class="mild-concern">
+                            {% else %}
+                          <td class="good">
+                        {% endif %}
+
+                      {{ date|date:"l" }}
+                      </td>
+                        <td><input
+                          class="ot_input {% if date in stat_holiday_list %}stat{% elif daynum == "0" %}sunday{% elif daynum == "6" %}saturday{% else %}weekday{% endif %}"
+                          type="number" placeholder="{% trans "hours" %}" style="width:100px"
+                          date_str="{{ full_date }}"></td>
+                      {% endwith %}
+                    {% endwith %}
+
+                  </tr>
+
+                {% endfor %}
+
+              </table>
+
+
+            </div>
+            <div class="col">
+
+              <table class="table table-striped">
+                <tr>
+                  <th>{% trans "Extra Hours to be Worked:" %}</th>
+                  <td>
+                    <span id="extra_hours"></span>
+                  </td>
+                </tr>
+
+                <tr>
+                  <th>
+                    {% trans "OT Description:" %}
+                  </th>
+                  <td>
+                    <span id="ot_description"></span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    {% trans "Calculated Overtime Hours:" %}
+                  </th>
+                  <td>
+                    <span id="ot_hours"></span>
+                  </td>
+                </tr>
+
+              </table>
+              <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                  {% bootstrap_field field placeholder="hours" %}
+                {% endfor %}
+                <input class="btn btn-primary" type="submit">
+                <a class="btn btn-secondary" href="{% url 'projects:staff_edit' object.id %}">Cancel </a>
+              </form>
+              {% trans "Current Overtime Description" %}: <br>
+              <textarea disabled id="old_descr" cols="60" rows="10" v-model="staff.overtime_description"></textarea>
+            </div>
+
+          </div>
+
+          <button class="modal-default-button" @click="toggleOTCalc">
+            {% trans "Back" %}
+          </button>
         </div>
 
-        <div class="modal-footer">
-          <slot name="footer">
-            <button class="modal-default-button" @click="onSubmit" id="closeBtn">
-              {% trans "Save" %}
-            </button>
-            <button class="modal-default-button" @click="$emit('close')" id="closeBtn">
-              {% trans "Close" %}
-            </button>
-          </slot>
-        </div>
       </div>
     </div>
   </div>

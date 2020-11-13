@@ -278,18 +278,14 @@ class StaffForm(forms.ModelForm):
         labels = {
             "user": _("DFO User"),
         }
-        widgets = {
-
-            'overtime_description': forms.Textarea(attrs={"rows": 5}),
-            'user': forms.Select(attrs=chosen_js),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["overtime_description"].widget.attrs = {"v-model":"staff.overtime_description"}
+        self.fields["overtime_description"].widget.attrs = {"v-model":"staff.overtime_description", "rows": 7}
         self.fields["amount"].widget.attrs = {"v-model":"staff.amount", ":disabled":"disableAmountField"}
         self.fields["funding_source"].widget.attrs = {"v-model":"staff.funding_source"}
         self.fields["is_lead"].widget.attrs = {"v-model":"staff.is_lead", "@change":"adjustStaffFields",}
+
         self.fields["employee_type"].widget.attrs = {"v-model":"staff.employee_type", "@change":"adjustStaffFields"}
         self.fields["level"].widget.attrs = {"v-model":"staff.level", ":disabled":"disableLevelField"}
         self.fields["duration_weeks"].widget.attrs = {"v-model":"staff.duration_weeks"}

@@ -52,13 +52,25 @@
           {% elif "lead" in field %}
             <td>${s.is_lead | yesNo}</td>
           {% elif "funding_source" in field %}
-            <td>${s.funding_source_display | nz }</td>
+            <td>
+            <span v-if="isABase(s.funding_source_display)" class="a-base py-1 px-1">${s.funding_source_display | nz }</span>
+            <span v-else-if="isBBase(s.funding_source_display)" class="b-base py-1 px-1">${s.funding_source_display | nz }</span>
+            <span v-else-if="isCBase(s.funding_source_display)" class="c-base py-1 px-1">${s.funding_source_display | nz }</span>
+            <span v-else>${s.funding_source_display | nz }</span>
+            </td>
           {% elif "level" in field %}
             <td>${s.level_display | nz }</td>
           {% elif "employee_type" in field %}
             <td>${s.employee_type_display | nz}</td>
+          {% elif "student" in field %}
+            <td>${s.student_program_display | nz}</td>
           {% elif "amount" in field %}
             <td>${s.amount | floatformat}</td>
+          {% elif "duration" in field %}
+            <td>
+              <span v-if="s.duration_weeks == 0" class="major-error py-1 px-1">${s.amount | floatformat}</span>
+              <span v-else>${s.duration_weeks | floatformat}</span>
+            </td>
 
           {% else %}
             <td>${ s.{{ field }} | nz}</td>

@@ -1,4 +1,3 @@
-import html2markdown
 from django.contrib.auth.models import User
 from markdown import markdown
 from rest_framework import serializers
@@ -115,6 +114,8 @@ class StaffSerializer(serializers.ModelSerializer):
     employee_type_display = serializers.SerializerMethodField()
     level_display = serializers.SerializerMethodField()
     funding_source_display = serializers.SerializerMethodField()
+    student_program_display = serializers.SerializerMethodField()
+    project_year_id = serializers.SerializerMethodField()
 
     def get_smart_name(self, instance):
         return instance.smart_name
@@ -127,3 +128,9 @@ class StaffSerializer(serializers.ModelSerializer):
 
     def get_funding_source_display(self, instance):
         return str(instance.funding_source)
+
+    def get_student_program_display(self, instance):
+        return instance.get_student_program_display()
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id

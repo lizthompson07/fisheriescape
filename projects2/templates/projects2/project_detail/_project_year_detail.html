@@ -4,17 +4,17 @@
 
 <div class="float-right">
   <button class=""
-     @click="window.location.href=`/project-planning/project-year/${projectYear.id}/edit/`">
+     @click="goProjectYearEdit(projectYear.id)">
     <span class="mdi mdi-pencil"></span>
     {% trans "Edit" %}
   </button>
   <button class=""
-     @click="window.location.href=`/project-planning/project-year/${projectYear.id}/delete/`">
+     @click="goProjectYearDelete(projectYear.id)">
     <span class="mdi mdi-delete"></span>
     {% trans "Delete" %}
   </button>
   <button class=""
-     @click="window.location.href=`/project-planning/project-year/${projectYear.id}/clone/`">
+     @click="goProjectYearClone(projectYear.id)">
     <span class="mdi mdi-content-copy"></span>
     {% trans "Clone" %}
   </button>

@@ -376,7 +376,10 @@ class ProjectYearDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
 
 class ProjectYearCloneView(ProjectYearUpdateView):
     template_name = 'projects2/project_year_form.html'
-    h1 = gettext_lazy("Please enter the new project details...")
+
+
+    def get_h1(self):
+        return _("Cloning: ") + str(self.get_object())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
