@@ -5,12 +5,14 @@
 {% load bootstrap4 %}
 
 <div class="mb-5">
-  <div v-if="!collaborator_loading" class="float-right">
-    <button @click="openCollaboratorModal()">
+  <div class="mb-2 neighbours">
+    <h2>{% trans "External Collaborators" %}</h2>
+  </div>
+  <div v-if="!collaborator_loading" class="mb-2 neighbours">
+    <button @click="openCollaboratorModal()" class="{{ btn_class_1 }}">
       <span class="mdi mdi-plus"></span> {% trans "Add Collaborator" %}
     </button>
   </div>
-  <h2>{% trans "External Collaborators" %}</h2>
 
   <div v-if="collaborator_loading">
     <button class="btn btn-primary" type="button" disabled>
@@ -32,6 +34,7 @@
     <table
       v-else
       class="table table-sm sortable"
+      style="width: auto"
     >
       <thead>
       {% get_collaborator_field_list as collaborator_field_list %}

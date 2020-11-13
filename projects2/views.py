@@ -281,6 +281,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["agreement_form"] = forms.AgreementForm
         context["random_agreement"] = models.CollaborativeAgreement.objects.first()
 
+        context["btn_class_1"] = ""
         # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)
 

@@ -5,12 +5,14 @@
 {% load bootstrap4 %}
 
 <div class="mb-5">
-  <div v-if="!capital_cost_loading" class="float-right">
-    <button @click="openCapitalCostModal()">
+  <div class="mb-2 neighbours">
+    <h2>{% trans "Capital Costs" %}</h2>
+  </div>
+  <div v-if="!capital_cost_loading" class="mb-3 neighbours">
+    <button @click="openCapitalCostModal()" class="{{ btn_class_1 }}">
       <span class="mdi mdi-plus"></span> {% trans "Add Capital Cost" %}
     </button>
   </div>
-  <h2>{% trans "Capital Costs" %}</h2>
 
   <div v-if="capital_cost_loading">
     <button class="btn btn-primary" type="button" disabled>
@@ -32,6 +34,7 @@
     <table
       v-else
       class="table table-sm sortable"
+      style="width: auto"
     >
       <thead>
       {% get_capital_field_list as capital_field_list %}

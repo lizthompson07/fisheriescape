@@ -5,15 +5,20 @@
 {% load bootstrap4 %}
 
 <div class="mb-5">
-  <div class="float-right">
+
+  <div class="mb-2 neighbours">
+    <h2>{% trans "Staff" %}</h2>
+  </div>
+
+  <div class="mb-3 neighbours btn-group">
     <button
       v-if="!staff_loading"
       @click="openStaffModal()"
+      class="{{ btn_class_1 }}"
     >
       <span class="mdi mdi-plus"></span> {% trans "Add Staff" %}
     </button>
   </div>
-  <h2>{% trans "Staff" %}</h2>
 
   <div v-if="staff_loading">
     <button class="btn btn-primary" type="button" disabled>
@@ -35,6 +40,7 @@
     <table
       v-else
       class="table table-sm sortable"
+      style="width: auto"
     >
       <thead>
       {% get_staff_field_list as staff_field_list %}
@@ -53,10 +59,10 @@
             <td>${s.is_lead | yesNo}</td>
           {% elif "funding_source" in field %}
             <td>
-            <span v-if="isABase(s.funding_source_display)" class="a-base py-1 px-1">${s.funding_source_display | nz }</span>
-            <span v-else-if="isBBase(s.funding_source_display)" class="b-base py-1 px-1">${s.funding_source_display | nz }</span>
-            <span v-else-if="isCBase(s.funding_source_display)" class="c-base py-1 px-1">${s.funding_source_display | nz }</span>
-            <span v-else>${s.funding_source_display | nz }</span>
+              <span v-if="isABase(s.funding_source_display)" class="a-base py-1 px-1">${s.funding_source_display | nz }</span>
+              <span v-else-if="isBBase(s.funding_source_display)" class="b-base py-1 px-1">${s.funding_source_display | nz }</span>
+              <span v-else-if="isCBase(s.funding_source_display)" class="c-base py-1 px-1">${s.funding_source_display | nz }</span>
+              <span v-else>${s.funding_source_display | nz }</span>
             </td>
           {% elif "level" in field %}
             <td>${s.level_display | nz }</td>

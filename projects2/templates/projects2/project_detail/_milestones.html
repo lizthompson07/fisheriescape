@@ -5,12 +5,14 @@
 {% load bootstrap4 %}
 
 <div class="mb-5">
-  <div v-if="!milestone_loading" class="float-right">
-    <button @click="openMilestoneModal()">
+  <div class="mb-2 neighbours">
+    <h2>{% trans "Milestones" %}</h2>
+  </div>
+  <div v-if="!milestone_loading" class="btn-group mb-3 neighbours">
+    <button @click="openMilestoneModal()" class="{{ btn_class_1 }}">
       <span class="mdi mdi-plus"></span> {% trans "Add Milestone" %}
     </button>
   </div>
-  <h2>{% trans "Milestones" %}</h2>
 
   <div v-if="milestone_loading">
     <button class="btn btn-primary" type="button" disabled>
@@ -28,7 +30,7 @@
       {% trans "No milestones have been added to this year of the project" %}
     </div>
 
-    <table v-else class="table table-sm" >
+    <table v-else class="table table-sm" style="width: auto">
       <thead>
       {% get_milestone_field_list as milestone_field_list %}
       {% for field in milestone_field_list %}

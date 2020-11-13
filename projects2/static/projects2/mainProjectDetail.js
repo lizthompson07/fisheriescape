@@ -347,6 +347,7 @@ var app = new Vue({
           this.getGCCosts(projectYear.id)
           this.getMilestones(projectYear.id)
           this.getAgreements(projectYear.id)
+          this.getCollaborators(projectYear.id)
 
         })
       }
