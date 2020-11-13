@@ -213,3 +213,16 @@ class CollaboratorSerializer(serializers.ModelSerializer):
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
+
+
+class GCCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.GCCost
+        exclude = ["project_year"]
+
+    project_year_id = serializers.SerializerMethodField()
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id
+

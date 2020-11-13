@@ -79,6 +79,9 @@
             <modal v-if="showNewCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'"></modal>
             <modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'" :my_capital_cost="capitalCostToEdit"></modal>
 
+            <modal v-if="showNewGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'"></modal>
+            <modal v-if="showOldGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'" :my_gc_cost="gcCostToEdit"></modal>
+
             <modal v-if="showNewMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'"></modal>
             <modal v-if="showOldMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'" :my_collaborator="milestoneToEdit"></modal>
 

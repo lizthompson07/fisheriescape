@@ -28,6 +28,13 @@ var app = new Vue({
     showNewCapitalCostModal: false,
     showOldCapitalCostModal: false,
 
+    // gc costs
+    gc_cost_loading: false,
+    gc_costs: [],
+    gcCostToEdit: {},
+    showNewGCCostModal: false,
+    showOldGCCostModal: false,
+
     // milestones
     milestone_loading: false,
     milestones: [],
@@ -62,6 +69,7 @@ var app = new Vue({
             this.getStaff(yearId)
             this.getOMCosts(yearId)
             this.getCapitalCosts(yearId)
+            this.getGCCosts(yearId)
             this.getMilestones(yearId)
             this.getCollaborators(yearId)
           })
@@ -179,6 +187,36 @@ var app = new Vue({
       }
     },
 
+    // GC
+    getGCCosts(yearId) {
+      this.gc_cost_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/gc-costs/`;
+      apiService(endpoint)
+          .then(response => {
+            this.gc_cost_loading = false;
+            this.gc_costs = response;
+          })
+    },
+    deleteGCCost(gcCost) {
+      userInput = confirm(deleteMsg + gcCost.category_display)
+      if (userInput) {
+        let endpoint = `/api/project-planning/gc-costs/${gcCost.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.gc_costs, this.gc_costs.indexOf(gcCost));
+            })
+      }
+    },
+
+    openGCCostModal(gcCost) {
+      if (!gcCost) {
+        this.showNewGCCostModal = true;
+      } else {
+        this.gcCostToEdit = gcCost;
+        this.showOldGCCostModal = true;
+      }
+    },
+
     // Milestones
     getMilestones(yearId) {
       this.milestone_loading = true;
@@ -251,6 +289,9 @@ var app = new Vue({
       this.showNewCapitalCostModal = false;
       this.showOldCapitalCostModal = false;
 
+      this.showNewGCCostModal = false;
+      this.showOldGCCostModal = false;
+
       this.showNewMilestoneModal = false;
       this.showOldMilestoneModal = false;
 
@@ -262,6 +303,7 @@ var app = new Vue({
           this.getStaff(projectYear.id)
           this.getOMCosts(projectYear.id)
           this.getCapitalCosts(projectYear.id)
+          this.getGCCosts(projectYear.id)
           this.getMilestones(projectYear.id)
           this.getCollaborators(projectYear.id)
 

@@ -484,3 +484,14 @@ def get_collaborator_field_list():
         'notes',
     ]
     return my_list
+
+
+def get_gc_cost_field_list():
+    my_list = [
+        'recipient_org',
+        'project_lead',
+        'proposed_title',
+        'gc_program',
+        'amount',
+    ]
+    return my_list

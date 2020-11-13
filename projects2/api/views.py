@@ -148,6 +148,29 @@ class CapitalCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
+# GC
+####
+
+class GCCostListCreateAPIView(ListCreateAPIView):
+    queryset = models.GCCost.objects.all()
+    serializer_class = serializers.GCCostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        return year.gc_costs.all()
+
+    def perform_create(self, serializer):
+        serializer.save(project_year_id=self.kwargs.get("project_year"))
+
+
+class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.GCCost.objects.all()
+    serializer_class = serializers.GCCostSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+
+
 
 # MILESTONE
 ###########

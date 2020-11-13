@@ -22,6 +22,10 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
+    my_gc_cost: {
+      type: Object,
+      required: false,
+    },
     my_milestone: {
       type: Object,
       required: false,
@@ -75,6 +79,15 @@ Vue.component("modal", {
         funding_source: this.year.default_funding_source_id,
         category: "",
         description: "",
+        amount: 0,
+      },
+
+      // gc costs
+      gc_cost: {
+        recipient_org: null,
+        project_lead: null,
+        proposed_title: null,
+        gc_program: null,
         amount: 0,
       },
 
@@ -173,6 +186,37 @@ Vue.component("modal", {
         } else {
           let endpoint = `/api/project-planning/project-years/${this.year.id}/capital-costs/`;
           apiService(endpoint, "POST", this.capital_cost).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+      }
+
+      // gc cost
+      else if (this.mtype === "gc_cost") {
+        if (this.my_gc_cost) {
+          let endpoint = `/api/project-planning/gc-costs/${this.my_gc_cost.id}/`;
+          apiService(endpoint, "PATCH", this.gc_cost).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/gc-costs/`;
+          apiService(endpoint, "POST", this.gc_cost).then(response => {
             if (response.id) this.$emit('close')
             else {
               var myString = "";
@@ -363,6 +407,13 @@ Vue.component("modal", {
           this.capital_cost = this.my_capital_cost
         }
       }
+      // gc costs
+      else if (this.mtype === "gc_cost") {
+        if (this.my_gc_cost && this.my_gc_cost.id) {
+          this.gc_cost = this.my_gc_cost
+        }
+      }
+
       // milestones
       else if (this.mtype === "milestone") {
         if (this.my_milestone && this.my_milestone.id) {

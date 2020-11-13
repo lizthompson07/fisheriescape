@@ -49,10 +49,19 @@ def get_milestone_field_list():
         print(e)
         return []
 
+
 @register.simple_tag
 def get_collaborator_field_list():
     try:
         return utils.get_collaborator_field_list()
+    except Exception as e:
+        print(e)
+        return []
+
+@register.simple_tag
+def get_gc_cost_field_list():
+    try:
+        return utils.get_gc_cost_field_list()
     except Exception as e:
         print(e)
         return []

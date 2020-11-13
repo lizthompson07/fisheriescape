@@ -341,6 +341,20 @@ class CapitalCostForm(forms.ModelForm):
         self.fields["funding_source"].choices = funding_source_choices
 
 
+class GCCostForm(forms.ModelForm):
+    class Meta:
+        model = models.GCCost
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["recipient_org"].widget.attrs = {"v-model": "gc_cost.recipient_org"}
+        self.fields["project_lead"].widget.attrs = {"v-model": "gc_cost.project_lead"}
+        self.fields["proposed_title"].widget.attrs = {"v-model": "gc_cost.proposed_title"}
+        self.fields["gc_program"].widget.attrs = {"v-model": "gc_cost.gc_program"}
+        self.fields["amount"].widget.attrs = {"v-model": "gc_cost.amount"}
+
+
 class MilestoneForm(forms.ModelForm):
     field_order = ["name", "description", "target_date"]
 

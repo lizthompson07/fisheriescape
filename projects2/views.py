@@ -269,6 +269,9 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["capital_cost_form"] = forms.CapitalCostForm
         context["random_capital_cost"] = models.CapitalCost.objects.first()
 
+        context["gc_cost_form"] = forms.GCCostForm
+        context["random_gc_cost"] = models.GCCost.objects.first()
+
         context["milestone_form"] = forms.MilestoneForm
         context["random_milestone"] = models.Milestone.objects.first()
 
