@@ -134,3 +134,26 @@ class StaffSerializer(serializers.ModelSerializer):
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
+
+class OMCostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OMCost
+        exclude = ["project_year"]
+
+    funding_source_display = serializers.SerializerMethodField()
+    om_category_display = serializers.SerializerMethodField()
+    project_year_id = serializers.SerializerMethodField()
+    category_type = serializers.SerializerMethodField()
+
+    def get_funding_source_display(self, instance):
+        return str(instance.funding_source)
+
+    def get_om_category_display(self, instance):
+        return str(instance.om_category)
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id
+
+    def get_category_type(self, instance):
+        return instance.category_type

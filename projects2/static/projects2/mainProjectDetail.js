@@ -7,11 +7,19 @@ var app = new Vue({
     py_loading: false,
     projectYear: {},
 
+    // staff
     staff_loading: false,
     staff: [],
     staffToEdit: {},
     showNewStaffModal: false,
     showOldStaffModal: false,
+
+    // om costs
+    om_cost_loading: false,
+    om_costs: [],
+    omCostToEdit: {},
+    showNewOMCostModal: false,
+    showOldOMCostModal: false,
   },
   methods: {
     displayOverview() {
@@ -30,10 +38,13 @@ var app = new Vue({
             this.projectYear = response;
             // now let's get all the related data
             this.getStaff(yearId)
+            this.getOMCosts(yearId)
 
 
           })
     },
+
+    // Staff
     getStaff(yearId) {
       this.staff_loading = true;
       let endpoint = `/api/project-planning/project-years/${yearId}/staff/`;
@@ -63,13 +74,48 @@ var app = new Vue({
 
     },
 
+    // O&M
+    getOMCosts(yearId) {
+      this.om_cost_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/om-costs/`;
+      apiService(endpoint)
+          .then(response => {
+            this.om_cost_loading = false;
+            this.om_costs = response;
+          })
+    },
+    deleteOMCost(OMCost) {
+      userInput = confirm(deleteMsg)
+      if (userInput) {
+        let endpoint = `/api/project-planning/om-costs/${OMCost.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.om_costs, this.om_costs.indexOf(OMCost));
+            })
+      }
+    },
+    openOMCostModal(OMCost = null) {
+      if (!OMCost) {
+        this.showNewStaffModal = true;
+      } else {
+        this.omCostToEdit = OMCost;
+        this.showOldOMCostModal = true;
+      }
+
+    },
+
+
     closeModals(projectYear) {
       this.showNewStaffModal = false;
       this.showOldStaffModal = false;
 
+      this.showNewOMCostModal = false;
+      this.showOldOMCostModal = false;
+
       if (projectYear) {
         this.$nextTick(() => {
           this.getStaff(projectYear.id)
+          this.getOMCost(projectYear.id)
 
         })
       }

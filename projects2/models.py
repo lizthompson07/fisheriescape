@@ -440,6 +440,10 @@ class OMCost(GenericCost):
     om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
+    @property
+    def category_type(self):
+        return self.om_category.get_group_display()
+
     def __str__(self):
         return f"{self.om_category}"
 

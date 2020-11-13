@@ -444,3 +444,14 @@ def get_staff_field_list():
         'amount',
     ]
     return my_list
+
+
+def get_om_field_list():
+    my_list = [
+        'category_type|{}'.format(_("category type")),
+        'om_category',
+        'description',
+        'funding_source',
+        'amount',
+    ]
+    return my_list

@@ -1,0 +1,81 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div class="float-right">
+    <button
+      v-if="!om_cost_loading"
+      @click="openOMCostModal()"
+    >
+      <span class="mdi mdi-plus"></span> {% trans "Add O&M" %}
+    </button>
+  </div>
+  <h2>{% trans "O&M Costs" %}</h2>
+
+  <div v-if="om_cost_loading">
+    <button class="btn btn-primary" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+
+  <div v-else>
+
+    <div
+      v-if="!om_costs.length"
+      class="font-italic"
+    >
+      {% trans "No O&M costs have been added to this year of the project" %}
+    </div>
+
+    <table
+      v-else
+      class="table table-sm sortable"
+    >
+      <thead>
+      {% get_om_field_list as om_field_list %}
+      {% for field in om_field_list %}
+        <th>
+          {% get_verbose_label object.years.first.omcost_set.first field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      <tr v-for="(item, index) in om_costs">
+        {% for field in om_field_list %}
+          {% if "funding_source" in field %}
+            <td>
+              <span v-if="isABase(item.funding_source_display)" class="a-base py-1 px-1">${item.funding_source_display | nz }</span>
+              <span v-else-if="isBBase(item.funding_source_display)" class="b-base py-1 px-1">${item.funding_source_display | nz }</span>
+              <span v-else-if="isCBase(item.funding_source_display)" class="c-base py-1 px-1">${item.funding_source_display | nz }</span>
+              <span v-else>${item.funding_source_display | nz }</span>
+            </td>
+          {% elif "category_type" in field %}
+            <td>${item.category_type | nz }</td>
+          {% elif "om_category" in field %}
+            <td>${item.om_category_display | nz }</td>
+          {% elif "amount" in field %}
+            <td>
+              <span v-if="item.amount == 0||!item.amount" class="major-error py-1 px-1">${item.amount | floatformat}</span>
+              <span v-else>${item.amount | floatformat}</span>
+            </td>
+          {% else %}
+            <td>${ item.{{ field }} | nz}</td>
+          {% endif %}
+        {% endfor %}
+        <td>
+          <button @click="openOMCostModal(item)"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteOMCost(item)"><span class="mdi mdi-delete"></span></button>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>
+</tr>
