@@ -56,3 +56,8 @@ h1 {
 .c-base {
     background-color: #eff9a7;
 }
+
+.to-the-right{
+    position: absolute;
+    right: 0;
+}

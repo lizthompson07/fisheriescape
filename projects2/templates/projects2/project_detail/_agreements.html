@@ -50,7 +50,7 @@
             <td>${ item.{{ field }} | nz}</td>
           {% endif %}
         {% endfor %}
-        <td>
+        <td class="to-the-right">
           <button @click="openAgreementModal(item)"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteAgreement(item)"><span class="mdi mdi-delete"></span></button>
         </td>
