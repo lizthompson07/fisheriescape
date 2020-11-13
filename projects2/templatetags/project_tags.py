@@ -65,3 +65,11 @@ def get_gc_cost_field_list():
     except Exception as e:
         print(e)
         return []
+
+@register.simple_tag
+def get_agreement_field_list():
+    try:
+        return utils.get_agreement_field_list()
+    except Exception as e:
+        print(e)
+        return []

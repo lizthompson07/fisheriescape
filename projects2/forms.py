@@ -381,6 +381,22 @@ class CollaboratorForm(forms.ModelForm):
         self.fields["notes"].widget.attrs = {"v-model": "collaborator.notes"}
 
 
+class AgreementForm(forms.ModelForm):
+    class Meta:
+        model = models.CollaborativeAgreement
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["partner_organization"].widget.attrs = {"v-model": "agreement.partner_organization"}
+        self.fields["project_lead"].widget.attrs = {"v-model": "agreement.project_lead"}
+        self.fields["agreement_title"].widget.attrs = {"v-model": "agreement.agreement_title"}
+        self.fields["new_or_existing"].widget.attrs = {"v-model": "agreement.new_or_existing"}
+        self.fields["notes"].widget.attrs = {"v-model": "agreement.notes"}
+
+
+
+
 # attrs = dict(v-model="new_size_class")
 # class AdminStaffForm(forms.ModelForm):
 #     class Meta:

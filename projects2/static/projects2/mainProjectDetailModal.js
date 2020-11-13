@@ -34,6 +34,10 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
+    my_agreement: {
+      type: Object,
+      required: false,
+    },
   },
   data() {
     return {
@@ -102,6 +106,15 @@ Vue.component("modal", {
       collaborator: {
         name: "",
         critical: false,
+        notes: null,
+      },
+
+      // agreements
+      agreement: {
+        partner_organization: null,
+        project_lead: null,
+        agreement_title: null,
+        new_or_existing: null,
         notes: null,
       },
     }
@@ -294,6 +307,38 @@ Vue.component("modal", {
         }
       }
 
+      // agreement
+      else if (this.mtype === "agreement") {
+        if (this.agreement.target_date === "") this.agreement.target_date = null
+        if (this.my_agreement) {
+          let endpoint = `/api/project-planning/agreements/${this.my_agreement.id}/`;
+          apiService(endpoint, "PATCH", this.agreement).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/agreements/`;
+          apiService(endpoint, "POST", this.agreement).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+      }
+
     },
     adjustStaffFields() {
 
@@ -426,11 +471,19 @@ Vue.component("modal", {
       // collaborators
       else if (this.mtype === "collaborator") {
         if (this.my_collaborator && this.my_collaborator.id) {
-          console.log(this.my_collaborator)
           this.collaborator = this.my_collaborator
           // there is an annoying thing that has to happen to convert the html to js to pytonese...
           if (this.collaborator.critical) this.collaborator.critical = "True"
           else this.collaborator.critical = "False"
+        }
+      }
+      // agreements
+      else if (this.mtype === "agreement") {
+        if (this.my_agreement && this.my_agreement.id) {
+          this.agreement = this.my_agreement
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.agreement.critical) this.agreement.critical = "True"
+          else this.agreement.critical = "False"
         }
       }
 

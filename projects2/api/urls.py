@@ -40,6 +40,10 @@ urlpatterns = [
     path("project-planning/project-years/<int:project_year>/collaborators/", views.CollaboratorListCreateAPIView.as_view(), name="collaborator-list"),
     path("project-planning/collaborators/<int:pk>/", views.CollaboratorRetrieveUpdateDestroyAPIView.as_view(), name="collaborator-detail"),
 
+    # agreements
+    path("project-planning/project-years/<int:project_year>/agreements/", views.AgreementListCreateAPIView.as_view(), name="agreement-list"),
+    path("project-planning/agreements/<int:pk>/", views.AgreementRetrieveUpdateDestroyAPIView.as_view(), name="agreement-detail"),
+
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),
     #

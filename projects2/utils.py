@@ -495,3 +495,14 @@ def get_gc_cost_field_list():
         'amount',
     ]
     return my_list
+
+
+def get_agreement_field_list():
+    my_list = [
+        'partner_organization',
+        'project_lead',
+        'agreement_title',
+        'new_or_existing',
+        'notes',
+    ]
+    return my_list

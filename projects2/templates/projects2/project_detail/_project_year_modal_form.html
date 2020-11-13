@@ -37,6 +37,10 @@
               <span v-if="!my_om_cost">{% trans "New External Collaborator" %}</span>
               <span v-else>{% trans "Edit External Collaborator" %}</span>
             </h3>
+            <h3 v-else-if="mtype === 'agreement'">
+              <span v-if="!my_om_cost">{% trans "New Collaborative Agreement" %}</span>
+              <span v-else>{% trans "Edit Collaborative Agreement" %}</span>
+            </h3>
             <div v-if="errors" class="alert alert-danger" role="alert">
               <h4 class="alert-heading">
                 {% trans "The form has a few errors:" %}
@@ -137,6 +141,10 @@
               {# COLLABORATOR FORM             #}
               <div v-else-if="mtype=='collaborator'">
                 {% bootstrap_form collaborator_form %}
+              </div>
+              {# AGREEEMENT FORM             #}
+              <div v-else-if="mtype=='agreement'">
+                {% bootstrap_form agreement_form %}
               </div>
             </slot>
           </div>

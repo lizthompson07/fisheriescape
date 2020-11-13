@@ -184,6 +184,7 @@ class CapitalCostSerializer(serializers.ModelSerializer):
 
 class MilestoneSerializer(serializers.ModelSerializer):
     target_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+
     class Meta:
         model = models.Milestone
         exclude = ["project_year"]
@@ -203,7 +204,6 @@ class MilestoneSerializer(serializers.ModelSerializer):
         return instance.project_year_id
 
 
-
 class CollaboratorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Collaborator
@@ -213,7 +213,6 @@ class CollaboratorSerializer(serializers.ModelSerializer):
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
-
 
 
 class GCCostSerializer(serializers.ModelSerializer):
@@ -226,3 +225,17 @@ class GCCostSerializer(serializers.ModelSerializer):
     def get_project_year_id(self, instance):
         return instance.project_year_id
 
+
+class AgreementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.CollaborativeAgreement
+        exclude = ["project_year"]
+
+    new_or_existing_display = serializers.SerializerMethodField()
+    project_year_id = serializers.SerializerMethodField()
+
+    def get_new_or_existing_display(self, instance):
+        return instance.get_new_or_existing_display()
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id

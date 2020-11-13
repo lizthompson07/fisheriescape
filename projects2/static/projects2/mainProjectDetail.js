@@ -49,6 +49,13 @@ var app = new Vue({
     showNewCollaboratorModal: false,
     showOldCollaboratorModal: false,
 
+    // agreements
+    agreement_loading: false,
+    agreements: [],
+    agreementToEdit: {},
+    showNewAgreementModal: false,
+    showOldAgreementModal: false,
+
   },
   methods: {
     displayOverview() {
@@ -72,6 +79,7 @@ var app = new Vue({
             this.getGCCosts(yearId)
             this.getMilestones(yearId)
             this.getCollaborators(yearId)
+            this.getAgreements(yearId)
           })
     },
 
@@ -278,6 +286,36 @@ var app = new Vue({
       }
     },
 
+    // Agreement
+    getAgreements(yearId) {
+      this.agreement_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/agreements/`;
+      apiService(endpoint)
+          .then(response => {
+            this.agreement_loading = false;
+            this.agreements = response;
+          })
+    },
+    deleteAgreement(agreement) {
+      userInput = confirm(deleteMsg + agreement.name)
+      if (userInput) {
+        let endpoint = `/api/project-planning/agreements/${agreement.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.agreements, this.agreements.indexOf(agreement));
+            })
+      }
+    },
+
+    openAgreementModal(agreement) {
+      if (!agreement) {
+        this.showNewAgreementModal = true;
+      } else {
+        this.agreementToEdit = agreement;
+        this.showOldAgreementModal = true;
+      }
+    },
+
 
     closeModals(projectYear) {
       this.showNewStaffModal = false;
@@ -298,6 +336,9 @@ var app = new Vue({
       this.showNewCollaboratorModal = false;
       this.showOldCollaboratorModal = false;
 
+      this.showNewAgreementModal = false;
+      this.showOldAgreementModal = false;
+
       if (projectYear) {
         this.$nextTick(() => {
           this.getStaff(projectYear.id)
@@ -305,7 +346,7 @@ var app = new Vue({
           this.getCapitalCosts(projectYear.id)
           this.getGCCosts(projectYear.id)
           this.getMilestones(projectYear.id)
-          this.getCollaborators(projectYear.id)
+          this.getAgreements(projectYear.id)
 
         })
       }

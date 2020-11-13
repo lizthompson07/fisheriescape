@@ -83,10 +83,13 @@
             <modal v-if="showOldGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'" :my_gc_cost="gcCostToEdit"></modal>
 
             <modal v-if="showNewMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'"></modal>
-            <modal v-if="showOldMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'" :my_collaborator="milestoneToEdit"></modal>
+            <modal v-if="showOldMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'" :my_milestone="milestoneToEdit"></modal>
 
             <modal v-if="showNewCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'"></modal>
             <modal v-if="showOldCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'" :my_collaborator="collaboratorToEdit"></modal>
+
+            <modal v-if="showNewAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'"></modal>
+            <modal v-if="showOldAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'" :my_agreement="agreementToEdit"></modal>
 
           </div>
 
