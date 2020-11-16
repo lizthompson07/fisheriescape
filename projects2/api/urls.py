@@ -8,7 +8,7 @@ router = DefaultRouter()
 urlpatterns = [
     # path("", include(router.urls)),
     path("project-planning/user/", views.CurrentUserAPIView.as_view(), name="current-user"),
-    path("project-planning/get-fte-breakdown/", views.FTEBreakdownAPIView.as_view(), name="fte-breakdown"),
+    path("project-planning/fte-breakdown/", views.FTEBreakdownAPIView.as_view(), name="fte-breakdown"),
 
     # Project year
     path("project-planning/project-years/<int:pk>/", views.ProjectYearRetrieveAPIView.as_view(), name="year-detail"),

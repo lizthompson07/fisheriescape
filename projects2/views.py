@@ -135,7 +135,7 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        context["my"] = True
         # # Based on the default sorting order, we get the fiscal year from the first project instance
         # object_list = context.get("object_list")  # grab the projects returned by the filter
         # fy = object_list.first().year if object_list.count() > 0 else None

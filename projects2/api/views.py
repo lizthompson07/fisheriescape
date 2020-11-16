@@ -11,7 +11,7 @@ from . import permissions
 from . import serializers
 from .. import models, stat_holidays
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown
-
+from shared_models import models as shared_models
 
 # USER
 #######
@@ -23,17 +23,22 @@ class CurrentUserAPIView(APIView):
 
 class FTEBreakdownAPIView(APIView):
     def get(self, request):
-        if not request.query_params.get("year"):
-            return Response({"error":"no fiscal year provided"}, status.HTTP_400_BAD_REQUEST)
-
+        # if no user is specified, we will assume it is the request user
         if not request.query_params.get("user"):
             my_user = request.user
         else:
             my_user = get_object_or_404(User, pk=request.query_params.get("user"))
 
-        data = get_user_fte_breakdown(my_user, fiscal_year_id=request.query_params.get("year"))
+        # if there is no fiscal year specified, let's get all years
+        if not request.query_params.get("year"):
+            # need a list of fiscal years
+            fy_qs = shared_models.FiscalYear.objects.filter(projectyear__staff__user=my_user).distinct()
+            data = list()
+            for fy in fy_qs:
+                data.append(get_user_fte_breakdown(my_user, fiscal_year_id=fy.id))
+        else:
+            data = get_user_fte_breakdown(my_user, fiscal_year_id=request.query_params.get("year"))
         return Response(data, status.HTTP_200_OK)
-
 
 
 class GetDatesAPIView(APIView):
@@ -145,7 +150,6 @@ class RemoveEmptyCostsAPIView(APIView):
         return Response(serializer.data, status.HTTP_200_OK)
 
 
-
 # CAPITAL
 #########
 class CapitalCostListCreateAPIView(ListCreateAPIView):
@@ -187,8 +191,6 @@ class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = models.GCCost.objects.all()
     serializer_class = serializers.GCCostSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
-
-
 
 
 # MILESTONE
@@ -233,8 +235,6 @@ class CollaboratorRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-
-
 # AGREEMENTS
 ##############
 class AgreementListCreateAPIView(ListCreateAPIView):
@@ -256,8 +256,6 @@ class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-
-
 # FILES / Supporting Resources
 ##############
 class FileListCreateAPIView(ListCreateAPIView):
@@ -272,7 +270,7 @@ class FileListCreateAPIView(ListCreateAPIView):
     def perform_create(self, serializer):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
         serializer.save(project=year.project, project_year=year)
-        
+
         if self.request.FILES:
             print(self.request.FILES)
 
@@ -296,10 +294,8 @@ class FinancialsAPIView(APIView):
             obj = get_object_or_404(models.ProjectYear, pk=project_year)
             data = financial_project_year_summary_data(obj)
 
-        else: # must be supplied with a project
+        else:  # must be supplied with a project
             obj = get_object_or_404(models.Project, pk=project)
             data = financial_project_summary_data(obj)
 
         return Response(data, status.HTTP_200_OK)
-
-
