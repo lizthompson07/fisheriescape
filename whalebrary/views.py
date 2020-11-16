@@ -1256,6 +1256,18 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Incident List"), "url": reverse_lazy("whalebrary:incident_list")}
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for _images.html
+        context["random_image"] = models.Image.objects.first()
+        context["image_field_list"] = [
+            'title',
+            'image',
+            'date_uploaded',
+        ]
+
+        return context
 
 def send_incident_email(request, pk):
     """simple function to send email with detail_view information"""
@@ -1331,6 +1343,68 @@ class IncidentDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("whalebrary:incident_detail", kwargs=self.kwargs)}
+
+
+    ## INCIDENT IMAGE UPLOAD ##
+
+#TODO add all image views to test cases
+class ImageListView(WhalebraryAdminAccessRequired, CommonFilterView):
+    template_name = "whalebrary/image_list.html"
+    h1 = "Image List"
+    filterset_class = filters.ImageFilter
+    home_url_name = "whalebrary:index"
+    # new_btn_text = "New File"
+
+    queryset = models.Image.objects.annotate(
+        search_term=Concat('id', 'incident__name', 'title', 'image', 'date_uploaded', output_field=TextField()))
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'incident', "class": "", "width": "100px"},
+        {"name": 'title', "class": "", "width": ""},
+        {"name": 'image', "class": "", "width": "75px"},
+        {"name": 'date_uploaded', "class": "", "width": "100px"},
+
+    ]
+
+    # def get_new_object_url(self):
+    #     return reverse("whalebrary:file_new", kwargs=self.kwargs)
+
+
+class ImageCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Image
+    template_name = 'whalebrary/image_form_popout.html'
+    form_class = forms.ImageForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Image successfully added for : {my_object}"))
+        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+    def get_initial(self):
+        incident = models.Item.objects.get(pk=self.kwargs['incident'])
+        return {
+            'incident': incident,
+        }
+
+
+class ImageUpdateView(WhalebraryEditRequiredMixin, UpdateView):
+    model = models.Image
+    template_name = 'whalebrary/image_form_popout.html'
+    form_class = forms.ImageForm
+    cancel_text = _("Cancel")
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Image record successfully updated for : {my_object}"))
+        success_url = reverse_lazy('shared_models:close_me')
+        return HttpResponseRedirect(success_url)
+
+
+class ImageDeleteView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
+    model = models.Image
+    delete_protection = False
+
 
     ## REPORTS ##
 

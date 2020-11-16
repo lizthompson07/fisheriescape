@@ -43,9 +43,9 @@ class BulkTransactionFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["item"] = django_filters.CharFilter(field_name='search_term',
-                                                                         label="Items (any part of name...)",
-                                                                         lookup_expr='icontains',
-                                                                         widget=forms.TextInput())
+                                                         label="Items (any part of name...)",
+                                                         lookup_expr='icontains',
+                                                         widget=forms.TextInput())
 
 
 class OrderFilter(django_filters.FilterSet):
@@ -64,21 +64,31 @@ class LocationFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["location__icontains"] = django_filters.CharFilter(field_name='search_term',
-                                                                         label="Locations (any part of location or address)",
-                                                                         lookup_expr='icontains',
-                                                                         widget=forms.TextInput())
+                                                                        label="Locations (any part of location or address)",
+                                                                        lookup_expr='icontains',
+                                                                        widget=forms.TextInput())
+
+
 class PersonnelFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
+
 
 class SupplierFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
 
+
 class FileFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Files (any part of name...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
 
+
 class IncidentFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+
+
+class ImageFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label="Image (any part of name...)",
                                             lookup_expr='icontains', widget=forms.TextInput())

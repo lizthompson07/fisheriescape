@@ -166,6 +166,15 @@ class IncidentForm(forms.ModelForm):
         }
 
 
+class ImageForm(forms.ModelForm):
+    class Meta:
+        model = models.Image
+        fields = "__all__"
+        widgets = {
+            'incident': forms.HiddenInput(),
+        }
+
+
 class ReportGeneratorForm(forms.Form):
     report = forms.ChoiceField(required=True)
     location = forms.ChoiceField(required=False, label="Location/Container Name", widget=forms.Select(attrs=chosen_js))

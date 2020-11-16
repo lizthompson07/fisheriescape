@@ -109,6 +109,13 @@ urlpatterns = [
     path('incident/<int:pk>/delete/', views.IncidentDeleteView.as_view(), name="incident_delete"),
     path('incident/<int:pk>/email/', views.send_incident_email, name="incident_email"),
 
+    # INCIDENT IMAGES #
+
+    path('image_list/', views.ImageListView.as_view(), name="image_list"),
+    path('incident/<int:incident>/image/new/', views.ImageCreateView.as_view(), name="image_new"),
+    path('image/<int:pk>/edit/', views.ImageUpdateView.as_view(), name="image_edit"),
+    path('image/<int:pk>/delete/', views.ImageDeleteView.as_view(), name="image_delete"),
+
     # REPORTS #
 
     path('reports/generator/', views.ReportGeneratorFormView.as_view(), name="report_generator"),

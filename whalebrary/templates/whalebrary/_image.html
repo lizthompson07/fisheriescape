@@ -1,0 +1,71 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load verbose_names %}
+
+<div class="">
+    <h3>
+        {% trans "Images:" %}
+    </h3>
+</div>
+
+{% if object.images.count == 0 %}
+    <em>
+        {% trans "No images have been added to this entry" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-bordered table-sm" style="width: auto">
+        <tr>
+            <th>
+            {% trans "Link" %}
+            </th>
+            {% for field in image_field_list %}
+            <th>
+                {% get_verbose_label random_image field %}
+            </th>
+            {% endfor %}
+        </tr>
+        <tbody>
+         {% for obj in object.images.all %}
+        <tr>
+            <td>
+                <a href="{{ obj.image.url }}" >
+                    <img src="{% static "/img/paperclip-34593.svg" %}" style="width:40px">
+                </a>
+            </td>
+            {% for field in image_field_list %}
+            <td>
+                {% get_field_value obj field %}
+            </td>
+            {% endfor %}
+            <td>
+                <a href="#"
+                   pop-href="{% url 'whalebrary:image_edit' obj.id %}">
+                    <img src="{% static "/admin/img/icon-changelink.svg" %}" data-toggle="tooltip" title="Edit">
+                </a>
+            </td>
+            <td>
+                <a href="#"
+                   pop-href="{% url 'whalebrary:image_delete' obj.id %}">
+                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip" title="Delete">
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+
+{# Display all the images uploaded#}
+
+{% for obj in object.images.all %}
+    <img src="{{ obj.image.url}}" alt="connect" style="max-height:300px; margin:10px 0px">
+{% endfor %}
+
+<br>
+
+
+
+
