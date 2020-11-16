@@ -124,7 +124,7 @@ class Ticket(models.Model):
         else:
             self.date_closed = None
 
-        self.fiscal_year_id = fiscal_year(self.date_opened.year, sap_style=True)
+        self.fiscal_year_id = fiscal_year(self.date_opened, sap_style=True)
         super().save(*args, **kwargs)
 
     class Meta:
