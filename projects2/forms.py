@@ -274,8 +274,6 @@ class ProjectNotesForm(forms.ModelForm):
 #
 #
 class StaffForm(forms.ModelForm):
-    save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
-
     class Meta:
         model = models.Staff
         exclude = ["project_year"]
@@ -292,7 +290,7 @@ class StaffForm(forms.ModelForm):
 
         self.fields["employee_type"].widget.attrs = {"v-model": "staff.employee_type", "@change": "adjustStaffFields"}
         self.fields["level"].widget.attrs = {"v-model": "staff.level", ":disabled": "disableLevelField"}
-        self.fields["duration_weeks"].widget.attrs = {"v-model": "staff.duration_weeks"}
+        self.fields["duration_weeks"].widget.attrs = {"v-model": "staff.duration_weeks", "step":"0.1"}
         self.fields["overtime_hours"].widget.attrs = {"v-model": "staff.overtime_hours"}
         self.fields["student_program"].widget.attrs = {"v-model": "staff.student_program", ":disabled": "disableStudentProgramField"}
 

@@ -6,6 +6,8 @@ var app = new Vue({
 
     py_loading: false,
     projectYear: {},
+    financials: [],
+    financials_loading: false,
 
     // staff
     staff_loading: false,
@@ -88,9 +90,18 @@ var app = new Vue({
             this.getCollaborators(yearId)
             this.getAgreements(yearId)
             this.getFiles(yearId)
+            this.getFinancials(yearId)
           })
     },
-
+    getFinancials(yearId) {
+      this.financials_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/financials/`;
+      apiService(endpoint)
+          .then(response => {
+            this.financials_loading = false;
+            this.financials = response;
+          })
+    },
     // Staff
     getStaff(yearId) {
       this.staff_loading = true;
@@ -324,7 +335,7 @@ var app = new Vue({
       }
     },
 
-  // File
+    // File
     getFiles(yearId) {
       this.file_loading = true;
       let endpoint = `/api/project-planning/project-years/${yearId}/files/`;
@@ -389,6 +400,7 @@ var app = new Vue({
           this.getAgreements(projectYear.id)
           this.getCollaborators(projectYear.id)
           this.getFiles(projectYear.id)
+          this.getFinancials(projectYear.id)
 
         })
       }
@@ -423,7 +435,12 @@ var app = new Vue({
   filters: {
     floatformat: function (value, precision = 2) {
       if (value == null) return '';
-      value = Number(value).toFixed(precision);
+      value = Number(value).toFixed(precision).toLocaleString("en");
+      return value
+    },
+    currencyFormat: function (value, precision = 2) {
+      if (value == null) return '';
+      value = accounting.formatNumber(value, precision);
       return value
     },
     zero2NullMark: function (value) {
@@ -454,7 +471,26 @@ var app = new Vue({
       return value;
     }
   },
-  computed: {},
+  computed: {
+    financial_totals () {
+      myObj = {
+        salary: 0,
+        om: 0,
+        capital: 0,
+        total:0,
+      }
+      if(this.financials) {
+        for (var i = 0; i < this.financials.length; i++) {
+          myObj.salary += this.financials[i].salary
+          myObj.om += this.financials[i].om
+          myObj.capital += this.financials[i].capital
+          myObj.total += this.financials[i].total
+        }
+      }
+      return myObj
+    }
+
+  },
   created() {
   },
   mounted() {

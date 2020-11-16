@@ -58,8 +58,8 @@
             <td>${item.category_display | nz }</td>
           {% elif "amount" in field %}
             <td>
-              <span v-if="item.amount == 0||!item.amount" class="major-error py-1 px-1">${item.amount | floatformat}</span>
-              <span v-else>${item.amount | floatformat}</span>
+              <span v-if="item.amount == 0||!item.amount" class="major-error py-1 px-1">${item.amount | currencyFormat}</span>
+              <span v-else>${item.amount | currencyFormat}</span>
             </td>
           {% else %}
             <td>${ item.{{ field }} | nz}</td>
@@ -76,4 +76,3 @@
   </div>
 
 </div>
-</tr>

@@ -61,3 +61,7 @@ h1 {
     /*position: absolute;*/
     /*right: 0;*/
 }
+
+.w150 {
+    width: 150px;
+}

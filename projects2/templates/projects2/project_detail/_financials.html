@@ -1,0 +1,65 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div class="mb-2 neighbours">
+    <h2>{% trans "Financial Summary" %}</h2>
+  </div>
+
+  <div v-if="financials_loading">
+    <button class="btn btn-primary" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+  <div v-else>
+    <table class="table table-sm" style="width: auto">
+      <tr>
+        <th class="w150">
+          {% trans "Type" %}
+        </th>
+        <th class="w150">
+          {% trans "Funding source" %}
+        </th>
+        <th class="w150">
+          {% trans "Salary (excluding FTE)" %}
+        </th>
+        <th class="w150">
+          {% trans "O & M" %}
+        </th>
+        <th class="w150">
+          {% trans "Captial" %}
+        </th>
+        <th class="w150">
+          {% trans "Total" %}
+        </th>
+      </tr>
+      <tbody>
+      <tr v-for="(fs, index) in financials" :class="fs.type.toLowerCase()">
+        <td>${fs.type}</td>
+        <td>${fs.name}</td>
+        <td>${fs.salary |currencyFormat|zero2NullMark}</td>
+        <td>${fs.om|currencyFormat|zero2NullMark}</td>
+        <td>${fs.capital|currencyFormat|zero2NullMark}</td>
+        <td>${fs.total|currencyFormat|zero2NullMark}</td>
+      </tr>
+
+      <tr>
+        <td>{% trans "TOTAL" %}</td>
+        <td>---</td>
+        <td>${financial_totals.salary |currencyFormat|zero2NullMark}</td>
+        <td>${financial_totals.om|currencyFormat|zero2NullMark}</td>
+        <td>${financial_totals.capital|currencyFormat|zero2NullMark}</td>
+        <td>${financial_totals.total|currencyFormat|zero2NullMark}</td>
+      </tr>
+
+      </tbody>
+    </table>
+
+  </div>
+
+</div>

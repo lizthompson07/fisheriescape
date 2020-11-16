@@ -57,13 +57,18 @@ class ActivityType(SimpleLookup):
 
 
 class FundingSource(SimpleLookup):
-    funding_source_choices = (
-        (1, _("A-base")),  # #a7aef9
-        (2, _("B-base")),  # #d9a7f9
-        (3, _("C-base")),  # #eff9a7
+    funding_source_type_choices = (
+        (1, _("A-base")),
+        (2, _("B-base")),
+        (3, _("C-base")),
+    )
+    funding_source_type_colors = (
+        (1, "#a7aef9"),
+        (2, "#d9a7f9"),
+        (3, "#eff9a7"),
     )
     name = models.CharField(max_length=255)
-    funding_source_type = models.IntegerField(choices=funding_source_choices)
+    funding_source_type = models.IntegerField(choices=funding_source_type_choices)
 
     def __str__(self):
         return f"{self.tname} ({self.get_funding_source_type_display()})"

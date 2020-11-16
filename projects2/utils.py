@@ -267,17 +267,17 @@ def pdf_financial_summary_data(project):
 
 
 def financial_project_year_summary_data(project_year):
+    """ this function will return a list, where each row corresponds to a funding source"""
     # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
     my_list = []
 
     for fs in project_year.get_funding_sources():
         my_dict = dict()
-        my_dict["name"] = str(fs)
         my_dict["type"] = fs.get_funding_source_type_display()
+        my_dict["name"] = str(fs)
         my_dict["salary"] = 0
         my_dict["om"] = 0
         my_dict["capital"] = 0
-        my_dict["total"] = 0
 
         # first calc for staff
         for staff in project_year.staff_set.filter(funding_source=fs):
@@ -296,24 +296,10 @@ def financial_project_year_summary_data(project_year):
         for cost in project_year.capitalcost_set.filter(funding_source=fs):
             my_dict["capital"] += nz(cost.amount, 0)
 
+        my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+
         my_list.append(my_dict)
 
-    # do the totals. I am doing this loop as separate so that the total entry comes at the end of all the funding sources
-    my_dict = dict()
-    my_dict["name"] = "Total"
-    my_dict["type"] = "Total"
-    my_dict["salary"] = 0
-    my_dict["om"] = 0
-    my_dict["capital"] = 0
-    my_dict["total"] = 0
-    my_list.append(my_dict)
-
-    # for fs in project_year.get_funding_sources():
-    #     my_dict[fs]["total"] = float(my_dict[fs]["capital"]) + float(my_dict[fs]["salary"]) + float(my_dict[fs]["om"])
-    #     my_dict["total"]["salary"] += my_dict[fs]["salary"]
-    #     my_dict["total"]["om"] += my_dict[fs]["om"]
-    #     my_dict["total"]["capital"] += my_dict[fs]["capital"]
-    #     my_dict["total"]["total"] += my_dict[fs]["total"]
     return my_list
 
 
