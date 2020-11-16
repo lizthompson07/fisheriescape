@@ -1167,7 +1167,7 @@ class FileCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
         }
 
 
-class FileUpdateView(WhalebraryEditRequiredMixin, UpdateView):
+class FileUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     model = models.File
     template_name = 'whalebrary/file_form_popout.html'
     form_class = forms.FileForm
@@ -1347,7 +1347,6 @@ class IncidentDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 
     ## INCIDENT IMAGE UPLOAD ##
 
-#TODO add all image views to test cases
 class ImageListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/image_list.html"
     h1 = "Image List"
@@ -1382,13 +1381,13 @@ class ImageCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
         return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
 
     def get_initial(self):
-        incident = models.Item.objects.get(pk=self.kwargs['incident'])
+        incident = models.Incident.objects.get(pk=self.kwargs['incident'])
         return {
             'incident': incident,
         }
 
 
-class ImageUpdateView(WhalebraryEditRequiredMixin, UpdateView):
+class ImageUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
     model = models.Image
     template_name = 'whalebrary/image_form_popout.html'
     form_class = forms.ImageForm

@@ -197,3 +197,22 @@ class IncidentFactory(factory.django.DjangoModelFactory):
         return {
             'name': faker.catch_phrase(),
         }
+
+
+class ImageFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Image
+
+    incident = factory.SubFactory(IncidentFactory)
+    title = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    image = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    date_uploaded = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'incident': IncidentFactory().id,
+            'title': faker.catch_phrase(),
+            'image': faker.word(),
+            'date_uploaded': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+        }

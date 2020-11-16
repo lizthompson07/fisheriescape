@@ -276,6 +276,32 @@ class TestIncidentListView(CommonTest):
         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
 
+class TestImageListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ImageFactory()
+        self.test_url = reverse_lazy('whalebrary:image_list')
+        self.expected_template = 'whalebrary/image_list.html'
+        self.user = self.get_and_login_user(in_group="whalebrary_admin")
+
+    @tag("Image", "image_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ImageListView, CommonFilterView)
+        self.assert_inheritance(views.ImageListView, views.WhalebraryAdminAccessRequired)
+
+    @tag("Image", "image_list", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Image", "image_list", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+
 class TestContainerSummaryListView(CommonTest):
     def setUp(self):
         super().setUp()

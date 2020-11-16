@@ -87,13 +87,13 @@ class TestTransactionUpdateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
 
-# TODO check that kwargs can be static -- why 3 kwargs?
+# TODO check that kwargs can be static -- change all to args
 class TestOrderReceivedTransactionUpdateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.TransactionFactory()
         self.test_url = reverse_lazy('whalebrary:transaction_edit',
-                                     kwargs={"pk": self.instance.id, "user": 1, "pop": 1})
+                                     kwargs={"pk": self.instance.id, "pop": 1})
         self.expected_template = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="whalebrary_edit")
 
@@ -242,7 +242,7 @@ class TestFileUpdateView(CommonTest):
 
     @tag("File", "file_edit", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FileUpdateView, UpdateView)
+        self.assert_inheritance(views.FileUpdateView, CommonUpdateView)
         self.assert_inheritance(views.FileUpdateView, views.WhalebraryEditRequiredMixin)
 
     @tag("File", "file_edit", "access")
@@ -279,42 +279,26 @@ class TestIncidentUpdateView(CommonTest):
         data = FactoryFloor.IncidentFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-# class TestTripRequestUpdateView(CommonTest):
-#     def setUp(self):
-#         super().setUp()
-#         self.instance = FactoryFloor.IndividualTripRequestFactory()
-#         self.instance_child = FactoryFloor.IndividualTripRequestFactory()
-#         self.test_url = reverse_lazy('travel:request_edit', args=(self.instance.pk, "my"))
-#         self.test_url1 = reverse_lazy('travel:request_edit', args=(self.instance_child.pk, "pop"))
-#         self.expected_template = 'travel/trip_request_form.html'
-#         self.expected_template1 = 'travel/trip_request_form_popout.html'
-#
-#     @tag("travel", "view")
-#     def test_view_class(self):
-#         self.assert_inheritance(views.TripRequestUpdateView, CommonUpdateView)
-#         self.assert_inheritance(views.TripRequestUpdateView, views.CanModifyMixin)
-#
-#     @tag("travel", "access")
-#     def test_view(self):
-#         self.assert_not_broken(self.test_url)
-#         self.assert_not_broken(self.test_url1)
-#         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.instance.user)
-#         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.instance_child.user)
-#
-#     @tag("travel", "context")
-#     def test_context(self):
-#         context_vars = [
-#             "cost_field_list",
-#             "user_json",
-#             "conf_json",
-#             "help_text_dict",
-#         ]
-#         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.instance.user)
-#         self.assert_presence_of_context_vars(self.test_url1, context_vars, user=self.instance_child.user)
-#
-#     @tag("travel", "submit")
-#     def test_submit(self):
-#         data = FactoryFloor.IndividualTripRequestFactory.get_valid_data()
-#         self.assert_success_url(self.test_url, data=data, user=self.instance.user)
-#         data = FactoryFloor.ChildTripRequestFactory.get_valid_data()
-#         self.assert_success_url(self.test_url1, data=data, user=self.instance_child.user)
+
+class TestImageUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ImageFactory()
+        self.test_url = reverse_lazy('whalebrary:image_edit', args=[self.instance.pk, ])
+        self.expected_template = 'whalebrary/image_form_popout.html'
+        self.user = self.get_and_login_user(in_group="whalebrary_edit")
+
+    @tag("Image", "image_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ImageUpdateView, CommonUpdateView)
+        self.assert_inheritance(views.ImageUpdateView, views.WhalebraryEditRequiredMixin)
+
+    @tag("Image", "image_edit", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Image", "image_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ImageFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)

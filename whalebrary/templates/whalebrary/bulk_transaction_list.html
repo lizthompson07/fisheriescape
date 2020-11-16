@@ -34,8 +34,9 @@
 
 
 {% block table_tr %}
-    {% url row_object_url_name object.id as my_url %}
-    <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
+{#    {% url row_object_url_name object.id as my_url %}#}
+{#    <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>#}
+        <tr>
         {% for field in field_list %}
             <td class="{{ field.class }}">
                 {% block table_td %}
@@ -43,12 +44,12 @@
                 {% endblock %}
             </td>
         {% endfor %}
-            <td>
-                <a class="delete-me" href="{% url 'whalebrary:bulk_transaction_delete' object.id %}">
-                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
-                         title="Delete">
-                </a>
-            </td>
+{#            <td>#}
+{#                <a class="delete-me" href="{% url 'whalebrary:bulk_transaction_delete' object.id %}">#}
+{#                    <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"#}
+{#                         title="Delete">#}
+{#                </a>#}
+{#            </td>#}
             <td>
                 <a href="#"
                    pop-href="{% url 'whalebrary:lending_return_item' object.id %}">

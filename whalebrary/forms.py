@@ -77,6 +77,7 @@ class OrderForm(forms.ModelForm):
                 attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
             'date_received': forms.DateInput(
                 attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'transaction': forms.HiddenInput(),
 
         }
 
