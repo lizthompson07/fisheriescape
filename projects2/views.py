@@ -24,7 +24,7 @@ from . import forms
 from . import models
 from . import stat_holidays
 from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
-from .utils import multiple_projects_financial_summary, financial_summary_data, can_modify_project, get_help_text_dict, \
+from .utils import multiple_projects_financial_summary, financial_project_summary_data, can_modify_project, get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin
 
 
@@ -106,7 +106,7 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
     home_url_name = "projects2:index"
     container_class = "container-fluid"
     row_object_url_name = "projects2:project_detail"
-    new_object_url = "projects2:project_new"
+    new_object_url = reverse_lazy("projects2:project_new")
     field_list = [
         {"name": 'section', "class": "", "width": ""},
         {"name": 'title', "class": "", "width": ""},
@@ -1383,7 +1383,7 @@ class FunctionalGroupListView(AdminRequiredMixin, CommonFilterView):
     template_name = 'projects2/list.html'
     filterset_class = filters.FunctionalGroupFilter
     home_url_name = "projects2:index"
-    new_object_url = "projects2:group_new"
+    new_object_url = reverse_lazy("projects2:group_new")
     row_object_url_name = row_ = "projects2:group_edit"
 
     field_list = [

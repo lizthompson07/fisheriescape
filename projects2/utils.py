@@ -303,7 +303,7 @@ def financial_project_year_summary_data(project_year):
     return my_list
 
 
-def financial_summary_data(project):
+def financial_project_summary_data(project):
     # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
     my_dict = OrderedDict()
 
