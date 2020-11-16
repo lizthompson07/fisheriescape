@@ -237,6 +237,8 @@ class SteStationEvent(models.Model):
     set_type = models.ForeignKey('SetStationEventCode', on_delete=models.DO_NOTHING, db_column='set_type',
                                  verbose_name=_("Event Type"))
     ste_date = models.DateField(verbose_name=_("Date"))
+    ste_time = models.TimeField(blank=True, null=True, verbose_name=_("Time"))
+    rtt_id = models.ForeignKey("RttTimezoneCode", on_delete=models.DO_NOTHING, verbose_name=_("Timezone"))
 
     # Note: We're using the cruise information from the Shared Models tables rather than duplicating information.
     #   Not to mention the Shared Model tables will have more detail than Team Whale expects to get.
@@ -264,7 +266,7 @@ class SteStationEvent(models.Model):
 
 class StnStation(models.Model):
     stn_name = models.CharField(max_length=100, verbose_name=_("Name"))
-    stn_code = models.CharField(max_length=3, verbose_name=_("Code"))
+    stn_code = models.CharField(max_length=6, verbose_name=_("Code"))
     stn_revision = models.BigIntegerField(verbose_name=_("Revision"))
     stn_planned_lat = models.DecimalField(max_digits=9, decimal_places=6, verbose_name=_("Latitude"))
     stn_planned_lon = models.DecimalField(max_digits=9, decimal_places=6, verbose_name=_("Longitude"))

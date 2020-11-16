@@ -570,53 +570,57 @@ def generate_hdet(year):
     # lets define a few custom functions:
 
     for fish in fish_list:
-        # sample, day, month, year, fish_number,
-        # fishlength, fishweight, sex (M,F,I),
-        # maturity, gonadweight, otolith_season, annulus_count
+        # only do this if the fish was fully processed in the lab!
+        if fish.lab_processed_date:
 
-        if fish.sex:
-            sex = fish.sex.oracle_code
-        else:
-            sex = ""
+            # sample, day, month, year, fish_number,
+            # fishlength, fishweight, sex (M,F,I),
+            # maturity, gonadweight, otolith_season, annulus_count
 
-        if fish.maturity:
-            # the other database uses 0 as unknown, as oppposed to 9
-            if fish.maturity.id == 9:
-                maturity = 0
+
+            if fish.sex:
+                sex = fish.sex.oracle_code
             else:
-                maturity = fish.maturity.id
-        else:
-            maturity = ""
+                sex = ""
 
-        if fish.otolith_season:
-            os = fish.otolith_season.oracle_code
-        else:
-            os = ""
+            if fish.maturity:
+                # the other database uses 0 as unknown, as oppposed to 9
+                if fish.maturity.id == 9:
+                    maturity = 0
+                else:
+                    maturity = fish.maturity.id
+            else:
+                maturity = ""
 
-        if fish.annulus_count == -99 or fish.annulus_count is None:
-            annulus_count = ""
-        else:
-            annulus_count = fish.annulus_count
+            if fish.otolith_season:
+                os = fish.otolith_season.oracle_code
+            else:
+                os = ""
 
-        # we will have to turn this into a fixed width
-        padding_lengths = [5, 2, 2, 4, 3, 3, 3, 1, 1, 5, 3, 2]
+            if fish.annulus_count == -99 or fish.annulus_count is None:
+                annulus_count = ""
+            else:
+                annulus_count = fish.annulus_count
 
-        writer.writerow(
-            [
-                str(fish.sample.id).rjust(padding_lengths[0]),
-                str(fish.sample.sample_date.day).rjust(padding_lengths[1]),
-                str(fish.sample.sample_date.month).rjust(padding_lengths[2]),
-                str(fish.sample.sample_date.year).rjust(padding_lengths[3]),
-                str(fish.fish_number).rjust(padding_lengths[4]),
-                # must be cast to int
-                str(int(math.ceil(fish.fish_length))).rjust(padding_lengths[5]),
-                # must be cast to int
-                str(int(math.ceil(fish.fish_weight))).rjust(padding_lengths[6]),
-                str(sex).rjust(padding_lengths[7]),
-                str(maturity).rjust(padding_lengths[8]),
-                "{:.1f}".format(fish.gonad_weight).rjust(padding_lengths[9]),
-                str(os).ljust(padding_lengths[10]),
-                str(annulus_count).rjust(padding_lengths[11]),
-            ])
+            # we will have to turn this into a fixed width
+            padding_lengths = [5, 2, 2, 4, 3, 3, 3, 1, 1, 5, 3, 2]
+
+            writer.writerow(
+                [
+                    str(fish.sample.id).rjust(padding_lengths[0]),
+                    str(fish.sample.sample_date.day).rjust(padding_lengths[1]),
+                    str(fish.sample.sample_date.month).rjust(padding_lengths[2]),
+                    str(fish.sample.sample_date.year).rjust(padding_lengths[3]),
+                    str(fish.fish_number).rjust(padding_lengths[4]),
+                    # must be cast to int
+                    str(int(math.ceil(fish.fish_length))).rjust(padding_lengths[5]),
+                    # must be cast to int
+                    str(int(math.ceil(fish.fish_weight))).rjust(padding_lengths[6]),
+                    str(sex).rjust(padding_lengths[7]),
+                    str(maturity).rjust(padding_lengths[8]),
+                    "{:.1f}".format(fish.gonad_weight).rjust(padding_lengths[9]),
+                    str(os).ljust(padding_lengths[10]),
+                    str(annulus_count).rjust(padding_lengths[11]),
+                ])
 
     return response

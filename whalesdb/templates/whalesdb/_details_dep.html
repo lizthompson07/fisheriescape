@@ -84,7 +84,7 @@
                         </div>
                     </div>
 
-                     <div class="card border border-dark my-1">
+                     <div class="card border border-dark my-1" id="id_station_event">
                         <div class="card-header h5">
                             <div class="row align-items-center">
                                 <span class="col">
@@ -94,11 +94,11 @@
                         {% if auth %}
                             {% if not dep.station_events.last %}
                                 <span class="px-1">
-                                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 1 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Deployment Event' %}</a>
+                                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 1 'pop' %}','id_station_event')" title="{% trans 'Add' %}">{% trans 'Deployment Event' %}</a>
                                 </span>
                             {% elif dep.station_events.last.set_type.pk == 1 %}
                                 <span class="px-1">
-                                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 2 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Recovery Event' %}</a>
+                                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ste' dep.pk 2 'pop' %}','id_station_event')" title="{% trans 'Add' %}">{% trans 'Recovery Event' %}</a>
                                 </span>
                             {% endif %}
                         {% endif %}
@@ -109,7 +109,7 @@
                             <table class="table sortable">
                                 <thead><tr>
                                     {% with dep.station_events.first as evt %}
-                                    <th scope="col">{% get_verbose_label evt 'ste_date' %}</th>
+                                    <th class="col-2" scope="col">{% get_verbose_label evt 'ste_date' %}</th>
                                     <th scope="col">{% get_verbose_label evt 'crs' %}</th>
                                     <th scope="col">{% get_verbose_label evt 'set_type' %}</th>
                                     <td class="col"></td>
@@ -118,7 +118,10 @@
                                 <tbody>
                             {% for evt in dep.station_events.all %}
                                 <tr>
-                                    <td>{{ evt.ste_date }}</td>
+                                    <td>{{ evt.ste_date }}<br />
+                                    {{ evt.ste_time }}<br />
+                                    {{ evt.rtt_id }}
+                                    </td>
                                     <td>{{ evt.crs }}</td>
                                     <td>{{ evt.set_type.name }}</td>
                                     <td>
@@ -126,7 +129,7 @@
                                         <div class="card-header">
                                             <div class="row">
                                                 <a class="col h5" href="#fs-evt-{{evt.pk}}" data-toggle="collapse">{% trans 'Details' %}</a>
-                                                <a class="btn btn-primary col-2" href="#" onclick="return pop('{% url 'whalesdb:update_ste' evt.id object.pk 'pop' %}','all')" >{% trans 'Update' %}</a>
+                                                <a class="btn btn-primary col-2" href="#" onclick="return pop('{% url 'whalesdb:update_ste' evt.id 'pop' %}','all')" >{% trans 'Update' %}</a>
                                             </div>
                                         </div>
                                         <div class="card-body collapse" id="fs-evt-{{evt.pk}}">

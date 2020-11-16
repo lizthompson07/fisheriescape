@@ -631,6 +631,24 @@ UpcomingDateFormset = modelformset_factory(
 )
 
 
+class ReferenceMaterialForm(forms.ModelForm):
+    class Meta:
+        model = models.ReferenceMaterial
+        fields = "__all__"
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"})
+        }
+
+
+ReferenceMaterialFormset = modelformset_factory(
+    model=models.ReferenceMaterial,
+    form=ReferenceMaterialForm,
+    extra=1,
+)
+
+
+
+
 class LevelForm(forms.ModelForm):
     class Meta:
         model = models.Level

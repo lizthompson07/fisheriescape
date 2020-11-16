@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Sum
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from textile import textile
@@ -789,9 +790,18 @@ def ref_mat_directory_path(instance, filename):
 
 
 class ReferenceMaterial(SimpleLookup):
-    file = models.FileField(upload_to=ref_mat_directory_path, blank=True, null=True, verbose_name=_("file attachment"))
+    file = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment"))
+    region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, related_name="reference_materials",
+                               verbose_name=_("region"), blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True, editable=False)
     date_modified = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def file_display(self):
+        if self.file:
+            return mark_safe(
+                f"<a href='{self.file.url}'> <span class='mdi mdi-file'></span></a>"
+            )
 
 
 @receiver(models.signals.post_delete, sender=ReferenceMaterial)
@@ -821,6 +831,6 @@ def auto_delete_ReferenceMaterial_on_change(sender, instance, **kwargs):
         return False
 
     new_file = instance.file
-    if not old_file == new_file:
+    if old_file and old_file != new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)

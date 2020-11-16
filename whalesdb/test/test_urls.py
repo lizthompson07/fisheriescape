@@ -251,6 +251,10 @@ class URLTest(TestCase):
     def test_url_create_rsc_view(self):
         self.basic_en_url_test('whalesdb:create_rsc', 'whalesdb/create/rsc/', views.RscCreate)
 
+    @tag('rsc', 'url', 'update')
+    def test_url_update_rsc_view(self):
+        self.basic_en_url_test('whalesdb:update_rsc', 'whalesdb/update/rsc/1/', views.RscUpdate, [1])
+
     @tag('rsc', 'url', 'list')
     def test_url_list_rsc_view(self):
         self.basic_en_url_test('whalesdb:list_rsc', 'whalesdb/list/rsc/', views.RscList)
@@ -298,12 +302,15 @@ class URLTest(TestCase):
 
     @tag('ste', 'url', 'update', 'pop')
     def test_url_update_set_pop_ste_view(self):
-        # The Station Event object requires a Deployment and a station event type
-        self.basic_en_url_test('whalesdb:update_ste', 'whalesdb/update/ste/1/2/pop/', views.SteUpdate, [1, 2, 'pop'])
+        self.basic_en_url_test('whalesdb:update_ste', 'whalesdb/update/ste/1/pop/', views.SteUpdate, [1, 'pop'])
 
     @tag('tea', 'url', 'create')
     def test_url_create_tea_view(self):
         self.basic_en_url_test('whalesdb:create_tea', 'whalesdb/create/tea/', views.TeaCreate)
+
+    @tag('tea', 'url', 'update')
+    def test_url_update_tea_view(self):
+        self.basic_en_url_test('whalesdb:update_tea', 'whalesdb/update/tea/1/', views.TeaUpdate, [1,])
 
     @tag('tea', 'url', 'list')
     def test_url_list_tea_view(self):

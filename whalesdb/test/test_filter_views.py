@@ -147,7 +147,6 @@ class TestRetList(CommonListTest, TestCase):
         response = super().get_context()
 
         self.assertFalse(response.context['details_url'])
-        self.assertEqual("whalesdb:delete_ret", response.context['delete_url'])
 
 
 @tag('rsc', 'filter')

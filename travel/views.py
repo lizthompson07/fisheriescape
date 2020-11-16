@@ -26,7 +26,7 @@ from easy_pdf.views import PDFTemplateView
 from msrestazure.azure_active_directory import MSIAuthentication
 
 from dm_apps.context_processor import my_envr
-from dm_apps.utils import custom_send_mail
+from dm_apps.utils import custom_send_mail, compare_strings
 from lib.functions.custom_functions import fiscal_year
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -1835,12 +1835,12 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
 
         context["same_location_trips"] = base_qs.filter(
             id__in=[trip.id for trip in base_qs if trip.location and my_trip.location and
-                    utils.compare_strings(trip.location, my_trip.location) < 3]
+                    compare_strings(trip.location, my_trip.location) < 3]
         )
 
         similar_fr_name_trips = [trip.id for trip in base_qs if
-                                 trip.nom and utils.compare_strings(trip.nom, trip.name) < 15] if my_trip.nom else []
-        similar_en_name_trips = [trip.id for trip in base_qs if utils.compare_strings(trip.name, my_trip.name) < 15]
+                                 trip.nom and compare_strings(trip.nom, trip.name) < 15] if my_trip.nom else []
+        similar_en_name_trips = [trip.id for trip in base_qs if compare_strings(trip.name, my_trip.name) < 15]
         my_list = list()
         my_list.extend(similar_en_name_trips)
         my_list.extend(similar_fr_name_trips)
