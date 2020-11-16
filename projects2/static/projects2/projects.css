@@ -57,7 +57,29 @@ h1 {
     background-color: #eff9a7;
 }
 
-.to-the-right{
+
+.draft {
+    background-color: #fff396;
+}
+
+.submitted {
+    background-color: #ffda84;
+}
+
+.recommended {
+    background-color: #a2c4fa;
+}
+
+.approved {
+    background-color: #a8ffb8;
+}
+
+.cancelled {
+    background-color: #c1c1c1;
+}
+
+
+.to-the-right {
     /*position: absolute;*/
     /*right: 0;*/
 }

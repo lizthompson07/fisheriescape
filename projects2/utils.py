@@ -372,6 +372,7 @@ def get_project_year_field_list(project_year=None):
         'additional_notes',
         'coding',
         'submitted',
+        'formatted_status|{}'.format(_("status")),
         'allocated_budget',
         'metadata|{}'.format(_("metadata")),
     ]

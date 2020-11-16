@@ -39,6 +39,7 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     other_lab_support_needs_html = serializers.SerializerMethodField()
     it_needs_html = serializers.SerializerMethodField()
     default_funding_source_id = serializers.SerializerMethodField()
+    formatted_status = serializers.SerializerMethodField()
 
     def get_display_name(self, instance):
         return str(instance.fiscal_year)
@@ -104,6 +105,9 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_default_funding_source_id(self, instance):
         return instance.project.default_funding_source_id
+
+    def get_formatted_status(self, instance):
+        return instance.formatted_status
 
 
 class StaffSerializer(serializers.ModelSerializer):

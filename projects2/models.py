@@ -400,6 +400,12 @@ class ProjectYear(models.Model):
                 my_list.append(item.funding_source)
         return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
 
+    @property
+    def formatted_status(self):
+        return mark_safe(
+            f"<span class='{self.get_status_display().lower()} px-0'>{self.get_status_display()}</span>"
+        )
+
 
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))
