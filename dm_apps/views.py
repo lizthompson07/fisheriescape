@@ -80,12 +80,12 @@ def get_app_dict(request):
             pass
 
     try:
-        app_dict["projects"] = {
-            "title": _("Project Planning"),
+        app_dict["projects2"] = {
+            "title": _("Project Planning (Version 2)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),
-            "status": "production",
+            "status": "dev",
             "access": "login-required",
-            "url": reverse('projects:index'),
+            "url": reverse('projects2:index'),
             "icon_path": 'img/icons/scope.svg',
             "region": "all",
         }
@@ -364,19 +364,19 @@ def get_app_dict(request):
     #     }
     # except NoReverseMatch:
     #     pass
+
     try:
-        app_dict["projects2"] = {
-            "title": _("Project Planning V2"),
+        app_dict["projects"] = {
+            "title": _("Project Planning (ARCHIVE ONLY)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),
-            "status": "dev",
+            "status": "production",
             "access": "login-required",
-            "url": reverse('projects2:index'),
+            "url": reverse('projects:index'),
             "icon_path": 'img/icons/scope.svg',
             "region": "all",
         }
     except NoReverseMatch:
         pass
-
     return OrderedDict(app_dict)
 
 

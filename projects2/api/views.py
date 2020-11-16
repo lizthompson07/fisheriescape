@@ -1,7 +1,7 @@
 from pandas import date_range
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from . import permissions
 from . import serializers
 from .. import models, stat_holidays
+from ..utils import financial_project_year_summary_data
 
 
 class CurrentUserAPIView(APIView):
@@ -235,3 +236,14 @@ class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = models.CollaborativeAgreement.objects.all()
     serializer_class = serializers.AgreementSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+
+
+# FINANCIALS
+############
+
+
+class FinancialsAPIView(APIView):
+    def get(self, request, project_year):
+        year = get_object_or_404(models.ProjectYear, pk=project_year)
+        data = financial_project_year_summary_data(year)
+        return Response(data, status.HTTP_200_OK)

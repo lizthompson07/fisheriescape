@@ -44,6 +44,9 @@ urlpatterns = [
     path("project-planning/project-years/<int:project_year>/agreements/", views.AgreementListCreateAPIView.as_view(), name="agreement-list"),
     path("project-planning/agreements/<int:pk>/", views.AgreementRetrieveUpdateDestroyAPIView.as_view(), name="agreement-detail"),
 
+    # financials
+    path("project-planning/project-years/<int:project_year>/financials/", views.FinancialsAPIView.as_view(), name="financials"),
+
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),
     #

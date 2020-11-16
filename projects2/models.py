@@ -354,6 +354,22 @@ class ProjectYear(models.Model):
             pc = "xxxxx"
         return "{}-{}-{}".format(rc, ac, pc)
 
+    def get_funding_sources(self):
+        # look through all expenses and compile a unique list of funding sources
+        my_list = []
+        for item in self.staff_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_list.append(item.funding_source)
+
+        for item in self.omcost_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_list.append(item.funding_source)
+
+        for item in self.capitalcost_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_list.append(item.funding_source)
+        return set(my_list)
+
 
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))
