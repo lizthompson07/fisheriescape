@@ -214,21 +214,21 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         # modifications to project instance before saving
         my_object.modified_by = self.request.user
         my_object.save()
-
-        # create a first year of the project
-        year = models.ProjectYear.objects.create(
-            project=my_object,
-        )
-        # populate some initial staff and om costs
-        models.Staff.objects.create(
-            project_year=year,
-            is_lead=True,
-            employee_type_id=1,
-            user_id=self.request.user.id,
-            funding_source=my_object.default_funding_source
-        )
-        year.add_all_om_costs()
-
+        #
+        # # create a first year of the project
+        # year = models.ProjectYear.objects.create(
+        #     project=my_object,
+        # )
+        # # populate some initial staff and om costs
+        # models.Staff.objects.create(
+        #     project_year=year,
+        #     is_lead=True,
+        #     employee_type_id=1,
+        #     user_id=self.request.user.id,
+        #     funding_source=my_object.default_funding_source
+        # )
+        # year.add_all_om_costs()
+        messages.success(self.request, _("Your new project was created successfully! To get started, <b>add a new project year</b>."))
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": my_object.id}))
 
     def get_initial(self):

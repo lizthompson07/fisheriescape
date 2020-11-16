@@ -7,6 +7,22 @@
 {% load project_tags %}
 
 
+{% block messages %}{% endblock %}
+{% block title_area %}
+  {{ block.super }}
+  {% for msg in messages %}
+    <div class="alert alert-success" role="alert" style="width: 40%">
+      <h4 class="alert-heading">
+        {% trans "Success!" %}
+      </h4>
+      <p class="h6">
+        {{ msg|safe }}
+      </p>
+    </div>
+  {% endfor %}
+
+{% endblock %}
+
 {% block header %}
   {{ block.super }}
 
@@ -71,25 +87,32 @@
             {% include "projects2/project_detail/_project_year_modal_form.html" %}
 
             <modal v-if="showNewStaffModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'staff'"></modal>
-            <modal v-if="showOldStaffModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'staff'" :my_staff="staffToEdit"></modal>
+            <modal v-if="showOldStaffModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'staff'"
+                   :my_staff="staffToEdit"></modal>
 
             <modal v-if="showNewOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'om_cost'"></modal>
-            <modal v-if="showOldOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'om_cost'" :my_om_cost="omCostToEdit"></modal>
+            <modal v-if="showOldOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'om_cost'"
+                   :my_om_cost="omCostToEdit"></modal>
 
             <modal v-if="showNewCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'"></modal>
-            <modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'" :my_capital_cost="capitalCostToEdit"></modal>
+            <modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'"
+                   :my_capital_cost="capitalCostToEdit"></modal>
 
             <modal v-if="showNewGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'"></modal>
-            <modal v-if="showOldGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'" :my_gc_cost="gcCostToEdit"></modal>
+            <modal v-if="showOldGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'"
+                   :my_gc_cost="gcCostToEdit"></modal>
 
             <modal v-if="showNewMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'"></modal>
-            <modal v-if="showOldMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'" :my_milestone="milestoneToEdit"></modal>
+            <modal v-if="showOldMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'"
+                   :my_milestone="milestoneToEdit"></modal>
 
             <modal v-if="showNewCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'"></modal>
-            <modal v-if="showOldCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'" :my_collaborator="collaboratorToEdit"></modal>
+            <modal v-if="showOldCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'"
+                   :my_collaborator="collaboratorToEdit"></modal>
 
             <modal v-if="showNewAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'"></modal>
-            <modal v-if="showOldAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'" :my_agreement="agreementToEdit"></modal>
+            <modal v-if="showOldAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'"
+                   :my_agreement="agreementToEdit"></modal>
 
           </div>
 

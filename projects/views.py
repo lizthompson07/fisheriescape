@@ -37,12 +37,13 @@ from .utils import multiple_projects_financial_summary, financial_summary_data, 
 # this needs to be harmonized between regions
 
 
-class IndexTemplateView(AdminRequiredMixin, CommonTemplateView):
+class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
     template_name = 'projects/index.html'
     h1 = gettext_lazy("DFO Science Project Planning")
     active_page_name_crumb = gettext_lazy("Home")
 
     def get_context_data(self, **kwargs):
+        messages.warning(self.request, "Please note that this application is no longer in use. Please use the newer version. ")
         context = super().get_context_data(**kwargs)
         section_id_list = []
         if self.request.user.id:
