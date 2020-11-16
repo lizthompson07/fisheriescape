@@ -75,7 +75,7 @@
         </div>
     </div>
 
-    <div class="card border border-dark my-1" id="channel">
+    <div class="card border border-dark my-1">
         <h5 class="card-header">
             <div class="row align-items-center">
                 <span class="col">
@@ -88,7 +88,7 @@
                 {% endif %}
             </div>
         </h5>
-        <div class="card-body">
+        <div class="card-body" id="cha">
             <table class="table">
                 <thead>
                 <tr><th>{% trans 'Channel No.'%}</th><th>{% trans 'ADC Bits'%}</th><th>{% trans 'Voltage (max)'%}</th><th>{% trans 'Voltage (min)'%}</th>
@@ -107,12 +107,12 @@
                             {% for channel, hyd in channels.items %}
                                 {% if channel == ecp.ecp_channel_no %}
                                     {# This is to remove a connected hydrophone. #}
-                                    <a class="btn btn-danger" href="#" onclick="return pop('{% url 'whalesdb:remove_ehe' hyd.pk 'pop' %}','channel')"> X </a>
+                                    <a class="btn btn-danger" href="#" onclick="return pop('{% url 'whalesdb:remove_ehe' hyd.pk 'pop' %}','cha')"> X </a>
                                     {{hyd.ehe_date}} - {{hyd.hyd}}
                                 {% endif %}
                             {% endfor %}
                         {% else %}
-                            <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' rec.pk ecp.ecp_channel_no 'pop' %}','channel')"> + </a>
+                            <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' rec.pk ecp.ecp_channel_no 'pop' %}','cha')"> + </a>
                         {% endif %}
 
                     </td>

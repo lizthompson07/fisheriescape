@@ -92,13 +92,19 @@ class EheForm(forms.ModelForm):
         model = models.EheHydrophoneEvent
         exclude = []
         widgets = {
+            'ehe_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'rec': forms.HiddenInput(),
+            'ecp_channel_no': forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # exclude hydrophones from the equipment selection list
-        self.fields['hyd'].queryset = self.fields['hyd'].queryset.filter(emm__eqt=4)
+        if 'hyd' in self.initial and self.initial['hyd']:
+            self.fields['hyd'].widget = forms.HiddenInput()
+        else:
+            # exclude hydrophones from the equipment selection list
+            self.fields['hyd'].queryset = self.fields['hyd'].queryset.filter(emm__eqt=4)
 
 
 class EqhForm(forms.ModelForm):
