@@ -410,10 +410,28 @@ class Incident(models.Model):
     date_email_sent = models.DateTimeField(blank=True, null=True, verbose_name="date incident emailed")
 
     def __str__(self):
-        return "{}".format(self.name)
+        return self.name
 
     def get_absolute_url(self):
         return reverse("whalebrary:incident_detail", kwargs={"pk": self.id})
+
+
+def image_directory_path(instance, imagename):
+    # image will be uploaded to MEDIA_ROOT/item_<id>/<filename>
+    return f'whalebrary/{instance.incident.name}_id{instance.incident.id}/{imagename}'
+
+
+class Image(models.Model):
+    title = models.CharField(max_length=255, verbose_name=_("title"))
+    incident = models.ForeignKey(Incident, on_delete=models.DO_NOTHING, related_name="images", verbose_name=_("incident"))
+    image = models.ImageField(upload_to=image_directory_path, verbose_name=_("image"))
+    date_uploaded = models.DateTimeField(auto_now=True, editable=False, verbose_name=_("date uploaded"))
+
+    class Meta:
+        ordering = ['-date_uploaded']
+
+    def __str__(self):
+        return self.title
 
 
 class Audit(models.Model):

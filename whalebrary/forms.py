@@ -156,10 +156,13 @@ class IncidentForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'submitted': forms.CheckboxInput,
+            'first_report': forms.DateInput(
+                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
             'gear_presence': forms.CheckboxInput,
             'exam': forms.CheckboxInput,
             'necropsy': forms.CheckboxInput,
             'photos': forms.CheckboxInput,
+            'date_email_sent': forms.HiddenInput(),
         }
 
 
