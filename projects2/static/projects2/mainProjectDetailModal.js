@@ -123,14 +123,18 @@ Vue.component("modal", {
       },
 
       // files
+      fileToUpload: null,
       file: {
         name: null,
         external_url: null,
-        file: null,
       },
     }
   },
   methods: {
+    onFileChange() {
+      this.fileToUpload = this.$refs.file.files[0];
+    },
+
     onSubmit() {
       this.errors = null
       if (this.mtype === "staff") {
@@ -320,7 +324,6 @@ Vue.component("modal", {
 
       // agreement
       else if (this.mtype === "agreement") {
-        if (this.agreement.target_date === "") this.agreement.target_date = null
         if (this.my_agreement) {
           let endpoint = `/api/project-planning/agreements/${this.my_agreement.id}/`;
           apiService(endpoint, "PATCH", this.agreement).then(response => {
@@ -352,12 +355,19 @@ Vue.component("modal", {
 
       // file
       else if (this.mtype === "file") {
-        if (this.file.target_date === "") this.file.target_date = null
         if (this.my_file) {
+          // if there is a file attribute, delete it since we send back the file through a separate request
+          if (this.file.file) delete this.file.file
+
           let endpoint = `/api/project-planning/files/${this.my_file.id}/`;
           apiService(endpoint, "PATCH", this.file).then(response => {
-            if (response.id) this.$emit('close')
-            else {
+            if (response.id) {
+              if (this.fileToUpload) {
+                fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
+                this.fileToUpload = null
+              }
+              this.$emit('close')
+            } else {
               var myString = "";
               for (var i = 0; i < Object.keys(response).length; i++) {
                 key = Object.keys(response)[i]
@@ -369,8 +379,15 @@ Vue.component("modal", {
         } else {
           let endpoint = `/api/project-planning/project-years/${this.year.id}/files/`;
           apiService(endpoint, "POST", this.file).then(response => {
-            if (response.id) this.$emit('close')
-            else {
+            if (response.id) {
+              // now we have to upload the file
+              if (this.fileToUpload) {
+                let endpoint = `/api/project-planning/files/${response.id}/`;
+                fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
+                this.fileToUpload = null
+              }
+              this.$emit('close')
+            } else {
               var myString = "";
               for (var i = 0; i < Object.keys(response).length; i++) {
                 key = Object.keys(response)[i]

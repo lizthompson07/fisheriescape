@@ -388,6 +388,7 @@ var app = new Vue({
           this.getMilestones(projectYear.id)
           this.getAgreements(projectYear.id)
           this.getCollaborators(projectYear.id)
+          this.getFiles(projectYear.id)
 
         })
       }

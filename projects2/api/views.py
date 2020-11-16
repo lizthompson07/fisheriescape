@@ -254,6 +254,9 @@ class FileListCreateAPIView(ListCreateAPIView):
     def perform_create(self, serializer):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
         serializer.save(project=year.project, project_year=year)
+        
+        if self.request.FILES:
+            print(self.request.FILES)
 
 
 class FileRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):

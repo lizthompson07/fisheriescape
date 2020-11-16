@@ -32,10 +32,13 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     except File.DoesNotExist:
         return False
 
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+    try:
+        new_file = instance.file
+        if not old_file == new_file:
+            if os.path.isfile(old_file.path):
+                os.remove(old_file.path)
+    except ValueError:
+        return False
 
 
 @receiver(models.signals.post_delete, sender=ReferenceMaterial)

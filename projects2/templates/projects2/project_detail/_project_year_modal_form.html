@@ -22,27 +22,27 @@
               <span v-else>{% trans "Edit O&M Cost" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'capital_cost'">
-              <span v-if="!my_om_cost">{% trans "New Capital Cost" %}</span>
+              <span v-if="!my_capital_cost">{% trans "New Capital Cost" %}</span>
               <span v-else>{% trans "Edit Capital Cost" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'gc_cost'">
-              <span v-if="!my_om_cost">{% trans "New G&C Cost" %}</span>
+              <span v-if="!my_gc_cost">{% trans "New G&C Cost" %}</span>
               <span v-else>{% trans "Edit G&C Cost" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'milestone'">
-              <span v-if="!my_om_cost">{% trans "New Milestone" %}</span>
+              <span v-if="!my_milestone">{% trans "New Milestone" %}</span>
               <span v-else>{% trans "Edit Milestone" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'collaborator'">
-              <span v-if="!my_om_cost">{% trans "New External Collaborator" %}</span>
+              <span v-if="!my_collaborator">{% trans "New External Collaborator" %}</span>
               <span v-else>{% trans "Edit External Collaborator" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'agreement'">
-              <span v-if="!my_om_cost">{% trans "New Collaborative Agreement" %}</span>
+              <span v-if="!my_agreement">{% trans "New Collaborative Agreement" %}</span>
               <span v-else>{% trans "Edit Collaborative Agreement" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'file'">
-              <span v-if="!my_om_cost">{% trans "New Supporting Resource" %}</span>
+              <span v-if="!my_file">{% trans "New Supporting Resource" %}</span>
               <span v-else>{% trans "Edit Supporting Resource" %}</span>
             </h3>
             <div v-if="errors" class="alert alert-danger" role="alert">

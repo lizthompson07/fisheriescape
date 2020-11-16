@@ -405,7 +405,7 @@ class FileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["name"].widget.attrs = {"v-model": "file.name"}
-        # self.fields["file"].widget.attrs = {"v-model": "file.file"}
+        self.fields["file"].widget.attrs = {"v-on:change": "onFileChange", "ref":"file"}
         self.fields["external_url"].widget.attrs = {"v-model": "file.external_url"}
 
 

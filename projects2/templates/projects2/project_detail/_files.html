@@ -45,16 +45,16 @@
           {% if "ref" in field %}
             <td>${item.ref }</td>
           {% elif "external" in field %}
-            <td>
-              <a v-if="item.external_url" :href="item.external_url">
-                <span class="mdi mdi-web"></span>
+            <td class="text-center">
+              <a v-if="item.external_url" :href="item.external_url" target="_blank">
+                <span class="mdi mdi-web h5"></span>
               </a>
               <p v-else>---</p>
             </td>
           {% elif "file" in field %}
-            <td>
-              <a v-if="item.file" :href="item.file">
-                <span class="mdi mdi-link"></span>
+            <td class="text-center">
+              <a v-if="item.file" :href="item.file" target="_blank">
+                <span class="mdi mdi-attachment h5" ></span>
               </a>
               <p v-else>---</p>
             </td>
