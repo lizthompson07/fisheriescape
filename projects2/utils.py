@@ -1,5 +1,4 @@
-from collections import OrderedDict
-
+from django.db.models import Sum
 from django.utils.translation import gettext as _
 
 from lib.templatetags.custom_filters import nz
@@ -173,97 +172,22 @@ def get_funding_sources(all=False):
     return [(fs.id, str(fs)) for fs in models.FundingSource.objects.all()]
 
 
-def pdf_financial_summary_data(project):
-    salary_abase = 0
-    om_abase = 0
-    capital_abase = 0
+def get_user_fte_breakdown(user, fiscal_year_id):
+    staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)
+    my_dict = dict()
+    my_dict['draft'] = staff_instances.filter(
+        project_year__status=1
+    ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
-    salary_bbase = 0
-    om_bbase = 0
-    capital_bbase = 0
+    my_dict['recommended'] = staff_instances.filter(
+        project_year__status=3
+    ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
-    salary_cbase = 0
-    om_cbase = 0
-    capital_cbase = 0
+    my_dict['approved'] = staff_instances.filter(
+        project_year__status=4
+    ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
 
-    gc_total = 0
-
-    # first calc for staff
-    for staff in project.staff_members.all():
-        # exclude full time employees
-        if not staff.employee_type.exclude_from_rollup:
-            # if the staff member is being paid from bbase...
-            if staff.funding_source.id == 1:
-                # if salary
-                if staff.employee_type.cost_type == 1:
-                    salary_abase += nz(staff.cost, 0)
-                # if o&M
-                elif staff.employee_type.cost_type == 2:
-                    om_abase += nz(staff.cost, 0)
-            elif staff.funding_source.id == 2:
-                # if salary
-                if staff.employee_type.cost_type == 1:
-                    salary_bbase += nz(staff.cost, 0)
-                # if o&M
-                elif staff.employee_type.cost_type == 2:
-                    om_bbase += nz(staff.cost, 0)
-            elif staff.funding_source.id == 3:
-                # if salary
-                if staff.employee_type.cost_type == 1:
-                    salary_cbase += nz(staff.cost, 0)
-                # if o&M
-                elif staff.employee_type.cost_type == 2:
-                    om_cbase += nz(staff.cost, 0)
-
-    # O&M costs
-    for cost in project.om_costs.all():
-        if cost.funding_source.id == 1:
-            om_abase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.id == 2:
-            om_bbase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.id == 3:
-            om_cbase += nz(cost.budget_requested, 0)
-
-    # Capital costs
-    for cost in project.capital_costs.all():
-        if cost.funding_source.id == 1:
-            capital_abase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.id == 2:
-            capital_bbase += nz(cost.budget_requested, 0)
-        elif cost.funding_source.id == 3:
-            capital_cbase += nz(cost.budget_requested, 0)
-
-    # g&c costs
-    for cost in project.gc_costs.all():
-        gc_total += nz(cost.budget_requested, 0)
-
-    context = {}
-    # abase
-    context["salary_abase"] = salary_abase
-    context["om_abase"] = om_abase
-    context["capital_abase"] = capital_abase
-
-    # bbase
-    context["salary_bbase"] = salary_bbase
-    context["om_bbase"] = om_bbase
-    context["capital_bbase"] = capital_bbase
-
-    # cbase
-    context["salary_cbase"] = salary_cbase
-    context["om_cbase"] = om_cbase
-    context["capital_cbase"] = capital_cbase
-
-    context["salary_total"] = salary_abase + salary_bbase + salary_cbase
-    context["om_total"] = om_abase + om_bbase + om_cbase
-    context["capital_total"] = capital_abase + capital_bbase + capital_cbase
-    context["gc_total"] = gc_total
-
-    # import color schemes from funding_source table
-    context["abase"] = models.FundingSourceType.objects.get(pk=1).color
-    context["bbase"] = models.FundingSourceType.objects.get(pk=2).color
-    context["cbase"] = models.FundingSourceType.objects.get(pk=3).color
-
-    return context
+    return my_dict
 
 
 def financial_project_year_summary_data(project_year):
@@ -304,47 +228,38 @@ def financial_project_year_summary_data(project_year):
 
 
 def financial_project_summary_data(project):
-    # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
-    my_dict = OrderedDict()
+    my_list = []
 
     for fs in project.get_funding_sources():
-        my_dict[fs] = {}
-        my_dict[fs]["salary"] = 0
-        my_dict[fs]["om"] = 0
-        my_dict[fs]["capital"] = 0
-        my_dict[fs]["total"] = 0
+        my_dict = dict()
+        my_dict["type"] = fs.get_funding_source_type_display()
+        my_dict["name"] = str(fs)
+        my_dict["salary"] = 0
+        my_dict["om"] = 0
+        my_dict["capital"] = 0
 
         # first calc for staff
-        for staff in project.staff_members.filter(funding_source=fs):
+        for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
             # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
             if not staff.employee_type.exclude_from_rollup:
                 if staff.employee_type.cost_type == 1:
-                    my_dict[fs]["salary"] += nz(staff.cost, 0)
+                    my_dict["salary"] += nz(staff.amount, 0)
                 elif staff.employee_type.cost_type == 2:
-                    my_dict[fs]["om"] += nz(staff.cost, 0)
+                    my_dict["om"] += nz(staff.amount, 0)
 
         # O&M costs
-        for cost in project.om_costs.filter(funding_source=fs):
-            my_dict[fs]["om"] += nz(cost.budget_requested, 0)
+        for cost in models.OMCost.objects.filter(funding_source=fs, project_year__project=project):
+            my_dict["om"] += nz(cost.amount, 0)
 
         # Capital costs
-        for cost in project.capital_costs.filter(funding_source=fs):
-            my_dict[fs]["capital"] += nz(cost.budget_requested, 0)
+        for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
+            my_dict["capital"] += nz(cost.amount, 0)
 
-    # do the totals. I am doing this loop as separate so that the total entry comes at the end of all the funding sources
-    my_dict["total"] = {}
-    my_dict["total"]["salary"] = 0
-    my_dict["total"]["om"] = 0
-    my_dict["total"]["capital"] = 0
-    my_dict["total"]["total"] = 0
-    for fs in project.get_funding_sources():
-        my_dict[fs]["total"] = float(my_dict[fs]["capital"]) + float(my_dict[fs]["salary"]) + float(my_dict[fs]["om"])
-        my_dict["total"]["salary"] += my_dict[fs]["salary"]
-        my_dict["total"]["om"] += my_dict[fs]["om"]
-        my_dict["total"]["capital"] += my_dict[fs]["capital"]
-        my_dict["total"]["total"] += my_dict[fs]["total"]
+        my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
-    return my_dict
+        my_list.append(my_dict)
+
+    return my_list
 
 
 def multiple_projects_financial_summary(project_list):

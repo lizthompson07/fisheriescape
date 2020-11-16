@@ -5,10 +5,10 @@ from . import views
 
 router = DefaultRouter()
 # router.register(r'project-years', views.ProjectYearViewSet)
-
 urlpatterns = [
     # path("", include(router.urls)),
     path("project-planning/user/", views.CurrentUserAPIView.as_view(), name="current-user"),
+    path("project-planning/get-fte-breakdown/", views.FTEBreakdownAPIView.as_view(), name="fte-breakdown"),
 
     # Project year
     path("project-planning/project-years/<int:pk>/", views.ProjectYearRetrieveAPIView.as_view(), name="year-detail"),
@@ -50,6 +50,9 @@ urlpatterns = [
 
     # financials
     path("project-planning/project-years/<int:project_year>/financials/", views.FinancialsAPIView.as_view(), name="financials"),
+    path("project-planning/projects/<int:project>/financials/", views.FinancialsAPIView.as_view(), name="financials"),
+
+
 
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),
@@ -101,3 +104,4 @@ urlpatterns = [
     # path('current-set/', ccg_views.CurrentSetAPIView.as_view(), name="current-set"),
 
 ]
+

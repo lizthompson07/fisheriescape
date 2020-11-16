@@ -390,6 +390,8 @@ def fetch_project_data():
             new_obj.save()
 
         new_p.save()
+
+
 """
 
     
@@ -401,3 +403,33 @@ def fetch_project_data():
     approved
 
 """
+
+
+def fetch_project_approval_data():
+    from projects import models as omodels
+    projects = omodels.Project.objects.all()
+    # projects = omodels.Project.objects.filter(id=414)
+    for old_p in projects:
+        new_p, created = models.Project.objects.get_or_create(
+            id=old_p.id,
+        )
+
+        # YEAR
+        qry = models.ProjectYear.objects.filter(project_id=old_p.id)
+        if qry.exists():
+            if qry.count() > 1:
+                print("multiple project years for ", old_p.id)
+            else:
+                py = qry.first()
+                if old_p.approved:
+                    py.status = 4
+                elif old_p.recommended_for_funding:
+                    py.status = 3
+                elif old_p.submitted:
+                    py.status = 2
+                else:
+                    py.status = 1
+                py.save()
+
+        else:
+            print("no project year for ", old_p)

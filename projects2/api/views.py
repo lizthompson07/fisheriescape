@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from pandas import date_range
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -9,13 +10,30 @@ from rest_framework.views import APIView
 from . import permissions
 from . import serializers
 from .. import models, stat_holidays
-from ..utils import financial_project_year_summary_data
+from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown
 
 
+# USER
+#######
 class CurrentUserAPIView(APIView):
     def get(self, request):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         return Response(serializer.data)
+
+
+class FTEBreakdownAPIView(APIView):
+    def get(self, request):
+        if not request.query_params.get("year"):
+            return Response({"error":"no fiscal year provided"}, status.HTTP_400_BAD_REQUEST)
+
+        if not request.query_params.get("user"):
+            my_user = request.user
+        else:
+            my_user = get_object_or_404(User, pk=request.query_params.get("user"))
+
+        data = get_user_fte_breakdown(my_user, fiscal_year_id=request.query_params.get("year"))
+        return Response(data, status.HTTP_200_OK)
+
 
 
 class GetDatesAPIView(APIView):
@@ -270,7 +288,18 @@ class FileRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class FinancialsAPIView(APIView):
-    def get(self, request, project_year):
-        year = get_object_or_404(models.ProjectYear, pk=project_year)
-        data = financial_project_year_summary_data(year)
+    def get(self, request, project_year=None, project=None):
+        if not project_year and not project:
+            return Response(None, status.HTTP_400_BAD_REQUEST)
+
+        if project_year:
+            obj = get_object_or_404(models.ProjectYear, pk=project_year)
+            data = financial_project_year_summary_data(obj)
+
+        else: # must be supplied with a project
+            obj = get_object_or_404(models.Project, pk=project)
+            data = financial_project_summary_data(obj)
+
         return Response(data, status.HTTP_200_OK)
+
+

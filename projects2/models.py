@@ -201,6 +201,15 @@ class Project(models.Model):
             return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
 
 class ProjectYear(models.Model):
+    status_choices = [
+        (1, "Draft"),
+        (2, "Submitted"),
+        (3, "Recommended"),
+        (4, "Approved"),
+        (9, "Cancelled"),
+    ]
+    status = models.IntegerField(default=1, editable=False, choices=status_choices)
+
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="years", verbose_name=_("project"))
     start_date = models.DateTimeField(default=timezone.now, verbose_name=_("Start date of project"))
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))

@@ -8,6 +8,8 @@ var app = new Vue({
     projectYear: {},
     financials: [],
     financials_loading: false,
+    project_financials: [],
+    project_financials_loading: false,
 
     // staff
     staff_loading: false,
@@ -100,6 +102,15 @@ var app = new Vue({
           .then(response => {
             this.financials_loading = false;
             this.financials = response;
+          })
+    },
+    getProjectFinancials(projectId) {
+      this.project_financials_loading = true;
+      let endpoint = `/api/project-planning/projects/${projectId}/financials/`;
+      apiService(endpoint)
+          .then(response => {
+            this.project_financials_loading = false;
+            this.project_financials = response;
           })
     },
     // Staff
@@ -401,6 +412,7 @@ var app = new Vue({
           this.getCollaborators(projectYear.id)
           this.getFiles(projectYear.id)
           this.getFinancials(projectYear.id)
+          this.getProjectFinancials(projectYear.project)
 
         })
       }
@@ -472,14 +484,14 @@ var app = new Vue({
     }
   },
   computed: {
-    financial_totals () {
+    financial_totals() {
       myObj = {
         salary: 0,
         om: 0,
         capital: 0,
-        total:0,
+        total: 0,
       }
-      if(this.financials) {
+      if (this.financials) {
         for (var i = 0; i < this.financials.length; i++) {
           myObj.salary += this.financials[i].salary
           myObj.om += this.financials[i].om
@@ -488,10 +500,28 @@ var app = new Vue({
         }
       }
       return myObj
+    },
+    project_financial_totals() {
+      myObj = {
+        salary: 0,
+        om: 0,
+        capital: 0,
+        total: 0,
+      }
+      if (this.project_financials) {
+        for (var i = 0; i < this.project_financials.length; i++) {
+          myObj.salary += this.project_financials[i].salary
+          myObj.om += this.project_financials[i].om
+          myObj.capital += this.project_financials[i].capital
+          myObj.total += this.project_financials[i].total
+        }
+      }
+      return myObj
     }
 
   },
   created() {
+    this.getProjectFinancials(projectId)
   },
   mounted() {
   },
