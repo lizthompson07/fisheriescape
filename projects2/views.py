@@ -4,7 +4,8 @@ from copy import deepcopy
 import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Sum
+from django.db.models import Sum, Value, TextField
+from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
@@ -16,13 +17,13 @@ from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
-    CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView
+    CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView
 from . import emails
 from . import filters
 from . import forms
 from . import models
 from . import stat_holidays
-from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin
+from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
 from .utils import multiple_projects_financial_summary, financial_summary_data, can_modify_project, get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin
 
@@ -988,6 +989,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy('projects2:staff_edit', kwargs={"pk": object.id}))
 
+
 #
 # # COLLABORATOR #
 # ################
@@ -1369,53 +1371,100 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #         return context
 #
 #
-# # SETTINGS #
-# ############
-# class FundingSourceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.FundingSource
-#     success_url = reverse_lazy("projects2:manage_funding_sources")
-#
-#
-# class FundingSourceFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Funding Source"
-#     queryset = models.FundingSource.objects.all()
-#     formset_class = forms.FundingSourceFormset
-#     success_url = reverse_lazy("projects2:manage_funding_sources")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_funding_source"
-#
-#
-# class OMCategoryHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.OMCategory
-#     success_url = reverse_lazy("projects2:manage_om_cats")
-#
-#
-# class OMCategoryFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage OMCategory"
-#     queryset = models.OMCategory.objects.all()
-#     formset_class = forms.OMCategoryFormset
-#     success_url = reverse_lazy("projects2:manage_om_cats")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_om_cat"
-#
-#
-# class EmployeeTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.EmployeeType
-#     success_url = reverse_lazy("projects2:manage_employee_types")
-#
-#
-# class EmployeeTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Employee Type"
-#     queryset = models.EmployeeType.objects.all()
-#     formset_class = forms.EmployeeTypeFormset
-#     success_url = reverse_lazy("projects2:manage_employee_types")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_employee_type"
-#
-#
+
+
+# FUNCTIONAL GROUPS #
+#####################
+
+class FunctionalGroupListView(AdminRequiredMixin, CommonFilterView):
+    template_name = 'projects2/list.html'
+    filterset_class = filters.FunctionalGroupFilter
+    home_url_name = "projects2:index"
+    new_object_url = "projects2:group_new"
+    row_object_url_name = row_ = "projects2:group_edit"
+
+    field_list = [
+        {"name": 'tname|{}'.format("name"), "class": "", "width": ""},
+        {"name": 'theme', "class": "", "width": ""},
+        {"name": 'sections', "class": "", "width": "600px"},
+    ]
+
+    def get_queryset(self):
+        return models.FunctionalGroup.objects.annotate(
+            search_term=Concat('name', Value(" "), 'nom', Value(" "), output_field=TextField()))
+
+
+class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateView):
+    model = models.FunctionalGroup
+    form_class = forms.FunctionalGroupForm
+    template_name = 'projects2/form.html'
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": gettext_lazy("Functional Groups"), "url": reverse_lazy("projects2:group_list")}
+
+
+class FunctionalGroupCreateView(AdminRequiredMixin, CommonCreateView):
+    model = models.FunctionalGroup
+    form_class = forms.FunctionalGroupForm
+    success_url = reverse_lazy('projects2:group_list')
+    template_name = 'projects2/form.html'
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": gettext_lazy("Functional Groups"), "url": reverse_lazy("projects2:group_list")}
+
+
+class FunctionalGroupDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.FunctionalGroup
+    success_url = reverse_lazy('projects2:group_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'projects2/confirm_delete.html'
+
+
+# SETTINGS #
+############
+class FundingSourceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.FundingSource
+    success_url = reverse_lazy("projects2:manage_funding_sources")
+
+
+class FundingSourceFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Funding Source"
+    queryset = models.FundingSource.objects.all()
+    formset_class = forms.FundingSourceFormset
+    success_url = reverse_lazy("projects2:manage_funding_sources")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_funding_source"
+
+
+class OMCategoryHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.OMCategory
+    success_url = reverse_lazy("projects2:manage_om_cats")
+
+
+class OMCategoryFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage OMCategory"
+    queryset = models.OMCategory.objects.all()
+    formset_class = forms.OMCategoryFormset
+    success_url = reverse_lazy("projects2:manage_om_cats")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_om_cat"
+
+
+class EmployeeTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.EmployeeType
+    success_url = reverse_lazy("projects2:manage_employee_types")
+
+
+class EmployeeTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Employee Type"
+    queryset = models.EmployeeType.objects.all()
+    formset_class = forms.EmployeeTypeFormset
+    success_url = reverse_lazy("projects2:manage_employee_types")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_employee_type"
+
+
 # class StatusHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.Status
 #     success_url = reverse_lazy("projects2:manage_statuses")
@@ -1431,49 +1480,49 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #     delete_url_name = "projects2:delete_status"
 #
 #
-# class TagHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.Tag
-#     success_url = reverse_lazy("projects2:manage_tags")
+class TagHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Tag
+    success_url = reverse_lazy("projects2:manage_tags")
+
+
+class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Tag"
+    queryset = models.Tag.objects.all()
+    formset_class = forms.TagFormset
+    success_url = reverse_lazy("projects2:manage_tags")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_tag"
+
+#
+class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("projects2:manage_help_text")
+
+
+class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Help Text"
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url = reverse_lazy("projects2:manage_help_text")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_help_text"
 #
 #
-# class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Tag"
-#     queryset = models.Tag.objects.all()
-#     formset_class = forms.TagFormset
-#     success_url = reverse_lazy("projects2:manage_tags")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_tag"
-#
-#
-# class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.HelpText
-#     success_url = reverse_lazy("projects2:manage_help_text")
-#
-#
-# class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Help Text"
-#     queryset = models.HelpText.objects.all()
-#     formset_class = forms.HelpTextFormset
-#     success_url = reverse_lazy("projects2:manage_help_text")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_help_text"
-#
-#
-# class LevelHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.Level
-#     success_url = reverse_lazy("projects2:manage_levels")
-#
-#
-# class LevelFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Level"
-#     queryset = models.Level.objects.all()
-#     formset_class = forms.LevelFormset
-#     success_url = reverse_lazy("projects2:manage_levels")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_level"
+class LevelHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Level
+    success_url = reverse_lazy("projects2:manage_levels")
+
+
+class LevelFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Level"
+    queryset = models.Level.objects.all()
+    formset_class = forms.LevelFormset
+    success_url = reverse_lazy("projects2:manage_levels")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_level"
 #
 #
 # # class ProgramHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
@@ -1491,49 +1540,49 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # #     delete_url_name = "projects2:delete_program"
 #
 #
-# class ActivityTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.ActivityType
-#     success_url = reverse_lazy("projects2:manage_activity_types")
+class ActivityTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.ActivityType
+    success_url = reverse_lazy("projects2:manage_activity_types")
+
+
+class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage ActivityType"
+    queryset = models.ActivityType.objects.all()
+    formset_class = forms.ActivityTypeFormset
+    success_url = reverse_lazy("projects2:manage_activity_types")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_activity_type"
 #
 #
-# class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage ActivityType"
-#     queryset = models.ActivityType.objects.all()
-#     formset_class = forms.ActivityTypeFormset
-#     success_url = reverse_lazy("projects2:manage_activity_types")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_activity_type"
+class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Theme
+    success_url = reverse_lazy("projects2:manage_themes")
+
+
+class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Theme"
+    queryset = models.Theme.objects.all()
+    formset_class = forms.ThemeFormset
+    success_url = reverse_lazy("projects2:manage_themes")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_theme"
 #
 #
-# class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.Theme
-#     success_url = reverse_lazy("projects2:manage_themes")
-#
-#
-# class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Theme"
-#     queryset = models.Theme.objects.all()
-#     formset_class = forms.ThemeFormset
-#     success_url = reverse_lazy("projects2:manage_themes")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_theme"
-#
-#
-# class UpcomingDateHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.UpcomingDate
-#     success_url = reverse_lazy("projects2:manage-upcoming-dates")
-#
-#
-# class UpcomingDateFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Upcoming Dates"
-#     queryset = models.UpcomingDate.objects.all()
-#     formset_class = forms.UpcomingDateFormset
-#     success_url = reverse_lazy("projects2:manage-upcoming-dates")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete-upcoming-date"
+class UpcomingDateHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.UpcomingDate
+    success_url = reverse_lazy("projects2:manage-upcoming-dates")
+
+
+class UpcomingDateFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Upcoming Dates"
+    queryset = models.UpcomingDate.objects.all()
+    formset_class = forms.UpcomingDateFormset
+    success_url = reverse_lazy("projects2:manage-upcoming-dates")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete-upcoming-date"
 #
 #
 # class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
@@ -1658,48 +1707,48 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #             return self.render_to_response(self.get_context_data(formset=formset))
 #
 #
-# # Reference Materials
-# class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
-#     template_name = "projects2/list.html"
-#     model = models.ReferenceMaterial
-#     field_list = [
-#         {"name": "tname|{}".format(gettext_lazy("name")), "class": "", "width": ""},
-#         {"name": "region", "class": "", "width": ""},
-#         {"name": "file_display|{}".format(gettext_lazy("File attachment")), "class": "", "width": ""},
-#         {"name": "date_created", "class": "", "width": ""},
-#         {"name": "date_modified", "class": "", "width": ""},
-#     ]
-#     new_object_url_name = "projects2:ref_mat_new"
-#     row_object_url_name = "projects2:ref_mat_edit"
-#     home_url_name = "projects2:index"
-#     h1 = gettext_lazy("Reference Materials")
-#
-#
-# class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
-#     model = models.ReferenceMaterial
-#     form_class = forms.ReferenceMaterialForm
-#     home_url_name = "projects2:index"
-#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
-#     template_name = "projects2/form.html"
-#     is_multipart_form_data = True
-#
-#
-# class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateView):
-#     model = models.ReferenceMaterial
-#     form_class = forms.ReferenceMaterialForm
-#     home_url_name = "projects2:index"
-#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
-#     template_name = "projects2/form.html"
-#     is_multipart_form_data = True
-#
-#
-# class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
-#     model = models.ReferenceMaterial
-#     success_url = reverse_lazy('projects2:ref_mat_list')
-#     home_url_name = "projects2:index"
-#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
-#     template_name = "projects2/confirm_delete.html"
-#     delete_protection = False
+# Reference Materials
+class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
+    template_name = "projects2/list.html"
+    model = models.ReferenceMaterial
+    field_list = [
+        {"name": "tname|{}".format(gettext_lazy("name")), "class": "", "width": ""},
+        {"name": "region", "class": "", "width": ""},
+        {"name": "file_display|{}".format(gettext_lazy("File attachment")), "class": "", "width": ""},
+        {"name": "date_created", "class": "", "width": ""},
+        {"name": "date_modified", "class": "", "width": ""},
+    ]
+    new_object_url_name = "projects2:ref_mat_new"
+    row_object_url_name = "projects2:ref_mat_edit"
+    home_url_name = "projects2:index"
+    h1 = gettext_lazy("Reference Materials")
+
+
+class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+    template_name = "projects2/form.html"
+    is_multipart_form_data = True
+
+
+class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+    template_name = "projects2/form.html"
+    is_multipart_form_data = True
+
+
+class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.ReferenceMaterial
+    success_url = reverse_lazy('projects2:ref_mat_list')
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+    template_name = "projects2/confirm_delete.html"
+    delete_protection = False
 #
 #
 # # STATUS REPORT #
@@ -2973,71 +3022,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #         return context
 #
 #
-# # FUNCTIONAL GROUPS #
-# #####################
-#
-# class FunctionalGroupListView(AdminRequiredMixin, FilterView):
-#     template_name = 'projects2/functionalgroup_list.html'
-#     filterset_class = filters.FunctionalGroupFilter
-#
-#     def get_queryset(self):
-#         return models.FunctionalGroup.objects.annotate(
-#             search_term=Concat('name',
-#                                Value(" "),
-#                                'nom',
-#                                Value(" "),
-#                                # 'program__name',
-#                                output_field=TextField()))
-#
-#     def get_context_data(self, *args, **kwargs):
-#         context = super().get_context_data(*args, **kwargs)
-#         context["field_list"] = [
-#             'name',
-#             'nom',
-#             'theme',
-#             'sections',
-#         ]
-#         return context
-#
-#
-# class FunctionalGroupUpdateView(AdminRequiredMixin, UpdateView):
-#     model = models.FunctionalGroup
-#     form_class = forms.FunctionalGroupForm
-#     success_url = reverse_lazy('projects2:group_list')
-#     template_name = 'projects2/functionalgroup_form.html'
-#
-#
-# class FunctionalGroupCreateView(AdminRequiredMixin, CreateView):
-#     model = models.FunctionalGroup
-#     form_class = forms.FunctionalGroupForm
-#     success_url = reverse_lazy('projects2:group_list')
-#     template_name = 'projects2/functionalgroup_form.html'
-#
-#
-# class FunctionalGroupDeleteView(AdminRequiredMixin, DeleteView):
-#     model = models.FunctionalGroup
-#     success_url = reverse_lazy('projects2:group_list')
-#     success_message = 'The functional group was successfully deleted!'
-#     template_name = 'projects2/functionalgroup_confirm_delete.html'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
-# class FunctionalGroupDetailView(AdminRequiredMixin, DetailView):
-#     model = models.FunctionalGroup
-#     template_name = 'projects2/functionalgroup_detail.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'code',
-#             'name',
-#             'allotment_category',
-#         ]
-#         return context
-#
+
 #
 # # SECTION NOTE #
 # ################

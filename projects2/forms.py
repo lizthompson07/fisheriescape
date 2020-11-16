@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.forms import modelformset_factory
 from django.utils.translation import gettext_lazy as _, gettext
 
 from lib.functions.custom_functions import fiscal_year
@@ -620,50 +621,50 @@ class OTForm(forms.ModelForm):
 #                 raise forms.ValidationError(_("Please make sure the two email addresses provided match."))
 #
 #
-# class FundingSourceForm(forms.ModelForm):
-#     class Meta:
-#         model = models.FundingSource
-#         fields = "__all__"
+class FundingSourceForm(forms.ModelForm):
+    class Meta:
+        model = models.FundingSource
+        fields = "__all__"
+
+
+FundingSourceFormset = modelformset_factory(
+    model=models.FundingSource,
+    form=FundingSourceForm,
+    extra=1,
+)
 #
 #
-# FundingSourceFormset = modelformset_factory(
-#     model=models.FundingSource,
-#     form=FundingSourceForm,
-#     extra=1,
-# )
+class OMCategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.OMCategory
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={"rows": 3}),
+            'nom': forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+OMCategoryFormset = modelformset_factory(
+    model=models.OMCategory,
+    form=OMCategoryForm,
+    extra=1,
+)
 #
 #
-# class OMCategoryForm(forms.ModelForm):
-#     class Meta:
-#         model = models.OMCategory
-#         fields = "__all__"
-#         widgets = {
-#             'name': forms.Textarea(attrs={"rows": 3}),
-#             'nom': forms.Textarea(attrs={"rows": 3}),
-#         }
-#
-#
-# OMCategoryFormset = modelformset_factory(
-#     model=models.OMCategory,
-#     form=OMCategoryForm,
-#     extra=1,
-# )
-#
-#
-# class EmployeeTypeForm(forms.ModelForm):
-#     class Meta:
-#         model = models.EmployeeType
-#         fields = "__all__"
-#         widgets = {
-#             'exclude_from_rollup': forms.Select(choices=YESNO_CHOICES),
-#         }
-#
-#
-# EmployeeTypeFormset = modelformset_factory(
-#     model=models.EmployeeType,
-#     form=EmployeeTypeForm,
-#     extra=1,
-# )
+class EmployeeTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.EmployeeType
+        fields = "__all__"
+        widgets = {
+            'exclude_from_rollup': forms.Select(choices=YESNO_CHOICES),
+        }
+
+
+EmployeeTypeFormset = modelformset_factory(
+    model=models.EmployeeType,
+    form=EmployeeTypeForm,
+    extra=1,
+)
 #
 #
 # class StatusForm(forms.ModelForm):
@@ -679,123 +680,123 @@ class OTForm(forms.ModelForm):
 # )
 #
 #
-# class TagForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Tag
-#         fields = "__all__"
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = models.Tag
+        fields = "__all__"
+
+
+TagFormset = modelformset_factory(
+    model=models.Tag,
+    form=TagForm,
+    extra=1,
+)
 #
 #
-# TagFormset = modelformset_factory(
-#     model=models.Tag,
-#     form=TagForm,
-#     extra=1,
-# )
+class HelpTextForm(forms.ModelForm):
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 4}),
+            'fra_text': forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+HelpTextFormset = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
+    extra=1,
+)
 #
 #
-# class HelpTextForm(forms.ModelForm):
-#     class Meta:
-#         model = models.HelpText
-#         fields = "__all__"
-#         widgets = {
-#             'eng_text': forms.Textarea(attrs={"rows": 4}),
-#             'fra_text': forms.Textarea(attrs={"rows": 4}),
-#         }
+class FunctionalGroupForm(forms.ModelForm):
+    class Meta:
+        model = models.FunctionalGroup
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={"rows": 3}),
+            'nom': forms.Textarea(attrs={"rows": 3}),
+            'sections': forms.SelectMultiple(attrs=chosen_js),
+            'program': forms.Select(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        section_choices = utils.get_section_choices(all=True)
+
+        super().__init__(*args, **kwargs)
+        self.fields['sections'].choices = section_choices
 #
 #
-# HelpTextFormset = modelformset_factory(
-#     model=models.HelpText,
-#     form=HelpTextForm,
-#     extra=1,
-# )
+class ActivityTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.ActivityType
+        fields = "__all__"
+
+
+ActivityTypeFormset = modelformset_factory(
+    model=models.ActivityType,
+    form=ActivityTypeForm,
+    extra=1,
+)
 #
 #
-# class FunctionalGroupForm(forms.ModelForm):
-#     class Meta:
-#         model = models.FunctionalGroup
-#         fields = "__all__"
-#         widgets = {
-#             'name': forms.Textarea(attrs={"rows": 3}),
-#             'nom': forms.Textarea(attrs={"rows": 3}),
-#             'sections': forms.SelectMultiple(attrs=chosen_js),
-#             'program': forms.Select(attrs=chosen_js),
-#         }
-#
-#     def __init__(self, *args, **kwargs):
-#         section_choices = utils.get_section_choices(all=False)
-#
-#         super().__init__(*args, **kwargs)
-#         self.fields['sections'].choices = section_choices
+class ThemeForm(forms.ModelForm):
+    class Meta:
+        model = models.Theme
+        fields = "__all__"
+
+
+ThemeFormset = modelformset_factory(
+    model=models.Theme,
+    form=ThemeForm,
+    extra=1,
+)
 #
 #
-# class ActivityTypeForm(forms.ModelForm):
-#     class Meta:
-#         model = models.ActivityType
-#         fields = "__all__"
+class UpcomingDateForm(forms.ModelForm):
+    class Meta:
+        model = models.UpcomingDate
+        fields = "__all__"
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"})
+        }
+
+
+UpcomingDateFormset = modelformset_factory(
+    model=models.UpcomingDate,
+    form=UpcomingDateForm,
+    extra=1,
+)
 #
 #
-# ActivityTypeFormset = modelformset_factory(
-#     model=models.ActivityType,
-#     form=ActivityTypeForm,
-#     extra=1,
-# )
+class ReferenceMaterialForm(forms.ModelForm):
+    class Meta:
+        model = models.ReferenceMaterial
+        fields = "__all__"
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"})
+        }
+
+
+ReferenceMaterialFormset = modelformset_factory(
+    model=models.ReferenceMaterial,
+    form=ReferenceMaterialForm,
+    extra=1,
+)
 #
 #
-# class ThemeForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Theme
-#         fields = "__all__"
-#
-#
-# ThemeFormset = modelformset_factory(
-#     model=models.Theme,
-#     form=ThemeForm,
-#     extra=1,
-# )
-#
-#
-# class UpcomingDateForm(forms.ModelForm):
-#     class Meta:
-#         model = models.UpcomingDate
-#         fields = "__all__"
-#         widgets = {
-#             "date": forms.DateInput(attrs={"type": "date"})
-#         }
-#
-#
-# UpcomingDateFormset = modelformset_factory(
-#     model=models.UpcomingDate,
-#     form=UpcomingDateForm,
-#     extra=1,
-# )
-#
-#
-# class ReferenceMaterialForm(forms.ModelForm):
-#     class Meta:
-#         model = models.ReferenceMaterial
-#         fields = "__all__"
-#         widgets = {
-#             "date": forms.DateInput(attrs={"type": "date"})
-#         }
-#
-#
-# ReferenceMaterialFormset = modelformset_factory(
-#     model=models.ReferenceMaterial,
-#     form=ReferenceMaterialForm,
-#     extra=1,
-# )
-#
-#
-# class LevelForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Level
-#         fields = "__all__"
-#
-#
-# LevelFormset = modelformset_factory(
-#     model=models.Level,
-#     form=LevelForm,
-#     extra=1,
-# )
+class LevelForm(forms.ModelForm):
+    class Meta:
+        model = models.Level
+        fields = "__all__"
+
+
+LevelFormset = modelformset_factory(
+    model=models.Level,
+    form=LevelForm,
+    extra=1,
+)
 #
 #
 # class FileForm(forms.ModelForm):
