@@ -41,6 +41,10 @@
               <span v-if="!my_om_cost">{% trans "New Collaborative Agreement" %}</span>
               <span v-else>{% trans "Edit Collaborative Agreement" %}</span>
             </h3>
+            <h3 v-else-if="mtype === 'file'">
+              <span v-if="!my_om_cost">{% trans "New Supporting Resource" %}</span>
+              <span v-else>{% trans "Edit Supporting Resource" %}</span>
+            </h3>
             <div v-if="errors" class="alert alert-danger" role="alert">
               <h4 class="alert-heading">
                 {% trans "The form has a few errors:" %}
@@ -51,7 +55,7 @@
           </slot>
         </div>
 
-        <form v-if="!showOTCalc" method="post" @submit.prevent="onSubmit" class="form">
+        <form v-if="!showOTCalc" method="post" @submit.prevent="onSubmit" class="form" enctype="multipart/form-data">
           <div class="modal-body">
             <slot name="body">
 
@@ -146,6 +150,10 @@
               <div v-else-if="mtype=='agreement'">
                 {% bootstrap_form agreement_form %}
               </div>
+              {# FILE FORM             #}
+              <div v-else-if="mtype=='file'">
+                {% bootstrap_form file_form %}
+              </div>
             </slot>
           </div>
 
@@ -153,7 +161,7 @@
             <slot name="footer">
               <button v-if="my_staff" class="modal-default-button" id="closeBtn">{% trans "Update" %}</button>
               <button v-else class="modal-default-button" id="closeBtn">{% trans "Add" %}</button>
-              <button class="modal-default-button" @click="$emit('close')" id="closeBtn">
+              <button class="modal-default-button" @click="$emit('close')" id="closeBtn" type="button">
                 {% trans "Close" %}
               </button>
             </slot>

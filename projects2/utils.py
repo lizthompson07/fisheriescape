@@ -317,8 +317,6 @@ def financial_project_year_summary_data(project_year):
     return my_list
 
 
-
-
 def financial_summary_data(project):
     # for every funding source, we will want to summarize: Salary, O&M, Capital and TOTAL
     my_dict = OrderedDict()
@@ -557,5 +555,17 @@ def get_agreement_field_list():
         'agreement_title',
         'new_or_existing',
         'notes',
+    ]
+    return my_list
+
+
+def get_file_field_list():
+    my_list = [
+        'name',
+        'ref|{}'.format("reference"),
+        'external_url',
+        'file',
+        'date_created',
+
     ]
     return my_list

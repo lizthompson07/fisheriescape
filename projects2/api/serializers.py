@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.template.defaultfilters import date
 from markdown import markdown
 from rest_framework import serializers
 
@@ -194,7 +195,7 @@ class MilestoneSerializer(serializers.ModelSerializer):
     project_year_id = serializers.SerializerMethodField()
 
     def get_latest_update(self, instance):
-        return instance.latest_update
+        return str(instance.latest_update)
 
     def get_target_date_display(self, instance):
         if instance.target_date:
@@ -239,3 +240,33 @@ class AgreementSerializer(serializers.ModelSerializer):
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.File
+        exclude = ["project", "status_report", "project_year"]
+
+    project_id = serializers.SerializerMethodField()
+    project_year_id = serializers.SerializerMethodField()
+    status_report_id = serializers.SerializerMethodField()
+    date_created = serializers.SerializerMethodField()
+    ref = serializers.SerializerMethodField()
+
+    def get_new_or_existing_display(self, instance):
+        return instance.get_new_or_existing_display()
+
+    def get_project_id(self, instance):
+        return instance.project_id
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id
+
+    def get_status_report_id(self, instance):
+        return instance.status_report_id
+
+    def get_date_created(self, instance):
+        return date(instance.date_created)
+
+    def get_ref(self, instance):
+        return instance.ref

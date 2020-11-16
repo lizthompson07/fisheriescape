@@ -238,6 +238,30 @@ class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
+
+
+# FILES / Supporting Resources
+##############
+class FileListCreateAPIView(ListCreateAPIView):
+    queryset = models.File.objects.all()
+    serializer_class = serializers.FileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        return year.files.all()
+
+    def perform_create(self, serializer):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        serializer.save(project=year.project, project_year=year)
+
+
+class FileRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.File.objects.all()
+    serializer_class = serializers.FileSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+
 # FINANCIALS
 ############
 

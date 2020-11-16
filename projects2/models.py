@@ -547,7 +547,7 @@ class File(models.Model):
     project_year = models.ForeignKey(ProjectYear, related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     status_report = models.ForeignKey("StatusReport", related_name="files", on_delete=models.CASCADE, blank=True, null=True)
     external_url = models.URLField(blank=True, null=True, verbose_name=_("external URL"))
-    date_created = models.DateTimeField(default=timezone.now)
+    date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['project', 'project_year', 'status_report', 'name']
@@ -557,7 +557,12 @@ class File(models.Model):
 
     @property
     def ref(self):
-        return self.status_report if self.status_report else "Core project"
+        if self.status_report:
+            return str(self.status_report)
+        elif self.project_year:
+            return str(self.project_year)
+        else:
+            return "Core project"
 
 
 class StatusReport(models.Model):
@@ -597,7 +602,7 @@ class StatusReport(models.Model):
 
     @property
     def report_number(self):
-        return [report for report in self.project_year.reports.order_by("date_created")].index(self) + 1
+        return [report for report in self.project_year.reports.order_by("created_at")].index(self) + 1
 
     def __str__(self):
         # what is the number of this report?

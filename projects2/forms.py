@@ -85,9 +85,6 @@ class ProjectForm(forms.ModelForm):
             "overview": forms.Textarea(attrs=class_editable),
             'modified_by': forms.HiddenInput(),
             "section": forms.Select(attrs=chosen_js),
-            "responsibility_center": forms.Select(attrs=chosen_js),
-            "allotment_code": forms.Select(attrs=chosen_js),
-            "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
             "tags": forms.SelectMultiple(attrs=chosen_js),
             "default_funding_source": forms.Select(attrs=chosen_js),
             "is_hidden": forms.Select(choices=YESNO_CHOICES),
@@ -123,6 +120,9 @@ class ProjectYearForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'priorities': forms.Textarea(attrs=class_editable),
             'deliverables': forms.Textarea(attrs=class_editable),
+            "responsibility_center": forms.Select(attrs=chosen_js),
+            "allotment_code": forms.Select(attrs=chosen_js),
+            "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
 
             # SPECIALIZED EQUIPMENT
             ########################
@@ -396,6 +396,17 @@ class AgreementForm(forms.ModelForm):
         self.fields["notes"].widget.attrs = {"v-model": "agreement.notes"}
 
 
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        exclude = ["project", "project_year", "status_report"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["name"].widget.attrs = {"v-model": "file.name"}
+        # self.fields["file"].widget.attrs = {"v-model": "file.file"}
+        self.fields["external_url"].widget.attrs = {"v-model": "file.external_url"}
 
 
 # attrs = dict(v-model="new_size_class")

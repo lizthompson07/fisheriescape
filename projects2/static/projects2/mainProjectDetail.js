@@ -56,6 +56,13 @@ var app = new Vue({
     showNewAgreementModal: false,
     showOldAgreementModal: false,
 
+    // files
+    file_loading: false,
+    files: [],
+    fileToEdit: {},
+    showNewFileModal: false,
+    showOldFileModal: false,
+
   },
   methods: {
     displayOverview() {
@@ -80,6 +87,7 @@ var app = new Vue({
             this.getMilestones(yearId)
             this.getCollaborators(yearId)
             this.getAgreements(yearId)
+            this.getFiles(yearId)
           })
     },
 
@@ -316,6 +324,35 @@ var app = new Vue({
       }
     },
 
+  // File
+    getFiles(yearId) {
+      this.file_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/files/`;
+      apiService(endpoint)
+          .then(response => {
+            this.file_loading = false;
+            this.files = response;
+          })
+    },
+    deleteFile(file) {
+      userInput = confirm(deleteMsg + file.name)
+      if (userInput) {
+        let endpoint = `/api/project-planning/files/${file.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.$delete(this.files, this.files.indexOf(file));
+            })
+      }
+    },
+
+    openFileModal(file) {
+      if (!file) {
+        this.showNewFileModal = true;
+      } else {
+        this.fileToEdit = file;
+        this.showOldFileModal = true;
+      }
+    },
 
     closeModals(projectYear) {
       this.showNewStaffModal = false;
@@ -338,6 +375,9 @@ var app = new Vue({
 
       this.showNewAgreementModal = false;
       this.showOldAgreementModal = false;
+
+      this.showNewFileModal = false;
+      this.showOldFileModal = false;
 
       if (projectYear) {
         this.$nextTick(() => {

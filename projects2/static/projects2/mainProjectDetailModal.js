@@ -38,6 +38,10 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
+    my_file: {
+      type: Object,
+      required: false,
+    },
   },
   data() {
     return {
@@ -116,6 +120,13 @@ Vue.component("modal", {
         agreement_title: null,
         new_or_existing: null,
         notes: null,
+      },
+
+      // files
+      file: {
+        name: null,
+        external_url: null,
+        file: null,
       },
     }
   },
@@ -339,6 +350,39 @@ Vue.component("modal", {
         }
       }
 
+      // file
+      else if (this.mtype === "file") {
+        if (this.file.target_date === "") this.file.target_date = null
+        if (this.my_file) {
+          let endpoint = `/api/project-planning/files/${this.my_file.id}/`;
+          apiService(endpoint, "PATCH", this.file).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/files/`;
+          apiService(endpoint, "POST", this.file).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+
+
+      }
     },
     adjustStaffFields() {
 
@@ -486,6 +530,14 @@ Vue.component("modal", {
           else this.agreement.critical = "False"
         }
       }
+
+      // files
+      else if (this.mtype === "file") {
+        if (this.my_file && this.my_file.id) {
+          this.file = this.my_file
+        }
+      }
+
 
     })
 

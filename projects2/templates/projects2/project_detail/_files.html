@@ -1,0 +1,76 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div class="mb-2 neighbours">
+    <h2>{% trans "Supporting Resources" %}</h2>
+  </div>
+  <div v-if="!file_loading" class="btn-group mb-3 neighbours">
+    <button @click="openFileModal()" class="{{ btn_class_1 }}">
+      <span class="mdi mdi-plus"></span> {% trans "Add Supporting Resource" %}
+    </button>
+  </div>
+
+  <div v-if="file_loading">
+    <button class="btn btn-primary" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+  <div v-else>
+
+    <div
+      v-if="!files.length"
+      class="font-italic"
+    >
+      {% trans "No supporting resources have been added to this year of the project" %}
+    </div>
+
+    <table v-else class="table table-sm" style="width: auto">
+      <thead>
+      {% get_file_field_list as file_field_list %}
+      {% for field in file_field_list %}
+        <th>
+          {% get_verbose_label random_file field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      <tr v-for="(item, index) in files">
+        {% for field in file_field_list %}
+          {% if "ref" in field %}
+            <td>${item.ref }</td>
+          {% elif "external" in field %}
+            <td>
+              <a v-if="item.external_url" :href="item.external_url">
+                <span class="mdi mdi-web"></span>
+              </a>
+              <p v-else>---</p>
+            </td>
+          {% elif "file" in field %}
+            <td>
+              <a v-if="item.file" :href="item.file">
+                <span class="mdi mdi-link"></span>
+              </a>
+              <p v-else>---</p>
+            </td>
+          {% else %}
+            <td>${ item.{{ field }} | nz}</td>
+          {% endif %}
+        {% endfor %}
+        <td class="to-the-right">
+          <button @click="openFileModal(item)"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteFile(item)"><span class="mdi mdi-delete"></span></button>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>
+</tr>
