@@ -225,7 +225,7 @@ class CommonTest(TestCase):
         response = self.client.get(test_url)
 
         self.assertIn(context_var, response.context)
-
+        self.assertEqual(response.context.get(context_var), expected_value)
 
     def assert_correct_url(self, test_url_name, expected_url_path, test_url_args=None):
         # arbitrarily activate the english locale

@@ -6,8 +6,11 @@ from django.core.files import File
 from . import models
 
 
+# for individual exports, can use:
+# python manage.py dumpdata app_name.model_name > whalebrary/fixtures/file.json
+
 def export_fixtures():
-    """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
+    """ a simple function to export the important lookup tables. These fixtures will be used for testing and also for seeding new instances"""
     fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
     models_to_export = [
         models.Category,

@@ -293,7 +293,7 @@ class CosigneeCode(models.Model):
         ordering = ['code', ]
 
 
-# CONNECTED APPS: projects, scifi, whalebrary
+# CONNECTED APPS: projects, scifi
 class Project(models.Model):
     name = models.CharField(max_length=1000)
     code = models.CharField(max_length=50)
