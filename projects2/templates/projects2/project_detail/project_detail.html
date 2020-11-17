@@ -10,17 +10,7 @@
 {% block messages %}{% endblock %}
 {% block title_area %}
   {{ block.super }}
-  {% for msg in messages %}
-    <div class="alert alert-success" role="alert" style="width: 40%">
-      <h4 class="alert-heading">
-        {% trans "Success!" %}
-      </h4>
-      <p class="h6">
-        {{ msg|safe }}
-      </p>
-    </div>
-  {% endfor %}
-
+  {% bootstrap_messages %}
 {% endblock %}
 
 {% block header %}
@@ -34,6 +24,13 @@
     @keydown.esc.prevent="closeModals()"
 
   >
+
+    <div v-if="canModify" class="alert alert-primary" role="alert" style="width: 45%">
+      <p class="mb-0">
+        <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+      </p>
+    </div>
+
     <div class="row">
 
       <div class="col-2 toolbar py-3 px-3 ml-2">
@@ -165,8 +162,8 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.2.6" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.1.5" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.2.9" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.1.6" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">

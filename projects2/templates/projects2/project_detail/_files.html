@@ -9,7 +9,7 @@
     <h2>{% trans "Supporting Resources" %}</h2>
   </div>
   <div v-if="!file_loading" class="btn-group mb-3 neighbours">
-    <button @click="openFileModal()" class="{{ btn_class_1 }}">
+    <button @click="openFileModal()"class="{{ btn_class_1 }}" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Supporting Resource" %}
     </button>
   </div>
@@ -62,7 +62,7 @@
             <td>${ item.{{ field }} | nz}</td>
           {% endif %}
         {% endfor %}
-        <td class="to-the-right">
+        <td class="to-the-right" v-if="canModify">
           <button @click="openFileModal(item)"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteFile(item)"><span class="mdi mdi-delete"></span></button>
         </td>

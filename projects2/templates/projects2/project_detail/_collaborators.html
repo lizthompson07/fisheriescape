@@ -9,7 +9,7 @@
     <h2>{% trans "External Collaborators" %}</h2>
   </div>
   <div v-if="!collaborator_loading" class="mb-2 neighbours">
-    <button @click="openCollaboratorModal()" class="{{ btn_class_1 }}">
+    <button @click="openCollaboratorModal()"class="{{ btn_class_1 }}" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Collaborator" %}
     </button>
   </div>
@@ -53,7 +53,7 @@
             <td>${ item.{{ field }} | nz}</td>
           {% endif %}
         {% endfor %}
-        <td class="to-the-right">
+        <td class="to-the-right" v-if="canModify">
           <button @click="openCollaboratorModal(item)"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteCollaborator(item)"><span class="mdi mdi-delete"></span></button>
         </td>

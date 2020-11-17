@@ -9,6 +9,7 @@ from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
 from django.views.generic import UpdateView, CreateView
 from easy_pdf.views import PDFTemplateView
@@ -230,7 +231,7 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         #     funding_source=my_object.default_funding_source
         # )
         # year.add_all_om_costs()
-        messages.success(self.request, _("Your new project was created successfully! To get started, <b>add a new project year</b>."))
+        messages.success(self.request, mark_safe(_("Your new project was created successfully! To get started, <b>add a new project year</b>.")))
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": my_object.id}))
 
     def get_initial(self):
@@ -286,7 +287,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["file_form"] = forms.FileForm
         context["random_file"] = models.File.objects.first()
 
-        context["btn_class_1"] = ""
+        context["btn_class_1"] = "create-btn"
         # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)
 

@@ -19,7 +19,7 @@ def in_projects_admin_group(user):
     Will return True if user is in project_admin group
     """
     if user:
-        return user.groups.filter(name='projects_admin').count() != 0
+        return user.groups.filter(name='projects_admin').exists()
 
 
 def is_management_or_admin(user):
@@ -70,26 +70,49 @@ def is_project_lead(user, project_id=None, project_year_id=None):
             return user in [s.user for s in models.Staff.objects.filter(project_year__project=project, is_lead=True)]
 
 
-def can_modify_project(user, project_id):
+def can_modify_project(user, project_id, return_as_dict=False):
     """
     returns True if user has permissions to delete or modify a project
-
     The answer of this question will depend on whether the project is submitted. Project leads cannot edit a submitted project
     """
+    my_dict = dict(can_modify=False, reason=_("You are not logged in"))
+
     if user.id:
+
+        my_dict["reason"] = "You are not a project lead or manager of this project"
         project = models.Project.objects.get(pk=project_id)
 
         # check to see if a superuser or projects_admin -- both are allow to modify projects
-        if "projects_admin" in [g.name for g in user.groups.all()]:
-            return True
+        if in_projects_admin_group(user):
+            my_dict["reason"] = "You can modify this record because you are a system administrator"
+            my_dict["can_modify"] = True
 
-        # check to see if they are a section head, div. manager or RDS
-        if is_section_head(user, project) or is_division_manager(user, project) or is_rds(user, project):
-            return True
+        # check to see if they are a section head
+        elif is_section_head(user, project):
+            my_dict["reason"] = "You can modify this record because it falls under your section"
+            my_dict["can_modify"] = True
+
+        # check to see if they are a div. manager
+        elif is_division_manager(user, project):
+            my_dict["reason"] = "You can modify this record because it falls under your division"
+            my_dict["can_modify"] = True
+
+        # check to see if they are an RDS
+        elif is_rds(user, project):
+            my_dict["reason"] = "You can modify this record because it falls under your branch"
+            my_dict["can_modify"] = True
 
         # check to see if they are a project lead
-        if is_project_lead(user, project_id=project.id):
-            return True
+        elif is_project_lead(user, project_id=project.id):
+            my_dict["reason"] = "You can modify this record because you are a project lead"
+            my_dict["can_modify"] = True
+
+        # check to see if they are a project lead
+        elif not project.lead_staff.exists():
+            my_dict["reason"] = "You can modify this record because there are currently no project leads"
+            my_dict["can_modify"] = True
+
+        return my_dict if return_as_dict else my_dict["can_modify"]
 
 
 def is_admin_or_project_manager(user, project):
@@ -178,15 +201,15 @@ def get_user_fte_breakdown(user, fiscal_year_id):
     my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
     my_dict['draft'] = nz(staff_instances.filter(
         project_year__status=1
-    ).aggregate(dsum=Sum("duration_weeks"))["dsum"],0)
+    ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['recommended'] = nz(staff_instances.filter(
         project_year__status=3
-    ).aggregate(dsum=Sum("duration_weeks"))["dsum"],0)
+    ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['approved'] = nz(staff_instances.filter(
         project_year__status=4
-    ).aggregate(dsum=Sum("duration_weeks"))["dsum"],0)
+    ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     return my_dict
 

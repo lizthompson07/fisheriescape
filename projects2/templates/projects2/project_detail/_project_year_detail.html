@@ -2,7 +2,7 @@
 {% load project_filters %}
 {% load i18n %}
 
-<div class="float-right">
+<div v-if="canModify" class="float-right">
   <button class=""
      @click="goProjectYearEdit(projectYear.id)">
     <span class="mdi mdi-pencil"></span>

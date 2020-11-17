@@ -9,7 +9,7 @@
     <h2>{% trans "Collaborative Agreements" %}</h2>
   </div>
   <div v-if="!agreement_loading" class="mb-3 neighbours">
-    <button @click="openAgreementModal()" class="{{ btn_class_1 }}">
+    <button @click="openAgreementModal()" class="{{ btn_class_1 }}" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Agreement" %}
     </button>
   </div>
@@ -53,7 +53,7 @@
             <td>${ item.{{ field }} | nz}</td>
           {% endif %}
         {% endfor %}
-        <td class="to-the-right">
+        <td class="to-the-right" v-if="canModify">
           <button @click="openAgreementModal(item)"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteAgreement(item)"><span class="mdi mdi-delete"></span></button>
         </td>

@@ -23,26 +23,26 @@
 
 <div class="btn-group-vertical vgroup">
 
-  <a class="{{ btn_class_black }} {% if object.submitted %}disabled{% endif %}"
+  <a v-if="canModify" class="{{ btn_class_black }} {% if object.submitted %}disabled{% endif %}"
      href="{% url 'projects2:project_edit' object.id %}">
     <span class="icon mdi mdi-pencil"></span>
     {% trans "Edit Overview" %}
   </a>
 
-  <a class="{{ btn_class_black }}  {% if object.submitted %}disabled{% endif %}"
+  <a v-if="canModify" class="{{ btn_class_black }}  {% if object.submitted %}disabled{% endif %}"
      href="{% url 'projects2:project_delete' object.id %}">
     <span class="icon mdi mdi-delete"></span>
     {% trans "Delete" %}
   </a>
 
   {% if object.has_unsubmitted_years %}
-    <a class="{{ btn_class_black }} under-dev" href="#">
+    <a v-if="canModify" class="{{ btn_class_black }} under-dev" href="#">
       <span class="icon mdi mdi-email"></span>
       {% trans "Submit" %}
     </a>
   {% else %}
     {% if object.years.exists %}
-      <a class="{{ btn_class_black }} under-dev" href="#">
+      <a v-if="canModify" class="{{ btn_class_black }} under-dev" href="#">
         <span class="icon mdi mdi-cancel"></span>
         {% trans "Unsubmit" %}
       </a>
@@ -83,7 +83,7 @@
     </a>
   {% endfor %}
 
-  <a href="#" class="{{ btn_class_green }} " data-toggle="modal" data-target="#new-year-modal"
+  <a v-if="canModify" href="#" class="{{ btn_class_green }} " data-toggle="modal" data-target="#new-year-modal"
      title="{% trans "Add a new year to this project" %}">
     <span class="icon mdi mdi-plus"></span>
     {% trans "Add New Year" %}

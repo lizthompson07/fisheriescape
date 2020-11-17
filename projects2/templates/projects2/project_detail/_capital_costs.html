@@ -9,7 +9,7 @@
     <h2>{% trans "Capital Costs" %}</h2>
   </div>
   <div v-if="!capital_cost_loading" class="mb-3 neighbours">
-    <button @click="openCapitalCostModal()" class="{{ btn_class_1 }}">
+    <button @click="openCapitalCostModal()"class="{{ btn_class_1 }}" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Capital Cost" %}
     </button>
   </div>
@@ -65,7 +65,7 @@
             <td>${ item.{{ field }} | nz}</td>
           {% endif %}
         {% endfor %}
-        <td class="to-the-right">
+        <td class="to-the-right" v-if="canModify">
           <button @click="openCapitalCostModal(item)"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteCapitalCost(item)"><span class="mdi mdi-delete"></span></button>
         </td>

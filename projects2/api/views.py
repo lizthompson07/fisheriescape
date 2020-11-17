@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from . import permissions
 from . import serializers
 from .. import models, stat_holidays
-from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown
+from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project
 from shared_models import models as shared_models
 
 # USER
@@ -18,7 +18,10 @@ from shared_models import models as shared_models
 class CurrentUserAPIView(APIView):
     def get(self, request):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
-        return Response(serializer.data)
+        data = serializer.data
+        if request.query_params.get("project"):
+            data.update(can_modify_project(request.user, request.query_params.get("project"), True))
+        return Response(data)
 
 
 class FTEBreakdownAPIView(APIView):
@@ -79,7 +82,7 @@ class GetDatesAPIView(APIView):
 class ProjectYearRetrieveAPIView(RetrieveAPIView):
     queryset = models.ProjectYear.objects.all().order_by("-created_at")
     serializer_class = serializers.ProjectYearSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
 
 # STAFF
@@ -87,7 +90,7 @@ class ProjectYearRetrieveAPIView(RetrieveAPIView):
 class StaffListCreateAPIView(ListCreateAPIView):
     queryset = models.Staff.objects.all()
     serializer_class = serializers.StaffSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
@@ -111,7 +114,7 @@ class StaffRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 class OMCostListCreateAPIView(ListCreateAPIView):
     queryset = models.OMCost.objects.all()
     serializer_class = serializers.OMCostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
@@ -155,7 +158,7 @@ class RemoveEmptyCostsAPIView(APIView):
 class CapitalCostListCreateAPIView(ListCreateAPIView):
     queryset = models.CapitalCost.objects.all()
     serializer_class = serializers.CapitalCostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
@@ -177,7 +180,7 @@ class CapitalCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 class GCCostListCreateAPIView(ListCreateAPIView):
     queryset = models.GCCost.objects.all()
     serializer_class = serializers.GCCostSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
@@ -198,7 +201,7 @@ class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 class MilestoneListCreateAPIView(ListCreateAPIView):
     queryset = models.Milestone.objects.all()
     serializer_class = serializers.MilestoneSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
@@ -219,7 +222,7 @@ class MilestoneRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 class CollaboratorListCreateAPIView(ListCreateAPIView):
     queryset = models.Collaborator.objects.all()
     serializer_class = serializers.CollaboratorSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
@@ -240,7 +243,7 @@ class CollaboratorRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 class AgreementListCreateAPIView(ListCreateAPIView):
     queryset = models.CollaborativeAgreement.objects.all()
     serializer_class = serializers.AgreementSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
@@ -261,7 +264,7 @@ class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 class FileListCreateAPIView(ListCreateAPIView):
     queryset = models.File.objects.all()
     serializer_class = serializers.FileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
@@ -286,6 +289,7 @@ class FileRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 
 class FinancialsAPIView(APIView):
+    permissions = [IsAuthenticated]
     def get(self, request, project_year=None, project=None):
         if not project_year and not project:
             return Response(None, status.HTTP_400_BAD_REQUEST)

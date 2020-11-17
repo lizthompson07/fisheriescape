@@ -3,6 +3,8 @@ var app = new Vue({
   delimiters: ["${", "}"],
   data: {
     showOverview: true,
+    currentUser: null,
+    canModify: false,
 
     py_loading: false,
     projectYear: {},
@@ -113,6 +115,15 @@ var app = new Vue({
             this.project_financials = response;
           })
     },
+    getCurrentUser(projectId) {
+      this.project_financials_loading = true;
+      let endpoint = `/api/project-planning/user/?project=${projectId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.currentUser = response;
+            this.canModify = this.currentUser.can_modify
+          })
+    },
     // Staff
     getStaff(yearId) {
       this.staff_loading = true;
@@ -129,7 +140,7 @@ var app = new Vue({
         let endpoint = `/api/project-planning/staff/${staffMember.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              this.$delete(this.staff, this.staff.indexOf(staffMember));
+              if (!response.detail) this.$delete(this.staff, this.staff.indexOf(staffMember));
             })
       }
     },
@@ -159,7 +170,7 @@ var app = new Vue({
         let endpoint = `/api/project-planning/om-costs/${OMCost.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              this.$delete(this.om_costs, this.om_costs.indexOf(OMCost));
+              if (!response.detail) this.$delete(this.om_costs, this.om_costs.indexOf(OMCost));
             })
       }
     },
@@ -211,7 +222,7 @@ var app = new Vue({
         let endpoint = `/api/project-planning/capital-costs/${capitalCost.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              this.$delete(this.capital_costs, this.capital_costs.indexOf(capitalCost));
+              if (!response.detail) this.$delete(this.capital_costs, this.capital_costs.indexOf(capitalCost));
             })
       }
     },
@@ -241,7 +252,7 @@ var app = new Vue({
         let endpoint = `/api/project-planning/gc-costs/${gcCost.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              this.$delete(this.gc_costs, this.gc_costs.indexOf(gcCost));
+              if (!response.detail) this.$delete(this.gc_costs, this.gc_costs.indexOf(gcCost));
             })
       }
     },
@@ -271,7 +282,7 @@ var app = new Vue({
         let endpoint = `/api/project-planning/milestones/${milestone.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              this.$delete(this.milestones, this.milestones.indexOf(milestone));
+              if (!response.detail) this.$delete(this.milestones, this.milestones.indexOf(milestone))
             })
       }
     },
@@ -302,7 +313,7 @@ var app = new Vue({
         let endpoint = `/api/project-planning/collaborators/${collaborator.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              this.$delete(this.collaborators, this.collaborators.indexOf(collaborator));
+              if (!response.detail) this.$delete(this.collaborators, this.collaborators.indexOf(collaborator));
             })
       }
     },
@@ -332,7 +343,7 @@ var app = new Vue({
         let endpoint = `/api/project-planning/agreements/${agreement.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              this.$delete(this.agreements, this.agreements.indexOf(agreement));
+              if (!response.detail) this.$delete(this.agreements, this.agreements.indexOf(agreement));
             })
       }
     },
@@ -362,7 +373,7 @@ var app = new Vue({
         let endpoint = `/api/project-planning/files/${file.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              this.$delete(this.files, this.files.indexOf(file));
+              if (!response.detail) this.$delete(this.files, this.files.indexOf(file));
             })
       }
     },
@@ -522,6 +533,7 @@ var app = new Vue({
   },
   created() {
     this.getProjectFinancials(projectId)
+    this.getCurrentUser(projectId)
   },
   mounted() {
   },

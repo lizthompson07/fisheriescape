@@ -11,11 +11,7 @@
   </div>
 
   <div class="mb-3 neighbours btn-group">
-    <button
-      v-if="!staff_loading"
-      @click="openStaffModal()"
-      class="{{ btn_class_1 }}"
-    >
+    <button @click="openStaffModal()" class="{{ btn_class_1 }}" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Staff" %}
     </button>
   </div>
@@ -74,7 +70,7 @@
             <td>${s.amount | currencyFormat}</td>
           {% elif "duration" in field %}
             <td>
-              <span v-if="s.duration_weeks == 0||!s.duration_weeks" class="major-error py-1 px-1">${s.duration_weeks | floatformat}</span>
+              <span v-if="s.duration_weeks == 0 || !s.duration_weeks" class="major-error py-1 px-1">0.00</span>
               <span v-else>${s.duration_weeks | floatformat}</span>
             </td>
 
@@ -82,8 +78,8 @@
             <td>${ s.{{ field }} | nz}</td>
           {% endif %}
         {% endfor %}
-        <td class="to-the-right">
-          <button @click="openStaffModal(s)"><span class="mdi mdi-pencil"></span></button>
+        <td class="to-the-right" v-if="canModify">
+          <button @click="openStaffModal(s)"><span class="mdi mdi-pencil" ></span></button>
           <button @click="deleteStaffMember(s)"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>

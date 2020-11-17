@@ -9,7 +9,7 @@
     <h2>{% trans "Milestones" %}</h2>
   </div>
   <div v-if="!milestone_loading" class="btn-group mb-3 neighbours">
-    <button @click="openMilestoneModal()" class="{{ btn_class_1 }}">
+    <button @click="openMilestoneModal()"class="{{ btn_class_1 }}" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Milestone" %}
     </button>
   </div>
@@ -50,7 +50,7 @@
             <td>${ item.{{ field }} | nz}</td>
           {% endif %}
         {% endfor %}
-        <td class="to-the-right">
+        <td class="to-the-right" v-if="canModify">
           <button @click="openMilestoneModal(item)"><span class="mdi mdi-pencil"></span></button>
           <button @click="deleteMilestone(item)"><span class="mdi mdi-delete"></span></button>
         </td>
