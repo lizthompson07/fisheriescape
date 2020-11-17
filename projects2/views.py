@@ -25,7 +25,7 @@ from . import forms
 from . import models
 from . import stat_holidays
 from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
-from .utils import multiple_projects_financial_summary, financial_project_summary_data, can_modify_project, get_help_text_dict, \
+from .utils import multiple_projects_financial_summary, can_modify_project, get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin
 
 
@@ -231,7 +231,8 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         #     funding_source=my_object.default_funding_source
         # )
         # year.add_all_om_costs()
-        messages.success(self.request, mark_safe(_("Your new project was created successfully! To get started, <b>add a new project year</b>.")))
+        messages.success(self.request,
+                         mark_safe(_("Your new project was created successfully! To get started, <b>add a new project year</b>.")))
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": my_object.id}))
 
     def get_initial(self):
@@ -324,6 +325,115 @@ class ProjectDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
+
+
+class ProjectCloneView(ProjectUpdateView):
+    template_name = 'projects2/project_form.html'
+
+    def get_h1(self):
+        return _("Cloning: ") + str(self.get_object())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloning"] = True
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:login_required'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        obj = self.get_object()
+        init = super().get_initial()
+        init["title"] = f"CLONE OF: {obj.title}"
+        init["cloning"] = True
+        return init
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Project.objects.get(pk=new_obj.pk)
+
+        new_obj.project = new_obj
+        new_obj.pk = None
+        new_obj.save()
+
+        for t in old_obj.tags.all():
+            new_obj.tags.add(t)
+
+        # for each year of old project, clone into new project...
+        for old_year in old_obj.years.all():
+            new_year = deepcopy(old_year)
+
+            new_year.project = new_obj
+            new_year.pk = None
+            new_year.submitted = None
+            new_year.allocated_budget = None
+            new_year.status = 1
+            new_year.notification_email_sent = None
+            new_year.save()
+
+            # Now we need to replicate all the related records:
+            # 1) staff
+            for old_rel_obj in old_year.staff_set.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # we have to just make sure that the user is a lead on the project. Otherwise they will not be able to edit.
+            my_staff, created = models.Staff.objects.get_or_create(
+                user=self.request.user,
+                project_year=new_year,
+                employee_type_id=1,
+            )
+            my_staff.lead = True
+            my_staff.save()
+
+            # 2) O&M
+            for old_rel_obj in old_year.omcost_set.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 3) Capital
+            for old_rel_obj in old_year.capitalcost_set.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 4) G&C
+            for old_rel_obj in old_year.gc_costs.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 5) Collaborators and Partners
+            for old_rel_obj in old_year.collaborators.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 6) Collaborative Agreements
+            for old_rel_obj in old_year.agreements.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 7) Milestones
+            for old_rel_obj in old_year.milestones.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.target_date = None  # clear the target date
+                new_rel_obj.save()
+
+        return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.project.id}))
 
 
 # PROJECT YEAR #
@@ -794,115 +904,6 @@ class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 #         my_object.save()
 #         return HttpResponseRedirect(reverse('projects2:close_me'))
 
-
-class ProjectCloneUpdateView(ProjectUpdateView):
-    template_name = 'projects2/project_form.html'
-    h1 = gettext_lazy("Please enter the new project details...")
-
-    def test_func(self):
-        if self.request.user.id:
-            return True
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_access'))
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_initial(self):
-        my_object = models.Project.objects.get(pk=self.kwargs["pk"])
-        init = super().get_initial()
-        init["project_title"] = "CLONE OF: {}".format(my_object.project_title)
-        init["year"] = fiscal_year(sap_style=True, next=True)
-        # init["created_by"] = self.request.user
-        return init
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["cloned"] = True
-        return context
-
-    def form_valid(self, form):
-        new_obj = form.save(commit=False)
-        old_obj = models.Project.objects.get(pk=new_obj.pk)
-        new_tags = form.cleaned_data.get("tags")
-        new_project_codes = form.cleaned_data.get("existing_project_codes")
-        new_obj.pk = None
-        new_obj.submitted = False
-        new_obj.approved = False
-        new_obj.recommended_for_funding = False
-        new_obj.date_last_modified = timezone.now()
-        new_obj.last_modified_by = self.request.user
-        new_obj.save()
-
-        # now that the new object has an id, we can add the many 2 many links
-
-        for t in new_tags:
-            new_obj.tags.add(t.id)
-
-        for code in new_project_codes:
-            new_obj.existing_project_codes.add(code.id)
-
-        # Now we need to replicate all the related records:
-        # 1) staff
-        for old_rel_obj in old_obj.staff_members.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # we have to just make sure that the user is a lead on the project. Otherwise they will not be able to edit.
-        my_staff, created = models.Staff.objects.get_or_create(
-            user=self.request.user,
-            project=new_obj,
-            employee_type_id=1,
-        )
-        my_staff.lead = True
-        my_staff.save()
-
-        # 2) O&M
-        for old_rel_obj in old_obj.om_costs.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 3) Capital
-        for old_rel_obj in old_obj.capital_costs.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 4) G&C
-        for old_rel_obj in old_obj.gc_costs.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 5) Collaborators and Partners
-        for old_rel_obj in old_obj.collaborators.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 6) Collaborative Agreements
-        for old_rel_obj in old_obj.agreements.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 7) Milestones
-        for old_rel_obj in old_obj.milestones.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.id}))
 
 
 # STAFF #
@@ -1500,6 +1501,7 @@ class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
     home_url_name = "projects2:index"
     delete_url_name = "projects2:delete_tag"
 
+
 #
 class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     model = models.HelpText
@@ -1514,6 +1516,8 @@ class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("projects2:manage_help_text")
     home_url_name = "projects2:index"
     delete_url_name = "projects2:delete_help_text"
+
+
 #
 #
 class LevelHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
@@ -1529,6 +1533,8 @@ class LevelFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("projects2:manage_levels")
     home_url_name = "projects2:index"
     delete_url_name = "projects2:delete_level"
+
+
 #
 #
 # # class ProgramHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
@@ -1559,6 +1565,8 @@ class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("projects2:manage_activity_types")
     home_url_name = "projects2:index"
     delete_url_name = "projects2:delete_activity_type"
+
+
 #
 #
 class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
@@ -1574,6 +1582,8 @@ class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("projects2:manage_themes")
     home_url_name = "projects2:index"
     delete_url_name = "projects2:delete_theme"
+
+
 #
 #
 class UpcomingDateHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
@@ -1589,6 +1599,8 @@ class UpcomingDateFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("projects2:manage-upcoming-dates")
     home_url_name = "projects2:index"
     delete_url_name = "projects2:delete-upcoming-date"
+
+
 #
 #
 # class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):

@@ -90,5 +90,4 @@ def save_project_on_py_delete(sender, instance, **kwargs):
 
 @receiver(models.signals.post_save, sender=ProjectYear)
 def save_project_on_py_creation(sender, instance, created, **kwargs):
-    print("projectyear")
     instance.project.save()

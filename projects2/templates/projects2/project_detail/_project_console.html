@@ -50,8 +50,8 @@
   {% endif %}
 
   <a
-    href="#"
-    class="{{ btn_class_black }} under-dev"
+    href="{% url 'projects2:project_clone' object.id %}"
+    class="{{ btn_class_black }}"
     data-toggle="tooltip"
     title="{% trans "Use this project as a template for a new project" %}"
   >

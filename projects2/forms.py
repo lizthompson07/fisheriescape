@@ -103,6 +103,9 @@ class ProjectForm(forms.ModelForm):
         functional_group_choices.insert(0, tuple((None, "---")))
         self.fields['functional_group'].choices = functional_group_choices
 
+        if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
+            del self.fields["tags"]
+
 
 class ProjectYearForm(forms.ModelForm):
     class Meta:

@@ -7,7 +7,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
 
-from dm_apps import custom_widgets
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
 # Choices for language
@@ -90,7 +89,7 @@ class Project(models.Model):
     # basic
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects2",
                                 verbose_name=_("section"))
-    title = custom_widgets.OracleTextField(verbose_name=_("Project title"))
+    title = models.TextField(verbose_name=_("Project title"))
     activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
     functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
                                          verbose_name=_("Functional group"))
@@ -110,7 +109,6 @@ class Project(models.Model):
     funding_sources = models.ManyToManyField(FundingSource, editable=False, verbose_name=_("complete list of funding sources"))
     staff_search_field = models.CharField(editable=False, max_length=1000, blank=True, null=True)
     lead_staff = models.ManyToManyField("Staff", editable=False, verbose_name=_("project leads"))
-
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -199,6 +197,7 @@ class Project(models.Model):
                 if item.funding_source and item.amount and item.amount > 0:
                     my_list.append(item.funding_source)
             return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
+
 
 class ProjectYear(models.Model):
     status_choices = [
@@ -342,7 +341,7 @@ class ProjectYear(models.Model):
                 )
 
     def clear_empty_om_costs(self):
-        self.omcost_set.filter(Q(amount__isnull=True)|Q(amount=0)).filter(description__isnull=True).delete()
+        self.omcost_set.filter(Q(amount__isnull=True) | Q(amount=0)).filter(description__isnull=True).delete()
 
     @property
     def dates(self):
