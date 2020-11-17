@@ -199,26 +199,8 @@ class Location(models.Model):
             my_str += f' (bin # {self.bin_id})'
         return my_str
 
-    @property
-    def binlocation(self):
-        return str(self)
-
     def get_absolute_url(self):
         return reverse("whalebrary:location_detail", kwargs={"pk": self.id})
-
-
-class Status(models.Model):
-    name = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("status"))
-    nom = models.CharField(max_length=250, blank=False, null=False, verbose_name=_("status"))
-
-    def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("name"))):
-
-            return "{}".format(getattr(self, str(_("name"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.name)
 
 
 def file_directory_path(instance, filename):
@@ -338,7 +320,7 @@ class Personnel(models.Model):
     exp_level = models.ForeignKey(Experience, help_text="Novice 1-2 necropsy, Intermediate 3-5, Advanced more than 5",
                                   on_delete=models.DO_NOTHING, related_name="xp",
                                   verbose_name=_("experience level"))
-    training = models.ManyToManyField(Training, blank=True, verbose_name=_("training"))
+    trainings = models.ManyToManyField(Training, blank=True, verbose_name=_("training"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -435,9 +417,8 @@ class Image(models.Model):
 
 
 class Audit(models.Model):
-    date = models.DateTimeField(blank=True, null=True, help_text="Format: YYYY-MM-DD HH:mm:ss",
-                                verbose_name=_("last audited"))
-    last_audited_by = models.ForeignKey(Personnel, on_delete=models.DO_NOTHING, verbose_name=_("last audited by"))
+    date = models.DateTimeField(default=timezone.now, verbose_name=_("last audited on"))
+    last_audited_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, verbose_name=_("last audited by"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -485,12 +466,12 @@ class Transaction(models.Model):
     # can use for who lent to, etc
     comments = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("comments"))
     # auditing
-    audit = models.ManyToManyField(Audit, blank=True, verbose_name=_("audits"))
+    audits = models.ManyToManyField(Audit, blank=True, verbose_name=_("audits"))
     # location of quantities taken/used/received
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("location stored"))
     # use "tag" field with M2M to track things of interest instead of "incident", "project code" etc.
-    tag = models.ManyToManyField(Tag, blank=True, related_name="transactions", verbose_name=_("tags"))
+    tags = models.ManyToManyField(Tag, blank=True, related_name="transactions", verbose_name=_("tags"))
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     created_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
@@ -530,9 +511,9 @@ class Transaction(models.Model):
     #             assigned_to.fullname, comment),
     #         add_date_time=timezone.now())
     #     self.add_subscriber(assigned_to)
-
-    def get_fullname(self):
-        return self.item or self.id
+    #
+    # def get_fullname(self):
+    #     return self.item or self.id
 
 
 class Order(models.Model):

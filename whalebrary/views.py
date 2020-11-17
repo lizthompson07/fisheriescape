@@ -91,13 +91,19 @@ class WhalebraryEditRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-@login_required(login_url='/accounts/login_required/')
+@login_required(login_url='/accounts/login/')
 def index(request):
     return render(request, 'whalebrary/index.html')
 
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/')
+def admin_tools(request):
+    return render(request, 'whalebrary/_admin.html')
+
 ## ADMIN FORMSETS ##
 
-    ## LOCATION ##
+## LOCATION ##
 
 
 class LocationHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
@@ -131,21 +137,89 @@ class TagFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
     home_url_name = "whalebrary:index"
     delete_url_name = "whalebrary:delete_tag"
 
+    ## OWNER ##
+
+
+class OwnerHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
+    model = models.Owner
+    success_url = reverse_lazy("whalebrary:manage_owners")
+
+
+class OwnerFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
+    template_name = 'whalebrary/formset.html'
+    h1 = "Manage Owners"
+    queryset = models.Owner.objects.all()
+    formset_class = forms.OwnerFormset
+    success_url = reverse_lazy("whalebrary:manage_owners")
+    home_url_name = "whalebrary:index"
+    delete_url_name = "whalebrary:delete_owner"
+
+    ## SIZE ##
+
+
+class SizeHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
+    model = models.Size
+    success_url = reverse_lazy("whalebrary:manage_sizes")
+
+
+class SizeFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
+    template_name = 'whalebrary/formset.html'
+    h1 = "Manage Sizes"
+    queryset = models.Size.objects.all()
+    formset_class = forms.SizeFormset
+    success_url = reverse_lazy("whalebrary:manage_sizes")
+    home_url_name = "whalebrary:index"
+    delete_url_name = "whalebrary:delete_size"
+
+    ## ORGANISATION ##
+
+
+class OrganisationHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
+    model = models.Organisation
+    success_url = reverse_lazy("whalebrary:manage_organisations")
+
+
+class OrganisationFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
+    template_name = 'whalebrary/formset.html'
+    h1 = "Manage Organisations"
+    queryset = models.Organisation.objects.all()
+    formset_class = forms.OrganisationFormset
+    success_url = reverse_lazy("whalebrary:manage_organisations")
+    home_url_name = "whalebrary:index"
+    delete_url_name = "whalebrary:delete_organisation"
+
+    ## TRAINING ##
+
+
+class TrainingHardDeleteView(WhalebraryAdminAccessRequired, CommonHardDeleteView):
+    model = models.Training
+    success_url = reverse_lazy("whalebrary:manage_trainings")
+
+
+class TrainingFormsetView(WhalebraryAdminAccessRequired, CommonFormsetView):
+    template_name = 'whalebrary/formset.html'
+    h1 = "Manage Trainings"
+    queryset = models.Training.objects.all()
+    formset_class = forms.TrainingFormset
+    success_url = reverse_lazy("whalebrary:manage_trainings")
+    home_url_name = "whalebrary:index"
+    delete_url_name = "whalebrary:delete_training"
+
+
 # #
 # # ITEM #
 # # ###########
 # #
 #
 
-# TODO Find out how to add admin permission to this action
+# TODO update this with new code that's cleaner
 # TODO Decide if I want the report to also have locations
-
-# @permission_required(WhalebraryAdminAccessRequired)
+@user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/')
 def inventory_download(request):
     items = models.Item.objects.all()
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=inventory' + str(date.today())+'.csv'
+    response['Content-Disposition'] = 'attachment; filename=inventory' + str(date.today()) + '.csv'
 
     writer = csv.writer(response, delimiter=',')
     writer.writerow([
@@ -280,9 +354,9 @@ class ItemTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'quantity', "class": "", "width": ""},
         {"name": 'category', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
-        {"name": 'audit', "class": "", "width": ""},
+        {"name": 'audits', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
-        {"name": 'tag', "class": "", "width": ""},
+        {"name": 'tags', "class": "", "width": ""},
         {"name": 'created_at', "class": "", "width": ""},
         {"name": 'created_by', "class": "", "width": ""},
         {"name": 'updated_at', "class": "", "width": ""},
@@ -302,7 +376,7 @@ class ItemTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
         my_item = models.Item.objects.get(pk=self.kwargs.get('pk'))
         return my_item.transactions.all().annotate(
             search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'comments',
-                               'audit__date', 'location__location', 'tag__tag',
+                               'audits__date', 'location__location', 'tags__tag',
                                'created_at', 'created_by', 'updated_at', output_field=TextField()))
 
     def get_h1(self):
@@ -368,7 +442,7 @@ class ItemDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 
 # # LOCATION # #
 
-    ## CRUD Views - admin only
+## CRUD Views - admin only
 
 class LocationListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/list.html"
@@ -474,7 +548,8 @@ def lending_return_item(request, transaction):
     my_return.category_id = 4
     my_return.save()
     messages.success(request, "Items returned")
-    return HttpResponseRedirect(reverse_lazy('shared_models:close_me')) # TODO Ideally want to have a confirm step using 'confirm_status_change.html'
+    return HttpResponseRedirect(reverse_lazy(
+        'shared_models:close_me'))  # TODO Ideally want to have a confirm step using 'confirm_status_change.html'
 
 
 # TODO create the location lend out function
@@ -498,7 +573,7 @@ class TransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
 
     queryset = models.Transaction.objects.annotate(
         search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'comments',
-                           'audit__date', 'location__location', 'tag__tag',
+                           'audits__date', 'location__location', 'tags__tag',
                            'created_at', 'created_by', 'updated_at', output_field=TextField()))
 
     field_list = [
@@ -506,9 +581,9 @@ class TransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'quantity', "class": "", "width": ""},
         {"name": 'category', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
-        {"name": 'audit', "class": "", "width": ""},
+        {"name": 'audits', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
-        {"name": 'tag', "class": "", "width": ""},
+        {"name": 'tags', "class": "", "width": ""},
         {"name": 'created_at', "class": "", "width": ""},
         {"name": 'created_by', "class": "", "width": ""},
         {"name": 'updated_at', "class": "", "width": ""},
@@ -526,9 +601,9 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
         'quantity',
         'category',
         'comments',
-        'audit',
+        'audits',
         'location',
-        'tag',
+        'tags',
         'created_at',
         'created_by',
         'updated_at',
@@ -558,7 +633,8 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
         return my_object
 
     def get_parent_crumb(self):
-        return {"title": str(self.get_object()), "url": reverse_lazy("whalebrary:transaction_detail", kwargs=self.kwargs)}
+        return {"title": str(self.get_object()),
+                "url": reverse_lazy("whalebrary:transaction_detail", kwargs=self.kwargs)}
 
     def get_grandparent_crumb(self):
         return {"title": _("Transaction List"), "url": reverse("whalebrary:transaction_list")}
@@ -570,6 +646,7 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
 
     def get_initial(self):
         return {'created_by': self.request.user}
+
 
 # TODO change this to a lending by location popout view/form
 # class TransactionUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
@@ -592,7 +669,8 @@ class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
         my_object = form.save()
         messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
         return HttpResponseRedirect(
-            reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy('whalebrary:transaction_list'))
+            reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy(
+                'whalebrary:transaction_list'))
 
     def get_initial(self):
         return {'item': self.kwargs.get('pk'),
@@ -634,7 +712,6 @@ class TransactionDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDelet
     model = models.Transaction
     delete_protection = False
 
-
     ##BULK TRANSACTION##
 
 
@@ -657,6 +734,7 @@ class BulkTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'location', "class": "", "width": ""},
 
     ]
+
 
 # from https://github.com/ccnmtl/dmt/blob/master/dmt/main/views.py#L614
 # class BulkTransactionDetailView(WhalebraryAdminAccessRequired, DetailView):
@@ -699,13 +777,13 @@ class BulkTransactionDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView)
     # success_message = 'The transaction was successfully deleted!' # TODO doesn't currently work
     template_name = 'whalebrary/confirm_delete.html'
     home_url_name = "whalebrary:index"
-    parent_crumb = {"title": gettext_lazy("Item Quantities and Statuses"), "url": reverse_lazy("whalebrary:bulk_transaction_list")}
+    parent_crumb = {"title": gettext_lazy("Item Quantities and Statuses"),
+                    "url": reverse_lazy("whalebrary:bulk_transaction_list")}
 
 
 # TODO write a view for this
 class ConfirmStatusChangeView(WhalebraryAdminAccessRequired, CommonPopoutFormView):
     pass
-
 
     ## ORDER ##
 
@@ -719,7 +797,8 @@ class OrderListView(WhalebraryAccessRequired, CommonFilterView):
     new_btn_text = "New Order"
 
     queryset = models.Order.objects.annotate(
-        search_term=Concat('id', 'item__item_name', 'quantity', 'cost', 'date_ordered', 'date_received', 'transaction__id',
+        search_term=Concat('id', 'item__item_name', 'quantity', 'cost', 'date_ordered', 'date_received',
+                           'transaction__id',
                            output_field=TextField()))
 
     field_list = [
@@ -820,7 +899,8 @@ def mark_order_received(request, order):
     my_order.transaction = my_transaction
     my_order.save()
 
-    return HttpResponseRedirect(reverse('whalebrary:transaction_edit', kwargs={'pk': my_transaction.id, 'pop': my_order.id}))
+    return HttpResponseRedirect(
+        reverse('whalebrary:transaction_edit', kwargs={'pk': my_transaction.id, 'pop': my_order.id}))
 
 
 class OrderReceivedTransactionUpdateView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
@@ -864,13 +944,13 @@ class OrderDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     grandparent_crumb = {"title": gettext_lazy("Order List"), "url": reverse_lazy("whalebrary:order_list")}
 
     def get_parent_crumb(self):
-        return {"title": "Order # " + str(self.get_object()), "url": reverse_lazy("whalebrary:order_detail", kwargs=self.kwargs)}
+        return {"title": "Order # " + str(self.get_object()),
+                "url": reverse_lazy("whalebrary:order_detail", kwargs=self.kwargs)}
 
 
 class OrderDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.Order
     delete_protection = False
-
 
     ## PERSONNEL ##
 
@@ -894,7 +974,7 @@ class PersonnelListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'organisation', "class": "", "width": ""},
         {"name": 'email', "class": "", "width": ""},
         {"name": 'exp_level', "class": "", "width": ""},
-        {"name": 'training', "class": "", "width": ""},
+        {"name": 'trainings', "class": "", "width": ""},
     ]
 
     def get_new_object_url(self):
@@ -911,7 +991,7 @@ class PersonnelDetailView(WhalebraryAdminAccessRequired, CommonDetailView):
         'email',
         'phone',
         'exp_level',
-        'training',
+        'trainings',
 
     ]
     home_url_name = "whalebrary:index"
@@ -1021,7 +1101,6 @@ class SupplierListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'contact_number', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
 
-
     ]
 
     def get_new_object_url(self):
@@ -1123,7 +1202,6 @@ class SupplierDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteVi
     model = models.Supplier
     delete_protection = False
 
-
     ## ITEM FILE UPLOAD ##
 
 
@@ -1193,7 +1271,6 @@ class FileDeleteView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.File
     delete_protection = False
 
-
     ## INCIDENT ##
 
 
@@ -1206,7 +1283,8 @@ class IncidentListView(WhalebraryAccessRequired, CommonFilterView):
     new_btn_text = "New Incident"
 
     queryset = models.Incident.objects.annotate(
-        search_term=Concat('id', 'name', 'species_count', 'submitted', 'first_report', 'location', 'region', 'species', output_field=TextField()))
+        search_term=Concat('id', 'name', 'species_count', 'submitted', 'first_report', 'location', 'region', 'species',
+                           output_field=TextField()))
 
     field_list = [
         {"name": 'id', "class": "", "width": ""},
@@ -1263,11 +1341,11 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         context["random_image"] = models.Image.objects.first()
         context["image_field_list"] = [
             'title',
-            'image',
             'date_uploaded',
         ]
 
         return context
+
 
 def send_incident_email(request, pk):
     """simple function to send email with detail_view information"""
@@ -1344,8 +1422,8 @@ class IncidentDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("whalebrary:incident_detail", kwargs=self.kwargs)}
 
-
     ## INCIDENT IMAGE UPLOAD ##
+
 
 class ImageListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/image_list.html"
@@ -1403,7 +1481,6 @@ class ImageUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
 class ImageDeleteView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.Image
     delete_protection = False
-
 
     ## REPORTS ##
 
@@ -1464,8 +1541,8 @@ class ContainerSummaryListView(WhalebraryAccessRequired, CommonListView):
         {"name": 'quantity', "class": "", "width": ""},
         {"name": 'category', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
-        {"name": 'audit', "class": "", "width": ""},
-        {"name": 'tag', "class": "", "width": ""},
+        {"name": 'audits', "class": "", "width": ""},
+        {"name": 'tags', "class": "", "width": ""},
     ]
 
     # field_list = [
@@ -1501,11 +1578,7 @@ class SizedItemSummaryListView(WhalebraryAccessRequired, CommonListView):
         {"name": 'quantity', "class": "", "width": ""},
         {"name": 'category', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
-        {"name": 'audit', "class": "", "width": ""},
-        {"name": 'tag', "class": "", "width": ""},
+        {"name": 'audits', "class": "", "width": ""},
+        {"name": 'tags', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
     ]
-
-
-
-

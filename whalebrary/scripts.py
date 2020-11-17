@@ -4,7 +4,7 @@ from django.core import serializers
 from django.core.files import File
 
 from . import models
-from shared_models import models as shared_models
+
 
 def export_fixtures():
     """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
@@ -12,7 +12,8 @@ def export_fixtures():
     models_to_export = [
         models.Category,
         models.GearType,
-        shared_models.FiscalYear,
+        models.Experience,
+        models.TransactionCategory,
     ]
     for model in models_to_export:
         data = serializers.serialize("json", model.objects.all())

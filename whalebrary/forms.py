@@ -121,6 +121,58 @@ TagFormset = modelformset_factory(
 )
 
 
+class OwnerForm(forms.ModelForm):
+    class Meta:
+        model = models.Owner
+        fields = "__all__"
+
+
+OwnerFormset = modelformset_factory(
+    model=models.Owner,
+    form=OwnerForm,
+    extra=1,
+)
+
+
+class SizeForm(forms.ModelForm):
+    class Meta:
+        model = models.Size
+        fields = "__all__"
+
+
+SizeFormset = modelformset_factory(
+    model=models.Size,
+    form=SizeForm,
+    extra=1,
+)
+
+
+class OrganisationForm(forms.ModelForm):
+    class Meta:
+        model = models.Organisation
+        fields = "__all__"
+
+
+OrganisationFormset = modelformset_factory(
+    model=models.Organisation,
+    form=OrganisationForm,
+    extra=1,
+)
+
+
+class TrainingForm(forms.ModelForm):
+    class Meta:
+        model = models.Training
+        fields = "__all__"
+
+
+TrainingFormset = modelformset_factory(
+    model=models.Training,
+    form=TrainingForm,
+    extra=1,
+)
+
+
 class PersonnelForm(forms.ModelForm):
     class Meta:
         model = models.Personnel

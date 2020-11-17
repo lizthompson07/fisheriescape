@@ -87,7 +87,6 @@ class TestTransactionCreateView(CommonTest):
         self.assert_success_url(self.test_url2, data=data, user=self.user)
 
 
-#TODO this one fails - ask David about this error (date_ordered) -- seems to work fine now since patch?
 class TestOrderCreateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -141,16 +140,16 @@ class TestPersonnelCreateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
 
-#TODO find out about error - same as for Order (has to do with args/kwargs?)
+#TODO find out about error - because supplier doesn't have to have an item?
 class TestSupplierCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.SupplierFactory()
         self.test_url = reverse_lazy('whalebrary:supplier_new')
-        self.test_url2 = reverse_lazy('whalebrary:supplier_new', kwargs={"pk": 0})
+        self.test_url2 = reverse_lazy('whalebrary:supplier_new', args=[self.instance.pk, ])
         self.expected_template = 'whalebrary/form.html'
         self.expected_template2 = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="whalebrary_edit")
+        self.user = self.get_and_login_user(in_group="whalebrary_admin")
 
     @tag("Supplier", "supplier_new", "view")
     def test_view_class(self):
@@ -171,7 +170,6 @@ class TestSupplierCreateView(CommonTest):
         self.assert_success_url(self.test_url2, data=data, user=self.user)
 
 
-#TODO - find out why fail, something wrong with args or data format for factory?
 class TestFileCreateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -193,7 +191,7 @@ class TestFileCreateView(CommonTest):
     @tag("File", "file_new", "submit")
     def test_submit(self):
         data = FactoryFloor.FileFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
+        self.assert_success_url(self.test_url, data=data, user=self.user, file_field_name="file")
 
 
 class TestIncidentCreateView(CommonTest):
@@ -219,7 +217,7 @@ class TestIncidentCreateView(CommonTest):
         data = FactoryFloor.IncidentFactory.get_valid_data()
         self.assert_success_url(self.test_url, data=data, user=self.user)
 
-#TODO same fail as file create view
+#TODO same fail as file create view (related to file_field_name="image") -- need to add ImageField case to assert_success_url?
 class TestImageCreateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -241,4 +239,4 @@ class TestImageCreateView(CommonTest):
     @tag("Image", "image_new", "submit")
     def test_submit(self):
         data = FactoryFloor.ImageFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
+        self.assert_success_url(self.test_url, data=data, user=self.user, file_field_name="image")

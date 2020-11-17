@@ -12,10 +12,20 @@ urlpatterns = [
 
     # SETTINGS #
 
+    path('admin_tools', views.admin_tools, name="admin_tools"),
     path('settings/locations/', views.LocationFormsetView.as_view(), name="manage_locations"),
     path('settings/location/<int:pk>/delete/', views.LocationHardDeleteView.as_view(), name="delete_location"),
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
+    path('settings/owners/', views.OwnerFormsetView.as_view(), name="manage_owners"),
+    path('settings/owner/<int:pk>/delete/', views.OwnerHardDeleteView.as_view(), name="delete_owner"),
+    path('settings/sizes/', views.SizeFormsetView.as_view(), name="manage_sizes"),
+    path('settings/size/<int:pk>/delete/', views.SizeHardDeleteView.as_view(), name="delete_size"),
+    path('settings/organisations/', views.OrganisationFormsetView.as_view(), name="manage_organisations"),
+    path('settings/organisation/<int:pk>/delete/', views.OrganisationHardDeleteView.as_view(), name="delete_organisation"),
+    path('settings/trainings/', views.TrainingFormsetView.as_view(), name="manage_trainings"),
+    path('settings/training/<int:pk>/delete/', views.TrainingHardDeleteView.as_view(), name="delete_training"),
+
 
     # ITEMS #
 

@@ -173,7 +173,7 @@ class FileFactory(factory.django.DjangoModelFactory):
 
     item = factory.SubFactory(ItemFactory)
     caption = factory.lazy_attribute(lambda o: faker.catch_phrase())
-    file = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    file = factory.lazy_attribute(lambda o: faker.url())
     date_uploaded = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
@@ -181,7 +181,6 @@ class FileFactory(factory.django.DjangoModelFactory):
         return {
             'item': ItemFactory().id,
             'caption': faker.catch_phrase(),
-            'file': faker.catch_phrase(),
             'date_uploaded': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
 
@@ -205,7 +204,7 @@ class ImageFactory(factory.django.DjangoModelFactory):
 
     incident = factory.SubFactory(IncidentFactory)
     title = factory.lazy_attribute(lambda o: faker.catch_phrase())
-    image = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    image = factory.lazy_attribute(lambda o: faker.url())
     date_uploaded = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
@@ -213,6 +212,34 @@ class ImageFactory(factory.django.DjangoModelFactory):
         return {
             'incident': IncidentFactory().id,
             'title': faker.catch_phrase(),
-            'image': faker.word(),
             'date_uploaded': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
+
+
+class AuditFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Audit
+
+    last_audited_by = factory.SubFactory(UserFactory)
+    date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'last_audited_by': UserFactory().id,
+            'date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+        }
+
+
+class TagFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Tag
+
+    tag = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'tag': faker.catch_phrase(),
+        }
+

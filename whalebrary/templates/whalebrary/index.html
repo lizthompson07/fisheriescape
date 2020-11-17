@@ -12,6 +12,10 @@
             background-size: cover;
         }
 
+        h1{
+            text-align: center;
+        }
+
         .card {
             text-align: center;
             width: 300px;
@@ -71,7 +75,7 @@
 
     {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
     <div class="container">
-        <div class="jumbotron">
+        <div class="jumbotron my-auto">
             <h1>Marine Mammal Tools and Inventory System</h1>
         </div>
     </div>
@@ -99,7 +103,10 @@
                     <div class="btns">
                         <a href="{% url 'whalebrary:item_list' %}" class="btn my-btn btn btn-primary">INVENTORY</a>
                         <a href="{% url 'whalebrary:order_list' %}" class="btn my-btn btn btn-primary">List All Orders</a>
-                        <a href="{% url 'whalebrary:supplier_list' %}" class="btn my-btn btn btn-primary">List All Suppliers</a><br>
+                        <a href="{% url 'whalebrary:supplier_list' %}" class="btn my-btn btn btn-primary">List All Suppliers</a>
+                        <br>
+                        <br>
+                        <a href="{% url 'whalebrary:admin_tools' %}" class="btn my-btn btn btn-danger">Admin Tools</a>
                     </div>
                     <br>
                 </div>
