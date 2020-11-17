@@ -78,6 +78,10 @@ h1 {
     background-color: #c1c1c1;
 }
 
+.denied {
+    background-color: #ff9191;
+}
+
 
 .to-the-right {
     /*position: absolute;*/

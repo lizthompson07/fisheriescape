@@ -138,7 +138,7 @@ class Project(models.Model):
                 for s in y.staff_set.all():
                     if s.smart_name:
                         self.staff_search_field += s.smart_name + " "
-                    if s.is_lead:
+                    if s.is_lead and not self.lead_staff.filter(user=s.user).exists():
                         self.lead_staff.add(s)
                 # add the fiscal year
                 self.fiscal_years.add(y.fiscal_year)
@@ -206,6 +206,7 @@ class ProjectYear(models.Model):
         (2, "Submitted"),
         (3, "Recommended"),
         (4, "Approved"),
+        (5, "Denied"),
         (9, "Cancelled"),
     ]
     status = models.IntegerField(default=1, editable=False, choices=status_choices)
@@ -312,8 +313,6 @@ class ProjectYear(models.Model):
             self.fiscal_year_id = fiscal_year(self.start_date, sap_style=True)
         # save the project whenever a project year is saved
         self.coding = self.get_coding()
-        self.project.save()
-
         super().save(*args, **kwargs)
 
     def __str__(self):

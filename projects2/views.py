@@ -110,11 +110,12 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
     field_list = [
         {"name": 'section', "class": "", "width": ""},
         {"name": 'title', "class": "", "width": ""},
-        {"name": 'start_date', "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": "150px"},
         {"name": 'lead_staff', "class": "", "width": ""},
+        {"name": 'fiscal_years', "class": "", "width": ""},
         {"name": 'has_unsubmitted_years|{}'.format("has unsubmitted years?"), "class": "", "width": ""},
-        {"name": 'is_hidden', "class": "", "width": "150px"},
-        {"name": 'updated_at', "class": "", "width": ""},
+        {"name": 'is_hidden|{}'.format(_("hidden?")), "class": "", "width": ""},
+        {"name": 'updated_at', "class": "", "width": "150px"},
     ]
 
     # x = [
