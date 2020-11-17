@@ -18,6 +18,45 @@ class UserDisplaySerializer(serializers.ModelSerializer):
         return instance.groups.filter(name="projects_admin").exists()
 
 
+class ProjectYearSerializerLITE(serializers.ModelSerializer):
+    class Meta:
+        model = models.ProjectYear
+        fields = [
+            "id",
+            "status",
+            "project",
+            "display_name",
+            "submitted",
+            "formatted_status",
+        ]
+
+    display_name = serializers.SerializerMethodField()
+    submitted = serializers.SerializerMethodField()
+    formatted_status = serializers.SerializerMethodField()
+
+    def get_display_name(self, instance):
+        return str(instance.fiscal_year)
+
+    def get_submitted(self, instance):
+        if instance.submitted:
+            return instance.submitted.strftime("%Y-%m-%d")
+
+    def get_formatted_status(self, instance):
+        return instance.formatted_status
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Project
+        exclude = ["updated_at", ]
+
+    years = ProjectYearSerializerLITE(many=True, read_only=True)
+    has_unsubmitted_years = serializers.SerializerMethodField()
+
+    def get_has_unsubmitted_years(self, instance):
+        return instance.has_unsubmitted_years
+
+
 class ProjectYearSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ProjectYear

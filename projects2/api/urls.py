@@ -10,8 +10,13 @@ urlpatterns = [
     path("project-planning/user/", views.CurrentUserAPIView.as_view(), name="current-user"),
     path("project-planning/fte-breakdown/", views.FTEBreakdownAPIView.as_view(), name="fte-breakdown"),
 
+    # Project
+    path("project-planning/projects/<int:pk>/", views.ProjectRetrieveAPIView.as_view(), name="year-detail"),
+
     # Project year
     path("project-planning/project-years/<int:pk>/", views.ProjectYearRetrieveAPIView.as_view(), name="year-detail"),
+    path("project-planning/project-years/<int:pk>/submit/", views.ProjectYearSubmitAPIView.as_view(), name="year-submit"),
+    path("project-planning/project-years/<int:pk>/unsubmit/", views.ProjectYearUnsubmitAPIView.as_view(), name="year-unsubmit"),
 
     # Staff
     path("project-planning/project-years/<int:project_year>/staff/", views.StaffListCreateAPIView.as_view(), name="staff-list"),

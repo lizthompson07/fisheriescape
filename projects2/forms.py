@@ -202,12 +202,12 @@ class ProjectYearForm(forms.ModelForm):
         end_date = cleaned_data.get("end_date")
         if end_date:
             start_date = cleaned_data.get("start_date")
-            if end_date < start_date:
+            if end_date and start_date and end_date < start_date:
                 self.add_error('end_date', gettext(
                     "The end date must be after the start date!"
                 ))
 
-            if fiscal_year(start_date) != fiscal_year(end_date):
+            if end_date and start_date and fiscal_year(start_date) != fiscal_year(end_date):
                 self.add_error('end_date', gettext(
                     "The start and end dates must be within the same fiscal year!"
                 ))

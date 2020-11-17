@@ -252,8 +252,6 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
 
     def get_h1(self):
         mystr = str(self.get_object())
-        if self.get_object().has_unsubmitted_years:
-            mystr += ' <span class="red-font">{}</span>'.format(_("UNSUBMITTED"))
         return mystr
 
     def get_context_data(self, **kwargs):
@@ -770,91 +768,6 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         context = {**my_context, **context}
 
         return context
-
-
-class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
-    model = models.Project
-    form_class = forms.ProjectSubmitForm
-    home_url_name = "projects2:index"
-    submit_text = gettext_lazy("Submit")
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
-
-    def get_active_page_name_crumb(self):
-        if self.get_object().submitted:
-            return _("Un-submit")
-        else:
-            return _("Submit")
-
-    def get_h1(self):
-        if self.get_object().submitted:
-            return _("Are you sure you want to unsubmit the this project?")
-        else:
-            return _("Are you sure you want to submit the following project?")
-
-    def get_template_names(self):
-        if self.kwargs.get("pop"):
-            return "projects2/project_action_form_popout.html"
-        else:
-            return "projects2/project_submit_form.html"
-
-    def get_initial(self):
-        if self.object.submitted:
-            submit = False
-        else:
-            submit = True
-
-        return {
-            'last_modified_by': self.request.user,
-            'submitted': submit,
-        }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        project = self.get_object()
-
-        if self.kwargs.get("pop"):
-            action = _("Un-submit Project") if self.object.submitted else _("Submit Project")
-            context["action"] = action
-            btn_color = "danger" if self.object.submitted else "success"
-            context["btn_color"] = btn_color
-
-        # If this is a gulf region project, only show the gulf region fields
-        if project.section.division.branch.region.id == 1:
-            context["field_list"] = gulf_field_list
-        else:
-            context["field_list"] = project_field_list
-
-        context["report_mode"] = True
-
-        # bring in financial summary data
-        my_context = financial_summary_data(project)
-        context = {**my_context, **context}
-
-        return context
-
-    def form_valid(self, form):
-        my_object = form.save()
-
-        # if this is a popout, it is a manager or admin doing the submission and no email is needed
-        if self.kwargs.get("pop"):
-            return HttpResponseRedirect(reverse('projects2:close_me'))
-        else:
-            # Send out an email only when a project is submitted
-            if my_object.submitted:
-                # create a new email object
-                email = emails.ProjectSubmissionEmail(self.object, self.request)
-                # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list
-                )
-            messages.success(self.request,
-                             _("The project was submitted and an email has been sent to notify the section head!"))
-            return HttpResponseRedirect(reverse('projects2:project_detail', kwargs={"pk": my_object.id}))
 
 
 class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):

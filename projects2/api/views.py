@@ -7,11 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from shared_models import models as shared_models
 from . import permissions
 from . import serializers
 from .. import models, stat_holidays
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project
-from shared_models import models as shared_models
+
 
 # USER
 #######
@@ -79,10 +80,38 @@ class GetDatesAPIView(APIView):
         raise ValidationError("missing query parameter 'year'")
 
 
+class ProjectRetrieveAPIView(RetrieveAPIView):
+    queryset = models.Project.objects.all().order_by("-created_at")
+    serializer_class = serializers.ProjectSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+
 class ProjectYearRetrieveAPIView(RetrieveAPIView):
     queryset = models.ProjectYear.objects.all().order_by("-created_at")
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+
+
+class ProjectYearSubmitAPIView(APIView):
+    queryset = models.ProjectYear.objects.all().order_by("-created_at")
+    serializer_class = serializers.ProjectYearSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def post(self, request, pk):
+        project_year = get_object_or_404(models.ProjectYear, pk=pk)
+        project_year.submit()
+        return Response(serializers.ProjectYearSerializerLITE(project_year).data, status.HTTP_200_OK)
+
+
+class ProjectYearUnsubmitAPIView(APIView):
+    queryset = models.ProjectYear.objects.all().order_by("-created_at")
+    serializer_class = serializers.ProjectYearSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def post(self, request, pk):
+        project_year = get_object_or_404(models.ProjectYear, pk=pk)
+        project_year.unsubmit()
+        return Response(serializers.ProjectYearSerializerLITE(project_year).data, status.HTTP_200_OK)
 
 
 # STAFF
@@ -290,6 +319,7 @@ class FileRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 class FinancialsAPIView(APIView):
     permissions = [IsAuthenticated]
+
     def get(self, request, project_year=None, project=None):
         if not project_year and not project:
             return Response(None, status.HTTP_400_BAD_REQUEST)

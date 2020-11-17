@@ -5,6 +5,10 @@ var app = new Vue({
     showOverview: true,
     currentUser: null,
     canModify: false,
+    showSubmit: false,
+
+    project_loading: false,
+    project: {},
 
     py_loading: false,
     projectYear: {},
@@ -73,8 +77,14 @@ var app = new Vue({
   methods: {
     displayOverview() {
       this.showOverview = true
+      this.showSubmit = false
+    },
+    displaySubmit() {
+      this.showSubmit = true
+      this.showOverview = false
     },
     displayProjectYear(yearId) {
+      this.showSubmit = false
       this.showOverview = false
       this.getProjectYear(yearId)
     },
@@ -96,6 +106,31 @@ var app = new Vue({
             this.getFiles(yearId)
             this.getFinancials(yearId)
           })
+    },
+    getProject(projectId) {
+      this.project_loading = true;
+      let endpoint = `/api/project-planning/projects/${projectId}/`;
+      apiService(endpoint)
+          .then(response => {
+            this.project_loading = false;
+            this.project = response;
+          })
+    },
+    submitProjectYear(projectYear, action) {
+      if (action === "submit" || action === "unsubmit") {
+        if (action === "submit") msg = submitMsg
+        else msg = unsubmitMsg
+        userInput = confirm(msg + projectYear.display_name)
+        if (userInput) {
+          this.project_loading = true;
+          let endpoint = `/api/project-planning/project-years/${projectYear.id}/${action}/`;
+          apiService(endpoint, "POST")
+              .then(response => {
+                this.project_loading = false;
+                this.getProject(projectYear.project)
+              })
+        }
+      }
     },
     getFinancials(yearId) {
       this.financials_loading = true;
@@ -538,6 +573,7 @@ var app = new Vue({
   created() {
     this.getProjectFinancials(projectId)
     this.getCurrentUser(projectId)
+    this.getProject(projectId)
   },
   mounted() {
   },
