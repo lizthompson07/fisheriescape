@@ -26,6 +26,8 @@ urlpatterns = [
     path('update/eca/<int:pk>/', views.EcaUpdate.as_view(), name="update_eca"),
     path('details/eca/<int:pk>/', views.EcaDetails.as_view(), name="details_eca"),
 
+    path('create/ecp/<int:eqr>/<str:pop>/', views.EcpCreate.as_view(), name="create_ecp"),
+
     path('create/ecc/<int:eca>/<str:pop>/', views.EccCreate.as_view(), name="create_ecc"),
     path('delete/ecc/<int:pk>/', views.ecc_delete, name="delete_ecc"),
 

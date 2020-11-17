@@ -52,6 +52,15 @@ class EccForm(forms.ModelForm):
         }
 
 
+class EcpForm(forms.ModelForm):
+    class Meta:
+        model = models.EcpChannelProperty
+        exclude = []
+        widgets = {
+            'eqr': forms.HiddenInput(),
+        }
+
+
 class EdaForm(forms.ModelForm):
 
     class Meta:

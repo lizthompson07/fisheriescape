@@ -131,6 +131,15 @@ class EcaCreate(mixins.EcaMixin, CommonCreate):
     pass
 
 
+class EcpCreate(mixins.EcpMixin, CommonCreate):
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['eqr'] = self.kwargs['eqr']
+
+        return initial
+
+
 class EdaCreate(mixins.EdaMixin, CommonCreate):
 
     def get_initial(self):

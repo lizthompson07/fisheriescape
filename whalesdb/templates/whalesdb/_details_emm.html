@@ -75,20 +75,22 @@
         </div>
     </div>
 
-    <div class="card border border-dark my-1">
+    <div class="card border border-dark my-1" id="cha">
         <h5 class="card-header">
             <div class="row align-items-center">
                 <span class="col">
                     {% trans "Channel Properties" %}
                 </span>
-                {% if editable %}
+                {% if editable and emm.recorder %}
+                        {% with emm.recorder as recorder %}
                 <span class="px-1">
-                    <a class="btn btn-primary" href="#" onclick="" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
+                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ecp' recorder.pk 'pop' %}','rec')" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
                 </span>
+                {% endwith %}
                 {% endif %}
             </div>
         </h5>
-        <div class="card-body" id="cha">
+        <div class="card-body">
             <table class="table">
                 <thead>
                 <tr><th>{% trans 'Channel No.'%}</th><th>{% trans 'ADC Bits'%}</th><th>{% trans 'Voltage (max)'%}</th><th>{% trans 'Voltage (min)'%}</th>

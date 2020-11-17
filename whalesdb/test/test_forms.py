@@ -69,6 +69,18 @@ class TestEcaForm(CommonFormTest):
         self.assertEqual(form.fields['eca_date'].widget.attrs['class'], 'fp-date')
 
 
+class TestEcpForm(CommonFormTest):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.form_class = forms.EcpForm
+        self.test_factory = factory.EcpFactory
+
+    @tag('ecp', 'form', 'valid')
+    def test_ecp_valid_data(self):
+        self.assert_valid_data()
+
+
 class TestEdaForm(CommonFormTest):
 
     def setUp(self) -> None:

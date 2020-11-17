@@ -103,6 +103,10 @@ class URLTest(TestCase):
     def test_url_update_eca_view(self):
         self.basic_en_url_test('whalesdb:update_eca', 'whalesdb/update/eca/1/', views.EcaUpdate, [1])
 
+    @tag('ecp', 'url', 'create')
+    def test_url_create_ecp_view(self):
+        self.basic_en_url_test('whalesdb:create_ecp', 'whalesdb/create/ecp/1/pop/', views.EcpCreate, [1, 'pop'])
+
     @tag('eda', 'url', 'create')
     def test_url_create_eda_view(self):
         self.basic_en_url_test('whalesdb:create_eda', 'whalesdb/create/eda/1/', views.EdaCreate, [1])
