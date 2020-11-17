@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 import django_filters
+from . import utils
 from . import views
 from . import models
 
@@ -23,9 +24,9 @@ class ProjectFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        region_choices = views.get_region_choices()
-        division_choices = views.get_division_choices()
-        section_choices = views.get_section_choices()
+        region_choices = utils.get_region_choices()
+        division_choices = utils.get_division_choices()
+        section_choices = utils.get_section_choices()
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         yes_no_choices = [(True, "Yes"), (False, "No"), ]
 
@@ -43,12 +44,12 @@ class ProjectFilter(django_filters.FilterSet):
             # if there is a filter on region, filter the division and section filter accordingly
             if self.data["region"] != "":
                 my_region_id = int(self.data["region"])
-                division_choices = [my_set for my_set in views.get_division_choices() if
+                division_choices = [my_set for my_set in utils.get_division_choices() if
                                     shared_models.Division.objects.get(pk=my_set[0]).branch.region_id == my_region_id]
                 self.filters['division'] = django_filters.ChoiceFilter(field_name="section__division", label=_("Division"),
                                                                        lookup_expr='exact', choices=division_choices)
 
-                section_choices = [my_set for my_set in views.get_section_choices() if
+                section_choices = [my_set for my_set in utils.get_section_choices() if
                                    shared_models.Section.objects.get(pk=my_set[0]).division.branch.region_id == my_region_id]
                 self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
                                                                       lookup_expr='exact', choices=section_choices)
@@ -57,7 +58,7 @@ class ProjectFilter(django_filters.FilterSet):
             if self.data["division"] != "":
                 my_division_id = int(self.data["division"])
 
-                section_choices = [my_set for my_set in views.get_section_choices() if
+                section_choices = [my_set for my_set in utils.get_section_choices() if
                                    shared_models.Section.objects.get(pk=my_set[0]).division_id == my_division_id]
                 self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
                                                                       lookup_expr='exact', choices=section_choices)
@@ -73,7 +74,7 @@ class StaffFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        region_choices = views.get_region_choices()
+        region_choices = utils.get_region_choices()
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         yes_no_choices = [(True, "Yes"), (False, "No"), ]
         self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='project__year', lookup_expr='exact', choices=fy_choices)
@@ -97,7 +98,7 @@ class AdminProjectProgramFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        region_choices = views.get_region_choices()
+        region_choices = utils.get_region_choices()
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         yes_no_choices = [(True, "Yes"), (False, "No"), ]
         self.filters['year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices)
@@ -125,7 +126,7 @@ class AdminSubmittedUnapprovedFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        region_choices = views.get_region_choices()
+        region_choices = utils.get_region_choices()
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         yes_no_choices = [(True, "Yes"), (False, "No"), ]
         self.filters['year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices)

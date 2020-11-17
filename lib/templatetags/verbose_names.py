@@ -61,7 +61,7 @@ def get_verbose_label(instance, field_name):
         # try grabbing the instance of that field...
         try:
             field_instance = instance._meta.get_field(field_name)
-        except FieldDoesNotExist:
+        except (FieldDoesNotExist, AttributeError):
             # if it does not exist, perhaps we are receiving a model prop (with no custom label)
             # in which case, the verbose name will in is the same as the field_name..
             verbose_name = field_name
@@ -177,6 +177,8 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
     try:
         field_value = markdown.markdown(field_value) if "html" in str(format).lower() else field_value
         field_value = mark_safe(field_value) if safe else field_value
+        if field_value is None or field_value == "" or field_value == "None":
+            field_value = nullmark
     except UnboundLocalError:
         field_value = nullmark
     return field_value

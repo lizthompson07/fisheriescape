@@ -1,0 +1,93 @@
+
+.container-fluid, .container {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: white;
+    background-color: rgba(255, 255, 255, 0.98);
+    font-size: small;
+    border-radius: 10px;
+
+}
+
+.label {
+    font-weight: bold;
+}
+
+table, td {
+    font-size: small;
+}
+
+
+h1 {
+    font-size: 60px;
+}
+
+.toolbar {
+    background-color: #dfd2f6;
+    border: #4c4c4c;
+    border-radius: 10px;
+}
+
+.vgroup {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.custom-btn {
+    text-align: left;
+}
+
+.icon {
+    padding-right: 5px;
+}
+
+.narrow-col {
+    width: 30%
+}
+
+.a-base {
+    background-color: #a7aef9;
+}
+
+.b-base {
+    background-color: #d9a7f9;
+}
+
+.c-base {
+    background-color: #eff9a7;
+}
+
+
+.draft {
+    background-color: #fff396;
+}
+
+.submitted {
+    background-color: #ffda84;
+}
+
+.recommended {
+    background-color: #a2c4fa;
+}
+
+.approved {
+    background-color: #a8ffb8;
+}
+
+.cancelled {
+    background-color: #c1c1c1;
+}
+
+.denied {
+    background-color: #ff9191;
+}
+
+
+.to-the-right {
+    /*position: absolute;*/
+    /*right: 0;*/
+}
+
+.w150 {
+    width: 150px;
+}

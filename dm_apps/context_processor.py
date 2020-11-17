@@ -13,4 +13,5 @@ def my_envr(request):
         'AZURE_AD': settings.AZURE_AD,
         'FAKE_TRAVEL_APP': settings.FAKE_TRAVEL_APP,
         'SITE_FULL_URL': f'http://{get_current_site(request).domain}',
+        'DEBUG': settings.DEBUG,
     }

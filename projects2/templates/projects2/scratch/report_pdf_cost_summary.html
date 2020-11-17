@@ -1,0 +1,207 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% bootstrap_css %}
+
+{% block extra_style %}
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    .center-col {
+        text-align: center;
+    }
+
+    table, td, th {
+        border-bottom: 1px solid black;
+        padding-top: 2px;
+    }
+
+    th {
+        background-color: lightblue;
+        font-weight: bold;
+    }
+
+    .total {
+        background-color: lightgray;
+        color: black;
+        font-weight: bold;
+    }
+
+    .subtotal {
+        background-color: lightgray;
+        color: black;
+        font-style: italic;
+    }
+
+    .abase {
+        background-color: {{ abase }};
+    }
+
+    .bbase {
+        background-color: {{ bbase }};
+    }
+
+    .cbase {
+        background-color: {{ cbase }};
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    @page {
+        size: legal landscape;
+        margin: 1cm;
+        @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
+    }
+
+</style>
+
+
+<div id="footerContent">
+    {% block page_foot %}
+        <pdf:pagenumber/>
+    {% endblock %}
+</div>
+
+<div class="container-fluid">
+    {# financial summary #}
+    {% with "----" as na %}
+
+        <h1>{{ fy }} Financial Summary</h1>
+
+        <table>
+            <thead>
+            <tr>
+                <th rowspan="2" class="" style="width: 10%">Division</th>
+                <th rowspan="2" class="" style="width: 15%">Section</th>
+                <th colspan="3" class="center-col" style="width: 10%">A-Base</th>
+                <th colspan="3" class="center-col" style="width: 10%">B-Base</th>
+                <th colspan="3" class="center-col" style="width: 10%">C-Base</th>
+                <th colspan="3" class="center-col" style="width: 10%">TOTAL</th>
+                <th rowspan="2" style="width: 10%"># Students</th>
+                <th rowspan="2" style="width: 10%"># Casuals</th>
+            </tr>
+            <tr>
+                <th class="center-col">Salary</th>
+                <th class="center-col">O&M</th>
+                <th class="center-col">Capital</th>
+                <th class="center-col">Salary</th>
+                <th class="center-col">O&M</th>
+                <th class="center-col">Capital</th>
+                <th class="center-col">Salary</th>
+                <th class="center-col">O&M</th>
+                <th class="center-col">Capital</th>
+                <th class="center-col">Salary</th>
+                <th class="center-col">O&M</th>
+                <th class="center-col">Capital</th>
+            </tr>
+
+            </thead>
+            <tbody>
+            {% for division in division_list %}
+                {% for section in division.sections.all %}
+                    <tr>
+                        {% if forloop.counter == 1 %}
+                            <td rowspan="{% if division.sections.count > 0 %}{{ division.sections.count|add:1 }}{% else %}1{% endif %}">
+                                {{ division }}
+                            </td>
+                        {% endif %}
+                        <td>{{ section }}</td>
+                        {% with financial_summary_data|lookup:"sections"|lookup:section.id as my_dict %}
+                            {% if not my_dict %}
+                                <td class="center-col abase">{{ na }}</td>
+                                <td class="center-col abase">{{ na }}</td>
+                                <td class="center-col abase">{{ na }}</td>
+                                <td class="center-col bbase">{{ na }}</td>
+                                <td class="center-col bbase">{{ na }}</td>
+                                <td class="center-col bbase">{{ na }}</td>
+                                <td class="center-col cbase">{{ na }}</td>
+                                <td class="center-col cbase">{{ na }}</td>
+                                <td class="center-col cbase">{{ na }}</td>
+                                <td class="center-col">{{ na }}</td>
+                                <td class="center-col">{{ na }}</td>
+                                <td class="center-col">{{ na }}</td>
+                            {% else %}
+                                <td class="center-col abase">{{ my_dict|lookup:"salary_abase"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col abase">{{ my_dict|lookup:"om_abase"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col abase">{{ my_dict|lookup:"capital_abase"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col bbase">{{ my_dict|lookup:"salary_bbase"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col bbase">{{ my_dict|lookup:"om_bbase"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col bbase">{{ my_dict|lookup:"capital_bbase"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col cbase">{{ my_dict|lookup:"salary_cbase"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col cbase">{{ my_dict|lookup:"om_cbase"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col cbase">{{ my_dict|lookup:"capital_cbase"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col">{{ my_dict|lookup:"salary_total"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col">{{ my_dict|lookup:"om_total"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col">{{ my_dict|lookup:"capital_total"|zero2val:na|kmark:"1,True" }}</td>
+                                <td class="center-col">{{ my_dict|lookup:"students"|zero2val:na }}</td>
+                                <td class="center-col">{{ my_dict|lookup:"casuals"|zero2val:na }}</td>
+                            {% endif %}
+                        {% endwith %}
+                    </tr>
+                {% endfor %}
+                {% if division.sections.count > 0 %}
+                    <tr>
+                        {% with financial_summary_data|lookup:"divisions"|lookup:division.id as my_dict %}
+
+                            <td class="subtotal">SUB-TOTAL</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"salary_abase"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"om_abase"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"capital_abase"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"salary_bbase"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"om_bbase"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"capital_bbase"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"salary_cbase"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"om_cbase"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"capital_cbase"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"salary_total"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"om_total"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"capital_total"|zero2val:na|kmark:"1,True" }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"students"|zero2val:na }}</td>
+                            <td class="subtotal center-col">{{ my_dict|lookup:"casuals"|zero2val:na }}</td>
+                        {% endwith %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+            <tr>
+                <td colspan="2" class="total">TOTAL</td>
+                {% with financial_summary_data|lookup:"total" as my_dict %}
+                    <td class="total center-col">{{ my_dict|lookup:"salary_abase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"om_abase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"capital_abase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"salary_bbase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"om_bbase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"capital_bbase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"salary_cbase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"om_cbase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"capital_cbase"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"salary_total"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"om_total"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"capital_total"|zero2val:na|kmark:"1,True" }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"students"|zero2val:na }}</td>
+                    <td class="total center-col">{{ my_dict|lookup:"casuals"|zero2val:na }}</td>
+                {% endwith %}
+
+            </tr>
+            </tbody>
+
+
+        </table>
+
+    {% endwith %}
+</div>

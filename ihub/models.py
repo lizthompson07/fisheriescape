@@ -114,7 +114,7 @@ class Entry(models.Model):
 
     @property
     def other_notes(self):
-        return self.notes.filter(~Q(type__in=[4, 5]))
+        return self.notes.filter(~Q(type__in=[4]))
 
     @property
     def orgs_str(self):
@@ -186,7 +186,8 @@ class EntryNote(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True, editable=False)
     author = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("author"))
     note = models.TextField()
-    status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"))
+    status = models.ForeignKey(Status, default=1, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("status"),
+                               related_name="entry_notes")
 
     def __str__(self):
         my_str = "{} - {} [STATUS: {}] (Created by {} {} on {})".format(

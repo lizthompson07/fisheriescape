@@ -57,6 +57,24 @@ class Lookup(SimpleLookup):
         return my_str
 
 
+class HelpTextLookup(models.Model):
+    field_name = models.CharField(max_length=255)
+    eng_text = models.TextField(verbose_name=_("English text"))
+    fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("eng_text"))):
+            return "{}".format(getattr(self, str(_("eng_text"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.eng_text)
+
+    class Meta:
+        ordering = ['field_name', ]
+        abstract = True
+
+
 # CONNECTED APPS: tickets, travel, projects, sci_fi
 class FiscalYear(models.Model):
     full = models.TextField(blank=True, null=True)
@@ -125,7 +143,7 @@ class Branch(SimpleLookupWithUUID):
 
     def __str__(self):
         # check to see if a french value is given
-        return "{} ({})".format(self.tname, self.region)
+        return f"{self.tname} ({self.region})"
 
     class Meta:
         ordering = ['name', ]
@@ -148,7 +166,7 @@ class Division(SimpleLookupWithUUID):
         return "{} ({})".format(self.tname, self.branch.region)
 
     class Meta:
-        ordering = ['name', ]
+        ordering = ["branch__region", "name"]
         verbose_name = _("Division - Branch (NCR)")
         verbose_name_plural = _("Divisions - Branches (NCR)")
 

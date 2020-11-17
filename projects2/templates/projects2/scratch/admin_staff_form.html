@@ -1,4 +1,4 @@
-{% extends "projects/base.html" %}
+{% extends "projects2/base.html" %}
 {% load static %}
 {% load humanize %}
 {% load custom_filters %}
@@ -22,8 +22,8 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item">
-                <a href="{% url 'projects:admin_project_program_list' %}">
-                Project Program List
+                <a href="{% url 'projects2:admin_staff_list' %}">
+                    Non-registered Staff List
                 </a>
             </li>
             <li class="breadcrumb-item active" aria-current="page">
@@ -37,14 +37,19 @@
             {{ object }}
         </h1>
 
-        <b>Project Id:</b> {{ object.id}}<br><br>
+        <b>Project:</b><br> {{ object.project }}
+        <hr>
         <form method="POST">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit">submit</button>
-            <a href="{% url 'projects:admin_project_program_list'  %}?{{ view.kwargs.qry }}">back</a>
+            <a href="{% url 'projects2:admin_staff_list'  %}?{{ view.kwargs.qry }}">back</a>
         </form>
+        <br> <br>
+        <h4>
+            click <a href="#" pop-href="{% url 'projects2:user_new' %}" class="btn btn-lg btn-success">HERE</a> to add a new user to the system
 
+        </h4>
 
     </div>
 

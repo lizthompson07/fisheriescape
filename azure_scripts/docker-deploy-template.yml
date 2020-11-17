@@ -71,12 +71,14 @@ parameters:
   - name: AZURE_INSTRUMENTATION_KEY
     type: string
 
+  - name: USE_AZURE_APPLICATION_INSIGHT
+    type: string
 
 steps:
-#  - task: UsePythonVersion@0
-#    displayName: 'Use Python 3.8'
-#    inputs:
-#      versionSpec: 3.8
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.8'
+    inputs:
+      versionSpec: 3.8
 
   - script: |
       # install pre-requisites
@@ -135,6 +137,7 @@ steps:
         -DB_PORT 3306
         -DEBUG ${{parameters.DEBUG}}
         -AZURE_INSTRUMENTATION_KEY ${{parameters.AZURE_INSTRUMENTATION_KEY}}
+        -USE_AZURE_APPLICATION_INSIGHT ${{parameters.USE_AZURE_APPLICATION_INSIGHT}}
         -SENDGRID_API_KEY ${{parameters.SENDGRID_API_KEY}}
         -GITHUB_API_KEY ${{parameters.GITHUB_API_KEY}}
         -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)

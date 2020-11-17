@@ -5,7 +5,6 @@ from django.contrib.auth import views as auth_views
 app_name = 'projects'
 
 urlpatterns = [
-    path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.IndexTemplateView.as_view(), name="index"),
 
     # PROJECTS #
@@ -25,12 +24,9 @@ urlpatterns = [
     # path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
     path('recommendation/project/<int:pk>/', views.ProjectRecommendationUpdateView.as_view(), name="project_recommend"),
 
-    # From management views
+    # management views
     ################
-    # the following 3 should be deleted once fully phased out
-    path('my-section/', views.MySectionListView.as_view(), name="my_section_list"),
-    #
-    path('section/<int:section>/', views.SectionListView.as_view(), name="section_project_list"),
+    path('section/<int:section>/', views.SectionProjectListView.as_view(), name="section_project_list"),
     path('project/<int:pk>/overview/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
     path('project/<int:pk>/overview/popout/<int:pop>/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
 
@@ -40,11 +36,6 @@ urlpatterns = [
     path('staff/<int:pk>/edit/', views.StaffUpdateView.as_view(), name="staff_edit"),
     path('staff/<int:pk>/delete/', views.staff_delete, name="staff_delete"),
     path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
-
-    #  this was used to walk over program to programs
-    path('project-formset/region/<int:region>/fy/<int:fy>/', views.temp_formset, name="formset"),
-    path('project-formset/region/<int:region>/fy/<int:fy>/section/<str:section_str>/', views.temp_formset, name="formset"),
-    path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
 
     # USER #
     ########
@@ -156,10 +147,6 @@ urlpatterns = [
     path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),
 
     path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
-    path('admin/project-program-list/', views.AdminProjectProgramListView.as_view(), name="admin_project_program_list"),
-    path('admin/project-program/<int:pk>/edit/<str:qry>/', views.AdminProjectProgramUpdateView.as_view(), name="admin_pp_edit"),
-    path('admin/project-program/<int:pk>/edit/', views.AdminProjectProgramUpdateView.as_view(), name="admin_pp_edit"),
-
     path('admin/staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
     path('admin/staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
 
@@ -200,8 +187,6 @@ urlpatterns = [
          views.PDFAgreementsReport.as_view(), name="pdf_agreements"),
     path('reports/dougs-report/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.dougs_spreadsheet, name="doug_report"),
-    path('reports/feedback/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-         views.PDFFeedbackReport.as_view(), name="pdf_feedback"),
     path('reports/data-management/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
          views.PDFDataReport.as_view(), name="pdf_data"),
     path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>',

@@ -1,0 +1,188 @@
+{% extends "projects2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% load project_tags %}
+
+
+{% block messages %}{% endblock %}
+{% block title_area %}
+  {{ block.super }}
+  {% bootstrap_messages %}
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+{% endblock %}
+
+{% block subcontent %}
+  <div
+    id="app"
+    @keydown.esc.prevent="closeModals()"
+
+  >
+
+    <div v-if="canModify" class="alert alert-primary" role="alert" style="width: 60%">
+      <p class="mb-0">
+        <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
+      </p>
+    </div>
+
+    <div class="row">
+
+      <div class="col-2 toolbar py-3 px-3 ml-2">
+        {% include "projects2/project_detail/_project_console.html" %}
+      </div>
+
+      <div class="col">
+        <div v-if="showSubmit">
+          {% include "projects2/project_detail/_submit.html" %}
+        </div>
+
+
+        <div v-if="showOverview">
+          <h2>
+            {% trans "Project Overview" %}
+          </h2>
+          <table class="table table-sm mb-5">
+            {% for field in project_field_list %}
+              {% if "fiscal" in field %}
+                <tr>
+                  <th>{% trans "Project years" %}</th>
+                  <td>
+                    <ul>
+                      {% for year in object.years.all %}
+                        <li>{{ year }}</li>
+                      {% empty %}
+                        <em>This project has no fiscal years added yet.</em>
+                      {% endfor %}
+
+                    </ul>
+                  </td>
+                </tr>
+              {% elif "overview" in field %}
+                <tr>
+                  <th>{% get_verbose_label object field %}</th>
+                  <td>
+                    {{ object.overview_html }}
+                  </td>
+                </tr>
+              {% else %}
+                {% verbose_td_display object field th_width="30%" td_width="70%" %}
+              {% endif %}
+            {% endfor %}
+          </table>
+
+          {% include "projects2/project_detail/_project_financials.html" %}
+
+
+        </div>
+
+        <div v-if="!showOverview && !showSubmit">
+          <div v-if="py_loading" class="loading mb-3 mt-3 text-center mt-5">
+            <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+              <span class="sr-only"></span>
+            </div>
+          </div>
+
+          <div v-if="projectYear">
+            {% include "projects2/project_detail/_project_year_detail.html" %}
+            {% include "projects2/project_detail/_project_year_modal_form.html" %}
+
+            <modal v-if="showNewStaffModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'staff'"></modal>
+            <modal v-if="showOldStaffModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'staff'"
+                   :my_staff="staffToEdit"></modal>
+
+            <modal v-if="showNewOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'om_cost'"></modal>
+            <modal v-if="showOldOMCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'om_cost'"
+                   :my_om_cost="omCostToEdit"></modal>
+
+            <modal v-if="showNewCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'"></modal>
+            <modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'"
+                   :my_capital_cost="capitalCostToEdit"></modal>
+
+            <modal v-if="showNewGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'"></modal>
+            <modal v-if="showOldGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'"
+                   :my_gc_cost="gcCostToEdit"></modal>
+
+            <modal v-if="showNewMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'"></modal>
+            <modal v-if="showOldMilestoneModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'milestone'"
+                   :my_milestone="milestoneToEdit"></modal>
+
+            <modal v-if="showNewCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'"></modal>
+            <modal v-if="showOldCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'"
+                   :my_collaborator="collaboratorToEdit"></modal>
+
+            <modal v-if="showNewAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'"></modal>
+            <modal v-if="showOldAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'"
+                   :my_agreement="agreementToEdit"></modal>
+
+            <modal v-if="showNewFileModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'file'"></modal>
+            <modal v-if="showOldFileModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'file'"
+                   :my_file="fileToEdit"></modal>
+
+          </div>
+
+
+          <div v-else>
+            <h3>Uh oh. something bad happened</h3>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+  </div>
+
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+  <script type="application/javascript">
+
+  var warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
+  var submitMsg = "{% trans "Are certain you want to submit the following year of the project?" %} \n\n"
+  var unsubmitMsg = "{% trans "Are certain you want to un-submit the following year of the project? The status of the project year will be reset!" %} \n\n"
+  var deleteMsg = "{% trans "Are you sure you want to delete this item: " %} \n\n"
+  var deleteSelfMsg = "{% trans "Are you sure you want to remove yourself?" %}\n\n{% trans "WARNING: This action might result in you loosing the ability to modify this project." %}"
+  var processOTMsg = "{% trans "Do you want to add this OT description to the current staff member?" %}"
+  var projectId = "{{ object.id }}"
+
+  function activateChosen() {
+    var config = {
+      '.chosen-select': {placeholder_text_multiple: "Select multiple", search_contains: false},
+      '.chosen-select-contains': {placeholder_text_multiple: "Select multiple", search_contains: true},
+    };
+    for (var selector in config) {
+      $(selector).chosen(config[selector]);
+    }
+  }
+
+  </script>
+
+
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.3.2" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.1.9" type="application/javascript"></script>
+
+  {% if request.GET.project_year %}
+    <script type="application/javascript">
+    app.displayProjectYear({{request.GET.project_year}})
+    </script>
+
+  {% endif %}
+
+  // reload other scripts that we care about
+
+  <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
+  <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
+  <script type=" text/javascript" src="{% static "js/underDevelopment.js" %}?version=1.2.4"></script>
+
+{% endblock %}

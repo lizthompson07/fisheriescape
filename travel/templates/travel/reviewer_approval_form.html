@@ -26,7 +26,9 @@
 
 
     <hr>
+  <div id="app">
     {% include "travel/_trip_request_detail.html" %}
+  </div>
     <br><br>
 {#    <div class="center-col">#}
 {#        <h2>#}
@@ -83,6 +85,12 @@
 
 
 {% block body_js %}
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+    <script type="application/javascript">
+    var trip_request_id = {{ triprequest.id }};
+    </script>
+    <script src="{% static 'travel/mainTripRequest.js' %}"></script>
 
     <script type="application/javascript">
         $("#yes").click(function () {
@@ -104,4 +112,9 @@
 
     </script>
 
+    // have to reload some other JS scripts... due to import of vue js
+    <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
+    <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
+
 {% endblock %}
+
