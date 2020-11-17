@@ -45,10 +45,11 @@ Vue.component("modal", {
   },
   data() {
     return {
+      currentUser: null,
       staff: {
         name: null,
         user: null,
-        funding_source: null,
+        funding_source: this.year.default_funding_source_id,
         is_lead: false,
         employee_type: null,
         level: null,
@@ -413,7 +414,7 @@ Vue.component("modal", {
 
       // if employee type is fte, disable "cost" field and the "level" field.
       // do the same If they are a seasonal indeterminate  paid from a-base
-      if (this.staff.employee_type === "1" || (this.staff.employee_type === "6" && this.staff.funding_source === "1")) {
+      if (this.staff.employee_type == 1 || (this.staff.employee_type == 6 && this.staff.funding_source == 1)) {
         this.staff.amount = null;
         this.disableAmountField = true;
         this.staff.level = null;
@@ -431,8 +432,15 @@ Vue.component("modal", {
       } else {
         this.disableNameField = false;
       }
+
       // if the current user is changing themselves away from project lead, give them a warning
-      if (currentUser === this.staff.user && !this.staff.is_lead && !this.projectLeadWarningIssued) alert(warningMsg);
+      // only do this if we are editing an existing user
+      if(this.my_staff) {
+        if (this.currentUser && this.currentUser.id == this.my_staff.user && !this.projectLeadWarningIssued && this.staff.is_lead === "False") {
+          alert(warningMsg);
+          this.projectLeadWarningIssued = true
+        }
+      }
 
     },
     toggleOTCalc() {
@@ -488,9 +496,19 @@ Vue.component("modal", {
         if (d.ot_description) this.totalOTDescription += d.ot_description
       }
     },
+    getCurrentUser() {
+      let endpoint = `/api/project-planning/user/`;
+      apiService(endpoint)
+          .then(response => {
+            this.currentUser = response;
+          })
+    },
   },
   computed: {},
   created() {
+
+    this.getCurrentUser();
+
     this.$nextTick(() => {
       if (this.mtype === "staff") {
         if (this.my_staff && this.my_staff.id) {
@@ -555,12 +573,9 @@ Vue.component("modal", {
         }
       }
 
-
     })
 
+
   },
-  mounted() {
 
-
-  }
 });

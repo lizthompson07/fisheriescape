@@ -116,7 +116,6 @@ var app = new Vue({
           })
     },
     getCurrentUser(projectId) {
-      this.project_financials_loading = true;
       let endpoint = `/api/project-planning/user/?project=${projectId}`;
       apiService(endpoint)
           .then(response => {
@@ -135,13 +134,17 @@ var app = new Vue({
           })
     },
     deleteStaffMember(staffMember) {
-      userInput = confirm(deleteMsg)
-      if (userInput) {
-        let endpoint = `/api/project-planning/staff/${staffMember.id}/`;
-        apiService(endpoint, "DELETE")
-            .then(response => {
-              if (!response.detail) this.$delete(this.staff, this.staff.indexOf(staffMember));
-            })
+      userInput1 = confirm(deleteMsg)
+      if (userInput1) {
+        if (this.currentUser && this.currentUser.id == staffMember.user) userInput2 = confirm(deleteSelfMsg)
+        else userInput2 = true
+        if (userInput2) {
+          let endpoint = `/api/project-planning/staff/${staffMember.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                if (!response.detail) this.$delete(this.staff, this.staff.indexOf(staffMember));
+              })
+        }
       }
     },
     openStaffModal(staff = null) {
@@ -424,6 +427,7 @@ var app = new Vue({
           this.getFiles(projectYear.id)
           this.getFinancials(projectYear.id)
           this.getProjectFinancials(projectYear.project)
+          this.getCurrentUser(projectYear.project)
 
         })
       }

@@ -25,7 +25,7 @@
 
   >
 
-    <div v-if="canModify" class="alert alert-primary" role="alert" style="width: 45%">
+    <div v-if="canModify" class="alert alert-primary" role="alert" style="width: 60%">
       <p class="mb-0">
         <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
       </p>
@@ -146,6 +146,7 @@
   var warningMsg = "{% trans "WARNING! If you remove yourself as project lead you will loose the ability to further modify this project." %}";
   var currentUser = "{{ user.id }}"
   var deleteMsg = "{% trans "Are you sure you want to delete this item: " %} \n\n"
+  var deleteSelfMsg = "{% trans "Are you sure you want to remove yourself?" %}\n\n{% trans "WARNING: This action might result in you loosing the ability to modify this project." %}"
   var processOTMsg = "{% trans "Do you want to add this OT description to the current staff member?" %}"
   var projectId = "{{ object.id }}"
 
@@ -162,8 +163,8 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.2.9" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.1.6" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.3.0" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.1.7" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">

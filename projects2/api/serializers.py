@@ -1,8 +1,7 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.template.defaultfilters import date
 from markdown import markdown
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 
 from .. import models
 from ..utils import can_modify_project
@@ -11,7 +10,8 @@ from ..utils import can_modify_project
 class UserDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["first_name","last_name","username", "is_admin"]
+        fields = ["id", "first_name", "last_name", "username", "is_admin"]
+
     is_admin = serializers.SerializerMethodField()
 
     def get_is_admin(self, instance):
