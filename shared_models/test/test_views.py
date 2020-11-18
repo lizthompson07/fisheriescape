@@ -12,7 +12,7 @@ class TestBranchCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:branch_new')
-        self.expected_template = 'shared_models/generic_form.html'
+        self.expected_template = 'shared_models/org_form.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("branch_new", 'update', "view")
@@ -114,7 +114,7 @@ class TestDivisionCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:division_new')
-        self.expected_template = 'shared_models/generic_form.html'
+        self.expected_template = 'shared_models/org_form.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("division_new", 'update', "view")
@@ -216,7 +216,7 @@ class TestRegionCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:region_new')
-        self.expected_template = 'shared_models/generic_form.html'
+        self.expected_template = 'shared_models/org_form.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("region_new", 'update', "view")
@@ -411,7 +411,7 @@ class TestSectionCreateView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('shared_models:section_new')
-        self.expected_template = 'shared_models/generic_form.html'
+        self.expected_template = 'shared_models/org_form.html'
         self.admin_user = self.get_and_login_user(in_group="travel_admin")
 
     @tag("section_new", 'update', "view")
