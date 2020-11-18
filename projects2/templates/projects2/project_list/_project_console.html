@@ -57,6 +57,99 @@
     </div>
 
 
+    {# Region #}
+    <div class="form-group">
+      <label for="filter_region">{% trans "Region" %}</label>
+      <select
+        v-model="filter_region"
+        @change="updateResults"
+        class="form-control" id="filter_region"
+      >
+        <option value="">{% trans "all" %}</option>
+        <option v-for="(obj, index) in regions" :value="obj.id">${obj.name}</option>
+      </select>
+    </div>
+
+    {# Division #}
+    <div class="form-group">
+      <label for="filter_division">{% trans "Division" %}</label>
+      <select
+        v-model="filter_division"
+        @change="updateResults"
+        class="form-control" id="filter_division"
+      >
+        <option value="">{% trans "all" %}</option>
+        <option v-for="(obj, index) in divisions" :value="obj.id">${obj.display}</option>
+      </select>
+    </div>
+
+    {# Section #}
+    <div class="form-group">
+      <label for="filter_section">{% trans "Section" %}</label>
+      <select
+        v-model="filter_section"
+        @change="updateResults"
+        class="form-control" id="filter_section"
+      >
+        <option value="">{% trans "all" %}</option>
+        <option v-for="(obj, index) in sections" :value="obj.id">${obj.full_name}</option>
+      </select>
+    </div>
+
+    {# Functional group #}
+    <div class="form-group">
+      <label for="filter_functional_group">{% trans "Functional Group" %}</label>
+      <select
+        v-model="filter_functional_group"
+        @change="updateResults"
+        class="form-control" id="filter_functional_group"
+      >
+        <option value="">{% trans "all" %}</option>
+        <option v-for="(obj, index) in functionalGroups" :value="obj.id">${obj.name}</option>
+      </select>
+    </div>
+
+    {# Tag #}
+    <div class="form-group">
+      <label for="filter_tag">{% trans "Tag" %}</label>
+      <select
+        v-model="filter_tag"
+        @change="updateResults"
+        class="form-control" id="filter_tag"
+      >
+        <option value="">{% trans "all" %}</option>
+        <option v-for="(obj, index) in tags" :value="obj.id">${obj.name}</option>
+      </select>
+    </div>
+
+    {# Theme #}
+    <div class="form-group">
+      <label for="filter_theme">{% trans "Theme" %}</label>
+      <select
+        v-model="filter_theme"
+        @change="updateResults"
+        class="form-control" id="filter_theme"
+      >
+        <option value="">{% trans "all" %}</option>
+        <option v-for="(obj, index) in themes" :value="obj.id">${obj.name}</option>
+      </select>
+    </div>
+
+
+    {# Funding Source #}
+    <div class="form-group">
+      <label for="filter_funding_source">{% trans "Funding Source" %}</label>
+      <select
+        v-model="filter_funding_source"
+        @change="updateResults"
+        class="form-control" id="filter_funding_source"
+      >
+        <option value="">{% trans "all" %}</option>
+        <option v-for="(obj, index) in fundingSources" :value="obj.id">${obj.display}</option>
+      </select>
+    </div>
+
+
     <div v-if="isAdminOrMgmt" class="mb-5">
       <p class="text-muted">Management Only</p>
       <hr>

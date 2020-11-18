@@ -28,7 +28,11 @@
           <thead>
           <tr>
             {% for field in field_list %}
-              {% if "title" in field or "funding" in field %}
+              {% if "title" in field %}
+                <th style="width: 400px">
+                  {% get_verbose_label random_project field %}
+                </th>
+              {% elif "funding" in field %}
                 <th style="width: 200px">
                   {% get_verbose_label random_project field %}
                 </th>
@@ -43,7 +47,7 @@
               {% endif %}
 
             {% endfor %}
-            <th v-if="isAdminOrMgmt">{% trans "Is Hidden?" %}</th>
+            <th v-if="isAdminOrMgmt">{% trans "Hidden?" %}</th>
 
           </tr>
           </thead>
@@ -56,10 +60,10 @@
             @click="goProjectDetail(p)"
           >
             <td>${p.project.id}</td>
+            <td>${p.project.title}</td>
             <td>${p.display_name}</td>
             <td v-html="p.formatted_status"></td>
-            <td>${p.project.title}</td>
-            <td>${p.project.section}</td>
+{#            <td>${p.project.section}</td>#}
             <td>${p.project.default_funding_source}</td>
             <td>${p.project.functional_group}</td>
             <td>${p.project.lead_staff}</td>
@@ -97,7 +101,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/projects2/mainProjectList.js' %}?version=0.0.6" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectList.js' %}?version=0.0.7" type="application/javascript"></script>
 
   //reload other scripts that we care about
 

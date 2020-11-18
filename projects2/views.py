@@ -87,10 +87,10 @@ class ProjectListView(LoginRequiredMixin, CommonTemplateView):
     container_class = "container-fluid"
     field_list = [
         'id',
+        'title',
         'fiscal year',
         'status',
-        'title',
-        'section',
+        # 'section',
         'default_funding_source',
         'functional_group',
         'lead_staff',

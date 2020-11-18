@@ -51,30 +51,26 @@ var app = new Vue({
       var win = window.open(url, '_blank');
     },
     getFilterData() {
-      apiService(`/api/project-planning/fiscal-years/`)
-          .then(response => this.fiscalYears = response)
+      apiService(`/api/project-planning/fiscal-years/`).then(response => this.fiscalYears = response)
 
-      apiService(`/api/project-planning/tags/`)
-          .then(response => this.tags = response)
+      apiService(`/api/project-planning/tags/`).then(response => this.tags = response)
 
-      apiService(`/api/project-planning/themes/`)
-          .then(response => this.themes = response)
+      apiService(`/api/project-planning/themes/`).then(response => this.themes = response)
 
-      apiService(`/api/project-planning/functional-groups/`)
-          .then(response => this.functionalGroups = response)
 
-      apiService(`/api/project-planning/funding-sources/`)
-          .then(response => this.fundingSources = response)
+      apiService(`/api/project-planning/funding-sources/`).then(response => this.fundingSources = response)
 
-      apiService(`/api/project-planning/regions/`)
-          .then(response => this.regions = response)
+      apiService(`/api/project-planning/regions/`).then(response => this.regions = response)
 
-      apiService(`/api/project-planning/divisions/`)
-          .then(response => this.divisions = response)
+      var query = "";
+      if (this.filter_region && this.filter_region !== "") query = `?region=${this.filter_region}`
+      apiService(`/api/project-planning/divisions/${query}`).then(response => this.divisions = response)
 
-      apiService(`/api/project-planning/sections/`)
-          .then(response => this.sections = response)
+      if (this.filter_division && this.filter_division !== "") query = `?division=${this.filter_division}`
+      apiService(`/api/project-planning/sections/${query}`).then(response => this.sections = response)
 
+      if (this.filter_section && this.filter_section !== "") query = `?section=${this.filter_section}`
+      apiService(`/api/project-planning/functional-groups/${query}`).then(response => this.functionalGroups = response)
 
     },
     getProjectYears(endpoint) {
@@ -138,7 +134,8 @@ var app = new Vue({
     },
     updateResults() {
       this.clearProjectYears();
-      this.getProjectYears()
+      this.getProjectYears();
+      this.getFilterData();
     },
 
   },

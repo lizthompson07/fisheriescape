@@ -72,6 +72,10 @@ class FundingSource(SimpleLookup):
     def __str__(self):
         return f"{self.tname} ({self.get_funding_source_type_display()})"
 
+    @property
+    def display2(self):
+        return f"{self.get_funding_source_type_display()} - {self.tname}"
+
     class Meta:
         ordering = ['funding_source_type', 'name', ]
         unique_together = [('funding_source_type', 'name'), ]
@@ -411,10 +415,11 @@ class ProjectYear(models.Model):
             self.save()
 
     def unsubmit(self):
-        if self.status in [2,3,9]:
+        if self.status in [2, 3, 9]:
             self.submitted = None
             self.status = 1
             self.save()
+
 
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))

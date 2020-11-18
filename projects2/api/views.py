@@ -149,26 +149,26 @@ class ProjectYearListAPIView(ListAPIView):
                 elif filter == "fiscal_year":
                     qs = qs.filter(fiscal_year_id=input)
                 elif filter == "tag":
-                    qs = qs.filter(project__id=input)
+                    qs = qs.filter(project__tags=input)
                 elif filter == "theme":
-                    qs = qs.filter(project__id=input)
+                    qs = qs.filter(project__functional_group__theme_id=input)
                 elif filter == "functional_group":
-                    qs = qs.filter(project__id=input)
+                    qs = qs.filter(project__functional_group_id=input)
                 elif filter == "funding_source":
-                    qs = qs.filter(project__id=input)
+                    qs = qs.filter(project__default_funding_source_id=input)
                 elif filter == "region":
-                    qs = qs.filter(project__id=input)
+                    qs = qs.filter(project__section__division__branch__region_id=input)
                 elif filter == "division":
-                    qs = qs.filter(project__id=input)
+                    qs = qs.filter(project__section__division_id=input)
                 elif filter == "section":
-                    qs = qs.filter(project__id=input)
+                    qs = qs.filter(project__section_id=input)
 
         # if a regular user is making the request, show only approved projects (and not hidden projects)
         if not is_management_or_admin(self.request.user):
             print(123)
             qs = qs.filter(project__is_hidden=False, status=4)
 
-        return qs
+        return qs.distinct()
 
 
 class ProjectYearRetrieveAPIView(RetrieveAPIView):
@@ -454,9 +454,17 @@ class FunctionalGroupListAPIView(ListAPIView):
     serializer_class = serializers.FunctionalGroupSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
+
     def get_queryset(self):
         qs = models.FunctionalGroup.objects.all()
-        return qs
+
+        if self.request.query_params.get("section"):
+            qs = qs.filter(sections=self.request.query_params.get("section"))
+        elif self.request.query_params.get("division"):
+            qs = qs.filter(sections__division=self.request.query_params.get("division"))
+        elif self.request.query_params.get("region"):
+            qs = qs.filter(sections__division__branch__region=self.request.query_params.get("region"))
+        return qs.distinct()
 
 
 class FundingSourceListAPIView(ListAPIView):
@@ -473,7 +481,7 @@ class RegionListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        qs = shared_models.Region.objects.all()
+        qs = shared_models.Region.objects.filter(branches__divisions__sections__projects2__isnull=False).distinct()
         return qs
 
 
@@ -482,7 +490,9 @@ class DivisionListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        qs = shared_models.Division.objects.all()
+        qs = shared_models.Division.objects.filter(sections__projects2__isnull=False).distinct()
+        if self.request.query_params.get("region"):
+            qs = qs.filter(branch__region_id=self.request.query_params.get("region"))
         return qs
 
 
@@ -491,5 +501,9 @@ class SectionListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        qs = shared_models.Section.objects.all()
+        qs = shared_models.Section.objects.filter(projects2__isnull=False).distinct()
+        if self.request.query_params.get("division"):
+            qs = qs.filter(division_id=self.request.query_params.get("division"))
+        elif self.request.query_params.get("region"):
+            qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
         return qs

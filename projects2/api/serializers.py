@@ -358,10 +358,16 @@ class FunctionalGroupSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+
 class FundingSourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.FundingSource
         fields = "__all__"
+
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return instance.display2
 
 
 class RegionSerializer(serializers.ModelSerializer):
@@ -374,6 +380,11 @@ class DivisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = shared_models.Division
         fields = "__all__"
+
+    display = serializers.SerializerMethodField()
+
+    def get_display(self, instance):
+        return str(instance)
 
 
 class SectionSerializer(serializers.ModelSerializer):
