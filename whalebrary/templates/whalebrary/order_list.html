@@ -1,0 +1,15 @@
+{% extends "whalebrary/list.html" %}
+{% load verbose_names %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<!--This is a custom block to add formatting to one field in the table-->
+
+{% block table_td %}
+            {% if field.name == "cost" %}
+                {% get_field_value object field.name format="currency" nullmark="n/a"%}
+            {% else %}
+                {% get_field_value object field.name safe=True %}
+            {% endif %}
+{% endblock %}

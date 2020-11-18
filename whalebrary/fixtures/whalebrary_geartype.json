@@ -1,0 +1,2 @@
+
+[{"model": "whalebrary.geartype", "pk": 1, "fields": {"name": "Consumable", "nom": null}}, {"model": "whalebrary.geartype", "pk": 2, "fields": {"name": "Durable", "nom": null}}, {"model": "whalebrary.geartype", "pk": 3, "fields": {"name": "Container", "nom": null}}]

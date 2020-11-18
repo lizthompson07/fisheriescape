@@ -1,0 +1,33 @@
+{% extends "whalebrary/base.html" %}
+{% load static %}
+{% load verbose_names %}
+
+{% block subcontent %}
+
+    <div class="mb-4">
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'whalebrary:incident_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'whalebrary:incident_delete' object.id %}">Delete</a>
+            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}" >Back</a>
+        </div>
+    </div>
+        <p>
+            <a href="{% url 'whalebrary:incident_email' object.id %}" class="btn btn-sm btn-primary">Email Incident</a>
+            <a class="btn btn-sm btn-secondary" href="#" pop-href="{% url 'whalebrary:image_new' object.id %}">Upload Image</a>
+        </p>
+
+    <div class="row">
+        <div class="col-4">
+            <table class="table table-sm table-striped">
+            {% for field in field_list %}
+                {% verbose_td_display object field %}
+            {% endfor %}
+            </table>
+        </div>
+
+        <div class="col-6">
+            {% include "whalebrary/_image.html" %}
+        </div>
+    </div>
+
+{% endblock %}

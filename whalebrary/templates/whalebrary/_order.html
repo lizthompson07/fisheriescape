@@ -1,0 +1,79 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load verbose_names %}
+{% load custom_filters %}
+
+<div class="">
+    <h3>
+        {% trans "Active orders:" %}
+    </h3>
+    <div class="btn-group">
+        <h3>
+        <span class="badge badge-warning">
+            <a class="" href="#"
+               pop-href="{% url 'whalebrary:order_new' object.id %}">{% trans "Create New Order" %}</a>
+       </span>
+        </h3>
+    </div>
+</div>
+
+{% if object.active_orders.count == 0 %}
+    <em>
+        {% trans "No active orders for this entry" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            {% for field in ord_field_list %}
+                <th>
+
+                    {% get_verbose_label random_ord field %}
+                </th>
+            {% endfor %}
+            <th>
+                {% trans "Received?" %}
+            </th>
+        </tr>
+        <tbody>
+        {% for obj in object.active_orders %}
+            <tr>
+                {% for field in ord_field_list %}
+                    {% if field == "id" %}
+                        <td>
+                            <a href="{% url 'whalebrary:order_detail' obj.id %}">{{ obj.id }}</a>
+                        </td>
+                    {% elif field == "cost" %}
+                        <td>
+                            {% get_field_value obj field format="currency" nullmark="n/a" %}
+                        </td>
+                    {% else %}
+                        <td>
+                            {% get_field_value obj field %}
+                        </td>
+                    {% endif %}
+                {% endfor %}
+                <td align="center">
+                    <a href="{% url 'whalebrary:mark_order_received' obj.id %}" class="orderRcvdBtn">
+                        <img src="{% static "/admin/img/icon-addlink.svg" %}" data-toggle="tooltip"
+                             title="Mark received">
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+{% endif %}
+<br>
+<br>
+<br>
+
+<script>
+    $(".orderRcvdBtn").click(function (e) {
+        e.preventDefault()
+        userInput = confirm("Are you certain you want to do this? I could be a GINORMOUS error!!! ;)")
+        if (userInput) popitup($(this).attr("href"))
+    })
+</script>
