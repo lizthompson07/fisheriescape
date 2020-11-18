@@ -182,7 +182,6 @@ class PersonForm(forms.ModelForm):
             "fax",
             "language",
             "notes",
-            "ihub_vetted",
             "last_modified_by",
         ]
         widgets = {
