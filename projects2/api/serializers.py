@@ -3,19 +3,24 @@ from django.template.defaultfilters import date
 from markdown import markdown
 from rest_framework import serializers
 
+from lib.functions.custom_functions import listrify
 from .. import models
-from ..utils import can_modify_project
+from ..utils import can_modify_project, in_projects_admin_group, is_management
 
 
 class UserDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "username", "is_admin"]
+        fields = ["id", "first_name", "last_name", "username", "is_admin", "is_management"]
 
     is_admin = serializers.SerializerMethodField()
+    is_management = serializers.SerializerMethodField()
 
     def get_is_admin(self, instance):
-        return instance.groups.filter(name="projects_admin").exists()
+        return in_projects_admin_group(instance)
+
+    def get_is_management(self, instance):
+        return is_management(instance)
 
 
 class ProjectYearSerializerLITE(serializers.ModelSerializer):
@@ -52,9 +57,16 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     years = ProjectYearSerializerLITE(many=True, read_only=True)
     has_unsubmitted_years = serializers.SerializerMethodField()
+    section = serializers.StringRelatedField()
+    functional_group = serializers.StringRelatedField()
+    default_funding_source = serializers.StringRelatedField()
+    lead_staff = serializers.SerializerMethodField()
 
     def get_has_unsubmitted_years(self, instance):
         return instance.has_unsubmitted_years
+
+    def get_lead_staff(self, instance):
+        return listrify([str(s) for s in instance.lead_staff.all()])
 
 
 class ProjectYearSerializer(serializers.ModelSerializer):

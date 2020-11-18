@@ -1,0 +1,142 @@
+var app = new Vue({
+  el: '#app',
+  delimiters: ["${", "}"],
+  data: {
+    currentUser: {},
+    isAdminOrMgmt: false,
+    hover: false,
+
+    projects_loading: true,
+    projectYears: [],
+    next: null,
+    previous: null,
+    count: 0,
+
+    // filters
+    filter_id: null,
+    filter_title: null,
+    filter_staff: null,
+    filter_fiscal_year: null,
+    filter_tag: null,
+    filter_theme: null,
+    filter_functional_group: null,
+    filter_funding_source: null,
+    filter_region: null,
+    filter_division: null,
+    filter_section: null,
+    filter_is_hidden: false,
+
+  },
+  methods: {
+    getCurrentUser() {
+      let endpoint = `/api/project-planning/user/`;
+      apiService(endpoint)
+          .then(response => {
+            this.currentUser = response;
+            this.isAdminOrMgmt = this.currentUser.is_admin || this.currentUser.is_management
+          })
+    },
+    goProjectDetail(projectYear){
+      url = `/project-planning/projects/${projectYear.project.id}/view/`;
+      var win = window.open(url, '_blank');
+    },
+    getProjectYears(endpoint) {
+      this.projects_loading = true;
+      if (!endpoint) {
+        endpoint = `/api/project-planning/project-years/`;
+        // apply filters
+        endpoint += `?is_hidden=${this.filter_is_hidden};` +
+        `?is_hidden=${this.filter_id};` +
+        `?title=${this.filter_title};` +
+        `?staff=${this.filter_staff};` +
+        `?fiscal_year=${this.filter_fiscal_year};` +
+        `?tag=${this.filter_tag};` +
+        `?theme=${this.filter_theme};` +
+        `?functional_group=${this.filter_functional_group};` +
+        `?funding_source=${this.filter_funding_source};` +
+        `?region=${this.filter_region};` +
+        `?division=${this.filter_division};` +
+        `?section=${this.filter_section};`
+
+      }
+
+      apiService(endpoint)
+          .then(response => {
+            if (response.results) {
+              this.projects_loading = false;
+              this.projectYears.push(...response.results);
+              this.next = response.next;
+              this.previous = response.previous;
+              this.count = response.count;
+            }
+          })
+    },
+    clearProjectYears() {
+      this.projectYears = []
+      this.next = null
+      this.count = 0
+    },
+    loadMoreResults() {
+      if (this.next) {
+        this.getProjectYears(this.next)
+      }
+    },
+    clearFilters() {
+      this.filter_is_hidden = false;
+      this.updateResults()
+    },
+    updateResults() {
+      this.clearProjectYears();
+      this.getProjectYears()
+    },
+
+  },
+
+  filters: {
+    floatformat: function (value, precision = 2) {
+      if (value == null) return '';
+      value = Number(value).toFixed(precision).toLocaleString("en");
+      return value
+    },
+    currencyFormat: function (value, precision = 2) {
+      if (value == null) return '';
+      value = accounting.formatNumber(value, precision);
+      return value
+    },
+    zero2NullMark: function (value) {
+      if (!value || value === "0.00" || value == 0) return '---';
+      return value
+    },
+    nz: function (value, arg = "---") {
+      if (value == null || value === "None") return arg;
+      return value
+    },
+    yesNo: function (value) {
+      if (value == null || value == false || value == 0) return 'No';
+      return "Yes"
+    },
+    percentage: function (value, decimals) {
+      // https://gist.github.com/belsrc/672b75d1f89a9a5c192c
+      if (!value) {
+        value = 0;
+      }
+
+      if (!decimals) {
+        decimals = 0;
+      }
+
+      value = value * 100;
+      value = Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+      value = value + '%';
+      return value;
+    }
+  },
+  computed: {},
+  created() {
+    this.getCurrentUser()
+    this.getProjectYears()
+  },
+  mounted() {
+  },
+});
+

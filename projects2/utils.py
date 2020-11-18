@@ -22,16 +22,24 @@ def in_projects_admin_group(user):
         return user.groups.filter(name='projects_admin').exists()
 
 
+def is_management(user):
+    """
+        Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
+    """
+    if user.id:
+        return shared_models.Section.objects.filter(head=user).exists() or \
+                shared_models.Division.objects.filter(head=user).exists() or \
+                shared_models.Branch.objects.filter(head=user).exists()
+
+
+
 def is_management_or_admin(user):
     """
         Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
     """
     if user.id:
-        if in_projects_admin_group(user) or \
-                shared_models.Section.objects.filter(head=user).count() > 0 or \
-                shared_models.Division.objects.filter(head=user).count() > 0 or \
-                shared_models.Branch.objects.filter(head=user).count() > 0:
-            return True
+        return in_projects_admin_group(user) or is_management(user)
+
 
 
 def is_section_head(user, project):

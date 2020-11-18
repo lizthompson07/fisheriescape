@@ -8,10 +8,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from shared_models import models as shared_models
-from . import permissions
+from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project
+from ..utils import is_management_or_admin
 
 
 # USER
@@ -86,20 +87,41 @@ class ProjectRetrieveAPIView(RetrieveAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
+class ProjectListAPIView(ListAPIView):
+    pagination_class = pagination.StandardResultsSetPagination
+    serializer_class = serializers.ProjectSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.Project.objects.order_by("id")
+        if not is_management_or_admin(self.request.user):
+            qs = qs.filter(is_hidden=False)
+        return qs
+
+
 # PROJECT YEAR
 ##############
 
 
 class ProjectYearListAPIView(ListAPIView):
-
+    pagination_class = pagination.StandardResultsSetPagination
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        qs = models.ProjectYear.objects.all().order_by("-created_at")
+        qs = models.ProjectYear.objects.order_by("start_date")
+        qp = self.request.query_params
+
+        if qp.get("is_hidden"):
+            is_hidden = True if qp.get("is_hidden") == "true" else False
+            if is_hidden:
+                qs = qs.filter(project__is_hidden=True)
+
+        # if a regular user is making the request, show only approved projects (and not hidden projects)
+        if not is_management_or_admin(self.request.user):
+            qs = qs.filter(project__is_hidden=False, status=4)
+
         return qs
-
-
 
 
 class ProjectYearRetrieveAPIView(RetrieveAPIView):

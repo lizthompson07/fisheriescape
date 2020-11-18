@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
 
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
@@ -293,7 +293,7 @@ class StaffForm(forms.ModelForm):
 
         self.fields["employee_type"].widget.attrs = {"v-model": "staff.employee_type", "@change": "adjustStaffFields"}
         self.fields["level"].widget.attrs = {"v-model": "staff.level", ":disabled": "disableLevelField"}
-        self.fields["duration_weeks"].widget.attrs = {"v-model": "staff.duration_weeks", "step":"0.1"}
+        self.fields["duration_weeks"].widget.attrs = {"v-model": "staff.duration_weeks", "step": "0.1"}
         self.fields["overtime_hours"].widget.attrs = {"v-model": "staff.overtime_hours"}
         self.fields["student_program"].widget.attrs = {"v-model": "staff.student_program", ":disabled": "disableStudentProgramField"}
 
@@ -397,7 +397,6 @@ class AgreementForm(forms.ModelForm):
         self.fields["notes"].widget.attrs = {"v-model": "agreement.notes"}
 
 
-
 class FileForm(forms.ModelForm):
     class Meta:
         model = models.File
@@ -406,7 +405,7 @@ class FileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["name"].widget.attrs = {"v-model": "file.name"}
-        self.fields["file"].widget.attrs = {"v-on:change": "onFileChange", "ref":"file"}
+        self.fields["file"].widget.attrs = {"v-on:change": "onFileChange", "ref": "file"}
         self.fields["external_url"].widget.attrs = {"v-model": "file.external_url"}
 
 
@@ -599,6 +598,8 @@ class OTForm(forms.ModelForm):
             'overtime_hours': forms.HiddenInput(),
             'overtime_description': forms.HiddenInput(),
         }
+
+
 #
 #
 # class UserCreateForm(forms.Form):
@@ -644,6 +645,8 @@ FundingSourceFormset = modelformset_factory(
     form=FundingSourceForm,
     extra=1,
 )
+
+
 #
 #
 class OMCategoryForm(forms.ModelForm):
@@ -661,6 +664,8 @@ OMCategoryFormset = modelformset_factory(
     form=OMCategoryForm,
     extra=1,
 )
+
+
 #
 #
 class EmployeeTypeForm(forms.ModelForm):
@@ -677,6 +682,8 @@ EmployeeTypeFormset = modelformset_factory(
     form=EmployeeTypeForm,
     extra=1,
 )
+
+
 #
 #
 # class StatusForm(forms.ModelForm):
@@ -703,6 +710,8 @@ TagFormset = modelformset_factory(
     form=TagForm,
     extra=1,
 )
+
+
 #
 #
 class HelpTextForm(forms.ModelForm):
@@ -720,6 +729,8 @@ HelpTextFormset = modelformset_factory(
     form=HelpTextForm,
     extra=1,
 )
+
+
 #
 #
 class FunctionalGroupForm(forms.ModelForm):
@@ -738,6 +749,8 @@ class FunctionalGroupForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
         self.fields['sections'].choices = section_choices
+
+
 #
 #
 class ActivityTypeForm(forms.ModelForm):
@@ -751,6 +764,8 @@ ActivityTypeFormset = modelformset_factory(
     form=ActivityTypeForm,
     extra=1,
 )
+
+
 #
 #
 class ThemeForm(forms.ModelForm):
@@ -764,6 +779,8 @@ ThemeFormset = modelformset_factory(
     form=ThemeForm,
     extra=1,
 )
+
+
 #
 #
 class UpcomingDateForm(forms.ModelForm):
@@ -780,6 +797,8 @@ UpcomingDateFormset = modelformset_factory(
     form=UpcomingDateForm,
     extra=1,
 )
+
+
 #
 #
 class ReferenceMaterialForm(forms.ModelForm):
@@ -796,6 +815,8 @@ ReferenceMaterialFormset = modelformset_factory(
     form=ReferenceMaterialForm,
     extra=1,
 )
+
+
 #
 #
 class LevelForm(forms.ModelForm):
@@ -809,6 +830,8 @@ LevelFormset = modelformset_factory(
     form=LevelForm,
     extra=1,
 )
+
+
 #
 #
 # class FileForm(forms.ModelForm):
@@ -904,3 +927,21 @@ LevelFormset = modelformset_factory(
 #     form=ProjectApprovalForm,
 #     extra=0,
 # )
+
+
+class ProjectFilterForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        fields = [
+            "is_hidden",
+            "functional_group",
+            "section",
+        ]
+        labels = {
+            "is_hidden": gettext_lazy(""),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["is_hidden"].widget.attrs = {"v-model": "filter_is_hidden", "@change":"updateResults"}
+

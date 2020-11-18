@@ -24,10 +24,14 @@ h1 {
 
 .toolbar {
     background-color: #dfd2f6;
-    border: #4c4c4c;
+    border: #4c4c4c 1px solid;
     border-radius: 10px;
 }
-
+.toolbar2 {
+    background-color: #e3e0e3;
+    border-radius: 10px;
+    border: #4c4c4c 1px solid;
+}
 .vgroup {
     width: 100%;
     margin-bottom: 25px;
@@ -90,4 +94,8 @@ h1 {
 
 .w150 {
     width: 150px;
+}
+
+.clickable {
+    cursor: pointer;
 }

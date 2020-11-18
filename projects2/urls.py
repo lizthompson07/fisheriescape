@@ -15,7 +15,7 @@ urlpatterns = [
     path('projects/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('projects/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
     path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"),
-    path('admin/projects/all/', views.ProjectListView.as_view(), name="project_list"),
+    path('projects/explore/', views.ProjectListView.as_view(), name="project_list"),
 
 
     # PROJECT YEAR #

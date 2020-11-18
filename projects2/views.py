@@ -82,22 +82,24 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 class ProjectListView(LoginRequiredMixin, CommonTemplateView):
     h1 = gettext_lazy("Projects")
-    template_name = 'projects2/project_list/project_list_vuejs.html'
+    template_name = 'projects2/project_list/project_list.html'
     home_url_name = "projects2:index"
     container_class = "container-fluid"
     field_list = [
         'id',
-        'region',
-        'division',
-        'section',
+        'fiscal year',
+        'status',
         'title',
+        'section',
         'default_funding_source',
+        'functional_group',
         'lead_staff',
-        'tags',
     ]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["random_project"] = models.Project.objects.first()
+        context["filter_form"] = forms.ProjectFilterForm
         return context
 
 
