@@ -43,26 +43,6 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
                 section_list = shared_models.Section.objects.filter(id__in=section_id_list)
             else:
                 pass
-                # # are they section heads?
-                # section_id_list.extend([section.id for section in self.request.user.shared_models_sections.all()])
-                #
-                # # are they a division manager?
-                # if self.request.user.shared_models_divisions.count() > 0:
-                #     for division in self.request.user.shared_models_divisions.all():
-                #         for section in division.sections.all():
-                #             section_id_list.append(section.id)
-                #
-                # # are they an RDS?
-                # if self.request.user.shared_models_branches.count() > 0:
-                #     for branch in self.request.user.shared_models_branches.all():
-                #         for division in branch.divisions.all():
-                #             for section in division.sections.all():
-                #                 section_id_list.append(section.id)
-                #
-                # section_id_set = set(
-                #     [s for s in section_id_list if shared_models.Section.objects.get(pk=s).projects.count() > 0])
-                # section_list = shared_models.Section.objects.filter(id__in=section_id_set)
-            # context["section_list"] = section_list
         context["is_management_or_admin"] = is_management_or_admin(self.request.user)
         context["reference_materials"] = models.ReferenceMaterial.objects.all()
         context["upcoming_dates"] = models.UpcomingDate.objects.filter(date__gte=timezone.now()).order_by("date")
@@ -77,9 +57,33 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 # PROJECTS #
 ############
+#
+# class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
+#     template_name = 'projects2/list.html'
+#     paginate_by = 15
+#     # get all submitted and unhidden projects
+#     queryset = models.Project.objects.order_by('section__division', 'section', 'title')
+#     filterset_class = filters.ProjectFilter
+#     home_url_name = "projects2:index"
+#     container_class = "container-fluid"
+#     row_object_url_name = "projects2:project_detail"
+#     h1 = gettext_lazy("Full Project List")
+#     field_list = [
+#         {"name": 'id', "class": "", "width": ""},
+#         {"name": 'region', "class": "", "width": ""},
+#         {"name": 'division', "class": "", "width": ""},
+#         {"name": 'section', "class": "", "width": ""},
+#         {"name": 'title', "class": "", "width": "400px"},
+#         {"name": 'default_funding_source', "class": "", "width": ""},
+#         {"name": 'lead_staff', "class": "", "width": ""},
+#         {"name": 'tags', "class": "", "width": ""},
+#     ]
+#
+#
 
-class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
-    template_name = 'projects2/list.html'
+
+class ProjectListView(LoginRequiredMixin, CommonTemplateView):
+    template_name = 'projects2/project_list.html'
     paginate_by = 15
     # get all submitted and unhidden projects
     queryset = models.Project.objects.order_by('section__division', 'section', 'title')
@@ -100,8 +104,9 @@ class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
     ]
 
 
+
 class MyProjectListView(LoginRequiredMixin, CommonListView):
-    template_name = 'projects2/project_list.html'
+    template_name = 'projects2/my_project_list.html'
     # filterset_class = filters.MyProjectFilter
     h1 = gettext_lazy("My projects")
     home_url_name = "projects2:index"
