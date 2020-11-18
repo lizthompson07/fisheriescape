@@ -317,7 +317,7 @@ def get_app_dict(request):
         app_dict["vault"] = {
             "title": _("Megafauna media vault"),
             "description": _("Media vault for marine megafauna."),
-            "status": "production",
+            "status": "dev",
             "access": "permission-required",
             "url": reverse('vault:index'),
             "icon_path": 'img/icons/vault.svg',
@@ -327,13 +327,13 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["necropsy"] = {
-            "title": _("Necropsy Tools and Marine Mammal Inventory"),
-            "description": _("Tools for necropsies and inventory of marine mammal equipment"),
-            "status": "production",
+        app_dict["whalebrary"] = {
+            "title": _("Whalebrary / Baleinothèque"),
+            "description": _("Tools for Marine Mammal Teams and Necropsy Organization"),
+            "status": "dev",
             "access": "permission-required",
-            "url": reverse('necropsy:index'),
-            "icon_path": 'img/icons/necropsy.svg',
+            "url": reverse('whalebrary:index'),
+            "icon_path": 'img/icons/whalebrary.svg',
             "region": "regional",
         }
     except NoReverseMatch:

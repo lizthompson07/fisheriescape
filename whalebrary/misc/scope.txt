@@ -1,0 +1,9 @@
+Questions this app should answer:
+
+1) What gear do we have?
+2) Where is that gear?
+3) What is on order?
+4) What is lent out / out on survey?
+5) What has been used up?
+6) Who is the supplier for that item?
+7) Where is the last invoice / justification etc.?
