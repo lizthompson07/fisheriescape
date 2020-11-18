@@ -75,16 +75,18 @@
         </div>
     </div>
 
-    <div class="card border border-dark my-1" id="channel">
+    <div class="card border border-dark my-1" id="cha">
         <h5 class="card-header">
             <div class="row align-items-center">
                 <span class="col">
                     {% trans "Channel Properties" %}
                 </span>
-                {% if editable %}
+                {% if editable and emm.recorder %}
+                        {% with emm.recorder as recorder %}
                 <span class="px-1">
-                    <a class="btn btn-primary" href="#" onclick="" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
+                    <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ecp' recorder.pk 'pop' %}','rec')" title="{% trans 'Add' %}">{% trans 'Add' %}</a>
                 </span>
+                {% endwith %}
                 {% endif %}
             </div>
         </h5>
@@ -103,14 +105,18 @@
                         <td>{{ecp.ecp_channel_no}}</td><td>{{ecp.eqa_adc_bits}}</td><td>{{ecp.ecp_voltage_range_min}}</td><td>{{ecp.ecp_voltage_range_max}}</td>
                 {% if not emm.eqt.pk == 4 %}
                     <td>
-                        {% if ecp.hydrophones.first %}
-                        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' ecp.pk 'pop' %}','channel')"> &gt; </a>
-                        {% with ecp.hydrophones.first as hyd %}
-                            {{hyd.ehe_date}} - {{hyd.hyd}}
-                        {% endwith %}
+                        {% if ecp.ecp_channel_no in channels %}
+                            {% for channel, hyd in channels.items %}
+                                {% if channel == ecp.ecp_channel_no %}
+                                    {# This is to remove a connected hydrophone. #}
+                                    <a class="btn btn-danger" href="#" onclick="return pop('{% url 'whalesdb:remove_ehe' hyd.pk 'pop' %}','cha')"> X </a>
+                                    {{hyd.ehe_date}} - {{hyd.hyd}}
+                                {% endif %}
+                            {% endfor %}
                         {% else %}
-                            <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' ecp.pk 'pop' %}','channel')"> + </a>
+                            <a class="btn btn-primary" href="#" onclick="return pop('{% url 'whalesdb:create_ehe' rec.pk ecp.ecp_channel_no 'pop' %}','cha')"> + </a>
                         {% endif %}
+
                     </td>
                 {% endif %}
 

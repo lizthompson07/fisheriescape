@@ -82,14 +82,17 @@ class EcpChannelProperty(models.Model):
 
 
 class EheHydrophoneEvent(models.Model):
-    # The hyd could be null if a hydrophone was being removed from a recorder and no replacement was being added
-    hyd = models.ForeignKey('EqhHydrophoneProperty', blank=True, null=True, on_delete=models.DO_NOTHING,
-                            verbose_name=_("Hydrophone"), related_name="channels")
-
-    ecp = models.ForeignKey('EcpChannelProperty', on_delete=models.DO_NOTHING, verbose_name=_("Channel"),
-                            related_name="hydrophones")
-
     ehe_date = models.DateField(verbose_name=_("Attachment Date"))
+
+    hyd = models.ForeignKey('EqpEquipment', on_delete=models.DO_NOTHING,
+                            verbose_name=_("Hydrophone"), related_name="recorders")
+
+    # The hyd could be null if a hydrophone was being removed from a recorder and no replacement was being added.
+    # if removed ecp_channel_no should be set to zero as well.
+    rec = models.ForeignKey('EqpEquipment', blank=True, null=True, on_delete=models.DO_NOTHING,
+                            verbose_name=_("Recorder"), related_name="hydrophones")
+
+    ecp_channel_no = models.IntegerField(blank=True, null=True, verbose_name=_("Channel"))
 
     class Meta:
         ordering = ["-ehe_date"]

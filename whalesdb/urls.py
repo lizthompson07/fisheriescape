@@ -26,6 +26,8 @@ urlpatterns = [
     path('update/eca/<int:pk>/', views.EcaUpdate.as_view(), name="update_eca"),
     path('details/eca/<int:pk>/', views.EcaDetails.as_view(), name="details_eca"),
 
+    path('create/ecp/<int:eqr>/<str:pop>/', views.EcpCreate.as_view(), name="create_ecp"),
+
     path('create/ecc/<int:eca>/<str:pop>/', views.EccCreate.as_view(), name="create_ecc"),
     path('delete/ecc/<int:pk>/', views.ecc_delete, name="delete_ecc"),
 
@@ -39,7 +41,8 @@ urlpatterns = [
     path('details/emm/<int:pk>/', views.EmmDetails.as_view(), name="details_emm"),
     path('list/emm/', views.EmmList.as_view(), name="list_emm"),
 
-    path('create/ehe/<int:ecp>/<str:pop>/', views.EheCreate.as_view(), name="create_ehe"),
+    path('create/ehe/<int:rec>/<int:ecp_channel_no>/<str:pop>/', views.EheCreate.as_view(), name="create_ehe"),
+    path('remove/ehe/<int:pk>/<str:pop>/', views.EheUpdateRemove.as_view(), name="remove_ehe"),
 
     path('create/eqh/<int:pk>/<str:pop>/', views.EqhCreate.as_view(), name="create_eqh"),
     path('update/eqh/<int:pk>/<str:pop>/', views.EqhUpdate.as_view(), name="update_eqh"),
