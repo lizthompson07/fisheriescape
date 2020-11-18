@@ -99,7 +99,7 @@ class ProjectListView(LoginRequiredMixin, CommonTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["random_project"] = models.Project.objects.first()
-        context["filter_form"] = forms.ProjectFilterForm
+        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
         return context
 
 

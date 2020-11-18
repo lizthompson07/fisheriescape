@@ -928,20 +928,3 @@ LevelFormset = modelformset_factory(
 #     extra=0,
 # )
 
-
-class ProjectFilterForm(forms.ModelForm):
-    class Meta:
-        model = models.Project
-        fields = [
-            "is_hidden",
-            "functional_group",
-            "section",
-        ]
-        labels = {
-            "is_hidden": gettext_lazy(""),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["is_hidden"].widget.attrs = {"v-model": "filter_is_hidden", "@change":"updateResults"}
-

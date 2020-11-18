@@ -4,6 +4,7 @@ from markdown import markdown
 from rest_framework import serializers
 
 from lib.functions.custom_functions import listrify
+from shared_models import models as shared_models
 from .. import models
 from ..utils import can_modify_project, in_projects_admin_group, is_management
 
@@ -331,3 +332,51 @@ class FileSerializer(serializers.ModelSerializer):
 
     def get_ref(self, instance):
         return instance.ref
+
+
+class FiscalYearSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = shared_models.FiscalYear
+        fields = "__all__"
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Tag
+        fields = "__all__"
+
+
+class ThemeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Theme
+        fields = "__all__"
+
+
+class FunctionalGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.FunctionalGroup
+        fields = "__all__"
+
+
+class FundingSourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.FundingSource
+        fields = "__all__"
+
+
+class RegionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = shared_models.Region
+        fields = "__all__"
+
+
+class DivisionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = shared_models.Division
+        fields = "__all__"
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = shared_models.Section
+        fields = "__all__"

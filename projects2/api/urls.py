@@ -60,6 +60,16 @@ urlpatterns = [
     path("project-planning/projects/<int:project>/financials/", views.FinancialsAPIView.as_view(), name="financials"),
 
 
+    # lookups
+    path("project-planning/fiscal-years/", views.FiscalYearListAPIView.as_view(), name="fiscal-year-list"),
+    path("project-planning/tags/", views.TagListAPIView.as_view(), name="tag-list"),
+    path("project-planning/themes/", views.ThemeListAPIView.as_view(), name="theme-list"),
+    path("project-planning/functional-groups/", views.FunctionalGroupListAPIView.as_view(), name="group-list"),
+    path("project-planning/funding-sources/", views.FundingSourceListAPIView.as_view(), name="funding-source-list"),
+    path("project-planning/regions/", views.RegionListAPIView.as_view(), name="region-list"),
+    path("project-planning/divisions/", views.DivisionListAPIView.as_view(), name="division-list"),
+    path("project-planning/sections/", views.SectionListAPIView.as_view(), name="section-list"),
+
 
     # CRUISE SUMMARY
     # path('cruise-summary/', es_views.CruiseSummary.as_view(), name="cruise-summary"),

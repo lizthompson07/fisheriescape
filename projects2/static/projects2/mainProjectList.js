@@ -16,15 +16,25 @@ var app = new Vue({
     filter_id: null,
     filter_title: null,
     filter_staff: null,
-    filter_fiscal_year: null,
-    filter_tag: null,
-    filter_theme: null,
-    filter_functional_group: null,
-    filter_funding_source: null,
-    filter_region: null,
-    filter_division: null,
-    filter_section: null,
+    filter_fiscal_year: "",
+    filter_tag: "",
+    filter_theme: "",
+    filter_functional_group: "",
+    filter_funding_source: "",
+    filter_region: "",
+    filter_division: "",
+    filter_section: "",
+    filter_status: "",
     filter_is_hidden: false,
+
+    fiscalYears: [],
+    tags: [],
+    themes: [],
+    functionalGroups: [],
+    fundingSources: [],
+    regions: [],
+    divisions: [],
+    sections: [],
 
   },
   methods: {
@@ -36,9 +46,36 @@ var app = new Vue({
             this.isAdminOrMgmt = this.currentUser.is_admin || this.currentUser.is_management
           })
     },
-    goProjectDetail(projectYear){
-      url = `/project-planning/projects/${projectYear.project.id}/view/`;
+    goProjectDetail(projectYear) {
+      url = `/project-planning/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
       var win = window.open(url, '_blank');
+    },
+    getFilterData() {
+      apiService(`/api/project-planning/fiscal-years/`)
+          .then(response => this.fiscalYears = response)
+
+      apiService(`/api/project-planning/tags/`)
+          .then(response => this.tags = response)
+
+      apiService(`/api/project-planning/themes/`)
+          .then(response => this.themes = response)
+
+      apiService(`/api/project-planning/functional-groups/`)
+          .then(response => this.functionalGroups = response)
+
+      apiService(`/api/project-planning/funding-sources/`)
+          .then(response => this.fundingSources = response)
+
+      apiService(`/api/project-planning/regions/`)
+          .then(response => this.regions = response)
+
+      apiService(`/api/project-planning/divisions/`)
+          .then(response => this.divisions = response)
+
+      apiService(`/api/project-planning/sections/`)
+          .then(response => this.sections = response)
+
+
     },
     getProjectYears(endpoint) {
       this.projects_loading = true;
@@ -46,17 +83,18 @@ var app = new Vue({
         endpoint = `/api/project-planning/project-years/`;
         // apply filters
         endpoint += `?is_hidden=${this.filter_is_hidden};` +
-        `?is_hidden=${this.filter_id};` +
-        `?title=${this.filter_title};` +
-        `?staff=${this.filter_staff};` +
-        `?fiscal_year=${this.filter_fiscal_year};` +
-        `?tag=${this.filter_tag};` +
-        `?theme=${this.filter_theme};` +
-        `?functional_group=${this.filter_functional_group};` +
-        `?funding_source=${this.filter_funding_source};` +
-        `?region=${this.filter_region};` +
-        `?division=${this.filter_division};` +
-        `?section=${this.filter_section};`
+            `id=${this.filter_id};` +
+            `title=${this.filter_title};` +
+            `staff=${this.filter_staff};` +
+            `fiscal_year=${this.filter_fiscal_year};` +
+            `tag=${this.filter_tag};` +
+            `theme=${this.filter_theme};` +
+            `functional_group=${this.filter_functional_group};` +
+            `funding_source=${this.filter_funding_source};` +
+            `region=${this.filter_region};` +
+            `division=${this.filter_division};` +
+            `section=${this.filter_section};` +
+            `status=${this.filter_status};`
 
       }
 
@@ -82,7 +120,20 @@ var app = new Vue({
       }
     },
     clearFilters() {
+      this.filter_id = null;
+      this.filter_title = null;
+      this.filter_staff = null;
+      this.filter_fiscal_year = "";
+      this.filter_tag = "";
+      this.filter_theme = "";
+      this.filter_functional_group = "";
+      this.filter_funding_source = "";
+      this.filter_region = "";
+      this.filter_division = "";
+      this.filter_section = "";
+      this.filter_status = "";
       this.filter_is_hidden = false;
+
       this.updateResults()
     },
     updateResults() {
@@ -135,6 +186,7 @@ var app = new Vue({
   created() {
     this.getCurrentUser()
     this.getProjectYears()
+    this.getFilterData()
   },
   mounted() {
   },

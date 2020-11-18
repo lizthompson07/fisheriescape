@@ -102,7 +102,6 @@ class ProjectListAPIView(ListAPIView):
 # PROJECT YEAR
 ##############
 
-
 class ProjectYearListAPIView(ListAPIView):
     pagination_class = pagination.StandardResultsSetPagination
     serializer_class = serializers.ProjectYearSerializer
@@ -112,13 +111,61 @@ class ProjectYearListAPIView(ListAPIView):
         qs = models.ProjectYear.objects.order_by("start_date")
         qp = self.request.query_params
 
-        if qp.get("is_hidden"):
-            is_hidden = True if qp.get("is_hidden") == "true" else False
-            if is_hidden:
-                qs = qs.filter(project__is_hidden=True)
+        filter_list = [
+            "is_hidden",
+            "title",
+            "id",
+            'staff',
+            'fiscal_year',
+            'tag',
+            'theme',
+            'functional_group',
+            'funding_source',
+            'region',
+            'division',
+            'section',
+            'status',
+        ]
+        for filter in filter_list:
+            input = qp.get(filter)
+            if input == "true":
+                input = True
+            elif input == "false":
+                input = False
+            elif input == "null":
+                input = None
+
+            if input:
+                if filter == "is_hidden":
+                    qs = qs.filter(project__is_hidden=True)
+                elif filter == "status":
+                    qs = qs.filter(status=input)
+                elif filter == "title":
+                    qs = qs.filter(project__title__icontains=input)
+                elif filter == "id":
+                    qs = qs.filter(project__id=input)
+                elif filter == "staff":
+                    qs = qs.filter(project__staff_search_field__icontains=input)
+                elif filter == "fiscal_year":
+                    qs = qs.filter(fiscal_year_id=input)
+                elif filter == "tag":
+                    qs = qs.filter(project__id=input)
+                elif filter == "theme":
+                    qs = qs.filter(project__id=input)
+                elif filter == "functional_group":
+                    qs = qs.filter(project__id=input)
+                elif filter == "funding_source":
+                    qs = qs.filter(project__id=input)
+                elif filter == "region":
+                    qs = qs.filter(project__id=input)
+                elif filter == "division":
+                    qs = qs.filter(project__id=input)
+                elif filter == "section":
+                    qs = qs.filter(project__id=input)
 
         # if a regular user is making the request, show only approved projects (and not hidden projects)
         if not is_management_or_admin(self.request.user):
+            print(123)
             qs = qs.filter(project__is_hidden=False, status=4)
 
         return qs
@@ -371,3 +418,78 @@ class FinancialsAPIView(APIView):
             data = financial_project_summary_data(obj)
 
         return Response(data, status.HTTP_200_OK)
+
+
+# LOOKUPS
+##########
+
+
+class FiscalYearListAPIView(ListAPIView):
+    serializer_class = serializers.FiscalYearSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = shared_models.FiscalYear.objects.filter(projectyear__isnull=False).distinct()
+        return qs
+
+
+class TagListAPIView(ListAPIView):
+    serializer_class = serializers.TagSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.Tag.objects.all()
+        return qs
+
+class ThemeListAPIView(ListAPIView):
+    serializer_class = serializers.ThemeSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.Theme.objects.all()
+        return qs
+
+
+class FunctionalGroupListAPIView(ListAPIView):
+    serializer_class = serializers.FunctionalGroupSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.FunctionalGroup.objects.all()
+        return qs
+
+
+class FundingSourceListAPIView(ListAPIView):
+    serializer_class = serializers.FundingSourceSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.FundingSource.objects.all()
+        return qs
+
+
+class RegionListAPIView(ListAPIView):
+    serializer_class = serializers.RegionSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = shared_models.Region.objects.all()
+        return qs
+
+
+class DivisionListAPIView(ListAPIView):
+    serializer_class = serializers.DivisionSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = shared_models.Division.objects.all()
+        return qs
+
+
+class SectionListAPIView(ListAPIView):
+    serializer_class = serializers.SectionSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = shared_models.Section.objects.all()
+        return qs
