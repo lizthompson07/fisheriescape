@@ -68,7 +68,7 @@
   {# add a button for each project year #}
   <a v-for="(year, index) in project.years" @click="displayProjectYear(year.id)" class="{{ btn_class_black }}">
     <span v-if="year.submitted" class="text-primary"><span class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name }</span>
-    <span v-else class="text-danger"><span class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name } (not submitted)</span>
+    <span v-else class="text-danger"><span class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name } ({% trans "draft" %})</span>
   </a>
 
   <a v-if="canModify" href="#" class="{{ btn_class_green }} " data-toggle="modal" data-target="#new-year-modal"

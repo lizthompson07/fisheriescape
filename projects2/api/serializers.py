@@ -62,6 +62,7 @@ class ProjectYearSerializer(serializers.ModelSerializer):
         model = models.ProjectYear
         exclude = ["updated_at", ]
 
+    project = ProjectSerializer(read_only=True)
     display_name = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()

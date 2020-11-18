@@ -14,17 +14,15 @@ from django.utils.translation import gettext as _, gettext_lazy
 from django.views.generic import UpdateView, CreateView
 from easy_pdf.views import PDFTemplateView
 
-from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
     CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView
-from . import emails
 from . import filters
 from . import forms
 from . import models
 from . import stat_holidays
-from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
+from .mixins import CanModifyProjectRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
 from .utils import multiple_projects_financial_summary, can_modify_project, get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin
 
@@ -83,26 +81,24 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 
 class ProjectListView(LoginRequiredMixin, CommonTemplateView):
-    template_name = 'projects2/project_list.html'
-    paginate_by = 15
-    # get all submitted and unhidden projects
-    queryset = models.Project.objects.order_by('section__division', 'section', 'title')
-    filterset_class = filters.ProjectFilter
+    h1 = gettext_lazy("Projects")
+    template_name = 'projects2/project_list/project_list_vuejs.html'
     home_url_name = "projects2:index"
     container_class = "container-fluid"
-    row_object_url_name = "projects2:project_detail"
-    h1 = gettext_lazy("Full Project List")
     field_list = [
-        {"name": 'id', "class": "", "width": ""},
-        {"name": 'region', "class": "", "width": ""},
-        {"name": 'division', "class": "", "width": ""},
-        {"name": 'section', "class": "", "width": ""},
-        {"name": 'title', "class": "", "width": "400px"},
-        {"name": 'default_funding_source', "class": "", "width": ""},
-        {"name": 'lead_staff', "class": "", "width": ""},
-        {"name": 'tags', "class": "", "width": ""},
+        'id',
+        'region',
+        'division',
+        'section',
+        'title',
+        'default_funding_source',
+        'lead_staff',
+        'tags',
     ]
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["random_project"] = models.Project.objects.first()
+        return context
 
 
 class MyProjectListView(LoginRequiredMixin, CommonListView):
@@ -114,6 +110,7 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
     row_object_url_name = "projects2:project_detail"
     new_object_url = reverse_lazy("projects2:project_new")
     field_list = [
+        {"name": 'id', "class": "", "width": ""},
         {"name": 'section', "class": "", "width": ""},
         {"name": 'title', "class": "", "width": ""},
         {"name": 'start_date', "class": "", "width": "150px"},
@@ -821,7 +818,6 @@ class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 #             my_object.recommended_for_funding = True
 #         my_object.save()
 #         return HttpResponseRedirect(reverse('projects2:close_me'))
-
 
 
 # STAFF #

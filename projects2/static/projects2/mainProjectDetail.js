@@ -461,8 +461,8 @@ var app = new Vue({
           this.getCollaborators(projectYear.id)
           this.getFiles(projectYear.id)
           this.getFinancials(projectYear.id)
-          this.getProjectFinancials(projectYear.project)
-          this.getCurrentUser(projectYear.project)
+          this.getProjectFinancials(projectYear.project.id)
+          this.getCurrentUser(projectYear.project.id)
 
         })
       }

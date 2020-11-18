@@ -14,6 +14,7 @@ urlpatterns = [
     path("project-planning/projects/<int:pk>/", views.ProjectRetrieveAPIView.as_view(), name="year-detail"),
 
     # Project year
+    path("project-planning/project-years/", views.ProjectYearListAPIView.as_view(), name="year-list"),
     path("project-planning/project-years/<int:pk>/", views.ProjectYearRetrieveAPIView.as_view(), name="year-detail"),
     path("project-planning/project-years/<int:pk>/submit/", views.ProjectYearSubmitAPIView.as_view(), name="year-submit"),
     path("project-planning/project-years/<int:pk>/unsubmit/", views.ProjectYearUnsubmitAPIView.as_view(), name="year-unsubmit"),

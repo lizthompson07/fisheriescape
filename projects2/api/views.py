@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from pandas import date_range
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404
+from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -84,6 +84,22 @@ class ProjectRetrieveAPIView(RetrieveAPIView):
     queryset = models.Project.objects.all().order_by("-created_at")
     serializer_class = serializers.ProjectSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+
+
+# PROJECT YEAR
+##############
+
+
+class ProjectYearListAPIView(ListAPIView):
+
+    serializer_class = serializers.ProjectYearSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.ProjectYear.objects.all().order_by("-created_at")
+        return qs
+
+
 
 
 class ProjectYearRetrieveAPIView(RetrieveAPIView):
