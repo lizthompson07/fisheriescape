@@ -12,7 +12,7 @@ from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
-    get_manageable_sections
+    get_manageable_sections, multiple_financial_project_year_summary_data
 from ..utils import is_management_or_admin
 
 
@@ -429,7 +429,18 @@ class FinancialsAPIView(APIView):
 
     def get(self, request, project_year=None, project=None):
         if not project_year and not project:
-            return Response(None, status.HTTP_400_BAD_REQUEST)
+            # the we will be needing ids and year query_params
+            qp = request.query_params
+            if not qp.get("ids"):
+                return Response(None, status.HTTP_400_BAD_REQUEST)
+            else:
+
+                ids = request.query_params.get("ids").split(",")
+
+                # get project year list
+                project_years = models.ProjectYear.objects.filter(id__in=ids)
+                data = multiple_financial_project_year_summary_data(project_years)
+                return Response(data, status.HTTP_200_OK)
 
         if project_year:
             obj = get_object_or_404(models.ProjectYear, pk=project_year)

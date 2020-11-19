@@ -1,0 +1,59 @@
+{% load i18n %}
+
+<div v-if="showFinancialSummary" class="mt-5">
+
+  <div v-if="financial_loading" class="loading mb-3 mt-3 text-center mt-5">
+    <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+      <span class="sr-only"></span>
+    </div>
+  </div>
+  <div v-else-if="errorTooBig">
+    <p class="lead font-italic">
+      {% trans "There are too many projects in your search criteria. Please reduce the number of projects using the filters" %}
+    </p>
+  </div>
+  <div v-else class="">
+    <table class="table table-sm" style="width: auto">
+      <tr>
+        <th class="w150">
+          {% trans "Type" %}
+        </th>
+        <th class="w150">
+          {% trans "Funding source" %}
+        </th>
+        <th class="w150">
+          {% trans "Salary (excluding FTE)" %}
+        </th>
+        <th class="w150">
+          {% trans "O & M" %}
+        </th>
+        <th class="w150">
+          {% trans "Captial" %}
+        </th>
+        <th class="w150">
+          {% trans "Total" %}
+        </th>
+      </tr>
+      <tbody>
+      <tr v-for="(fs, index) in financials" :class="fs.type.toLowerCase()">
+        <td>${fs.type}</td>
+        <td>${fs.name}</td>
+        <td>${fs.salary |currencyFormat|zero2NullMark}</td>
+        <td>${fs.om|currencyFormat|zero2NullMark}</td>
+        <td>${fs.capital|currencyFormat|zero2NullMark}</td>
+        <td>${fs.total|currencyFormat|zero2NullMark}</td>
+      </tr>
+
+      <tr>
+        <td>{% trans "TOTAL" %}</td>
+        <td>---</td>
+        <td>${financial_totals.salary |currencyFormat|zero2NullMark}</td>
+        <td>${financial_totals.om|currencyFormat|zero2NullMark}</td>
+        <td>${financial_totals.capital|currencyFormat|zero2NullMark}</td>
+        <td>${financial_totals.total|currencyFormat|zero2NullMark}</td>
+      </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>

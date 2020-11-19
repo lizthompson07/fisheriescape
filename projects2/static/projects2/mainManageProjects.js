@@ -5,8 +5,9 @@ var app = new Vue({
     currentUser: {},
     isAdminOrMgmt: false,
     hover: false,
-    errorNoFiscalYear: null,
-    errorTooBig: null,
+
+    errorNoFiscalYear: false,
+    errorTooBig: false,
 
     showProjectList: true,
     showStaffList: false,
@@ -98,6 +99,7 @@ var app = new Vue({
               this.previous = response.previous;
               this.count = response.count;
               this.getStaff()
+              this.getFinancials()
             }
           })
     },
@@ -106,35 +108,31 @@ var app = new Vue({
       this.showStaffList = false
       this.showFinancialSummary = false
       if (name === "project") this.showProjectList = true
-      else if (name === "staff") {
-        this.showStaffList = true
-        if (this.projectYears.length) {
-          this.getStaff()
-        }
-      } else if (name === "financial") this.showFinancialSummary = true
+      else if (name === "staff") this.showStaffList = true
+      else if (name === "financial") this.showFinancialSummary = true
     },
 
 
     getStaff() {
       this.staff_loading = true;
-      this.errorTooBig = null
-      this.errorNoFiscalYear = null
+      this.errorTooBig = false
+      this.errorNoFiscalYear = false
 
       if (!this.filter_fiscal_year) {
         this.staff_loading = false;
-        this.errorNoFiscalYear = noFiscalYearMsg;
+        this.errorNoFiscalYear = true;
       } else if (!this.projectYears.length || this.count > 150) {
         this.staff_loading = false;
-        this.errorTooBig = tooBigErrorMsg;
+        this.errorTooBig = true;
       } else {
         // first get the full list of project years
-        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 500)
+        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 150)
         apiService(endpoint1)
             .then(response => {
               if (response.results) {
 
                 if (response.next) {
-                  this.errorTooBig = tooBigErrorMsg
+                  this.errorTooBig = true
                 } else {
 
                   // need a list of projectYears
@@ -154,8 +152,39 @@ var app = new Vue({
 
             })
       }
+    },
+    getFinancials() {
+      this.financial_loading = true;
+      this.errorTooBig = false
+      if (!this.projectYears.length || this.count > 1000) {
+        this.financial_loading = false;
+        this.errorTooBig = true;
+      } else {
+        // first get the full list of project years
+        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 1000)
+        apiService(endpoint1)
+            .then(response => {
+              if (response.results) {
 
+                if (response.next) {
+                  this.errorTooBig = true
+                } else {
+                  // need a list of projectYears
+                  pyIds = []
+                  for (var i = 0; i < response.results.length; i++) {
+                    pyIds.push(response.results[i].id)
+                  }
+                  let endpoint2 = `/api/project-planning/financials/?ids=${pyIds}`;
+                  apiService(endpoint2)
+                      .then(response => {
+                        this.financial_loading = false;
+                        this.financials = response;
+                      })
+                }
+              }
 
+            })
+      }
     },
     submitProjectYear(projectYear, action) {
       if (action === "submit" || action === "unsubmit") {
@@ -249,7 +278,25 @@ var app = new Vue({
       return value;
     }
   },
-  computed: {},
+  computed: {
+    financial_totals() {
+      myObj = {
+        salary: 0,
+        om: 0,
+        capital: 0,
+        total: 0,
+      }
+      if (this.financials) {
+        for (var i = 0; i < this.financials.length; i++) {
+          myObj.salary += this.financials[i].salary
+          myObj.om += this.financials[i].om
+          myObj.capital += this.financials[i].capital
+          myObj.total += this.financials[i].total
+        }
+      }
+      return myObj
+    },
+  },
   created() {
     this.getCurrentUser()
     this.getProjectYears()

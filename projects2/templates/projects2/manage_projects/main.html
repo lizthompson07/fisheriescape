@@ -44,6 +44,7 @@
 
         {% include "projects2/manage_projects/_project_list.html" %}
         {% include "projects2/manage_projects/_staff.html" %}
+        {% include "projects2/manage_projects/_financials.html" %}
       </div>
 
     </div>
@@ -59,8 +60,7 @@
   <script type="application/javascript">
   var submitMsg = "{% trans "Are certain you want to submit the following year of the project?" %} \n\n"
   var unsubmitMsg = "{% trans "Are certain you want to un-submit the following year of the project? The status of the project year will be reset!" %} \n\n"
-  var tooBigErrorMsg = "{% trans "There are too many projects in your search criteria. Please reduce the number of projects using the filters" %} \n\n"
-  var noFiscalYearMsg = "{% trans "You need to select a fiscal year in order to get reporting on FTE" %} \n\n"
+
   </script>
 
   <script src="{% static '/projects2/mainManageProjects.js' %}?version=0.0.4" type="application/javascript"></script>

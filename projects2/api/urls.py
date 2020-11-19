@@ -58,6 +58,7 @@ urlpatterns = [
     # financials
     path("project-planning/project-years/<int:project_year>/financials/", views.FinancialsAPIView.as_view(), name="financials"),
     path("project-planning/projects/<int:project>/financials/", views.FinancialsAPIView.as_view(), name="financials"),
+    path("project-planning/financials/", views.FinancialsAPIView.as_view(), name="financials"),
 
 
     # lookups

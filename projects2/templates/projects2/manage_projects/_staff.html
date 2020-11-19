@@ -8,10 +8,14 @@
     </div>
   </div>
   <div v-else-if="errorTooBig">
-    <p class="lead font-italic">${errorTooBig}</p>
+    <p class="lead font-italic">
+      {% trans "There are too many projects in your search criteria. Please reduce the number of projects using the filters" %}
+    </p>
   </div>
   <div v-else-if="errorNoFiscalYear">
-    <p class="lead font-italic">${errorNoFiscalYear}</p>
+    <p class="lead font-italic">
+      {% trans "You need to select a fiscal year in order to get this type of reporting" %}
+    </p>
   </div>
   <div v-else class="">
     <table class="table table-sm">

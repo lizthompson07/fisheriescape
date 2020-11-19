@@ -302,6 +302,48 @@ def financial_project_summary_data(project):
     return my_list
 
 
+def multiple_financial_project_year_summary_data(project_years):
+    my_list = []
+
+    fs_list = list()
+    # first get funding source list
+    for py in project_years:
+        fs_list.extend([fs.id for fs in py.get_funding_sources()])
+    print(fs_list)
+    funding_sources = models.FundingSource.objects.filter(id__in=fs_list)
+
+    for fs in funding_sources:
+        my_dict = dict()
+        my_dict["type"] = fs.get_funding_source_type_display()
+        my_dict["name"] = str(fs)
+        my_dict["salary"] = 0
+        my_dict["om"] = 0
+        my_dict["capital"] = 0
+
+        for py in project_years:
+            # first calc for staff
+            for staff in models.Staff.objects.filter(funding_source=fs, project_year=py):
+                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+                if not staff.employee_type.exclude_from_rollup:
+                    if staff.employee_type.cost_type == 1:
+                        my_dict["salary"] += nz(staff.amount, 0)
+                    elif staff.employee_type.cost_type == 2:
+                        my_dict["om"] += nz(staff.amount, 0)
+
+            # O&M costs
+            for cost in models.OMCost.objects.filter(funding_source=fs, project_year=py):
+                my_dict["om"] += nz(cost.amount, 0)
+
+            # Capital costs
+            for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year=py):
+                my_dict["capital"] += nz(cost.amount, 0)
+
+            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+
+        my_list.append(my_dict)
+
+    return my_list
+
 def multiple_projects_financial_summary(project_list):
     my_dict = {}
 
