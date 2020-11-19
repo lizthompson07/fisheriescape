@@ -80,11 +80,38 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 #
 
 
-class ProjectListView(LoginRequiredMixin, CommonTemplateView):
+class ExploreProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
     h1 = gettext_lazy("Projects")
-    template_name = 'projects2/project_list/project_list.html'
+    template_name = 'projects2/explore_projects/main.html'
     home_url_name = "projects2:index"
     container_class = "container-fluid"
+    subtitle = gettext_lazy("Explore Projects")
+    field_list = [
+        'id',
+        'title',
+        'fiscal year',
+        'status',
+        # 'section',
+        'default_funding_source',
+        'functional_group',
+        'lead_staff',
+    ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["random_project"] = models.Project.objects.first()
+        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
+        return context
+
+
+
+
+class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
+    h1 = gettext_lazy("Projects")
+    template_name = 'projects2/manage_projects/main.html'
+    home_url_name = "projects2:index"
+    container_class = "container-fluid"
+    subtitle = gettext_lazy("Manage Projects")
     field_list = [
         'id',
         'title',

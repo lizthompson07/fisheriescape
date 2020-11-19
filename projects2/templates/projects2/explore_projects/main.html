@@ -13,7 +13,7 @@
     <div class="row">
 
       <div class="col-2 toolbar2 py-3 px-3 ml-2">
-        {% include "projects2/project_list/_project_console.html" %}
+        {% include "projects2/explore_projects/_console.html" %}
       </div>
 
       <div class="col">
@@ -56,20 +56,25 @@
             v-for="(p, index) in projectYears"
             @mouseover="hover = true"
             @mouseleave="hover = false"
-            :class="{'clickable': hover}"
-            @click="goProjectDetail(p)"
+            {#            :class="{'clickable': hover}"#}
+            {#            @click="goProjectDetail(p)"#}
           >
             <td>${p.project.id}</td>
             <td>${p.project.title}</td>
             <td>${p.display_name}</td>
             <td v-html="p.formatted_status"></td>
-{#            <td>${p.project.section}</td>#}
+            {#            <td>${p.project.section}</td>#}
             <td>${p.project.default_funding_source}</td>
             <td>${p.project.functional_group}</td>
             <td>${p.project.lead_staff}</td>
             <td v-if="isAdminOrMgmt">
               <span v-if="p.project.is_hidden" class="highlight">{% trans "Yes" %}</span>
               <span v-else>{% trans "No" %}</span>
+            </td>
+            <td>
+              <button @click="goProjectDetail(p)" data-toggle="tooltip" title="{% trans "Open in separate window" %}">
+                <span class="mdi mdi-arrow-top-right"></span>
+              </button>
             </td>
           </tr>
           </tbody>
@@ -101,7 +106,7 @@
 {% block body_js %}
   {{ block.super }}
 
-  <script src="{% static '/projects2/mainProjectList.js' %}?version=0.0.7" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainExploreProjects.js' %}?version=0.0.7" type="application/javascript"></script>
 
   //reload other scripts that we care about
 

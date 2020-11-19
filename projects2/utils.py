@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.utils.translation import gettext as _
 
 from lib.templatetags.custom_filters import nz
@@ -28,9 +28,8 @@ def is_management(user):
     """
     if user.id:
         return shared_models.Section.objects.filter(head=user).exists() or \
-                shared_models.Division.objects.filter(head=user).exists() or \
-                shared_models.Branch.objects.filter(head=user).exists()
-
+               shared_models.Division.objects.filter(head=user).exists() or \
+               shared_models.Branch.objects.filter(head=user).exists()
 
 
 def is_management_or_admin(user):
@@ -39,7 +38,6 @@ def is_management_or_admin(user):
     """
     if user.id:
         return in_projects_admin_group(user) or is_management(user)
-
 
 
 def is_section_head(user, project):
@@ -134,6 +132,12 @@ def is_admin_or_project_manager(user, project):
         # check to see if they are a section head, div. manager or RDS
         if is_section_head(user, project) or is_division_manager(user, project) or is_rds(user, project):
             return True
+
+
+def get_manageable_sections(user):
+    if in_projects_admin_group(user):
+        return shared_models.Section.objects.filter(projects__isnull=False).distinct()
+    return shared_models.Section.objects.filter(Q(head=user) | Q(division__head=user) | Q(division__branch__head=user))
 
 
 def get_section_choices(all=False, full_name=True, region_filter=None, division_filter=None):

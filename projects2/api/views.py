@@ -11,7 +11,8 @@ from shared_models import models as shared_models
 from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays
-from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project
+from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
+    get_manageable_sections
 from ..utils import is_management_or_admin
 
 
@@ -112,6 +113,7 @@ class ProjectYearListAPIView(ListAPIView):
         qp = self.request.query_params
 
         filter_list = [
+            "user",
             "is_hidden",
             "title",
             "id",
@@ -132,11 +134,13 @@ class ProjectYearListAPIView(ListAPIView):
                 input = True
             elif input == "false":
                 input = False
-            elif input == "null":
+            elif input == "null" or input == "":
                 input = None
 
             if input:
-                if filter == "is_hidden":
+                if filter == "user":
+                    qs = qs.filter(project__section__in=get_manageable_sections(self.request.user)).order_by("fiscal_year", "project_id")
+                elif filter == "is_hidden":
                     qs = qs.filter(project__is_hidden=True)
                 elif filter == "status":
                     qs = qs.filter(status=input)
@@ -429,8 +433,12 @@ class FiscalYearListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        qs = shared_models.FiscalYear.objects.filter(projectyear__isnull=False).distinct()
-        return qs
+        qs = shared_models.FiscalYear.objects.filter(projectyear__isnull=False)
+
+        if self.request.query_params.get("user") == 'true':
+            qs = qs.filter(projectyear__project__section__in=get_manageable_sections(self.request.user))
+
+        return qs.distinct()
 
 
 class TagListAPIView(ListAPIView):
@@ -438,8 +446,12 @@ class TagListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        qs = models.Tag.objects.all()
-        return qs
+        qs = models.Tag.objects.filter(projects__isnull=False)
+
+        if self.request.query_params.get("user") == 'true':
+            qs = qs.filter(projects__section__in=get_manageable_sections(self.request.user))
+
+        return qs.distinct()
 
 class ThemeListAPIView(ListAPIView):
     serializer_class = serializers.ThemeSerializer
@@ -447,7 +459,9 @@ class ThemeListAPIView(ListAPIView):
 
     def get_queryset(self):
         qs = models.Theme.objects.all()
-        return qs
+        if self.request.query_params.get("user") == 'true':
+            qs = qs.filter(functional_groups__projects__section__in=get_manageable_sections(self.request.user))
+        return qs.distinct()
 
 
 class FunctionalGroupListAPIView(ListAPIView):
@@ -460,6 +474,8 @@ class FunctionalGroupListAPIView(ListAPIView):
 
         if self.request.query_params.get("section"):
             qs = qs.filter(sections=self.request.query_params.get("section"))
+        elif self.request.query_params.get("user") == 'true':
+            qs = qs.filter(sections__in=get_manageable_sections(self.request.user))
         elif self.request.query_params.get("division"):
             qs = qs.filter(sections__division=self.request.query_params.get("division"))
         elif self.request.query_params.get("region"):
@@ -473,7 +489,9 @@ class FundingSourceListAPIView(ListAPIView):
 
     def get_queryset(self):
         qs = models.FundingSource.objects.all()
-        return qs
+        if self.request.query_params.get("user") == 'true':
+            qs = qs.filter(projects__section__in=get_manageable_sections(self.request.user))
+        return qs.distinct()
 
 
 class RegionListAPIView(ListAPIView):
@@ -506,4 +524,6 @@ class SectionListAPIView(ListAPIView):
             qs = qs.filter(division_id=self.request.query_params.get("division"))
         elif self.request.query_params.get("region"):
             qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
+        elif self.request.query_params.get("user"):
+            qs = get_manageable_sections(self.request.user)
         return qs

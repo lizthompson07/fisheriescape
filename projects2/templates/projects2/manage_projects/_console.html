@@ -1,0 +1,199 @@
+{% load i18n %}
+{% load static %}
+{% load custom_tags %}
+{% load bootstrap4 %}
+
+<h5>
+  {% trans "Filters" %}
+</h5>
+<hr>
+<div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
+  <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+    <span class="sr-only"></span>
+  </div>
+</div>
+<div v-else class="filters">
+  {# Regular filters #}
+
+  <div class="mb-5">
+
+    {# Section #}
+    <div class="form-group row">
+      <div class="col-4">
+
+        <label for="filter_section">{% trans "Section" %}</label>
+      </div>
+      <div class="col">
+        <select
+          v-model="filter_section"
+          @change="updateResults"
+          class="form-control" id="filter_section"
+        >
+          <option value="">{% trans "all" %}</option>
+          <option v-for="(obj, index) in sections" :value="obj.id">${obj.full_name}</option>
+        </select>
+      </div>
+    </div>
+  
+    {# Fiscal Year #}
+    <div class="form-group row">
+      <div class="col-4">
+
+        <label for="filter_fiscal_year">{% trans "Fiscal Year" %}</label>
+      </div>
+      <div class="col">
+        <select
+          v-model="filter_fiscal_year"
+          @change="updateResults"
+          class="form-control" id="filter_fiscal_year"
+        >
+          <option value="">{% trans "all" %}</option>
+          <option v-for="(obj, index) in fiscalYears" :value="obj.id">${obj.full}</option>
+        </select>
+      </div>
+    </div>
+
+    {# status #}
+    <div class="form-group row">
+      <div class="col-4">
+
+        <label for="filter_status">{% trans "Status" %}</label>
+      </div>
+      <div class="col">
+        <select
+          v-model="filter_status"
+          @change="updateResults"
+          class="form-control" id="filter_status"
+        >
+          <option value selected>{% trans "all" %}</option>
+          {% for status in status_choices %}
+
+            <option value="{{ status.value }}">{{ status.label }}</option>
+
+          {% endfor %}
+
+
+        </select>
+      </div>
+    </div>
+
+    {# Id #}
+    <div class="form-group row">
+      <div class="col-4">
+        <label for="filter_id">{% trans "Project Id" %}</label>
+      </div>
+      <div class="col">
+        <input
+          v-model="filter_id"
+          @change="updateResults"
+          type="number" class="form-control form-control-sm" id="filter_id" placeholder="">
+      </div>
+    </div>
+
+    {# Title #}
+    <div class="form-group row">
+      <div class="col-4">
+        <label for="filter_title">{% trans "Title" %}</label>
+      </div>
+      <div class="col">
+        <input
+          v-model="filter_title"
+          @change="updateResults"
+          type="text" class="form-control form-control-sm" id="filter_title" placeholder="">
+      </div>
+    </div>
+
+    {# Staff #}
+    <div class="form-group row">
+      <div class="col-4">
+        <label for="filter_staff">{% trans "Staff" %}</label>
+      </div>
+      <div class="col">
+        <input
+          v-model="filter_staff"
+          @change="updateResults"
+          type="text" class="form-control form-control-sm" id="filter_staff" placeholder="">
+      </div>
+    </div>
+
+
+    {# Functional group #}
+    <div class="form-group row">
+      <div class="col-4">
+
+        <label for="filter_functional_group">{% trans "Functional Group" %}</label>
+      </div>
+      <div class="col">
+        <select
+          v-model="filter_functional_group"
+          @change="updateResults"
+          class="form-control" id="filter_functional_group"
+        >
+          <option value="">{% trans "all" %}</option>
+          <option v-for="(obj, index) in functionalGroups" :value="obj.id">${obj.name}</option>
+        </select>
+      </div>
+    </div>
+
+    {# Tag #}
+    <div class="form-group row">
+      <div class="col-4">
+
+        <label for="filter_tag">{% trans "Tag" %}</label>
+      </div>
+      <div class="col">
+        <select
+          v-model="filter_tag"
+          @change="updateResults"
+          class="form-control" id="filter_tag"
+        >
+          <option value="">{% trans "all" %}</option>
+          <option v-for="(obj, index) in tags" :value="obj.id">${obj.name}</option>
+        </select>
+      </div>
+    </div>
+
+    {# Theme #}
+    <div class="form-group row">
+      <div class="col-4">
+
+        <label for="filter_theme">{% trans "Theme" %}</label>
+      </div>
+      <div class="col">
+        <select
+          v-model="filter_theme"
+          @change="updateResults"
+          class="form-control" id="filter_theme"
+        >
+          <option value="">{% trans "all" %}</option>
+          <option v-for="(obj, index) in themes" :value="obj.id">${obj.name}</option>
+        </select>
+      </div>
+    </div>
+
+
+    {# Funding Source #}
+    <div class="form-group row">
+      <div class="col-4">
+
+        <label for="filter_funding_source">{% trans "Funding Source" %}</label>
+      </div>
+      <div class="col">
+        <select
+          v-model="filter_funding_source"
+          @change="updateResults"
+          class="form-control" id="filter_funding_source"
+        >
+          <option value="">{% trans "all" %}</option>
+          <option v-for="(obj, index) in fundingSources" :value="obj.id">${obj.display}</option>
+        </select>
+      </div>
+    </div>
+
+
+    <div class="mb-5">
+      <button @click="clearFilters" class="btn btn-sm btn-warning">{% trans "Clear filters" %}</button>
+    </div>
+  </div>
+</div>
+

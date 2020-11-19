@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
-from django.template.defaultfilters import date
+from django.template.defaultfilters import date, slugify
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
@@ -207,9 +207,9 @@ class ProjectYear(models.Model):
     status_choices = [
         (1, "Draft"),
         (2, "Submitted"),
-        (3, "Recommended"),
+        (3, "Reviewed"),
         (4, "Approved"),
-        (5, "Denied"),
+        (5, "Not Approved"),
         (9, "Cancelled"),
     ]
     status = models.IntegerField(default=1, editable=False, choices=status_choices)
@@ -405,7 +405,7 @@ class ProjectYear(models.Model):
     @property
     def formatted_status(self):
         return mark_safe(
-            f"<span class='{self.get_status_display().lower()} px-1 py-1'>{self.get_status_display()}</span>"
+            f"<span class='{slugify(self.get_status_display())} px-1 py-1'>{self.get_status_display()}</span>"
         )
 
     def submit(self):

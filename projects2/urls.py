@@ -15,7 +15,10 @@ urlpatterns = [
     path('projects/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('projects/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
     path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"),
-    path('projects/explore/', views.ProjectListView.as_view(), name="project_list"),
+
+    path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
+    path('projects/explore/', views.ExploreProjectsTemplateView.as_view(), name="explore_projects"),
+    path('projects/manage/', views.ManageProjectsTemplateView.as_view(), name="manage_projects"),
 
 
     # PROJECT YEAR #
@@ -30,7 +33,6 @@ urlpatterns = [
 
     # path('all/', views.ProjectListView.as_view(), name="project_list"),
 
-    path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
     path('project/<int:pk>/print/', views.ProjectPrintDetailView.as_view(), name="project_print"),
     path('project/<int:pk>/delete/popout/<int:pop>/', views.ProjectDeleteView.as_view(), name="project_delete"),
     path('project/<int:pk>/notes/', views.ProjectNotesUpdateView.as_view(), name="project_notes"),

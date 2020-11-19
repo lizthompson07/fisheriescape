@@ -70,7 +70,7 @@ h1 {
     background-color: #ffda84;
 }
 
-.recommended {
+.reviewed {
     background-color: #a2c4fa;
 }
 
@@ -82,7 +82,7 @@ h1 {
     background-color: #c1c1c1;
 }
 
-.denied {
+.not-approved {
     background-color: #ff9191;
 }
 
