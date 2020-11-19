@@ -156,12 +156,12 @@ var app = new Vue({
     getFinancials() {
       this.financial_loading = true;
       this.errorTooBig = false
-      if (!this.projectYears.length || this.count > 1000) {
+      if (!this.projectYears.length || this.count > 500) {
         this.financial_loading = false;
         this.errorTooBig = true;
       } else {
         // first get the full list of project years
-        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 1000)
+        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 500)
         apiService(endpoint1)
             .then(response => {
               if (response.results) {
