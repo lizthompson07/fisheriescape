@@ -6,6 +6,11 @@ var app = new Vue({
     isAdminOrMgmt: false,
     hover: false,
 
+    showProjectList: true,
+    showStaffList: false,
+    showFinancialSummary: false,
+
+
     projects_loading: true,
     projectYears: [],
     next: null,
@@ -21,19 +26,14 @@ var app = new Vue({
     filter_theme: "",
     filter_functional_group: "",
     filter_funding_source: "",
-    filter_region: "",
-    filter_division: "",
     filter_section: "",
     filter_status: "",
-    filter_is_hidden: false,
 
     fiscalYears: [],
     tags: [],
     themes: [],
     functionalGroups: [],
     fundingSources: [],
-    regions: [],
-    divisions: [],
     sections: [],
 
   },
@@ -89,6 +89,29 @@ var app = new Vue({
               this.count = response.count;
             }
           })
+    },
+    changeTabs(name) {
+      this.showProjectList = false
+      this.showStaffList = false
+      this.showFinancialSummary = false
+      if (name === "project") this.showProjectList = true
+      else if (name === "staff") this.showStaffList = true
+      else if (name === "financial") this.showFinancialSummary = true
+    },
+    submitProjectYear(projectYear, action) {
+      if (action === "submit" || action === "unsubmit") {
+        if (action === "submit") msg = submitMsg
+        else msg = unsubmitMsg
+        userInput = confirm(msg + projectYear.display_name)
+        if (userInput) {
+          let endpoint = `/api/project-planning/project-years/${projectYear.id}/${action}/`;
+          apiService(endpoint, "POST")
+              .then(response => {
+                this.$set(this.projectYears, this.projectYears.indexOf(projectYear), response);
+                console.log(123)
+              })
+        }
+      }
     },
     clearProjectYears() {
       this.projectYears = []

@@ -189,7 +189,7 @@ class ProjectYearSubmitAPIView(APIView):
     def post(self, request, pk):
         project_year = get_object_or_404(models.ProjectYear, pk=pk)
         project_year.submit()
-        return Response(serializers.ProjectYearSerializerLITE(project_year).data, status.HTTP_200_OK)
+        return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
 
 
 class ProjectYearUnsubmitAPIView(APIView):
@@ -200,7 +200,7 @@ class ProjectYearUnsubmitAPIView(APIView):
     def post(self, request, pk):
         project_year = get_object_or_404(models.ProjectYear, pk=pk)
         project_year.unsubmit()
-        return Response(serializers.ProjectYearSerializerLITE(project_year).data, status.HTTP_200_OK)
+        return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
 
 
 # STAFF

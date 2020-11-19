@@ -114,8 +114,8 @@ class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
     subtitle = gettext_lazy("Manage Projects")
     field_list = [
         'id',
-        'title',
         'fiscal year',
+        'title',
         'status',
         # 'section',
         'default_funding_source',

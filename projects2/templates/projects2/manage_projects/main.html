@@ -17,87 +17,32 @@
       </div>
 
       <div class="col">
-        <p class="h1 text-center">{% trans "Project Management Console" %}</p>
-        <p class="h3 text-center">{% trans "Below is a list of projects over which you have management-level control" %}</p>
+        <p class="h1 text-center">{% trans "Management Console" %}</p>
+        <p class="lead text-center">{% trans "Projects over which you have managerial control" %}</p>
 
-        <div>
-          <div class="text-center">
-            <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
-          </div>
-        </div>
-        <table class="table table-sm">
-          <thead>
-          <tr>
-            {% for field in field_list %}
-              {% if "title" in field %}
-                <th style="width: 400px">
-                  {% get_verbose_label random_project field %}
-                </th>
-              {% elif "funding" in field %}
-                <th style="width: 200px">
-                  {% get_verbose_label random_project field %}
-                </th>
-              {% elif "fiscal" in field or "funding" in field %}
-                <th style="width: 100px">
-                  {% get_verbose_label random_project field %}
-                </th>
-              {% else %}
-                <th>
-                  {% get_verbose_label random_project field %}
-                </th>
-              {% endif %}
 
-            {% endfor %}
-            <th v-if="isAdminOrMgmt">{% trans "Hidden?" %}</th>
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a :class="{ 'nav-link': true, 'active': showProjectList }" href="#" @click="changeTabs('project')">
+              {% trans "Project List" %} (${count})
+            </a>
+          </li>
+          <li class="nav-item">
+            <a :class="{ 'nav-link': true, 'active': showStaffList }" href="#" @click="changeTabs('staff')">
+              {% trans "Staff List" %}
+            </a>
+          </li>
+          <li class="nav-item">
+            <a :class="{ 'nav-link': true, 'active': showFinancialSummary }" href="#" @click="changeTabs('financial')">
+              {% trans "Financial Summary" %}
+            </a>
+          </li>
+        </ul>
 
-          </tr>
-          </thead>
-          <tbody>
-          <tr
-            v-for="(p, index) in projectYears"
-            @mouseover="hover = true"
-            @mouseleave="hover = false"
-            {#            :class="{'clickable': hover}"#}
-            {#            @click="goProjectDetail(p)"#}
-          >
-            <td>${p.project.id}</td>
-            <td>${p.project.title}</td>
-            <td>${p.display_name}</td>
-            <td v-html="p.formatted_status"></td>
-            {#            <td>${p.project.section}</td>#}
-            <td>${p.project.default_funding_source}</td>
-            <td>${p.project.functional_group}</td>
-            <td>${p.project.lead_staff}</td>
-            <td v-if="isAdminOrMgmt">
-              <span v-if="p.project.is_hidden" class="highlight">{% trans "Yes" %}</span>
-              <span v-else>{% trans "No" %}</span>
-            </td>
-            <td>
-              <button @click="goProjectDetail(p)" data-toggle="tooltip" title="{% trans "Open in separate window" %}">
-                <span class="mdi mdi-arrow-top-right"></span>
-              </button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-
-        <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
-          <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-            <span class="sr-only"></span>
-          </div>
-        </div>
-        <div v-else>
-          <div class="text-center">
-            <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
-            <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
-              {% trans "Load more results..." %}
-            </button>
-          </div>
-        </div>
-
+        {% include "projects2/manage_projects/_project_list.html" %}
       </div>
-    </div>
 
+    </div>
   </div>
 
 
@@ -106,6 +51,11 @@
 
 {% block body_js %}
   {{ block.super }}
+
+  <script type="application/javascript">
+  var submitMsg = "{% trans "Are certain you want to submit the following year of the project?" %} \n\n"
+  var unsubmitMsg = "{% trans "Are certain you want to un-submit the following year of the project? The status of the project year will be reset!" %} \n\n"
+  </script>
 
   <script src="{% static '/projects2/mainManageProjects.js' %}?version=0.0.4" type="application/javascript"></script>
 
