@@ -213,13 +213,14 @@ def get_funding_sources(all=False):
 def get_user_fte_breakdown(user, fiscal_year_id):
     staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)
     my_dict = dict()
+    my_dict['name'] = f"{user.last_name}, {user.first_name}"
     my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
     my_dict['draft'] = nz(staff_instances.filter(
         project_year__status=1
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
-    my_dict['recommended'] = nz(staff_instances.filter(
-        project_year__status=3
+    my_dict['submitted_unapproved'] = nz(staff_instances.filter(
+        project_year__status__in=[2,3]
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['approved'] = nz(staff_instances.filter(

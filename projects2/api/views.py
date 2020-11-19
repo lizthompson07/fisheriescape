@@ -29,23 +29,41 @@ class CurrentUserAPIView(APIView):
 
 class FTEBreakdownAPIView(APIView):
     def get(self, request):
-        # if no user is specified, we will assume it is the request user
-        if not request.query_params.get("user"):
-            my_user = request.user
-        else:
-            my_user = get_object_or_404(User, pk=request.query_params.get("user"))
+        # if there are no project year ids, do this
+        if not request.query_params.get("ids"):
+            # if no user is specified, we will assume it is the request user
+            if not request.query_params.get("user"):
+                my_user = request.user
+            else:
+                my_user = get_object_or_404(User, pk=request.query_params.get("user"))
 
-        # if there is no fiscal year specified, let's get all years
-        if not request.query_params.get("year"):
-            # need a list of fiscal years
-            fy_qs = shared_models.FiscalYear.objects.filter(projectyear__staff__user=my_user).distinct()
+            # if there is no fiscal year specified, let's get all years
+            if not request.query_params.get("year"):
+                # need a list of fiscal years
+                fy_qs = shared_models.FiscalYear.objects.filter(projectyear__staff__user=my_user).distinct()
+                data = list()
+                for fy in fy_qs:
+                    data.append(get_user_fte_breakdown(my_user, fiscal_year_id=fy.id))
+            else:
+                data = get_user_fte_breakdown(my_user, fiscal_year_id=request.query_params.get("year"))
+            return Response(data, status.HTTP_200_OK)
+        else:
+            if not request.query_params.get("year"):
+                return Response({"error":"must supply a fiscal year"}, status.HTTP_400_BAD_REQUEST)
+
             data = list()
-            for fy in fy_qs:
-                data.append(get_user_fte_breakdown(my_user, fiscal_year_id=fy.id))
-        else:
-            data = get_user_fte_breakdown(my_user, fiscal_year_id=request.query_params.get("year"))
-        return Response(data, status.HTTP_200_OK)
+            ids = request.query_params.get("ids").split(",")
+            year = request.query_params.get("year")
+            # now we need a user list for any users in the above list
+            users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name")
 
+            for u in users:
+                my_dict = get_user_fte_breakdown(u, fiscal_year_id=year)
+                data.append(my_dict)
+
+
+            # project_years =
+            return Response(data, status.HTTP_200_OK)
 
 class GetDatesAPIView(APIView):
     def get(self, request):

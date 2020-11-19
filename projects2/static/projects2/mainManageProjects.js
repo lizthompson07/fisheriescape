@@ -5,6 +5,8 @@ var app = new Vue({
     currentUser: {},
     isAdminOrMgmt: false,
     hover: false,
+    errorNoFiscalYear: null,
+    errorTooBig: null,
 
     showProjectList: true,
     showStaffList: false,
@@ -12,7 +14,11 @@ var app = new Vue({
 
 
     projects_loading: true,
+    staff_loading: true,
+    financial_loading: true,
     projectYears: [],
+    staff: [],
+    financials: [],
     next: null,
     previous: null,
     count: 0,
@@ -61,24 +67,28 @@ var app = new Vue({
       apiService(`/api/project-planning/functional-groups/${query}`).then(response => this.functionalGroups = response)
 
     },
-    getProjectYears(endpoint) {
-      this.projects_loading = true;
-      if (!endpoint) {
-        endpoint = `/api/project-planning/project-years/`;
-        // apply filters
-        endpoint += `?user=true;` +
-            `id=${this.filter_id};` +
-            `title=${this.filter_title};` +
-            `staff=${this.filter_staff};` +
-            `fiscal_year=${this.filter_fiscal_year};` +
-            `tag=${this.filter_tag};` +
-            `theme=${this.filter_theme};` +
-            `functional_group=${this.filter_functional_group};` +
-            `funding_source=${this.filter_funding_source};` +
-            `section=${this.filter_section};` +
-            `status=${this.filter_status};`
-      }
 
+    getProjectYearsEndpoint(pageSize = 25) {
+      endpoint = `/api/project-planning/project-years/`;
+      // apply filters
+      endpoint += `?page_size=${pageSize};user=true;` +
+          `id=${this.filter_id};` +
+          `title=${this.filter_title};` +
+          `staff=${this.filter_staff};` +
+          `fiscal_year=${this.filter_fiscal_year};` +
+          `tag=${this.filter_tag};` +
+          `theme=${this.filter_theme};` +
+          `functional_group=${this.filter_functional_group};` +
+          `funding_source=${this.filter_funding_source};` +
+          `section=${this.filter_section};` +
+          `status=${this.filter_status};`
+      return endpoint
+
+    },
+
+    getProjectYears(endpoint, pageSize = 25) {
+      this.projects_loading = true;
+      if (!endpoint) endpoint = this.getProjectYearsEndpoint(pageSize)
       apiService(endpoint)
           .then(response => {
             if (response.results) {
@@ -87,6 +97,7 @@ var app = new Vue({
               this.next = response.next;
               this.previous = response.previous;
               this.count = response.count;
+              this.getStaff()
             }
           })
     },
@@ -95,8 +106,56 @@ var app = new Vue({
       this.showStaffList = false
       this.showFinancialSummary = false
       if (name === "project") this.showProjectList = true
-      else if (name === "staff") this.showStaffList = true
-      else if (name === "financial") this.showFinancialSummary = true
+      else if (name === "staff") {
+        this.showStaffList = true
+        if (this.projectYears.length) {
+          this.getStaff()
+        }
+      } else if (name === "financial") this.showFinancialSummary = true
+    },
+
+
+    getStaff() {
+      this.staff_loading = true;
+      this.errorTooBig = null
+      this.errorNoFiscalYear = null
+
+      if (!this.filter_fiscal_year) {
+        this.staff_loading = false;
+        this.errorNoFiscalYear = noFiscalYearMsg;
+      } else if (!this.projectYears.length || this.count > 150) {
+        this.staff_loading = false;
+        this.errorTooBig = tooBigErrorMsg;
+      } else {
+        // first get the full list of project years
+        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 500)
+        apiService(endpoint1)
+            .then(response => {
+              if (response.results) {
+
+                if (response.next) {
+                  this.errorTooBig = tooBigErrorMsg
+                } else {
+
+                  // need a list of projectYears
+                  pyIds = []
+                  for (var i = 0; i < response.results.length; i++) {
+                    pyIds.push(response.results[i].id)
+                  }
+
+                  let endpoint2 = `/api/project-planning/fte-breakdown/?year=${this.filter_fiscal_year};ids=${pyIds}`;
+                  apiService(endpoint2)
+                      .then(response => {
+                        this.staff_loading = false;
+                        this.staff = response;
+                      })
+                }
+              }
+
+            })
+      }
+
+
     },
     submitProjectYear(projectYear, action) {
       if (action === "submit" || action === "unsubmit") {
@@ -112,7 +171,7 @@ var app = new Vue({
         }
       }
     },
-    comingSoon(){
+    comingSoon() {
       alert("this feature is coming soon!")
     },
     clearProjectYears() {
@@ -146,6 +205,7 @@ var app = new Vue({
       this.clearProjectYears();
       this.getProjectYears();
       this.getFilterData();
+
     },
 
   },

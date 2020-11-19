@@ -19,20 +19,16 @@
               <th colspan="4" style="text-align: center">{% trans "Time in weeks" %}</th>
             </tr>
             <tr>
-              <th colspan="2" style="width: 150px; text-align: center">{% trans "Submitted projects" %}</th>
-              <th rowspan="2"
-                  style="width: 150px; text-align: center; vertical-align: bottom">{% trans "Un-submitted projects" %}</th>
-            </tr>
-            <tr>
-              <th style="width: 150px; text-align: center">{% trans "Recommended" %}</th>
-              <th style="width: 150px; text-align: center">{% trans "Approved" %}</th>
+              <th style="width: 250px; text-align: center">{% trans "Draft" %}</th>
+              <th style="width: 250px; text-align: center">{% trans "Submitted (unapproved)" %}</th>
+              <th style="width: 250px; text-align: center">{% trans "Approved" %}</th>
             </tr>
             <tbody>
             <tr v-for="(year, index) in fte_table">
               <td class="">${year.fiscal_year }</td>
-              <td class="text-center">${year.recommended | floatformat| zero2NullMark}</td>
-              <td class="text-center">${year.approved | floatformat | zero2NullMark}</td>
               <td class="text-center">${year.draft | floatformat| zero2NullMark}</td>
+              <td class="text-center">${year.submitted_unapproved | floatformat| zero2NullMark}</td>
+              <td class="text-center">${year.approved | floatformat | zero2NullMark}</td>
 
             </tr>
             </tbody>

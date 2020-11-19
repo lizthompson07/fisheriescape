@@ -1,0 +1,40 @@
+{% load i18n %}
+
+<div v-if="showStaffList" class="mt-5">
+
+  <div v-if="staff_loading" class="loading mb-3 mt-3 text-center mt-5">
+    <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+      <span class="sr-only"></span>
+    </div>
+  </div>
+  <div v-else-if="errorTooBig">
+    <p class="lead font-italic">${errorTooBig}</p>
+  </div>
+  <div v-else-if="errorNoFiscalYear">
+    <p class="lead font-italic">${errorNoFiscalYear}</p>
+  </div>
+  <div v-else class="">
+    <table class="table table-sm">
+      <thead>
+      <tr>
+        <th rowspan="2">{% trans "Staff Name (registered DM Apps users only)" %}</th>
+        <th colspan="3" class="text-center">{% trans "FTE (weeks)" %}</th>
+      </tr>
+      <tr>
+        <th style="width: 20%;" class="text-center">{% trans "Draft" %}</th>
+        <th style="width: 20%;" class="text-center">{% trans "Submitted, Unapproved" %}</th>
+        <th style="width: 20%;" class="text-center">{% trans "Approved" %}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="(s, index) in staff">
+        <td>${s.name}</td>
+        <td class="text-center">${s.draft | floatformat | zero2NullMark }</td>
+        <td class="text-center">${s.submitted_unapproved| floatformat | zero2NullMark}</td>
+        <td class="text-center">${s.approved| floatformat | zero2NullMark}</td>
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
