@@ -52,7 +52,9 @@
         <span v-else>{% trans "No" %}</span>
       </td>
       <td style="width: 300px">
+
         {#  Button zone!!! #}
+
         {% echo "small-btn-text btn btn-sm " as btn_class %}
 
         <button v-if="!p.submitted" @click="submitProjectYear(p, 'submit')" class="{{ btn_class }} btn-success">
@@ -63,16 +65,20 @@
           {% trans "Un-submit" %}
         </button>
 
-        <button v-if="p.submitted && p.status == 2" @click="" class="{{ btn_class }} btn-info">
+        <button v-if="p.submitted && p.status == 2" @click="comingSoon" class="{{ btn_class }} btn-info">
           {% trans "Start review" %}
         </button>
 
-        <button v-if="p.submitted && p.status == 3" @click="" class="{{ btn_class }} btn-warning">
+        <button v-if="p.submitted && p.status == 3" @click="comingSoon" class="{{ btn_class }} btn-warning">
           {% trans "edit review" %}
         </button>
 
-        <button @click="goProjectDetail(p)" class="{{ btn_class }} btn-primary">
-          <span class="mdi mdi-arrow-top-right text-light"></span>
+        <button v-if="p.status == 3 && (currentUser.is_admin || currentUser.is_rds)" @click="comingSoon" class="{{ btn_class }} btn-primary">
+          {% trans "Approve" %}
+        </button>
+
+        <button @click="goProjectDetail(p)" class="{{ btn_class }} btn-outline-primary">
+          <span class="mdi mdi-arrow-top-right text-primary"></span>
         </button>
       </td>
     </tr>

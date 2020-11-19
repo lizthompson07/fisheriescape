@@ -54,11 +54,14 @@ def is_division_manager(user, project):
         pass
 
 
-def is_rds(user, project):
-    try:
-        return True if project.section.division.branch.head == user else False
-    except AttributeError:
-        pass
+def is_rds(user, project=None):
+    if project:
+        try:
+            return True if project.section.division.branch.head == user else False
+        except AttributeError:
+            pass
+    else:
+        return shared_models.Branch.objects.filter(head=user).exists()
 
 
 def is_project_lead(user, project_id=None, project_year_id=None):

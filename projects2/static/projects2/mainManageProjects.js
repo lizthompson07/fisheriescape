@@ -108,10 +108,12 @@ var app = new Vue({
           apiService(endpoint, "POST")
               .then(response => {
                 this.$set(this.projectYears, this.projectYears.indexOf(projectYear), response);
-                console.log(123)
               })
         }
       }
+    },
+    comingSoon(){
+      alert("this feature is coming soon!")
     },
     clearProjectYears() {
       this.projectYears = []

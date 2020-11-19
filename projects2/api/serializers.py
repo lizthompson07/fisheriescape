@@ -6,22 +6,26 @@ from rest_framework import serializers
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from .. import models
-from ..utils import can_modify_project, in_projects_admin_group, is_management
+from ..utils import can_modify_project, in_projects_admin_group, is_management, is_rds
 
 
 class UserDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "username", "is_admin", "is_management"]
+        fields = ["id", "first_name", "last_name", "username", "is_admin", "is_management", "is_rds"]
 
     is_admin = serializers.SerializerMethodField()
     is_management = serializers.SerializerMethodField()
+    is_rds = serializers.SerializerMethodField()
 
     def get_is_admin(self, instance):
         return in_projects_admin_group(instance)
 
     def get_is_management(self, instance):
         return is_management(instance)
+
+    def get_is_rds(self, instance):
+        return is_rds(instance)
 
 
 class ProjectYearSerializerLITE(serializers.ModelSerializer):
@@ -356,7 +360,6 @@ class FunctionalGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.FunctionalGroup
         fields = "__all__"
-
 
 
 class FundingSourceSerializer(serializers.ModelSerializer):
