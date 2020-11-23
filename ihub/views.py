@@ -369,6 +369,7 @@ class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'title',
+            'proponent',
             'location',
             'organizations',
             'status',

@@ -113,8 +113,8 @@ class ReportSearchForm(forms.Form):
 
         self.fields['report'] = forms.ChoiceField(required=True, choices=report_choices)
         self.fields['format'] = forms.ChoiceField(required=False, choices=format_choices)
-        self.fields['from_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
-        self.fields['to_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs=attr_fp_date))
+        self.fields['from_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs={"type":"date"}))
+        self.fields['to_date'] = forms.CharField(required=False, widget=forms.DateInput(attrs={"type":"date"}))
         self.fields['sectors'] = forms.MultipleChoiceField(required=False,
                                                            label='List of sectors (w/ entries) - Leave blank for all',
                                                            choices=sector_choices)
