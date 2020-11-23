@@ -263,7 +263,7 @@ class CommonTest(TestCase):
             self.get_and_login_user(user)
 
         if data and file_field_name:
-            with open('README.md') as fp:
+            with open(os.path.join("static","img","plane.jpg")) as fp:
                 data[file_field_name] = fp
                 response = self.client.post(test_url, data=data, )
         else:
