@@ -472,7 +472,7 @@ class FollowUpUpdateView(LoginRequiredMixin, CommonPopoutUpdateView):
 
     def get_h3(self):
         if self.get_object().ticket.github_issue_number and self.request.user.is_staff:
-            return f'HEADS UP: this follow-up will be updated as a github comment on issue { self.get_object().github_issue_number }'
+            return f'HEADS UP: this follow-up will be updated as a github comment on issue { self.get_object().ticket.github_issue_number }'
 
     def get_initial(self):
         return {
