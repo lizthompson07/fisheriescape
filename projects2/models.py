@@ -662,6 +662,42 @@ class StatusReport(models.Model):
         )
 
 
+class Review(models.Model):
+    project_year = models.ForeignKey(ProjectYear, related_name="reviews", on_delete=models.CASCADE)
+    general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
+
+    # metadata
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_review", blank=True,
+                                         null=True)
+    modified_by = models.ManyToManyField(User, blank=True)
+
+    @property
+    def metadata(self):
+        my_str = get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+        if self.modified_by.exists():
+            my_str += f"<br><u>Reviewed by:</u> {listrify(self.modified_by.all())}"
+        return my_str
+
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['created_at']
+
+    @property
+    def report_number(self):
+        return [report for report in self.project_year.reports.order_by("created_at")].index(self) + 1
+
+    def __str__(self):
+        # what is the number of this report?
+        return "{}{}".format(
+            gettext("Status Report #"),
+            self.report_number,
+        )
+
+
 class Milestone(models.Model):
     project_year = models.ForeignKey(ProjectYear, related_name="milestones", on_delete=models.CASCADE)
     name = models.CharField(max_length=500, verbose_name=_("name"))
