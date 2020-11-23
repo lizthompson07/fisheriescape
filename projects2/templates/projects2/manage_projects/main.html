@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-  <div id="app" @keydown.esc.prevent="closeModals()">
+  <div id="app" @keydown.esc.prevent="closeModal()">
 
     <div id="mySidebar" class="sidebar">
       {% include "projects2/manage_projects/_console.html" %}
@@ -52,7 +52,7 @@
     </div>
 
     {% include "projects2/manage_projects/_review_modal.html" %}
-    <modal v-if="showReviewModal" @close="closeModal(projectYear2Review)" :project_year="projectYear2Review"></modal>
+    <modal v-if="showReviewModal" @close="closeModal" :project_year="projectYear2Review"></modal>
 
   </div>
 
@@ -66,11 +66,12 @@
   <script type="application/javascript">
   var submitMsg = "{% trans "Are certain you want to submit the following year of the project?" %} \n\n"
   var unsubmitMsg = "{% trans "Are certain you want to un-submit the following year of the project? The status of the project year will be reset!" %} \n\n"
+  var deleteReviewMsg = "{% trans "Are certain you want to delete the review on this project?\n\nThis action is not reversible." %} \n\n"
 
   </script>
 
-  <script src="{% static '/projects2/mainManageProjects.js' %}?version=0.0.7" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainManageProjectsReviewModal.js' %}?version=0.0.0" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainManageProjects.js' %}?version=0.0.10" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainManageProjectsReviewModal.js' %}?version=0.0.2" type="application/javascript"></script>
 
   {#  reload other scripts that we care about#}
 

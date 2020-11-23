@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
-from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext
 
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
@@ -407,6 +407,16 @@ class FileForm(forms.ModelForm):
         self.fields["name"].widget.attrs = {"v-model": "file.name"}
         self.fields["file"].widget.attrs = {"v-on:change": "onFileChange", "ref": "file"}
         self.fields["external_url"].widget.attrs = {"v-model": "file.external_url"}
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.Review
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["general_comment"].widget.attrs = {"v-model": "project_year.review.general_comment"}
 
 
 # attrs = dict(v-model="new_size_class")
@@ -831,7 +841,6 @@ LevelFormset = modelformset_factory(
     extra=1,
 )
 
-
 #
 #
 # class FileForm(forms.ModelForm):
@@ -927,4 +936,3 @@ LevelFormset = modelformset_factory(
 #     form=ProjectApprovalForm,
 #     extra=0,
 # )
-

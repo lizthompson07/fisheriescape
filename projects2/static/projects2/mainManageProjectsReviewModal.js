@@ -13,41 +13,57 @@ Vue.component("modal", {
     }
   },
   methods: {
+    deleteReview() {
+      msg = deleteReviewMsg
+      userInput = confirm(msg)
+      if (userInput) {
+        let endpoint = `/api/project-planning/reviews/${this.project_year.review.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.project_year.review = null
+              this.$emit('close', this.project_year)
+            })
+      }
 
+    },
     onSubmit() {
       this.errors = null
-      if (this.mtype === "staff") {
-        if (this.my_staff) {
-          let endpoint = `/api/project-planning/staff/${this.my_staff.id}/`;
-          apiService(endpoint, "PATCH", this.staff).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
+      if (this.isOldReview) {
+        let endpoint = `/api/project-planning/reviews/${this.project_year.review.id}/`;
+        apiService(endpoint, "PUT", this.project_year.review).then(response => {
+          if (response.id) this.$emit('close', this.project_year)
+          else {
+            var myString = "";
+            for (var i = 0; i < Object.keys(response).length; i++) {
+              key = Object.keys(response)[i]
+              myString += String(key) + ": " + response[key] + "<br>"
             }
-          })
-        } else {
-          let endpoint = `/api/project-planning/project-years/${this.year.id}/staff/`;
-          apiService(endpoint, "POST", this.staff).then(response => {
-            if (response.id) this.$emit('close')
-            else {
-              var myString = "";
-              for (var i = 0; i < Object.keys(response).length; i++) {
-                key = Object.keys(response)[i]
-                myString += String(key) + ": " + response[key] + "<br>"
-              }
-              this.errors = myString
+            this.errors = myString
+          }
+        })
+      } else {
+        let endpoint = `/api/project-planning/project-years/${this.project_year.id}/reviews/`;
+        apiService(endpoint, "POST", this.project_year.review).then(response => {
+          if (response.id) {
+            this.project_year.review = response
+            this.$emit('close', this.project_year)
+          } else {
+            var myString = "";
+            for (var i = 0; i < Object.keys(response).length; i++) {
+              key = Object.keys(response)[i]
+              myString += String(key) + ": " + response[key] + "<br>"
             }
-          })
-        }
+            this.errors = myString
+          }
+        })
       }
     },
   },
-  computed: {},
+  computed: {
+    isOldReview() {
+      return this.project_year.review && this.project_year.review.id
+    }
+  },
   created() {
   },
 });

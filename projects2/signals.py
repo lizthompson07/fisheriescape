@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from .models import ReferenceMaterial, File, Staff, ProjectYear, OMCost, UpcomingDate
+from .models import ReferenceMaterial, File, Staff, ProjectYear, Review
 
 
 @receiver(models.signals.post_delete, sender=File)
@@ -91,3 +91,19 @@ def save_project_on_py_delete(sender, instance, **kwargs):
 @receiver(models.signals.post_save, sender=ProjectYear)
 def save_project_on_py_creation(sender, instance, created, **kwargs):
     instance.project.save()
+
+
+@receiver(models.signals.post_delete, sender=Review)
+def save_project_year_on_review_delete(sender, instance, **kwargs):
+    if instance.project_year.status == 3:
+        py = instance.project_year
+        py.status = 2
+        py.save()
+
+
+@receiver(models.signals.post_save, sender=Review)
+def save_project_year_on_review_creation(sender, instance, created, **kwargs):
+    if instance.project_year.status == 2:
+        py = instance.project_year
+        py.status = 3
+        py.save()
