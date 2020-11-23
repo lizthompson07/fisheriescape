@@ -3,13 +3,26 @@
 {% load static %}
 {% load custom_tags %}
 
+{% block header %}
+  {{ block.super }}
+  <style>
+  body {
+      background-image: url("{% static 'projects2/img/alexander-andrews-4JdvOwrVzfY-unsplash.jpg' %}");
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+  }
+  </style>
+
+{% endblock %}
+
 {% block content %}
 
   {% echo "btn btn-outline-dark " as btn_class %}
   {% echo "btn btn-outline-secondary " as admin_btn_class %}
 
 
-  <div class="container mb-3 mt-3">
+  <div class="container bg-light curvy mb-3 mt-3">
 
     <h1 class="text-center mt-3 mb-5">
       {% trans "DFO Science Project Planning" %}

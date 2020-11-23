@@ -84,7 +84,7 @@ class ExploreProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
     h1 = gettext_lazy("Projects")
     template_name = 'projects2/explore_projects/main.html'
     home_url_name = "projects2:index"
-    container_class = "container-fluid"
+    container_class = "container-fluid bg-light curvy"
     subtitle = gettext_lazy("Explore Projects")
     field_list = [
         'id',
@@ -110,7 +110,7 @@ class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
     h1 = gettext_lazy("Projects")
     template_name = 'projects2/manage_projects/main.html'
     home_url_name = "projects2:index"
-    container_class = "container-fluid"
+    container_class = "container-fluid bg-light curvy"
     subtitle = gettext_lazy("Manage Projects")
     field_list = [
         'id',
@@ -135,7 +135,7 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
     # filterset_class = filters.MyProjectFilter
     h1 = gettext_lazy("My projects")
     home_url_name = "projects2:index"
-    container_class = "container-fluid"
+    container_class = "container-fluid bg-light curvy"
     row_object_url_name = "projects2:project_detail"
     new_object_url = reverse_lazy("projects2:project_new")
     field_list = [
@@ -214,6 +214,7 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
     form_class = forms.NewProjectForm
     home_url_name = "projects2:index"
     template_name = 'projects2/project_form.html'
+    container_class = "container bg-light curvy"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -274,7 +275,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Project
     template_name = 'projects2/project_detail/project_detail.html'
     home_url_name = "projects2:index"
-    container_class = "container-fluid"
+    container_class = "container-fluid bg-light curvy"
 
     # parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
 
@@ -332,6 +333,7 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
     form_class = forms.ProjectForm
     template_name = 'projects2/project_form.html'
     home_url_name = "projects2:index"
+    container_class = "container bg-light curvy"
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
@@ -351,6 +353,7 @@ class ProjectDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     home_url_name = "projects2:index"
     success_url = reverse_lazy("projects2:index")
     template_name = "projects2/confirm_delete.html"
+    container_class = "container bg-light curvy"
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
@@ -474,6 +477,7 @@ class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
     form_class = forms.ProjectYearForm
     home_url_name = "projects2:index"
     template_name = 'projects2/project_year_form.html'
+    container_class = "container bg-light curvy"
 
     def get_initial(self):
         # this is an important method to keep since it is accessed by the Form class 
@@ -501,6 +505,7 @@ class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
     form_class = forms.ProjectYearForm
     home_url_name = "projects2:index"
     template_name = 'projects2/project_year_form.html'
+    container_class = "container bg-light curvy"
 
     def get_h1(self):
         return _("Edit ") + str(self.get_object())
@@ -526,6 +531,7 @@ class ProjectYearDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     delete_protection = False
     home_url_name = "projects2:index"
     template_name = "projects2/confirm_delete.html"
+    container_class = "container bg-light curvy"
 
     def get_grandparent_crumb(self):
         return {"title": self.get_project(), "url": reverse("projects2:project_detail", args=[self.get_project().id])}
@@ -643,7 +649,7 @@ class SectionProjectListView(LoginRequiredMixin, CommonListView):
     template_name = 'projects2/section_project_list.html'
     # filterset_class = filters.SectionFilter
     home_url_name = "projects2:index"
-    container_class = "container-fluid"
+    container_class = "container-fluid bg-primary curvy"
 
     def get_h1(self):
         return str(shared_models.Section.objects.get(pk=self.kwargs.get("section")))

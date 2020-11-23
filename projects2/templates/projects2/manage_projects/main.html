@@ -10,43 +10,45 @@
 {% block crumbs %}
 {% endblock %}
 
-{% block subcontent %}
+{% block content %}
   <div id="app">
 
-    <div class="row">
+    <div id="mySidebar" class="sidebar">
+      {% include "projects2/manage_projects/_console.html" %}
+    </div>
+    <div id="main">
+      <div class="row container-fluid bg-light curvy">
 
-      <div class="col-2 toolbar2 py-3 px-3 ml-2">
-        {% include "projects2/manage_projects/_console.html" %}
+
+        <div class="col">
+          <p class="h1 text-center">{% trans "Management Console" %}</p>
+          <p class="lead text-center">{% trans "Projects over which you have managerial control" %}</p>
+
+
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a :class="{ 'nav-link': true, 'active': showProjectList }" href="#" @click="changeTabs('project')">
+                {% trans "Project List" %} (${count})
+              </a>
+            </li>
+            <li class="nav-item">
+              <a :class="{ 'nav-link': true, 'active': showStaffList }" href="#" @click="changeTabs('staff')">
+                {% trans "Staff List" %}
+              </a>
+            </li>
+            <li class="nav-item">
+              <a :class="{ 'nav-link': true, 'active': showFinancialSummary }" href="#" @click="changeTabs('financial')">
+                {% trans "Financial Summary" %}
+              </a>
+            </li>
+          </ul>
+
+          {% include "projects2/manage_projects/_project_list.html" %}
+          {% include "projects2/manage_projects/_staff.html" %}
+          {% include "projects2/manage_projects/_financials.html" %}
+        </div>
+
       </div>
-
-      <div class="col">
-        <p class="h1 text-center">{% trans "Management Console" %}</p>
-        <p class="lead text-center">{% trans "Projects over which you have managerial control" %}</p>
-
-
-        <ul class="nav nav-tabs">
-          <li class="nav-item">
-            <a :class="{ 'nav-link': true, 'active': showProjectList }" href="#" @click="changeTabs('project')">
-              {% trans "Project List" %} (${count})
-            </a>
-          </li>
-          <li class="nav-item">
-            <a :class="{ 'nav-link': true, 'active': showStaffList }" href="#" @click="changeTabs('staff')">
-              {% trans "Staff List" %}
-            </a>
-          </li>
-          <li class="nav-item">
-            <a :class="{ 'nav-link': true, 'active': showFinancialSummary }" href="#" @click="changeTabs('financial')">
-              {% trans "Financial Summary" %}
-            </a>
-          </li>
-        </ul>
-
-        {% include "projects2/manage_projects/_project_list.html" %}
-        {% include "projects2/manage_projects/_staff.html" %}
-        {% include "projects2/manage_projects/_financials.html" %}
-      </div>
-
     </div>
   </div>
 
@@ -63,9 +65,9 @@
 
   </script>
 
-  <script src="{% static '/projects2/mainManageProjects.js' %}?version=0.0.4" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainManageProjects.js' %}?version=0.0.6" type="application/javascript"></script>
 
-  //reload other scripts that we care about
+{#  reload other scripts that we care about#}
 
   <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
   <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>

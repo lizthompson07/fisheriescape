@@ -187,7 +187,6 @@ class ProjectYearListAPIView(ListAPIView):
 
         # if a regular user is making the request, show only approved projects (and not hidden projects)
         if not is_management_or_admin(self.request.user):
-            print(123)
             qs = qs.filter(project__is_hidden=False, status=4)
 
         return qs.distinct()
@@ -410,8 +409,6 @@ class FileListCreateAPIView(ListCreateAPIView):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
         serializer.save(project=year.project, project_year=year)
 
-        if self.request.FILES:
-            print(self.request.FILES)
 
 
 class FileRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):

@@ -13,6 +13,8 @@ var app = new Vue({
     showStaffList: false,
     showFinancialSummary: false,
 
+    currentSort: 'name',
+    currentSortDir: 'asc',
 
     projects_loading: true,
     staff_loading: true,
@@ -69,7 +71,7 @@ var app = new Vue({
 
     },
 
-    getProjectYearsEndpoint(pageSize = 25) {
+    getProjectYearsEndpoint(pageSize = 45) {
       endpoint = `/api/project-planning/project-years/`;
       // apply filters
       endpoint += `?page_size=${pageSize};user=true;` +
@@ -87,7 +89,7 @@ var app = new Vue({
 
     },
 
-    getProjectYears(endpoint, pageSize = 25) {
+    getProjectYears(endpoint, pageSize = 45) {
       this.projects_loading = true;
       if (!endpoint) endpoint = this.getProjectYearsEndpoint(pageSize)
       apiService(endpoint)
@@ -203,6 +205,15 @@ var app = new Vue({
     comingSoon() {
       alert("this feature is coming soon!")
     },
+    sort(s) {
+      // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+      //if s == current sort, reverse
+      console.log(s)
+      if (s === this.currentSort) {
+        this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+      }
+      this.currentSort = s;
+    },
     clearProjectYears() {
       this.projectYears = []
       this.next = null
@@ -279,6 +290,29 @@ var app = new Vue({
     }
   },
   computed: {
+
+    sortedProjectYears() {
+      return this.projectYears.sort((a, b) => {
+        let modifier = 1;
+        if (this.currentSortDir === 'desc') modifier = -1;
+
+        if (this.currentSort && this.currentSort.search("fiscal") > -1) {
+          if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
+          if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
+        } else if (this.currentSort  === "id") {
+          if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
+          if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
+        } else if (this.projectYears[0][this.currentSort] == null) {
+          if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
+          if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
+        } else {
+          if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+          if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+        }
+        return 0;
+      });
+    },
+
     financial_totals() {
       myObj = {
         salary: 0,

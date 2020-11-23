@@ -9,31 +9,33 @@
     <tr>
       {% for field in field_list %}
         {% if "title" in field %}
-          <th style="width: 200px">
+          <th @click="sort('{{ field }}')" style="width: 200px" class="clickable">
             {% get_verbose_label random_project field %}
           </th>
         {% elif "funding" in field %}
-          <th style="width: 150px">
+          <th @click="sort('{{ field }}')" style="width: 150px" class="clickable">
             {% get_verbose_label random_project field %}
           </th>
         {% elif "fiscal" in field or "funding" in field %}
-          <th style="width: 100px">
+          <th @click="sort('{{ field }}')" style="width: 100px" class="clickable">
             {% get_verbose_label random_project field %}
           </th>
         {% else %}
-          <th>
+          <th @click="sort('{{ field }}')" class="clickable">
             {% get_verbose_label random_project field %}
           </th>
         {% endif %}
 
       {% endfor %}
-      <th v-if="isAdminOrMgmt">{% trans "Hidden?" %}</th>
+      <th @click="sort('is_hidden')" v-if="isAdminOrMgmt" class="clickable">
+        {% trans "Hidden?" %}
+      </th>
 
     </tr>
     </thead>
     <tbody>
     <tr
-      v-for="(p, index) in projectYears"
+      v-for="(p, index) in sortedProjectYears"
       @mouseover="hover = true"
       @mouseleave="hover = false"
     >
@@ -70,7 +72,8 @@
           {% trans "Edit review" %}
         </button>
 
-        <button v-if="p.status == 3 && (currentUser.is_admin || currentUser.is_rds)" @click="comingSoon" class="{{ btn_class }} btn-primary">
+        <button v-if="p.status == 3 && (currentUser.is_admin || currentUser.is_rds)" @click="comingSoon"
+                class="{{ btn_class }} btn-primary">
           {% trans "Approve" %}
         </button>
 

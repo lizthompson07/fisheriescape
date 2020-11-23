@@ -13,7 +13,7 @@
     </p>
   </div>
   <div v-else class="">
-    <table class="table table-sm" style="width: auto">
+    <table class="table table-sm table-bordered" style="width: auto">
       <tr>
         <th class="w150">
           {% trans "Type" %}
@@ -45,12 +45,12 @@
       </tr>
 
       <tr>
-        <td>{% trans "TOTAL" %}</td>
-        <td>---</td>
-        <td>${financial_totals.salary |currencyFormat|zero2NullMark}</td>
-        <td>${financial_totals.om|currencyFormat|zero2NullMark}</td>
-        <td>${financial_totals.capital|currencyFormat|zero2NullMark}</td>
-        <td>${financial_totals.total|currencyFormat|zero2NullMark}</td>
+        <td class="font-weight-bold">{% trans "TOTAL" %}</td>
+        <td class="font-weight-bold">---</td>
+        <td class="font-weight-bold">${financial_totals.salary |currencyFormat|zero2NullMark}</td>
+        <td class="font-weight-bold">${financial_totals.om|currencyFormat|zero2NullMark}</td>
+        <td class="font-weight-bold">${financial_totals.capital|currencyFormat|zero2NullMark}</td>
+        <td class="font-weight-bold">${financial_totals.total|currencyFormat|zero2NullMark}</td>
       </tr>
 
       </tbody>

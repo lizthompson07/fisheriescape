@@ -309,7 +309,6 @@ def multiple_financial_project_year_summary_data(project_years):
     # first get funding source list
     for py in project_years:
         fs_list.extend([fs.id for fs in py.get_funding_sources()])
-    print(fs_list)
     funding_sources = models.FundingSource.objects.filter(id__in=fs_list)
 
     for fs in funding_sources:
