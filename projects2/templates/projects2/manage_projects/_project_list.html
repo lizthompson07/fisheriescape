@@ -64,11 +64,11 @@
           {% trans "Un-submit" %}
         </button>
 
-        <button v-if="p.submitted && p.status == 2" @click="comingSoon" class="{{ btn_class }} btn-info">
+        <button v-if="p.submitted && p.status == 2" @click="openReviewModal(p)" class="{{ btn_class }} btn-info">
           {% trans "Start review" %}
         </button>
 
-        <button v-if="p.submitted && p.status == 3" @click="comingSoon" class="{{ btn_class }} btn-warning">
+        <button v-if="p.submitted && p.status == 3" @click="openReviewModal(p)" class="{{ btn_class }} btn-warning">
           {% trans "Edit review" %}
         </button>
 

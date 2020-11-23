@@ -553,3 +553,27 @@ class SectionListAPIView(ListAPIView):
         elif self.request.query_params.get("user"):
             qs = get_manageable_sections(self.request.user)
         return qs
+
+
+
+
+# Reviews
+##############
+class ReviewListCreateAPIView(ListCreateAPIView):
+    queryset = models.Review.objects.all()
+    serializer_class = serializers.ReviewSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        return year.agreements.all()
+
+    def perform_create(self, serializer):
+        serializer.save(project_year_id=self.kwargs.get("project_year"))
+
+
+class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Review.objects.all()
+    serializer_class = serializers.ReviewSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+

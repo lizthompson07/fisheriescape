@@ -45,6 +45,9 @@ var app = new Vue({
     fundingSources: [],
     sections: [],
 
+    // modal
+    projectYear2Review: {},
+    showReviewModal: false,
   },
   methods: {
     getCurrentUser() {
@@ -247,6 +250,16 @@ var app = new Vue({
       this.getFilterData();
 
     },
+    openReviewModal(projectYear) {
+      this.projectYear2Review = projectYear;
+      this.showReviewModal = true;
+    },
+
+    closeModals(projectYear) {
+      this.showReviewModal = false;
+      this.$nextTick(() => {
+      })
+    },
 
   },
 
@@ -299,7 +312,7 @@ var app = new Vue({
         if (this.currentSort && this.currentSort.search("fiscal") > -1) {
           if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
           if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
-        } else if (this.currentSort  === "id") {
+        } else if (this.currentSort === "id") {
           if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
           if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
         } else if (this.projectYears[0][this.currentSort] == null) {

@@ -28,6 +28,21 @@ class UserDisplaySerializer(serializers.ModelSerializer):
         return is_rds(instance)
 
 
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Review
+        exclude = ["updated_at", ]
+
+    metadata = serializers.SerializerMethodField()
+    general_comment_html = serializers.SerializerMethodField()
+
+    def get_metadata(self, instance):
+        return instance.metadata
+
+    def get_general_comment_html(self, instance):
+        return instance.general_comment_html
+
+
 class ProjectYearSerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.ProjectYear
@@ -80,6 +95,7 @@ class ProjectYearSerializer(serializers.ModelSerializer):
         exclude = ["updated_at", ]
 
     project = ProjectSerializer(read_only=True)
+    review = ReviewSerializer(read_only=True)
     display_name = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     metadata = serializers.SerializerMethodField()

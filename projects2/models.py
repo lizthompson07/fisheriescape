@@ -663,7 +663,7 @@ class StatusReport(models.Model):
 
 
 class Review(models.Model):
-    project_year = models.ForeignKey(ProjectYear, related_name="reviews", on_delete=models.CASCADE)
+    project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
 
     # metadata
@@ -687,15 +687,9 @@ class Review(models.Model):
         ordering = ['created_at']
 
     @property
-    def report_number(self):
-        return [report for report in self.project_year.reports.order_by("created_at")].index(self) + 1
-
-    def __str__(self):
-        # what is the number of this report?
-        return "{}{}".format(
-            gettext("Status Report #"),
-            self.report_number,
-        )
+    def general_comment_html(self):
+        if self.general_comment:
+            return mark_safe(markdown(self.general_comment))
 
 
 class Milestone(models.Model):

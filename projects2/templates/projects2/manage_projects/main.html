@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block content %}
-  <div id="app">
+  <div id="app" @keydown.esc.prevent="closeModals()">
 
     <div id="mySidebar" class="sidebar">
       {% include "projects2/manage_projects/_console.html" %}
@@ -50,6 +50,10 @@
 
       </div>
     </div>
+
+    {% include "projects2/manage_projects/_review_modal.html" %}
+    <modal v-if="showReviewModal" @close="closeModal(projectYear2Review)" :project_year="projectYear2Review"></modal>
+
   </div>
 
 
@@ -65,9 +69,10 @@
 
   </script>
 
-  <script src="{% static '/projects2/mainManageProjects.js' %}?version=0.0.6" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainManageProjects.js' %}?version=0.0.7" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainManageProjectsReviewModal.js' %}?version=0.0.0" type="application/javascript"></script>
 
-{#  reload other scripts that we care about#}
+  {#  reload other scripts that we care about#}
 
   <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
   <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
