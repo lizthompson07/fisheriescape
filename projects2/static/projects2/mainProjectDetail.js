@@ -3,19 +3,88 @@ var app = new Vue({
   delimiters: ["${", "}"],
   data: {
     showOverview: true,
+    currentUser: null,
+    canModify: false,
+    showSubmit: false,
+
+    project_loading: false,
+    project: {},
 
     py_loading: false,
     projectYear: {},
+    financials: [],
+    financials_loading: false,
+    project_financials: [],
+    project_financials_loading: false,
 
+    // staff
     staff_loading: false,
     staff: [],
-    showStaffModal: false,
+    staffToEdit: {},
+    showNewStaffModal: false,
+    showOldStaffModal: false,
+
+    // om costs
+    om_cost_loading: false,
+    om_costs: [],
+    omCostToEdit: {},
+    showNewOMCostModal: false,
+    showOldOMCostModal: false,
+
+    // capital costs
+    capital_cost_loading: false,
+    capital_costs: [],
+    capitalCostToEdit: {},
+    showNewCapitalCostModal: false,
+    showOldCapitalCostModal: false,
+
+    // gc costs
+    gc_cost_loading: false,
+    gc_costs: [],
+    gcCostToEdit: {},
+    showNewGCCostModal: false,
+    showOldGCCostModal: false,
+
+    // milestones
+    milestone_loading: false,
+    milestones: [],
+    milestoneToEdit: {},
+    showNewMilestoneModal: false,
+    showOldMilestoneModal: false,
+
+    // collaborators
+    collaborator_loading: false,
+    collaborators: [],
+    collaboratorToEdit: {},
+    showNewCollaboratorModal: false,
+    showOldCollaboratorModal: false,
+
+    // agreements
+    agreement_loading: false,
+    agreements: [],
+    agreementToEdit: {},
+    showNewAgreementModal: false,
+    showOldAgreementModal: false,
+
+    // files
+    file_loading: false,
+    files: [],
+    fileToEdit: {},
+    showNewFileModal: false,
+    showOldFileModal: false,
+
   },
   methods: {
     displayOverview() {
       this.showOverview = true
+      this.showSubmit = false
+    },
+    displaySubmit() {
+      this.showSubmit = true
+      this.showOverview = false
     },
     displayProjectYear(yearId) {
+      this.showSubmit = false
       this.showOverview = false
       this.getProjectYear(yearId)
     },
@@ -28,10 +97,68 @@ var app = new Vue({
             this.projectYear = response;
             // now let's get all the related data
             this.getStaff(yearId)
-
-
+            this.getOMCosts(yearId)
+            this.getCapitalCosts(yearId)
+            this.getGCCosts(yearId)
+            this.getMilestones(yearId)
+            this.getCollaborators(yearId)
+            this.getAgreements(yearId)
+            this.getFiles(yearId)
+            this.getFinancials(yearId)
           })
     },
+    getProject(projectId) {
+      this.project_loading = true;
+      let endpoint = `/api/project-planning/projects/${projectId}/`;
+      apiService(endpoint)
+          .then(response => {
+            this.project_loading = false;
+            this.project = response;
+          })
+    },
+    submitProjectYear(projectYear, action) {
+      if (action === "submit" || action === "unsubmit") {
+        if (action === "submit") msg = submitMsg
+        else msg = unsubmitMsg
+        userInput = confirm(msg + projectYear.display_name)
+        if (userInput) {
+          this.project_loading = true;
+          let endpoint = `/api/project-planning/project-years/${projectYear.id}/${action}/`;
+          apiService(endpoint, "POST")
+              .then(response => {
+                this.project_loading = false;
+                this.getProject(projectYear.project)
+              })
+        }
+      }
+    },
+    getFinancials(yearId) {
+      this.financials_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/financials/`;
+      apiService(endpoint)
+          .then(response => {
+            this.financials_loading = false;
+            this.financials = response;
+          })
+    },
+    getProjectFinancials(projectId) {
+      this.project_financials_loading = true;
+      let endpoint = `/api/project-planning/projects/${projectId}/financials/`;
+      apiService(endpoint)
+          .then(response => {
+            this.project_financials_loading = false;
+            this.project_financials = response;
+          })
+    },
+    getCurrentUser(projectId) {
+      let endpoint = `/api/project-planning/user/?project=${projectId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.currentUser = response;
+            this.canModify = this.currentUser.can_modify
+          })
+    },
+    // Staff
     getStaff(yearId) {
       this.staff_loading = true;
       let endpoint = `/api/project-planning/project-years/${yearId}/staff/`;
@@ -42,56 +169,340 @@ var app = new Vue({
           })
     },
     deleteStaffMember(staffMember) {
-      let endpoint = `/api/project-planning/staff/${staffMember.id}/`;
-      apiService(endpoint, "DELETE")
+      userInput1 = confirm(deleteMsg)
+      if (userInput1) {
+        if (this.currentUser && this.currentUser.id == staffMember.user) userInput2 = confirm(deleteSelfMsg)
+        else userInput2 = true
+        if (userInput2) {
+          let endpoint = `/api/project-planning/staff/${staffMember.id}/`;
+          apiService(endpoint, "DELETE")
+              .then(response => {
+                if (!response.detail) this.$delete(this.staff, this.staff.indexOf(staffMember));
+              })
+        }
+      }
+    },
+    openStaffModal(staff = null) {
+      if (!staff) {
+        this.showNewStaffModal = true;
+      } else {
+        this.staffToEdit = staff;
+        this.showOldStaffModal = true;
+      }
+
+    },
+
+    // O&M
+    getOMCosts(yearId) {
+      this.om_cost_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/om-costs/`;
+      apiService(endpoint)
           .then(response => {
-            this.getStaff(staffMember.project_year);
+            this.om_cost_loading = false;
+            this.om_costs = response;
           })
     },
-    openStaffModal() {
-      this.showStaffModal = true;
+    deleteOMCost(OMCost) {
+      userInput = confirm(deleteMsg + OMCost.om_category_display)
+      if (userInput) {
+        let endpoint = `/api/project-planning/om-costs/${OMCost.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(this.om_costs, this.om_costs.indexOf(OMCost));
+            })
+      }
+    },
+    addAllOMCosts() {
+      if (this.projectYear.id) {
+        this.om_cost_loading = true;
+        let endpoint = `/api/project-planning/project-years/${this.projectYear.id}/add-all-costs/`;
+        apiService(endpoint, "POST")
+            .then(response => {
+              this.om_cost_loading = false;
+              this.om_costs = response;
+            })
+      }
+    },
+    clearEmptyOMCosts() {
+      if (this.projectYear.id) {
+        this.om_cost_loading = true;
+        let endpoint = `/api/project-planning/project-years/${this.projectYear.id}/remove-empty-costs/`;
+        apiService(endpoint, "POST")
+            .then(response => {
+              this.om_cost_loading = false;
+              this.om_costs = response;
+            })
+      }
+    },
+    openOMCostModal(OMCost) {
+      if (!OMCost) {
+        this.showNewOMCostModal = true;
+      } else {
+        this.omCostToEdit = OMCost;
+        this.showOldOMCostModal = true;
+      }
+
     },
 
-    closeModals(projectYear = null) {
-      this.showStaffModal = false;
+    // Capital
+    getCapitalCosts(yearId) {
+      this.capital_cost_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/capital-costs/`;
+      apiService(endpoint)
+          .then(response => {
+            this.capital_cost_loading = false;
+            this.capital_costs = response;
+          })
+    },
+    deleteCapitalCost(capitalCost) {
+      userInput = confirm(deleteMsg + capitalCost.category_display)
+      if (userInput) {
+        let endpoint = `/api/project-planning/capital-costs/${capitalCost.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(this.capital_costs, this.capital_costs.indexOf(capitalCost));
+            })
+      }
+    },
 
-      if (projectYear) {
-        this.$nextTick(() => {
-          this.getStaff(projectYear.id)
+    openCapitalCostModal(capitalCost) {
+      if (!capitalCost) {
+        this.showNewCapitalCostModal = true;
+      } else {
+        this.capitalCostToEdit = capitalCost;
+        this.showOldCapitalCostModal = true;
+      }
+    },
 
-        })
+    // GC
+    getGCCosts(yearId) {
+      this.gc_cost_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/gc-costs/`;
+      apiService(endpoint)
+          .then(response => {
+            this.gc_cost_loading = false;
+            this.gc_costs = response;
+          })
+    },
+    deleteGCCost(gcCost) {
+      userInput = confirm(deleteMsg + gcCost.category_display)
+      if (userInput) {
+        let endpoint = `/api/project-planning/gc-costs/${gcCost.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(this.gc_costs, this.gc_costs.indexOf(gcCost));
+            })
+      }
+    },
+
+    openGCCostModal(gcCost) {
+      if (!gcCost) {
+        this.showNewGCCostModal = true;
+      } else {
+        this.gcCostToEdit = gcCost;
+        this.showOldGCCostModal = true;
+      }
+    },
+
+    // Milestones
+    getMilestones(yearId) {
+      this.milestone_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/milestones/`;
+      apiService(endpoint)
+          .then(response => {
+            this.milestone_loading = false;
+            this.milestones = response;
+          })
+    },
+    deleteMilestone(milestone) {
+      userInput = confirm(deleteMsg + milestone.name)
+      if (userInput) {
+        let endpoint = `/api/project-planning/milestones/${milestone.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(this.milestones, this.milestones.indexOf(milestone))
+            })
+      }
+    },
+
+    openMilestoneModal(milestone) {
+      if (!milestone) {
+        this.showNewMilestoneModal = true;
+      } else {
+        this.milestoneToEdit = milestone;
+        this.showOldMilestoneModal = true;
       }
     },
 
 
-    // goBack() {
-    //   this.$refs.back.click();
-    // },
-    // getCatch: function () {
-    //   let endpoint = `/api/catch/${catch_id}/`;
-    //   apiService(endpoint)
-    //       .then(response => {
-    //         this.catchObj = response;
-    //         if (!this.startingBoxIsFocused) {
-    //           this.getSpecimenSummary();
-    //           this.$nextTick(() => this.$refs.back.focus());
-    //           this.startingBoxIsFocused = true;
-    //         }
-    //         this.loading1 = false;
-    //       }).finally(() => {
-    //         // if ever we loose the connection to the api, we should reset the starting box focus flag
-    //         if (!this.catchObj || !this.catchObj.is_set_active) {
-    //           this.startingBoxIsFocused = false;
-    //         }
-    //       }
-    //   )
-    // },
+    // Collaborator
+    getCollaborators(yearId) {
+      this.collaborator_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/collaborators/`;
+      apiService(endpoint)
+          .then(response => {
+            this.collaborator_loading = false;
+            this.collaborators = response;
+          })
+    },
+    deleteCollaborator(collaborator) {
+      userInput = confirm(deleteMsg + collaborator.name)
+      if (userInput) {
+        let endpoint = `/api/project-planning/collaborators/${collaborator.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(this.collaborators, this.collaborators.indexOf(collaborator));
+            })
+      }
+    },
+
+    openCollaboratorModal(collaborator) {
+      if (!collaborator) {
+        this.showNewCollaboratorModal = true;
+      } else {
+        this.collaboratorToEdit = collaborator;
+        this.showOldCollaboratorModal = true;
+      }
+    },
+
+    // Agreement
+    getAgreements(yearId) {
+      this.agreement_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/agreements/`;
+      apiService(endpoint)
+          .then(response => {
+            this.agreement_loading = false;
+            this.agreements = response;
+          })
+    },
+    deleteAgreement(agreement) {
+      userInput = confirm(deleteMsg + agreement.name)
+      if (userInput) {
+        let endpoint = `/api/project-planning/agreements/${agreement.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(this.agreements, this.agreements.indexOf(agreement));
+            })
+      }
+    },
+
+    openAgreementModal(agreement) {
+      if (!agreement) {
+        this.showNewAgreementModal = true;
+      } else {
+        this.agreementToEdit = agreement;
+        this.showOldAgreementModal = true;
+      }
+    },
+
+    // File
+    getFiles(yearId) {
+      this.file_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/files/`;
+      apiService(endpoint)
+          .then(response => {
+            this.file_loading = false;
+            this.files = response;
+          })
+    },
+    deleteFile(file) {
+      userInput = confirm(deleteMsg + file.name)
+      if (userInput) {
+        let endpoint = `/api/project-planning/files/${file.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(this.files, this.files.indexOf(file));
+            })
+      }
+    },
+
+    openFileModal(file) {
+      if (!file) {
+        this.showNewFileModal = true;
+      } else {
+        this.fileToEdit = file;
+        this.showOldFileModal = true;
+      }
+    },
+
+    closeModals(projectYear) {
+      this.showNewStaffModal = false;
+      this.showOldStaffModal = false;
+
+      this.showNewOMCostModal = false;
+      this.showOldOMCostModal = false;
+
+      this.showNewCapitalCostModal = false;
+      this.showOldCapitalCostModal = false;
+
+      this.showNewGCCostModal = false;
+      this.showOldGCCostModal = false;
+
+      this.showNewMilestoneModal = false;
+      this.showOldMilestoneModal = false;
+
+      this.showNewCollaboratorModal = false;
+      this.showOldCollaboratorModal = false;
+
+      this.showNewAgreementModal = false;
+      this.showOldAgreementModal = false;
+
+      this.showNewFileModal = false;
+      this.showOldFileModal = false;
+
+      if (projectYear) {
+        this.$nextTick(() => {
+          this.getStaff(projectYear.id)
+          this.getOMCosts(projectYear.id)
+          this.getCapitalCosts(projectYear.id)
+          this.getGCCosts(projectYear.id)
+          this.getMilestones(projectYear.id)
+          this.getAgreements(projectYear.id)
+          this.getCollaborators(projectYear.id)
+          this.getFiles(projectYear.id)
+          this.getFinancials(projectYear.id)
+          this.getProjectFinancials(projectYear.project.id)
+          this.getCurrentUser(projectYear.project.id)
+
+        })
+      }
+    },
+    goProjectYearEdit(projectYearId) {
+      window.location.href = `/project-planning/project-year/${projectYearId}/edit/`
+    },
+    goProjectYearDelete(projectYearId) {
+      window.location.href = `/project-planning/project-year/${projectYearId}/delete/`
+    },
+    goProjectYearClone(projectYearId) {
+      window.location.href = `/project-planning/project-year/${projectYearId}/clone/`
+    },
+    isABase(name) {
+      if (name && name.length) {
+        return name.toLowerCase().search("a-base") > -1
+      }
+    },
+    isBBase(name) {
+      if (name && name.length) {
+        return name.toLowerCase().search("b-base") > -1
+      }
+    },
+    isCBase(name) {
+      if (name && name.length) {
+        return name.toLowerCase().search("c-base") > -1
+      }
+    },
 
   },
+
   filters: {
     floatformat: function (value, precision = 2) {
-      if (!value) return '';
-      value = value.toFixed(precision);
+      if (value == null) return '';
+      value = Number(value).toFixed(precision).toLocaleString("en");
+      return value
+    },
+    currencyFormat: function (value, precision = 2) {
+      if (value == null) return '';
+      value = accounting.formatNumber(value, precision);
       return value
     },
     zero2NullMark: function (value) {
@@ -99,7 +510,7 @@ var app = new Vue({
       return value
     },
     nz: function (value, arg = "---") {
-      if (value == null) return arg;
+      if (value == null || value === "None") return arg;
       return value
     },
     yesNo: function (value) {
@@ -123,116 +534,48 @@ var app = new Vue({
     }
   },
   computed: {
-
-    // isActive() {
-    //   return this.catchObj && this.catchObj.is_set_active
-    // }
+    financial_totals() {
+      myObj = {
+        salary: 0,
+        om: 0,
+        capital: 0,
+        total: 0,
+      }
+      if (this.financials) {
+        for (var i = 0; i < this.financials.length; i++) {
+          myObj.salary += this.financials[i].salary
+          myObj.om += this.financials[i].om
+          myObj.capital += this.financials[i].capital
+          myObj.total += this.financials[i].total
+        }
+      }
+      return myObj
+    },
+    project_financial_totals() {
+      myObj = {
+        salary: 0,
+        om: 0,
+        capital: 0,
+        total: 0,
+      }
+      if (this.project_financials) {
+        for (var i = 0; i < this.project_financials.length; i++) {
+          myObj.salary += this.project_financials[i].salary
+          myObj.om += this.project_financials[i].om
+          myObj.capital += this.project_financials[i].capital
+          myObj.total += this.project_financials[i].total
+        }
+      }
+      return myObj
+    }
 
   },
   created() {
-    // this.getCatch();
-    // this.getSpecimenSummary();
-
+    this.getProjectFinancials(projectId)
+    this.getCurrentUser(projectId)
+    this.getProject(projectId)
   },
   mounted() {
-    // this.interval = setInterval(() => this.getCatch(), 15000);
   },
 });
 
-
-Vue.component("modal", {
-  template: "#modal-template",
-  delimiters: ["${", "}"],
-  props: {
-    type: {
-      type: String,
-      required: true,
-    },
-    year: {
-      type: Object,
-      required: true,
-    }
-  },
-  data() {
-    return {
-      staff: {
-        name: null,
-        user: null,
-        funding_source: null,
-        is_lead: null,
-        employee_type: null,
-        level: null,
-        duration_weeks: null,
-        overtime_hours: null,
-        overtime_description: null,
-        student_program: null,
-        amount: 0,
-        form_error: null
-      },
-      disableNameField: false,
-      disableStudentProgramField: false,
-      disableAmountField: false,
-      disableLevelField: false,
-      projectLeadWarningIssued: false,
-    }
-  },
-  methods: {
-    onSubmit() {
-      if (this.type === "staff") {
-
-        let endpoint = `/api/project-planning/project-years/${this.year.id}/staff/`;
-        apiService(endpoint, "POST", this.staff).then(response => {
-          console.log(response)
-          
-          // this.$emit('close')
-        })
-      }
-
-      // regardless of what happens, emit a `close` signal
-      // this.$emit('close')
-
-    },
-    adjustStaffFields() {
-
-
-      // if not a student, disable the student program field
-      if (this.staff.employee_type !== "4") {
-        this.staff.student_program = null;
-        this.disableStudentProgramField = true;
-      } else {
-        this.disableStudentProgramField = false;
-      }
-
-      // if employee type is fte, disable "cost" field and the "level" field.
-      // do the same If they are a seasonal indeterminate  paid from a-base
-      if (this.staff.employee_type === "1" || (this.staff.employee_type === "6" && this.staff.funding_source === "1")) {
-        this.staff.amount = null;
-        this.disableAmountField = true;
-        this.staff.level = null;
-        this.disableLevelField = true;
-      } else {
-        this.disableAmountField = false;
-        this.disableLevelField = false;
-      }
-
-
-      // if there is a DFO user, disable the text name field
-      if (this.staff.user && this.staff.user.length) {
-        this.staff.name = null;
-        this.disableNameField = true;
-      } else {
-        this.disableNameField = false;
-      }
-      // if the current user is changing themselves away from project lead, give them a warning
-      if (currentUser === this.staff.user && !this.staff.is_lead && !this.projectLeadWarningIssued) alert(warningMsg);
-
-    }
-  },
-  created() {
-    this.$nextTick(() => {
-      this.adjustStaffFields()
-      activateChosen()
-    })
-
-  }
-});

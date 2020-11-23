@@ -39,3 +39,19 @@ function apiService(endpoint, method, data) {
       .catch(error => console.log(error))
 }
 
+
+function fileApiService(endpoint, method, fieldName, file) {
+  let data = new FormData(); // creates a new FormData object
+  data.append(fieldName, file); // add your file to form data
+
+  const config = {
+    method: method,
+    body: data,
+    headers: {
+      'X-CSRFTOKEN': getCookie('csrftoken')
+    }
+  };
+  return fetch(endpoint, config)
+      .then(handleResponse)
+      .catch(error => console.log(error))
+}

@@ -1,0 +1,33 @@
+{% extends "vault/vault_base.html" %}
+{% load staticfiles %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard with Flexmonster</title>
+  <script src="https://cdn.flexmonster.com/flexmonster.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.flexmonster.com/demo.css">
+</head>
+
+{% block extrascripts %}
+<script type="text/JavaScript" src="{%  static 'js/vaultdashboard.js' %}"></script>
+{% endblock %}
+
+<body>
+<nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'vault:index' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+        </ol>
+    </nav>
+<div id="pivot-table-container" data-url="{% url 'vault:pivot_data' %}"></div>
+<div id="pivot-chart-container"></div>
+<p>What's up</p>
+
+
+</body>
+</html>

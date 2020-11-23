@@ -1,17 +1,20 @@
+{% load project_filters %}
+
 {% if "dates" in field %}
   <td v-html='projectYear.dates'></td>
 
 {% elif "metadata" in field %}
   <td v-html='projectYear.metadata'></td>
 
-{% elif "priorit" in field %}
-  <td v-html='projectYear.priorities_html'></td>
+{% elif "status" in field %}
+  <td v-html='projectYear.formatted_status'></td>
 
-{% elif "deliver" in field %}
-  <td v-html='projectYear.deliverables_html'></td>
+{% elif field|is_markdown_field %}
+  <td v-html='projectYear.{{ field }}_html'></td>
 
 {% elif "coip" in field or "requires_" in field or "has_" in field or "eligible" in field %}
   <td>${ projectYear.{{ field }} | yesNo }</td>
+
 {% else %}
   <td v-html='projectYear.{{ field }}'></td>
 {% endif %}

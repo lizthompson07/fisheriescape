@@ -39,14 +39,12 @@ class PersonFactory(factory.django.DjangoModelFactory):
 
     first_name = factory.lazy_attribute(lambda o: faker.first_name())
     last_name = factory.lazy_attribute(lambda o: faker.last_name())
-    ihub_vetted = factory.lazy_attribute(lambda o: faker.pybool())
 
     @staticmethod
     def get_valid_data():
         return {
             'first_name': faker.first_name(),
             'last_name': faker.first_name(),
-            'ihub_vetted': True,
         }
 
 

@@ -21,7 +21,6 @@ class PersonFilter(django_filters.FilterSet):
             'last_name': ['exact'],
             'organizations': ['exact'],
             'memberships__role': ['icontains'],
-            'ihub_vetted': ['exact'],
         }
         labels = {
             'memberships__role': "Membership roles",

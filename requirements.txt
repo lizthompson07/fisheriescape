@@ -35,6 +35,7 @@ googleapis-common-protos==1.52.0
 gunicorn==20.0.4
 html2text==2020.1.16
 html5lib==1.1
+html2markdown==0.1.7
 idna==2.10
 isodate==0.6.0
 Jinja2==2.11.2

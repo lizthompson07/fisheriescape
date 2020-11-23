@@ -33,6 +33,13 @@ class EccMixin(object):
     title = _("Calibration Values")
 
 
+class EcpMixin:
+    key = 'ecp'
+    model = models.EcpChannelProperty
+    form_class = forms.EcpForm
+    title = _("Equipment Channel Properties")
+
+
 class EdaMixin:
     key = 'eda'
     model = models.EdaEquipmentAttachment

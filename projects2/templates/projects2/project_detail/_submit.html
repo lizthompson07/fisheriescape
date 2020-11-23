@@ -1,0 +1,43 @@
+{% load i18n %}
+
+
+<h2>
+  {% trans "Submission Status of Project Years" %}
+</h2>
+
+
+<table class="table table-sm" style="width: 75%;">
+  <thead>
+  <tr>
+    <th>{% trans "Fiscal Year" %}</th>
+    <th>{% trans "Status" %}</th>
+    <th>{% trans "Submit / Unsubmit" %}</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr v-for="(year, index) in project.years">
+    <td>${year.display_name}</td>
+    <td v-html="year.formatted_status"></td>
+
+    <td>
+      <button
+        v-if="year.submitted && year.status != 4"
+        class="btn btn-sm btn-danger py-0 px-1"
+        @click="submitProjectYear(year, 'unsubmit')"
+      >{% trans "Un-submit" %}</button>
+
+      <button
+        v-else-if="!year.submitted"
+        class="btn btn-sm btn-success py-0 px-1"
+        @click="submitProjectYear(year, 'submit')"
+      >{% trans "submit" %}</button>
+
+      <p v-else><em>{% trans "Cannot unsubmit approved projects" %}</em></p>
+
+    </td>
+
+  </tr>
+
+  </tbody>
+
+</table>

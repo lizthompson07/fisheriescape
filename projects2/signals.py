@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from projects2.models import ReferenceMaterial, File, Staff
+from .models import ReferenceMaterial, File, Staff, ProjectYear, OMCost, UpcomingDate
 
 
 @receiver(models.signals.post_delete, sender=File)
@@ -32,10 +32,13 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     except File.DoesNotExist:
         return False
 
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+    try:
+        new_file = instance.file
+        if not old_file == new_file:
+            if os.path.isfile(old_file.path):
+                os.remove(old_file.path)
+    except ValueError:
+        return False
 
 
 @receiver(models.signals.post_delete, sender=ReferenceMaterial)
@@ -78,3 +81,13 @@ def save_project_on_staff_delete(sender, instance, **kwargs):
 @receiver(models.signals.post_save, sender=Staff)
 def save_project_on_staff_creation(sender, instance, created, **kwargs):
     instance.project_year.project.save()
+
+
+@receiver(models.signals.post_delete, sender=ProjectYear)
+def save_project_on_py_delete(sender, instance, **kwargs):
+    instance.project.save()
+
+
+@receiver(models.signals.post_save, sender=ProjectYear)
+def save_project_on_py_creation(sender, instance, created, **kwargs):
+    instance.project.save()

@@ -1,13 +1,12 @@
 
-
 .container-fluid, .container {
-    margin-top: 15px;
+    /*margin-top: 15px;*/
     padding: 15px;
-    background-color: white;
-    background-color: rgba(255, 255, 255, 0.98);
     font-size: small;
-    border-radius: 10px;
+}
 
+.curvy{
+    border-radius: 10px;
 }
 
 .label {
@@ -23,10 +22,21 @@ h1 {
     font-size: 60px;
 }
 
+.small-btn-text {
+    font-size: 11px;
+}
+
+
 .toolbar {
     background-color: #dfd2f6;
-    border: #4c4c4c;
+    border: #4c4c4c 1px solid;
     border-radius: 10px;
+}
+
+.toolbar2 {
+    background-color: #e3e0e3;
+    border-radius: 10px;
+    border: #4c4c4c 1px solid;
 }
 
 .vgroup {
@@ -42,6 +52,104 @@ h1 {
     padding-right: 5px;
 }
 
-.narrow-col{
+.narrow-col {
     width: 30%
 }
+
+.a-base {
+    background-color: #a7aef9;
+}
+
+.b-base {
+    background-color: #d9a7f9;
+}
+
+.c-base {
+    background-color: #eff9a7;
+}
+
+
+.draft {
+    background-color: #fff396;
+}
+
+.submitted {
+    background-color: #ffda84;
+}
+
+.reviewed {
+    background-color: #a2c4fa;
+}
+
+.approved {
+    background-color: #a8ffb8;
+}
+
+.cancelled {
+    background-color: #c1c1c1;
+}
+
+.not-approved {
+    background-color: #ff9191;
+}
+
+
+.to-the-right {
+    /*position: absolute;*/
+    /*right: 0;*/
+}
+
+.w150 {
+    width: 150px;
+}
+
+
+.w100 {
+    width: 100px;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.filter {
+    font-size: small;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: 2.5px;
+    margin-top: 2.5px;
+}
+label.filter {
+    margin-right: 5px;
+}
+.form-control {
+    font-size: small;
+}
+
+/*For side bar  https://www.w3schools.com/howto/howto_js_collapse_sidebar.asp */
+/* The sidebar menu */
+.sidebar {
+  height: 100%; /* 100% Full-height */
+  width: 225px; /* 0 width - change this with JavaScript */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Stay on top */
+  top: 0;
+  left: 0;
+  background-color: #e2e2e2;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  padding-top: 60px; /* Place content 60px from the top */
+  transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+}
+
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+#main {
+  transition: margin-left .5s; /* If you want a transition effect */
+  margin-left: 225px; /* If you want a transition effect */
+  padding: 20px;
+}
+
+/*!* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) *!*/
+/*@media screen and (max-height: 450px) {*/
+/*  .sidebar {padding-top: 15px;}*/
+/*}*/

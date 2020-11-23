@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.utils.translation import gettext_lazy as _, gettext
+from django.forms import modelformset_factory
+from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
 
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
@@ -31,7 +32,6 @@ class NewProjectForm(forms.ModelForm):
     division = forms.ChoiceField()
     field_order = [
         'title',
-        'activity_type',
         'default_funding_source',
         'region',
         'division',
@@ -42,7 +42,6 @@ class NewProjectForm(forms.ModelForm):
         model = models.Project
         fields = [
             'title',
-            # 'activity_type',
             'default_funding_source',
             'section',
             'modified_by',
@@ -50,6 +49,7 @@ class NewProjectForm(forms.ModelForm):
         widgets = {
             'modified_by': forms.HiddenInput(),
             'title': forms.Textarea(attrs={"rows": 3}),
+            'default_funding_source': forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
@@ -59,6 +59,8 @@ class NewProjectForm(forms.ModelForm):
         division_choices.insert(0, tuple((None, "---")))
         section_choices = utils.get_section_choices(all=True)
         section_choices.insert(0, tuple((None, "---")))
+        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
         self.fields['region'].choices = region_choices
@@ -66,6 +68,7 @@ class NewProjectForm(forms.ModelForm):
         # even though these are overwritten by js scripts you have to define these so that the validation kicks in properly
         self.fields['division'].choices = division_choices
         self.fields['section'].choices = section_choices
+        self.fields['default_funding_source'].choices = funding_source_choices
 
 
 class ProjectForm(forms.ModelForm):
@@ -82,9 +85,6 @@ class ProjectForm(forms.ModelForm):
             "overview": forms.Textarea(attrs=class_editable),
             'modified_by': forms.HiddenInput(),
             "section": forms.Select(attrs=chosen_js),
-            "responsibility_center": forms.Select(attrs=chosen_js),
-            "allotment_code": forms.Select(attrs=chosen_js),
-            "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
             "tags": forms.SelectMultiple(attrs=chosen_js),
             "default_funding_source": forms.Select(attrs=chosen_js),
             "is_hidden": forms.Select(choices=YESNO_CHOICES),
@@ -103,6 +103,9 @@ class ProjectForm(forms.ModelForm):
         functional_group_choices.insert(0, tuple((None, "---")))
         self.fields['functional_group'].choices = functional_group_choices
 
+        if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
+            del self.fields["tags"]
+
 
 class ProjectYearForm(forms.ModelForm):
     class Meta:
@@ -112,6 +115,7 @@ class ProjectYearForm(forms.ModelForm):
             "allocated_budget",
             "notification_email_sent",
             "modified_by",
+            "administrative_notes",
         ]
         widgets = {
             'project': forms.HiddenInput(),
@@ -119,6 +123,9 @@ class ProjectYearForm(forms.ModelForm):
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'priorities': forms.Textarea(attrs=class_editable),
             'deliverables': forms.Textarea(attrs=class_editable),
+            "responsibility_center": forms.Select(attrs=chosen_js),
+            "allotment_code": forms.Select(attrs=chosen_js),
+            "existing_project_codes": forms.SelectMultiple(attrs=chosen_js),
 
             # SPECIALIZED EQUIPMENT
             ########################
@@ -195,12 +202,12 @@ class ProjectYearForm(forms.ModelForm):
         end_date = cleaned_data.get("end_date")
         if end_date:
             start_date = cleaned_data.get("start_date")
-            if end_date < start_date:
+            if end_date and start_date and end_date < start_date:
                 self.add_error('end_date', gettext(
                     "The end date must be after the start date!"
                 ))
 
-            if fiscal_year(start_date) != fiscal_year(end_date):
+            if end_date and start_date and fiscal_year(start_date) != fiscal_year(end_date):
                 self.add_error('end_date', gettext(
                     "The start and end dates must be within the same fiscal year!"
                 ))
@@ -270,35 +277,136 @@ class ProjectNotesForm(forms.ModelForm):
 #
 #
 class StaffForm(forms.ModelForm):
-    save_then_go_OT = forms.CharField(widget=forms.HiddenInput, required=False)
-
     class Meta:
         model = models.Staff
         exclude = ["project_year"]
         labels = {
             "user": _("DFO User"),
         }
-        widgets = {
-
-            'overtime_description': forms.Textarea(attrs={"rows": 5}),
-            'user': forms.Select(attrs=chosen_js),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["overtime_description"].widget.attrs = {"v-model":"staff.overtime_description"}
-        self.fields["amount"].widget.attrs = {"v-model":"staff.amount", ":disabled":"disableAmountField"}
-        self.fields["funding_source"].widget.attrs = {"v-model":"staff.funding_source"}
-        self.fields["is_lead"].widget.attrs = {"v-model":"staff.is_lead", "@change":"adjustStaffFields",}
-        self.fields["employee_type"].widget.attrs = {"v-model":"staff.employee_type", "@change":"adjustStaffFields"}
-        self.fields["level"].widget.attrs = {"v-model":"staff.level", ":disabled":"disableLevelField"}
-        self.fields["duration_weeks"].widget.attrs = {"v-model":"staff.duration_weeks"}
-        self.fields["overtime_hours"].widget.attrs = {"v-model":"staff.overtime_hours"}
-        self.fields["student_program"].widget.attrs = {"v-model":"staff.student_program", ":disabled":"disableStudentProgramField"}
+        self.fields["overtime_description"].widget.attrs = {"v-model": "staff.overtime_description", "rows": 7}
+        self.fields["amount"].widget.attrs = {"v-model": "staff.amount", ":disabled": "disableAmountField"}
+        self.fields["funding_source"].widget.attrs = {"v-model": "staff.funding_source"}
+        self.fields["is_lead"].widget.attrs = {"v-model": "staff.is_lead", "@change": "adjustStaffFields", }
 
-        self.fields["name"].widget.attrs = {"v-model":"staff.name", ":disabled":"disableNameField"}
-        self.fields["user"].widget.attrs = {"v-model":"staff.user", "@change":"adjustStaffFields"} # , "class": "chosen-select-contains"
-        self.fields["user"].queryset = User.objects.order_by("first_name", "last_name")
+        self.fields["employee_type"].widget.attrs = {"v-model": "staff.employee_type", "@change": "adjustStaffFields"}
+        self.fields["level"].widget.attrs = {"v-model": "staff.level", ":disabled": "disableLevelField"}
+        self.fields["duration_weeks"].widget.attrs = {"v-model": "staff.duration_weeks", "step": "0.1"}
+        self.fields["overtime_hours"].widget.attrs = {"v-model": "staff.overtime_hours"}
+        self.fields["student_program"].widget.attrs = {"v-model": "staff.student_program", ":disabled": "disableStudentProgramField"}
+
+        self.fields["name"].widget.attrs = {"v-model": "staff.name", ":disabled": "disableNameField"}
+        self.fields["user"].widget.attrs = {"v-model": "staff.user", "@change": "adjustStaffFields"}  # , "class": "chosen-select-contains"
+        user_choices = [(u.id, f"{u.last_name}, {u.first_name}") for u in User.objects.order_by("last_name", "first_name")]
+        user_choices.insert(0, (None, "-----"))
+        self.fields["user"].choices = user_choices
+        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+        self.fields["funding_source"].choices = funding_source_choices
+
+
+class OMCostForm(forms.ModelForm):
+    field_order = ["om_category", "funding_source", "description", "amount"]
+
+    class Meta:
+        model = models.OMCost
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].widget.attrs = {"v-model": "om_cost.amount"}
+        self.fields["funding_source"].widget.attrs = {"v-model": "om_cost.funding_source"}
+        self.fields["description"].widget.attrs = {"v-model": "om_cost.description"}
+        self.fields["om_category"].widget.attrs = {"v-model": "om_cost.om_category"}
+        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+        self.fields["funding_source"].choices = funding_source_choices
+
+
+class CapitalCostForm(forms.ModelForm):
+    field_order = ["category", "funding_source", "description", "amount"]
+
+    class Meta:
+        model = models.CapitalCost
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["amount"].widget.attrs = {"v-model": "capital_cost.amount"}
+        self.fields["funding_source"].widget.attrs = {"v-model": "capital_cost.funding_source"}
+        self.fields["description"].widget.attrs = {"v-model": "capital_cost.description"}
+        self.fields["category"].widget.attrs = {"v-model": "capital_cost.category"}
+        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
+        self.fields["funding_source"].choices = funding_source_choices
+
+
+class GCCostForm(forms.ModelForm):
+    class Meta:
+        model = models.GCCost
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["recipient_org"].widget.attrs = {"v-model": "gc_cost.recipient_org"}
+        self.fields["project_lead"].widget.attrs = {"v-model": "gc_cost.project_lead"}
+        self.fields["proposed_title"].widget.attrs = {"v-model": "gc_cost.proposed_title"}
+        self.fields["gc_program"].widget.attrs = {"v-model": "gc_cost.gc_program"}
+        self.fields["amount"].widget.attrs = {"v-model": "gc_cost.amount"}
+
+
+class MilestoneForm(forms.ModelForm):
+    field_order = ["name", "description", "target_date"]
+
+    class Meta:
+        model = models.Milestone
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["name"].widget.attrs = {"v-model": "milestone.name"}
+        self.fields["description"].widget.attrs = {"v-model": "milestone.description"}
+        self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "milestone.target_date", "type": "date"})
+
+
+class CollaboratorForm(forms.ModelForm):
+    class Meta:
+        model = models.Collaborator
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["name"].widget.attrs = {"v-model": "collaborator.name"}
+        self.fields["critical"].widget.attrs = {"v-model": "collaborator.critical"}
+        self.fields["notes"].widget.attrs = {"v-model": "collaborator.notes"}
+
+
+class AgreementForm(forms.ModelForm):
+    class Meta:
+        model = models.CollaborativeAgreement
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["partner_organization"].widget.attrs = {"v-model": "agreement.partner_organization"}
+        self.fields["project_lead"].widget.attrs = {"v-model": "agreement.project_lead"}
+        self.fields["agreement_title"].widget.attrs = {"v-model": "agreement.agreement_title"}
+        self.fields["new_or_existing"].widget.attrs = {"v-model": "agreement.new_or_existing"}
+        self.fields["notes"].widget.attrs = {"v-model": "agreement.notes"}
+
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = models.File
+        exclude = ["project", "project_year", "status_report"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["name"].widget.attrs = {"v-model": "file.name"}
+        self.fields["file"].widget.attrs = {"v-on:change": "onFileChange", "ref": "file"}
+        self.fields["external_url"].widget.attrs = {"v-model": "file.external_url"}
 
 
 # attrs = dict(v-model="new_size_class")
@@ -334,13 +442,7 @@ class StaffForm(forms.ModelForm):
 #         }
 #
 #
-# class OMCostForm(forms.ModelForm):
-#     class Meta:
-#         model = models.OMCost
-#         fields = "__all__"
-#         widgets = {
-#             'project': forms.HiddenInput(),
-#         }
+
 #
 #
 # class CapitalCostForm(forms.ModelForm):
@@ -496,6 +598,8 @@ class OTForm(forms.ModelForm):
             'overtime_hours': forms.HiddenInput(),
             'overtime_description': forms.HiddenInput(),
         }
+
+
 #
 #
 # class UserCreateForm(forms.Form):
@@ -530,50 +634,56 @@ class OTForm(forms.ModelForm):
 #                 raise forms.ValidationError(_("Please make sure the two email addresses provided match."))
 #
 #
-# class FundingSourceForm(forms.ModelForm):
-#     class Meta:
-#         model = models.FundingSource
-#         fields = "__all__"
+class FundingSourceForm(forms.ModelForm):
+    class Meta:
+        model = models.FundingSource
+        fields = "__all__"
+
+
+FundingSourceFormset = modelformset_factory(
+    model=models.FundingSource,
+    form=FundingSourceForm,
+    extra=1,
+)
+
+
 #
 #
-# FundingSourceFormset = modelformset_factory(
-#     model=models.FundingSource,
-#     form=FundingSourceForm,
-#     extra=1,
-# )
+class OMCategoryForm(forms.ModelForm):
+    class Meta:
+        model = models.OMCategory
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={"rows": 3}),
+            'nom': forms.Textarea(attrs={"rows": 3}),
+        }
+
+
+OMCategoryFormset = modelformset_factory(
+    model=models.OMCategory,
+    form=OMCategoryForm,
+    extra=1,
+)
+
+
 #
 #
-# class OMCategoryForm(forms.ModelForm):
-#     class Meta:
-#         model = models.OMCategory
-#         fields = "__all__"
-#         widgets = {
-#             'name': forms.Textarea(attrs={"rows": 3}),
-#             'nom': forms.Textarea(attrs={"rows": 3}),
-#         }
-#
-#
-# OMCategoryFormset = modelformset_factory(
-#     model=models.OMCategory,
-#     form=OMCategoryForm,
-#     extra=1,
-# )
-#
-#
-# class EmployeeTypeForm(forms.ModelForm):
-#     class Meta:
-#         model = models.EmployeeType
-#         fields = "__all__"
-#         widgets = {
-#             'exclude_from_rollup': forms.Select(choices=YESNO_CHOICES),
-#         }
-#
-#
-# EmployeeTypeFormset = modelformset_factory(
-#     model=models.EmployeeType,
-#     form=EmployeeTypeForm,
-#     extra=1,
-# )
+class EmployeeTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.EmployeeType
+        fields = "__all__"
+        widgets = {
+            'exclude_from_rollup': forms.Select(choices=YESNO_CHOICES),
+        }
+
+
+EmployeeTypeFormset = modelformset_factory(
+    model=models.EmployeeType,
+    form=EmployeeTypeForm,
+    extra=1,
+)
+
+
 #
 #
 # class StatusForm(forms.ModelForm):
@@ -589,123 +699,139 @@ class OTForm(forms.ModelForm):
 # )
 #
 #
-# class TagForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Tag
-#         fields = "__all__"
+class TagForm(forms.ModelForm):
+    class Meta:
+        model = models.Tag
+        fields = "__all__"
+
+
+TagFormset = modelformset_factory(
+    model=models.Tag,
+    form=TagForm,
+    extra=1,
+)
+
+
 #
 #
-# TagFormset = modelformset_factory(
-#     model=models.Tag,
-#     form=TagForm,
-#     extra=1,
-# )
+class HelpTextForm(forms.ModelForm):
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 4}),
+            'fra_text': forms.Textarea(attrs={"rows": 4}),
+        }
+
+
+HelpTextFormset = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
+    extra=1,
+)
+
+
 #
 #
-# class HelpTextForm(forms.ModelForm):
-#     class Meta:
-#         model = models.HelpText
-#         fields = "__all__"
-#         widgets = {
-#             'eng_text': forms.Textarea(attrs={"rows": 4}),
-#             'fra_text': forms.Textarea(attrs={"rows": 4}),
-#         }
+class FunctionalGroupForm(forms.ModelForm):
+    class Meta:
+        model = models.FunctionalGroup
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={"rows": 3}),
+            'nom': forms.Textarea(attrs={"rows": 3}),
+            'sections': forms.SelectMultiple(attrs=chosen_js),
+            'program': forms.Select(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        section_choices = utils.get_section_choices(all=True)
+
+        super().__init__(*args, **kwargs)
+        self.fields['sections'].choices = section_choices
+
+
 #
 #
-# HelpTextFormset = modelformset_factory(
-#     model=models.HelpText,
-#     form=HelpTextForm,
-#     extra=1,
-# )
+class ActivityTypeForm(forms.ModelForm):
+    class Meta:
+        model = models.ActivityType
+        fields = "__all__"
+
+
+ActivityTypeFormset = modelformset_factory(
+    model=models.ActivityType,
+    form=ActivityTypeForm,
+    extra=1,
+)
+
+
 #
 #
-# class FunctionalGroupForm(forms.ModelForm):
-#     class Meta:
-#         model = models.FunctionalGroup
-#         fields = "__all__"
-#         widgets = {
-#             'name': forms.Textarea(attrs={"rows": 3}),
-#             'nom': forms.Textarea(attrs={"rows": 3}),
-#             'sections': forms.SelectMultiple(attrs=chosen_js),
-#             'program': forms.Select(attrs=chosen_js),
-#         }
-#
-#     def __init__(self, *args, **kwargs):
-#         section_choices = utils.get_section_choices(all=False)
-#
-#         super().__init__(*args, **kwargs)
-#         self.fields['sections'].choices = section_choices
+class ThemeForm(forms.ModelForm):
+    class Meta:
+        model = models.Theme
+        fields = "__all__"
+
+
+ThemeFormset = modelformset_factory(
+    model=models.Theme,
+    form=ThemeForm,
+    extra=1,
+)
+
+
 #
 #
-# class ActivityTypeForm(forms.ModelForm):
-#     class Meta:
-#         model = models.ActivityType
-#         fields = "__all__"
+class UpcomingDateForm(forms.ModelForm):
+    class Meta:
+        model = models.UpcomingDate
+        fields = "__all__"
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"})
+        }
+
+
+UpcomingDateFormset = modelformset_factory(
+    model=models.UpcomingDate,
+    form=UpcomingDateForm,
+    extra=1,
+)
+
+
 #
 #
-# ActivityTypeFormset = modelformset_factory(
-#     model=models.ActivityType,
-#     form=ActivityTypeForm,
-#     extra=1,
-# )
+class ReferenceMaterialForm(forms.ModelForm):
+    class Meta:
+        model = models.ReferenceMaterial
+        fields = "__all__"
+        widgets = {
+            "date": forms.DateInput(attrs={"type": "date"})
+        }
+
+
+ReferenceMaterialFormset = modelformset_factory(
+    model=models.ReferenceMaterial,
+    form=ReferenceMaterialForm,
+    extra=1,
+)
+
+
 #
 #
-# class ThemeForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Theme
-#         fields = "__all__"
-#
-#
-# ThemeFormset = modelformset_factory(
-#     model=models.Theme,
-#     form=ThemeForm,
-#     extra=1,
-# )
-#
-#
-# class UpcomingDateForm(forms.ModelForm):
-#     class Meta:
-#         model = models.UpcomingDate
-#         fields = "__all__"
-#         widgets = {
-#             "date": forms.DateInput(attrs={"type": "date"})
-#         }
-#
-#
-# UpcomingDateFormset = modelformset_factory(
-#     model=models.UpcomingDate,
-#     form=UpcomingDateForm,
-#     extra=1,
-# )
-#
-#
-# class ReferenceMaterialForm(forms.ModelForm):
-#     class Meta:
-#         model = models.ReferenceMaterial
-#         fields = "__all__"
-#         widgets = {
-#             "date": forms.DateInput(attrs={"type": "date"})
-#         }
-#
-#
-# ReferenceMaterialFormset = modelformset_factory(
-#     model=models.ReferenceMaterial,
-#     form=ReferenceMaterialForm,
-#     extra=1,
-# )
-#
-#
-# class LevelForm(forms.ModelForm):
-#     class Meta:
-#         model = models.Level
-#         fields = "__all__"
-#
-#
-# LevelFormset = modelformset_factory(
-#     model=models.Level,
-#     form=LevelForm,
-#     extra=1,
-# )
+class LevelForm(forms.ModelForm):
+    class Meta:
+        model = models.Level
+        fields = "__all__"
+
+
+LevelFormset = modelformset_factory(
+    model=models.Level,
+    form=LevelForm,
+    extra=1,
+)
+
+
 #
 #
 # class FileForm(forms.ModelForm):
@@ -801,3 +927,4 @@ class OTForm(forms.ModelForm):
 #     form=ProjectApprovalForm,
 #     extra=0,
 # )
+

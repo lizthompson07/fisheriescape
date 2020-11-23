@@ -1,0 +1,57 @@
+{% load static %}
+{% load humanize %}
+{% load i18n %}
+{% load verbose_names %}
+
+<div class="">
+    <h3>
+        {% trans "Lending Agreements:" %}
+    </h3>
+</div>
+
+{% if object.lent_out_quantities.count == 0 %}
+    <em>
+        {% trans "None of this item is currently lent out" %}
+    </em><br>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+<!--            if transaction status = lent out then display table of information-->
+            {% for field in lend_field_list %}
+            <th>
+
+            {% get_verbose_label random_lend field %}
+            </th>
+            {% endfor %}
+        </tr>
+        <tbody>
+         {% for obj in object.lent_out_quantities.all %}
+            <tr>
+            {% for field in lend_field_list %}
+            <td>
+
+            {% get_field_value obj field %}
+            </td>
+            {% endfor %}
+            <td>
+                <a href="{% url 'whalebrary:lending_return_item' obj.id %}" class="lendRtrnBtn">
+                    <img src="{% static "/admin/img/icon-no.svg" %}" data-toggle="tooltip" title="Return">
+                </a>
+            </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+<br>
+<br>
+<br>
+
+<script>
+    $(".lendRtrnBtn").click(function (e) {
+        e.preventDefault()
+        userInput = confirm("Are you certain you want to do this? I could be a GINORMOUS error!!! ;)")
+        if (userInput) popitup($(this).attr("href"))
+    })
+</script>

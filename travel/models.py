@@ -31,7 +31,7 @@ NULL_YES_NO_CHOICES = (
 class DefaultReviewer(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
                                 verbose_name=_("DM Apps user"))
-    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which DFO section(s)"),
+    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which section(s)"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
     branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"),
@@ -513,7 +513,7 @@ class TripRequest(models.Model):
                                related_name="trip_requests",
                                null=True, blank=True)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
-                                verbose_name=_("under which DFO section is this request being made"),
+                                verbose_name=_("under which section is this request being made"),
                                 related_name="trip_requests")
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
                                                 verbose_name=_("Is the traveller a research scientist (RES)?"))

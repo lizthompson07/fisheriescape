@@ -9,7 +9,7 @@ def get_exif(filename):
     return image._getexif()
 
 exif = get_exif('image.jpg')
-#print(exif)
+# print(exif)
 
 
 from PIL.ExifTags import TAGS
@@ -23,7 +23,7 @@ def get_labeled_exif(exif):
 
 exif = get_exif('image.jpg')
 labeled = get_labeled_exif(exif)
-#print(labeled)
+print(labeled)
 
 
 
@@ -47,4 +47,4 @@ def get_geotagging(exif):
 
 exif = get_exif('image.jpg')
 geotags = get_geotagging(exif)
-print(geotags)
+# print(geotags)

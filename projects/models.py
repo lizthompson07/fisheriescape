@@ -260,7 +260,7 @@ class Project(models.Model):
     recommended_for_funding = models.BooleanField(default=False, verbose_name=_("recommended"))
     approved = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("approved"))
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
-    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"))
+    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     is_hidden = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=False,

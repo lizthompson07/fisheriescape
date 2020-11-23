@@ -4,26 +4,26 @@ from copy import deepcopy
 import pandas as pd
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Sum
+from django.db.models import Sum, Value, TextField
+from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
 from django.views.generic import UpdateView, CreateView
 from easy_pdf.views import PDFTemplateView
 
-from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
-    CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView
-from . import emails
+    CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView
 from . import filters
 from . import forms
 from . import models
 from . import stat_holidays
-from .mixins import CanModifyProjectRequiredMixin, ProjectLeadRequiredMixin, ManagerOrAdminRequiredMixin
-from .utils import multiple_projects_financial_summary, financial_summary_data, can_modify_project, get_help_text_dict, \
+from .mixins import CanModifyProjectRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
+from .utils import multiple_projects_financial_summary, can_modify_project, get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin
 
 
@@ -41,26 +41,6 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
                 section_list = shared_models.Section.objects.filter(id__in=section_id_list)
             else:
                 pass
-                # # are they section heads?
-                # section_id_list.extend([section.id for section in self.request.user.shared_models_sections.all()])
-                #
-                # # are they a division manager?
-                # if self.request.user.shared_models_divisions.count() > 0:
-                #     for division in self.request.user.shared_models_divisions.all():
-                #         for section in division.sections.all():
-                #             section_id_list.append(section.id)
-                #
-                # # are they an RDS?
-                # if self.request.user.shared_models_branches.count() > 0:
-                #     for branch in self.request.user.shared_models_branches.all():
-                #         for division in branch.divisions.all():
-                #             for section in division.sections.all():
-                #                 section_id_list.append(section.id)
-                #
-                # section_id_set = set(
-                #     [s for s in section_id_list if shared_models.Section.objects.get(pk=s).projects.count() > 0])
-                # section_list = shared_models.Section.objects.filter(id__in=section_id_set)
-            # context["section_list"] = section_list
         context["is_management_or_admin"] = is_management_or_admin(self.request.user)
         context["reference_materials"] = models.ReferenceMaterial.objects.all()
         context["upcoming_dates"] = models.UpcomingDate.objects.filter(date__gte=timezone.now()).order_by("date")
@@ -75,60 +55,110 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 # PROJECTS #
 ############
+#
+# class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
+#     template_name = 'projects2/list.html'
+#     paginate_by = 15
+#     # get all submitted and unhidden projects
+#     queryset = models.Project.objects.order_by('section__division', 'section', 'title')
+#     filterset_class = filters.ProjectFilter
+#     home_url_name = "projects2:index"
+#     container_class = "container-fluid"
+#     row_object_url_name = "projects2:project_detail"
+#     h1 = gettext_lazy("Full Project List")
+#     field_list = [
+#         {"name": 'id', "class": "", "width": ""},
+#         {"name": 'region', "class": "", "width": ""},
+#         {"name": 'division', "class": "", "width": ""},
+#         {"name": 'section', "class": "", "width": ""},
+#         {"name": 'title', "class": "", "width": "400px"},
+#         {"name": 'default_funding_source', "class": "", "width": ""},
+#         {"name": 'lead_staff', "class": "", "width": ""},
+#         {"name": 'tags', "class": "", "width": ""},
+#     ]
+#
+#
 
-class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
-    template_name = 'projects2/list.html'
-    paginate_by = 50
-    # get all submitted and unhidden projects
-    queryset = models.Project.objects.order_by('section__division', 'section', 'title')
-    filterset_class = filters.ProjectFilter
+
+class ExploreProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
+    h1 = gettext_lazy("Projects")
+    template_name = 'projects2/explore_projects/main.html'
     home_url_name = "projects2:index"
-    container_class = "container-fluid"
-    row_object_url_name = "projects2:project_detail"
-    h1 = gettext_lazy("Full Project List")
+    container_class = "container-fluid bg-light curvy"
+    subtitle = gettext_lazy("Explore Projects")
     field_list = [
-        {"name": 'id', "class": "", "width": ""},
-        {"name": 'region', "class": "", "width": ""},
-        {"name": 'division', "class": "", "width": ""},
-        {"name": 'section', "class": "", "width": ""},
-        {"name": 'title', "class": "", "width": ""},
-        {"name": 'default_funding_source', "class": "", "width": ""},
-        {"name": 'tags', "class": "", "width": ""},
+        'id',
+        'title',
+        'fiscal year',
+        'status',
+        # 'section',
+        'default_funding_source',
+        'functional_group',
+        'lead_staff',
     ]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["random_project"] = models.Project.objects.first()
+        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
+        return context
+
+
+
+
+class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
+    h1 = gettext_lazy("Projects")
+    template_name = 'projects2/manage_projects/main.html'
+    home_url_name = "projects2:index"
+    container_class = "container-fluid bg-light curvy"
+    subtitle = gettext_lazy("Manage Projects")
+    field_list = [
+        'id',
+        'fiscal year',
+        'title',
+        'status',
+        # 'section',
+        'default_funding_source',
+        'functional_group',
+        'lead_staff',
+    ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["random_project"] = models.Project.objects.first()
+        context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
+        return context
 
 
 class MyProjectListView(LoginRequiredMixin, CommonListView):
-    template_name = 'projects2/list.html'
+    template_name = 'projects2/my_project_list.html'
     # filterset_class = filters.MyProjectFilter
     h1 = gettext_lazy("My projects")
     home_url_name = "projects2:index"
-    container_class = "container-fluid"
+    container_class = "container-fluid bg-light curvy"
     row_object_url_name = "projects2:project_detail"
-    new_object_url = "projects2:project_new"
+    new_object_url = reverse_lazy("projects2:project_new")
     field_list = [
+        {"name": 'id', "class": "", "width": ""},
         {"name": 'section', "class": "", "width": ""},
         {"name": 'title', "class": "", "width": ""},
-        {"name": 'allocated_budget', "class": "", "width": ""},
-        {"name": "is_lead|{}?".format("Are you a project lead"), "class": "", "width": ""},
+        {"name": 'start_date', "class": "", "width": "150px"},
+        {"name": 'lead_staff', "class": "", "width": ""},
+        {"name": 'fiscal_years', "class": "", "width": ""},
+        {"name": 'has_unsubmitted_years|{}'.format("has unsubmitted years?"), "class": "", "width": ""},
+        {"name": 'is_hidden|{}'.format(_("hidden?")), "class": "", "width": ""},
+        {"name": 'updated_at', "class": "", "width": "150px"},
     ]
 
     # x = [
-    #     "year",
-    #     "submitted|{}".format("Submitted"),
     #     "recommended_for_funding",
     #     "approved",
-    #     "allocated_budget",
-    #     "section|Section",
-    #     "project_title",
-    #     "is_hidden|is this a hidden project?",
-    #     "is_lead|{}?".format("Are you a project lead"),
     #     "status_report|{}".format("Status reports"),
     # ]
 
     def get_queryset(self):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
-        return models.Project.objects.filter(id__in=project_ids).order_by("-start_date", "title")
+        return models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title")
 
     # def get_filterset_kwargs(self, filterset_class):
     #     kwargs = super().get_filterset_kwargs(filterset_class)
@@ -138,7 +168,7 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
+        context["my"] = True
         # # Based on the default sorting order, we get the fiscal year from the first project instance
         # object_list = context.get("object_list")  # grab the projects returned by the filter
         # fy = object_list.first().year if object_list.count() > 0 else None
@@ -184,6 +214,7 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
     form_class = forms.NewProjectForm
     home_url_name = "projects2:index"
     template_name = 'projects2/project_form.html'
+    container_class = "container bg-light curvy"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -218,21 +249,22 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         # modifications to project instance before saving
         my_object.modified_by = self.request.user
         my_object.save()
-
-        # create a first year of the project
-        year = models.ProjectYear.objects.create(
-            project=my_object,
-        )
-        # populate some initial staff and om costs
-        models.Staff.objects.create(
-            project_year=year,
-            is_lead=True,
-            employee_type_id=1,
-            user_id=self.request.user.id,
-            funding_source=my_object.default_funding_source
-        )
-        year.add_all_om_costs()
-
+        #
+        # # create a first year of the project
+        # year = models.ProjectYear.objects.create(
+        #     project=my_object,
+        # )
+        # # populate some initial staff and om costs
+        # models.Staff.objects.create(
+        #     project_year=year,
+        #     is_lead=True,
+        #     employee_type_id=1,
+        #     user_id=self.request.user.id,
+        #     funding_source=my_object.default_funding_source
+        # )
+        # year.add_all_om_costs()
+        messages.success(self.request,
+                         mark_safe(_("Your new project was created successfully! To get started, <b>add a new project year</b>.")))
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": my_object.id}))
 
     def get_initial(self):
@@ -243,7 +275,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Project
     template_name = 'projects2/project_detail/project_detail.html'
     home_url_name = "projects2:index"
-    container_class = "container-fluid"
+    container_class = "container-fluid bg-light curvy"
 
     # parent_crumb = {"title": _("My Projects"), "url": reverse_lazy("projects2:my_project_list")}
 
@@ -252,8 +284,6 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
 
     def get_h1(self):
         mystr = str(self.get_object())
-        if not self.get_object().has_unsubmitted_years:
-            mystr += ' <span class="red-font">{}</span>'.format(_("UNSUBMITTED"))
         return mystr
 
     def get_context_data(self, **kwargs):
@@ -263,8 +293,32 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         # If this is a gulf region project, only show the gulf region fields
         context["project_field_list"] = get_project_field_list(project)
         context["project_year_field_list"] = get_project_year_field_list()
-        context["staff_form"] = forms.StaffForm
 
+        context["staff_form"] = forms.StaffForm
+        context["random_staff"] = models.Staff.objects.first()
+
+        context["om_cost_form"] = forms.OMCostForm
+        context["random_om_cost"] = models.OMCost.objects.first()
+
+        context["capital_cost_form"] = forms.CapitalCostForm
+        context["random_capital_cost"] = models.CapitalCost.objects.first()
+
+        context["gc_cost_form"] = forms.GCCostForm
+        context["random_gc_cost"] = models.GCCost.objects.first()
+
+        context["milestone_form"] = forms.MilestoneForm
+        context["random_milestone"] = models.Milestone.objects.first()
+
+        context["collaborator_form"] = forms.CollaboratorForm
+        context["random_collaborator"] = models.Collaborator.objects.first()
+
+        context["agreement_form"] = forms.AgreementForm
+        context["random_agreement"] = models.CollaborativeAgreement.objects.first()
+
+        context["file_form"] = forms.FileForm
+        context["random_file"] = models.File.objects.first()
+
+        context["btn_class_1"] = "create-btn"
         # context["files"] = project.files.all()
         # context["financial_summary_dict"] = financial_summary_data(project)
 
@@ -279,6 +333,7 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
     form_class = forms.ProjectForm
     template_name = 'projects2/project_form.html'
     home_url_name = "projects2:index"
+    container_class = "container bg-light curvy"
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
@@ -298,9 +353,119 @@ class ProjectDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     home_url_name = "projects2:index"
     success_url = reverse_lazy("projects2:index")
     template_name = "projects2/confirm_delete.html"
+    container_class = "container bg-light curvy"
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
+
+
+class ProjectCloneView(ProjectUpdateView):
+    template_name = 'projects2/project_form.html'
+
+    def get_h1(self):
+        return _("Cloning: ") + str(self.get_object())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["cloning"] = True
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return HttpResponseRedirect(reverse('accounts:login_required'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self):
+        obj = self.get_object()
+        init = super().get_initial()
+        init["title"] = f"CLONE OF: {obj.title}"
+        init["cloning"] = True
+        return init
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = models.Project.objects.get(pk=new_obj.pk)
+
+        new_obj.project = new_obj
+        new_obj.pk = None
+        new_obj.save()
+
+        for t in old_obj.tags.all():
+            new_obj.tags.add(t)
+
+        # for each year of old project, clone into new project...
+        for old_year in old_obj.years.all():
+            new_year = deepcopy(old_year)
+
+            new_year.project = new_obj
+            new_year.pk = None
+            new_year.submitted = None
+            new_year.allocated_budget = None
+            new_year.status = 1
+            new_year.notification_email_sent = None
+            new_year.save()
+
+            # Now we need to replicate all the related records:
+            # 1) staff
+            for old_rel_obj in old_year.staff_set.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # we have to just make sure that the user is a lead on the project. Otherwise they will not be able to edit.
+            my_staff, created = models.Staff.objects.get_or_create(
+                user=self.request.user,
+                project_year=new_year,
+                employee_type_id=1,
+            )
+            my_staff.lead = True
+            my_staff.save()
+
+            # 2) O&M
+            for old_rel_obj in old_year.omcost_set.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 3) Capital
+            for old_rel_obj in old_year.capitalcost_set.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 4) G&C
+            for old_rel_obj in old_year.gc_costs.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 5) Collaborators and Partners
+            for old_rel_obj in old_year.collaborators.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 6) Collaborative Agreements
+            for old_rel_obj in old_year.agreements.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.save()
+
+            # 7) Milestones
+            for old_rel_obj in old_year.milestones.all():
+                new_rel_obj = deepcopy(old_rel_obj)
+                new_rel_obj.pk = None
+                new_rel_obj.project_year = new_year
+                new_rel_obj.target_date = None  # clear the target date
+                new_rel_obj.save()
+
+        return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.project.id}))
 
 
 # PROJECT YEAR #
@@ -312,6 +477,7 @@ class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
     form_class = forms.ProjectYearForm
     home_url_name = "projects2:index"
     template_name = 'projects2/project_year_form.html'
+    container_class = "container bg-light curvy"
 
     def get_initial(self):
         # this is an important method to keep since it is accessed by the Form class 
@@ -339,6 +505,7 @@ class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
     form_class = forms.ProjectYearForm
     home_url_name = "projects2:index"
     template_name = 'projects2/project_year_form.html'
+    container_class = "container bg-light curvy"
 
     def get_h1(self):
         return _("Edit ") + str(self.get_object())
@@ -364,6 +531,7 @@ class ProjectYearDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     delete_protection = False
     home_url_name = "projects2:index"
     template_name = "projects2/confirm_delete.html"
+    container_class = "container bg-light curvy"
 
     def get_grandparent_crumb(self):
         return {"title": self.get_project(), "url": reverse("projects2:project_detail", args=[self.get_project().id])}
@@ -380,7 +548,9 @@ class ProjectYearDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
 
 class ProjectYearCloneView(ProjectYearUpdateView):
     template_name = 'projects2/project_year_form.html'
-    h1 = gettext_lazy("Please enter the new project details...")
+
+    def get_h1(self):
+        return _("Cloning: ") + str(self.get_object())
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -405,6 +575,7 @@ class ProjectYearCloneView(ProjectYearUpdateView):
         new_obj.pk = None
         new_obj.submitted = None
         new_obj.allocated_budget = None
+        new_obj.status = 1
         new_obj.notification_email_sent = None
         new_obj.save()
 
@@ -465,6 +636,7 @@ class ProjectYearCloneView(ProjectYearUpdateView):
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
             new_rel_obj.project_year = new_obj
+            new_rel_obj.target_date = None  # clear the target date
             new_rel_obj.save()
 
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.project.id}))
@@ -477,7 +649,7 @@ class SectionProjectListView(LoginRequiredMixin, CommonListView):
     template_name = 'projects2/section_project_list.html'
     # filterset_class = filters.SectionFilter
     home_url_name = "projects2:index"
-    container_class = "container-fluid"
+    container_class = "container-fluid bg-primary curvy"
 
     def get_h1(self):
         return str(shared_models.Section.objects.get(pk=self.kwargs.get("section")))
@@ -635,91 +807,6 @@ class ProjectPrintDetailView(LoginRequiredMixin, PDFTemplateView):
         return context
 
 
-class ProjectSubmitUpdateView(ProjectLeadRequiredMixin, CommonUpdateView):
-    model = models.Project
-    form_class = forms.ProjectSubmitForm
-    home_url_name = "projects2:index"
-    submit_text = gettext_lazy("Submit")
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("projects2:project_detail", args=[self.get_object().id])}
-
-    def get_active_page_name_crumb(self):
-        if self.get_object().submitted:
-            return _("Un-submit")
-        else:
-            return _("Submit")
-
-    def get_h1(self):
-        if self.get_object().submitted:
-            return _("Are you sure you want to unsubmit the this project?")
-        else:
-            return _("Are you sure you want to submit the following project?")
-
-    def get_template_names(self):
-        if self.kwargs.get("pop"):
-            return "projects2/project_action_form_popout.html"
-        else:
-            return "projects2/project_submit_form.html"
-
-    def get_initial(self):
-        if self.object.submitted:
-            submit = False
-        else:
-            submit = True
-
-        return {
-            'last_modified_by': self.request.user,
-            'submitted': submit,
-        }
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        project = self.get_object()
-
-        if self.kwargs.get("pop"):
-            action = _("Un-submit Project") if self.object.submitted else _("Submit Project")
-            context["action"] = action
-            btn_color = "danger" if self.object.submitted else "success"
-            context["btn_color"] = btn_color
-
-        # If this is a gulf region project, only show the gulf region fields
-        if project.section.division.branch.region.id == 1:
-            context["field_list"] = gulf_field_list
-        else:
-            context["field_list"] = project_field_list
-
-        context["report_mode"] = True
-
-        # bring in financial summary data
-        my_context = financial_summary_data(project)
-        context = {**my_context, **context}
-
-        return context
-
-    def form_valid(self, form):
-        my_object = form.save()
-
-        # if this is a popout, it is a manager or admin doing the submission and no email is needed
-        if self.kwargs.get("pop"):
-            return HttpResponseRedirect(reverse('projects2:close_me'))
-        else:
-            # Send out an email only when a project is submitted
-            if my_object.submitted:
-                # create a new email object
-                email = emails.ProjectSubmissionEmail(self.object, self.request)
-                # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list
-                )
-            messages.success(self.request,
-                             _("The project was submitted and an email has been sent to notify the section head!"))
-            return HttpResponseRedirect(reverse('projects2:project_detail', kwargs={"pk": my_object.id}))
-
-
 class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
     model = models.Project
     form_class = forms.ProjectNotesForm
@@ -766,116 +853,6 @@ class ProjectNotesUpdateView(ManagerOrAdminRequiredMixin, UpdateView):
 #             my_object.recommended_for_funding = True
 #         my_object.save()
 #         return HttpResponseRedirect(reverse('projects2:close_me'))
-
-
-class ProjectCloneUpdateView(ProjectUpdateView):
-    template_name = 'projects2/project_form.html'
-    h1 = gettext_lazy("Please enter the new project details...")
-
-    def test_func(self):
-        if self.request.user.id:
-            return True
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:denied_access'))
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_initial(self):
-        my_object = models.Project.objects.get(pk=self.kwargs["pk"])
-        init = super().get_initial()
-        init["project_title"] = "CLONE OF: {}".format(my_object.project_title)
-        init["year"] = fiscal_year(sap_style=True, next=True)
-        # init["created_by"] = self.request.user
-        return init
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["cloned"] = True
-        return context
-
-    def form_valid(self, form):
-        new_obj = form.save(commit=False)
-        old_obj = models.Project.objects.get(pk=new_obj.pk)
-        new_tags = form.cleaned_data.get("tags")
-        new_project_codes = form.cleaned_data.get("existing_project_codes")
-        new_obj.pk = None
-        new_obj.submitted = False
-        new_obj.approved = False
-        new_obj.recommended_for_funding = False
-        new_obj.date_last_modified = timezone.now()
-        new_obj.last_modified_by = self.request.user
-        new_obj.save()
-
-        # now that the new object has an id, we can add the many 2 many links
-
-        for t in new_tags:
-            new_obj.tags.add(t.id)
-
-        for code in new_project_codes:
-            new_obj.existing_project_codes.add(code.id)
-
-        # Now we need to replicate all the related records:
-        # 1) staff
-        for old_rel_obj in old_obj.staff_members.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # we have to just make sure that the user is a lead on the project. Otherwise they will not be able to edit.
-        my_staff, created = models.Staff.objects.get_or_create(
-            user=self.request.user,
-            project=new_obj,
-            employee_type_id=1,
-        )
-        my_staff.lead = True
-        my_staff.save()
-
-        # 2) O&M
-        for old_rel_obj in old_obj.om_costs.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 3) Capital
-        for old_rel_obj in old_obj.capital_costs.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 4) G&C
-        for old_rel_obj in old_obj.gc_costs.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 5) Collaborators and Partners
-        for old_rel_obj in old_obj.collaborators.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 6) Collaborative Agreements
-        for old_rel_obj in old_obj.agreements.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        # 7) Milestones
-        for old_rel_obj in old_obj.milestones.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project = new_obj
-            new_rel_obj.save()
-
-        return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.id}))
 
 
 # STAFF #
@@ -967,6 +944,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         object = form.save()
         return HttpResponseRedirect(reverse_lazy('projects2:staff_edit', kwargs={"pk": object.id}))
+
 
 #
 # # COLLABORATOR #
@@ -1349,53 +1327,100 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #         return context
 #
 #
-# # SETTINGS #
-# ############
-# class FundingSourceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.FundingSource
-#     success_url = reverse_lazy("projects2:manage_funding_sources")
-#
-#
-# class FundingSourceFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Funding Source"
-#     queryset = models.FundingSource.objects.all()
-#     formset_class = forms.FundingSourceFormset
-#     success_url = reverse_lazy("projects2:manage_funding_sources")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_funding_source"
-#
-#
-# class OMCategoryHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.OMCategory
-#     success_url = reverse_lazy("projects2:manage_om_cats")
-#
-#
-# class OMCategoryFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage OMCategory"
-#     queryset = models.OMCategory.objects.all()
-#     formset_class = forms.OMCategoryFormset
-#     success_url = reverse_lazy("projects2:manage_om_cats")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_om_cat"
-#
-#
-# class EmployeeTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.EmployeeType
-#     success_url = reverse_lazy("projects2:manage_employee_types")
-#
-#
-# class EmployeeTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Employee Type"
-#     queryset = models.EmployeeType.objects.all()
-#     formset_class = forms.EmployeeTypeFormset
-#     success_url = reverse_lazy("projects2:manage_employee_types")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_employee_type"
-#
-#
+
+
+# FUNCTIONAL GROUPS #
+#####################
+
+class FunctionalGroupListView(AdminRequiredMixin, CommonFilterView):
+    template_name = 'projects2/list.html'
+    filterset_class = filters.FunctionalGroupFilter
+    home_url_name = "projects2:index"
+    new_object_url = reverse_lazy("projects2:group_new")
+    row_object_url_name = row_ = "projects2:group_edit"
+
+    field_list = [
+        {"name": 'tname|{}'.format("name"), "class": "", "width": ""},
+        {"name": 'theme', "class": "", "width": ""},
+        {"name": 'sections', "class": "", "width": "600px"},
+    ]
+
+    def get_queryset(self):
+        return models.FunctionalGroup.objects.annotate(
+            search_term=Concat('name', Value(" "), 'nom', Value(" "), output_field=TextField()))
+
+
+class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateView):
+    model = models.FunctionalGroup
+    form_class = forms.FunctionalGroupForm
+    template_name = 'projects2/form.html'
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": gettext_lazy("Functional Groups"), "url": reverse_lazy("projects2:group_list")}
+
+
+class FunctionalGroupCreateView(AdminRequiredMixin, CommonCreateView):
+    model = models.FunctionalGroup
+    form_class = forms.FunctionalGroupForm
+    success_url = reverse_lazy('projects2:group_list')
+    template_name = 'projects2/form.html'
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": gettext_lazy("Functional Groups"), "url": reverse_lazy("projects2:group_list")}
+
+
+class FunctionalGroupDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.FunctionalGroup
+    success_url = reverse_lazy('projects2:group_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'projects2/confirm_delete.html'
+
+
+# SETTINGS #
+############
+class FundingSourceHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.FundingSource
+    success_url = reverse_lazy("projects2:manage_funding_sources")
+
+
+class FundingSourceFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Funding Source"
+    queryset = models.FundingSource.objects.all()
+    formset_class = forms.FundingSourceFormset
+    success_url = reverse_lazy("projects2:manage_funding_sources")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_funding_source"
+
+
+class OMCategoryHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.OMCategory
+    success_url = reverse_lazy("projects2:manage_om_cats")
+
+
+class OMCategoryFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage OMCategory"
+    queryset = models.OMCategory.objects.all()
+    formset_class = forms.OMCategoryFormset
+    success_url = reverse_lazy("projects2:manage_om_cats")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_om_cat"
+
+
+class EmployeeTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.EmployeeType
+    success_url = reverse_lazy("projects2:manage_employee_types")
+
+
+class EmployeeTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Employee Type"
+    queryset = models.EmployeeType.objects.all()
+    formset_class = forms.EmployeeTypeFormset
+    success_url = reverse_lazy("projects2:manage_employee_types")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_employee_type"
+
+
 # class StatusHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
 #     model = models.Status
 #     success_url = reverse_lazy("projects2:manage_statuses")
@@ -1411,49 +1436,54 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #     delete_url_name = "projects2:delete_status"
 #
 #
-# class TagHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.Tag
-#     success_url = reverse_lazy("projects2:manage_tags")
+class TagHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Tag
+    success_url = reverse_lazy("projects2:manage_tags")
+
+
+class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Tag"
+    queryset = models.Tag.objects.all()
+    formset_class = forms.TagFormset
+    success_url = reverse_lazy("projects2:manage_tags")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_tag"
+
+
+#
+class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("projects2:manage_help_text")
+
+
+class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Help Text"
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url = reverse_lazy("projects2:manage_help_text")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_help_text"
+
+
 #
 #
-# class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Tag"
-#     queryset = models.Tag.objects.all()
-#     formset_class = forms.TagFormset
-#     success_url = reverse_lazy("projects2:manage_tags")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_tag"
-#
-#
-# class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.HelpText
-#     success_url = reverse_lazy("projects2:manage_help_text")
-#
-#
-# class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Help Text"
-#     queryset = models.HelpText.objects.all()
-#     formset_class = forms.HelpTextFormset
-#     success_url = reverse_lazy("projects2:manage_help_text")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_help_text"
-#
-#
-# class LevelHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.Level
-#     success_url = reverse_lazy("projects2:manage_levels")
-#
-#
-# class LevelFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Level"
-#     queryset = models.Level.objects.all()
-#     formset_class = forms.LevelFormset
-#     success_url = reverse_lazy("projects2:manage_levels")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_level"
+class LevelHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Level
+    success_url = reverse_lazy("projects2:manage_levels")
+
+
+class LevelFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Level"
+    queryset = models.Level.objects.all()
+    formset_class = forms.LevelFormset
+    success_url = reverse_lazy("projects2:manage_levels")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_level"
+
+
 #
 #
 # # class ProgramHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
@@ -1471,49 +1501,55 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 # #     delete_url_name = "projects2:delete_program"
 #
 #
-# class ActivityTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.ActivityType
-#     success_url = reverse_lazy("projects2:manage_activity_types")
+class ActivityTypeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.ActivityType
+    success_url = reverse_lazy("projects2:manage_activity_types")
+
+
+class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage ActivityType"
+    queryset = models.ActivityType.objects.all()
+    formset_class = forms.ActivityTypeFormset
+    success_url = reverse_lazy("projects2:manage_activity_types")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_activity_type"
+
+
 #
 #
-# class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage ActivityType"
-#     queryset = models.ActivityType.objects.all()
-#     formset_class = forms.ActivityTypeFormset
-#     success_url = reverse_lazy("projects2:manage_activity_types")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_activity_type"
+class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Theme
+    success_url = reverse_lazy("projects2:manage_themes")
+
+
+class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Theme"
+    queryset = models.Theme.objects.all()
+    formset_class = forms.ThemeFormset
+    success_url = reverse_lazy("projects2:manage_themes")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_theme"
+
+
 #
 #
-# class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.Theme
-#     success_url = reverse_lazy("projects2:manage_themes")
-#
-#
-# class ThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Theme"
-#     queryset = models.Theme.objects.all()
-#     formset_class = forms.ThemeFormset
-#     success_url = reverse_lazy("projects2:manage_themes")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete_theme"
-#
-#
-# class UpcomingDateHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
-#     model = models.UpcomingDate
-#     success_url = reverse_lazy("projects2:manage-upcoming-dates")
-#
-#
-# class UpcomingDateFormsetView(AdminRequiredMixin, CommonFormsetView):
-#     template_name = 'projects2/formset.html'
-#     h1 = "Manage Upcoming Dates"
-#     queryset = models.UpcomingDate.objects.all()
-#     formset_class = forms.UpcomingDateFormset
-#     success_url = reverse_lazy("projects2:manage-upcoming-dates")
-#     home_url_name = "projects2:index"
-#     delete_url_name = "projects2:delete-upcoming-date"
+class UpcomingDateHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.UpcomingDate
+    success_url = reverse_lazy("projects2:manage-upcoming-dates")
+
+
+class UpcomingDateFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage Upcoming Dates"
+    queryset = models.UpcomingDate.objects.all()
+    formset_class = forms.UpcomingDateFormset
+    success_url = reverse_lazy("projects2:manage-upcoming-dates")
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete-upcoming-date"
+
+
 #
 #
 # class AdminStaffListView(ManagerOrAdminRequiredMixin, FilterView):
@@ -1638,48 +1674,48 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #             return self.render_to_response(self.get_context_data(formset=formset))
 #
 #
-# # Reference Materials
-# class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
-#     template_name = "projects2/list.html"
-#     model = models.ReferenceMaterial
-#     field_list = [
-#         {"name": "tname|{}".format(gettext_lazy("name")), "class": "", "width": ""},
-#         {"name": "region", "class": "", "width": ""},
-#         {"name": "file_display|{}".format(gettext_lazy("File attachment")), "class": "", "width": ""},
-#         {"name": "date_created", "class": "", "width": ""},
-#         {"name": "date_modified", "class": "", "width": ""},
-#     ]
-#     new_object_url_name = "projects2:ref_mat_new"
-#     row_object_url_name = "projects2:ref_mat_edit"
-#     home_url_name = "projects2:index"
-#     h1 = gettext_lazy("Reference Materials")
-#
-#
-# class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
-#     model = models.ReferenceMaterial
-#     form_class = forms.ReferenceMaterialForm
-#     home_url_name = "projects2:index"
-#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
-#     template_name = "projects2/form.html"
-#     is_multipart_form_data = True
-#
-#
-# class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateView):
-#     model = models.ReferenceMaterial
-#     form_class = forms.ReferenceMaterialForm
-#     home_url_name = "projects2:index"
-#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
-#     template_name = "projects2/form.html"
-#     is_multipart_form_data = True
-#
-#
-# class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
-#     model = models.ReferenceMaterial
-#     success_url = reverse_lazy('projects2:ref_mat_list')
-#     home_url_name = "projects2:index"
-#     parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
-#     template_name = "projects2/confirm_delete.html"
-#     delete_protection = False
+# Reference Materials
+class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
+    template_name = "projects2/list.html"
+    model = models.ReferenceMaterial
+    field_list = [
+        {"name": "tname|{}".format(gettext_lazy("name")), "class": "", "width": ""},
+        {"name": "region", "class": "", "width": ""},
+        {"name": "file_display|{}".format(gettext_lazy("File attachment")), "class": "", "width": ""},
+        {"name": "date_created", "class": "", "width": ""},
+        {"name": "date_modified", "class": "", "width": ""},
+    ]
+    new_object_url_name = "projects2:ref_mat_new"
+    row_object_url_name = "projects2:ref_mat_edit"
+    home_url_name = "projects2:index"
+    h1 = gettext_lazy("Reference Materials")
+
+
+class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+    template_name = "projects2/form.html"
+    is_multipart_form_data = True
+
+
+class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateView):
+    model = models.ReferenceMaterial
+    form_class = forms.ReferenceMaterialForm
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+    template_name = "projects2/form.html"
+    is_multipart_form_data = True
+
+
+class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
+    model = models.ReferenceMaterial
+    success_url = reverse_lazy('projects2:ref_mat_list')
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+    template_name = "projects2/confirm_delete.html"
+    delete_protection = False
 #
 #
 # # STATUS REPORT #
@@ -2953,71 +2989,7 @@ class OverTimeCalculatorTemplateView(LoginRequiredMixin, UpdateView):
 #         return context
 #
 #
-# # FUNCTIONAL GROUPS #
-# #####################
-#
-# class FunctionalGroupListView(AdminRequiredMixin, FilterView):
-#     template_name = 'projects2/functionalgroup_list.html'
-#     filterset_class = filters.FunctionalGroupFilter
-#
-#     def get_queryset(self):
-#         return models.FunctionalGroup.objects.annotate(
-#             search_term=Concat('name',
-#                                Value(" "),
-#                                'nom',
-#                                Value(" "),
-#                                # 'program__name',
-#                                output_field=TextField()))
-#
-#     def get_context_data(self, *args, **kwargs):
-#         context = super().get_context_data(*args, **kwargs)
-#         context["field_list"] = [
-#             'name',
-#             'nom',
-#             'theme',
-#             'sections',
-#         ]
-#         return context
-#
-#
-# class FunctionalGroupUpdateView(AdminRequiredMixin, UpdateView):
-#     model = models.FunctionalGroup
-#     form_class = forms.FunctionalGroupForm
-#     success_url = reverse_lazy('projects2:group_list')
-#     template_name = 'projects2/functionalgroup_form.html'
-#
-#
-# class FunctionalGroupCreateView(AdminRequiredMixin, CreateView):
-#     model = models.FunctionalGroup
-#     form_class = forms.FunctionalGroupForm
-#     success_url = reverse_lazy('projects2:group_list')
-#     template_name = 'projects2/functionalgroup_form.html'
-#
-#
-# class FunctionalGroupDeleteView(AdminRequiredMixin, DeleteView):
-#     model = models.FunctionalGroup
-#     success_url = reverse_lazy('projects2:group_list')
-#     success_message = 'The functional group was successfully deleted!'
-#     template_name = 'projects2/functionalgroup_confirm_delete.html'
-#
-#     def delete(self, request, *args, **kwargs):
-#         messages.success(self.request, self.success_message)
-#         return super().delete(request, *args, **kwargs)
-#
-#
-# class FunctionalGroupDetailView(AdminRequiredMixin, DetailView):
-#     model = models.FunctionalGroup
-#     template_name = 'projects2/functionalgroup_detail.html'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context["field_list"] = [
-#             'code',
-#             'name',
-#             'allotment_category',
-#         ]
-#         return context
-#
+
 #
 # # SECTION NOTE #
 # ################

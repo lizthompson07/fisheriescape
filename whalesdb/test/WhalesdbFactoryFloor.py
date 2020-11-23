@@ -174,16 +174,20 @@ class EheFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EheHydrophoneEvent
 
-    ecp = factory.SubFactory("whalesdb.test.WhalesFactoryFloor.EcpFactory")
     ehe_date = factory.lazy_attribute(lambda o: faker.date())
+    hyd = factory.SubFactory('whalesdb.test.WhalesdbFactoryFloor.EqhFactory')
+    ecp_channel_no = factory.lazy_attribute(lambda o: faker.random_int(1, 9))
 
     @staticmethod
     def get_valid_data():
-        ecp = EcpFactory()
+
+        emm_hyd = EqhFactory()
+        hyd = EqpFactory(emm=emm_hyd.emm)
 
         valid_data = {
-            "ecp": ecp.pk,
             "ehe_date": faker.date(),
+            "hyd": hyd.pk,
+            "ecp_channel_no": faker.random_int(1, 9)
         }
 
         return valid_data

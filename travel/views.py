@@ -432,7 +432,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
         {"name": 'fiscal_year', "width": "75px"},
         {"name": 'is_group_request|Type', },
         {"name": 'status', "width": "150px"},
-        {"name": 'section|{}'.format(gettext_lazy("DFO section")), },
+        {"name": 'section|{}'.format(gettext_lazy("section")), },
         {"name": 'requester_name|{}'.format(gettext_lazy("Requester name")), },
         {"name": 'trip.tname', "width": "400px"},
         {"name": 'destination|{}'.format(gettext_lazy("Destination")), },
@@ -713,7 +713,7 @@ class TripRequestDeleteView(CanModifyMixin, CommonDeleteView):
 
 
 class TripRequestCloneUpdateView(TripRequestUpdateView):
-    h1 = gettext_lazy("Create a Clone Trip Request")
+    h1 = gettext_lazy("Clone a Trip Request")
     h2 = gettext_lazy("Please update the request details")
 
     def test_func(self):
@@ -2171,7 +2171,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     h1 = _("Do you wish to un-cancel the following trip?")
     h2 = "<span class='red-font'>" + \
          _("Cancelling this trip will result in all linked requests to be 'cancelled'. "
-           "This list of associated trip requests can be viewed below in the trip detail.") + \
+           "The list of associated trip requests can be viewed below in the trip detail.") + \
          "</span><br><br>" + \
          "<span class='red-font blink-me'>" + \
          _("This action cannot be undone.") + \

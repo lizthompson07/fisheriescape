@@ -1,5 +1,6 @@
 import os
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import resolve, reverse
 from django.utils.translation import activate
@@ -263,7 +264,7 @@ class CommonTest(TestCase):
             self.get_and_login_user(user)
 
         if data and file_field_name:
-            with open('README.md') as fp:
+            with open(os.path.join(settings.BASE_DIR, "static","img","inventory","good to go.jpg"), mode='rb') as fp:
                 data[file_field_name] = fp
                 response = self.client.post(test_url, data=data, )
         else:

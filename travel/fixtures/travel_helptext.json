@@ -148,7 +148,7 @@
     "pk": 13,
     "fields": {
       "field_name": "section",
-      "eng_text": "This is the DFO section for which expenditure initiation is being sought.",
+      "eng_text": "This is the section for which expenditure initiation is being sought.",
       "fra_text": ""
     }
   },

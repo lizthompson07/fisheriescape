@@ -7,122 +7,77 @@
 {% echo "btn btn-outline-success btn-sm custom-btn" as btn_class_green %}
 {% echo "btn btn-outline-danger btn-sm custom-btn" as btn_class_red %}
 
-<h6>
-  {% trans "Reports" %}
-</h6>
-<div class="btn-group-vertical vgroup">
-  <a class="{{ btn_class_black }}" href="{% url 'projects2:project_print' object.id %}">
-    <span class="icon mdi mdi-file-pdf"></span>
-    {% trans "Export PDF" %}
-  </a>
-</div>
-
-<h6>
-  {% trans "Actions" %}
-</h6>
-
-<div class="btn-group-vertical vgroup">
-
-  <a class="{{ btn_class_black }} {% if object.submitted %}disabled{% endif %}"
-     href="{% url 'projects2:project_edit' object.id %}">
-    <span class="icon mdi mdi-pencil"></span>
-    {% trans "Edit Overview" %}
-  </a>
-
-  <a class="{{ btn_class_black }}  {% if object.submitted %}disabled{% endif %}"
-     href="{% url 'projects2:project_delete' object.id %}">
-    <span class="icon mdi mdi-delete"></span>
-    {% trans "Delete" %}
-  </a>
-
-  {% if object.has_unsubmitted_years %}
-    <a class="{{ btn_class_black }}" href="{% url 'projects2:project_submit' object.id %}">
-      <span class="icon mdi mdi-email"></span>
-      {% trans "Submit" %}
+<div class="container">
+  <h6>
+    {% trans "Reports" %}
+  </h6>
+  <div class="btn-group-vertical vgroup">
+    <a class="{{ btn_class_black }} under-dev" href="#">
+      <span class="icon mdi mdi-file-pdf"></span>
+      {% trans "Export PDF" %}
     </a>
-  {% else %}
-    {% if object.years.exists %}
-      <a class="{{ btn_class_black }}" href="{% url 'projects2:project_submit' object.id %}">
-        <span class="icon mdi mdi-cancel"></span>
-        {% trans "Unsubmit" %}
-      </a>
-    {% endif %}
-  {% endif %}
-
-  <a
-    href="#"
-    class="{{ btn_class_black }} "
-    data-toggle="tooltip"
-    title="{% trans "Use this project as a template for a new project" %}"
-  >
-    <span class="icon mdi mdi-content-copy"></span>
-    {% trans "Clone" %}
-  </a>
-
-</div>
-
-<h6>
-  {% trans "Project Years" %}
-</h6>
-
-
-<div class="btn-group-vertical vgroup">
-  <a href="#" class="{{ btn_class_black }}" @click="displayOverview">
-    <span class="icon mdi mdi-menu-right-outline"></span>
-    {% trans "Overview" %}
-  </a>
-
-  {# add a button for each project year #}
-  {% for year in object.years.all %}
-    <a
-      @click="displayProjectYear({{ year.id }})"
-      href="#" class="{% if year.submitted %}{{ btn_class_blue }}{% else %}{{ btn_class_red }}{% endif %}"
-    >
-      <span class="icon mdi mdi-menu-right-outline"></span>
-      {{ year }}
-    </a>
-  {% endfor %}
-
-  <a href="#" class="{{ btn_class_green }} " data-toggle="modal" data-target="#new-year-modal"
-     title="{% trans "Add a new year to this project" %}">
-    <span class="icon mdi mdi-plus"></span>
-    {% trans "Add New Year" %}
-  </a>
-
-
-</div>
-
-
-{#<!-- modal_label MODAL -->#}
-<div class="modal fade" id="new-year-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLongTitle">
-          {% trans "Add a New Year to This Project" %}
-        </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <h4>
-          {% trans "Please select among the following:" %}
-        </h4>
-        <div class="btns">
-          {% for year in object.years.all %}
-            <a href="{% url 'projects2:year_clone'  year.id  %}" class="btn btn-warning mb-1">
-              {% blocktrans %}
-                Clone from {{ year }}
-              {% endblocktrans %}
-            </a> <br>
-          {% endfor %}
-          <a href="{% url 'projects2:year_new' object.id %}" class="btn btn-success">{% trans "Start from Scratch" %}</a>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans "Close" %}</button>
-      </div>
-    </div>
   </div>
+
+  <h6>
+    {% trans "Actions" %}
+  </h6>
+
+  <div class="btn-group-vertical vgroup">
+
+    <a v-if="canModify" class="{{ btn_class_black }} {% if object.submitted %}disabled{% endif %}"
+       href="{% url 'projects2:project_edit' object.id %}">
+      <span class="icon mdi mdi-pencil"></span>
+      {% trans "Edit Overview" %}
+    </a>
+
+    <a v-if="canModify" class="{{ btn_class_black }}  {% if object.submitted %}disabled{% endif %}"
+       href="{% url 'projects2:project_delete' object.id %}">
+      <span class="icon mdi mdi-delete"></span>
+      {% trans "Delete" %}
+    </a>
+
+
+    <a v-if="canModify && project && project.years && project.years.length" @click="displaySubmit" class="{{ btn_class_black }} under-dev"
+       href="#">
+      <span v-if="project.has_unsubmitted_years"><span class="icon mdi mdi-email"></span> {% trans "Submit" %}</span>
+      <span v-else><span class="icon mdi mdi-cancel"></span> {% trans "Unsubmit" %}</span>
+    </a>
+
+    <a
+      href="{% url 'projects2:project_clone' object.id %}"
+      class="{{ btn_class_black }}"
+      data-toggle="tooltip"
+      title="{% trans "Use this project as a template for a new project" %}"
+    >
+      <span class="icon mdi mdi-content-copy"></span>
+      {% trans "Clone" %}
+    </a>
+
+  </div>
+
+  <h6>
+    {% trans "Project Years" %}
+  </h6>
+
+
+  <div class="btn-group-vertical vgroup">
+    <a href="#" class="{{ btn_class_black }}" @click="displayOverview">
+      <span class="icon mdi mdi-menu-right-outline"></span>
+      {% trans "Overview" %}
+    </a>
+
+    {# add a button for each project year #}
+    <a v-for="(year, index) in project.years" @click="displayProjectYear(year.id)" class="{{ btn_class_black }}">
+      <span v-if="year.submitted" class="text-primary"><span class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name }</span>
+      <span v-else class="text-danger"><span
+        class="icon mdi mdi-menu-right-outline"></span> ${ year.display_name } ({% trans "draft" %})</span>
+    </a>
+
+    <a v-if="canModify" href="#" class="{{ btn_class_green }} " data-toggle="modal" data-target="#new-year-modal"
+       title="{% trans "Add a new year to this project" %}">
+      <span class="icon mdi mdi-plus"></span>
+      {% trans "Add New Year" %}
+    </a>
+  </div>
+
 </div>

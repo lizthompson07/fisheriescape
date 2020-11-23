@@ -235,7 +235,7 @@ class TicketUpdateView(LoginRequiredMixin, CommonUpdateView):
 
         # if there is a github issue number, we should also make sure the ticket is up to date.
         if obj.github_issue_number:
-            edit_github_issue(obj, self.request.user.id)
+            edit_github_issue(obj.id, self.request.user.id)
 
         return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': obj.id}))
 
@@ -471,8 +471,8 @@ class FollowUpUpdateView(LoginRequiredMixin, CommonPopoutUpdateView):
     form_class = forms.FollowUpForm
 
     def get_h3(self):
-        if self.get_object().ticket.github_issue_number and self.request.is_staff:
-            return f'HEADS UP: this follow-up will be updated as a github comment on issue { self.get_object().github_issue_number }'
+        if self.get_object().ticket.github_issue_number and self.request.user.is_staff:
+            return f'HEADS UP: this follow-up will be updated as a github comment on issue { self.get_object().ticket.github_issue_number }'
 
     def get_initial(self):
         return {

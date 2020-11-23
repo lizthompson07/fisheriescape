@@ -2,19 +2,19 @@
 {% load project_filters %}
 {% load i18n %}
 
-<div class="float-right">
+<div v-if="canModify" class="float-right">
   <button class=""
-     :href="`/project-planning/project-year/${projectYear.id}/edit/`">
+     @click="goProjectYearEdit(projectYear.id)">
     <span class="mdi mdi-pencil"></span>
     {% trans "Edit" %}
   </button>
   <button class=""
-     :href="`/project-planning/project-year/${projectYear.id}/delete/`">
+     @click="goProjectYearDelete(projectYear.id)">
     <span class="mdi mdi-delete"></span>
     {% trans "Delete" %}
   </button>
   <button class=""
-     :href="`/project-planning/project-year/${projectYear.id}/clone/`">
+     @click="goProjectYearClone(projectYear.id)">
     <span class="mdi mdi-content-copy"></span>
     {% trans "Clone" %}
   </button>
@@ -67,7 +67,15 @@
 </div>
 
 
+    {% include "projects2/project_detail/_milestones.html" %}
     {% include "projects2/project_detail/_staff.html" %}
+    {% include "projects2/project_detail/_om_costs.html" %}
+    {% include "projects2/project_detail/_capital_costs.html" %}
+    {% include "projects2/project_detail/_gc_costs.html" %}
+    {% include "projects2/project_detail/_collaborators.html" %}
+    {% include "projects2/project_detail/_agreements.html" %}
+    {% include "projects2/project_detail/_files.html" %}
+    {% include "projects2/project_detail/_financials.html" %}
 
 
 {##}

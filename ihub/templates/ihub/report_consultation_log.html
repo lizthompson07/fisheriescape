@@ -44,10 +44,19 @@ th {
   <thead>
   <tr>
     <th style="width: 12%">
-      Project / Location
+      Project Title
     </th>
     <th style="width: 12%">
       Proponent
+    </th>
+    <th style="width: 12%">
+      Location
+    </th>
+    <th style="width: 12%">
+      Type of interaction
+    </th>
+    <th style="width: 12%">
+      Indigenous Group(s)
     </th>
     <th style="width: 12%">
       Date offer to Consult
@@ -68,28 +77,31 @@ th {
 
   {% for entry in entry_list %}
     <tr>
-      <td style="width: 12%">
-        TITLE:
+      <td>
         <a href="{% url 'ihub:entry_detail' entry.id %}">
           {{ entry.title }}
         </a>
-        <br><br>
-        TYPE: {{ entry.entry_type }}
-        <br><br>
-        LOCATION: {{ entry.location|nz:"----" }}
       </td>
-      <td style="width: 12%">
-        ORGANIZATIONS: {{ entry.orgs_str }}
-        <br><br>
-        DFO SECTORS: {{ entry.sectors_str }}
+      <td>
+        {{ entry.proponent|nz:"----" }}
       </td>
-      <td style="width: 12%">
+      <td>
+        {{ entry.location|nz:"----" }}
+      </td>
+      <td>
+        {{ entry.entry_type }}
+      </td>
+      <td>
+        {{ entry.orgs_str }}
+      </td>
+      <td>
         {{ entry.initial_date|date:"M d, Y" }}
       </td>
-      <td style="width: 12%">
+      <td>
         {% for person in entry.people.all %}
-          {{ person }}<br>
+          {{ person }}<br><br>
         {% endfor %}
+        DFO SECTORS: {{ entry.sectors_str }}
       </td>
       <td style="width: 40%">
         <b><u>Overall status:</u></b> {{ entry.status }}

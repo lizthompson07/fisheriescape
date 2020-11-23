@@ -1,0 +1,102 @@
+{% load verbose_names %}
+{% load i18n %}
+{% load custom_tags %}
+
+<div v-if="showProjectList" class="mt-5">
+
+  <table class="table table-sm">
+    <thead>
+    <tr>
+      {% for field in field_list %}
+        {% if "title" in field %}
+          <th @click="sort('{{ field }}')" style="width: 200px" class="clickable">
+            {% get_verbose_label random_project field %}
+          </th>
+        {% elif "funding" in field %}
+          <th @click="sort('{{ field }}')" style="width: 150px" class="clickable">
+            {% get_verbose_label random_project field %}
+          </th>
+        {% elif "fiscal" in field or "funding" in field %}
+          <th @click="sort('{{ field }}')" style="width: 100px" class="clickable">
+            {% get_verbose_label random_project field %}
+          </th>
+        {% else %}
+          <th @click="sort('{{ field }}')" class="clickable">
+            {% get_verbose_label random_project field %}
+          </th>
+        {% endif %}
+
+      {% endfor %}
+      <th @click="sort('is_hidden')" v-if="isAdminOrMgmt" class="clickable">
+        {% trans "Hidden?" %}
+      </th>
+
+    </tr>
+    </thead>
+    <tbody>
+    <tr
+      v-for="(p, index) in sortedProjectYears"
+      @mouseover="hover = true"
+      @mouseleave="hover = false"
+    >
+      <td>${p.project.id}</td>
+      <td>${p.display_name}</td>
+      <td>${p.project.title}</td>
+      <td v-html="p.formatted_status"></td>
+      <td>${p.project.default_funding_source}</td>
+      <td>${p.project.functional_group}</td>
+      <td>${p.project.lead_staff}</td>
+      <td v-if="isAdminOrMgmt">
+        <span v-if="p.project.is_hidden" class="highlight">{% trans "Yes" %}</span>
+        <span v-else>{% trans "No" %}</span>
+      </td>
+      <td style="width: 300px">
+
+        {#  Button zone!!! #}
+
+        {% echo "small-btn-text btn btn-sm " as btn_class %}
+
+        <button v-if="!p.submitted" @click="submitProjectYear(p, 'submit')" class="{{ btn_class }} btn-success">
+          {% trans "Submit" %}
+        </button>
+
+        <button v-if="p.submitted && p.status != 4" @click="submitProjectYear(p, 'unsubmit')" class="{{ btn_class }} btn-danger">
+          {% trans "Un-submit" %}
+        </button>
+
+        <button v-if="p.submitted && p.status == 2" @click="openReviewModal(p)" class="{{ btn_class }} btn-info">
+          {% trans "Start review" %}
+        </button>
+
+        <button v-if="p.submitted && p.status == 3" @click="openReviewModal(p)" class="{{ btn_class }} btn-warning">
+          {% trans "Edit review" %}
+        </button>
+
+        <button v-if="p.status == 3 && (currentUser.is_admin || currentUser.is_rds)" @click="comingSoon"
+                class="{{ btn_class }} btn-primary">
+          {% trans "Approve" %}
+        </button>
+
+        <button @click="goProjectDetail(p)" class="{{ btn_class }} btn-outline-primary">
+          <span class="mdi mdi-arrow-top-right text-primary"></span>
+        </button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
+    <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+      <span class="sr-only"></span>
+    </div>
+  </div>
+  <div v-else>
+    <div class="text-center">
+      <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+      <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
+        {% trans "Load more results..." %}
+      </button>
+    </div>
+  </div>
+</div>
+

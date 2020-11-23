@@ -163,6 +163,11 @@ if settings.INSTALLED_APPS.count("vault"):
 else:
     print("not connecting vault app")
 
+if settings.INSTALLED_APPS.count("whalebrary"):
+    urlpatterns += i18n_patterns(path('whalebrary/', include('whalebrary.urls')), prefix_default_language=True)
+else:
+    print("not connecting whalebrary app")
+
 if settings.INSTALLED_APPS.count("spring_cleanup"):
     urlpatterns += i18n_patterns(path('spring-cleanup/', include('spring_cleanup.urls')), prefix_default_language=True)
 else:

@@ -1,0 +1,158 @@
+{% extends "whalebrary/base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+
+
+    <style>
+        body{
+            background-image: url({% static "/img/whalebrary/whalecalf.jpg" %});
+            background-size: cover;
+        }
+
+        h1{
+            text-align: center;
+        }
+
+        .card {
+            text-align: center;
+            width: 300px;
+            height: 500px;
+            cursor: pointer;
+        {#background-color: #eeeeee;#} box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            transition: 0.3s;
+            margin: 10px
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            height: 30px;
+        }
+
+        .card-img {
+            height: 170px;
+        }
+
+        .card-btns {
+            padding-bottom: 30px;
+
+        }
+
+        .card-body {
+            padding-bottom: 0px;
+
+        }
+
+        .card-img-top {
+            padding: 30px;
+
+        }
+
+        .card-text {
+            height: 5px;
+        }
+
+        .big {
+            font-size: 7em;
+            font-weight: bold;
+        }
+
+        .my-btn {
+            margin-top: 5px;
+            width: 65%
+        }
+
+        .jumbotron {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+    </style>
+
+    {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+    <div class="container">
+        <div class="jumbotron my-auto">
+            <h1>Marine Mammal Tools and Inventory System</h1>
+        </div>
+    </div>
+
+       <div align="center">
+        <p style="font-size: small">Photo by ??</p>
+    </div>
+
+<!--Card container-->
+
+<div class="container">
+
+<!--    Inventory Card-->
+
+    <div class="row">
+        <div class="col-sm">
+            <div class="card border border-dark">
+                <div class="card-header">
+                    <h2>{% trans 'Inventory' %}</h2>
+                </div>
+                <div class="card-img">
+                    <img class="mh-80" src="{% static 'img/whalebrary/orca-binoculars.jpg' %}" alt="Card image" style="width: 80%; height: 120%">
+                </div>
+                <div class="card-body">
+                    <div class="btns">
+                        <a href="{% url 'whalebrary:item_list' %}" class="btn my-btn btn btn-primary">INVENTORY</a>
+                        <a href="{% url 'whalebrary:order_list' %}" class="btn my-btn btn btn-primary">List All Orders</a>
+                        <a href="{% url 'whalebrary:supplier_list' %}" class="btn my-btn btn btn-primary">List All Suppliers</a>
+                        <br>
+                        <br>
+                        <a href="{% url 'whalebrary:admin_tools' %}" class="btn my-btn btn btn-danger">Admin Tools</a>
+                    </div>
+                    <br>
+                </div>
+            </div>
+        </div>
+
+<!--        Necropsy Tools Card-->
+
+        <div class="col-sm">
+            <div class="card border border-dark">
+                <div class="card-header">
+                    <h2>{% trans 'Necropsy Tools' %}</h2>
+                </div>
+                <div class="card-img">
+                    <img class="mh-100" src="{% static 'img/whalebrary/checklist.jpg' %}" alt="Card image" style="width: 60%; height: 120%">
+                </div>
+                <div class="card-body">
+                    <div class="btns">
+                        <a href="{% url 'whalebrary:personnel_list' %}" class="btn my-btn btn btn-primary">Personnel List</a>
+                        <a href="{% url 'whalebrary:incident_list' %}" class="btn my-btn btn btn-primary">Incident List</a>
+                    </div>
+                <br>
+                </div>
+             </div>
+         </div>
+
+<!--       TBD  -->
+
+        <div class="col-sm">
+            <div class="card border border-dark">
+                <div class="card-header">
+                    <h2>{% trans 'TBD' %}</h2>
+                </div>
+                <div class="card-img">
+                    <img class="mh-100" src="{% static 'img/whalebrary/comingsoon.jpg' %}" alt="Card image" style="width: 100%; height: 100%">
+                </div>
+                <div class="card-body">
+                    <div class="btns">
+                        <a href="{% url 'whalebrary:index' %}" class="btn my-btn btn btn-primary">TBD</a>
+                    </div>
+                <br>
+                </div>
+             </div>
+         </div>
+
+    </div>
+</div>
+
+{% endblock %}
