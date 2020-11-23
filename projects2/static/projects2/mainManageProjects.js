@@ -211,7 +211,6 @@ var app = new Vue({
     sort(s) {
       // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
       //if s == current sort, reverse
-      console.log(s)
       if (s === this.currentSort) {
         this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
       }
@@ -252,13 +251,23 @@ var app = new Vue({
     },
     openReviewModal(projectYear) {
       this.projectYear2Review = projectYear;
+      if (!this.projectYear2Review.review) {
+        this.projectYear2Review.review = {}
+      }
       this.showReviewModal = true;
     },
 
-    closeModals(projectYear) {
+    closeModal(updatedProjectYear) {
+      if (updatedProjectYear) {
+
+        let endpoint = `/api/project-planning/project-years/${updatedProjectYear.id}/`;
+        apiService(endpoint, "GET")
+            .then(response => {
+              this.$set(this.projectYears, this.projectYears.indexOf(updatedProjectYear), response);
+            })
+      }
       this.showReviewModal = false;
-      this.$nextTick(() => {
-      })
+
     },
 
   },

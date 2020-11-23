@@ -449,7 +449,7 @@ class ChildTripRequestForm(forms.ModelForm):
         # the length of the trip is not too long
         if request_start_date and request_end_date:
             if request_end_date < request_start_date:
-                msg = _('The start date of the trip must occur after the end date.')
+                msg = _('The start date of the trip must occur before the end date.')
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)
             if abs((request_start_date - request_end_date).days) > 100:
@@ -500,10 +500,10 @@ class TripForm(forms.ModelForm):
 
         if start_date and end_date:
             if end_date < start_date:
-                msg = _('The start date of the trip must occur after the end date.')
+                msg = _('The start date of the trip must occur before the end date.')
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)
-                raise forms.ValidationError(_('The start date of the trip must occur after the end date.'))
+                raise forms.ValidationError(_('The start date of the trip must occur before the end date.'))
             if abs((start_date - end_date).days) > 100:
                 msg = _('The length of this trip is unrealistic.')
                 self.add_error('start_date', msg)

@@ -670,18 +670,20 @@ class Review(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_review", blank=True,
-                                         null=True)
-    modified_by = models.ManyToManyField(User, blank=True)
+                                         null=True, editable=False)
+    modified_by = models.ManyToManyField(User, editable=False)
 
     @property
     def metadata(self):
-        my_str = get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+        my_str = get_metadata_string(self.created_at, None, self.updated_at, self.last_modified_by)
         if self.modified_by.exists():
             my_str += f"<br><u>Reviewed by:</u> {listrify(self.modified_by.all())}"
         return my_str
 
     def save(self, *args, **kwargs):
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
+        if self.last_modified_by:
+            self.modified_by.add(self.last_modified_by)
 
     class Meta:
         ordering = ['created_at']

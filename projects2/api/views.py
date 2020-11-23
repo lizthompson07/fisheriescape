@@ -569,7 +569,10 @@ class ReviewListCreateAPIView(ListCreateAPIView):
         return year.agreements.all()
 
     def perform_create(self, serializer):
-        serializer.save(project_year_id=self.kwargs.get("project_year"))
+        serializer.save(
+            project_year_id=self.kwargs.get("project_year"),
+            last_modified_by=self.request.user
+        )
 
 
 class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -577,3 +580,7 @@ class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.ReviewSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
+    def perform_update(self, serializer):
+        serializer.save(
+            last_modified_by=self.request.user
+        )

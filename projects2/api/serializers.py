@@ -31,7 +31,7 @@ class UserDisplaySerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Review
-        exclude = ["updated_at", ]
+        exclude = ["project_year", ]
 
     metadata = serializers.SerializerMethodField()
     general_comment_html = serializers.SerializerMethodField()

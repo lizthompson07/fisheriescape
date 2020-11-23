@@ -127,6 +127,7 @@ class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
         context = super().get_context_data(**kwargs)
         context["random_project"] = models.Project.objects.first()
         context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
+        context["review_form"] = forms.ReviewForm
         return context
 
 

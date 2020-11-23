@@ -9,6 +9,7 @@
     background-color: rgba(0, 0, 0, 0.5);
     display: table;
     transition: opacity 0.3s ease;
+    overflow-y: auto;
 }
 
 .modal-wrapper {
@@ -30,10 +31,16 @@
 
 }
 
-.modal-header h3 {
+.modal-header h3{
     margin-top: 0;
     color: #42b983;
 }
+
+.modal-header h5{
+    margin-top: 0;
+    color: #000000;
+}
+
 
 .modal-body {
     margin: 20px 0;
