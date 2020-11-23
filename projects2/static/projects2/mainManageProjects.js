@@ -251,18 +251,21 @@ var app = new Vue({
     },
     openReviewModal(projectYear) {
       this.projectYear2Review = projectYear;
-      if(!this.projectYear2Review.review) {
+      if (!this.projectYear2Review.review) {
         this.projectYear2Review.review = {}
       }
       this.showReviewModal = true;
     },
 
     closeModal(updatedProjectYear) {
-      let endpoint = `/api/project-planning/project-years/${updatedProjectYear.id}/`;
-          apiService(endpoint, "GET")
-              .then(response => {
-                this.$set(this.projectYears, this.projectYears.indexOf(updatedProjectYear), response);
-              })
+      if (updatedProjectYear) {
+
+        let endpoint = `/api/project-planning/project-years/${updatedProjectYear.id}/`;
+        apiService(endpoint, "GET")
+            .then(response => {
+              this.$set(this.projectYears, this.projectYears.indexOf(updatedProjectYear), response);
+            })
+      }
       this.showReviewModal = false;
 
     },
