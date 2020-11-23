@@ -75,11 +75,6 @@ parameters:
     type: string
 
 steps:
-  - task: UsePythonVersion@0
-    displayName: 'Use Python 3.8'
-    inputs:
-      versionSpec: 3.8
-
   - script: |
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
