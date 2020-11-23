@@ -665,6 +665,9 @@ class StatusReport(models.Model):
 class Review(models.Model):
     project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
+    is_denied = models.BooleanField(default=False, verbose_name=_("Project is not approved (do not proceed)"))
+    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
+    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

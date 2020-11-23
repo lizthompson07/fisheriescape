@@ -103,7 +103,11 @@ def save_project_year_on_review_delete(sender, instance, **kwargs):
 
 @receiver(models.signals.post_save, sender=Review)
 def save_project_year_on_review_creation(sender, instance, created, **kwargs):
-    if instance.project_year.status == 2:
-        py = instance.project_year
+    py = instance.project_year
+    if instance.is_denied:
+        py.status = 5
+    elif instance.allocated_budget:
+        py.status = 4
+    elif instance.project_year.status == 2:
         py.status = 3
-        py.save()
+    py.save()
