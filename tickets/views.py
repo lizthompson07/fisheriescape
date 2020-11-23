@@ -235,7 +235,7 @@ class TicketUpdateView(LoginRequiredMixin, CommonUpdateView):
 
         # if there is a github issue number, we should also make sure the ticket is up to date.
         if obj.github_issue_number:
-            edit_github_issue(obj, self.request.user.id)
+            edit_github_issue(obj.id, self.request.user.id)
 
         return HttpResponseRedirect(reverse('tickets:detail', kwargs={'pk': obj.id}))
 
