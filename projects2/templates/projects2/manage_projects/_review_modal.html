@@ -11,13 +11,19 @@
 
         <div class="modal-header">
           <slot name="header">
-
-            <h3 v-if="isOldReview">
-              <span>{% trans "Edit Review" %}</span>
-            </h3>
-            <h3 v-else>
-              <span>{% trans "Start a Review" %}</span>
-            </h3>
+            <div v-if="!approval_form">
+              <h3 v-if="isOldReview">
+                <span>{% trans "Edit Review" %}</span>
+              </h3>
+              <h3 v-else>
+                <span>{% trans "Start a Review" %}</span>
+              </h3>
+            </div>
+            <div v-else>
+              <h3>
+                <span>{% trans "Approval Form" %}</span>
+              </h3>
+            </div>
             <br>
 
             <div v-if="errors" class="alert alert-danger" role="alert">
@@ -33,22 +39,28 @@
         <form method="post" @submit.prevent="onSubmit" class="form">
           <div class="modal-body">
             <slot name="body">
-              <div class="mb-3">
-                {% trans "Title:" %}
-                <p class="h5" v-html="project_year.project.title"></p>
+
+              <div v-if="!approval_form">
+                <div class="mb-3">
+                  {% trans "Title:" %}
+                  <p class="h5" v-html="project_year.project.title"></p>
+                </div>
+                <div class="mb-3">
+                  {% trans "Review History:" %}
+                  <p class="h5" v-if="isOldReview" v-html="project_year.review.metadata"></p>
+                </div>
+                <hr>
+                {% bootstrap_form review_form size='small' %}
               </div>
-              <div class="mb-3">
-                {% trans "Review History:" %}
-                <p class="h5" v-if="isOldReview" v-html="project_year.review.metadata"></p>
+              <div v-else>
+                {% bootstrap_form approval_form size='small' %}
               </div>
-              <hr>
-              {% bootstrap_form review_form size='small' %}
 
             </slot>
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button v-if="isOldReview" class="modal-red-bold" @click="deleteReview" type="button">{% trans "Delete" %}</button>
+              <button v-if="isOldReview && !approval_form" class="modal-red-bold" @click="deleteReview" type="button">{% trans "Delete" %}</button>
               <button v-if="isOldReview" class="modal-default-button">{% trans "Update" %}</button>
               <button v-else class="modal-default-button">{% trans "Add" %}</button>
               <button class="modal-default-button" @click="$emit('close')" id="closeBtn" type="button">

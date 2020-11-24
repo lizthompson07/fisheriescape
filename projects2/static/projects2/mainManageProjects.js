@@ -50,6 +50,7 @@ var app = new Vue({
     // modal
     projectYear2Review: {},
     showReviewModal: false,
+    approvalModal: false,
   },
   methods: {
     getCurrentUser() {
@@ -261,12 +262,15 @@ var app = new Vue({
       this.getFilterData();
 
     },
-    openReviewModal(projectYear) {
+    openReviewModal(projectYear, which="review") {
       this.projectYear2Review = projectYear;
       if (!this.projectYear2Review.review) {
         this.projectYear2Review.review = {}
       }
       this.showReviewModal = true;
+      if(which == "approval") {
+          this.approvalModal = true;
+      }
     },
 
     closeModal(updatedProjectYear) {
@@ -279,6 +283,7 @@ var app = new Vue({
             })
       }
       this.showReviewModal = false;
+      this.approvalModal = false;
 
     },
 
