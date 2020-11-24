@@ -31,10 +31,10 @@ NULL_YES_NO_CHOICES = (
 class DefaultReviewer(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
                                 verbose_name=_("DM Apps user"))
-    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which section(s)"),
+    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer belongs to which DFO section(s)"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
-    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"),
+    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer belongs to which DFO branch(es)"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
     reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"),
@@ -91,7 +91,7 @@ class Role(SimpleLookup):
 
 class TripCategory(SimpleLookup):
     days_when_eligible_for_review = models.IntegerField(verbose_name=_(
-        "Number days before earliest date that is eligible for review"))  # overflowing this since we DO NOT want it to be unique=True
+        "Number of days before earliest date that is eligible for review"))  # overflowing this since we DO NOT want it to be unique=True
 
 
 class TripSubcategory(Lookup):
@@ -546,11 +546,11 @@ class TripRequest(models.Model):
 
     # purpose
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role description"))
-    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of the trip"))
+    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of this meeting or conference"))
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("benefit to DFO"))
     multiple_conferences_rationale = models.TextField(blank=True, null=True,
                                                       verbose_name=_(
-                                                          "rationale for individual attending multiple conferences"))
+                                                          "rationale for Attending multiple conferences and/or international meetings (if applicable)"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
     # multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
     #     "rationale for multiple travelers"))

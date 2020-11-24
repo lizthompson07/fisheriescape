@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-23 17:39-0400\n"
+"POT-Creation-Date: 2020-11-24 08:58-0400\n"
 "PO-Revision-Date: 2020-11-23 16:32-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -81,10 +81,12 @@ msgstr "préférence linguistique"
 msgid "Section"
 msgstr "Section"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\accounts\models.py:72 .\accounts\models.py:73
 msgid "subject_en"
-msgstr "sujet_fr"
+msgstr "subject_fr"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\accounts\models.py:81 .\accounts\models.py:82
 msgid "message_en"
 msgstr "message_fr"
@@ -423,6 +425,7 @@ msgstr "Texte en anglais"
 msgid "French text"
 msgstr "Texte en français"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\cruises\models.py:106 .\cruises\models.py:107 .\projects\models.py:142
 #: .\projects\models.py:143 .\shared_models\models.py:67
 #: .\shared_models\models.py:68 .\travel\models.py:1121
@@ -644,7 +647,7 @@ msgstr "Affiliation"
 #: .\projects\filters.py:20 .\projects\filters.py:37 .\projects\filters.py:72
 #: .\projects\filters.py:81 .\projects\filters.py:106
 #: .\projects\filters.py:134 .\projects\forms.py:31 .\projects\forms.py:656
-#: .\travel\filters.py:47 .\travel\forms.py:537
+#: .\travel\filters.py:47 .\travel\forms.py:544
 #: .\travel\templates\travel\_trip_request_approvals.html:22
 #: .\vault\models.py:205
 msgid "Region"
@@ -4147,6 +4150,7 @@ msgstr "traduction nécessaire"
 msgid "FY of latest publication"
 msgstr "Nouvelle organisation"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\inventory\models.py:407 .\inventory\models.py:411
 msgid "title_eng"
 msgstr "title_fre"
@@ -5631,6 +5635,7 @@ msgstr "description (ang)"
 msgid "description (fr)"
 msgstr "description (fra)"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\projects2\models.py:40 .\projects2\models.py:41 .\projects\models.py:76
 #: .\projects\models.py:77 .\shared_models\models.py:52
 #: .\shared_models\models.py:53 .\shiny\models.py:38 .\shiny\models.py:39
@@ -6641,7 +6646,7 @@ msgstr "Voici une ventilation de votre allocation de temps:"
 #: .\projects\filters.py:34 .\projects\forms.py:655
 #: .\projects\templates\projects\admin_submitted_unapproved_list.html:74
 #: .\projects\templates\projects\my_project_list.html:49
-#: .\travel\filters.py:46 .\travel\filters.py:97 .\travel\forms.py:533
+#: .\travel\filters.py:46 .\travel\filters.py:97 .\travel\forms.py:540
 msgid "Fiscal year"
 msgstr "Exercice fiscal"
 
@@ -8851,18 +8856,21 @@ msgstr "notes (anglais)"
 msgid "notes (French)"
 msgstr "notes (français)"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\sar_search\models.py:237 .\sar_search\models.py:240
 #: .\sar_search\models.py:247 .\sar_search\models.py:250
 #: .\sar_search\models.py:262
 msgid "population_eng"
 msgstr "population_fre"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\sar_search\models.py:239 .\sar_search\models.py:243
 #: .\sar_search\models.py:249 .\sar_search\models.py:253
 #: .\sar_search\models.py:257 .\sar_search\views.py:321 .\trapnet\models.py:59
 msgid "common_name_eng"
 msgstr "common_name_fre"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\sar_search\models.py:267
 msgid "notes_eng"
 msgstr "notes_fra"
@@ -9046,11 +9054,12 @@ msgstr ""
 msgid "country"
 msgstr ""
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\shared_models\models.py:108 .\shared_models\models.py:109
 #, fuzzy
 #| msgid "name_eng"
 msgid "abbrev_eng"
-msgstr "name_fre"
+msgstr "abbrev_fre"
 
 #: .\shared_models\models.py:121
 msgid "RDG / ADM"
@@ -9449,11 +9458,10 @@ msgstr ""
 msgid "last modified"
 msgstr "dernière modification"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\shiny\models.py:28 .\shiny\models.py:29 .\shiny\models.py:49
-#, fuzzy
-#| msgid "title_eng"
 msgid "title_en"
-msgstr "title_fre"
+msgstr "title_fr"
 
 #: .\shiny\templates\shiny\index.html:58
 msgid "Open"
@@ -9511,9 +9519,8 @@ msgstr "nom (anglais)"
 msgid "category/type (French)"
 msgstr "nom (français)"
 
+# This is a translation needed at the coding level. Please do not touch. (DJF)
 #: .\spot\models.py:151 .\spot\models.py:162
-#, fuzzy
-#| msgid "category"
 msgid "category_eng"
 msgstr "catégorie"
 
@@ -11018,38 +11025,41 @@ msgstr ""
 msgid "This trip is closed to additional requests."
 msgstr "Ce voyage est fermé aux demandes supplémentaires."
 
-#: .\travel\forms.py:274 .\travel\forms.py:277 .\travel\forms.py:452
-#: .\travel\forms.py:503 .\travel\forms.py:506
+#: .\travel\forms.py:274 .\travel\forms.py:277 .\travel\forms.py:455
+#: .\travel\forms.py:510 .\travel\forms.py:513
 msgid "The start date of the trip must occur before the end date."
 msgstr "La date de début du voyage doit être antérieure à la date de fin."
 
-#: .\travel\forms.py:279 .\travel\forms.py:456 .\travel\forms.py:508
+#: .\travel\forms.py:279 .\travel\forms.py:459 .\travel\forms.py:515
 msgid "The length of this trip is unrealistic."
 msgstr "La durée de ce voyage est irréaliste."
 
-# David - source text for this one is incomplete... 
-#: .\travel\forms.py:288 .\travel\forms.py:464
+#: .\travel\forms.py:287 .\travel\forms.py:467
+#, fuzzy
 msgid ""
-"The start date of this request ({request_start_date.strftime(\"%Y-%m-%d\")}) "
-"has to be within 10 days of the"
+"The start date of this request ({request_start_date}) has to be within 10 "
+"days of the start date of the selected trip ({trip_start_date})!"
 msgstr ""
+"La date de fin de cette demande ({request_start_date}) doit se situer dans "
+"les 10 jours ({request_start_date})!"
 
-#: .\travel\forms.py:299 .\travel\forms.py:474
+#: .\travel\forms.py:299 .\travel\forms.py:479
+#, fuzzy
 msgid ""
-"The end date of this request ({request_end_date.strftime(\"%Y-%m-%d\")}) "
-"must be within 10 days"
+"The end date of this request ({request_end_date}) must be within 10 days of "
+"the end date of the selected trip ({trip_end_date})!"
 msgstr ""
-"La date de fin de cette demande ({request_end_date.strftime(\"%Y-%m-%d\")}) "
-"doit se situer dans les 10 jours"
+"La date de fin de cette demande ({request_start_date}) doit se situer dans "
+"les 10 jours ({request_start_date})!"
 
-#: .\travel\forms.py:445
+#: .\travel\forms.py:448
 msgid ""
 "There is already a trip request in the system for this user and this trip."
 msgstr ""
 "Il existe déjà une demande de voyage dans le système pour cet utilisateur et "
 "ce voyage."
 
-#: .\travel\forms.py:514
+#: .\travel\forms.py:521
 msgid ""
 "The abstract deadline of the trip (if present) must occur before the start "
 "date."
@@ -11057,7 +11067,7 @@ msgstr ""
 "La date limite pour le résumé (s'il est présent) doit être antérieure à la "
 "date de début."
 
-#: .\travel\forms.py:519
+#: .\travel\forms.py:526
 msgid ""
 "The registration deadline of the trip (if present) must occur before or on "
 "the start date."
@@ -11065,21 +11075,21 @@ msgstr ""
 "La date limite d'inscription du voyage (si présent) doit avoir lieu avant ou "
 "à la date de début."
 
-#: .\travel\forms.py:535
+#: .\travel\forms.py:542
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:9
 #: .\travel\templates\travel\index.html:133
 msgid "Traveller"
 msgstr "Voyageur"
 
-#: .\travel\forms.py:536
+#: .\travel\forms.py:543
 msgid "Trip"
 msgstr "Voyage"
 
-#: .\travel\forms.py:538
+#: .\travel\forms.py:545
 msgid "ADM approval required"
 msgstr "Approbation du SMA requis"
 
-#: .\travel\forms.py:611 .\travel\forms.py:668
+#: .\travel\forms.py:618 .\travel\forms.py:675
 msgid ""
 "Sorry, the role of a reviewer whose status is set to {my_object.status} "
 "cannot be changed"
@@ -11087,7 +11097,7 @@ msgstr ""
 "Désolé, le rôle d'un examinateur dont le statut est fixé à {mon_objet."
 "status} ne peut être modifié"
 
-#: .\travel\forms.py:615 .\travel\forms.py:672
+#: .\travel\forms.py:622 .\travel\forms.py:679
 msgid ""
 "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
 "status is set to {my_object.status}"
@@ -11095,7 +11105,7 @@ msgstr ""
 "Désolé, vous ne pouvez pas changer l'utilisateur DM Apps associé à un "
 "examinateur dont le statut est défini sur {mon_objet.status}"
 
-#: .\travel\forms.py:619 .\travel\forms.py:676
+#: .\travel\forms.py:626 .\travel\forms.py:683
 msgid ""
 "Sorry, the order of a reviewer whose status is set to {my_object.status} "
 "cannot be changed"
@@ -11108,18 +11118,12 @@ msgstr ""
 msgid "DM Apps user"
 msgstr "Utilisateur de DM Apps"
 
-# David please switch source text to:
-# reviewer belongs to which DFO section(s)
 #: .\travel\models.py:34
-#, fuzzy
-#| msgid "reviewer on which DFO section(s)"
-msgid "reviewer on which section(s)"
+msgid "reviewer belongs to which DFO section(s)"
 msgstr "l'examinateur appartient à quelle(s) section(s) du MPO"
 
-# David please switch source text to :
-# reviewer belongs to which DFO branch(es)
 #: .\travel\models.py:37
-msgid "reviewer on which DFO branch(es)"
+msgid "reviewer belongs to which DFO branch(es)"
 msgstr "l'examinateur appartient à quelle(s) direction(s) du MPO"
 
 #: .\travel\models.py:40
@@ -11134,10 +11138,8 @@ msgstr "Aperçu de la procédure de demande de voyage"
 msgid "Review process outline"
 msgstr "Aperçu du processus de révision"
 
-# David please adjust source text to :
-# Number of days before earliest date that is eligible for review
 #: .\travel\models.py:94
-msgid "Number days before earliest date that is eligible for review"
+msgid "Number of days before earliest date that is eligible for review"
 msgstr "Nombre de jours avant la première date admissible à l'examen"
 
 #: .\travel\models.py:144
@@ -11304,20 +11306,18 @@ msgstr "rôle du voyageur"
 msgid "role description"
 msgstr "description du rôle"
 
-# David please change source text to the following:
-# objective of this meeting or conference?objectif de cette réunion ou conférence
 #: .\travel\models.py:549
-msgid "objective of the trip"
+msgid "objective of this meeting or conference"
 msgstr "objectif de cette réunion ou conférence"
 
 #: .\travel\models.py:550
 msgid "benefit to DFO"
 msgstr "Les avantages pour le MPO"
 
-# David please change source text to:
-# Rationale for Attending Multiple Conferences and/or International Meetings (if applicable)
 #: .\travel\models.py:553
-msgid "rationale for individual attending multiple conferences"
+msgid ""
+"rationale for Attending multiple conferences and/or international meetings "
+"(if applicable)"
 msgstr ""
 "justification de la participation à plusieurs conférences et/ou réunions "
 "internationales (le cas échéant)"
@@ -12096,8 +12096,8 @@ msgid "Please select the report"
 msgstr "Veuillez sélectionner le rapport"
 
 #: .\travel\templates\travel\reviewer_approval_form.html:41
-msgid "Print Travel Plan"
-msgstr "Imprimer le plan de voyage"
+msgid "Print Travel Request and Approval Form (TRAF)"
+msgstr "Imprimer la demande de voyage et formulaire d'approbation (DVFA)"
 
 #: .\travel\templates\travel\reviewer_approval_form.html:44
 msgid "CFTS Report"
@@ -12318,6 +12318,7 @@ msgstr ""
 "Une fois en cours d'examen, il sera fermé aux demandes supplémentaires."
 
 # David - source text is missing some words...
+# DJF - no this is perfect given the context
 #: .\travel\templates\travel\trip_request_detail.html:96
 msgid "You are able to edit this record because you are "
 msgstr "Vous pouvez modifier cet enregistrement car vous êtes "
@@ -12374,10 +12375,10 @@ msgstr "Les demandes de voyage soumises ne peuvent pas être supprimées."
 msgid "Clone Me"
 msgstr "Clonez-moi"
 
-# David - source text throught out the app referecing "Travel Plan' should read:
-# Travel Request and Approval Form (TRAF)
 #: .\travel\templates\travel\trip_request_detail.html:217
-msgid "Travel Plan"
+#, fuzzy
+#| msgid "Trip requests awaiting approval from ADM:"
+msgid "Travel Request and Approval Form (TRAF)"
 msgstr "Demande de voyage et formulaire d'approbation (DVFA)"
 
 #: .\travel\templates\travel\trip_request_form.html:48
@@ -12578,14 +12579,12 @@ msgstr "Dates de voyage"
 msgid "Role of participant"
 msgstr "Rôle du participant"
 
-# David - Source text needs the following adding at the end:
-# (CAD)
 #: .\travel\views.py:302 .\travel\views.py:327 .\travel\views.py:346
-msgid "Total amount of DFO funding"
+msgid "Total amount of DFO funding (CAD)"
 msgstr "Montant total des financements du MPO (CAD)"
 
 #: .\travel\views.py:304 .\travel\views.py:328 .\travel\views.py:348
-msgid "Total amount of non-DFO funding"
+msgid "Total amount of non-DFO funding (CAD)"
 msgstr "Montant du financement non-MPO (CAD)"
 
 #: .\travel\views.py:305 .\travel\views.py:329 .\travel\views.py:347
@@ -12710,10 +12709,8 @@ msgstr "Annuler la demande"
 msgid "Please note that this action cannot be undone!!"
 msgstr "Veuillez noter que cette action ne peut être annulée !"
 
-# David please adjust source text to :
-# Sorry, it is currently not possible to cancel your cancellation request.
 #: .\travel\views.py:959
-msgid "sorry, un-cancelling a trip is currently not an option"
+msgid "Sorry, it is currently not possible to cancel your cancellation request"
 msgstr ""
 "désolé, il n'est actuellement pas possible d'annuler votre demande "
 "d'annulation"
@@ -12783,10 +12780,14 @@ msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste "
 "des examinateurs"
 
-# David - Source text is incomplete... missing something
 #: .\travel\views.py:1358
-msgid "This function can only with an unreviewed trip."
+#, fuzzy
+#| msgid ""
+#| "This function can only be used when the trip request is still a draft"
+msgid "This function can only be used with an unreviewed trip."
 msgstr ""
+"Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
+"encore à l'état de brouillon."
 
 #: .\travel\views.py:1372 .\travel\views.py:1384
 msgid ""
@@ -12854,10 +12855,8 @@ msgstr "Le voyage a été ajouté à la base de données !"
 msgid "Do you wish to start a review on the following trip?"
 msgstr "Souhaitez-vous commencer un examen sur le voyage suivant ?"
 
-# HI David the source text needs to change to the following:
-# Do you wish to end the review on the following trip?
 #: .\travel\views.py:1724
-msgid "Do you wish to end a review on the following trip?"
+msgid "Do you wish to end the review on the following trip?"
 msgstr "Souhaitez-vous terminer l'examen du voyage suivant ?"
 
 #: .\travel\views.py:1735
@@ -12947,19 +12946,12 @@ msgstr "Soumettre votre évaluation"
 msgid "Cancel the trip"
 msgstr "Annuler le voyage"
 
-# Hi David please make the following changes to the source text:
-# Do you wish to undo your cancellation request for the following trip? 
 #: .\travel\views.py:2171
-msgid "Do you wish to un-cancel the following trip?"
+msgid "Do you wish to undo your cancellation request for the following trip?"
 msgstr ""
 "Vous souhaitez annuler votre demande d'annulation pour le voyage suivant ? "
 
 #: .\travel\views.py:2173
-#, fuzzy
-#| msgid ""
-#| "Cancelling this trip will result in all linked requests to be "
-#| "'cancelled'. This list of associated trip requests can be viewed below in "
-#| "the trip detail."
 msgid ""
 "Cancelling this trip will result in all linked requests to be 'cancelled'. "
 "The list of associated trip requests can be viewed below in the trip detail."
@@ -14714,7 +14706,33 @@ msgstr "Le coût a été supprimé avec succès."
 msgid "Whale Equipment Metadata Database"
 msgstr ""
 
-# David - please change source text to:
+# Rationale for Attending Multiple Conferences and/or International Meetings (if applicable)
+#~ msgid "rationale for individual attending multiple conferences"
+#~ msgstr ""
+#~ "justification de la participation à plusieurs conférences et/ou réunions "
+#~ "internationales (le cas échéant)"
+
+#, fuzzy
+#~ msgid ""
+#~ "The end date of this request ({request_end_date.strftime(\"%Y-%m-%d\")}) "
+#~ "must be within 10 days"
+#~ msgstr ""
+#~ "La date de fin de cette demande ({request_end_date.strftime(\"%Y-%m-%d"
+#~ "\")}) doit se situer dans les 10 jours"
+
+# Sorry, it is currently not possible to cancel your cancellation request.
+#~ msgid "sorry, un-cancelling a trip is currently not an option"
+#~ msgstr ""
+#~ "désolé, il n'est actuellement pas possible d'annuler votre demande "
+#~ "d'annulation"
+
+#~ msgid "Print Travel Plan"
+#~ msgstr "Imprimer le plan de voyage"
+
+# Travel Request and Approval Form (TRAF)
+#~ msgid "Travel Plan"
+#~ msgstr "Demande de voyage et formulaire d'approbation (DVFA)"
+
 # The start date of the trip must occur before the end date.
 #~ msgid "The start date of the trip must occur after the end date."
 #~ msgstr "La date de début du voyage doit être antérieure à la date de fin."
@@ -15031,9 +15049,6 @@ msgstr ""
 
 #~ msgid "Trip requests assigned to you"
 #~ msgstr "Demandes de voyage qui vous sont attribuées"
-
-#~ msgid "Trip requests awaiting approval from ADM:"
-#~ msgstr "Demandes de voyage en attente de l'approbation du SMA :"
 
 #~ msgid "There are no requests currently awaiting ADM approval"
 #~ msgstr "Il n'y a aucune demande en attente d'approbation par le SMA"

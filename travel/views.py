@@ -299,9 +299,9 @@ request_field_list = [
     'multiple_conferences_rationale',
     'late_justification',
     'bta_attendees',
-    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
+    'total_dfo_funding|{}'.format(_("Total amount of DFO funding (CAD)")),
     'funding_source',
-    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
+    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding (CAD)")),
     'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
     'total_request_cost|{}'.format(_("Total costs")),
     'original_submission_date',
@@ -324,8 +324,8 @@ traveller_field_list = [
     'long_role|{}'.format("Role of participant"),
     'multiple_conferences_rationale',
     'funding_source',
-    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
-    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
+    'total_dfo_funding|{}'.format(_("Total amount of DFO funding (CAD)")),
+    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding (CAD)")),
     'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
     'total_request_cost|{}'.format(_("Total costs")),
 ]
@@ -343,9 +343,9 @@ request_group_field_list = [
     'bta_attendees',
     'late_justification',
     'funding_source',
-    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
+    'total_dfo_funding|{}'.format(_("Total amount of DFO funding (CAD)")),
     'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
-    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
+    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding (CAD)")),
     'total_request_cost|{}'.format(_("Total cost")),
     'original_submission_date',
     'processing_time|{}'.format(_("Processing time")),
@@ -956,7 +956,7 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         is_cancelled = True if my_trip_request.status.id == 22 else False
 
         if is_cancelled:
-            messages.warning(self.request, _("sorry, un-cancelling a trip is currently not an option"))
+            messages.warning(self.request, _("Sorry, it is currently not possible to cancel your cancellation request"))
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs))
 
             # UN-CANCEL THE REQUEST
@@ -1355,7 +1355,7 @@ def reset_reviewers(request, type, triprequest=None, trip=None):
                 # next, re-add the defaults...
                 utils.get_trip_reviewers(my_obj)
             else:
-                messages.error(request, _("This function can only with an unreviewed trip."))
+                messages.error(request, _("This function can only be used with an unreviewed trip."))
             return HttpResponseRedirect(reverse("travel:trip_detail", args=(trip, type)))
 
 
@@ -1721,7 +1721,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
         if self.get_object().status_id in [30, 41]:
             return _("Do you wish to start a review on the following trip?")
         else:
-            return _("Do you wish to end a review on the following trip?")
+            return _("Do you wish to end the review on the following trip?")
 
     def get_h2(self):
         if self.get_object().status_id in [30, 41]:
@@ -2168,7 +2168,7 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     form_class = forms.TripAdminNotesForm
     template_name = 'travel/trip_cancel_form.html'
     submit_text = _("Cancel the trip")
-    h1 = _("Do you wish to un-cancel the following trip?")
+    h1 = _("Do you wish to undo your cancellation request for the following trip?")
     h2 = "<span class='red-font'>" + \
          _("Cancelling this trip will result in all linked requests to be 'cancelled'. "
            "The list of associated trip requests can be viewed below in the trip detail.") + \
