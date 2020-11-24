@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User as AuthUser, User
 from django.forms import modelformset_factory
 from django.utils import timezone
-from django.utils.translation import gettext as _, gettext_lazy
+from django.utils.translation import gettext as _
 
 from shared_models import models as shared_models
 from travel.filters import get_region_choices
@@ -152,7 +152,7 @@ class TripRequestForm(forms.ModelForm):
             'role': forms.Select(attrs={"class": "not-a-group-field"}),
             'region': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}),
             'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field", "rows": 3}),
-            'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field", "rows": 3}),
+            'learning_plan': forms.Select(attrs={"class": "not-a-group-field"}, choices=YES_NO_CHOICES),
             'non_dfo_costs': forms.NumberInput(attrs={"class": "not-a-group-field"}),
             'non_dfo_org': forms.TextInput(attrs={"class": "not-a-group-field"}),
         }
@@ -214,9 +214,9 @@ class TripRequestForm(forms.ModelForm):
             # 'reason',
             'role',
             'role_of_participant',
+            'learning_plan',
             'objective_of_event',
             'benefit_to_dfo',
-            'multiple_conferences_rationale',
             'late_justification',
             'funding_source',
             'notes',
@@ -284,8 +284,9 @@ class TripRequestForm(forms.ModelForm):
             if trip_start_date:
                 delta = abs(request_start_date - trip_start_date)
                 if delta.days > 10:
-                    msg = _("The start date of this request ({request_start_date}) has to be within 10 days of the start date of the selected trip ({trip_start_date})!").format(
-                        request_start_date= request_start_date.strftime("%Y-%m-%d"),
+                    msg = _(
+                        "The start date of this request ({request_start_date}) has to be within 10 days of the start date of the selected trip ({trip_start_date})!").format(
+                        request_start_date=request_start_date.strftime("%Y-%m-%d"),
                         trip_start_date=trip_start_date.strftime("%Y-%m-%d"),
                     )
                     self.add_error('start_date', msg)
@@ -296,7 +297,8 @@ class TripRequestForm(forms.ModelForm):
             if trip_end_date:
                 delta = abs(request_end_date - trip_end_date)
                 if delta.days > 10:
-                    msg = _("The end date of this request ({request_end_date}) must be within 10 days of the end date of the selected trip ({trip_end_date})!").format(
+                    msg = _(
+                        "The end date of this request ({request_end_date}) must be within 10 days of the end date of the selected trip ({trip_end_date})!").format(
                         request_end_date=request_end_date.strftime("%Y-%m-%d"),
                         trip_end_date=trip_end_date.strftime("%Y-%m-%d"),
                     )
@@ -350,9 +352,9 @@ class ChildTripRequestForm(forms.ModelForm):
             # 'reason',
             'role',
             'role_of_participant',
+            'learning_plan',
             'exclude_from_travel_plan',
             'parent_request',
-            'multiple_conferences_rationale',
         ]
         widgets = {
             'user': forms.Select(attrs=chosen_js),
@@ -360,7 +362,7 @@ class ChildTripRequestForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'role_of_participant': forms.Textarea(attrs=attr_row3),
-            'multiple_conferences_rationale': forms.Textarea(attrs=attr_row3),
+            'learning_plan': forms.Select(choices=YES_NO_CHOICES),
             'phone': forms.TextInput(attrs={"class": "disappear-if-user input-phone"}),
             'first_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
             'last_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
@@ -416,7 +418,7 @@ class ChildTripRequestForm(forms.ModelForm):
             # 'reason',
             'role',
             'role_of_participant',
-            'multiple_conferences_rationale',
+            'learning_plan',
         ]
         for field in field_list:
             self.fields[field].group = 3
@@ -777,6 +779,19 @@ class ProcessStepForm(forms.ModelForm):
 ProcessStepFormset = modelformset_factory(
     model=models.ProcessStep,
     form=ProcessStepForm,
+    extra=1,
+)
+
+
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = models.Role
+        fields = "__all__"
+
+
+RoleFormset = modelformset_factory(
+    model=models.Role,
+    form=RoleForm,
     extra=1,
 )
 
