@@ -1,11 +1,11 @@
 from django import forms
+from django.contrib.auth.models import User as AuthUser, User
 from django.forms import modelformset_factory
 from django.utils import timezone
-from django.utils.translation import gettext as _
-from django.contrib.auth.models import User as AuthUser, User
+from django.utils.translation import gettext as _, gettext_lazy
+
 from shared_models import models as shared_models
 from travel.filters import get_region_choices
-
 from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
@@ -284,9 +284,10 @@ class TripRequestForm(forms.ModelForm):
             if trip_start_date:
                 delta = abs(request_start_date - trip_start_date)
                 if delta.days > 10:
-                    msg = _(
-                        f'The start date of this request ({request_start_date.strftime("%Y-%m-%d")}) has to be within 10 days of the'
-                        f' start date of the selected trip ({trip_start_date.strftime("%Y-%m-%d")})!')
+                    msg = _("The start date of this request ({request_start_date}) has to be within 10 days of the start date of the selected trip ({trip_start_date})!").format(
+                        request_start_date= request_start_date.strftime("%Y-%m-%d"),
+                        trip_start_date=trip_start_date.strftime("%Y-%m-%d"),
+                    )
                     self.add_error('start_date', msg)
                     # self.add_error('trip', msg)
                     raise forms.ValidationError(msg)
@@ -295,9 +296,11 @@ class TripRequestForm(forms.ModelForm):
             if trip_end_date:
                 delta = abs(request_end_date - trip_end_date)
                 if delta.days > 10:
-                    msg = _(
-                        f'The end date of this request ({request_end_date.strftime("%Y-%m-%d")}) must be within 10 days'
-                        f' of the end date of the selected trip ({trip_end_date.strftime("%Y-%m-%d")})!')
+                    msg = _("The end date of this request ({request_end_date}) must be within 10 days of the end date of the selected trip ({trip_end_date})!").format(
+                        request_end_date=request_end_date.strftime("%Y-%m-%d"),
+                        trip_end_date=trip_end_date.strftime("%Y-%m-%d"),
+                    )
+
                     self.add_error('end_date', msg)
                     # self.add_error('trip', msg)
                     raise forms.ValidationError(msg)
@@ -461,8 +464,10 @@ class ChildTripRequestForm(forms.ModelForm):
                 delta = abs(request_start_date - trip_start_date)
                 if delta.days > 10:
                     msg = _(
-                        f'The start date of this request ({request_start_date.strftime("%Y-%m-%d")}) has to be within 10 days of the'
-                        f' start date of the selected trip ({trip_start_date.strftime("%Y-%m-%d")})!')
+                        "The start date of this request ({request_start_date}) has to be within 10 days of the start date of the selected trip ({trip_start_date})!").format(
+                        request_start_date=request_start_date.strftime("%Y-%m-%d"),
+                        trip_start_date=trip_start_date.strftime("%Y-%m-%d"),
+                    )
                     self.add_error('start_date', msg)
                     # self.add_error('trip', msg)
 
@@ -471,8 +476,10 @@ class ChildTripRequestForm(forms.ModelForm):
                 delta = abs(request_end_date - trip_end_date)
                 if delta.days > 10:
                     msg = _(
-                        f'The end date of this request ({request_end_date.strftime("%Y-%m-%d")}) must be within 10 days'
-                        f' of the end date of the selected trip ({trip_end_date.strftime("%Y-%m-%d")})!')
+                        "The end date of this request ({request_end_date}) must be within 10 days of the end date of the selected trip ({trip_end_date})!").format(
+                        request_end_date=request_end_date.strftime("%Y-%m-%d"),
+                        trip_end_date=trip_end_date.strftime("%Y-%m-%d"),
+                    )
                     self.add_error('end_date', msg)
                     # self.add_error('trip', msg)
 
@@ -765,6 +772,7 @@ class ProcessStepForm(forms.ModelForm):
     class Meta:
         model = models.ProcessStep
         fields = "__all__"
+
 
 ProcessStepFormset = modelformset_factory(
     model=models.ProcessStep,

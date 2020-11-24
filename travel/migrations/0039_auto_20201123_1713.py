@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='defaultreviewer',
             name='sections',
-            field=models.ManyToManyField(blank=True, related_name='travel_default_reviewers', to='shared_models.Section', verbose_name='reviewer on which section(s)'),
+            field=models.ManyToManyField(blank=True, related_name='travel_default_reviewers', to='shared_models.Section', verbose_name='reviewer belongs to which DFO section(s)'),
         ),
         migrations.AlterField(
             model_name='triprequest',
