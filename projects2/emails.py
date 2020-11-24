@@ -8,23 +8,24 @@ from_email = settings.SITE_FROM_EMAIL
 
 
 class ProjectApprovalEmail:
-    def __init__(self, project, request):
+    def __init__(self, review, request):
         self.request = request
-        if project.approved:
+        if review.approval_status == 1:
             self.subject = 'Your project has been approved / Votre projet a été approuvé'
-        else:
+        elif review.approval_status == 0:
             self.subject = "Your project has not been approved / Votre projet n'a pas été approuvé"
-
-        self.message = self.load_html_template(project)
+        else:
+            self.subject = "Your project status has been updated / Le statut de votre projet a été mis à jour"
+        self.message = self.load_html_template(review)
         self.from_email = from_email
-        self.to_list = [u.email for u in project.project_leads_as_users]
+        self.to_list = [u.email for u in review.project_year.get_project_leads_as_users()]
 
     def __str__(self):
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
-    def load_html_template(self, project):
-        t = loader.get_template('projects/email_project_approved.html')
-        context = {'object': project,}
+    def load_html_template(self, review):
+        t = loader.get_template('projects2/email_project_approved.html')
+        context = {'object': review,}
         context.update(my_envr(self.request))
         rendered = t.render(context)
         return rendered

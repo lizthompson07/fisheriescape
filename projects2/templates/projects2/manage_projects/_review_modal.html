@@ -42,25 +42,32 @@
 
               <div v-if="!approval_form">
                 <div class="mb-3">
-                  {% trans "Title:" %}
-                  <p class="h5" v-html="project_year.project.title"></p>
+                  <span class="text-muted">{% trans "Title:" %}</span>
+                  <p class="lead" v-html="project_year.project.title"></p>
                 </div>
                 <div class="mb-3">
-                  {% trans "Review History:" %}
-                  <p class="h5" v-if="isOldReview" v-html="project_year.review.metadata"></p>
+                  <span class="text-muted">{% trans "Review History:" %}</span>
+                  <p class="lead" v-if="isOldReview" v-html="project_year.review.metadata"></p>
                 </div>
                 <hr>
                 {% bootstrap_form review_form size='small' %}
               </div>
+
               <div v-else>
                 {% bootstrap_form approval_form size='small' %}
+                <div class="mb-3">
+                  <p class="text-muted" v-if="project_year.review.notification_email_sent">
+                    NOTE: An email has already been send to the project leads on <span v-html="project_year.review.notification_email_sent"></span>
+                  </p>
+                </div>
               </div>
 
             </slot>
           </div>
           <div class="modal-footer">
             <slot name="footer">
-              <button v-if="isOldReview && !approval_form" class="modal-red-bold" @click="deleteReview" type="button">{% trans "Delete" %}</button>
+              <button v-if="isOldReview && !approval_form" class="modal-red-bold" @click="deleteReview"
+                      type="button">{% trans "Delete" %}</button>
               <button v-if="isOldReview" class="modal-default-button">{% trans "Update" %}</button>
               <button v-else class="modal-default-button">{% trans "Add" %}</button>
               <button class="modal-default-button" @click="$emit('close')" id="closeBtn" type="button">

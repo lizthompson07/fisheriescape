@@ -49,7 +49,7 @@ class FTEBreakdownAPIView(APIView):
             return Response(data, status.HTTP_200_OK)
         else:
             if not request.query_params.get("year"):
-                return Response({"error":"must supply a fiscal year"}, status.HTTP_400_BAD_REQUEST)
+                return Response({"error": "must supply a fiscal year"}, status.HTTP_400_BAD_REQUEST)
 
             data = list()
             ids = request.query_params.get("ids").split(",")
@@ -61,9 +61,9 @@ class FTEBreakdownAPIView(APIView):
                 my_dict = get_user_fte_breakdown(u, fiscal_year_id=year)
                 data.append(my_dict)
 
-
             # project_years =
             return Response(data, status.HTTP_200_OK)
+
 
 class GetDatesAPIView(APIView):
     def get(self, request):
@@ -410,7 +410,6 @@ class FileListCreateAPIView(ListCreateAPIView):
         serializer.save(project=year.project, project_year=year)
 
 
-
 class FileRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = models.File.objects.all()
     serializer_class = serializers.FileSerializer
@@ -479,6 +478,7 @@ class TagListAPIView(ListAPIView):
 
         return qs.distinct()
 
+
 class ThemeListAPIView(ListAPIView):
     serializer_class = serializers.ThemeSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
@@ -493,7 +493,6 @@ class ThemeListAPIView(ListAPIView):
 class FunctionalGroupListAPIView(ListAPIView):
     serializer_class = serializers.FunctionalGroupSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
-
 
     def get_queryset(self):
         qs = models.FunctionalGroup.objects.all()
@@ -566,8 +565,6 @@ class SectionListAPIView(ListAPIView):
         return qs
 
 
-
-
 # Reviews
 ##############
 class ReviewListCreateAPIView(ListCreateAPIView):
@@ -580,10 +577,13 @@ class ReviewListCreateAPIView(ListCreateAPIView):
         return year.agreements.all()
 
     def perform_create(self, serializer):
-        serializer.save(
+        my_review = serializer.save(
             project_year_id=self.kwargs.get("project_year"),
             last_modified_by=self.request.user
         )
+
+        if self.request.data["email_update"]:
+            my_review.send_approval_email(self.request)
 
 
 class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -592,6 +592,9 @@ class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def perform_update(self, serializer):
-        serializer.save(
+        my_review = serializer.save(
             last_modified_by=self.request.user
         )
+
+        if self.request.data["email_update"]:
+            my_review.send_approval_email(self.request)
