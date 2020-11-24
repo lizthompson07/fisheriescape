@@ -220,7 +220,7 @@ def get_user_fte_breakdown(user, fiscal_year_id):
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['submitted_unapproved'] = nz(staff_instances.filter(
-        project_year__status__in=[2,3]
+        project_year__status__in=[2, 3]
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['approved'] = nz(staff_instances.filter(
@@ -342,6 +342,7 @@ def multiple_financial_project_year_summary_data(project_years):
         my_list.append(my_dict)
 
     return my_list
+
 
 def multiple_projects_financial_summary(project_list):
     my_dict = {}
@@ -552,3 +553,91 @@ def get_file_field_list():
 
     ]
     return my_list
+
+
+def get_review_score_rubric():
+    return {
+        "collaboration": {
+            1: {
+                "criteria": _(
+                    "no formal commitments; limited interest from stakeholders; limited opportunity for partnership or collaboration."),
+                "examples": _(
+                    "No expressed interest or identified as a low priority (or potential conflict) by a stakeholder advisory committee."),
+            },
+            2: {
+                "criteria": _("Informal departmental commitments; some interest from stakeholders; internal collaboration."),
+                "examples": _(
+                    "Verbal agreement with stakeholders or external partner. Collaboration between internal programs of science staff."),
+            },
+            3: {
+                "criteria": _(
+                    "regulatory or legal commitment; high interest from stakeholders; strong opportunity for external partnership and collaboration."),
+                "examples": _("Signed G&C agreement with external partner."),
+            },
+        },
+        "strategic": {
+            1: {
+                "criteria": _("limited long-term value; short-term benefit (fire-fighting)"),
+                "examples": _(
+                    "Local, archived dataset, with limited likelihood of replication going forward.   No clear link to decision-making."),
+            },
+            2: {
+                "criteria": _("some strategic value to department; medium-term benefit"),
+                "examples": _(
+                    "Regional dataset of current high value, but potential to be replaced by emerging technology.  Indirect link to decision."),
+            },
+            3: {
+                "criteria": _("high long-term strategic value to the department; high innovation value; broad applicability"),
+                "examples": _(
+                    "High value/priority, nationally consistent dataset using emerging, more cost effective (emerging) technology.  Clear link to high-priority decision-making."),
+            },
+        },
+        "operational": {
+            1: {
+                "criteria": _("One-off project; feasible now but not sustainable in the long-term."),
+                "examples": _("New data collection. Significant admin work required."),
+            },
+            2: {
+                "criteria": _(
+                    "Moderate level of feasibility or operational efficiency, e.g. equipment/tools readily available to be implemented within year"),
+                "examples": _("Some processing/analysis required of an existing dataset."),
+            },
+            3: {
+                "criteria": _(
+                    "high feasibility, e.g. data availability, expertise, existing monitoring platforms, and regulatory tools available"),
+                "examples": _(
+                    "Open publication of an existing data layer.  Low administrative burden (e.g. existing agreements in place)."),
+            },
+        },
+        "ecological": {
+            1: {
+                "criteria": _("limited ecological value, or lower priority species/habitats"),
+                "examples": _("Project related to a species or area with limited or unknown ecological role, or of localized interest."),
+            },
+            2: {
+                "criteria": _("Evidence of ecological value, e.g., prey linkages to key species."),
+                "examples": _(
+                    "Project related to a species or area with known linkages to a species of high ecological value (prey species), or importance identified through ecological modelling."),
+            },
+            3: {
+                "criteria": _("high ecological value (important species) or high ecological risk (SARA-listed species)"),
+                "examples": _(
+                    "Project related to a nationally or regionally recognized ESS (Eelgrass) or EBSA (Minas Basin), or SAR (Blue Whale)."),
+            },
+        },
+        "scale": {
+            1: {
+                "criteria": _("limited geographic or temporal scope; site-specific and lessons not readily applicable to other areas"),
+                "examples": _("Data only available for a single location or bay."),
+            },
+            2: {
+                "criteria": _("broad geographic/temporal scope; area of some significance"),
+                "examples": _("Subregional data layer, e.g., for a single NAFO Unit or MPA."),
+            },
+            3: {
+                "criteria": _("broad geographic or temporal scope; area of high significance"),
+                "examples": _("Bioregional data layers, e.g. remote sensing, RV Survey."),
+            },
+        },
+
+    }

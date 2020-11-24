@@ -56,6 +56,18 @@
                     {% bootstrap_field review_form.collaboration_comment size='small' show_label=False %}
                   </div>
                 </div>
+                <div v-if="project_year.review.collaboration_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.collaboration[project_year.review.collaboration_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.collaboration[project_year.review.collaboration_score].examples"></span>
+                  </div>
+                </div>
+
+
                 <hr>
 
                 <p class="text-muted">{{ review_form.strategic_score.label }}</p>
@@ -65,6 +77,16 @@
                   </div>
                   <div class="col">
                     {% bootstrap_field review_form.strategic_comment size='small' show_label=False %}
+                  </div>
+                </div>
+                <div v-if="project_year.review.strategic_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.strategic[project_year.review.strategic_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.strategic[project_year.review.strategic_score].examples"></span>
                   </div>
                 </div>
                 <hr>
@@ -78,6 +100,16 @@
                     {% bootstrap_field review_form.operational_comment size='small' show_label=False %}
                   </div>
                 </div>
+                <div v-if="project_year.review.operational_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.operational[project_year.review.operational_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.operational[project_year.review.operational_score].examples"></span>
+                  </div>
+                </div>
                 <hr>
 
                 <p class="text-muted">{{ review_form.ecological_comment.label }}</p>
@@ -89,6 +121,16 @@
                     {% bootstrap_field review_form.ecological_comment size='small' show_label=False %}
                   </div>
                 </div>
+                <div v-if="project_year.review.ecological_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.ecological[project_year.review.ecological_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.ecological[project_year.review.ecological_score].examples"></span>
+                  </div>
+                </div>
                 <hr>
 
                 <p class="text-muted">{{ review_form.scale_score.label }}</p>
@@ -98,6 +140,16 @@
                   </div>
                   <div class="col">
                     {% bootstrap_field review_form.scale_comment size='small' show_label=False %}
+                  </div>
+                </div>
+                <div v-if="project_year.review.scale_score" style="font-size: small" class="mb-3 mt-4">
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Score Criteria" %}</span> &rarr;
+                    <span v-html="rubric.scale[project_year.review.scale_score].criteria"></span>
+                  </div>
+                  <div class="">
+                    <span class="font-weight-bold">{% trans "Examples" %}</span> &rarr;
+                    <span v-html="rubric.scale[project_year.review.scale_score].examples"></span>
                   </div>
                 </div>
                 <hr>

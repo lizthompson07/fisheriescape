@@ -431,19 +431,22 @@ class ReviewForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.fields["general_comment"].widget.attrs["v-model"] = "project_year.review.general_comment"
 
-        self.fields["collaboration_comment"].widget.attrs["v-model"] = "project_year.review.collaboration_comment"
-        self.fields["strategic_comment"].widget.attrs["v-model"] = "project_year.review.strategic_comment"
-        self.fields["operational_comment"].widget.attrs["v-model"] = "project_year.review.operational_comment"
-        self.fields["ecological_comment"].widget.attrs["v-model"] = "project_year.review.ecological_comment"
-        self.fields["scale_comment"].widget.attrs["v-model"] = "project_year.review.scale_comment"
+        # update the choices for the scores
+        score_dict = utils.get_review_score_rubric()
+        criteria = [
+            "collaboration",
+            "strategic",
+            "operational",
+            "ecological",
+            "scale",
+        ]
+        for c in criteria:
+            self.fields[c + "_comment"].widget.attrs["v-model"] = f"project_year.review.{c}_comment"
+            self.fields[c + "_score"].widget.attrs["v-model"] = f"project_year.review.{c}_score"
 
-        self.fields["collaboration_score"].widget.attrs["v-model"] = "project_year.review.collaboration_score"
-        self.fields["strategic_score"].widget.attrs["v-model"] = "project_year.review.strategic_score"
-        self.fields["operational_score"].widget.attrs["v-model"] = "project_year.review.operational_score"
-        self.fields["ecological_score"].widget.attrs["v-model"] = "project_year.review.ecological_score"
-        self.fields["scale_score"].widget.attrs["v-model"] = "project_year.review.scale_score"
 
 
 class ApprovalForm(forms.ModelForm):

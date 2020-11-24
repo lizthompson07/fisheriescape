@@ -24,7 +24,8 @@ from . import models
 from . import stat_holidays
 from .mixins import CanModifyProjectRequiredMixin, ManagerOrAdminRequiredMixin, AdminRequiredMixin
 from .utils import multiple_projects_financial_summary, can_modify_project, get_help_text_dict, \
-    get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin
+    get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
+    get_review_score_rubric
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -130,6 +131,7 @@ class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
         context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
+        context["review_score_rubric"] = json.dumps(get_review_score_rubric())
         return context
 
 
