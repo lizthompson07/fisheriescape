@@ -473,6 +473,7 @@ def from_project_to_reviewer():
             review.approval_status = old_p.approved  # will be 1, 0 , None
             review.notification_email_sent = old_p.notification_email_sent
             review.general_comment = old_p.meeting_notes
+            review.approver_comment = old_p.meeting_notes
             review.save()
         else:
             print("cannot find matching project:", old_p.id, old_p.project_title)
