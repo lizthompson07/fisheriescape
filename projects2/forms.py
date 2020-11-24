@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
 
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
@@ -412,11 +412,26 @@ class FileForm(forms.ModelForm):
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = models.Review
-        exclude = ["project_year"]
+        exclude = ["project_year", "approval_status", "allocated_budget", "approver_comment"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["general_comment"].widget.attrs = {"v-model": "project_year.review.general_comment"}
+
+
+class ApprovalForm(forms.ModelForm):
+    email_update = forms.BooleanField(required=False, label=gettext_lazy("send an email update to project leads"))
+
+    class Meta:
+        model = models.Review
+        fields = ["approval_status", "allocated_budget", "approver_comment"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["approval_status"].widget.attrs = {"v-model": "project_year.review.approval_status"}
+        self.fields["allocated_budget"].widget.attrs = {"v-model": "project_year.review.allocated_budget"}
+        self.fields["approver_comment"].widget.attrs = {"v-model": "project_year.review.approver_comment"}
+        self.fields["email_update"].widget.attrs = {"v-model": "project_year.review.email_update"}
 
 
 # attrs = dict(v-model="new_size_class")

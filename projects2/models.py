@@ -7,7 +7,9 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
 
+from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
+from projects2 import emails
 from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup, Lookup, HelpTextLookup
@@ -663,11 +665,18 @@ class StatusReport(models.Model):
 
 
 class Review(models.Model):
+    approval_status_choices = (
+        (1, _("approved")),
+        (0, _("not approved")),
+        (9, _("cancelled")),
+    )
     project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
-    is_denied = models.BooleanField(default=False, verbose_name=_("Project is not approved (do not proceed)"))
+    approval_status = models.IntegerField(choices=approval_status_choices, blank=True, null=True, verbose_name=_("Approval status"))
+
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
+    approver_comment = models.TextField(blank=True, null=True, verbose_name=_("Approver comments (shared with project leads)"))
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -695,6 +704,18 @@ class Review(models.Model):
     def general_comment_html(self):
         if self.general_comment:
             return mark_safe(markdown(self.general_comment))
+
+    def send_approval_email(self, request):
+        email = emails.ProjectApprovalEmail(self, request)
+        # send the email object
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
+        self.notification_email_sent = timezone.now()
+        self.save()
 
 
 class Milestone(models.Model):

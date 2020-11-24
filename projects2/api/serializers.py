@@ -35,6 +35,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     metadata = serializers.SerializerMethodField()
     general_comment_html = serializers.SerializerMethodField()
+    notification_email_sent = serializers.SerializerMethodField()
+
+    def get_notification_email_sent(self, instance):
+        return date(instance.notification_email_sent)
 
     def get_metadata(self, instance):
         return instance.metadata

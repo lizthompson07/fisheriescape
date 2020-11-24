@@ -6,6 +6,10 @@ Vue.component("modal", {
       type: Object,
       required: true,
     },
+    approval_form: {
+      type: Boolean,
+      required: false,
+    },
   },
   data() {
     return {

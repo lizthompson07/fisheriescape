@@ -296,7 +296,7 @@ request_field_list = [
     'benefit_to_dfo',
     # 'reason',
     'long_role|{}'.format(_("Role of participant")),
-    'multiple_conferences_rationale',
+    'learning_plan',
     'late_justification',
     'bta_attendees',
     'total_dfo_funding|{}'.format(_("Total amount of DFO funding (CAD)")),
@@ -322,7 +322,7 @@ traveller_field_list = [
     'departure_location',
     # 'reason',
     'long_role|{}'.format("Role of participant"),
-    'multiple_conferences_rationale',
+    'learning_plan',
     'funding_source',
     'total_dfo_funding|{}'.format(_("Total amount of DFO funding (CAD)")),
     'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding (CAD)")),
@@ -2506,6 +2506,21 @@ class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
 class ProcessStepHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.ProcessStep
     success_url = reverse_lazy("travel:manage_process_steps")
+
+
+class RoleFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+    template_name = 'travel/formset.html'
+    h1 = "Manage Roles"
+    queryset = models.Role.objects.all()
+    formset_class = forms.RoleFormset
+    success_url_name = "travel:manage_roles"
+    home_url_name = "travel:index"
+    delete_url_name = "travel:delete_role"
+
+class RoleHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Role
+    success_url = reverse_lazy("travel:manage_roles")
+
 
 
 # Default Reviewer Settings

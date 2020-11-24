@@ -95,6 +95,7 @@ def save_project_on_py_creation(sender, instance, created, **kwargs):
 
 @receiver(models.signals.post_delete, sender=Review)
 def save_project_year_on_review_delete(sender, instance, **kwargs):
+    # if the py status is set to 3 (reviewed) it should be updated/downgraded to 2 (submitted)
     if instance.project_year.status == 3:
         py = instance.project_year
         py.status = 2
@@ -104,10 +105,20 @@ def save_project_year_on_review_delete(sender, instance, **kwargs):
 @receiver(models.signals.post_save, sender=Review)
 def save_project_year_on_review_creation(sender, instance, created, **kwargs):
     py = instance.project_year
-    if instance.is_denied:
+    # if the reviewer denied approval, project year status = denied
+    if instance.approval_status == 0:
         py.status = 5
-    elif instance.allocated_budget:
+        py.allocated_budget = None
+    # if the reviewer cancelled approval, project year status = cancelled
+    elif instance.approval_status == 9:
+        py.status = 9
+        py.allocated_budget = None
+
+    # if the reviewer approved, project year status = approved
+    elif instance.approval_status == 1:
         py.status = 4
+
+    # finally, if the py status happens to be set to 2 (submitted) it should be updated to 3 (reviewed)
     elif instance.project_year.status == 2:
         py.status = 3
     py.save()

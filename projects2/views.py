@@ -116,11 +116,12 @@ class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
         'id',
         'fiscal year',
         'title',
-        'status',
         # 'section',
         'default_funding_source',
         'functional_group',
         'lead_staff',
+        'status',
+        'allocated_budget',
     ]
 
     def get_context_data(self, **kwargs):
@@ -128,6 +129,7 @@ class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
         context["random_project"] = models.Project.objects.first()
         context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
         context["review_form"] = forms.ReviewForm
+        context["approval_form"] = forms.ApprovalForm
         return context
 
 

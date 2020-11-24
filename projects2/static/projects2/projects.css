@@ -5,7 +5,7 @@
     font-size: small;
 }
 
-.curvy{
+.curvy {
     border-radius: 10px;
 }
 
@@ -99,14 +99,27 @@ h1 {
     /*right: 0;*/
 }
 
-.w150 {
-    width: 150px;
+
+.w50 {
+    width: 50px;
 }
 
+.w75 {
+    width: 75px;
+}
+
+.w85 {
+    width: 80px;
+}
 
 .w100 {
     width: 100px;
 }
+
+.w150 {
+    width: 150px;
+}
+
 
 .clickable {
     cursor: pointer;
@@ -119,9 +132,11 @@ h1 {
     margin-bottom: 2.5px;
     margin-top: 2.5px;
 }
+
 label.filter {
     margin-right: 5px;
 }
+
 .form-control {
     font-size: small;
 }
@@ -129,24 +144,24 @@ label.filter {
 /*For side bar  https://www.w3schools.com/howto/howto_js_collapse_sidebar.asp */
 /* The sidebar menu */
 .sidebar {
-  height: 100%; /* 100% Full-height */
-  width: 225px; /* 0 width - change this with JavaScript */
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Stay on top */
-  top: 0;
-  left: 0;
-  background-color: #e2e2e2;
-  overflow-x: hidden; /* Disable horizontal scroll */
-  padding-top: 60px; /* Place content 60px from the top */
-  transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
+    height: 100%; /* 100% Full-height */
+    width: 225px; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Stay on top */
+    top: 0;
+    left: 0;
+    background-color: #e2e2e2;
+    overflow-x: hidden; /* Disable horizontal scroll */
+    padding-top: 60px; /* Place content 60px from the top */
+    transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
 }
 
 
 /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
 #main {
-  transition: margin-left .5s; /* If you want a transition effect */
-  margin-left: 225px; /* If you want a transition effect */
-  padding: 20px;
+    transition: margin-left .5s; /* If you want a transition effect */
+    margin-left: 225px; /* If you want a transition effect */
+    padding: 20px;
 }
 
 /*!* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) *!*/

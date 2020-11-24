@@ -546,11 +546,9 @@ class TripRequest(models.Model):
 
     # purpose
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role description"))
+    learning_plan = models.BooleanField(default=False, verbose_name=_("Is this request included on your learning plan?"))
     objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of this meeting or conference"))
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("benefit to DFO"))
-    multiple_conferences_rationale = models.TextField(blank=True, null=True,
-                                                      verbose_name=_(
-                                                          "rationale for Attending multiple conferences and/or international meetings (if applicable)"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
     # multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
     #     "rationale for multiple travelers"))
@@ -825,9 +823,6 @@ class TripRequest(models.Model):
             my_str += "<br><em>Objective of Event:</em> {}".format(self.objective_of_event)
         if self.benefit_to_dfo:
             my_str += "<br><em>Benefit to DFO:</em> {}".format(self.benefit_to_dfo)
-        if self.multiple_conferences_rationale:
-            my_str += "<br><em>Rationale for attending multiple conferences:</em> {}".format(
-                self.multiple_conferences_rationale)
         if self.funding_source:
             my_str += "<br><em>Funding source:</em> {}".format(self.funding_source)
 
@@ -843,9 +838,6 @@ class TripRequest(models.Model):
         my_str += "\n\n{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
 
         my_str += "\n\n{}: {}".format("BENEFIT TO DFO", nz(self.benefit_to_dfo, "n/a"))
-
-        my_str += "\n\n{}: {}".format(
-            "Rationale for attending multiple conferences".upper(), nz(self.multiple_conferences_rationale, "n/a"))
 
         return my_str
 
