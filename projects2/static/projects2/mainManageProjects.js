@@ -36,6 +36,8 @@ var app = new Vue({
     filter_functional_group: "",
     filter_funding_source: "",
     filter_section: "",
+    filter_region: "",
+    filter_division: "",
     filter_status: "",
 
     fiscalYears: [],
@@ -68,7 +70,15 @@ var app = new Vue({
       apiService(`/api/project-planning/fiscal-years/${query}`).then(response => this.fiscalYears = response)
       apiService(`/api/project-planning/tags/${query}`).then(response => this.tags = response)
       apiService(`/api/project-planning/funding-sources/${query}`).then(response => this.fundingSources = response)
+
+      apiService(`/api/project-planning/regions/${query}`).then(response => this.regions = response)
+
+      if (this.filter_region && this.filter_region !== "") query += `;region=${this.filter_region}`
+      apiService(`/api/project-planning/divisions/${query}`).then(response => this.divisions = response)
+
+      if (this.filter_division && this.filter_division !== "") query += `;division=${this.filter_division}`
       apiService(`/api/project-planning/sections/${query}`).then(response => this.sections = response)
+
       if (this.filter_section && this.filter_section !== "") query += `;section=${this.filter_section}`
       apiService(`/api/project-planning/functional-groups/${query}`).then(response => this.functionalGroups = response)
 
@@ -86,6 +96,8 @@ var app = new Vue({
           `theme=${this.filter_theme};` +
           `functional_group=${this.filter_functional_group};` +
           `funding_source=${this.filter_funding_source};` +
+          `region=${this.filter_region};` +
+          `division=${this.filter_division};` +
           `section=${this.filter_section};` +
           `status=${this.filter_status};`
       return endpoint

@@ -17,6 +17,40 @@
 
     <div class="mb-5">
 
+      {# Region #}
+      <div class="row">
+        <div class="col-5">
+          <label class="filter" for="filter_region">{% trans "Region" %}</label>
+        </div>
+        <div class="col">
+          <select
+            v-model="filter_region"
+            @change="updateResults"
+            class="w100 filter" id="filter_region"
+          >
+            <option value="">{% trans "all" %}</option>
+            <option v-for="(obj, index) in regions" :value="obj.id">${obj.name}</option>
+          </select>
+        </div>
+      </div>
+
+      {# Division #}
+      <div class="row">
+        <div class="col-5">
+          <label class="filter" for="filter_division">{% trans "Division" %}</label>
+        </div>
+        <div class="col">
+          <select
+            v-model="filter_division"
+            @change="updateResults"
+            class="w100 filter" id="filter_division"
+          >
+            <option value="">{% trans "all" %}</option>
+            <option v-for="(obj, index) in divisions" :value="obj.id">${obj.display}</option>
+          </select>
+        </div>
+      </div>
+
       {# Section #}
       <div class="row">
         <div class="col-5">
