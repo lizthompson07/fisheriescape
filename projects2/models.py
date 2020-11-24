@@ -670,7 +670,29 @@ class Review(models.Model):
         (0, _("not approved")),
         (9, _("cancelled")),
     )
+    score_choices = (
+        (3, _("high")),
+        (2, _("medium")),
+        (1, _("low")),
+    )
     project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
+
+    collaboration_score = models.IntegerField(blank=True, null=True, verbose_name=_("externals / partnerships / collaborations"),
+                                              choices=score_choices)
+    collaboration_comment = models.TextField(blank=True, null=True, verbose_name=_("external-partnership-collaboration comments"))
+
+    strategic_score = models.IntegerField(blank=True, null=True, verbose_name=_("strategic"), choices=score_choices)
+    strategic_comment = models.TextField(blank=True, null=True, verbose_name=_("strategic comments"))
+
+    operational_score = models.IntegerField(blank=True, null=True, verbose_name=_("operational"), choices=score_choices)
+    operational_comment = models.TextField(blank=True, null=True, verbose_name=_("operational comments"))
+
+    ecological_score = models.IntegerField(blank=True, null=True, verbose_name=_("ecological"), choices=score_choices)
+    ecological_comment = models.TextField(blank=True, null=True, verbose_name=_("ecological comments"))
+
+    scale_score = models.IntegerField(blank=True, null=True, verbose_name=_("scale"), choices=score_choices)
+    scale_comment = models.TextField(blank=True, null=True, verbose_name=_("scale comments"))
+
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     approval_status = models.IntegerField(choices=approval_status_choices, blank=True, null=True, verbose_name=_("Approval status"))
 
@@ -716,6 +738,84 @@ class Review(models.Model):
         )
         self.notification_email_sent = timezone.now()
         self.save()
+
+    def get_rubric(self):
+        return {
+            "collaboration_score": {
+                1: {
+                    "criteria": gettext("no formal commitments; limited interest from stakeholders; limited opportunity for partnership or collaboration."),
+                    "examples": gettext("No expressed interest or identified as a low priority (or potential conflict) by a stakeholder advisory committee."),
+                },
+                2: {
+                    "criteria": gettext("Informal departmental commitments; some interest from stakeholders; internal collaboration."),
+                    "examples": gettext("Verbal agreement with stakeholders or external partner. Collaboration between internal programs of science staff."),
+                },
+                3: {
+                    "criteria": gettext("regulatory or legal commitment; high interest from stakeholders; strong opportunity for external partnership and collaboration."),
+                    "examples": gettext("Signed G&C agreement with external partner."),
+                },
+            },
+
+
+
+            "strategic_score": {
+                1: {
+                    "criteria": gettext("limited long-term value; short-term benefit (fire-fighting)"),
+                    "examples": gettext("Local, archived dataset, with limited likelihood of replication going forward.   No clear link to decision-making."),
+                },
+                2: {
+                    "criteria": gettext("some strategic value to department; medium-term benefit"),
+                    "examples": gettext("Regional dataset of current high value, but potential to be replaced by emerging technology.  Indirect link to decision."),
+                },
+                3: {
+                    "criteria": gettext("high long-term strategic value to the department; high innovation value; broad applicability"),
+                    "examples": gettext("High value/priority, nationally consistent dataset using emerging, more cost effective (emerging) technology.  Clear link to high-priority decision-making."),
+                },
+            },
+            "operational_score": {
+                1: {
+                    "criteria": gettext("One-off project; feasible now but not sustainable in the long-term."),
+                    "examples": gettext("New data collection. Significant admin work required."),
+                },
+                2: {
+                    "criteria": gettext("Moderate level of feasibility or operational efficiency, e.g. equipment/tools readily available to be implemented within year"),
+                    "examples": gettext("Some processing/analysis required of an existing dataset."),
+                },
+                3: {
+                    "criteria": gettext("high feasibility, e.g. data availability, expertise, existing monitoring platforms, and regulatory tools available"),
+                    "examples": gettext("Open publication of an existing data layer.  Low administrative burden (e.g. existing agreements in place)."),
+                },
+            },
+            "ecological_score": {
+                1: {
+                    "criteria": gettext("limited ecological value, or lower priority species/habitats"),
+                    "examples": gettext("Project related to a species or area with limited or unknown ecological role, or of localized interest."),
+                },
+                2: {
+                    "criteria": gettext("Evidence of ecological value, e.g., prey linkages to key species."),
+                    "examples": gettext("Project related to a species or area with known linkages to a species of high ecological value (prey species), or importance identified through ecological modelling."),
+                },
+                3: {
+                    "criteria": gettext("high ecological value (important species) or high ecological risk (SARA-listed species)"),
+                    "examples": gettext("Project related to a nationally or regionally recognized ESS (Eelgrass) or EBSA (Minas Basin), or SAR (Blue Whale)."),
+                },
+            },
+            "scale_score": {
+                1: {
+                    "criteria": gettext("limited geographic or temporal scope; site-specific and lessons not readily applicable to other areas"),
+                    "examples": gettext("Data only available for a single location or bay."),
+                },
+                2: {
+                    "criteria": gettext("broad geographic/temporal scope; area of some significance"),
+                    "examples": gettext("Subregional data layer, e.g., for a single NAFO Unit or MPA."),
+                },
+                3: {
+                    "criteria": gettext("broad geographic or temporal scope; area of high significance"),
+                    "examples": gettext("Bioregional data layers, e.g. remote sensing, RV Survey."),
+                },
+            },
+
+        }
 
 
 class Milestone(models.Model):

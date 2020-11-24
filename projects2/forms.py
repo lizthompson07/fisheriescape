@@ -14,6 +14,8 @@ attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 # class_editable = {"class": "editable"}
 class_editable = {"class": "widgEditor"}
 row4 = {"rows": "4"}
+comment_row3 = {"rows": "3", "placeholder": "comments"}
+row2 = {"rows": "2"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -413,10 +415,35 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = models.Review
         exclude = ["project_year", "approval_status", "allocated_budget", "approver_comment"]
+        widgets = {
+            "general_comment": forms.Textarea(attrs=comment_row3),
+            "collaboration_comment": forms.Textarea(attrs=comment_row3),
+            "strategic_comment": forms.Textarea(attrs=comment_row3),
+            "operational_comment": forms.Textarea(attrs=comment_row3),
+            "ecological_comment": forms.Textarea(attrs=comment_row3),
+            "scale_comment": forms.Textarea(attrs=comment_row3),
+            "collaboration_score": forms.RadioSelect(),
+            "strategic_score": forms.RadioSelect(),
+            "operational_score": forms.RadioSelect(),
+            "ecological_score": forms.RadioSelect(),
+            "scale_score": forms.RadioSelect(),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["general_comment"].widget.attrs = {"v-model": "project_year.review.general_comment"}
+        self.fields["general_comment"].widget.attrs["v-model"] = "project_year.review.general_comment"
+
+        self.fields["collaboration_comment"].widget.attrs["v-model"] = "project_year.review.collaboration_comment"
+        self.fields["strategic_comment"].widget.attrs["v-model"] = "project_year.review.strategic_comment"
+        self.fields["operational_comment"].widget.attrs["v-model"] = "project_year.review.operational_comment"
+        self.fields["ecological_comment"].widget.attrs["v-model"] = "project_year.review.ecological_comment"
+        self.fields["scale_comment"].widget.attrs["v-model"] = "project_year.review.scale_comment"
+
+        self.fields["collaboration_score"].widget.attrs["v-model"] = "project_year.review.collaboration_score"
+        self.fields["strategic_score"].widget.attrs["v-model"] = "project_year.review.strategic_score"
+        self.fields["operational_score"].widget.attrs["v-model"] = "project_year.review.operational_score"
+        self.fields["ecological_score"].widget.attrs["v-model"] = "project_year.review.ecological_score"
+        self.fields["scale_score"].widget.attrs["v-model"] = "project_year.review.scale_score"
 
 
 class ApprovalForm(forms.ModelForm):
