@@ -403,9 +403,8 @@ msgid "Submit and track data management service requests."
 msgstr "Soumettez et suivez les demandes de service de gestion de données."
 
 #: .\dm_apps\views.py:58 .\dm_apps\views.py:71
-#, fuzzy
 msgid "Conference and Travel Management System"
-msgstr "Système de gestion de voyage de Science du MPO"
+msgstr "Système de gestion de voyage de Science du SEO"
 
 #: .\dm_apps\views.py:59 .\dm_apps\views.py:72
 msgid ""
