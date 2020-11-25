@@ -455,7 +455,8 @@ def get_project_year_field_list(project_year=None):
         'coding',
         'submitted',
         'formatted_status|{}'.format(_("status")),
-        'allocated_budget',
+        'allocated_budget|{}'.format(_("allocated budget")),
+        'review_score|{}'.format(_("review score")),
         'metadata|{}'.format(_("metadata")),
     ]
 

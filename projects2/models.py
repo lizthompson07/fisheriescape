@@ -9,6 +9,7 @@ from markdown import markdown
 
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify, nz
+from lib.templatetags.custom_filters import percentage
 from projects2 import emails
 from shared_models import models as shared_models
 # Choices for language
@@ -420,6 +421,14 @@ class ProjectYear(models.Model):
             self.status = 1
             self.save()
 
+    @property
+    def allocated_budget(self):
+        return self.review.allocated_budget if hasattr(self, "review") else None
+
+    @property
+    def review_score(self):
+        return f'{percentage(self.review.score_as_percent,0)} ({self.review.total_score}/{3*5})' if hasattr(self, "review") else None
+
 
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))
@@ -718,7 +727,6 @@ class Review(models.Model):
     def save(self, *args, **kwargs):
         self.total_score = nz(self.collaboration_score, 0) + nz(self.strategic_score, 0) + nz(self.operational_score, 0) + nz(
             self.ecological_score, 0) + nz(self.scale_score, 0)
-
         super().save(*args, **kwargs)
         if self.last_modified_by:
             self.modified_by.add(self.last_modified_by)
@@ -733,7 +741,7 @@ class Review(models.Model):
 
     @property
     def score_as_percent(self):
-        return self.scale_score / (5 * 3)
+        return nz(self.total_score, 0) / (5 * 3)
 
     def send_approval_email(self, request):
         email = emails.ProjectApprovalEmail(self, request)

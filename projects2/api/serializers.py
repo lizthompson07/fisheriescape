@@ -122,6 +122,14 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     it_needs_html = serializers.SerializerMethodField()
     default_funding_source_id = serializers.SerializerMethodField()
     formatted_status = serializers.SerializerMethodField()
+    allocated_budget = serializers.SerializerMethodField()
+    review_score = serializers.SerializerMethodField()
+
+    def get_review_score(self, instance):
+        return instance.review_score
+
+    def get_allocated_budget(self, instance):
+        return instance.allocated_budget
 
     def get_display_name(self, instance):
         return str(instance.fiscal_year)

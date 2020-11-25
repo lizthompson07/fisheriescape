@@ -5,7 +5,10 @@
 
 {% elif "metadata" in field %}
   <td v-html='projectYear.metadata'></td>
-
+{% elif "allocated" in field %}
+  <td v-html='projectYear.allocated_budget'></td>
+{% elif "score" in field %}
+  <td v-html='projectYear.review_score'></td>
 {% elif "status" in field %}
   <td v-html='projectYear.formatted_status'></td>
 
