@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User as AuthUser, User
 from django.forms import modelformset_factory
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 
 from shared_models import models as shared_models
 from travel.filters import get_region_choices
@@ -115,7 +115,7 @@ class TripRequestForm(forms.ModelForm):
             "created_by",
         ]
         labels = {
-            'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
+            'bta_attendees': gettext_lazy("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
         }
 
         widgets = {

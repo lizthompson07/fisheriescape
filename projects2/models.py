@@ -670,7 +670,29 @@ class Review(models.Model):
         (0, _("not approved")),
         (9, _("cancelled")),
     )
+    score_choices = (
+        (3, _("high")),
+        (2, _("medium")),
+        (1, _("low")),
+    )
     project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
+
+    collaboration_score = models.IntegerField(blank=True, null=True, verbose_name=_("externals / partnerships / collaborations"),
+                                              choices=score_choices)
+    collaboration_comment = models.TextField(blank=True, null=True, verbose_name=_("external-partnership-collaboration comments"))
+
+    strategic_score = models.IntegerField(blank=True, null=True, verbose_name=_("strategic"), choices=score_choices)
+    strategic_comment = models.TextField(blank=True, null=True, verbose_name=_("strategic comments"))
+
+    operational_score = models.IntegerField(blank=True, null=True, verbose_name=_("operational"), choices=score_choices)
+    operational_comment = models.TextField(blank=True, null=True, verbose_name=_("operational comments"))
+
+    ecological_score = models.IntegerField(blank=True, null=True, verbose_name=_("ecological"), choices=score_choices)
+    ecological_comment = models.TextField(blank=True, null=True, verbose_name=_("ecological comments"))
+
+    scale_score = models.IntegerField(blank=True, null=True, verbose_name=_("scale"), choices=score_choices)
+    scale_comment = models.TextField(blank=True, null=True, verbose_name=_("scale comments"))
+
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     approval_status = models.IntegerField(choices=approval_status_choices, blank=True, null=True, verbose_name=_("Approval status"))
 

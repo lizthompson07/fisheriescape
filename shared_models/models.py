@@ -184,26 +184,42 @@ class Section(SimpleLookupWithUUID):
 
     # calculated fields (for quick acquisition)
     shortish_name = models.CharField(max_length=1000, blank=True, null=True)
-    full_name = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_ver1 = models.CharField(max_length=1000, blank=True, null=True)
+    full_name_en = models.CharField(max_length=1000, blank=True, null=True)
+    full_name_en_ver1 = models.CharField(max_length=1000, blank=True, null=True)
+    full_name_fr = models.CharField(max_length=1000, blank=True, null=True)
+    full_name_fr_ver1 = models.CharField(max_length=1000, blank=True, null=True)
 
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
         verbose_name = _("Section - Team (NCR)")
         verbose_name_plural = _("Sections - Teams (NCR)")
 
-    def get_full_name(self):
+    def get_full_name_en(self):
         try:
-            my_str = f"{self.division.branch.region.tname} - {self.division.branch.tname} - {self.division.tname} - {self.tname}"
+            my_str = f"{self.division.branch.region.name} - {self.division.branch.name} - {self.division.name} - {self.name}"
         except AttributeError:
-            my_str = self.tname
+            my_str = self.name
         return my_str
 
-    def get_full_name_ver1(self):
+    def get_full_name_en_ver1(self):
         try:
-            my_str = f"{self.tname} ({self.division.branch.region.tname}/{self.division.tname})"
+            my_str = f"{self.name} ({self.division.branch.region.name}/{self.division.name})"
         except AttributeError:
-            my_str = self.tname
+            my_str = self.name
+        return my_str
+
+    def get_full_name_fr(self):
+        try:
+            my_str = f"{self.division.branch.region.nom} - {self.division.branch.nom} - {self.division.nom} - {self.nom}"
+        except AttributeError:
+            my_str = self.nom
+        return my_str
+
+    def get_full_name_fr_ver1(self):
+        try:
+            my_str = f"{self.nom} ({self.division.branch.region.nom}/{self.division.nom})"
+        except AttributeError:
+            my_str = self.nom
         return my_str
 
     def get_shortish_name(self):
@@ -215,9 +231,27 @@ class Section(SimpleLookupWithUUID):
 
     def save(self, *args, **kwargs):
         self.shortish_name = self.get_shortish_name()
-        self.full_name = self.get_full_name()
-        self.full_name_ver1 = self.get_full_name_ver1()
+        self.full_name_en = self.get_full_name_en()
+        self.full_name_en_ver1 = self.get_full_name_en_ver1()
+        self.full_name_fr = self.get_full_name_fr()
+        self.full_name_fr_ver1 = self.get_full_name_fr_ver1()
         super().save(*args, **kwargs)
+
+    @property
+    def full_name(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("full_name_en"))):
+            return str(getattr(self, str(_("full_name_en"))))
+        # if there is no translated term, just pull from the english field
+        return self.full_name_en
+
+    @property
+    def full_name_ver1(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("full_name_en_ver1"))):
+            return str(getattr(self, str(_("full_name_en_ver1"))))
+        # if there is no translated term, just pull from the english field
+        return self.full_name_en_ver1
 
 
 class AllotmentCategory(models.Model):

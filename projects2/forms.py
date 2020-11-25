@@ -14,6 +14,8 @@ attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 # class_editable = {"class": "editable"}
 class_editable = {"class": "widgEditor"}
 row4 = {"rows": "4"}
+comment_row3 = {"rows": "3", "placeholder": "comments"}
+row2 = {"rows": "2"}
 
 # Choices for YesNo
 YESNO_CHOICES = (
@@ -413,10 +415,38 @@ class ReviewForm(forms.ModelForm):
     class Meta:
         model = models.Review
         exclude = ["project_year", "approval_status", "allocated_budget", "approver_comment"]
+        widgets = {
+            "general_comment": forms.Textarea(attrs=comment_row3),
+            "collaboration_comment": forms.Textarea(attrs=comment_row3),
+            "strategic_comment": forms.Textarea(attrs=comment_row3),
+            "operational_comment": forms.Textarea(attrs=comment_row3),
+            "ecological_comment": forms.Textarea(attrs=comment_row3),
+            "scale_comment": forms.Textarea(attrs=comment_row3),
+            "collaboration_score": forms.RadioSelect(),
+            "strategic_score": forms.RadioSelect(),
+            "operational_score": forms.RadioSelect(),
+            "ecological_score": forms.RadioSelect(),
+            "scale_score": forms.RadioSelect(),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["general_comment"].widget.attrs = {"v-model": "project_year.review.general_comment"}
+
+        self.fields["general_comment"].widget.attrs["v-model"] = "project_year.review.general_comment"
+
+        # update the choices for the scores
+        score_dict = utils.get_review_score_rubric()
+        criteria = [
+            "collaboration",
+            "strategic",
+            "operational",
+            "ecological",
+            "scale",
+        ]
+        for c in criteria:
+            self.fields[c + "_comment"].widget.attrs["v-model"] = f"project_year.review.{c}_comment"
+            self.fields[c + "_score"].widget.attrs["v-model"] = f"project_year.review.{c}_score"
+
 
 
 class ApprovalForm(forms.ModelForm):

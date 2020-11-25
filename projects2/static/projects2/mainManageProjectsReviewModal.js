@@ -14,6 +14,7 @@ Vue.component("modal", {
   data() {
     return {
       errors: null,
+      rubric: reviewRubric,
     }
   },
   methods: {
