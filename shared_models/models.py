@@ -209,18 +209,17 @@ class Section(SimpleLookupWithUUID):
         return my_str
 
     def get_full_name_fr(self):
-        try:
-            my_str = f"{self.division.branch.region.nom} - {self.division.branch.nom} - {self.division.nom} - {self.nom}"
-        except AttributeError:
-            my_str = self.nom
-        return my_str
+        r = self.division.branch.region.nom if self.division.branch.region.nom else self.division.branch.region.name
+        b = self.division.branch.nom if self.division.branch.nom else self.division.branch.name
+        d = self.division.nom if self.division.nom else self.division.name
+        s = self.nom if self.nom else self.name
+        return f"{r} - {b} - {d} - {s}"
 
     def get_full_name_fr_ver1(self):
-        try:
-            my_str = f"{self.nom} ({self.division.branch.region.nom}/{self.division.nom})"
-        except AttributeError:
-            my_str = self.nom
-        return my_str
+        r = self.division.branch.region.nom if self.division.branch.region.nom else self.division.branch.region.name
+        d = self.division.nom if self.division.nom else self.division.name
+        s = self.nom if self.nom else self.name
+        return f"{s} ({r}/{d})"
 
     def get_shortish_name(self):
         try:
