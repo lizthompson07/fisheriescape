@@ -835,4 +835,4 @@ class ReferenceMaterial(SimpleLookup):
             )
 
     class Meta:
-        ordering = ["region", "updated_at"]
+        ordering = ["region", "-updated_at"]
