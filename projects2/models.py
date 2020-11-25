@@ -221,9 +221,9 @@ class ProjectYear(models.Model):
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
 
     # HTML field
-    deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"))
-    # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_("year-specific priorities"))
+    # HTML field
+    deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"))
 
     # SPECIALIZED EQUIPMENT
     ########################
@@ -747,7 +747,7 @@ class Milestone(models.Model):
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
 
     class Meta:
-        ordering = ['project_year', 'name']
+        ordering = ['project_year', 'target_date', 'name']
 
     def __str__(self):
         return self.name
@@ -809,7 +809,8 @@ def ref_mat_directory_path(instance, filename):
 
 
 class ReferenceMaterial(SimpleLookup):
-    file = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment"))
+    file_en = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (English)"))
+    file_fr = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, related_name="reference_materials2",
                                verbose_name=_("region"), blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -820,11 +821,18 @@ class ReferenceMaterial(SimpleLookup):
         return get_metadata_string(self.created_at, None, self.updated_at)
 
     @property
-    def file_display(self):
-        if self.file:
+    def file_display_en(self):
+        if self.file_en:
             return mark_safe(
-                f"<a href='{self.file.url}'> <span class='mdi mdi-file'></span></a>"
+                f"<a href='{self.file_en.url}'> <span class='mdi mdi-file'></span></a>"
+            )
+
+    @property
+    def file_display_fr(self):
+        if self.file_fr:
+            return mark_safe(
+                f"<a href='{self.file_fr.url}'> <span class='mdi mdi-file'></span></a>"
             )
 
     class Meta:
-        ordering = ["region", "file"]
+        ordering = ["region", "name"]

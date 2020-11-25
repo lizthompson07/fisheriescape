@@ -81,7 +81,7 @@ def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_
     if created_by:
         my_str += f" by {created_by}"
     if updated_at:
-        my_str += f"<br><u>Updated:</u> {updated_at.strftime(format_str)}"
+        my_str += f"<br><u>Last updated:</u> {updated_at.strftime(format_str)}"
         if last_modified_by:
             my_str += f" by {last_modified_by}"
 
