@@ -577,6 +577,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
 class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
     model = models.TripRequest
     home_url_name = "travel:index"
+    h1 = gettext_lazy("New Trip Request")
 
     def get_template_names(self):
         if self.kwargs.get("parent_request"):

@@ -51,29 +51,6 @@ class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 # PROJECTS #
 ############
-#
-# class ProjectListView(ManagerOrAdminRequiredMixin, CommonFilterView):
-#     template_name = 'projects2/list.html'
-#     paginate_by = 15
-#     # get all submitted and unhidden projects
-#     queryset = models.Project.objects.order_by('section__division', 'section', 'title')
-#     filterset_class = filters.ProjectFilter
-#     home_url_name = "projects2:index"
-#     container_class = "container-fluid"
-#     row_object_url_name = "projects2:project_detail"
-#     h1 = gettext_lazy("Full Project List")
-#     field_list = [
-#         {"name": 'id', "class": "", "width": ""},
-#         {"name": 'region', "class": "", "width": ""},
-#         {"name": 'division', "class": "", "width": ""},
-#         {"name": 'section', "class": "", "width": ""},
-#         {"name": 'title', "class": "", "width": "400px"},
-#         {"name": 'default_funding_source', "class": "", "width": ""},
-#         {"name": 'lead_staff', "class": "", "width": ""},
-#         {"name": 'tags', "class": "", "width": ""},
-#     ]
-#
-#
 
 
 class ExploreProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):

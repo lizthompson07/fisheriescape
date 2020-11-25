@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-25 05:53-0400\n"
+"POT-Creation-Date: 2020-11-25 12:01-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -225,11 +225,11 @@ msgstr "Nouveau"
 #: .\sar_search\models.py:45 .\sar_search\models.py:56
 #: .\sar_search\models.py:85 .\sar_search\models.py:109
 #: .\shared_models\models.py:16 .\shared_models\models.py:24
-#: .\shared_models\models.py:25 .\shared_models\models.py:376
-#: .\shared_models\models.py:377 .\shared_models\models.py:393
-#: .\shared_models\models.py:394 .\shared_models\models.py:537
-#: .\shared_models\models.py:538 .\shared_models\models.py:544
-#: .\shared_models\models.py:646 .\shared_models\models.py:647
+#: .\shared_models\models.py:25 .\shared_models\models.py:375
+#: .\shared_models\models.py:376 .\shared_models\models.py:392
+#: .\shared_models\models.py:393 .\shared_models\models.py:536
+#: .\shared_models\models.py:537 .\shared_models\models.py:543
+#: .\shared_models\models.py:645 .\shared_models\models.py:646
 #: .\shared_models\utils.py:11 .\shared_models\views.py:849
 #: .\shares\models.py:61 .\staff\views.py:34 .\staff\views.py:221
 #: .\staff\views.py:222 .\tickets\models.py:59 .\tickets\models.py:60
@@ -1601,7 +1601,7 @@ msgstr "Division"
 msgid "Date last modified"
 msgstr "Date de la dernière modification"
 
-#: .\publications\models.py:222 .\shared_models\models.py:430
+#: .\publications\models.py:222 .\shared_models\models.py:429
 #: .\tickets\forms.py:103
 msgid "Description"
 msgstr "Description"
@@ -2011,12 +2011,12 @@ msgstr "Assurez-vous que les deux adresses e-mail fournies correspondent."
 
 #: .\shared_models\models.py:18 .\shared_models\models.py:134
 #: .\shared_models\models.py:155 .\shared_models\models.py:176
-#: .\shared_models\models.py:641
+#: .\shared_models\models.py:640
 #, fuzzy
 msgid "name (en)"
 msgstr "nom (fra)"
 
-#: .\shared_models\models.py:19 .\shared_models\models.py:642
+#: .\shared_models\models.py:19 .\shared_models\models.py:641
 #, fuzzy
 msgid "name (fr)"
 msgstr "nom (fra)"
@@ -2063,7 +2063,7 @@ msgstr "abbrev_fre"
 
 #: .\shared_models\models.py:120 .\shared_models\models.py:135
 #: .\shared_models\models.py:156 .\shared_models\models.py:180
-#: .\shared_models\models.py:387
+#: .\shared_models\models.py:386
 msgid "abbreviation"
 msgstr ""
 
@@ -2109,136 +2109,136 @@ msgstr "approuvé par le chef de section"
 msgid "Sections - Teams (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:243 .\shared_models\models.py:244
+#: .\shared_models\models.py:242 .\shared_models\models.py:243
 msgid "full_name_en"
 msgstr "full_name_fr"
 
-#: .\shared_models\models.py:251 .\shared_models\models.py:252
+#: .\shared_models\models.py:250 .\shared_models\models.py:251
 msgid "full_name_en_ver1"
 msgstr "full_name_fr_ver1"
 
-#: .\shared_models\models.py:428
+#: .\shared_models\models.py:427
 #, fuzzy
 msgid "Mission Number"
 msgstr "Nouvelle organisation"
 
-#: .\shared_models\models.py:429
+#: .\shared_models\models.py:428
 #, fuzzy
 msgid "Mission Name"
 msgstr "Organisation"
 
-#: .\shared_models\models.py:431
+#: .\shared_models\models.py:430
 msgid "Purpose"
 msgstr ""
 
-#: .\shared_models\models.py:432
+#: .\shared_models\models.py:431
 msgid "Chief Scientist"
 msgstr ""
 
-#: .\shared_models\models.py:433
+#: .\shared_models\models.py:432
 msgid "Samplers"
 msgstr ""
 
-#: .\shared_models\models.py:434
+#: .\shared_models\models.py:433
 msgid "Start Date"
 msgstr "Date de début"
 
-#: .\shared_models\models.py:435
+#: .\shared_models\models.py:434
 msgid "End Date"
 msgstr "Date de fin"
 
-#: .\shared_models\models.py:437
+#: .\shared_models\models.py:436
 msgid "Area of Operation"
 msgstr ""
 
-#: .\shared_models\models.py:438
+#: .\shared_models\models.py:437
 #, fuzzy
 msgid "Number of Profiles"
 msgstr "Projets soumis"
 
-#: .\shared_models\models.py:439
+#: .\shared_models\models.py:438
 msgid "MEDS ID"
 msgstr ""
 
-#: .\shared_models\models.py:444
+#: .\shared_models\models.py:443
 msgid "West Bound Longitude"
 msgstr ""
 
-#: .\shared_models\models.py:446
+#: .\shared_models\models.py:445
 msgid "East Bound Longitude"
 msgstr ""
 
-#: .\shared_models\models.py:448
+#: .\shared_models\models.py:447
 msgid "North Bound Latitude"
 msgstr ""
 
-#: .\shared_models\models.py:450
+#: .\shared_models\models.py:449
 msgid "South Bound Latitude"
 msgstr ""
 
-#: .\shared_models\models.py:452
+#: .\shared_models\models.py:451
 #, fuzzy
 msgid "funding agency name"
 msgstr "programme de financement"
 
-#: .\shared_models\models.py:454
+#: .\shared_models\models.py:453
 #, fuzzy
 msgid "funding project title"
 msgstr "titre du projet"
 
-#: .\shared_models\models.py:456
+#: .\shared_models\models.py:455
 #, fuzzy
 msgid "funding project ID"
 msgstr "but du financement"
 
-#: .\shared_models\models.py:458
+#: .\shared_models\models.py:457
 msgid "research projects programs"
 msgstr ""
 
-#: .\shared_models\models.py:460
+#: .\shared_models\models.py:459
 #, fuzzy
 msgid "references"
 msgstr "Référence"
 
-#: .\shared_models\models.py:493
+#: .\shared_models\models.py:492
 msgid "NS"
 msgstr "N.-É."
 
-#: .\shared_models\models.py:494
+#: .\shared_models\models.py:493
 msgid "NB"
 msgstr "N.-B."
 
-#: .\shared_models\models.py:495
+#: .\shared_models\models.py:494
 msgid "PE"
 msgstr ""
 
-#: .\shared_models\models.py:496
+#: .\shared_models\models.py:495
 msgid "QC"
 msgstr "Qc"
 
-#: .\shared_models\models.py:497
+#: .\shared_models\models.py:496
 #, fuzzy
 msgid "NL"
 msgstr "T.-N.-L."
 
-#: .\shared_models\models.py:552
+#: .\shared_models\models.py:551
 msgid "GCNDB key"
 msgstr ""
 
-#: .\shared_models\models.py:553
+#: .\shared_models\models.py:552
 msgid "Parent GCNDB key"
 msgstr ""
 
-#: .\shared_models\models.py:554
+#: .\shared_models\models.py:553
 msgid "NDADW water body ID"
 msgstr ""
 
-#: .\shared_models\models.py:640
+#: .\shared_models\models.py:639
 #, fuzzy
 msgid "code"
 msgstr "enregistrement"
 
-#: .\shared_models\models.py:658
+#: .\shared_models\models.py:657
 #, fuzzy
 msgid "script"
 msgstr "description"
