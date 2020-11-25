@@ -6,7 +6,6 @@ from dm_apps.context_processor import my_envr
 from_email = settings.SITE_FROM_EMAIL
 
 
-
 class ProjectApprovalEmail:
     def __init__(self, review, request):
         self.request = request
@@ -25,13 +24,13 @@ class ProjectApprovalEmail:
 
     def load_html_template(self, review):
         t = loader.get_template('projects2/email_project_approved.html')
-        context = {'object': review,}
+        context = {'object': review, }
         context.update(my_envr(self.request))
         rendered = t.render(context)
         return rendered
 
 
-class ProjectSubmissionEmail:
+class ProjectYearSubmissionEmail:
     def __init__(self, object, request):
         self.request = request
         if object.submitted:
@@ -42,7 +41,7 @@ class ProjectSubmissionEmail:
         self.message = self.load_html_template(object)
         self.from_email = from_email
         try:
-            self.to_list = [object.section.head.email]
+            self.to_list = [object.project.section.head.email]
         except AttributeError:
             self.to_list = ["david.fishman@dfo-mpo.gc.ca"]
 
@@ -50,19 +49,11 @@ class ProjectSubmissionEmail:
         return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
 
     def load_html_template(self, object):
-        t = loader.get_template('projects/email_project_submitted.html')
-
-        project_field_list = [
-            'id',
-            'project_title',
-            'section',
-            'project_leads|project_leads',
-        ]
-        context = {'object': object, 'field_list':project_field_list}
+        t = loader.get_template('projects2/email_project_submitted.html')
+        context = {'object': object}
         context.update(my_envr(self.request))
         rendered = t.render(context)
         return rendered
-
 
 
 class UserCreationEmail:
@@ -83,7 +74,7 @@ class UserCreationEmail:
 
     def load_html_template(self, object):
         t = loader.get_template('projects/email_user_creation.html')
-        context = {'object': object,}
+        context = {'object': object, }
         context.update(my_envr(self.request))
         rendered = t.render(context)
         return rendered

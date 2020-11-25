@@ -470,6 +470,9 @@ var app = new Vue({
     goProjectYearEdit(projectYearId) {
       window.location.href = `/project-planning/project-year/${projectYearId}/edit/`
     },
+    goProjectEdit(projectId) {
+      window.location.href = `/project-planning/projects/${projectId}/edit/`
+    },
     goProjectYearDelete(projectYearId) {
       window.location.href = `/project-planning/project-year/${projectYearId}/delete/`
     },

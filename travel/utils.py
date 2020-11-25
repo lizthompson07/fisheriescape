@@ -27,7 +27,7 @@ def get_section_choices(all=False, full_name=True):
                 )]
     else:
         return [(s.id, getattr(s, my_attr)) for s in
-                shared_models.Section.objects.filter(division__branch__name__icontains="science")]
+                shared_models.Section.objects.all()]
 
 
 def get_division_choices(all=False):

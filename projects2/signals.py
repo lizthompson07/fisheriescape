@@ -47,9 +47,13 @@ def auto_delete_ReferenceMaterial_on_delete(sender, instance, **kwargs):
     Deletes file from filesystem
     when corresponding `MediaFile` object is deleted.
     """
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
+    if instance.file_en:
+        if os.path.isfile(instance.file_en.path):
+            os.remove(instance.file_en.path)
+
+    if instance.file_fr:
+        if os.path.isfile(instance.file_fr.path):
+            os.remove(instance.file_fr.path)
 
 
 @receiver(models.signals.pre_save, sender=ReferenceMaterial)
@@ -63,14 +67,24 @@ def auto_delete_ReferenceMaterial_on_change(sender, instance, **kwargs):
         return False
 
     try:
-        old_file = ReferenceMaterial.objects.get(pk=instance.pk).file
+        old_file_en = ReferenceMaterial.objects.get(pk=instance.pk).file_en
     except ReferenceMaterial.DoesNotExist:
         return False
 
-    new_file = instance.file
-    if old_file and old_file != new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+    new_file_en = instance.file_en
+    if old_file_en and old_file_en != new_file_en:
+        if os.path.isfile(old_file_en.path):
+            os.remove(old_file_en.path)
+
+    try:
+        old_file_fr = ReferenceMaterial.objects.get(pk=instance.pk).file_en
+    except ReferenceMaterial.DoesNotExist:
+        return False
+
+    new_file_fr = instance.file_en
+    if old_file_fr and old_file_fr != new_file_fr:
+        if os.path.isfile(old_file_fr.path):
+            os.remove(old_file_fr.path)
 
 
 @receiver(models.signals.post_delete, sender=Staff)

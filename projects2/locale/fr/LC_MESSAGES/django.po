@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-25 05:53-0400\n"
+"POT-Creation-Date: 2020-11-25 12:01-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -109,7 +109,7 @@ msgstr ""
 "Désolé, vous devez être un gestionnaire de ce projet afin d'accéder à cette "
 "page."
 
-#: .\projects2\models.py:30 .\projects2\models.py:814
+#: .\projects2\models.py:30 .\projects2\models.py:815
 msgid "region"
 msgstr ""
 
@@ -205,13 +205,13 @@ msgstr "projet"
 
 #: .\projects2\models.py:224
 #, fuzzy
-msgid "deliverables / activities"
-msgstr "Livrables du projet"
+msgid "year-specific priorities"
+msgstr "Priorités spécifiques au projet"
 
 #: .\projects2\models.py:226
 #, fuzzy
-msgid "year-specific priorities"
-msgstr "Priorités spécifiques au projet"
+msgid "deliverables / activities"
+msgstr "Livrables du projet"
 
 #: .\projects2\models.py:231
 msgid ""
@@ -464,8 +464,8 @@ msgid "Other"
 msgstr "Autre"
 
 #: .\projects2\models.py:506 .\projects2\models.py:745
-#: .\projects2\utils.py:150 .\projects2\utils.py:470 .\projects2\views.py:236
-#: .\projects2\views.py:237 .\projects2\views.py:1687
+#: .\projects2\utils.py:150 .\projects2\utils.py:470 .\projects2\views.py:206
+#: .\projects2\views.py:207 .\projects2\views.py:820
 msgid "name"
 msgstr "nom"
 
@@ -537,7 +537,7 @@ msgstr "nouveau ou existant"
 msgid "resource name"
 msgstr "nom de la ressource"
 
-#: .\projects2\models.py:598 .\projects2\models.py:812
+#: .\projects2\models.py:598
 msgid "file attachment"
 msgstr "pièce jointe"
 
@@ -715,6 +715,18 @@ msgstr "Remarques"
 msgid "Update on "
 msgstr "Mise à jour sur"
 
+#: .\projects2\models.py:812
+#, fuzzy
+#| msgid "file attachment"
+msgid "file attachment (English)"
+msgstr "pièce jointe"
+
+#: .\projects2\models.py:813
+#, fuzzy
+#| msgid "file attachment"
+msgid "file attachment (French)"
+msgstr "pièce jointe"
+
 #: .\projects2\templates\projects2\_upcoming_dates.html:16
 #, fuzzy
 msgid "Upcoming Dates"
@@ -738,7 +750,7 @@ msgstr "Date de début"
 #: .\projects2\templates\projects2\_upcoming_dates.html:104
 #: .\projects2\templates\projects2\manage_projects\_review_modal.html:184
 #: .\projects2\templates\projects2\project_detail\_project_year_modal_form.html:165
-#: .\projects2\templates\projects2\project_detail\project_detail.html:177
+#: .\projects2\templates\projects2\project_detail\project_detail.html:188
 #: .\projects2\templates\projects2\scratch\agreement_form_popout.html:48
 #: .\projects2\templates\projects2\scratch\collaborator_form_popout.html:48
 #: .\projects2\templates\projects2\scratch\cost_form_popout.html:51
@@ -757,9 +769,17 @@ msgstr "Fermer"
 msgid "Reference Materials:"
 msgstr "Référence"
 
+#: .\projects2\templates\projects2\_upcoming_dates.html:123
+msgid "English"
+msgstr ""
+
+#: .\projects2\templates\projects2\_upcoming_dates.html:126
+msgid "French"
+msgstr ""
+
 #: .\projects2\templates\projects2\base\_app_title.html:2
 #: .\projects2\templates\projects2\scratch\iw_project_list.html:185
-#: .\projects2\views.py:85 .\projects2\views.py:111
+#: .\projects2\views.py:57 .\projects2\views.py:81
 msgid "Projects"
 msgstr "Projets"
 
@@ -767,7 +787,7 @@ msgstr "Projets"
 #: .\projects2\templates\projects2\scratch\DELETE_project_overview.html:16
 #: .\projects2\templates\projects2\scratch\iw_project_list.html:14
 #: .\projects2\templates\projects2\scratch\manage_settings_small.html:27
-#: .\projects2\views.py:34
+#: .\projects2\views.py:29
 msgid "Home"
 msgstr "Accueil"
 
@@ -938,7 +958,7 @@ msgstr ""
 msgid "Load more results..."
 msgstr ""
 
-#: .\projects2\templates\projects2\index.html:20 .\projects2\views.py:33
+#: .\projects2\templates\projects2\index.html:20 .\projects2\views.py:28
 #, fuzzy
 msgid "DFO Science Project Planning"
 msgstr "Planification de projets (Science)"
@@ -953,7 +973,7 @@ msgstr "Date de début du projet"
 msgid "Your Projects"
 msgstr "Projets"
 
-#: .\projects2\templates\projects2\index.html:35 .\projects2\views.py:89
+#: .\projects2\templates\projects2\index.html:35 .\projects2\views.py:61
 #, fuzzy
 msgid "Explore Projects"
 msgstr "Cloner le projet"
@@ -963,7 +983,7 @@ msgstr "Cloner le projet"
 msgid "Manager Menu"
 msgstr "Gérer les étiquettes"
 
-#: .\projects2\templates\projects2\index.html:45 .\projects2\views.py:115
+#: .\projects2\templates\projects2\index.html:45 .\projects2\views.py:85
 #, fuzzy
 msgid "Manage Projects"
 msgstr "Mes projets"
@@ -1216,13 +1236,13 @@ msgid "Financial Summary"
 msgstr "Résumé financier:"
 
 #: .\projects2\templates\projects2\manage_projects\main.html:67
-#: .\projects2\templates\projects2\project_detail\project_detail.html:192
+#: .\projects2\templates\projects2\project_detail\project_detail.html:203
 #, fuzzy
 msgid "Are certain you want to submit the following year of the project?"
 msgstr "Êtes-vous sûr de vouloir soumettre le projet"
 
 #: .\projects2\templates\projects2\manage_projects\main.html:68
-#: .\projects2\templates\projects2\project_detail\project_detail.html:193
+#: .\projects2\templates\projects2\project_detail\project_detail.html:204
 msgid ""
 "Are certain you want to un-submit the following year of the project? The "
 "status of the project year will be reset!"
@@ -1447,6 +1467,7 @@ msgid "Financial Summary (All Years)"
 msgstr "Résumé financier:"
 
 #: .\projects2\templates\projects2\project_detail\_project_year_detail.html:9
+#: .\projects2\templates\projects2\project_detail\project_detail.html:56
 msgid "Edit"
 msgstr "Modifier"
 
@@ -1655,26 +1676,26 @@ msgstr "Annuler la soumission"
 msgid "Cannot unsubmit approved projects"
 msgstr "Projets non soumis"
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:52
+#: .\projects2\templates\projects2\project_detail\project_detail.html:63
 #, fuzzy
 msgid "Project Overview"
 msgstr "titre du projet"
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:58
+#: .\projects2\templates\projects2\project_detail\project_detail.html:69
 #, fuzzy
 msgid "Project years"
 msgstr "Chef de projet"
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:155
+#: .\projects2\templates\projects2\project_detail\project_detail.html:166
 msgid "Add a New Year to This Project"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:163
+#: .\projects2\templates\projects2\project_detail\project_detail.html:174
 #, fuzzy
 msgid "Please select among the following:"
 msgstr "Veuillez sélectionner le rapport"
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:168
+#: .\projects2\templates\projects2\project_detail\project_detail.html:179
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -1685,11 +1706,11 @@ msgstr ""
 "                    %(o)s\n"
 "                "
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:173
+#: .\projects2\templates\projects2\project_detail\project_detail.html:184
 msgid "Start from Scratch"
 msgstr ""
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:191
+#: .\projects2\templates\projects2\project_detail\project_detail.html:202
 #: .\projects2\templates\projects2\scratch\staff_form_popout.html:198
 msgid ""
 "WARNING! If you remove yourself as project lead you will loose the ability "
@@ -1698,17 +1719,17 @@ msgstr ""
 "ATTENTION! Si vous vous retirez en tant que responsable de projet, vous ne "
 "pourrez plus modifier ce projet."
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:194
+#: .\projects2\templates\projects2\project_detail\project_detail.html:205
 #, fuzzy
 msgid "Are you sure you want to delete this item: "
 msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:195
+#: .\projects2\templates\projects2\project_detail\project_detail.html:206
 #, fuzzy
 msgid "Are you sure you want to remove yourself?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:195
+#: .\projects2\templates\projects2\project_detail\project_detail.html:206
 #, fuzzy
 msgid ""
 "WARNING: This action might result in you loosing the ability to modify this "
@@ -1717,7 +1738,7 @@ msgstr ""
 "ATTENTION! Si vous vous retirez en tant que responsable de projet, vous ne "
 "pourrez plus modifier ce projet."
 
-#: .\projects2\templates\projects2\project_detail\project_detail.html:196
+#: .\projects2\templates\projects2\project_detail\project_detail.html:207
 msgid "Do you want to add this OT description to the current staff member?"
 msgstr ""
 
@@ -2265,7 +2286,6 @@ msgstr "Ajout d'un accord de collaboration"
 #: .\projects2\templates\projects2\scratch\staff_form_popout.html:159
 #: .\projects2\templates\projects2\scratch\status_report_form_popout.html:81
 #: .\projects2\templates\projects2\scratch\temp_formset.html:70
-#: .\projects2\views.py:822
 msgid "Save"
 msgstr "Sauvegarder"
 
@@ -2756,57 +2776,59 @@ msgstr ""
 msgid "Bioregional data layers, e.g. remote sensing, RV Survey."
 msgstr ""
 
-#: .\projects2\views.py:141
+#: .\projects2\views.py:111
 #, fuzzy
 msgid "My projects"
 msgstr "Mes projets"
 
-#: .\projects2\views.py:154
+#: .\projects2\views.py:124
 msgid "hidden?"
 msgstr ""
 
-#: .\projects2\views.py:272
+#: .\projects2\views.py:242
 msgid ""
 "Your new project was created successfully! To get started, <b>add a new "
 "project year</b>."
 msgstr ""
 
-#: .\projects2\views.py:371 .\projects2\views.py:558
+#: .\projects2\views.py:341 .\projects2\views.py:528
 #, fuzzy
 msgid "Cloning: "
 msgstr "Financement"
 
-#: .\projects2\views.py:516
+#: .\projects2\views.py:486
 #, fuzzy
 msgid "Edit "
 msgstr "Modifier"
 
-#: .\projects2\views.py:682
-#, fuzzy
-msgid "Complete list of funding sources"
-msgstr "source de financement"
-
-#: .\projects2\views.py:685
-#, fuzzy
-msgid "Status reports"
-msgstr "Rapport de situation"
-
-#: .\projects2\views.py:913
-msgid "The staff member has been successfully deleted from project."
-msgstr "Le membre du personnel a été supprimé du projet avec succès."
-
-#: .\projects2\views.py:1363 .\projects2\views.py:1372
+#: .\projects2\views.py:647 .\projects2\views.py:657
 #, fuzzy
 msgid "Functional Groups"
 msgstr "Gérer les source de financement"
 
-#: .\projects2\views.py:1689
+#: .\projects2\views.py:822
 #, fuzzy
-msgid "File attachment"
+msgid "File attachment (EN)"
 msgstr "pièce jointe"
 
-#: .\projects2\views.py:1696 .\projects2\views.py:1703
-#: .\projects2\views.py:1712 .\projects2\views.py:1721
+#: .\projects2\views.py:823
+#, fuzzy
+msgid "File attachment (FR)"
+msgstr "pièce jointe"
+
+#: .\projects2\views.py:830 .\projects2\views.py:838 .\projects2\views.py:851
+#: .\projects2\views.py:861
 #, fuzzy
 msgid "Reference Materials"
 msgstr "Référence"
+
+#, fuzzy
+#~ msgid "Complete list of funding sources"
+#~ msgstr "source de financement"
+
+#, fuzzy
+#~ msgid "Status reports"
+#~ msgstr "Rapport de situation"
+
+#~ msgid "The staff member has been successfully deleted from project."
+#~ msgstr "Le membre du personnel a été supprimé du projet avec succès."

@@ -7,10 +7,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from dm_apps.utils import custom_send_mail
 from shared_models import models as shared_models
 from . import permissions, pagination
 from . import serializers
-from .. import models, stat_holidays
+from .. import models, stat_holidays, emails
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
     get_manageable_sections, multiple_financial_project_year_summary_data
 from ..utils import is_management_or_admin
@@ -206,6 +207,17 @@ class ProjectYearSubmitAPIView(APIView):
     def post(self, request, pk):
         project_year = get_object_or_404(models.ProjectYear, pk=pk)
         project_year.submit()
+
+        # create a new email object
+        email = emails.ProjectYearSubmissionEmail(project_year, request)
+        # send the email object
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
+
         return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
 
 

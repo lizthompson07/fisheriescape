@@ -48,6 +48,17 @@
 
 
           <div v-if="showOverview">
+
+            <div v-if="canModify" class="float-right">
+              <button class=""
+                      @click="goProjectEdit(project.id)">
+                <span class="mdi mdi-pencil"></span>
+                {% trans "Edit" %}
+              </button>
+
+            </div>
+
+
             <h2>
               {% trans "Project Overview" %}
             </h2>
@@ -209,7 +220,7 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.3.3" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.3.4" type="application/javascript"></script>
   <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.2.0" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
