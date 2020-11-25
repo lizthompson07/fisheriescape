@@ -57,6 +57,10 @@ def resave_all(projects=models.Project.objects.all()):
         p.save()
 
 
+def resave_all_reviews(projects=models.Project.objects.all()):
+    for obj in models.Review.objects.all():
+        obj.save()
+
 def compare_html():
     projects = models.Project.objects.all()
 

@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
 
 from dm_apps.utils import custom_send_mail
-from lib.functions.custom_functions import fiscal_year, listrify
+from lib.functions.custom_functions import fiscal_year, listrify, nz
 from projects2 import emails
 from shared_models import models as shared_models
 # Choices for language
@@ -289,8 +289,6 @@ class ProjectYear(models.Model):
 
     # admin
     submitted = models.DateTimeField(editable=False, blank=True, null=True)
-    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
-    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     administrative_notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     # metadata
@@ -707,6 +705,9 @@ class Review(models.Model):
                                          null=True, editable=False)
     modified_by = models.ManyToManyField(User, editable=False)
 
+    # calculated field
+    total_score = models.IntegerField(blank=True, null=True, verbose_name=_("total score"), editable=False)
+
     @property
     def metadata(self):
         my_str = get_metadata_string(self.created_at, None, self.updated_at, self.last_modified_by)
@@ -715,6 +716,9 @@ class Review(models.Model):
         return my_str
 
     def save(self, *args, **kwargs):
+        self.total_score = nz(self.collaboration_score, 0) + nz(self.strategic_score, 0) + nz(self.operational_score, 0) + nz(
+            self.ecological_score, 0) + nz(self.scale_score, 0)
+
         super().save(*args, **kwargs)
         if self.last_modified_by:
             self.modified_by.add(self.last_modified_by)
@@ -726,6 +730,10 @@ class Review(models.Model):
     def general_comment_html(self):
         if self.general_comment:
             return mark_safe(markdown(self.general_comment))
+
+    @property
+    def score_as_percent(self):
+        return self.scale_score / (5 * 3)
 
     def send_approval_email(self, request):
         email = emails.ProjectApprovalEmail(self, request)
