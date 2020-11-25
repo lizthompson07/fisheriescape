@@ -6,4 +6,5 @@ app_name = 'bio_diversity'
 urlpatterns = [
     # for home/index page
     path('',                                        views.IndexTemplateView.as_view(),    name="index"),
+    path('create/inst/', views.CreateInst, name="create_inst")
     ]
