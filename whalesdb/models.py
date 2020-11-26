@@ -184,6 +184,8 @@ class MorMooringSetup(models.Model):
     # Note: I added the setup image field to try out putting the mooring setup image directly in the database
     mor_setup_image = models.ImageField(upload_to=mooring_directory_path, blank=True, null=True, verbose_name=_("Setup Image"))
 
+    mor_setup_pdf = models.FileField(upload_to=mooring_directory_path, blank=True, null=True, verbose_name=_("Setup PDF"))
+
     mor_additional_equipment = models.TextField(blank=True, null=True, verbose_name=_("Equipment"))
     mor_general_moor_description = models.TextField(blank=True, null=True, verbose_name=_("Description"))
     mor_notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
@@ -202,6 +204,10 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
         if os.path.isfile(instance.mor_setup_image.path):
             os.remove(instance.mor_setup_image.path)
 
+    if instance.mor_setup_pdf:
+        if os.path.isfile(instance.mor_setup_pdf.path):
+            os.remove(instance.mor_setup_pdf.path)
+
 
 @receiver(models.signals.pre_save, sender=MorMooringSetup)
 def auto_delete_file_on_change(sender, instance, **kwargs):
@@ -217,7 +223,16 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     except MorMooringSetup.DoesNotExist:
         return False
     new_file = instance.mor_setup_image
-    if not old_file == new_file:
+    if old_file and not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+    try:
+        old_file = MorMooringSetup.objects.get(pk=instance.pk).mor_setup_pdf
+    except MorMooringSetup.DoesNotExist:
+        return False
+    new_file = instance.mor_setup_pdf
+    if old_file and not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 

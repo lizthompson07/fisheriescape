@@ -194,8 +194,8 @@ class TestMorDetails(CommonDetailsTest, TestCase):
 
         self.test_url = reverse_lazy('whalesdb:details_mor', args=(mor_dic['mor_1'].pk,))
         self.test_expected_template = 'whalesdb/details_mor.html'
-        self.fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image', 'mor_additional_equipment',
-                       'mor_general_moor_description', 'mor_notes']
+        self.fields = ['mor_name', 'mor_max_depth', 'mor_link_setup_image', 'mor_link_setup_pdf',
+                       'mor_additional_equipment', 'mor_general_moor_description', 'mor_notes']
 
     # Test that the context contains the proper fields
     def test_context_fields_mor(self):
