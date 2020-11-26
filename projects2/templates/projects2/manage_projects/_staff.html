@@ -7,9 +7,14 @@
       <span class="sr-only"></span>
     </div>
   </div>
-  <div v-else-if="errorTooBig">
+  <div v-else-if="errorTooBigStaff">
     <p class="lead font-italic">
       {% trans "There are too many projects in your search criteria. Please reduce the number of projects using the filters" %}
+    </p>
+  </div>
+  <div v-else-if="errorTooSmallStaff">
+    <p class="lead font-italic">
+      {% trans "There were no projects that met your search criteria. Please try again." %}
     </p>
   </div>
   <div v-else-if="errorNoFiscalYear">
@@ -18,7 +23,7 @@
     </p>
   </div>
   <div v-else class="">
-    <table class="table table-sm table-bordered">
+    <table class="table table-sm table-bordered" style="width: auto">
       <thead>
       <tr>
         <th rowspan="2">{% trans "Staff Name (registered DM Apps users only)" %}</th>
@@ -30,14 +35,28 @@
         <th style="width: 20%;" class="text-center">{% trans "Approved" %}</th>
       </tr>
       </thead>
-      <tbody>
-      <tr v-for="(s, index) in staff">
-        <td>${s.name}</td>
-        <td class="text-center">${s.draft | floatformat | zero2NullMark }</td>
-        <td class="text-center">${s.submitted_unapproved| floatformat | zero2NullMark}</td>
-        <td class="text-center">${s.approved| floatformat | zero2NullMark}</td>
+      <tbody v-for="(s, index) in staff">
 
-      </tr>
+        <tr >
+          <td>${s.name}</td>
+          <td class="text-center">${s.draft | floatformat | zero2NullMark }</td>
+          <td class="text-center">${s.submitted_unapproved| floatformat | zero2NullMark}</td>
+          <td class="text-center">${s.approved| floatformat | zero2NullMark}</td>
+          <td>
+            <button v-if="s.showRelatedProjects" @click="toggleShowProjects(s)" class="btn btn-sm btn-warning py-0 px-1">
+              <span>  {% trans "hide projects" %} </span>
+            </button>
+            <button v-else @click="toggleShowProjects(s)" class="btn btn-sm btn-success py-0 px-1">
+              <span>  {% trans "show projects" %} </span>
+            </button>
+          </td>
+        </tr>
+        <tr v-if="s.showRelatedProjects">
+          <td colspan="4">
+            <staff-table :staff="s"></staff-table>
+          </td>
+        </tr>
+
       </tbody>
     </table>
   </div>

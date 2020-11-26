@@ -60,9 +60,10 @@ class FTEBreakdownAPIView(APIView):
 
             for u in users:
                 my_dict = get_user_fte_breakdown(u, fiscal_year_id=year)
+                staff_instances = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct()
+                my_dict["staff_instances"] = serializers.StaffSerializer(staff_instances, many=True).data
                 data.append(my_dict)
 
-            # project_years =
             return Response(data, status.HTTP_200_OK)
 
 

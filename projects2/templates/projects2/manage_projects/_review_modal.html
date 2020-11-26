@@ -160,6 +160,10 @@
                     {% bootstrap_field review_form.general_comment size='small' show_label=False %}
                   </div>
                 </div>
+
+                <hr>
+                <p class="text-muted">{% trans "Review Score:" %} <span v-html="total_score"></span> / 15 (<span v-html="total_score_percentage"></span>)</p>
+
               </div>
 
               <div v-else>

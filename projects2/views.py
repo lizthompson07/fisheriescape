@@ -93,6 +93,7 @@ class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
         'lead_staff',
         'status',
         'allocated_budget',
+        'review_score_percentage',
     ]
 
     def get_context_data(self, **kwargs):

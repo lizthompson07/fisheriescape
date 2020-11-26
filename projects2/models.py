@@ -426,8 +426,14 @@ class ProjectYear(models.Model):
         return self.review.allocated_budget if hasattr(self, "review") else None
 
     @property
-    def review_score(self):
-        return f'{percentage(self.review.score_as_percent,0)} ({self.review.total_score}/{3*5})' if hasattr(self, "review") else None
+    def review_score_percentage(self):
+        if hasattr(self, "review"):
+            return percentage(self.review.score_as_percent, 0)
+
+    @property
+    def review_score_fraction(self):
+        if hasattr(self, "review"):
+            return f'{nz(self.review.total_score, 0)} / {3 * 5}'
 
 
 class GenericCost(models.Model):

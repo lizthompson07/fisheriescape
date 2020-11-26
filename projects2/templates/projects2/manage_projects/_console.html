@@ -227,6 +227,58 @@
         <button @click="clearFilters" class="btn btn-sm btn-warning">{% trans "Clear filters" %}</button>
       </div>
     </div>
+
+
+    <h5>
+      {% trans "Columns" %}
+    </h5>
+    <hr>
+
+    <div class="form-check">
+      <input
+        v-model="showColumnAllocation"
+        class="form-check-input" type="checkbox"
+        id="col_allocation"
+      >
+      <label class="filter" class="form-check-label" for="col_allocation">
+        {% trans "Allocated budget" %}
+      </label>
+    </div>
+
+    <div class="form-check">
+      <input
+        v-model="showColumnLeads"
+        class="form-check-input" type="checkbox"
+        id="col_leads"
+      >
+      <label class="filter" class="form-check-label" for="col_leads">
+        {% trans "Project Leads" %}
+      </label>
+    </div>
+
+    <div class="form-check">
+      <input
+        v-model="showColumnScore"
+        class="form-check-input" type="checkbox"
+        id="col_score"
+      >
+      <label class="filter" class="form-check-label" for="col_score">
+        {% trans "Review Score" %}
+      </label>
+    </div>
+
+    <div class="form-check">
+      <input
+        v-model="showColumnHidden"
+        class="form-check-input" type="checkbox"
+        id="col_hidden"
+      >
+      <label class="filter" class="form-check-label" for="col_hidden">
+        {% trans "Hidden" %}
+      </label>
+    </div>
+
+
   </div>
 
 </div>
