@@ -6,12 +6,14 @@ from django.utils.translation import gettext_lazy as _
 
 
 class InstMixin:
+    key = "inst"
     form_class = forms.InstForm
     model = models.Instrument
     title = "Instrument"
 
 
 class InstcMixin:
+    key = "instc"
     form_class = forms.InstcForm
     model = models.InstrumentCode
     title = "Instrument Code"
