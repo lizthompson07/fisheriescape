@@ -201,7 +201,7 @@ class Conference(models.Model):
         if self.is_adm_approval_required and self.trip_subcategory:
             # trips must be reviewed by ADMO before two weeks to the closest date
             self.adm_review_deadline = self.closest_date - datetime.timedelta(
-                days=21)  # 14 business days -- > 21 calendar days?
+                days=14)  # 14 days
 
             # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
             # else they can start the review closer to the date: eight business weeks (60 days)
@@ -947,6 +947,13 @@ class TripRequest(models.Model):
             if r.status_id == 2 and r.comments:
                 my_str += f'<u>{r.user}</u>: {r.comments}<br>'
         return mark_safe(my_str)
+
+    @property
+    def is_late_request(self):
+        if not self.submitted:
+            return self.trip.date_eligible_for_adm_review and timezone.now() > self.trip.date_eligible_for_adm_review
+        else:
+            return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
 
 
 class TripRequestCost(models.Model):
