@@ -1,9 +1,8 @@
-from django.shortcuts import render
 from django.views.generic import TemplateView
-from shared_models.views import CommonCreateView
+from shared_models.views import CommonAuthCreateView
+from django.urls import reverse_lazy
 
 from . import models, forms
-# Create your views here.
 
 
 class IndexTemplateView(TemplateView):
@@ -16,16 +15,21 @@ class IndexTemplateView(TemplateView):
 
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
-class CommonCreate(CommonCreateView):
+class CommonCreate(CommonAuthCreateView):
+
     nav_menu = 'bio_diversity/bio_diversity_nav.html'
     site_css = 'bio_diversity/bio_diversity.css'
     home_url_name = "bio_diversity:index"
 
+    def get_success_url(self):
+        return reverse_lazy("shared_models:close_me_no_refresh")
 
-class CreateInst(CommonCreate):
+    # overrides the UserPassesTestMixin test to check that a user belongs to the whalesdb_admin group
+    def test_func(self):
+        return self.request.user.groups.filter(name='bio_diversity_admin').exists()
+
+
+class InstCreate(CommonCreate):
     form_class = forms.InstForm
     model = models.InstDetCode
     title = "Some title"
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs)

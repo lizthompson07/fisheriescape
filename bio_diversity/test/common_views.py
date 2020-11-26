@@ -34,17 +34,17 @@ class CommonTest(object):
         return user
 
     # use when a user needs to be logged in.
-    def login_whale_user(self):
-        user_name = "Whale"
+    def login_bio_user(self):
+        user_name = "bio_diversity"
         if User.objects.filter(username=user_name):
             user = User.objects.get(username=user_name)
         else:
-            whale_group = Group(name="whalesdb_admin")
-            whale_group.save()
+            bio_diversity_group = Group(name="bio_diversity_admin")
+            bio_diversity_group.save()
 
-            user = User.objects.create_user(username=user_name, first_name="Hump", last_name="Back",
-                                            email="Hump.Back@dfo-mpo.gc.ca", password=self.test_password)
-            user.groups.add(whale_group)
+            user = User.objects.create_user(username=user_name, first_name="Bio", last_name="Diversity",
+                                            email="Bio.Diversity@dfo-mpo.gc.ca", password=self.test_password)
+            user.groups.add(bio_diversity_group)
             user.save()
 
         self.client.login(username=user.username, password=self.test_password)
@@ -58,7 +58,7 @@ class CommonTest(object):
         activate('en')
 
         if whale_user:
-            self.login_whale_user()
+            self.login_bio_user()
         else:
             self.login_regular_user()
 
@@ -75,6 +75,11 @@ class CommonTest(object):
 
     # This is a standard view test most classes should run at some point to ensure
     # that a view is reachable and to check permissions/redirect if required
+    #
+    # Users must be logged in to create or update objects, if this class fails because the returned value was 200
+    # instead of 302 it might be because the extending CreateView did not extend shared_models.CommonAuthCreateView.
+    # If the shared_models.CommonCreateView was extended then no login will be required and the view will
+    # return 200 OK, rather than 303 REDIRECT
     def assert_view(self, lang='en', test_url=None, expected_template=None, expected_code=200):
         activate(lang)
 
@@ -93,22 +98,31 @@ class CommonTest(object):
 
 
 ###########################################################################################
-# Create Tests include tests from common tests also adding tests for views extending the Create View
+# Create Tests include tests from common tests also adding tests for views extending the
+# Create View. For the most part we expect users will have to be logged in and in some security
+# group in order to create data. So when using these tests the CreateView being tested should
+# extend the shared_models.CommonAuthCreateView() class.
 ###########################################################################################
 class CommonCreateTest(CommonTest):
 
-    expected_form = None
-    expected_view = None
-    expected_success_url = reverse_lazy("shared_models:close_me_no_refresh")
-    data = None
-
+    # It is expected that an extending test class will override some or all of the variable created in this
+    # setUp method.
     def setUp(self):
         super().setUp()
 
         # CreateViews intended to be used from a views.ListCommon should use the shared_entry_form.html template
+        # if they use some other Template, make sure to set it in the extending tests class' setUp method
         self.test_expected_template = 'whalesdb/shared_entry_form.html'
 
-    # Users must be logged in to create new objects
+        expected_form = None
+        expected_view = None
+        expected_success_url = reverse_lazy("shared_models:close_me_no_refresh")
+        data = None
+
+    # Users must be logged in to create new objects, if this class fails because the returned value was 200 instead
+    # of 302 it might be because the extending XXXCreateView did not extend shared_models.CommonAuthCreateView
+    # if the shared_models.CommonCreateView was extended then no login will be required and the view will
+    # return 200 OK, rather than 303 REDIRECT
     def test_view_en(self):
         super().assert_view(expected_code=302)
 
@@ -126,7 +140,7 @@ class CommonCreateTest(CommonTest):
 
     # If a user is logged in and in 'whalesdb_admin' they should not be redirected
     def test_logged_in_has_access(self):
-        whale_user = self.login_whale_user()
+        whale_user = self.login_bio_user()
 
         self.assertEqual(int(self.client.session['_auth_user_id']), whale_user.pk)
 
@@ -157,11 +171,13 @@ class CommonCreateTest(CommonTest):
     def assert_successful_url(self, data=None, signature=None):
         activate('en')
 
-        self.login_whale_user()
+        self.login_bio_user()
         response = self.client.post(self.test_url, data if data else self.data)
 
         if response.context and 'form' in response.context:
             # If the data in this test is invaild the response will be invalid
+            # The Test data might be invalid because of the Factory is producing invalid data,
+            # This happens a lot
             self.assertTrue(response.context_data['form'].is_valid(), msg="Test data was likely invalid")
 
         if signature:
