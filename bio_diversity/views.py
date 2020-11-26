@@ -2,7 +2,7 @@ from django.views.generic import TemplateView
 from shared_models.views import CommonAuthCreateView
 from django.urls import reverse_lazy
 
-from . import models, forms
+from . import models, forms, mixins
 
 
 class IndexTemplateView(TemplateView):
@@ -29,17 +29,14 @@ class CommonCreate(CommonAuthCreateView):
         return self.request.user.groups.filter(name='bio_diversity_admin').exists()
 
 
-class InstdcCreate(CommonCreate):
-    form_class = forms.InstdcForm
-    model = models.InstDetCode
-    title = "Instrument Detail Code"
+class InstdcCreate(mixins.InstdcMixin, CommonCreate):
+    pass
 
-class InstcCreate(CommonCreate):
-    form_class = forms.InstcForm
-    model = models.InstrumentCode
-    title = "Instrument Code"
 
-class InstCreate(CommonCreate):
-    form_class = forms.InstForm
-    model = models.Instrument
-    title = "Instrument"
+class InstcCreate(mixins.InstcMixin, CommonCreate):
+    pass
+
+
+class InstCreate(mixins.InstMixin, CommonCreate):
+    pass
+
