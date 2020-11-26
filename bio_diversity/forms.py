@@ -14,9 +14,6 @@ class InstdcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.InstDetCode
         exclude = []
-        widgets = {
-            'created_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
-        }
 
 
 class InstcForm(CreatePrams, forms.ModelForm):
