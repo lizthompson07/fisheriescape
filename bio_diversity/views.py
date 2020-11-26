@@ -29,7 +29,7 @@ class CommonCreate(CommonAuthCreateView):
         return self.request.user.groups.filter(name='bio_diversity_admin').exists()
 
 
-class InstdcCreate(mixins.InstdcMixin, CommonCreate):
+class InstCreate(mixins.InstMixin, CommonCreate):
     pass
 
 
@@ -37,6 +37,10 @@ class InstcCreate(mixins.InstcMixin, CommonCreate):
     pass
 
 
-class InstCreate(mixins.InstMixin, CommonCreate):
+class InstdcCreate(mixins.InstdcMixin, CommonCreate):
     pass
+
+
+
+
 

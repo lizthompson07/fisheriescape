@@ -6,14 +6,14 @@ from bio_diversity import models
 faker = Factory.create()
 
 
-class InstdcFactory(factory.django.DjangoModelFactory):
+class InstFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.InstDetCode
+        model = models.Instrument
 
-    name = factory.lazy_attribute(lambda o: faker.word())
-    nom = factory.lazy_attribute(lambda o: faker.word())
-    description_en = factory.lazy_attribute(lambda o: faker.text())
-    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    # needs an instcode id
+    instc = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstcFactory")
+    serial_number = factory.lazy_attribute(lambda o: faker.word())
+    comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 
@@ -34,14 +34,15 @@ class InstdcFactory(factory.django.DjangoModelFactory):
         # an dictionary of data to pass to the test method to ensure the creation form puts the data in the database
         # correctly.
 
-        obj = InstdcFactory.build(**kwargs)
+        instc = InstcFactory()
+
+        obj = InstFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'name': obj.name,
-            'nom': obj.nom,
-            'description_en': obj.description_en,
-            'description_fr': obj.description_fr,
+            'instc': instc.pk,
+            'serial_number': obj.serial_number,
+            'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
@@ -92,14 +93,14 @@ class InstcFactory(factory.django.DjangoModelFactory):
         return data
 
 
-class InstFactory(factory.django.DjangoModelFactory):
+class InstdcFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.Instrument
+        model = models.InstDetCode
 
-    # needs an instcode id
-    instc = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstcFactory")
-    serial_number = factory.lazy_attribute(lambda o: faker.word())
-    comments = factory.lazy_attribute(lambda o: faker.text())
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 
@@ -120,15 +121,14 @@ class InstFactory(factory.django.DjangoModelFactory):
         # an dictionary of data to pass to the test method to ensure the creation form puts the data in the database
         # correctly.
 
-        instc = InstcFactory()
-
-        obj = InstFactory.build(**kwargs)
+        obj = InstdcFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'instc': instc.pk,
-            'serial_number': obj.serial_number,
-            'comments': obj.comments,
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

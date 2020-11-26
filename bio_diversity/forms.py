@@ -10,9 +10,9 @@ class CreatePrams:
         self.fields['created_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
 
 
-class InstdcForm(CreatePrams, forms.ModelForm):
+class InstForm(CreatePrams, forms.ModelForm):
     class Meta:
-        model = models.InstDetCode
+        model = models.Instrument
         exclude = []
 
 
@@ -22,8 +22,9 @@ class InstcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
-class InstForm(CreatePrams, forms.ModelForm):
+class InstdcForm(CreatePrams, forms.ModelForm):
     class Meta:
-        model = models.Instrument
+        model = models.InstDetCode
         exclude = []
+
 

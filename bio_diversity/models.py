@@ -15,15 +15,6 @@ class BioLookup(shared_models.Lookup):
     created_date = models.DateField(verbose_name=_("Created Date"))
 
 
-class InstDetCode(BioLookup):
-    # instdc tag
-    pass
-
-
-class InstrumentCode(BioLookup):
-    # instc tag
-    pass
-
 
 class Instrument(models.Model):
     # inst tag
@@ -34,3 +25,15 @@ class Instrument(models.Model):
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
     pass
+
+class InstrumentCode(BioLookup):
+    # instc tag
+    pass
+
+
+class InstDetCode(BioLookup):
+    # instdc tag
+    pass
+
+
+
