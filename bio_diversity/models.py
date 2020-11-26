@@ -16,4 +16,9 @@ class BioLookup(shared_models.Lookup):
 
 
 class InstDetCode(BioLookup):
+    #instdc tag
+    pass
+
+class InstrumentCode(BioLookup):
+    #instc tag
     pass

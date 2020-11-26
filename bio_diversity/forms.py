@@ -9,3 +9,10 @@ class InstdcForm(forms.ModelForm):
         widgets = {
         }
 
+class InstcForm(forms.ModelForm):
+    class Meta:
+        model = models.InstrumentCode
+        exclude = []
+        widgets = {
+        }
+

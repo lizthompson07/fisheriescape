@@ -32,4 +32,9 @@ class CommonCreate(CommonAuthCreateView):
 class InstdcCreate(CommonCreate):
     form_class = forms.InstdcForm
     model = models.InstDetCode
-    title = "Some title"
+    title = "Instrument Detail Code"
+
+class InstcCreate(CommonCreate):
+    form_class = forms.InstcForm
+    model = models.InstrumentCode
+    title = "Instrument Code"
