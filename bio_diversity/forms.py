@@ -2,24 +2,31 @@ from django import forms
 from bio_diversity import models
 
 
-class InstdcForm(forms.ModelForm):
+class CreatePrams:
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.fields['created_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+
+
+class InstdcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.InstDetCode
         exclude = []
         widgets = {
+            'created_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
         }
 
-class InstcForm(forms.ModelForm):
+
+class InstcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.InstrumentCode
         exclude = []
-        widgets = {
-        }
 
-class InstForm(forms.ModelForm):
+
+class InstForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Instrument
         exclude = []
-        widgets = {
-        }
 
