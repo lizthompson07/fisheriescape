@@ -6,7 +6,7 @@ from bio_diversity import models
 faker = Factory.create()
 
 
-class InstFactory(factory.django.DjangoModelFactory):
+class InstdcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.InstDetCode
 
@@ -34,7 +34,7 @@ class InstFactory(factory.django.DjangoModelFactory):
         # an dictionary of data to pass to the test method to ensure the creation form puts the data in the database
         # correctly.
 
-        obj = InstFactory.build(**kwargs)
+        obj = InstdcFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {

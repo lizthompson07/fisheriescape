@@ -29,7 +29,7 @@ class CommonCreate(CommonAuthCreateView):
         return self.request.user.groups.filter(name='bio_diversity_admin').exists()
 
 
-class InstCreate(CommonCreate):
-    form_class = forms.InstForm
+class InstdcCreate(CommonCreate):
+    form_class = forms.InstdcForm
     model = models.InstDetCode
     title = "Some title"

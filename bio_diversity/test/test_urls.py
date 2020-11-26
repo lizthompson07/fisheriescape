@@ -31,6 +31,6 @@ class URLTest(TestCase):
         # Test the resolved URL points to the proper view
         self.assertEqual(found.func.__name__, view.__name__)
 
-    @tag('inst', 'url', 'create')
+    @tag('instdc', 'url', 'create')
     def test_url_create_cru_view(self):
-        self.basic_en_url_test('bio_diversity:create_inst', 'bio_diversity/create/inst/', views.InstCreate)
+        self.basic_en_url_test('bio_diversity:create_instdc', 'bio_diversity/create/instdc/', views.InstdcCreate)
