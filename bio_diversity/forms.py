@@ -16,3 +16,10 @@ class InstcForm(forms.ModelForm):
         widgets = {
         }
 
+class InstForm(forms.ModelForm):
+    class Meta:
+        model = models.Instrument
+        exclude = []
+        widgets = {
+        }
+

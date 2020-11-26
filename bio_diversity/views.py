@@ -38,3 +38,8 @@ class InstcCreate(CommonCreate):
     form_class = forms.InstcForm
     model = models.InstrumentCode
     title = "Instrument Code"
+
+class InstCreate(CommonCreate):
+    form_class = forms.InstForm
+    model = models.Instrument
+    title = "Instrument"

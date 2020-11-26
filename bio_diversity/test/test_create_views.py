@@ -46,3 +46,21 @@ class TestInstcCreate(CommonCreateTest, TestCase):
 
         self.expected_view = views.InstcCreate
         self.expected_form = forms.InstcForm
+
+
+@tag('Inst', 'create')
+class TestInstCreate(CommonCreateTest, TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.data = BioFactoryFloor.InstFactory.build_valid_data()
+        self.test_url = reverse_lazy('bio_diversity:create_inst')
+
+        # Since this is intended to be used as a pop-out form, the html file should start with an underscore
+        self.test_expected_template = 'shared_models/shared_entry_form.html'
+
+        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
+
+        self.expected_view = views.InstCreate
+        self.expected_form = forms.InstForm
