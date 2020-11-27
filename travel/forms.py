@@ -524,7 +524,7 @@ class TripForm(forms.ModelForm):
                 raise forms.ValidationError(msg)
 
         if abstract_deadline and abstract_deadline >= start_date:
-            msg = _('The abstract submission deadline (if present) must occur before the start date.')
+            msg = _('The abstract submission deadline (if present) must occur before the start date of the trip.')
             self.add_error('abstract_deadline', msg)
             raise forms.ValidationError(msg)
 

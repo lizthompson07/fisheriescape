@@ -135,6 +135,10 @@
               <modal v-if="showOldAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'"
                      :my_agreement="agreementToEdit"></modal>
 
+              <modal v-if="showNewStatusReportModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'status_report'"></modal>
+              <modal v-if="showOldStatusReportModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'status_report'"
+                     :my_status_report="statusReportToEdit"></modal>
+
               <modal v-if="showNewFileModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'file'"></modal>
               <modal v-if="showOldFileModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'file'"
                      :my_file="fileToEdit"></modal>
@@ -220,8 +224,8 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.3.4" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.2.0" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.3.5" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.2.1" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">

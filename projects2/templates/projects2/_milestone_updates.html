@@ -23,7 +23,7 @@
         </em><br>
     {% else %}
 
-        <table class="table table-hover table-sm" style="width: auto">
+        <table class="table table-hover table-sm">
             <tr>
                 <th>
                     {% trans "Milestone" %}
@@ -38,9 +38,10 @@
             </tr>
             <tbody>
             {% for obj in object.updates.all %}
-                <tr href="{% url 'projects2:milestone_update_edit' obj.id %}" pop data-toggle="tooltip" title="Edit" class="add-btn">
+{#              {% url 'projects2:milestone_update_edit' obj.id %}#}
+                <tr href="#" pop data-toggle="tooltip" title="Edit" class="add-btn">
                     <td>{{ obj.milestone }}</td>
-                    <td style="background-color: {{ obj.status.color }}">{{ obj.status }}</td>
+                    <td style="background-color: {{ obj.status.color }}">{{ obj.get_status_display }}</td>
                     <td>{{ obj.notes|nz:"-----" }}</td>
                 </tr>
             {% endfor %}

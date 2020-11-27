@@ -122,11 +122,9 @@ def save_project_year_on_review_creation(sender, instance, created, **kwargs):
     # if the reviewer denied approval, project year status = denied
     if instance.approval_status == 0:
         py.status = 5
-        py.allocated_budget = None
     # if the reviewer cancelled approval, project year status = cancelled
     elif instance.approval_status == 9:
         py.status = 9
-        py.allocated_budget = None
 
     # if the reviewer approved, project year status = approved
     elif instance.approval_status == 1:

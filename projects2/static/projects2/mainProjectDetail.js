@@ -66,6 +66,14 @@ var app = new Vue({
     showNewAgreementModal: false,
     showOldAgreementModal: false,
 
+
+    // status reports
+    status_report_loading: false,
+    status_reports: [],
+    statusReportToEdit: {},
+    showNewStatusReportModal: false,
+    showOldStatusReportModal: false,
+
     // files
     file_loading: false,
     files: [],
@@ -103,6 +111,7 @@ var app = new Vue({
             this.getMilestones(yearId)
             this.getCollaborators(yearId)
             this.getAgreements(yearId)
+            this.getStatusReports(yearId)
             this.getFiles(yearId)
             this.getFinancials(yearId)
           })
@@ -395,6 +404,36 @@ var app = new Vue({
       }
     },
 
+    // Status Report
+    getStatusReports(yearId) {
+      this.status_report_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/status-reports/`;
+      apiService(endpoint)
+          .then(response => {
+            this.status_report_loading = false;
+            this.status_reports = response;
+          })
+    },
+    deleteStatusReport(statusReport) {
+      userInput = confirm(deleteMsg + statusReport.name)
+      if (userInput) {
+        let endpoint = `/api/project-planning/status-reports/${statusReport.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              if (!response.detail) this.$delete(this.status_reports, this.status_reports.indexOf(statusReport));
+            })
+      }
+    },
+
+    openStatusReportModal(statusReport) {
+      if (!statusReport) {
+        this.showNewStatusReportModal = true;
+      } else {
+        this.statusReportToEdit = statusReport;
+        this.showOldStatusReportModal = true;
+      }
+    },
+
     // File
     getFiles(yearId) {
       this.file_loading = true;
@@ -447,6 +486,9 @@ var app = new Vue({
       this.showNewAgreementModal = false;
       this.showOldAgreementModal = false;
 
+      this.showNewStatusReportModal = false;
+      this.showOldStatusReportModal = false;
+
       this.showNewFileModal = false;
       this.showOldFileModal = false;
 
@@ -458,6 +500,7 @@ var app = new Vue({
           this.getGCCosts(projectYear.id)
           this.getMilestones(projectYear.id)
           this.getAgreements(projectYear.id)
+          this.getStatusReports(projectYear.id)
           this.getCollaborators(projectYear.id)
           this.getFiles(projectYear.id)
           this.getFinancials(projectYear.id)
@@ -478,6 +521,9 @@ var app = new Vue({
     },
     goProjectYearClone(projectYearId) {
       window.location.href = `/project-planning/project-year/${projectYearId}/clone/`
+    },
+    goStatusReportDetail(statusReportId) {
+      window.location.href = `/project-planning/status-reports/${statusReportId}/`
     },
     isABase(name) {
       if (name && name.length) {
