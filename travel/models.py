@@ -22,7 +22,7 @@ YES_NO_CHOICES = (
 )
 
 NULL_YES_NO_CHOICES = (
-    (None, _("---------")),
+    (None, "---------"),
     (1, _("Yes")),
     (0, _("No")),
 )
