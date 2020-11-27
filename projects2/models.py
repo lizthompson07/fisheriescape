@@ -690,18 +690,18 @@ class Review(models.Model):
     )
     project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
 
-    collaboration_score = models.IntegerField(blank=True, null=True, verbose_name=_("externals / partnerships / collaborations"),
+    collaboration_score = models.IntegerField(blank=True, null=True, verbose_name=_("External Pressures"),
                                               choices=score_choices)
-    collaboration_comment = models.TextField(blank=True, null=True, verbose_name=_("external-partnership-collaboration comments"))
+    collaboration_comment = models.TextField(blank=True, null=True, verbose_name=_("External Pressures comments"))
 
-    strategic_score = models.IntegerField(blank=True, null=True, verbose_name=_("strategic"), choices=score_choices)
-    strategic_comment = models.TextField(blank=True, null=True, verbose_name=_("strategic comments"))
+    strategic_score = models.IntegerField(blank=True, null=True, verbose_name=_("Strategic Direction"), choices=score_choices)
+    strategic_comment = models.TextField(blank=True, null=True, verbose_name=_("Strategic Direction comments"))
 
-    operational_score = models.IntegerField(blank=True, null=True, verbose_name=_("operational"), choices=score_choices)
-    operational_comment = models.TextField(blank=True, null=True, verbose_name=_("operational comments"))
+    operational_score = models.IntegerField(blank=True, null=True, verbose_name=_("Operational Considerations"), choices=score_choices)
+    operational_comment = models.TextField(blank=True, null=True, verbose_name=_("Operational Considerations comments"))
 
-    ecological_score = models.IntegerField(blank=True, null=True, verbose_name=_("ecological"), choices=score_choices)
-    ecological_comment = models.TextField(blank=True, null=True, verbose_name=_("ecological comments"))
+    ecological_score = models.IntegerField(blank=True, null=True, verbose_name=_("Ecological Impact"), choices=score_choices)
+    ecological_comment = models.TextField(blank=True, null=True, verbose_name=_("Ecological Impact comments"))
 
     scale_score = models.IntegerField(blank=True, null=True, verbose_name=_("scale"), choices=score_choices)
     scale_comment = models.TextField(blank=True, null=True, verbose_name=_("scale comments"))

@@ -114,6 +114,12 @@
           {% trans "Select NEXT to enter trip costs" %}
         </h2>
       </div>
+      <div class="mb-3 blue-font center-col show-me-when-group-request">
+        <h2>
+          {% trans "Select NEXT to go to the Group Traveller’s table where you will be able to enter details for each traveller associated with this group request." %}
+        </h2>
+      </div>
+
 
       <div class="container center-col">
         {% buttons %}
@@ -262,8 +268,7 @@
       $div.addClass("gone")
       $input.val("")
       $input.prop("required", false)
-    }
-    else {
+    } else {
       $div.removeClass("gone")
       $input.prop("required", true)
     }

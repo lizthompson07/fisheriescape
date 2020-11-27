@@ -355,7 +355,7 @@ request_group_field_list = [
 request_child_field_list = [
     'requester_name|{}'.format(gettext_lazy("Name")),
     # 'is_public_servant',
-    'is_research_scientist|{}'.format(gettext_lazy("RES?")), # Translators: as in "Research Scientist?"
+    'is_research_scientist|{}'.format(gettext_lazy("RES?")),  # Translators: as in "Research Scientist?"
     'dates|{}'.format(gettext_lazy("Travel dates")),
     'departure_location',
     # 'reason',
@@ -541,7 +541,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
             if form.cleaned_data.get("stay_on_page"):
                 return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs=self.kwargs))
             else:
-                return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs) + "#costs")
+                return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs))
         else:
             return HttpResponseRedirect(reverse("shared_models:close_me"))
 
@@ -640,8 +640,9 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
                 return HttpResponseRedirect(
                     reverse_lazy("travel:request_edit", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}))
             else:
+                where2 = "#group-travellers" if my_object.is_group_request else "#costs"
                 return HttpResponseRedirect(
-                    reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}) + "#costs")
+                    reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}) + where2)
         # if this is a child record
         else:
             if form.cleaned_data.get("stay_on_page"):
@@ -915,7 +916,6 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
                     )
                     reviewer.order = 0
                     reviewer.save()
-
 
             #  SUBMIT REQUEST
             my_object.submitted = timezone.now()
