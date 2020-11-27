@@ -104,7 +104,6 @@ class PersonListView(SiteLoginRequiredMixin, CommonFilterView):
         {"name": 'full_name_with_title|Full name', "class": "", "width": ""},
         {"name": 'phone_1', "class": "", "width": ""},
         {"name": 'phone_2', "class": "", "width": ""},
-        {"name": 'ihub_vetted', "class": "", "width": ""},
     ]
     new_object_url_name = "ihub:person_new"
     row_object_url_name = "ihub:person_detail"
@@ -128,7 +127,6 @@ class PersonDetailView(SiteLoginRequiredMixin, CommonDetailView):
         "fax",
         "language",
         "notes",
-        "ihub_vetted",
         "last_modified_by",
     ]
     home_url_name = "ihub:index"
@@ -147,7 +145,6 @@ class PersonUpdateView(iHubEditRequiredMixin, CommonUpdateView):
 
     def get_initial(self):
         return {
-            'ihub_vetted': True,
             'last_modified_by': self.request.user,
         }
 
@@ -172,7 +169,6 @@ class PersonCreateView(iHubEditRequiredMixin, CommonCreateView):
     def get_initial(self):
         return {
             'last_modified_by': self.request.user,
-            'ihub_vetted': True,
         }
 
 
@@ -373,6 +369,7 @@ class EntryDetailView(SiteLoginRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'title',
+            'proponent',
             'location',
             'organizations',
             'status',

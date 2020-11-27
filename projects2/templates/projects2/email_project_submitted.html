@@ -1,0 +1,23 @@
+{% load verbose_names %}
+
+<p>
+  Year {{ object }} of the following project A project was {% if object.submitted %}submitted under {% else %} unsubmitted from {% endif %}
+  your section:
+  <b>{{ object.project.title }}</b>
+</p>
+
+
+<p>
+  The full detail page for this project-year can be viewed <a
+  href="{{ SITE_FULL_URL }}{% url 'projects2:project_detail' object.project.id %}?project_year={{ object.id }}">HERE</a>.
+</p>
+
+<p>
+  As a manager, you can undertake a review of this project via the <a href="{{ SITE_FULL_URL }}{% url 'projects2:manage_projects' %}">management console</a>
+</p>
+
+<style media="screen">
+table, td {
+    border: solid 1px black;
+}
+</style>

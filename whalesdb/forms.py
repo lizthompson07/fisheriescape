@@ -52,6 +52,15 @@ class EccForm(forms.ModelForm):
         }
 
 
+class EcpForm(forms.ModelForm):
+    class Meta:
+        model = models.EcpChannelProperty
+        exclude = []
+        widgets = {
+            'eqr': forms.HiddenInput(),
+        }
+
+
 class EdaForm(forms.ModelForm):
 
     class Meta:
@@ -87,11 +96,24 @@ class EmmForm(forms.ModelForm):
 
 
 class EheForm(forms.ModelForm):
+
     class Meta:
         model = models.EheHydrophoneEvent
         exclude = []
         widgets = {
+            'ehe_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'rec': forms.HiddenInput(),
+            'ecp_channel_no': forms.HiddenInput(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if 'hyd' in self.initial and self.initial['hyd']:
+            self.fields['hyd'].widget = forms.HiddenInput()
+        else:
+            # exclude hydrophones from the equipment selection list
+            self.fields['hyd'].queryset = self.fields['hyd'].queryset.filter(emm__eqt=4)
 
 
 class EqhForm(forms.ModelForm):

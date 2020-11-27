@@ -70,12 +70,18 @@ def get_region_choices():
             models.Region.objects.filter(id__in=region_list).order_by("name", )]
 
 
-def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_modified_by=None):
-    my_str = f"<u>Created:</u> {created_at.strftime('%Y-%m-%d %H:%M:%S %Z')}"
+def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_modified_by=None, with_tz=False, with_time=True):
+    format_str = '%Y-%m-%d'
+    if with_time:
+        format_str += " %H:%M:%S"
+    if with_tz:
+        format_str += " %Z"
+
+    my_str = f"<u>Created:</u> {created_at.strftime(format_str)}"
     if created_by:
         my_str += f" by {created_by}"
     if updated_at:
-        my_str += f"<br><u>Updated:</u> {updated_at.strftime('%Y-%m-%d %H:%M:%S %Z')}"
+        my_str += f"<br><u>Last updated:</u> {updated_at.strftime(format_str)}"
         if last_modified_by:
             my_str += f" by {last_modified_by}"
 

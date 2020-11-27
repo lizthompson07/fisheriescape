@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tripcategory',
             name='days_when_eligible_for_review',
-            field=models.IntegerField(default=14, verbose_name='Number days before earliest date that is eligible for review'),
+            field=models.IntegerField(default=14, verbose_name='Number of days before earliest date that is eligible for review'),
             preserve_default=False,
         ),
     ]

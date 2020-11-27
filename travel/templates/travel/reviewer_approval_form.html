@@ -38,7 +38,7 @@
 
     <div class="float-right mb-3">
         <a class="btn btn-outline-dark " href="{% url 'travel:request_print' triprequest.id %}" target="_blank">
-            {% trans "Print Travel Plan" %}&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+            {% trans "Print Travel Request and Approval Form (TRAF)" %}&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
         </a>
         <a class="btn btn-outline-dark" href="{% url 'travel:export_cfts_request' triprequest.id %}" target="_blank">
             {% trans "CFTS Report" %} &nbsp; <img src="{% static 'img/icons/excel.svg' %}" alt="" width="20px">
@@ -112,7 +112,7 @@
 
     </script>
 
-    // have to reload some other JS scripts... due to import of vue js
+{#    // have to reload some other JS scripts... due to import of vue js#}
     <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
     <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
 

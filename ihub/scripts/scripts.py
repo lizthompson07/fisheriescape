@@ -32,7 +32,7 @@ def export_fixtures():
 
 
 def clean_masterlist():
-    for contact in ml_models.Person.objects.filter(ihub_vetted=False):
+    for contact in ml_models.Person.objects.all():
         if not contact.project_people.count():
             try:
                 contact.delete()

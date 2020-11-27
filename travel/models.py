@@ -31,10 +31,10 @@ NULL_YES_NO_CHOICES = (
 class DefaultReviewer(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
                                 verbose_name=_("DM Apps user"))
-    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which DFO section(s)"),
+    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer belongs to which DFO section(s)"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
-    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"),
+    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer belongs to which DFO branch(es)"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
     reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"),
@@ -91,7 +91,7 @@ class Role(SimpleLookup):
 
 class TripCategory(SimpleLookup):
     days_when_eligible_for_review = models.IntegerField(verbose_name=_(
-        "Number days before earliest date that is eligible for review"))  # overflowing this since we DO NOT want it to be unique=True
+        "Number of days before earliest date that is eligible for review"))  # overflowing this since we DO NOT want it to be unique=True
 
 
 class TripSubcategory(Lookup):
@@ -201,7 +201,7 @@ class Conference(models.Model):
         if self.is_adm_approval_required and self.trip_subcategory:
             # trips must be reviewed by ADMO before two weeks to the closest date
             self.adm_review_deadline = self.closest_date - datetime.timedelta(
-                days=21)  # 14 business days -- > 21 calendar days?
+                days=14)  # 14 days
 
             # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
             # else they can start the review closer to the date: eight business weeks (60 days)
@@ -513,7 +513,7 @@ class TripRequest(models.Model):
                                related_name="trip_requests",
                                null=True, blank=True)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
-                                verbose_name=_("under which DFO section is this request being made"),
+                                verbose_name=_("under which section is this request being made"),
                                 related_name="trip_requests")
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
                                                 verbose_name=_("Is the traveller a research scientist (RES)?"))
@@ -546,11 +546,9 @@ class TripRequest(models.Model):
 
     # purpose
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role description"))
-    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of the trip"))
+    learning_plan = models.BooleanField(default=False, verbose_name=_("Is this request included on your learning plan?"))
+    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of this meeting or conference"))
     benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("benefit to DFO"))
-    multiple_conferences_rationale = models.TextField(blank=True, null=True,
-                                                      verbose_name=_(
-                                                          "rationale for individual attending multiple conferences"))
     bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
     # multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
     #     "rationale for multiple travelers"))
@@ -825,9 +823,6 @@ class TripRequest(models.Model):
             my_str += "<br><em>Objective of Event:</em> {}".format(self.objective_of_event)
         if self.benefit_to_dfo:
             my_str += "<br><em>Benefit to DFO:</em> {}".format(self.benefit_to_dfo)
-        if self.multiple_conferences_rationale:
-            my_str += "<br><em>Rationale for attending multiple conferences:</em> {}".format(
-                self.multiple_conferences_rationale)
         if self.funding_source:
             my_str += "<br><em>Funding source:</em> {}".format(self.funding_source)
 
@@ -843,9 +838,6 @@ class TripRequest(models.Model):
         my_str += "\n\n{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
 
         my_str += "\n\n{}: {}".format("BENEFIT TO DFO", nz(self.benefit_to_dfo, "n/a"))
-
-        my_str += "\n\n{}: {}".format(
-            "Rationale for attending multiple conferences".upper(), nz(self.multiple_conferences_rationale, "n/a"))
 
         return my_str
 
@@ -955,6 +947,17 @@ class TripRequest(models.Model):
             if r.status_id == 2 and r.comments:
                 my_str += f'<u>{r.user}</u>: {r.comments}<br>'
         return mark_safe(my_str)
+
+    @property
+    def is_late_request(self):
+        # this only applies to trips requiring adm approval
+        if self.trip and self.trip.is_adm_approval_required:
+            # if not submitted, we compare against current datetime
+            if not self.submitted:
+                return self.trip.date_eligible_for_adm_review and timezone.now() > self.trip.date_eligible_for_adm_review
+            # otherwise we compare against submission datetime
+            else:
+                return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
 
 
 class TripRequestCost(models.Model):

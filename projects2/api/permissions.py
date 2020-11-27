@@ -4,14 +4,6 @@ from rest_framework.generics import get_object_or_404
 from ..utils import can_modify_project
 from .. import models
 
-class IsSuperuser(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return request.user.is_superuser
-
-
-class IsOceanUser(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return request.user.profile.oceanography
 
 
 class CanModifyOrReadOnly(permissions.BasePermission):
