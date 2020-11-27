@@ -537,7 +537,7 @@ class EqpDetails(mixins.EqpMixin, CommonDetails):
 
 class MorDetails(mixins.MorMixin, CommonDetails):
     template_name = 'whalesdb/details_mor.html'
-    fields = ["mor_name", "mor_max_depth", "mor_link_setup_image", "mor_additional_equipment",
+    fields = ["mor_name", "mor_max_depth", "mor_link_setup_image", "mor_link_setup_pdf","mor_additional_equipment",
               "mor_general_moor_description", "mor_notes"]
     creation_form_height = 600
 
