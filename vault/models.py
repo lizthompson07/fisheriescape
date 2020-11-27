@@ -157,7 +157,7 @@ class Instrument(models.Model):
 
 class InstrumentMetadatum(models.Model):
     instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="instrument_metadata",
-                                   verbose_name=_(""))
+                                   verbose_name=_("instrument"))
     metadata_field = models.ForeignKey("MetadataField", on_delete=models.CASCADE, related_name="instrument_metadata")
     value = models.CharField(max_length=1000)
 
@@ -239,9 +239,9 @@ class ObservationMetadatum(models.Model):
 
 
 class Certainty(models.Model):
-    code = models.IntegerField(blank=True, null=True, verbose_name=_(""))
-    english_certainty_description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    french_certainty_description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    code = models.IntegerField(blank=True, null=True, verbose_name=_("code"))
+    english_certainty_description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
+    french_certainty_description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
 
 
 class Sex(models.Model):
@@ -311,56 +311,56 @@ class IndividualIdentification(models.Model):
         ordering = ['name', ]
 
 class ObservationSighting(models.Model):
-    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_sightings", verbose_name=_(""))
+    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_sightings", verbose_name=_("observation"))
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
     certainty = models.ForeignKey(Certainty, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
     life_stage = models.ForeignKey(LifeStage, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
     health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="observation_sightings",
                                       null=True, blank=True)
-    verified = models.BooleanField(default=False, verbose_name=_(""))
-    known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_(""))
+    verified = models.BooleanField(default=False, verbose_name=_("verified"))
+    known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_("known individual"))
 
 
 class OriginalMediafile(models.Model):
     file_path = models.CharField(max_length=1000, blank=True, null=True)
-    filename = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="original_mediafiles", verbose_name=_(""))
+    filename = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("filename"))
+    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="original_mediafiles", verbose_name=_("observation"))
     metadata = models.ManyToManyField(MetadataField, through="OriginalMediafileMetadatum")
 
 
 class OriginalMediafileMetadatum(models.Model):
     original_mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING, related_name="original_mediafile_metadata",
-                                           verbose_name=_(""))
+                                           verbose_name=_("original media file"))
     metadata_field = models.ForeignKey(MetadataField, on_delete=models.CASCADE, related_name="original_mediafile_metadata")
     value = models.CharField(max_length=1000)
 
 
 class FieldName(models.Model):
-    field_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    used_for = models.ManyToManyField(Instrument, verbose_name=_(""), blank=True)
+    field_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("name"))
+    used_for = models.ManyToManyField(Instrument, verbose_name=_("used for"), blank=True)
 
 
 class MediafileSighting(models.Model):
     original_mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING, related_name="mediafile_sightings",
-                                           verbose_name=_(""))
+                                           verbose_name=_("original media file"))
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
     certainty = models.ForeignKey(Certainty, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
     life_stage = models.ForeignKey(LifeStage, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
     health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="mediafile_sightings",
                                       null=True, blank=True)
-    verified = models.BooleanField(default=False, verbose_name=_(""))
-   # known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_(""))
+    verified = models.BooleanField(default=False, verbose_name=_("verified"))
+   # known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_("known individual"))
 
 
 class ProcessedMediafile(models.Model):
     file_path = models.CharField(max_length=1000, blank=True, null=True)
-    filename = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    filename = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("filename"))
     original_mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING, related_name="processed_mediafiles",
                                            verbose_name=_("original mediafile"))
-    species = models.ManyToManyField(Species, verbose_name=_(""), blank=True)
-    verified = models.BooleanField(default=False, verbose_name=_(""))
+    species = models.ManyToManyField(Species, verbose_name=_("species"), blank=True)
+    verified = models.BooleanField(default=False, verbose_name=_("verified"))
     analyst = models.ForeignKey(Person, on_delete=models.DO_NOTHING)
     date_analysed = models.DateTimeField()
     date_created = models.DateTimeField()
