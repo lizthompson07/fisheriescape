@@ -290,8 +290,8 @@ class Experience(models.Model):
         ('Intermediate', _("3-5 Necropsies")),
         ('Advanced', _("More than 5 Necropsies")),
     )
-    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    nom = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("name"))
+    nom = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("nom"))
     description_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("english description"))
     description_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french description"))
     experience = models.CharField(max_length=255, choices=EXPERIENCE_LEVEL_CHOICES, default='None',
