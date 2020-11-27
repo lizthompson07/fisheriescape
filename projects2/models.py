@@ -787,7 +787,7 @@ class MilestoneUpdate(models.Model):
     )
     milestone = models.ForeignKey(Milestone, related_name="updates", on_delete=models.CASCADE)
     status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)
-    status = models.IntegerField(default=1, editable=False, choices=status_choices)
+    status = models.IntegerField(default=7, editable=False, choices=status_choices)
     notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     class Meta:
