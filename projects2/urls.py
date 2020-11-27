@@ -29,6 +29,18 @@ urlpatterns = [
     path('project-year/<int:pk>/clone/', views.ProjectYearCloneView.as_view(), name="year_clone"),
 
 
+    # STATUS REPORT #
+    #################
+    # path('project/<int:project>/status-report/new/', views.StatusReportCreateView.as_view(), name="report_new"),
+    # path('status-report/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),
+    path('status-reports/<int:pk>/', views.StatusReportDetailView.as_view(), name="report_detail"),
+    path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),
+    # path('status-report/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_print"),
+
+    # MILESTONE UPDATE #
+    ####################
+    # path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
+
 ###################################
 
     # path('all/', views.ProjectListView.as_view(), name="project_list"),
@@ -61,16 +73,7 @@ urlpatterns = [
     # path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     # path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
     #
-    # # STATUS REPORT #
-    # #################
-    # path('project/<int:project>/status-report/new/', views.StatusReportCreateView.as_view(), name="report_new"),
-    # path('status-report/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),
-    # path('status-report/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),
-    # path('status-report/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_print"),
-    #
-    # # MILESTONE UPDATE #
-    # ####################
-    # path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
+
     #
     #
     # # SETTINGS #

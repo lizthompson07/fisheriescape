@@ -41,7 +41,12 @@
           </slot>
         </div>
 
-        <form method="post" @submit.prevent="onSubmit" class="form">
+        <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
+          <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
+        <form v-else method="post" @submit.prevent="onSubmit" class="form">
           <div class="modal-body">
             <slot name="body">
 
@@ -91,7 +96,7 @@
                 </div>
                 <hr>
 
-                <p class="text-muted">{{ review_form.operational_comment.label }}</p>
+                <p class="text-muted">{{ review_form.operational_score.label }}</p>
                 <div class="row mb-3">
                   <div class="col">
                     {% bootstrap_field review_form.operational_score size='small' show_label=False %}
@@ -112,7 +117,7 @@
                 </div>
                 <hr>
 
-                <p class="text-muted">{{ review_form.ecological_comment.label }}</p>
+                <p class="text-muted">{{ review_form.ecological_score.label }}</p>
                 <div class="row mb-3">
                   <div class="col">
                     {% bootstrap_field review_form.ecological_score size='small' show_label=False %}
@@ -162,7 +167,8 @@
                 </div>
 
                 <hr>
-                <p class="text-muted">{% trans "Review Score:" %} <span v-html="total_score"></span> / 15 (<span v-html="total_score_percentage"></span>)</p>
+                <p class="text-muted">{% trans "Review Score:" %} <span v-html="total_score"></span> / 15 (<span
+                  v-html="total_score_percentage"></span>)</p>
 
               </div>
 
@@ -184,7 +190,7 @@
                       type="button">{% trans "Delete" %}</button>
               <button v-if="isOldReview" class="modal-default-button">{% trans "Update" %}</button>
               <button v-else class="modal-default-button">{% trans "Add" %}</button>
-              <button class="modal-default-button" @click="$emit('close')" id="closeBtn" type="button">
+              <button class="modal-default-button" @click="closeModal" id="closeBtn" type="button">
                 {% trans "Close" %}
               </button>
             </slot>

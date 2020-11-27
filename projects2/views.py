@@ -17,10 +17,10 @@ from shared_models.views import CommonTemplateView, CommonCreateView, \
 from . import filters
 from . import forms
 from . import models
-from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin
+from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ProjectLeadRequiredMixin
 from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
-    get_review_score_rubric
+    get_review_score_rubric, get_status_report_field_list
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -290,6 +290,9 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
 
         context["agreement_form"] = forms.AgreementForm
         context["random_agreement"] = models.CollaborativeAgreement.objects.first()
+
+        context["status_report_form"] = forms.StatusReportForm(initial={"user":self.request.user}, instance=project)
+        context["random_status_report"] = models.StatusReport.objects.first()
 
         context["file_form"] = forms.FileForm
         context["random_file"] = models.File.objects.first()
@@ -863,3 +866,80 @@ class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
     template_name = "projects2/confirm_delete.html"
     delete_protection = False
     container_class = "container bg-light curvy"
+
+
+
+# STATUS REPORT #
+#################
+
+
+class StatusReportDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
+    template_name = "projects/status_report_confirm_delete.html"
+    model = models.StatusReport
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy("shared_models:close_me")
+
+
+class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
+    model = models.StatusReport
+    home_url_name = "projects2:index"
+    template_name = "projects2/status_report_detail.html"
+    field_list = get_status_report_field_list()
+
+
+    def dispatch(self, request, *args, **kwargs):
+        # when the view loads, let's make sure that all the milestones are on the project.
+        my_object = self.get_object()
+        my_project_year = my_object.project_year
+        for milestone in my_project_year.milestones.all():
+            my_update, created = models.MilestoneUpdate.objects.get_or_create(
+                milestone=milestone,
+                status_report=my_object
+            )
+            # if the update is being created, what should be the starting status?
+            # to know, we would have to look and see if there is another report. if there is, we should grab the penultimate report and copy status from there.
+            if created:
+                # check to see if there is another update on the same milestone. We can do this since milestones are unique to projects.
+                if milestone.updates.count() > 1:
+                    # if there are more than just 1 (i.e. the one we just created), it will be the second record we are interested in...
+                    last_update = milestone.updates.all()[1]
+                    my_update.status = last_update.status
+                    my_update.save()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_project_year(self):
+        return self.get_object().project_year
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
+
+    # def get_pdf_filename(self):
+    #     my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
+    #     pdf_filename = "{}.pdf".format(
+    #         my_report
+    #     )
+    #     return pdf_filename
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
+        context["object"] = my_report
+        context["report_mode"] = True
+        context['files'] = my_report.files.all()
+
+        context["field_list"] = [
+            'date_created',
+            'created_by',
+            'status',
+            'major_accomplishments',
+            'major_issues',
+            'target_completion_date',
+            'rationale_for_modified_completion_date',
+            'general_comment',
+            'section_head_comment',
+            'section_head_reviewed',
+        ]
+
+        return context

@@ -41,6 +41,10 @@
               <span v-if="!my_agreement">{% trans "New Collaborative Agreement" %}</span>
               <span v-else>{% trans "Edit Collaborative Agreement" %}</span>
             </h3>
+            <h3 v-else-if="mtype === 'status_report'">
+              <span v-if="!my_status_report">{% trans "New Status Report (Still under development)" %}</span>
+              <span v-else>{% trans "Edit Status Report (Still under development)" %}</span>
+            </h3>
             <h3 v-else-if="mtype === 'file'">
               <span v-if="!my_file">{% trans "New Supporting Resource" %}</span>
               <span v-else>{% trans "Edit Supporting Resource" %}</span>
@@ -82,34 +86,34 @@
                     {% bootstrap_field staff_form.employee_type size='small' %}
                   </div>
                   <div class="col">
-                    {% bootstrap_field staff_form.is_lead size='small'%}
+                    {% bootstrap_field staff_form.is_lead size='small' %}
                   </div>
                   <div class="col">
-                    {% bootstrap_field staff_form.funding_source size='small'%}
+                    {% bootstrap_field staff_form.funding_source size='small' %}
                   </div>
                   <div class="col-3">
-                    {% bootstrap_field staff_form.amount placeholder="" size='small'%}
+                    {% bootstrap_field staff_form.amount placeholder="" size='small' %}
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col">
-                    {% bootstrap_field staff_form.level size='small'%}
+                    {% bootstrap_field staff_form.level size='small' %}
                   </div>
                   <div class="col">
-                    {% bootstrap_field staff_form.student_program size='small'%}
+                    {% bootstrap_field staff_form.student_program size='small' %}
                   </div>
                   <div class="col">
-                    {% bootstrap_field staff_form.duration_weeks placeholder="" size='small'%}
+                    {% bootstrap_field staff_form.duration_weeks placeholder="" size='small' %}
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col-2">
-                    {% bootstrap_field staff_form.overtime_hours size='small'%}
+                    {% bootstrap_field staff_form.overtime_hours size='small' %}
                   </div>
                   <div class="col-6">
-                    {% bootstrap_field staff_form.overtime_description placeholder="" size='small'%}
+                    {% bootstrap_field staff_form.overtime_description placeholder="" size='small' %}
                   </div>
                   <div class="col">
                     <p style="text-align: center;" class="">
@@ -126,12 +130,12 @@
 
               {# OM COST FORM             #}
               <div v-else-if="mtype=='om_cost'">
-                {% bootstrap_form om_cost_form size='small'%}
+                {% bootstrap_form om_cost_form size='small' %}
               </div>
 
               {# CAPITAL COST FORM             #}
               <div v-else-if="mtype=='capital_cost'">
-                {% bootstrap_form capital_cost_form size='small'%}
+                {% bootstrap_form capital_cost_form size='small' %}
               </div>
               {# CAPITAL COST FORM             #}
               <div v-else-if="mtype=='gc_cost'">
@@ -140,27 +144,30 @@
 
               {# MILESTONE FORM             #}
               <div v-else-if="mtype=='milestone'">
-                {% bootstrap_form milestone_form size='small'%}
+                {% bootstrap_form milestone_form size='small' %}
               </div>
               {# COLLABORATOR FORM             #}
               <div v-else-if="mtype=='collaborator'">
-                {% bootstrap_form collaborator_form size='small'%}
+                {% bootstrap_form collaborator_form size='small' %}
               </div>
               {# AGREEEMENT FORM             #}
               <div v-else-if="mtype=='agreement'">
-                {% bootstrap_form agreement_form size='small'%}
+                {% bootstrap_form agreement_form size='small' %}
+              </div>
+              {# STATUS REPORT FORM             #}
+              <div v-else-if="mtype=='status_report'">
+                {% bootstrap_form status_report_form size='small' %}
               </div>
               {# FILE FORM             #}
               <div v-else-if="mtype=='file'">
-                {% bootstrap_form file_form size='small'%}
+                {% bootstrap_form file_form size='small' %}
               </div>
             </slot>
           </div>
 
           <div class="modal-footer">
             <slot name="footer">
-              <button v-if="my_staff" class="modal-default-button" id="closeBtn">{% trans "Update" %}</button>
-              <button v-else class="modal-default-button" id="closeBtn">{% trans "Add" %}</button>
+              <button class="modal-default-button" id="closeBtn">{% trans "Save" %}</button>
               <button class="modal-default-button" @click="$emit('close')" id="closeBtn" type="button">
                 {% trans "Close" %}
               </button>

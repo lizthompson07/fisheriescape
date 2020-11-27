@@ -2,7 +2,7 @@ import markdown
 from django import template
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist
-from django.template.defaultfilters import yesno
+from django.template.defaultfilters import yesno, date
 from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -150,7 +150,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
                     if display_time:
                         field_value = datetime_obj.strftime('{} %H:%M'.format(date_format))
                     else:
-                        field_value = datetime_obj.strftime(date_format)
+                        field_value = date(datetime_obj)
 
                 # check to see if it is a url
                 elif str(val).startswith("http"):

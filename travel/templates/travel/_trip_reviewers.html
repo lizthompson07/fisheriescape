@@ -8,10 +8,9 @@
 <div class="card mb-2">
     <h3 class="card-header bg-outline-dark">
         {% if trip.review_start_date %}
-
-            {% trans "Reviewer Comments" %}
+            {% trans "Approval Comments" %}
         {% else %}
-            {% trans "Reviewers, Recommenders and Approvers" %}
+            {% trans "Approval Queue" %}
         {% endif %}
         {#        <div class="neighbours mb-3">#}
         {#            {% with help_text_dict|lookup:"trip_reviewers_header" as help_text %}#}

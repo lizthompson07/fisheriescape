@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 from . import models, utils
+from .utils import is_section_head
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
@@ -399,6 +400,28 @@ class AgreementForm(forms.ModelForm):
         self.fields["notes"].widget.attrs = {"v-model": "agreement.notes"}
 
 
+class StatusReportForm(forms.ModelForm):
+    class Meta:
+        model = models.StatusReport
+        exclude = ["project_year"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["status"].widget.attrs = {"v-model": "status_report.status"}
+        self.fields["major_accomplishments"].widget.attrs = {"v-model": "status_report.major_accomplishments"}
+        self.fields["major_accomplishments"].label = _("Major accomplishments (this can be left blank if reported at the milestone level")
+        self.fields["major_issues"].widget.attrs = {"v-model": "status_report.major_issues"}
+        self.fields["target_completion_date"].widget.attrs = {"v-model": "status_report.target_completion_date", "type": "date"}
+        self.fields["rationale_for_modified_completion_date"].widget.attrs = {
+            "v-model": "status_report.rationale_for_modified_completion_date"}
+        self.fields["general_comment"].widget.attrs = {"v-model": "status_report.general_comment"}
+        
+        if is_section_head(self.initial.get("user"), self.instance):
+            self.fields["section_head_comment"].widget.attrs = {"v-model": "status_report.section_head_comment"}
+        else:
+            del self.fields["section_head_comment"]
+
+
 class FileForm(forms.ModelForm):
     class Meta:
         model = models.File
@@ -446,7 +469,6 @@ class ReviewForm(forms.ModelForm):
         for c in criteria:
             self.fields[c + "_comment"].widget.attrs["v-model"] = f"project_year.review.{c}_comment"
             self.fields[c + "_score"].widget.attrs["v-model"] = f"project_year.review.{c}_score"
-
 
 
 class ApprovalForm(forms.ModelForm):

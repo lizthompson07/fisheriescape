@@ -6,7 +6,7 @@
         {% with cc_dict|lookup:"trip_requests" as trip_requests_dict %}
             <table class="plainjane" style="width: 95%;">
                 <tr class="plainjane">
-                    <th class="plainjane" rowspan="2" style="width: 120px">{% trans "Traveller" %}</th>
+                    <th class="plainjane" rowspan="2" style="width: 120px; vertical-align: middle">{% trans "Traveller" %}</th>
                     <th class="center-col plainjane" colspan="{{ cost_dict|length }}">
                         {% trans "Costs (CAD)" %}
                     </th>

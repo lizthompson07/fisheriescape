@@ -638,22 +638,22 @@ class StatusReport(models.Model):
         (6, _("Aborted / cancelled")),
     )
     project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE)
-    status = models.IntegerField(default=1, editable=False, choices=status_choices)
+    status = models.IntegerField(default=1, editable=True, choices=status_choices)
     major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_(
-        "major accomplishments (this can be left blank if reported at the milestone level)"))
+        "major accomplishments"))
     major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
     target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
     rationale_for_modified_completion_date = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for a modified completion date"))
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
-    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"))
+    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"), editable=False)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_status_report", blank=True,
-                                    null=True)
+                                    null=True, editable=False)
 
     @property
     def metadata(self):
@@ -667,7 +667,7 @@ class StatusReport(models.Model):
 
     @property
     def report_number(self):
-        return [report for report in self.project_year.reports.order_by("created_at")].index(self) + 1
+        return [report for report in self.project_year.reports.all().order_by("created_at")].index(self) + 1
 
     def __str__(self):
         # what is the number of this report?
@@ -690,18 +690,18 @@ class Review(models.Model):
     )
     project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
 
-    collaboration_score = models.IntegerField(blank=True, null=True, verbose_name=_("externals / partnerships / collaborations"),
+    collaboration_score = models.IntegerField(blank=True, null=True, verbose_name=_("External Pressures"),
                                               choices=score_choices)
-    collaboration_comment = models.TextField(blank=True, null=True, verbose_name=_("external-partnership-collaboration comments"))
+    collaboration_comment = models.TextField(blank=True, null=True, verbose_name=_("External Pressures comments"))
 
-    strategic_score = models.IntegerField(blank=True, null=True, verbose_name=_("strategic"), choices=score_choices)
-    strategic_comment = models.TextField(blank=True, null=True, verbose_name=_("strategic comments"))
+    strategic_score = models.IntegerField(blank=True, null=True, verbose_name=_("Strategic Direction"), choices=score_choices)
+    strategic_comment = models.TextField(blank=True, null=True, verbose_name=_("Strategic Direction comments"))
 
-    operational_score = models.IntegerField(blank=True, null=True, verbose_name=_("operational"), choices=score_choices)
-    operational_comment = models.TextField(blank=True, null=True, verbose_name=_("operational comments"))
+    operational_score = models.IntegerField(blank=True, null=True, verbose_name=_("Operational Considerations"), choices=score_choices)
+    operational_comment = models.TextField(blank=True, null=True, verbose_name=_("Operational Considerations comments"))
 
-    ecological_score = models.IntegerField(blank=True, null=True, verbose_name=_("ecological"), choices=score_choices)
-    ecological_comment = models.TextField(blank=True, null=True, verbose_name=_("ecological comments"))
+    ecological_score = models.IntegerField(blank=True, null=True, verbose_name=_("Ecological Impact"), choices=score_choices)
+    ecological_comment = models.TextField(blank=True, null=True, verbose_name=_("Ecological Impact comments"))
 
     scale_score = models.IntegerField(blank=True, null=True, verbose_name=_("scale"), choices=score_choices)
     scale_comment = models.TextField(blank=True, null=True, verbose_name=_("scale comments"))
@@ -787,7 +787,7 @@ class MilestoneUpdate(models.Model):
     )
     milestone = models.ForeignKey(Milestone, related_name="updates", on_delete=models.CASCADE)
     status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)
-    status = models.IntegerField(default=1, editable=False, choices=status_choices)
+    status = models.IntegerField(default=7, editable=False, choices=status_choices)
     notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     class Meta:
