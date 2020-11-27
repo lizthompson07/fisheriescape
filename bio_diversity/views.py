@@ -1,8 +1,8 @@
 from django.views.generic import TemplateView, DetailView
-from shared_models.views import CommonAuthCreateView, CommonAuthFilterView
+from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView
 from django.urls import reverse_lazy
 
-from . import models, forms, mixins, filters
+from . import models, forms, mixins, filters, utils
 
 
 class IndexTemplateView(TemplateView):
@@ -35,7 +35,7 @@ class CommonCreate(CommonAuthCreateView):
 
     # overrides the UserPassesTestMixin test to check that a user belongs to the whalesdb_admin group
     def test_func(self):
-        return self.request.user.groups.filter(name='bio_diversity_admin').exists()
+        return utils.bio_diverisity_authorized(self.request.user)
 
 
 class InstCreate(mixins.InstMixin, CommonCreate):
@@ -81,7 +81,7 @@ class CommonDetails(DetailView):
         context['update_url'] = None # self.update_url if self.update_url else "bio_diversity:update_{}".format(self.key)
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        context['auth'] = None # utils.whales_authorized(self.request.user)
+        context['auth'] = utils.bio_diverisity_authorized(self.request.user)
         context['editable'] = context['auth'] and self.editable
 
         return context
@@ -138,13 +138,13 @@ class CommonList(CommonAuthFilterView):
         return self.create_url if self.create_url is not None else "bio_diversity:create_{}".format(self.key)
 
     def get_details_url(self):
-        return None # self.details_url if self.details_url is not None else "bio_diversity:details_{}".format(self.key)
+        return self.details_url if self.details_url is not None else "bio_diversity:details_{}".format(self.key)
 
     def get_update_url(self):
-        return None # self.update_url if self.update_url is not None else "bio_diversity:update_{}".format(self.key)
+        return self.update_url if self.update_url is not None else "bio_diversity:update_{}".format(self.key)
 
     def get_delete_url(self):
-        return None # self.delete_url if self.delete_url is not None else "bio_diversity:delete_{}".format(self.key)
+        return self.delete_url if self.delete_url is not None else "bio_diversity:delete_{}".format(self.key)
 
     def get_context_data(self, *args, object_list=None, **kwargs):
         context = super().get_context_data(*args, object_list=object_list, **kwargs)
@@ -186,3 +186,53 @@ class InstcList(mixins.InstMixin, CommonList):
 class InstdcList(mixins.InstMixin, CommonList):
     filterset_class = filters.InstFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+
+
+# ---------------------------UPDATE VIEWS-----------------------------------
+class CommonUpdate(CommonAuthUpdateView):
+
+    nav_menu = 'bio_diversity/bio_diversity_nav.html'
+    site_css = 'bio_diversity/bio_diversity.css'
+    home_url_name = "bio_diversity:index"
+
+    def get_success_url(self):
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:list_{}".format(self.key))
+
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_no_refresh")
+
+        return success_url
+
+    def get_nav_menu(self):
+        if self.kwargs.get("pop"):
+            return None
+
+        return self.nav_menu
+
+    # this function overrides UserPassesTestMixin.test_func() to determine if
+    # the user should have access to this content, if the user is logged in
+    # This function could be overridden in extending classes to preform further testing to see if
+    # an object is editable
+    def test_func(self):
+        return utils.bio_diverisity_authorized(self.user)
+
+    # Get context returns elements used on the page. Make sure when extending to call
+    # context = super().get_context_data(**kwargs) so that elements created in the parent
+    # class are inherited by the extending class.
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['editable'] = context['auth']
+        return context
+
+
+class InstUpdate(mixins.InstMixin, CommonUpdate):
+    pass
+
+
+class InstcUpdate(mixins.InstMixin, CommonUpdate):
+    pass
+
+
+class InstdcUpdate(mixins.InstMixin, CommonUpdate):
+    pass

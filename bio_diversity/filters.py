@@ -10,7 +10,7 @@ class InstFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Instrument
-        fields = ["instc", "serial_number", "comments", "created_by", "created_date",]
+        fields = ["instc", "serial_number", "created_by", "created_date",]
 
 
 class InstcFilter(django_filters.FilterSet):
