@@ -65,6 +65,8 @@
     $(".format_div").addClass("gone");
     $(".from_date_div").addClass("gone");
     $(".to_date_div").addClass("gone");
+    $(".entry_note_types_div").addClass("gone");
+    $(".entry_note_statuses_div").addClass("gone");
 
     $("#id_report").prop('required', true);
     $("#id_format").prop('required', false);
@@ -78,6 +80,8 @@
     $("#id_report_title").prop('required', false);
     $("#id_from_date").prop('required', false);
     $("#id_to_date").prop('required', false);
+    $("#id_entry_note_types").prop('required', false);
+    $("#id_entry_note_statuses").prop('required', false);
   }
 
   function configureForm() {
@@ -99,9 +103,15 @@
       $(".fiscal_year_div").removeClass("gone");
       $(".from_date_div").removeClass("gone");
       $(".to_date_div").removeClass("gone");
+      $("#id_format").prop('required', true);
+      $(".entry_note_types_div").removeClass("gone");
+      $(".entry_note_statuses_div").removeClass("gone");
+
       $("#id_organizations").multiSelect();
       $("#id_sectors").multiSelect();
-      $("#id_format").prop('required', true);
+      $("#id_entry_note_types").multiSelect();
+      $("#id_entry_note_statuses").multiSelect();
+
     } else if (reportChoice == 6) {
       $(".organizations_div").removeClass("gone");
       $(".sectors_div").removeClass("gone");
@@ -112,10 +122,15 @@
       $(".report_title_div").removeClass("gone");
       $(".from_date_div").removeClass("gone");
       $(".to_date_div").removeClass("gone");
+      $(".entry_note_types_div").removeClass("gone");
+      $(".entry_note_statuses_div").removeClass("gone");
+
       $("#id_organizations").multiSelect();
       $("#id_sectors").multiSelect();
       $("#id_statuses").multiSelect();
       $("#id_entry_types").multiSelect();
+      $("#id_entry_note_types").multiSelect();
+      $("#id_entry_note_statuses").multiSelect();
 
       $("#id_report_title").prop('required', true);
       $("#id_format").prop('required', true);

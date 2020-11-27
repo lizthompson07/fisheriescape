@@ -1,0 +1,100 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% bootstrap_css %}
+
+{% block extra_style %}
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    table, td, th {
+        font-size: small;
+        border: 1px solid black;
+        text-align: left;
+        border-collapse: collapse;
+    }
+
+    td, th {
+        padding: 2px;
+    }
+
+    th {
+        background-color: lightblue;
+    {#color: white;#} border: 1px solid black;
+        font-weight: bold;
+    }
+
+    .total {
+        background-color: lightgray;
+        color: black;
+    }
+
+
+    h1 {
+        font-size: 24px;
+    }
+
+    @page {
+        size: legal landscape;
+        margin: 1cm;
+        @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
+    }
+
+</style>
+
+
+<div id="footerContent">
+    {% block page_foot %}
+        <pdf:pagenumber/>
+    {% endblock %}
+</div>
+
+<h1>{{ fy }} – Feedback from Projects</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <thead>
+    <th style="width: 2%;">#</th>
+    {% for field in field_list %}
+        {% if field == "id" %}
+            <th style="width: 2%;">
+                {% get_verbose_label my_object field %}
+            </th>
+
+        {% else %}
+        <th>
+            {% get_verbose_label my_object field %}
+        </th>
+        {% endif %}
+    {% endfor %}
+    </thead>
+
+    <tbody>
+    {% for obj in object_list %}
+
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            {% for field in field_list %}
+                <td>
+                    {% get_field_value obj field %}
+                </td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+
+

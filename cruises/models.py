@@ -11,7 +11,7 @@ from shared_models.models import SimpleLookup, Cruise
 
 
 class Instrument(models.Model):
-    name = models.CharField(unique=True, max_length=255, verbose_name=_("name"))
+    name = models.CharField(max_length=255, verbose_name=_("name"))
     notes = models.TextField(blank=True, null=True)
     cruise = models.ForeignKey(shared_models.Cruise, related_name="instruments", on_delete=models.CASCADE)
 

@@ -163,7 +163,7 @@ class TestRscList(CommonListTest, TestCase):
         self.assertEqual("whalesdb:create_rsc", response.context['create_url'])
         self.assertEqual("whalesdb:details_rsc", response.context['details_url'])
 
-        self.assertEquals(False, response.context["editable"])
+        self.assertEquals(True, response.context["editable"])
 
 
 @tag('rtt', 'filter')

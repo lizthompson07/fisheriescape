@@ -1,0 +1,76 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div class="mb-2 neighbours">
+    <h2>{% trans "Grant & Contributions" %}</h2>
+  </div>
+  <div v-if="!gc_cost_loading" class="mb-2 neighbours">
+    <button @click="openGCCostModal()"class="{{ btn_class_1 }}" v-if="canModify">
+      <span class="mdi mdi-plus"></span> {% trans "Add G&C Cost" %}
+    </button>
+  </div>
+
+  <div v-if="gc_cost_loading">
+    <button class="btn btn-primary" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+
+  <div v-else>
+
+    <div
+      v-if="!gc_costs.length"
+      class="font-italic"
+    >
+      {% trans "No G&C costs have been added to this year of the project" %}
+    </div>
+
+    <table
+      v-else
+      class="table table-sm sortable"
+      style="width: auto"
+    >
+      <thead>
+      {% get_gc_cost_field_list as gc_field_list %}
+      {% for field in gc_field_list %}
+        <th>
+          {% get_verbose_label random_gc_cost field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      <tr v-for="(item, index) in gc_costs">
+        {% for field in gc_field_list %}
+          {% if "funding_source" in field %}
+            <td>
+              <span v-if="isABase(item.funding_source_display)" class="a-base py-1 px-1">${item.funding_source_display | nz }</span>
+              <span v-else-if="isBBase(item.funding_source_display)" class="b-base py-1 px-1">${item.funding_source_display | nz }</span>
+              <span v-else-if="isCBase(item.funding_source_display)" class="c-base py-1 px-1">${item.funding_source_display | nz }</span>
+              <span v-else>${item.funding_source_display | nz }</span>
+            </td>
+          {% elif "amount" in field %}
+            <td>
+              <span v-if="item.amount == 0||!item.amount" class="major-error py-1 px-1">${item.amount | currencyFormat}</span>
+              <span v-else>${item.amount | currencyFormat}</span>
+            </td>
+          {% else %}
+            <td>${ item.{{ field }} | nz}</td>
+          {% endif %}
+        {% endfor %}
+        <td class="to-the-right" v-if="canModify">
+          <button @click="openGCCostModal(item)"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteGCCost(item)"><span class="mdi mdi-delete"></span></button>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>

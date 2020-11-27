@@ -1,24 +1,20 @@
 import datetime
-import os
 
 import textile
-from django.conf import settings
 from django.contrib.auth.models import User as AuthUser
 from django.db import models
 from django.db.models import Q, Sum
-from django.dispatch import receiver
 from django.template.defaultfilters import pluralize, date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 
+from lib.functions.custom_functions import fiscal_year, listrify
+from lib.templatetags.custom_filters import nz, currency
 from lib.templatetags.verbose_names import get_verbose_label
 from shared_models import models as shared_models
-from lib.templatetags.custom_filters import nz, currency
-from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models.models import Lookup, SimpleLookup
-from . import utils
 
 YES_NO_CHOICES = (
     (True, _("Yes")),
@@ -26,18 +22,19 @@ YES_NO_CHOICES = (
 )
 
 NULL_YES_NO_CHOICES = (
-    (None, _("---------")),
+    (None, "---------"),
     (1, _("Yes")),
     (0, _("No")),
 )
 
+
 class DefaultReviewer(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
                                 verbose_name=_("DM Apps user"))
-    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which DFO section(s)"),
+    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer belongs to which DFO section(s)"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
-    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"),
+    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer belongs to which DFO branch(es)"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
     reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"),
@@ -94,7 +91,7 @@ class Role(SimpleLookup):
 
 class TripCategory(SimpleLookup):
     days_when_eligible_for_review = models.IntegerField(verbose_name=_(
-        "Number days before earliest date that is eligible for review"))  # overflowing this since we DO NOT want it to be unique=True
+        "Number of days before earliest date that is eligible for review"))  # overflowing this since we DO NOT want it to be unique=True
 
 
 class TripSubcategory(Lookup):
@@ -176,12 +173,43 @@ class Conference(models.Model):
                                limit_choices_to={"used_for": 4}, verbose_name=_("trip status"), default=30)
     admin_notes = models.TextField(blank=True, null=True, verbose_name=_("Administrative notes"))
     review_start_date = models.DateTimeField(verbose_name=_("start date of the ADM review"), blank=True, null=True)
-    adm_review_deadline = models.DateTimeField(verbose_name=_("ADM Office review deadline"), blank=True, null=True)
-    date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"),
-                                                        blank=True, null=True)
     last_modified = models.DateTimeField(verbose_name=_("last modified"), auto_now=True, editable=False)
     last_modified_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="trips_last_modified_by",
                                          verbose_name=_("last_modified_by"), blank=True, null=True)
+
+    # calculated fields
+    adm_review_deadline = models.DateTimeField(verbose_name=_("ADM Office review deadline"), blank=True, null=True)
+    date_eligible_for_adm_review = models.DateTimeField(verbose_name=_("Date when eligible for ADM Office review"),
+                                                        blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        self.fiscal_year = shared_models.FiscalYear.objects.get(
+            pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
+
+        # TESTED
+        # go through all the associated requests and update dates if applicable
+        for tr in self.trip_requests.all():
+            tr.save()
+
+        # ensure the process order makes sense
+        count = 1
+        for reviewer in self.reviewers.all():  # use the default sorting
+            reviewer.order = count
+            reviewer.save()
+            count += 1
+
+        if self.is_adm_approval_required and self.trip_subcategory:
+            # trips must be reviewed by ADMO before two weeks to the closest date
+            self.adm_review_deadline = self.closest_date - datetime.timedelta(
+                days=14)  # 14 days
+
+            # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
+            # else they can start the review closer to the date: eight business weeks (60 days)
+            # this is stored in the table
+            self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(
+                days=self.trip_subcategory.trip_category.days_when_eligible_for_review)
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         # check to see if a french value is given
@@ -236,7 +264,7 @@ class Conference(models.Model):
             self.name, self.nom, self.location,
             self.start_date.strftime("%Y-%m-%d"),
             self.end_date.strftime("%Y-%m-%d"),
-            "<a href='(click here)' target='_blank'>{}</a>".format(self.meeting_url) if self.meeting_url else "n/a",
+            "<a href='{}' target='_blank'>{}</a>".format(self.meeting_url, self.meeting_url) if self.meeting_url else "n/a",
             "<span class='green-font'>YES</span>" if self.is_adm_approval_required else "<span class='red-font'>NO</span>",
             "<span class='green-font'>YES</span>" if self.is_verified else "<span class='red-font'>NO</span>",
             self.verified_by if self.verified_by else "----",
@@ -247,8 +275,9 @@ class Conference(models.Model):
 
     class Meta:
         ordering = ['start_date', ]
-        verbose_name = "trip"
-        verbose_name_plural = "trips"
+        verbose_name = _("trip")
+        # Translators: This is for a header
+        verbose_name_plural = _("trips")
 
     # def get_absolute_url(self):
     #     return reverse('travel:trip_detail', kwargs={'pk': self.id, "type":""})
@@ -345,35 +374,6 @@ class Conference(models.Model):
         else:
             my_str = "{}".format(self.name)
         return my_str
-
-    def save(self, *args, **kwargs):
-        self.fiscal_year = shared_models.FiscalYear.objects.get(
-            pk=fiscal_year(next=False, date=self.start_date, sap_style=True))
-
-        # TODO: make sure this gets tested
-        # go through all the associated requests and update dates if applicable
-        for tr in self.trip_requests.all():
-            tr.save()
-
-        # ensure the process order makes sense
-        count = 1
-        for reviewer in self.reviewers.all():  # use the default sorting
-            reviewer.order = count
-            reviewer.save()
-            count += 1
-
-        if self.is_adm_approval_required and self.trip_subcategory:
-            # trips must be reviewed by ADMO before two weeks to the closest date
-            self.adm_review_deadline = self.closest_date - datetime.timedelta(
-                days=21)  # 14 business days -- > 21 calendar days?
-
-            # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
-            # else they can start the review closer to the date: eight business weeks (60 days)
-            # this is stored in the table
-            self.date_eligible_for_adm_review = self.closest_date - datetime.timedelta(
-                days=self.trip_subcategory.trip_category.days_when_eligible_for_review)
-
-        super().save(*args, **kwargs)
 
     def get_connected_requests(self):
         """
@@ -510,11 +510,11 @@ class TripRequest(models.Model):
     is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES,
                                             verbose_name=_("Is the traveller a public servant?"))
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
-                               verbose_name=_("Traveller belongs to which DFO region"),
+                               verbose_name=_("Traveller belongs to which DFO region?"),
                                related_name="trip_requests",
                                null=True, blank=True)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
-                                verbose_name=_("under which DFO section is this request being made"),
+                                verbose_name=_("under which section is this request being made?"),
                                 related_name="trip_requests")
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
                                                 verbose_name=_("Is the traveller a research scientist (RES)?"))
@@ -547,21 +547,20 @@ class TripRequest(models.Model):
 
     # purpose
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role description"))
-    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of the trip"))
-    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("benefit to DFO"))
-    multiple_conferences_rationale = models.TextField(blank=True, null=True,
-                                                      verbose_name=_(
-                                                          "rationale for individual attending multiple conferences"))
-    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
+    learning_plan = models.BooleanField(default=False, verbose_name=_("is this request included on your learning plan?"))
+    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("what is the objective of this meeting or conference?"))
+    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("what are the benefits to DFO?"))
+    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("other attendees covered under BTA"))
     # multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
     #     "rationale for multiple travelers"))
-    late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
-    funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
-    notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes"))
+    late_justification = models.TextField(blank=True, null=True, verbose_name=_("justification for late submissions"))
+    funding_source = models.TextField(blank=True, null=True, verbose_name=_("what is the funding source?"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes (optional)"))
     # total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
-    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Amount of non-DFO funding (CAD)"))
+    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("amount of non-DFO funding (CAD)"))
     non_dfo_org = models.CharField(max_length=1000,
-                                   verbose_name=_("full name(s) of organization providing non-DFO funding"), blank=True,
+                                   verbose_name=_("give the full name(s) of the of the organization(s) providing non-DFO funding"),
+                                   blank=True,
                                    null=True)
 
     submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
@@ -622,6 +621,7 @@ class TripRequest(models.Model):
     class Meta:
         ordering = ["-start_date", "last_name"]
         unique_together = [("user", "parent_request"), ("user", "trip"), ]
+        verbose_name = _("trip request")
 
     # def get_absolute_url(self):
     #     return reverse('travel:request_detail', kwargs={'pk': self.id})
@@ -629,7 +629,7 @@ class TripRequest(models.Model):
     def save(self, *args, **kwargs):
         # if the start and end dates are null, but there is a trip, use those.. to populate
         ## but also, if this is a group request, the start date should always be populated from the trip
-        # TODO: test me
+        # TESTED
         if (self.trip and not self.start_date) or self.is_group_request:
             self.start_date = self.trip.start_date
 
@@ -826,9 +826,6 @@ class TripRequest(models.Model):
             my_str += "<br><em>Objective of Event:</em> {}".format(self.objective_of_event)
         if self.benefit_to_dfo:
             my_str += "<br><em>Benefit to DFO:</em> {}".format(self.benefit_to_dfo)
-        if self.multiple_conferences_rationale:
-            my_str += "<br><em>Rationale for attending multiple conferences:</em> {}".format(
-                self.multiple_conferences_rationale)
         if self.funding_source:
             my_str += "<br><em>Funding source:</em> {}".format(self.funding_source)
 
@@ -844,9 +841,6 @@ class TripRequest(models.Model):
         my_str += "\n\n{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
 
         my_str += "\n\n{}: {}".format("BENEFIT TO DFO", nz(self.benefit_to_dfo, "n/a"))
-
-        my_str += "\n\n{}: {}".format(
-            "Rationale for attending multiple conferences".upper(), nz(self.multiple_conferences_rationale, "n/a"))
 
         return my_str
 
@@ -908,12 +902,11 @@ class TripRequest(models.Model):
     def requester_info(self):
         mystr = ""
         if not self.is_public_servant:
-            mystr += _("Company: ") + nz(self.company_name,
-                                         "<span class='red-font'>missing company name</span>") + "<br>"
-        mystr += _("Address: ") + nz(self.address, "<span class='red-font'>missing address</span>") + "<br>"
-        mystr += _("Phone: ") + nz(self.phone, "<span class='red-font'>missing phone</span>") + "<br>"
+            mystr += _("Company: ") + nz(self.company_name, "<span class='red-font'>{}</span><br>".format(_('missing company name')))
+        mystr += _("Address: ") + nz(self.address, "<span class='red-font'>{}</span><br>".format(_('missing address')))
+        mystr += _("Phone: ") + nz(self.phone, "<span class='red-font'>{}</span><br>".format(_('missing phone number')))
         mystr += _("Email: ") + nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
-                                   "<span class='red-font'>missing email address</span>") + "<br>"
+                               "<span class='red-font'>{}</span><br>".format(_('missing email address')))
         return mark_safe(mystr)
 
     @property
@@ -957,6 +950,17 @@ class TripRequest(models.Model):
                 my_str += f'<u>{r.user}</u>: {r.comments}<br>'
         return mark_safe(my_str)
 
+    @property
+    def is_late_request(self):
+        # this only applies to trips requiring adm approval
+        if self.trip and self.trip.is_adm_approval_required:
+            # if not submitted, we compare against current datetime
+            if not self.submitted:
+                return self.trip.date_eligible_for_adm_review and timezone.now() > self.trip.date_eligible_for_adm_review
+            # otherwise we compare against submission datetime
+            else:
+                return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
+
 
 class TripRequestCost(models.Model):
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs",
@@ -972,12 +976,14 @@ class TripRequestCost(models.Model):
 
     class Meta:
         unique_together = (("trip_request", "cost"),)
+        verbose_name = _("cost")
 
     def save(self, *args, **kwargs):
         # if a user is providing a rate and number of days, we use this to calc the total amount.
+        if not self.amount_cad:
+            self.amount_cad = 0
         if (self.rate_cad and self.rate_cad != 0) and (self.number_of_days and self.number_of_days != 0):
             self.amount_cad = self.rate_cad * self.number_of_days
-
         super().save(*args, **kwargs)
 
 
@@ -1005,6 +1011,7 @@ class Reviewer(models.Model):
     class Meta:
         unique_together = ['trip_request', 'user', 'role', ]
         ordering = ['trip_request', 'order', ]
+        verbose_name = _("reviewer")
 
     @property
     def comments_html(self):
@@ -1056,6 +1063,7 @@ class TripReviewer(models.Model):
     class Meta:
         unique_together = ['trip', 'user', 'role', ]
         ordering = ['trip', 'order', ]
+        verbose_name = _("trip reviewer")
 
     @property
     def comments_html(self):
@@ -1106,44 +1114,11 @@ class File(models.Model):
 
     class Meta:
         ordering = ['trip_request', 'date_created']
+        # Translators: This is a 'file' as in something you attach to an email
+        verbose_name = _("file")
 
     def __str__(self):
         return self.name
-
-
-@receiver(models.signals.post_delete, sender=File)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.file:
-        try:
-            if os.path.isfile(instance.file.path):
-                os.remove(instance.file.path)
-        except:
-            instance.file.delete()
-            instance.delete()
-
-@receiver(models.signals.pre_save, sender=File)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = File.objects.get(pk=instance.pk).file
-    except File.DoesNotExist:
-        return False
-
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
 
 
 class HelpText(models.Model):

@@ -1,0 +1,277 @@
+No email service credentials found in system config.
+turning off spring cleanup app because geodjango is not enabled
+Serving static and media files from local staticfiles directory using Whitenoise.
+not connecting cruises app
+not connecting projects2 app
+not connecting spring_cleanup app
+[
+{
+    "model": "csas.cohhonorific",
+    "pk": 1,
+    "fields": {
+        "name": "Mr. ",
+        "nom": " Mr.(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cohhonorific",
+    "pk": 2,
+    "fields": {
+        "name": "Mrs. ",
+        "nom": " Mrs.(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cohhonorific",
+    "pk": 3,
+    "fields": {
+        "name": "Ms. ",
+        "nom": " Ms.(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cohhonorific",
+    "pk": 4,
+    "fields": {
+        "name": "Dr. ",
+        "nom": " Dr.(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cohhonorific",
+    "pk": 5,
+    "fields": {
+        "name": "Chief ",
+        "nom": " Chief(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cohhonorific",
+    "pk": 6,
+    "fields": {
+        "name": "Capt. ",
+        "nom": " Capt.(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cottype",
+    "pk": 1,
+    "fields": {
+        "name": "Government ",
+        "nom": " Government(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cottype",
+    "pk": 2,
+    "fields": {
+        "name": "Industry ",
+        "nom": " Industry(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cottype",
+    "pk": 3,
+    "fields": {
+        "name": "NGO ",
+        "nom": " NGO(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cottype",
+    "pk": 4,
+    "fields": {
+        "name": "Indigenous ",
+        "nom": " Indigenous(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cottype",
+    "pk": 5,
+    "fields": {
+        "name": "Consultant ",
+        "nom": " Consultant(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.cottype",
+    "pk": 6,
+    "fields": {
+        "name": "Contractor ",
+        "nom": " Contractor(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.lanlanguage",
+    "pk": 1,
+    "fields": {
+        "name": "English ",
+        "nom": " Anglaise",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.lanlanguage",
+    "pk": 2,
+    "fields": {
+        "name": "French ",
+        "nom": " Françis",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.notnotificationpreference",
+    "pk": 1,
+    "fields": {
+        "name": "Phone ",
+        "nom": " Phone(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.notnotificationpreference",
+    "pk": 2,
+    "fields": {
+        "name": "E-mail ",
+        "nom": " E-mail(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.notnotificationpreference",
+    "pk": 3,
+    "fields": {
+        "name": "Fax ",
+        "nom": " Fax(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.rolrole",
+    "pk": 1,
+    "fields": {
+        "name": "Regional Coordinator ",
+        "nom": " Regional Coordinator(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.rolrole",
+    "pk": 2,
+    "fields": {
+        "name": "Regional Science Advisor ",
+        "nom": " Regional Science Advisor(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.rolrole",
+    "pk": 3,
+    "fields": {
+        "name": "Regional Admin ",
+        "nom": " Regional Admin(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.rolrole",
+    "pk": 4,
+    "fields": {
+        "name": "Director ",
+        "nom": " Director(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.secsector",
+    "pk": 1,
+    "fields": {
+        "name": "Science ",
+        "nom": " Science(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.secsector",
+    "pk": 2,
+    "fields": {
+        "name": "Oceans ",
+        "nom": " Oceans(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.secsector",
+    "pk": 3,
+    "fields": {
+        "name": "FFHPP ",
+        "nom": " FFHPP(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.secsector",
+    "pk": 4,
+    "fields": {
+        "name": "SARA ",
+        "nom": " SARA(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.secsector",
+    "pk": 5,
+    "fields": {
+        "name": "RM ",
+        "nom": " RM(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+},
+{
+    "model": "csas.secsector",
+    "pk": 6,
+    "fields": {
+        "name": "AMD ",
+        "nom": " AMD(fr)",
+        "description_en": null,
+        "description_fr": null
+    }
+}

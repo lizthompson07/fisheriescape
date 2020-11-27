@@ -1,0 +1,80 @@
+{% extends "whalebrary/base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+
+
+    <style>
+        body{
+            background-image: url({% static "/img/whalebrary/whalecalf.jpg" %});
+            background-size: cover;
+        }
+
+        .big {
+            font-size: 7em;
+            font-weight: bold;
+        }
+
+        .my-btn {
+            margin-top: 5px;
+            width: 65%
+        }
+
+        .jumbotron {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+    </style>
+
+    {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Admin Settings</h1>
+        </div>
+    </div>
+
+
+<!--Card container-->
+
+<div class="container">
+    <div class="row" style="text-align: center">
+        <div class="col-4">
+            <div><h2>Lists</h2></div>
+            <div class="btns">
+                <a href="{% url 'whalebrary:file_list' %}" class="btn my-btn btn btn-primary">File List</a>
+                <a href="{% url 'whalebrary:image_list' %}" class="btn my-btn btn btn-primary">Image List</a>
+                <a href="{% url 'whalebrary:location_list' %}" class="btn my-btn btn btn-primary">Location List</a>
+                <a href="{% url 'whalebrary:transaction_list' %}" class="btn my-btn btn btn-primary">Transaction List</a>
+                <br>
+                <br>
+                <a href="{% url 'whalebrary:bulk_transaction_list' %}" class="btn my-btn btn btn-info">Bulk Transaction Type Change</a>
+            </div>
+            <br>
+        </div>
+
+        <div class="col-4">
+            <div><h2>Add/Remove Data</h2></div>
+            <div class="btns">
+                <a href="{% url 'whalebrary:manage_locations' %}" class="btn my-btn btn btn-primary">Manage Locations</a>
+                <a href="{% url 'whalebrary:manage_organisations' %}" class="btn my-btn btn btn-primary">Manage Organisations</a>
+                <a href="{% url 'whalebrary:manage_owners' %}" class="btn my-btn btn btn-primary">Manage Owners</a>
+                <a href="{% url 'whalebrary:manage_sizes' %}" class="btn my-btn btn btn-primary">Manage Sizes</a>
+                <a href="{% url 'whalebrary:manage_tags' %}" class="btn my-btn btn btn-primary">Manage Tags</a>
+                <a href="{% url 'whalebrary:manage_trainings' %}" class="btn my-btn btn btn-primary">Manage Trainings</a>
+            </div>
+            <br>
+        </div>
+
+        <div class="col-4">
+            <div><h2>TBD - maybe csvs?</h2></div>
+            <div class="btns">
+
+            </div>
+            <br>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

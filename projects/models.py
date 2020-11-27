@@ -59,77 +59,6 @@ class Theme(SimpleLookup):
     pass
 
 
-#
-##
-### Can this model be deleted?
-class Program(models.Model):
-    is_core_choices = (
-        # (None, _("Unknown")),
-        (True, _("Core")),
-        (False, _("Flex")),
-    )
-
-    national_responsibility_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (English)")
-    national_responsibility_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="National responsibilty (French)")
-    program_inventory = models.CharField(max_length=255, blank=True, null=True, verbose_name="program inventory")
-    funding_source_and_type = models.CharField(max_length=255, blank=True, null=True)
-    regional_program_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (English)")
-    regional_program_name_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name="regional program name (French)")
-    short_name = models.CharField(max_length=255, blank=True, null=True)
-    is_core = models.BooleanField(verbose_name=_("Is program core or flex?"), choices=is_core_choices)
-    examples = models.CharField(max_length=255, blank=True, null=True)
-    theme = models.ForeignKey(Theme, on_delete=models.DO_NOTHING, related_name="programs", blank=True, null=True)
-
-    @property
-    def regions(self):
-        projects = self.projects.filter(section__isnull=False)
-        return listrify(list(set([str(p.section.division.branch.region) for p in projects])))
-
-    @property
-    def tname(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("regional_program_name_eng"))):
-            regional_program_name = "{}".format(getattr(self, str(_("regional_program_name_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            regional_program_name = "{}".format(self.regional_program_name_eng)
-
-        # check to see if a french value is given
-        if getattr(self, str(_("national_responsibility_eng"))):
-            national_responsibility = "{}".format(getattr(self, str(_("national_responsibility_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            national_responsibility = "{}".format(self.national_responsibility_eng)
-
-        return "{} - {}".format(regional_program_name, national_responsibility)
-
-    def __str__(self):
-
-        # check to see if a french value is given
-        if getattr(self, str(_("regional_program_name_eng"))):
-            regional_program_name = "{}".format(getattr(self, str(_("regional_program_name_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            regional_program_name = "{}".format(self.regional_program_name_eng)
-
-        # check to see if a french value is given
-        if getattr(self, str(_("national_responsibility_eng"))):
-            national_responsibility = "{}".format(getattr(self, str(_("national_responsibility_eng"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            national_responsibility = "{}".format(self.national_responsibility_eng)
-
-        my_str = "{} - {}".format(national_responsibility, regional_program_name)
-
-        # if self.examples:
-        #     return "{} (e.g., {})".format(my_str, self.examples)
-        # else:
-        return "{}".format(my_str)
-
-    class Meta:
-        ordering = [_("national_responsibility_eng"), _("regional_program_name_eng")]
-
-
 class UpcomingDate(models.Model):
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, related_name="project_upcoming_dates",
                                verbose_name=_("region"))
@@ -239,7 +168,6 @@ class Project(models.Model):
                                          verbose_name=_("Functional group"))
     default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True, related_name="projects",
                                                verbose_name=_("primary funding source"))
-    programs = models.ManyToManyField(Program, blank=True, verbose_name=_("Science regional program name(s)"), related_name="projects")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords (used for searching)"), related_name="projects")
 
     # details
@@ -248,9 +176,10 @@ class Project(models.Model):
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True,
                                verbose_name=_("project status"), limit_choices_to={"used_for": 1})
 
-    # DELETE FOLLOWING TWO FIELDS
+    # DELETE ME!!!! ############################################
     is_competitive = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=0,
                                          verbose_name=_("Is the funding competitive?"))
+    # DELETE ME!!!! ############################################
     is_approved = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES,
                                       verbose_name=_("Has this project already been approved"))
 
@@ -266,43 +195,55 @@ class Project(models.Model):
     # HTML field
     deliverables = models.TextField(blank=True, null=True, verbose_name=_("Project deliverables / activities"))
 
-    # data
-    #######
-    # HTML field
-    data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
-    # HTML field
-    data_sharing = models.TextField(blank=True, null=True,
-                                    verbose_name=_(
-                                        "Which of these data / data products will be placed on the Open Data Platform this year?"))
-    # HTML field
-    data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
-    metadata_url = models.CharField(max_length=1000, blank=True, null=True,
-                                    verbose_name=_("Provide link to existing metadata record, if available"))
+    # SPECIALIZED EQUIPMENT
+    ########################
+    requires_specialized_equipment = models.BooleanField(default=False, verbose_name=_(
+        "Will the project require the purchase, design or fabrication of specialized laboratory or field equipment?"))
+    technical_service_needs = models.TextField(blank=True, null=True, verbose_name=_("What technical services are being requested?"))
+    mobilization_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "Do you anticipate needing assistance with mobilization/demobilization of this equipment?"))
 
-    # needs
+    # TRAVEL
     ########
-
-    # DELETE ME!! #
-    regional_dm_needs = models.TextField(blank=True, null=True,
-                                         verbose_name=_("Describe assistance required from the branch data manager, if applicable"))
-    # DELETE ME!! #
-    sectional_dm_needs = models.TextField(blank=True, null=True,
-                                          verbose_name=_("Describe assistance required from the section data manager, if applicable"))
-
-    # HTML field
-    vehicle_needs = models.TextField(blank=True, null=True,
-                                     verbose_name=_(
-                                         "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
-    # HTML field
-    it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
-    # HTML field
-    chemical_needs = models.TextField(blank=True, null=True,
-                                      verbose_name=_(
-                                          "Please provide details regarding chemical needs and the plan for storage and disposal."))
-    # HTML field
+    has_travel = models.BooleanField(default=False, verbose_name=_("Does this project involved a field component?"))
+    vehicle_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "Describe need for vehicle (type of vehicle, number of weeks, time-frame)"))
     ship_needs = models.TextField(blank=True, null=True, verbose_name=_("Ship (Coast Guard, charter vessel) Requirements"))
+    coip_reference_id = models.CharField(max_length=100, blank=True, null=True, verbose_name=_(
+        "If this project links to a ship time request in COIP, please include the COIP application number here."))
+    instrumentation = models.TextField(blank=True, null=True, verbose_name=_(
+        "What field instrumentation will be deployed during this project?"))
+    owner_of_instrumentation = models.CharField(max_length=500, blank=True, null=True, verbose_name=_(
+        "Who is the owner/curator of this instrumentation, if known?"))
+    # -- > Field staff
+    requires_field_staff = models.BooleanField(default=False, verbose_name=_("Do you require field support staff?"))
+    field_staff_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "If so, please include some additional detail, e.g., how many people are likely to be required and when"))
 
-    # HTML field
+    # DATA
+    #######
+    has_new_data = models.BooleanField(default=False, verbose_name=_("Will new data be collected or generated?"))
+    data_collection = models.TextField(blank=True, null=True, verbose_name=_("What type of data will be collected"))
+    data_products = models.TextField(blank=True, null=True, verbose_name=_("What data products will be generated (e.g. models, indices)?"))
+    open_data_eligible = models.BooleanField(default=True, verbose_name=_(
+        "Are these data / data products eligible to be placed on the Open Data Platform?"))
+    data_storage = models.TextField(blank=True, null=True, verbose_name=_("Data storage / archiving Plan"))
+    regional_dm_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "Describe what data management support is required, if any."))
+
+    # LAB WORK
+    ##########
+    has_lab_work = models.BooleanField(default=False, verbose_name=_("Does this project involve laboratory work?"))
+    # maritimes only
+    abl_services_required = models.BooleanField(default=False, verbose_name=_(
+        "Does this project require the services of Aquatic Biotechnology Lab (ABL)?"))
+    lab_space_required = models.BooleanField(default=False, verbose_name=_("Is laboratory space required?"))
+    requires_other_lab_support = models.BooleanField(default=False, verbose_name=_(
+        "Does this project require other specialized laboratory support or services (provide details below)?"))
+    other_lab_support_needs = models.TextField(blank=True, null=True, verbose_name=_(
+        "Describe other laboratory requirements relevant for project planning purposes."))
+
+    it_needs = models.TextField(blank=True, null=True, verbose_name=_("Special IT requirements (software, licenses, hardware)"))
     notes = models.TextField(blank=True, null=True, verbose_name=_("additional notes"))
 
     # coding
@@ -313,24 +254,13 @@ class Project(models.Model):
                                        related_name='projects_projects', verbose_name=_("allotment code (if known)"))
     existing_project_codes = models.ManyToManyField(shared_models.Project, blank=True, verbose_name=_("existing project codes (if known)"))
 
-    feedback = models.TextField(blank=True, null=True,
-                                verbose_name=_("Do you have any feedback you would like to submit about this process"))
-
     # admin
     submitted = models.BooleanField(default=False, verbose_name=_("Submit project for review"))
     # approved = models.BooleanField(default=False, verbose_name=_("approved"))
     recommended_for_funding = models.BooleanField(default=False, verbose_name=_("recommended"))
     approved = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, verbose_name=_("approved"))
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
-    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"))
-    # section_head_feedback = models.TextField(blank=True, null=True, verbose_name=_("section head feedback"))
-
-    # manager_approved = models.BooleanField(default=False, verbose_name=_("division manager approved"))
-    # manager_feedback = models.TextField(blank=True, null=True, verbose_name=_("division manager feedback"))
-
-    # rds_approved = models.BooleanField(default=False, verbose_name=_("RDS approved"))
-    # rds_feedback = models.TextField(blank=True, null=True, verbose_name=_("RDS feedback"))
-
+    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     meeting_notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     is_hidden = models.IntegerField(blank=True, null=True, choices=NULL_YES_NO_CHOICES, default=False,
@@ -418,10 +348,6 @@ class Project(models.Model):
     @property
     def project_leads_as_users(self):
         return [staff.user for staff in self.staff_members.all() if staff.lead and staff.user]
-
-    @property
-    def core_status(self):
-        return "/".join(list(set(([program.get_is_core_display() for program in self.programs.all()]))))
 
     @property
     def total_fte(self):
@@ -802,6 +728,9 @@ class ReferenceMaterial(SimpleLookup):
             return mark_safe(
                 f"<a href='{self.file.url}'> <span class='mdi mdi-file'></span></a>"
             )
+
+    class Meta:
+        ordering = ["region", "file"]
 
 
 @receiver(models.signals.post_delete, sender=ReferenceMaterial)

@@ -6,6 +6,19 @@
 {% load i18n %}
 
 {% block post_form_div %}
-        <hr>
-        {% include "travel/_trip_request_detail.html" %}
-{% endblock  %}
+  <hr>
+  <div id="app">
+    {% include "travel/_trip_request_detail.html" %}
+  </div>
+{% endblock %}
+
+
+{% block body_js %}
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+  <script type="application/javascript">
+  var trip_request_id = {{ object.id }};
+  </script>
+  <script src="{% static 'travel/mainTripRequest.js' %}"></script>
+
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "projects2/base.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% load i18n %}
+{% load el_pagination_tags %}
+
+{% block content %}
+    {% get_current_language as LANG %}
+    {% load bootstrap4 %}
+
+    <style>
+        form, input {
+            font-size: small;
+        }
+
+        table, td {
+            font-size: 14px;
+        }
+    </style>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">
+                Non-registered Staff List
+            </li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        <h1>
+            NON REGISTERED STAFF LIST
+        </h1>
+        <h3>The purpose of this list view is to check if any DFO staff were listed on projects, but were not connected to their user
+            accounts</h3>
+        <br><br>
+
+        <form class="form" action="." method="get" id="filter-form">
+            <div class="row">
+
+                {% for field in filter.form %}
+                    {# {{field.label}}: &nbsp; {{field}}&nbsp;&nbsp; #}
+                    <div class="col">
+                        {% bootstrap_field field placeholder="" size="small" %}
+                    </div>
+
+                {% endfor %}
+                <div class="col">
+                    <br>
+                    <input type="submit" value="Filter" class="btn btn-warning btn-sm">
+
+                </div>
+            </div>
+        </form>
+        <br>
+        {% paginate 100 filter.qs as filter_list %}
+
+
+        <div class="row">
+            <div class="col">
+                {% trans "(click on a header to sort table)" %}
+            </div>
+            <div class="col" style="text-align: center">
+                {% show_pages %}
+                <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
+            </div>
+        </div>
+        <table class="table table-hover table-sm sortable">
+            <thead>
+            <th scope="col" style="width: 120px;">
+                {% trans "Fiscal Year" %}
+            </th>
+            <th scope="col">
+                {% trans "Section" %}
+            </th>
+            <th scope="col" style="width: 35%">
+                {% trans "Title" %}
+            </th>
+            <th scope="col" style="">
+                {% trans "Staff name" %}
+            </th>
+            <th scope="col">
+                {% trans "Lead?" %}
+            </th>
+            <th scope="col">
+                {% trans "Employee type" %}
+            </th>
+            </thead>
+            <tbody>
+
+            {% for obj in filter_list %}
+                {% if request.META.QUERY_STRING %}
+                    {% url 'projects2:admin_staff_edit' obj.id request.META.QUERY_STRING as url %}
+                {% else %}
+                    {% url 'projects2:admin_staff_edit' obj.id as url %}
+                {% endif %}
+                <tr href="{{url}}">
+
+                    <td>{{ obj.project.year }}</td>
+                    <td>{{ obj.project.section.division.branch.region.name }} - {{ obj.project.section.division.name }}
+                        - {{ obj.project.section.name }}</td>
+                    <td>
+                        {{ obj.project.project_title }} {% if not obj.project.submitted %} - <span class="red-font">UNSUBMITTED</span>   {% endif %}
+                    </td>
+                    <td>{{ obj }}</td>
+
+                    <td>{{ obj.lead|yesno }}</td>
+                    <td>{{ obj.employee_type }}</td>
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <b>
+            TOTAL: {{ object_list.count }}
+        </b>
+    </div>
+
+{% endblock content %}
+

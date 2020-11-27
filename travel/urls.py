@@ -108,6 +108,10 @@ urlpatterns = [
     # path('settings/trip-reasons/', views.ReasonFormsetView.as_view(), name="manage_reasons"),
     # path('settings/trip-reasons/<int:pk>/delete/', views.ReasonHardDeleteView.as_view(), name="delete_reason"),
 
+    path('settings/roles/', views.RoleFormsetView.as_view(), name="manage_roles"),
+    path('settings/role/<int:pk>/delete/', views.RoleHardDeleteView.as_view(), name="delete_role"),
+
+
     path('settings/process-steps/', views.ProcessStepFormsetView.as_view(), name="manage_process_steps"),
     path('settings/process-step/<int:pk>/delete/', views.ProcessStepHardDeleteView.as_view(), name="delete_process_step"),
 

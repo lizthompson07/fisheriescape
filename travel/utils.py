@@ -1,19 +1,51 @@
-import datetime
-
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.db.models import Q
-
-from dm_apps.utils import custom_send_mail
 from django.db import IntegrityError
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from lib.templatetags.custom_filters import nz
-from . import models
-from . import emails
+from dm_apps.utils import custom_send_mail
 from shared_models import models as shared_models
+from . import emails
+from . import models
+
+
+def get_section_choices(all=False, full_name=True):
+    if full_name:
+        my_attr = "full_name"
+    else:
+        my_attr = _("name")
+
+    if not all:
+        return [(s.id, getattr(s, my_attr)) for s in
+                shared_models.Section.objects.filter(trip_requests__isnull=False).order_by(
+                    "division__branch__region",
+                    "division__branch",
+                    "division",
+                    "name"
+                )]
+    else:
+        return [(s.id, getattr(s, my_attr)) for s in
+                shared_models.Section.objects.all()]
+
+
+def get_division_choices(all=False):
+    if all:
+        return [(d.id, str(d)) for d in shared_models.Division.objects.all()]
+    else:
+        return [(d.id, str(d)) for d in
+                shared_models.Division.objects.filter(sections__in=shared_models.Section.objects.filter(trip_requests__isnull=False)).distinct()]
+
+
+def get_region_choices(all=False):
+    if all:
+        return [(r.id, str(r)) for r in shared_models.Region.objects.all()]
+    else:
+        # return [(d.id, str(d)) for d in shared_models.Region.objects.all()]
+        return [(r.id, str(r)) for r in
+                shared_models.Region.objects.filter(branches__divisions__sections__in=shared_models.Section.objects.filter(
+                    trip_requests__isnull=False)).distinct()]
 
 
 def get_trip_reviewers(trip):
@@ -169,13 +201,17 @@ def end_trip_review_process(trip, reset=False):
     if not reset:
         # trip.review_start_date = None NEVER reset the review start date!
         trip.status_id = 41
-        trip.save()
+    else:
+        trip.status_id = 31
+    trip.save()
 
     for reviewer in trip.reviewers.all():
-        reviewer.status_id = 23
         if not reset:
+            reviewer.status_id = 23
             reviewer.status_date = None
             reviewer.comments = None
+        else:
+            reviewer.status_id = 24
         reviewer.save()
 
 
@@ -306,7 +342,7 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
             if next_reviewer.role_id in [1, 2, 3, 4, ] and request:  # essentially, just not the RDG or ADM
                 email = emails.ReviewAwaitingEmail(trip_request, next_reviewer, request)
 
-            elif next_reviewer.role_id in [5, 6]  and request:  # if we are going for ADM or RDG signature...
+            elif next_reviewer.role_id in [5, 6] and request:  # if we are going for ADM or RDG signature...
                 email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role_id, request)
 
             if email and not suppress_email:

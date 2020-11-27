@@ -10,7 +10,7 @@ def nz(value, arg=None):
         return value
 
 
-def fiscal_year(next=False, date=timezone.now(), sap_style=False):
+def fiscal_year(date=timezone.now(), sap_style=False, next=False):
     """
     Function will return a fiscal year value. if no arg is given, current date will be used.
     """

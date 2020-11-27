@@ -1,0 +1,64 @@
+{% load static %}
+{% load i18n %}
+
+<div class="mb-2 neighbours">
+<h4>
+    {% trans "External Collaborators" %}
+</h4>
+</div>
+{% if can_edit %}
+    <div class="mb-3 neighbours">
+        <a class="btn btn-sm btn-outline-primary" href="#"
+           onclick="return popitup('{% url 'projects2:collab_new' object.id %}','popoutWindow')">
+            {% trans "Add External Collaborator" %}
+        </a>
+    </div>
+{% endif %}
+
+{% if object.collaborators.count == 0 %}
+    <div class="mb-3">
+        <em>
+            {% trans "No Collaborators" %}...
+        </em>
+    </div>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            {% if can_edit %}
+                <th></th>
+            {% endif %}
+            <th>
+                {% trans "Name" %}
+            </th>
+            <th class="center-col">
+                {% trans "Critical to project?" %}
+            </th>
+            <th>
+                {% trans "Notes" %}
+            </th>
+
+
+        </tr>
+        <tbody>
+        {% for obj in object.collaborators.all %}
+            <tr {% if can_edit %}data-toggle="tooltip" title="Edit" href="{% url 'projects2:collab_edit' obj.id %}" pop{% endif %}>
+                {% if can_edit %}
+
+                    <td>
+                        <a class="collab-delete-me" href="#" val="{{ obj.id }}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete" width="20px">
+                        </a>
+                        <a id="collab-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects2:collab_delete' obj.id %}" class="hidden"></a>
+                    </td>
+                {% endif %}
+                <td>{{ obj.name }}</td>
+                <td class="center-col">{{ obj.critical|yesno }}</td>
+                <td>{{ obj.notes }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

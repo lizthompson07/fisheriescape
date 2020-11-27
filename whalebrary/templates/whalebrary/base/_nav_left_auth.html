@@ -1,0 +1,70 @@
+{% load i18n %}
+
+<li class="nav-item"><a class="nav-link" href="{% url 'whalebrary:index' %}">Whalebrary / Baleinothèque Home</a></li>
+
+{# Inventory #}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Inventory
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+        <a class="dropdown-item" href="{% url 'whalebrary:item_list' %}">Inventory</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:order_list' %}">Orders</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:supplier_list' %}">Suppliers</a>
+
+    </div>
+</li>
+
+{# Necropsy Tools #}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Necropsy Tools
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+        <a class="dropdown-item" href="{% url 'whalebrary:personnel_list' %}">Personnel</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:incident_list' %}">Incident</a>
+
+    </div>
+</li>
+
+
+{# Reports #}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Reports
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+        <a class="dropdown-item" href="{% url 'whalebrary:report_generator' %}">Report Generator</a>
+
+    </div>
+</li>
+
+{# Admin Settings #}
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Admin Settings
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+        <a class="dropdown-item" href="{% url 'whalebrary:location_list' %}">List Locations</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:transaction_list' %}">List Transactions</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:file_list' %}">List Files</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:image_list' %}">List Images</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:manage_locations' %}">Manage Locations</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:manage_tags' %}">Manage Tags</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:manage_owners' %}">Manage Owners</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:manage_sizes' %}">Manage Sizes</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:manage_organisations' %}">Manage Organisations</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:manage_trainings' %}">Manage Trainings</a>
+        <a class="dropdown-item" href="{% url 'whalebrary:bulk_transaction_list' %}">Bulk Transaction Type Change</a>
+
+
+    </div>
+</li>

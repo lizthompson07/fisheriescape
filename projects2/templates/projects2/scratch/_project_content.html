@@ -1,0 +1,134 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+
+<style>
+    table, td {
+        font-size: small;
+    }
+</style>
+<br>
+{% include "projects2/_project_details.html" %}
+<br>
+{% include "projects2/_staff.html" %}
+<br>
+{% include "projects2/_om_costs.html" %}
+<br>
+{% include "projects2/_capital_costs.html" %}
+<br>
+{% include "projects2/_gc_costs.html" %}
+<br>
+{% include "projects2/_collaborators.html" %}
+<br>
+{% include "projects2/_agreements.html" %}
+<br>
+{% include "projects2/_milestones.html" %}
+<br>
+{% include "projects2/_files.html" %}
+<br>
+
+{% if project.submitted %}
+    {% include "projects2/_status_reports.html" %}
+    <br>
+{% endif %}
+
+{% include "projects2/_financial.html" %}
+
+<script type="application/javascript">
+
+
+    $(".staff-delete-me").click(function (e) {
+        var objectId = $(this).attr("val");
+        var currentUserID = "{{ user.id }}";
+        var deleteUserID = $(this).attr("user_id");
+
+        var msg = "{% trans "Are you sure you want to delete this staff member from the project?" %}";
+        if (currentUserID == deleteUserID) {
+            msg = "{% trans 'WARNING: YOU ARE ABOUT TO DELETE YOURSELF FROM THIS PROJECT!!!' %}\n\n" + msg;
+        }
+        var userInput = "";
+        userInput = confirm(msg);
+        if (userInput === true) {
+            document.location.href = $("#staff-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+        }
+        e.stopImmediatePropagation();
+    });
+
+    $(".collab-delete-me").click(function (e) {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        userInput = confirm("{% trans "Are you sure you want to delete this collaborator from the project?" %}");
+        if (userInput === true) {
+            document.location.href = $("#collab-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+        }
+        e.stopImmediatePropagation();
+    });
+
+    $(".agreement-delete-me").click(function (e) {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        userInput = confirm("{% trans "Are you sure you want to delete this agreement from the project?" %}");
+        if (userInput === true) {
+            document.location.href = $("#agreement-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+        }
+        e.stopImmediatePropagation();
+    });
+
+    $(".om-delete-me").click(function (e) {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        userInput = confirm("{% trans "Are you sure you want to delete this o&m request from the project?" %}");
+        if (userInput === true) {
+            document.location.href = $("#om-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+        }
+        e.stopImmediatePropagation();
+    });
+
+    $(".capital-delete-me").click(function (e) {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        userInput = confirm("{% trans "Are you sure you want to delete this capital request from the project?" %}");
+        if (userInput === true) {
+            document.location.href = $("#capital-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+        }
+        e.stopImmediatePropagation();
+    });
+
+    $(".gc-delete-me").click(function (e) {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        userInput = confirm("{% trans "Are you sure you want to delete this G&C request from the project?" %}");
+        if (userInput === true) {
+            document.location.href = $("#gc-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+        }
+        e.stopImmediatePropagation();
+    });
+
+    $(".milestone-delete-me").click(function (e) {
+        var objectId = $(this)[0].getAttribute("val");
+
+        var userInput = "";
+        userInput = confirm("{% trans "Are you sure you want to delete this milestone request from the project?" %}");
+        if (userInput === true) {
+            document.location.href = $("#milestone-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+        }
+        e.stopImmediatePropagation();
+    });
+
+    $(".toggle-source").click(function (e) {
+        e.stopImmediatePropagation();
+        var objectId = $(this)[0].getAttribute("pk");
+        var objectType = $(this)[0].getAttribute("type");
+        window.location.href = $("#" + objectType + "-secrect-toggle-btn-" + objectId)[0].getAttribute("href")
+
+    });
+
+</script>

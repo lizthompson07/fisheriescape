@@ -1,0 +1,127 @@
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+{% bootstrap_css %}
+
+{% block extra_style %}
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+<style>
+    .label {
+        font-weight: bold;
+    }
+
+    table, td, th {
+        font-size: small;
+        border: 1px solid black;
+        text-align: left;
+    {#border-collapse: collapse;#}
+    }
+
+    td, th {
+        padding: 2px;
+    }
+
+    th {
+        background-color: lightblue;
+    {#color: white;#} border: 1px solid black;
+        font-weight: bold;
+    }
+
+    .total {
+        background-color: lightgray;
+        color: black;
+    }
+
+
+    h1 {
+        font-size: 24px;
+    }
+
+    h3 {
+        font-size: 16px;
+        color: darkgray;
+    }
+
+    @page {
+        margin: 1cm;
+        @frame footer {
+        -pdf-frame-content: footerContent;
+        bottom: 0cm;
+        margin-left: 18cm;
+        margin-right: 0cm;
+        height: 1cm;
+    }
+    }
+
+</style>
+
+
+<div id="footerContent">
+    {% block page_foot %}
+        <pdf:pagenumber/>
+    {% endblock %}
+</div>
+
+<h1>{{ fy }} – FTE Summary in Weeks (Submitted{% if approved %} Approved{% endif %})</h1>
+<table class="table table-hover table-sm" style="width: auto">
+    <tr>
+        <th style="width: 30%">
+            Employee Name
+        </th>
+        <th style="width: 10%">
+            Number of Weeks
+        </th>
+    </tr>
+
+    <tbody>
+    {% for obj in my_dict %}
+        {% with forloop.counter0 as i %}
+            {% with my_dict|lookup:i as user %}
+                <tr>
+                    <td style="width: 30%">{{ user.user.last_name }}, {{ user.user.first_name }}</td>
+                    <td style="width: 10%">{{ user.hours|floatformat:0 }}</td>
+                </tr>
+            {% endwith %}
+        {% endwith %}
+    {% endfor %}
+
+    </tbody>
+</table>
+
+
+<div>
+    <pdf:nextpage/>
+</div>
+
+<h1>List of Employees by Project Without a Connected User</h1>
+<h3>(Use this list to ensure that no employees were incorrectly entered without a DM Apps username)</h3>
+<table class="table table-hover table-sm" style="width: auto">
+    <thead>
+    <th style="width: 30%">
+        Employee Name
+    </th>
+    <th style="width: 30%">
+        Project Name
+    </th>
+    <th style="width: 30%">
+        Project ID
+    </th>
+    </thead>
+
+    <tbody>
+    {% for obj in non_reg_staff_list %}
+        <tr>
+            <td>{{ obj.name }}</td>
+            <td>{{ obj.project }}</td>
+            <td>{{ obj.project.id }}</td>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+

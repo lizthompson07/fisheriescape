@@ -1,0 +1,266 @@
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load static %}
+<!-- template for the modal component -->
+<script type="text/x-template" id="modal-template">
+<transition name="modal">
+  <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+
+        <div class="modal-header">
+          <slot name="header">
+
+            <h3 v-if="mtype === 'staff'">
+              <span v-if="showOTCalc">{% trans "Overtime Calculator" %}</span>
+              <span v-else-if="!my_staff">{% trans "New Staff Form" %}</span>
+              <span v-else>{% trans "Edit Staff" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'om_cost'">
+              <span v-if="!my_om_cost">{% trans "New O&M Cost" %}</span>
+              <span v-else>{% trans "Edit O&M Cost" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'capital_cost'">
+              <span v-if="!my_capital_cost">{% trans "New Capital Cost" %}</span>
+              <span v-else>{% trans "Edit Capital Cost" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'gc_cost'">
+              <span v-if="!my_gc_cost">{% trans "New G&C Cost" %}</span>
+              <span v-else>{% trans "Edit G&C Cost" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'milestone'">
+              <span v-if="!my_milestone">{% trans "New Milestone" %}</span>
+              <span v-else>{% trans "Edit Milestone" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'collaborator'">
+              <span v-if="!my_collaborator">{% trans "New External Collaborator" %}</span>
+              <span v-else>{% trans "Edit External Collaborator" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'agreement'">
+              <span v-if="!my_agreement">{% trans "New Collaborative Agreement" %}</span>
+              <span v-else>{% trans "Edit Collaborative Agreement" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'file'">
+              <span v-if="!my_file">{% trans "New Supporting Resource" %}</span>
+              <span v-else>{% trans "Edit Supporting Resource" %}</span>
+            </h3>
+            <div v-if="errors" class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">
+                {% trans "The form has a few errors:" %}
+              </h4>
+              <hr>
+              <span v-html="errors"></span>
+            </div>
+          </slot>
+        </div>
+
+        <form v-if="!showOTCalc" method="post" @submit.prevent="onSubmit" class="form" enctype="multipart/form-data">
+          <div class="modal-body">
+            <slot name="body">
+
+              {#  STAFF FORM #}
+              <div v-if="mtype === 'staff'">
+                <div class="row">
+                  <div class="col">
+                    {% bootstrap_label staff_form.user.label %}
+                    {% with help_text_dict|lookup:user as help_text %}
+                      <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                           title="{{ staff_form.user.label }}"
+                           data-content="{{ help_text|safe }}">
+                      {% bootstrap_field staff_form.user show_label=False size='small' %}
+                    {% endwith %}
+
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.name placeholder="" size='small' %}
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col">
+                    {% bootstrap_field staff_form.employee_type size='small' %}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.is_lead size='small'%}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.funding_source size='small'%}
+                  </div>
+                  <div class="col-3">
+                    {% bootstrap_field staff_form.amount placeholder="" size='small'%}
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col">
+                    {% bootstrap_field staff_form.level size='small'%}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.student_program size='small'%}
+                  </div>
+                  <div class="col">
+                    {% bootstrap_field staff_form.duration_weeks placeholder="" size='small'%}
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-2">
+                    {% bootstrap_field staff_form.overtime_hours size='small'%}
+                  </div>
+                  <div class="col-6">
+                    {% bootstrap_field staff_form.overtime_description placeholder="" size='small'%}
+                  </div>
+                  <div class="col">
+                    <p style="text-align: center;" class="">
+                      <button @click="toggleOTCalc" href="#" id="ot_calc" type="button" class="btn btn-outline-primary mt-3">
+                        <img src="{% static "/img/calculator.png" %}" alt="" style="width:100px"
+                             data-toggle="tooltip" title="{% trans "OT Calculator" %}">
+                        <br>
+                        {% trans "Overtime Calculator" %}<br>
+                      </button>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {# OM COST FORM             #}
+              <div v-else-if="mtype=='om_cost'">
+                {% bootstrap_form om_cost_form size='small'%}
+              </div>
+
+              {# CAPITAL COST FORM             #}
+              <div v-else-if="mtype=='capital_cost'">
+                {% bootstrap_form capital_cost_form size='small'%}
+              </div>
+              {# CAPITAL COST FORM             #}
+              <div v-else-if="mtype=='gc_cost'">
+                {% bootstrap_form gc_cost_form size='small' %}
+              </div>
+
+              {# MILESTONE FORM             #}
+              <div v-else-if="mtype=='milestone'">
+                {% bootstrap_form milestone_form size='small'%}
+              </div>
+              {# COLLABORATOR FORM             #}
+              <div v-else-if="mtype=='collaborator'">
+                {% bootstrap_form collaborator_form size='small'%}
+              </div>
+              {# AGREEEMENT FORM             #}
+              <div v-else-if="mtype=='agreement'">
+                {% bootstrap_form agreement_form size='small'%}
+              </div>
+              {# FILE FORM             #}
+              <div v-else-if="mtype=='file'">
+                {% bootstrap_form file_form size='small'%}
+              </div>
+            </slot>
+          </div>
+
+          <div class="modal-footer">
+            <slot name="footer">
+              <button v-if="my_staff" class="modal-default-button" id="closeBtn">{% trans "Update" %}</button>
+              <button v-else class="modal-default-button" id="closeBtn">{% trans "Add" %}</button>
+              <button class="modal-default-button" @click="$emit('close')" id="closeBtn" type="button">
+                {% trans "Close" %}
+              </button>
+            </slot>
+          </div>
+        </form>
+
+        {# OVERTIME CALC #}
+
+        <form v-else @submit.prevent="processOT">
+          <div class="">
+            <ul>
+              <li>
+                {% blocktrans with next_fiscal_year as year %}
+                  Enter overtime hours worked for each day in the {{ year }} fiscal year
+                {% endblocktrans %}
+              </li>
+              <li>
+                {% trans "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes" %}
+              </li>
+              <li>
+                {% trans "For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard working day</b>" %}
+              </li>
+
+              <li>
+                {% trans "For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to be worked" %}
+              </li>
+              <li>
+                {% trans "When you are done, submit the form" %}
+              </li>
+            </ul>
+          </div>
+          <div class="row">
+            <div class="col">
+              <div class="table-wrapper-scroll-y my-custom-scrollbar">
+
+                <table class="table table-sm" id="ot_table">
+                  <thead>
+                  <th style="width:150px">{% trans "Date" %}</th>
+                  <th>{% trans "Weekday" %}</th>
+                  <th style="width:150px">{% trans "Overtime hours" %}</th>
+                  </thead>
+
+                  <tr v-for="(d, index) in dates">
+                    <td v-html="d.formatted_date"></td>
+
+                    <td v-if="d.is_stat" class="bad" v-html="d.weekday"></td>
+                    <td v-else-if="d.int_weekday==0" class="concern" v-html="d.weekday"></td>
+                    <td v-else-if="d.int_weekday==6" class="mild-concern" v-html="d.weekday"></td>
+                    <td v-else class="good" v-html="d.weekday"></td>
+                    <td>
+                      <input
+                        v-model="d.ot_hours"
+                        @keyup="updateDate(d)"
+                        @change="updateDate(d)"
+                        type="number"
+                        placeholder="{% trans "hours" %}"
+                        style="width:100px"
+                      >
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div class="col">
+
+              <table class="table table-striped">
+                <tr>
+                  <th>{% trans "Extra Hours to be Worked:" %}</th>
+                  <td>
+                    <span v-html="totalOTHours"></span> hours
+                  </td>
+                </tr>
+                <tr>
+                  <th>{% trans "Calculated Overtime Hours:" %}</th>
+                  <td>
+                    <span v-html="totalOTCalcHours"></span> hours
+                  </td>
+                </tr>
+                <tr>
+                  <th>{% trans "Overtime Description:" %}</th>
+                  <td>
+                    <span v-html="totalOTDescription"></span>
+                  </td>
+                </tr>
+              </table>
+
+            </div>
+
+          </div>
+          <div class="modal-footer">
+            <slot name="footer">
+              <button class="modal-default-button" type="submit">{% trans "Submit" %}</button>
+              <button class="modal-default-button" @click="toggleOTCalc" type="button">{% trans "Cancel" %}</button>
+            </slot>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</transition>
+</script>

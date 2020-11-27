@@ -1,14 +1,11 @@
-from django.test import tag, TestCase
-from django.urls import reverse_lazy
-from django.utils.translation import activate
+from django.test import tag
+from django.utils import timezone
 
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
 
 
 class TestTravelModels(CommonTest):
-
-
 
     @tag('models', 'trip')
     def test_trip_model(self):
@@ -38,7 +35,7 @@ class TestTravelModels(CommonTest):
 
         self.assertIn(trip_request, trip.get_connected_active_requests())
         self.assertIn(child_trip_request, trip.get_connected_active_requests())
-        self.assertNotIn(parent_trip_request, trip.get_connected_active_requests()) # parent should not turn up
+        self.assertNotIn(parent_trip_request, trip.get_connected_active_requests())  # parent should not turn up
 
         # any traveller on a group or individual request should be listed in the trip.traveller_list prop
         # ONLY IF THE STATUS IS NOT EQUAL TO draft, denied or cancelled
@@ -50,6 +47,41 @@ class TestTravelModels(CommonTest):
 
         self.assertEqual(trip.trip_requests.count(), 2)
         self.assertEqual(len(trip.traveller_list), 2)
+
+        # if a date changes in a trip, is should change in all attached TRs
+        random_dt = timezone.now()
+        self.assertNotEqual(trip.start_date, random_dt)
+        self.assertNotEqual(trip.end_date, random_dt)
+        for tr in trip.trip_requests.all():
+            self.assertNotEqual(tr.start_date, random_dt)
+            self.assertNotEqual(tr.end_date, random_dt)
+            # in order for this to work, the TRs cannot have start dates
+            tr.start_date = None
+            tr.save()
+        trip.start_date = random_dt
+        trip.end_date = random_dt
+        trip.save()
+        self.assertEqual(trip.start_date, random_dt)
+        self.assertEqual(trip.end_date, random_dt)
+        for tr in trip.trip_requests.all():
+            # group requests should always stay in sync with trip, even is there is already a date
+            if tr.is_group_request:
+                self.assertEqual(tr.start_date, random_dt)
+            else:
+                self.assertNotEqual(tr.start_date, random_dt)
+
+            # the end date will not be affected
+            self.assertNotEqual(tr.end_date, random_dt)
+            # however if we did not have an end date and resaved, it should be the same
+            tr.end_date = None
+            if not tr.is_group_request:
+                tr.start_date = None
+
+            tr.save()
+            self.assertEqual(tr.end_date, random_dt)
+            if not tr.is_group_request:
+                self.assertEqual(tr.start_date, random_dt)
+
 
     @tag('models', 'trip_request')
     def test_trip_request_model(self):
@@ -75,7 +107,7 @@ class TestTravelModels(CommonTest):
         rate = tr_cost_1.rate_cad
         days = tr_cost_1.number_of_days
         tr_cost_1.save()
-        self.assertEqual(rate*days, tr_cost_1.amount_cad)
+        self.assertEqual(rate * days, tr_cost_1.amount_cad)
 
         # if a tr_cost has only an amount, the save method should not override if there is a zero value in either rate or days
         tr_cost_2 = FactoryFloor.TripRequestCostTotalFactory()
@@ -97,7 +129,7 @@ class TestTravelModels(CommonTest):
         tr_cost_2.rate_cad = rate
         tr_cost_2.number_of_days = days
         tr_cost_2.save()
-        self.assertEqual(rate*days, tr_cost_2.amount_cad)
+        self.assertEqual(rate * days, tr_cost_2.amount_cad)
 
     @tag('models', 'reviewer')
     def test_reviewer_model(self):
@@ -106,15 +138,14 @@ class TestTravelModels(CommonTest):
         reviewer = FactoryFloor.ReviewerFactory()
         tr = reviewer.trip_request
 
-        reviewer.status_id = 4 # draft
+        reviewer.status_id = 4  # draft
         reviewer.save()
 
-        tr.status_id = 2 # pending review
+        tr.status_id = 2  # pending review
         tr.save()
 
         reviewer.save()
         self.assertEqual(reviewer.status_id, 20)
-
 
         # reviewers with a status of pending should be accessible throught the trip_request prop `current_reviewer`
         reviewer.status_id = 1  # draft

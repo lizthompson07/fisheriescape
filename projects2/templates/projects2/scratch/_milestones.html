@@ -1,0 +1,74 @@
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load i18n %}
+
+<div class="mb-2 neighbours">
+<h4>
+    {% trans "Project Milestones" %}
+</h4>
+</div>
+{% if can_edit or is_lead %}
+    <div class="mb-3 neighbours">
+        <a class="btn btn-sm btn-outline-primary add-btn" href="#" pop-href="{% url 'projects2:milestone_new' project.id %}">
+            {% trans "Add Milestone" %}
+        </a>
+    </div>
+{% endif %}
+
+{% if project.milestones.count == 0 %}
+    <div class="mb-3">
+        <em>
+            {% trans "No milestones" %}...
+        </em>
+    </div>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            {% if can_edit %}
+                <th></th>
+            {% endif %}
+            <th>
+                {% trans "Name" %}
+            </th>
+            <th>
+                {% trans "Description" %}
+            </th>
+            {% if object.submitted %}
+                <th>
+                    {% trans "Latest status" %}
+                </th>
+            {% endif %}
+
+        </tr>
+        <tbody>
+        {% for obj in project.milestones.all %}
+            <tr  {% if can_edit %} href="{% url 'projects2:milestone_edit' obj.id %}" pop data-toggle="tooltip" title="Edit" {% endif %} >
+                {% if can_edit %}
+                    <td>
+                        <a class="milestone-delete-me" href="#" val="{{ obj.id }}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete" width="20px">
+                        </a>
+                        <a id="milestone-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects2:milestone_delete' obj.id %}" class="hidden"></a>
+                    </td>
+                {% endif %}
+                <td>{{ obj.name }}</td>
+                <td>{{ obj.description|nz:"-----" }}</td>
+                {% trans "No status reports on file.." as na %}
+                {% if object.submitted %}
+                    <td style="background-color: {{ obj.latest_update.status.color }}">
+                        {% if obj.latest_update %}
+                            {{ obj.latest_update.status }} ({{ obj.latest_update.status_report }})
+                        {% else %}
+                            {{ na }}
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}

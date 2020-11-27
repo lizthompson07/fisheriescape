@@ -2,8 +2,9 @@ from collections import OrderedDict
 
 from django.conf import settings
 from django.urls import reverse, NoReverseMatch
-from django.views.generic import TemplateView
 from django.utils.translation import gettext as _
+from django.views.generic import TemplateView
+
 from accounts.models import Announcement
 
 
@@ -39,7 +40,7 @@ def get_app_dict(request):
     if settings.SHOW_TICKETING_APP:
         try:
             app_dict["tickets"] = {
-                "title": _("Data Management Tickets"),
+                "title": _("DM Apps Tickets"),
                 "description": _("Submit and track data management service requests."),
                 "status": "production",
                 "access": "open",
@@ -79,12 +80,12 @@ def get_app_dict(request):
             pass
 
     try:
-        app_dict["projects"] = {
-            "title": _("Project Planning"),
+        app_dict["projects2"] = {
+            "title": _("Project Planning (Version 2)"),
             "description": _("Tool for the tracking, development and coordination of science project workplans."),
-            "status": "production",
+            "status": "dev",
             "access": "login-required",
-            "url": reverse('projects:index'),
+            "url": reverse('projects2:index'),
             "icon_path": 'img/icons/scope.svg',
             "region": "all",
         }
@@ -316,7 +317,7 @@ def get_app_dict(request):
         app_dict["vault"] = {
             "title": _("Megafauna media vault"),
             "description": _("Media vault for marine megafauna."),
-            "status": "production",
+            "status": "dev",
             "access": "permission-required",
             "url": reverse('vault:index'),
             "icon_path": 'img/icons/vault.svg',
@@ -326,13 +327,13 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["necropsy"] = {
-            "title": _("Necropsy Tools and Marine Mammal Inventory"),
-            "description": _("Tools for necropsies and inventory of marine mammal equipment"),
-            "status": "production",
+        app_dict["whalebrary"] = {
+            "title": _("Whalebrary / Baleinothèque"),
+            "description": _("Tools for Marine Mammal Teams and Necropsy Organization"),
+            "status": "dev",
             "access": "permission-required",
-            "url": reverse('necropsy:index'),
-            "icon_path": 'img/icons/necropsy.svg',
+            "url": reverse('whalebrary:index'),
+            "icon_path": 'img/icons/whalebrary.svg',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -364,6 +365,18 @@ def get_app_dict(request):
     # except NoReverseMatch:
     #     pass
 
+    try:
+        app_dict["projects"] = {
+            "title": _("Project Planning (ARCHIVE ONLY)"),
+            "description": _("Tool for the tracking, development and coordination of science project workplans."),
+            "status": "production",
+            "access": "login-required",
+            "url": reverse('projects:index'),
+            "icon_path": 'img/icons/scope.svg',
+            "region": "all",
+        }
+    except NoReverseMatch:
+        pass
     return OrderedDict(app_dict)
 
 

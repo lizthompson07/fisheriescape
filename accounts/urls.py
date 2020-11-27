@@ -9,7 +9,7 @@ urlpatterns = [
     path('denied/', views.access_denied, name='denied_access'),
     path('denied/<str:message>/', views.access_denied, name='denied_access'),
     path('login/', views.UserLoginView.as_view(), name='login'),
-    path('login_required/', views.UserLoginView.as_view()),
+    path('login_required/', views.UserLoginView.as_view(), name='login_required'),
 
     path('azure-login/', views.sign_in, name='azure_login'),
     path('callback/', views.callback, name='callback'),

@@ -44,10 +44,19 @@ th {
   <thead>
   <tr>
     <th style="width: 12%">
-      Project / Location
+      Project Title
     </th>
     <th style="width: 12%">
       Proponent
+    </th>
+    <th style="width: 12%">
+      Location
+    </th>
+    <th style="width: 12%">
+      Type of interaction
+    </th>
+    <th style="width: 12%">
+      Indigenous Group(s)
     </th>
     <th style="width: 12%">
       Date offer to Consult
@@ -68,32 +77,43 @@ th {
 
   {% for entry in entry_list %}
     <tr>
-      <td style="width: 12%">
-        TITLE: {{ entry.title }}
-        <br><br>
-        TYPE: {{ entry.entry_type }}
-        <br><br>
-        LOCATION: {{ entry.location|nz:"----" }}
+      <td>
+        <a href="{% url 'ihub:entry_detail' entry.id %}">
+          {{ entry.title }}
+        </a>
       </td>
-      <td style="width: 12%">
-        ORGANIZATIONS: {{ entry.orgs_str }}
-        <br><br>
-        DFO SECTORS: {{ entry.sectors_str }}
+      <td>
+        {{ entry.proponent|nz:"----" }}
       </td>
-      <td style="width: 12%">
+      <td>
+        {{ entry.location|nz:"----" }}
+      </td>
+      <td>
+        {{ entry.entry_type }}
+      </td>
+      <td>
+        {{ entry.orgs_str }}
+      </td>
+      <td>
         {{ entry.initial_date|date:"M d, Y" }}
       </td>
-      <td style="width: 12%">
+      <td>
         {% for person in entry.people.all %}
-          {{ person }}<br>
+          {{ person }}<br><br>
         {% endfor %}
+        DFO SECTORS: {{ entry.sectors_str }}
       </td>
       <td style="width: 40%">
-        Overall status: {{ entry.status }}
+        <b><u>Overall status:</u></b> {{ entry.status }}
         <br><br>
+
         {% for note in entry.other_notes %}
-          {{ note }}
-          <br><br>
+          {% if not entry_note_types or note.type in entry_note_types %}
+            {% if not entry_note_statuses or note.status_id in entry_note_statuses %}
+              {{ note }}
+              <br><br>
+            {% endif %}
+          {% endif %}
         {% endfor %}
 
       </td>

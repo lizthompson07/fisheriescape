@@ -124,7 +124,7 @@ class Ticket(models.Model):
         else:
             self.date_closed = None
 
-        self.fiscal_year_id = fiscal_year(self.date_opened.year, sap_style=True)
+        self.fiscal_year_id = fiscal_year(self.date_opened, sap_style=True)
         super().save(*args, **kwargs)
 
     class Meta:
@@ -152,8 +152,8 @@ class Ticket(models.Model):
         APP_DICT = local_conf.APP_DICT
         APP_DICT["esee"] = "ESEE (not part of site)"
         APP_DICT["plankton"] = "Plankton Net (not part of site)"
-        APP_DICT["tickets"] = "Data Management Tickets"
-        APP_DICT["general"] = "Data Management Tickets"
+        APP_DICT["tickets"] = "DM Apps Tickets"
+        APP_DICT["general"] = "DM Apps Tickets"
 
         return APP_DICT.get(self.app, "n/a")
 

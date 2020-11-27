@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from shared_models import models as shared_models
 
+
 class Species(models.Model):
     code = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("Internal code"), unique=True)
     english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("English name"))
@@ -12,6 +13,7 @@ class Species(models.Model):
     latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Scientific name"))
     vor_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("VOR code"))
     quebec_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Quebec code"))
+    maritimes_code = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Maritimes code"))
     aphia_id = models.IntegerField(null=True, blank=True, verbose_name=_("ID in World Registry of Marine Species"))
 
     def __str__(self):
@@ -60,12 +62,18 @@ class Organisation(models.Model):
 
 
 class Person(models.Model):
-    first_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    last_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_(""), null=True, blank=True)
-    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    # m2m
-    roles = models.ManyToManyField(Role, verbose_name=_(""))
+    first_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("First name"))
+    last_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last name"))
+    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_("Organisation"), null=True, blank=True)
+    email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Email address"))
+    phone = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Phone number"))
+    roles = models.ManyToManyField(Role, verbose_name=_("Roles"))
+
+    def __str__(self):
+        return self.first_name
+
+    def get_absolute_url(self):
+        return reverse("vault:person_detail", kwargs={"pk": self.id})
 
 
 class MetadataField(models.Model):
@@ -74,12 +82,14 @@ class MetadataField(models.Model):
         (2, _("float")),
         (3, _("string")),
     )
-    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    nom = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Name"))
+    nom = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Nom"))
     description_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("English description"))
     description_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French description"))
     data_type = models.IntegerField(choices=DATA_TYPE_CHOICES, verbose_name=_("data type"))
 
+    def __str__(self):
+        return self.name
 
 # used for defining metadata field categories, when applicable
 class MetadataFieldCategory(models.Model):
@@ -111,6 +121,8 @@ class MetadataFieldCategory(models.Model):
 
 
 class InstrumentType(models.Model):
+    mode = models.CharField(max_length=255, verbose_name=_("Mode"))
+    type = models.CharField(max_length=255, verbose_name=_("Mode type"))
     name = models.CharField(max_length=255, verbose_name=_("English name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
 
@@ -190,29 +202,39 @@ class ObservationPlatform(models.Model):
 class Outing(models.Model):
     observation_platform = models.ForeignKey(ObservationPlatform, on_delete=models.DO_NOTHING, related_name="outings",
                                              verbose_name=_("observation platform"))
-    region = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    purpose = models.CharField(max_length=250, blank=True, null=True)
-    start_date = models.DateTimeField(blank=True, null=True)
-    end_date = models.DateTimeField(null=True, blank=True)
-    identifier_string = models.CharField(max_length=250, blank=True, null=True)
+    region = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Region"))
+    purpose = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Purpose"))
+    start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date (YYYY-MM-DD)"))
+    start_time = models.TimeField(null=True, blank=True, verbose_name=_("Start time (format)"))
+    end_time = models.TimeField(null=True, blank=True, verbose_name=_("End time (format)"))
+    duration = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name=_("Duration (hours)"))
+    identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Identifier String"))
 
     def __str__(self):
         return self.identifier_string
 
+    def get_absolute_url(self):
+        return reverse("vault:outing_detail", kwargs={"pk": self.id})
 
 class Observation(models.Model):
-    outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""))
-    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""))
-    datetime = models.DateTimeField(null=True, blank=True, verbose_name=_(""))
-    longitude = models.FloatField(null=True, blank=True, verbose_name=_(""))
-    latitude = models.FloatField(null=True, blank=True, verbose_name=_(""))
-    observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_(""), null=True, blank=True)
+    outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Outing"))
+    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Instrument"))
+    datetime = models.DateTimeField(null=True, blank=True, help_text="Format YYYY-MM-DD 00:00:00", verbose_name=_("Date and Time"))
+    longitude = models.FloatField(null=True, blank=True, verbose_name=_("Longitude"))
+    latitude = models.FloatField(null=True, blank=True, verbose_name=_("Latitude"))
+    observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Observer"), null=True, blank=True)
     metadata = models.ManyToManyField(MetadataField, through="ObservationMetadatum")
-    oppurtin = models.BooleanField(default=False)
+    opportunistic = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.outing.identifier_string
+
+    def get_absolute_url(self):
+        return reverse("vault:observation_detail", kwargs={"pk": self.id})
 
 class ObservationMetadatum(models.Model):
-    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_metadata", verbose_name=_(""))
-    metadata_field = models.ForeignKey(MetadataField, on_delete=models.CASCADE, related_name="observation_metadata")
+    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_metadata", verbose_name=_("Observation"))
+    metadata_field = models.ForeignKey(MetadataField, on_delete=models.CASCADE, related_name="observation_metadata", verbose_name=_("Metadata field"))
     value = models.CharField(max_length=1000)
 
 
@@ -272,6 +294,21 @@ class HealthStatus(models.Model):
     class Meta:
         ordering = ['name', ]
 
+class IndividualIdentification(models.Model):
+    id_number = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("name"))):
+
+            return "{}".format(getattr(self, str(_("name"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.name)
+
+    class Meta:
+        ordering = ['name', ]
 
 class ObservationSighting(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_sightings", verbose_name=_(""))
@@ -282,7 +319,7 @@ class ObservationSighting(models.Model):
     health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="observation_sightings",
                                       null=True, blank=True)
     verified = models.BooleanField(default=False, verbose_name=_(""))
-    # known_individual = models.ForeignKey(Individual)
+    known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_(""))
 
 
 class OriginalMediafile(models.Model):
@@ -314,7 +351,7 @@ class MediafileSighting(models.Model):
     health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="mediafile_sightings",
                                       null=True, blank=True)
     verified = models.BooleanField(default=False, verbose_name=_(""))
-    # known_individual = models.ForeignKey(Individual)
+   # known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_(""))
 
 
 class ProcessedMediafile(models.Model):

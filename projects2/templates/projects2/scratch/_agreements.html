@@ -1,0 +1,70 @@
+{% load static %}
+{% load i18n %}
+
+<div class="mb-2 neighbours">
+<h4>
+    {% trans "Collaborative Agreements" %}
+</h4>
+</div>
+{% if can_edit %}
+    <div class="mb-3 neighbours">
+        <a class="btn btn-sm btn-outline-primary" href="#"
+           onclick="return popitup('{% url 'projects2:agreement_new' object.id %}','popoutWindow')">
+            {% trans "Add Agreement" %}
+        </a>
+    </div>
+{% endif %}
+
+{% if object.agreements.count == 0 %}
+    <div class="mb-3">
+        <em>
+            {% trans "No Collaborative Agreements" %}...
+        </em>
+    </div>
+{% else %}
+
+    <table class="table table-hover table-sm" style="width: auto">
+        <tr>
+            {% if can_edit %}
+                <th></th>
+            {% endif %}
+            <th>
+                {% trans "Partner Organization" %}
+            </th>
+            <th>
+                {% trans "Project Lead" %}
+            </th>
+            <th>
+                {% trans "Agreement Title" %}
+            </th>
+            <th class="center-col">
+                {% trans "New or Existing" %}
+            </th>
+            <th>
+                {% trans "Notes" %}
+            </th>
+
+        </tr>
+        <tbody>
+        {% for obj in object.agreements.all %}
+            <tr {% if can_edit %}data-toggle="tooltip" title="Edit" href="{% url 'projects2:agreement_edit' obj.id %}" pop{% endif %}>
+                {% if can_edit %}
+                    <td>
+                        <a class="agreement-delete-me" href="#" val="{{ obj.id }}">
+                            <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
+                                 title="Delete" width="20px">
+                        </a>
+                        <a id="agreement-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects2:agreement_delete' obj.id %}" class="hidden"></a>
+                    </td>
+                {% endif %}
+                <td>{{ obj.partner_organization }}</td>
+                <td>{{ obj.project_lead }}</td>
+                <td>{{ obj.agreement_title }}</td>
+                <td style="text-align: center">{{ obj.get_new_or_existing_display }}</td>
+                <td>{{ obj.notes }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
