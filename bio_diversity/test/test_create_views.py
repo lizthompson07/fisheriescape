@@ -22,8 +22,8 @@ class TestInstCreate(CommonCreateTest, TestCase):
 
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'shared_models/shared_entry_form.html'
-
-        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
+        # successful create returns user to list view
+        self.expected_success_url = reverse_lazy('bio_diversity:list_inst')
 
         self.expected_view = views.InstCreate
         self.expected_form = forms.InstForm
@@ -41,7 +41,8 @@ class TestInstcCreate(CommonCreateTest, TestCase):
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'shared_models/shared_entry_form.html'
 
-        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
+        # successful create returns user to list view
+        self.expected_success_url = reverse_lazy('bio_diversity:list_instc')
 
         self.expected_view = views.InstcCreate
         self.expected_form = forms.InstcForm
@@ -59,7 +60,8 @@ class TestInstdcCreate(CommonCreateTest, TestCase):
         # Since this is intended to be used as a pop-out form, the html file should start with an underscore
         self.test_expected_template = 'shared_models/shared_entry_form.html'
 
-        self.expected_success_url = reverse_lazy('shared_models:close_me_no_refresh')
+        # successful create returns user to list view
+        self.expected_success_url = reverse_lazy('bio_diversity:list_instdc')
 
         self.expected_view = views.InstdcCreate
         self.expected_form = forms.InstdcForm

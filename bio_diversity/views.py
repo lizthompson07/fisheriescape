@@ -91,11 +91,11 @@ class InstDetails(mixins.InstMixin, CommonDetails):
     fields = ["instc", "serial_number", "comments", "created_by", "created_date",]
 
 
-class InstcDetails(mixins.InstMixin, CommonDetails):
+class InstcDetails(mixins.InstcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
 
 
-class InstdcDetails(mixins.InstMixin, CommonDetails):
+class InstdcDetails(mixins.InstdcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
 
 
@@ -178,13 +178,13 @@ class InstList(mixins.InstMixin, CommonList):
     fields = ["instc", "serial_number", "comments", "created_by", "created_date",]
 
 
-class InstcList(mixins.InstMixin, CommonList):
-    filterset_class = filters.InstFilter
+class InstcList(mixins.InstcMixin, CommonList):
+    filterset_class = filters.InstcFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
 
 
-class InstdcList(mixins.InstMixin, CommonList):
-    filterset_class = filters.InstFilter
+class InstdcList(mixins.InstdcMixin, CommonList):
+    filterset_class = filters.InstdcFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
 
 
@@ -215,7 +215,7 @@ class CommonUpdate(CommonAuthUpdateView):
     # This function could be overridden in extending classes to preform further testing to see if
     # an object is editable
     def test_func(self):
-        return utils.bio_diverisity_authorized(self.user)
+        return utils.bio_diverisity_authorized(self.request.user)
 
     # Get context returns elements used on the page. Make sure when extending to call
     # context = super().get_context_data(**kwargs) so that elements created in the parent
@@ -230,9 +230,9 @@ class InstUpdate(mixins.InstMixin, CommonUpdate):
     pass
 
 
-class InstcUpdate(mixins.InstMixin, CommonUpdate):
+class InstcUpdate(mixins.InstcMixin, CommonUpdate):
     pass
 
 
-class InstdcUpdate(mixins.InstMixin, CommonUpdate):
+class InstdcUpdate(mixins.InstdcMixin, CommonUpdate):
     pass
