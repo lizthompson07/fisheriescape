@@ -950,10 +950,14 @@ class TripRequest(models.Model):
 
     @property
     def is_late_request(self):
-        if not self.submitted:
-            return self.trip.date_eligible_for_adm_review and timezone.now() > self.trip.date_eligible_for_adm_review
-        else:
-            return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
+        # this only applies to trips requiring adm approval
+        if self.trip and self.trip.is_adm_approval_required:
+            # if not submitted, we compare against current datetime
+            if not self.submitted:
+                return self.trip.date_eligible_for_adm_review and timezone.now() > self.trip.date_eligible_for_adm_review
+            # otherwise we compare against submission datetime
+            else:
+                return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
 
 
 class TripRequestCost(models.Model):

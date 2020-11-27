@@ -8,9 +8,9 @@ from faker import Faker
 
 from shared_models.test.SharedModelsFactoryFloor import SectionFactory, RegionFactory
 from shared_models.views import CommonFilterView, CommonDetailView, CommonListView, CommonUpdateView, CommonCreateView, CommonDeleteView
-from .. import views, models, utils
 from travel.test import FactoryFloor
 from travel.test.common_tests import CommonTravelTest as CommonTest
+from .. import views, models, utils
 
 faker = Faker()
 
@@ -517,14 +517,6 @@ class TestTripRequestSubmitUpdateView(CommonTest):
         self.assertIsNone(self.instance.submitted)
         self.assertIsNotNone(self.instance.original_submission_date)
 
-        # test that you cannot submit to a closed trip (ie. when not = 30 or 41)
-        my_trip = self.instance.trip
-        my_trip.status_id = [43, 31, 32][faker.pyint(0, 2)]
-        my_trip.save()
-        self.assert_success_url(self.test_url, user=self.user)
-        self.instance = models.TripRequest.objects.get(pk=self.instance.pk)
-        self.assertIsNone(self.instance.submitted)
-        self.assertIsNotNone(self.instance.original_submission_date)
 
 
 class TestTripRequestUpdateView(CommonTest):
@@ -656,12 +648,9 @@ class TestTripReviewProcessUpdateView(CommonTest):
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
         # if there is an inappropriate trip, we should get 302 response
-        reviewed_trip = FactoryFloor.TripFactory(status_id=32)
         cancelled_trip = FactoryFloor.TripFactory(status_id=43)
-        self.test_url1 = reverse_lazy('travel:trip_review_toggle', kwargs={"pk": reviewed_trip.pk})
-        self.test_url2 = reverse_lazy('travel:trip_review_toggle', kwargs={"pk": cancelled_trip.pk})
-        self.assert_non_public_view(test_url=self.test_url1, expected_code=302, user=self.user)
-        self.assert_non_public_view(test_url=self.test_url2, expected_code=302, user=self.user)
+        self.test_url = reverse_lazy('travel:trip_review_toggle', kwargs={"pk": cancelled_trip.pk})
+        self.assert_non_public_view(test_url=self.test_url, expected_code=302, user=self.user)
 
     @tag("trip_review_toggle", "context")
     def test_context(self):
@@ -675,9 +664,9 @@ class TestTripReviewProcessUpdateView(CommonTest):
     @tag("trip_review_toggle", "submit")
     def test_submit(self):
         # create a few reviewers so that it does not go straight to "reviewed" status
-        FactoryFloor.TripReviewerFactory(trip=self.instance)
-        FactoryFloor.TripReviewerFactory(trip=self.instance)
-        FactoryFloor.TripReviewerFactory(trip=self.instance)
+        r1 = FactoryFloor.TripReviewerFactory(trip=self.instance, order=1)
+        r2 = FactoryFloor.TripReviewerFactory(trip=self.instance, order=2)
+        r3 = FactoryFloor.TripReviewerFactory(trip=self.instance, order=3)
         # ensure we are starting off with what we expect: no submission dates
         self.assertIsNone(self.instance.review_start_date)
         self.assert_success_url(self.test_url, user=self.user)
@@ -694,6 +683,39 @@ class TestTripReviewProcessUpdateView(CommonTest):
         self.assertIsNotNone(self.instance.review_start_date)
         self.assertEqual(self.instance.status_id, 41)
 
+        # now let's say the trip is reviewed..
+        self.instance.status_id = 32
+        self.instance.save()
+        self.assertEqual(self.instance.status_id, 32)
+        # let's add a reviewer comment and set the status to `complete`
+        r1.comments = "good!"
+        r2.comments = "trip!"
+        r3.comments = "yayy!"
+        r1.status_id = 26
+        r2.status_id = 26
+        r3.status_id = 26
+        r1.save()
+        r2.save()
+        r3.save()
+        self.assertEqual(r1.status_id, 26)
+        self.assertEqual(r2.status_id, 26)
+        self.assertEqual(r3.status_id, 26)
+
+
+        # run it a second time and now the trip review process should be reset. The trip should still be under review and only the reviewer
+        # statuses should be affected
+        self.assert_success_url(self.test_url, user=self.user)
+        self.instance = models.Conference.objects.get(pk=self.instance.pk)
+        self.assertEqual(self.instance.status_id, 31)
+
+        reviewer_ids = [r1.id, r2.id, r3.id]
+        for id in reviewer_ids:
+            r = models.TripReviewer.objects.get(pk=id)
+            if r.order == 1:
+                self.assertEqual(r.status_id, 25)
+            else:
+                self.assertEqual(r.status_id, 24)
+            self.assertIsNotNone(r.comments)
 
 class TestTripUpdateView(CommonTest):
     def setUp(self):
