@@ -81,7 +81,6 @@ class CommonTest(TestCase):
         This test will ensure a view requires a user to be logged in in order to access it. Part 1, will test to see
         what happens when an anonymous user tries accessing the url. Part 2 attempt the same this with a logged in user.
         If the `user` arg is provided, it will be used for Part 2.
-
         :param test_url: the url to test
         :param locales: the locales to test
         :param expected_template: the expected template file
