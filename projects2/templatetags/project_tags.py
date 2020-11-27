@@ -10,7 +10,6 @@ def get_project_year_field_list(project_year):
     try:
         return utils.get_project_year_field_list(project_year)
     except Exception as e:
-        print(e)
         return []
 
 

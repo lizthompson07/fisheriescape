@@ -15,25 +15,21 @@
         {% trans "WARNING" %}
       </h4>
       <p>
-        {% trans "The trip associated with this trip request has been cancelled." %}
+        {% trans "The trip associated with this request has been cancelled." %}
       </p>
     </div>
-  {% elif trip and trip.status.id != 30 and trip.status.id != 41 and not submitted %}
+  {% elif object.is_late_request and not object.submitted %}
     <div class="alert alert-danger" role="alert">
-      <h4 class="alert-heading">
+      <h4 class="alert-heading red-font">
         {% trans "WARNING" %}
       </h4>
-      <p>
+      <p class="h5">
         {% if trip.status.id == 31 %}
-          {% trans "This trip is currently under review from NCR and is closed to additional requests." %}
+          {% trans "This trip is currently under review from NCR." %}
         {% elif trip.status.id == 32 %}
-          {% trans "This trip has already been reviewed by NCR and is closed to additional requests." %}
-        {% else %}
-          {% trans "This trip is closed to additional requests." %}
+          {% trans "This trip has already been reviewed by NCR." %}
         {% endif %}
-        {% if not object.submitted %}
-          {% trans "You will not be able to submit this request." %}
-        {% endif %}
+        {% trans "In order to submit this request, you will need to provide a justification for the late submission." %}
       </p>
     </div>
 
@@ -60,9 +56,7 @@
           {% blocktrans with trip.date_eligible_for_adm_review|naturaltime as time %}
             This trip will be eligible for review by the ADM office in {{ time }}.
           {% endblocktrans %}
-
         {% endif %}
-        {% trans "Once under review, it will be closed to additional requests." %}
       </p>
     </div>
   {% endif %}
@@ -155,12 +149,9 @@
         {% echo "disabled" as submit_disabled_var %}
         {% trans "You do not have permissions to submit / un-submit this request" as submit_tip_text %}
 
-        {# Unsubmitted only: if the trip is closed for further registration #}
-      {% elif not object.submitted and trip %}
-        {% if triprequest.trip.status.id != 30 and triprequest.trip.status.id != 41 and object.status.id != 16 %}
-          {% echo "disabled" as submit_disabled_var %}
-          {% trans "This trip is closed to further requests." as submit_tip_text %}
-        {% endif %}
+      {% elif not object.submitted and object.is_late_request and not object.late_justification %}
+        {% echo "disabled" as submit_disabled_var %}
+        {% trans "You must provide a late justification in order to submit this trip." as submit_tip_text %}
       {% endif %}
 
       {% if object.submitted %}
@@ -214,7 +205,7 @@
       </a>
 
       <a class="btn btn-outline-dark " href="{% url 'travel:request_print' triprequest.id %}">
-        {% trans "Travel Plan" %}&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+        {% trans "Travel Request and Approval Form (TRAF)" %}&nbsp; <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
       </a>
 
     </div>
@@ -246,7 +237,7 @@
   }
   </script>
 
-  // have to reload some other JS scripts... due to import of vue js
+  {#  // have to reload some other JS scripts... due to import of vue js#}
   <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
   <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
 

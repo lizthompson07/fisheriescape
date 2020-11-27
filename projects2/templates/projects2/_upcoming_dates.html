@@ -119,9 +119,15 @@
             {% if obj.region %}
               {{ obj.region|upper }} -
             {% endif %}
-            <a class="" href="{{ obj.file.url }}">
-              {{ obj }}
-            </a> ({{ obj.updated_at|date}})
+            {{ obj }}:
+            <span class="text-info">{% trans "English" %}</span> &rarr;
+            {{ obj.file_display_en }}
+            {% if obj.file_fr %}
+              <span class="text-info">{% trans "French" %}</span> &rarr;
+              {{ obj.file_display_fr }}
+            {% endif %}
+
+            ({{ obj.updated_at|date }})
           </li>
         {% endfor %}
 

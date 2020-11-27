@@ -461,14 +461,17 @@ var app = new Vue({
           this.getCollaborators(projectYear.id)
           this.getFiles(projectYear.id)
           this.getFinancials(projectYear.id)
-          this.getProjectFinancials(projectYear.project)
-          this.getCurrentUser(projectYear.project)
+          this.getProjectFinancials(projectYear.project.id)
+          this.getCurrentUser(projectYear.project.id)
 
         })
       }
     },
     goProjectYearEdit(projectYearId) {
       window.location.href = `/project-planning/project-year/${projectYearId}/edit/`
+    },
+    goProjectEdit(projectId) {
+      window.location.href = `/project-planning/projects/${projectId}/edit/`
     },
     goProjectYearDelete(projectYearId) {
       window.location.href = `/project-planning/project-year/${projectYearId}/delete/`

@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.timezone import make_aware
 from textile import textile
 
+from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from . import models
 
@@ -55,6 +56,10 @@ def resave_all(projects=models.Project.objects.all()):
     for p in models.Project.objects.all():
         p.save()
 
+
+def resave_all_reviews(projects=models.Project.objects.all()):
+    for obj in models.Review.objects.all():
+        obj.save()
 
 def compare_html():
     projects = models.Project.objects.all()
@@ -435,7 +440,6 @@ def fetch_project_approval_data():
             print("no project year for ", old_p)
 
 
-
 def fix_project_formatting():
     from projects import models as omodels
     import html2markdown
@@ -452,3 +456,28 @@ def fix_project_formatting():
         if old_p.description:
             new_p.overview = html2markdown.convert(old_p.description)
             new_p.save()
+
+
+def from_project_to_reviewer():
+    from projects import models as omodels
+    projects = omodels.Project.objects.all()
+
+    for old_p in projects:
+        qs = models.ProjectYear.objects.filter(project_id=old_p.id)
+        if qs.exists():
+            if qs.count() > 1:
+                print("problem, more than one project year of this project exists: ", old_p.project_title," (",old_p.id, ") Going to choose this one: ",
+                      qs.first()," of ", listrify(qs))
+
+            new_py = qs.first()
+            review, created = models.Review.objects.get_or_create(
+                project_year=new_py,
+            )
+            review.allocated_budget = new_py.allocated_budget
+            review.approval_status = old_p.approved  # will be 1, 0 , None
+            review.notification_email_sent = old_p.notification_email_sent
+            review.general_comment = old_p.meeting_notes
+            review.approver_comment = old_p.meeting_notes
+            review.save()
+        else:
+            print("cannot find matching project:", old_p.id, old_p.project_title)
