@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 09:19-0400\n"
+"POT-Creation-Date: 2020-11-27 09:23-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1594,7 +1594,9 @@ msgstr ""
 "chevauchement des voyageurs et/ou des propriétaires de la demande : "
 
 #: .\travel\templates\travel\trip_request_detail.html:18
-msgid "The trip associated with this trip request has been cancelled."
+#, fuzzy
+#| msgid "The trip associated with this trip request has been cancelled."
+msgid "The trip associated with this request has been cancelled."
 msgstr "Le voyage associé à cette demande a été annulé."
 
 #: .\travel\templates\travel\trip_request_detail.html:28
