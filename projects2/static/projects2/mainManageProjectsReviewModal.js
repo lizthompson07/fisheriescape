@@ -14,10 +14,23 @@ Vue.component("modal", {
   data() {
     return {
       errors: null,
+      loading: false,
       rubric: reviewRubric,
     }
   },
   methods: {
+    closeModal() {
+      // if the form was not saved...
+      if (!this.project_year.review.id) {
+        this.project_year.review.collaboration_score = ""
+        this.project_year.review.strategic_score = ""
+        this.project_year.review.operational_score = ""
+        this.project_year.review.ecological_score = ""
+        this.project_year.review.scale_score = ""
+      }
+      this.$emit('close')
+    },
+
     deleteReview() {
       msg = deleteReviewMsg
       userInput = confirm(msg)
@@ -33,6 +46,14 @@ Vue.component("modal", {
     },
     onSubmit() {
       this.errors = null
+      this.loading = true
+
+      if (this.project_year.review.collaboration_score === "") this.project_year.review.collaboration_score = null
+      if (this.project_year.review.strategic_score === "") this.project_year.review.strategic_score = null
+      if (this.project_year.review.operational_score === "") this.project_year.review.operational_score = null
+      if (this.project_year.review.ecological_score === "") this.project_year.review.ecological_score = null
+      if (this.project_year.review.scale_score === "") this.project_year.review.scale_score = null
+
       if (this.isOldReview) {
         let endpoint = `/api/project-planning/reviews/${this.project_year.review.id}/`;
         apiService(endpoint, "PUT", this.project_year.review).then(response => {
@@ -44,6 +65,8 @@ Vue.component("modal", {
               myString += String(key) + ": " + response[key] + "<br>"
             }
             this.errors = myString
+            this.loading = false
+
           }
         })
       } else {
@@ -59,6 +82,8 @@ Vue.component("modal", {
               myString += String(key) + ": " + response[key] + "<br>"
             }
             this.errors = myString
+            this.loading = false
+
           }
         })
       }
@@ -82,7 +107,7 @@ Vue.component("modal", {
       return scale_score + ecological_score + operational_score + strategic_score + collaboration_score
     },
     total_score_percentage() {
-      value = this.total_score/15
+      value = this.total_score / 15
       if (!value) value = 0;
       value = value * 100;
       value = Math.round(value * Math.pow(10, 0)) / Math.pow(10, 0);
@@ -91,5 +116,13 @@ Vue.component("modal", {
     },
   },
   created() {
+    if (this.project_year.review.id) {
+      if (!this.project_year.review.collaboration_score) this.project_year.review.collaboration_score = ""
+      if (!this.project_year.review.strategic_score) this.project_year.review.strategic_score = ""
+      if (!this.project_year.review.operational_score) this.project_year.review.operational_score = ""
+      if (!this.project_year.review.ecological_score) this.project_year.review.ecological_score = ""
+      if (!this.project_year.review.scale_score) this.project_year.review.scale_score = ""
+    }
+
   },
 });
