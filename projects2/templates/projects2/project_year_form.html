@@ -4,10 +4,12 @@
 {% load bootstrap4 %}
 {% load i18n %}
 {% load custom_filters %}
+{% load project_filters %}
+
 
 {% block form_field %}
   <div class="{{ field.name }}_div">
-    {% if "deliverable" in field.name or "priorit" in field.name %}
+    {% if field.name|is_markdown_field %}
 
       <label for="id_priorities">{{ field.label}}</label>
       <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"

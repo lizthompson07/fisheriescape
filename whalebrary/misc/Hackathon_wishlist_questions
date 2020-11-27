@@ -1,0 +1,16 @@
+
+
+1) Personnel List View - creating two views of the record if 2 things are selected in M2M field - why??
+
+2) In the "_html" pages -- how to have the main page refresh automatically after the pop up closes??
+
+3) Lending tables -- how to get 'quantity' to show actual quantities -- maybe neeed an intermediary table to store quantitity lent out of an item??
+
+4) Can I have a field in a model that is the sum of two (or more) other fields in a different model?
+   i.e. I want to have different quantities of a unique item in different locations, but then have the total quantity somewhere as well
+
+5) Quantity add form -- eventually when there are a lot of items, finding the one you want to add quantity to might be restrictive
+
+6) Add additional filters for other columns? Or one filter that can search any column?
+
+7) File upload field -- how to do properly

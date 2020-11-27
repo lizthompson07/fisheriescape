@@ -203,16 +203,16 @@ class StaffFilter(django_filters.FilterSet):
 #                                                            label=_("Please select a fiscal year:"))
 
 #
-# class FunctionalGroupFilter(django_filters.FilterSet):
-#     class Meta:
-#         model = models.FunctionalGroup
-#         fields = {
-#             'name': ['exact'],
-#             'theme': ['exact'],
-#         }
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
-#         self.filters['name'] = django_filters.CharFilter(field_name='search_term', label=_("Name"), lookup_expr='icontains',
-#                                             widget=forms.TextInput())
+class FunctionalGroupFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.FunctionalGroup
+        fields = {
+            'name': ['exact'],
+            'theme': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
+        self.filters['name'] = django_filters.CharFilter(field_name='search_term', label=_("Name"), lookup_expr='icontains',
+                                            widget=forms.TextInput())

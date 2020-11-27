@@ -1,0 +1,29 @@
+{% extends 'shared_models/generic_popout_form.html' %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_tags %}
+{% load custom_filters %}
+
+{% block form_fields %}
+    {#keep this empty for now#}
+{% endblock %}
+
+{% block form_buttons %}
+    <div class="mt-3 mb-3">
+        {% trans "Cancel" as default_cancel_text %}
+        {% echo request.META.HTTP_REFERER as default_cancel_url %}
+        <a class="btn btn-lg btn-secondary" onclick="refreshParent(); window.close()" href="#">
+            {% trans "Close" %}
+        </a>
+    </div>
+{% endblock %}
+
+{% block pre_form_div %}
+    <ul>
+        {% for s in suppliers %}
+            <li>
+                <a href="{% url 'whalebrary:add_supplier_to_item' s.id view.kwargs.item %}">{{ s }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

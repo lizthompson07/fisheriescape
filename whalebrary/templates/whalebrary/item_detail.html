@@ -1,0 +1,43 @@
+{% extends "whalebrary/base.html" %}
+{% load static %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+
+    <div class="mb-4">
+        <div class="btn-group">
+            <a class="btn btn-warning" href="{% url 'whalebrary:item_edit' object.id %}">Edit</a>
+            <a class="btn btn-danger" href="{% url 'whalebrary:item_delete' object.id %}">Delete</a>
+            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}">Back</a>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-4">
+            <h3>
+                {% trans "Item Detail:" %}
+            </h3>
+            <table class="table table-hover table-sm">
+                {% for field in field_list %}
+                    {% verbose_td_display object field %}
+                {% endfor %}
+            </table>
+            <br>
+            {% include "whalebrary/_supplier.html" %}
+            {% include "whalebrary/_lending.html" %}
+
+        </div>
+        <div class="col-1"></div>
+        <div class="col-6">
+            {% include "whalebrary/_quantity.html" %}
+            {% include "whalebrary/_order.html" %}
+            {% include "whalebrary/_file.html" %}
+        </div>
+    </div>
+
+
+
+
+{% endblock %}

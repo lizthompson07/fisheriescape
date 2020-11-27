@@ -1,0 +1,1 @@
+[{"model": "whalebrary.category", "pk": 1, "fields": {"name": "Necropsy", "nom": null}}, {"model": "whalebrary.category", "pk": 2, "fields": {"name": "Office Supplies", "nom": null}}, {"model": "whalebrary.category", "pk": 3, "fields": {"name": "Survey Gear", "nom": null}}]

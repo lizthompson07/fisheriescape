@@ -5,6 +5,29 @@
 {% load custom_filters %}
 
 
+{% block title_area %}
+  {{ block.super }}
+  {% if cloning %}
+    <div class="alert alert-info justify-content-center" role="alert" style="">
+      <h4 class="alert-heading">
+        <span class="mdi mdi-information-outline mr-3"></span> {% trans "Cloning a Project vs. Project-year" %}
+      </h4>
+      <hr>
+      <p class="mb-0">
+        {% blocktrans %}
+          Clone a project when you want to use a project <b>and all of the its years</b> as a template for a <b>brand new project</b>.
+        {% endblocktrans %}
+        <br>
+        <br>
+        {% blocktrans %}
+          When you are building off of an existing project (e.g. adding a new year), it would be better to simply clone a
+          <b>project year</b> instead of the entire project.
+        {% endblocktrans %}
+      </p>
+    </div>
+  {% endif %}
+{% endblock %}
+
 
 {% block form_field %}
   {% if "overview" in field.name %}

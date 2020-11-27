@@ -61,7 +61,7 @@ def get_verbose_label(instance, field_name):
         # try grabbing the instance of that field...
         try:
             field_instance = instance._meta.get_field(field_name)
-        except FieldDoesNotExist:
+        except (FieldDoesNotExist, AttributeError):
             # if it does not exist, perhaps we are receiving a model prop (with no custom label)
             # in which case, the verbose name will in is the same as the field_name..
             verbose_name = field_name

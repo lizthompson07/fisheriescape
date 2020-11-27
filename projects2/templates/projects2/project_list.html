@@ -1,0 +1,71 @@
+{% extends 'projects2/list.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load custom_filters %}
+{% load static %}
+
+{% block pre_table %}
+
+  {% if my %}
+    <div id="app">
+      <div class="row mb-5">
+        <div class="col-5">
+          <h3>
+            {% trans "Here's a breakdown of your time allocation:" %}
+          </h3>
+          <table class="table table-bordered table-sm" style="width: auto;">
+            <tr>
+              <th rowspan="3" style="width: 100px; vertical-align: bottom">{% trans "Fiscal year" %}</th>
+              <th colspan="4" style="text-align: center">{% trans "Time in weeks" %}</th>
+            </tr>
+            <tr>
+              <th colspan="2" style="width: 150px; text-align: center">{% trans "Submitted projects" %}</th>
+              <th rowspan="2"
+                  style="width: 150px; text-align: center; vertical-align: bottom">{% trans "Un-submitted projects" %}</th>
+            </tr>
+            <tr>
+              <th style="width: 150px; text-align: center">{% trans "Recommended" %}</th>
+              <th style="width: 150px; text-align: center">{% trans "Approved" %}</th>
+            </tr>
+            <tbody>
+            <tr v-for="(year, index) in fte_table">
+              <td class="">${year.fiscal_year }</td>
+              <td class="text-center">${year.recommended | floatformat| zero2NullMark}</td>
+              <td class="text-center">${year.approved | floatformat | zero2NullMark}</td>
+              <td class="text-center">${year.draft | floatformat| zero2NullMark}</td>
+
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  {% endif %}
+
+{% endblock %}
+
+{% block table_td %}
+  {% if "unsubmitted" in field.name %}
+
+    {% get_field_value object field.name as my_val %}
+    {% if my_val %}
+      <span class="py-1 px-1 highlight">{{ my_val|yesno }}</span>
+    {% else %}
+      <span>{{ my_val|yesno }}</span>
+    {% endif %}
+  {% else %}
+    {% get_field_value object field.name safe=True %}
+  {% endif %}
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+{% if my %}
+
+    <script src="{% static '/projects2/mainProjectList.js' %}?version=0.0.0" type="application/javascript"></script>
+
+{% endif %}
+{% endblock %}

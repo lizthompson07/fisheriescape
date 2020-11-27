@@ -1,0 +1,66 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div class="mb-2 neighbours">
+    <h2>{% trans "External Collaborators" %}</h2>
+  </div>
+  <div v-if="!collaborator_loading" class="mb-2 neighbours">
+    <button @click="openCollaboratorModal()"class="{{ btn_class_1 }}" v-if="canModify">
+      <span class="mdi mdi-plus"></span> {% trans "Add Collaborator" %}
+    </button>
+  </div>
+
+  <div v-if="collaborator_loading">
+    <button class="btn btn-primary" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+
+  <div v-else>
+
+    <div
+      v-if="!collaborators.length"
+      class="font-italic"
+    >
+      {% trans "No collaborators have been added to this year of the project" %}
+    </div>
+
+    <table
+      v-else
+      class="table table-sm sortable"
+      style="width: auto"
+    >
+      <thead>
+      {% get_collaborator_field_list as collaborator_field_list %}
+      {% for field in collaborator_field_list %}
+        <th>
+          {% get_verbose_label random_collaborator field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      <tr v-for="(item, index) in collaborators">
+        {% for field in collaborator_field_list %}
+          {% if "critical" in field %}
+            <td>${item.critical | yesNo }</td>
+          {% else %}
+            <td>${ item.{{ field }} | nz}</td>
+          {% endif %}
+        {% endfor %}
+        <td class="to-the-right" v-if="canModify">
+          <button @click="openCollaboratorModal(item)"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteCollaborator(item)"><span class="mdi mdi-delete"></span></button>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>

@@ -1,5 +1,4 @@
 
-
 .container-fluid, .container {
     margin-top: 15px;
     padding: 15px;
@@ -42,6 +41,53 @@ h1 {
     padding-right: 5px;
 }
 
-.narrow-col{
+.narrow-col {
     width: 30%
+}
+
+.a-base {
+    background-color: #a7aef9;
+}
+
+.b-base {
+    background-color: #d9a7f9;
+}
+
+.c-base {
+    background-color: #eff9a7;
+}
+
+
+.draft {
+    background-color: #fff396;
+}
+
+.submitted {
+    background-color: #ffda84;
+}
+
+.recommended {
+    background-color: #a2c4fa;
+}
+
+.approved {
+    background-color: #a8ffb8;
+}
+
+.cancelled {
+    background-color: #c1c1c1;
+}
+
+.denied {
+    background-color: #ff9191;
+}
+
+
+.to-the-right {
+    /*position: absolute;*/
+    /*right: 0;*/
+}
+
+.w150 {
+    width: 150px;
 }

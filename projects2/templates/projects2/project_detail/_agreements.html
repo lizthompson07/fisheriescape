@@ -1,0 +1,66 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div class="mb-2 neighbours">
+    <h2>{% trans "Collaborative Agreements" %}</h2>
+  </div>
+  <div v-if="!agreement_loading" class="mb-3 neighbours">
+    <button @click="openAgreementModal()" class="{{ btn_class_1 }}" v-if="canModify">
+      <span class="mdi mdi-plus"></span> {% trans "Add Agreement" %}
+    </button>
+  </div>
+
+  <div v-if="agreement_loading">
+    <button class="btn btn-primary" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+
+  <div v-else>
+
+    <div
+      v-if="!agreements.length"
+      class="font-italic"
+    >
+      {% trans "No agreements have been added to this year of the project" %}
+    </div>
+
+    <table
+      v-else
+      class="table table-sm sortable"
+      style="width: auto"
+    >
+      <thead>
+      {% get_agreement_field_list as agreement_field_list %}
+      {% for field in agreement_field_list %}
+        <th>
+          {% get_verbose_label random_agreement field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      <tr v-for="(item, index) in agreements">
+        {% for field in agreement_field_list %}
+          {% if "new_or" in field %}
+            <td>${item.new_or_existing_display }</td>
+          {% else %}
+            <td>${ item.{{ field }} | nz}</td>
+          {% endif %}
+        {% endfor %}
+        <td class="to-the-right" v-if="canModify">
+          <button @click="openAgreementModal(item)"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteAgreement(item)"><span class="mdi mdi-delete"></span></button>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>

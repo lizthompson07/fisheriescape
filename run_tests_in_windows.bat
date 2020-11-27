@@ -24,3 +24,6 @@ python manage.py test -b csas.test --keepdb
 
 :: run tests for cruises
 python manage.py test -b cruises.test --keepdb
+
+:: run tests for whalebrary
+python manage.py test -b whalebrary.test --keepdb
