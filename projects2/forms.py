@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 from . import models, utils
+from .utils import is_section_head
 
 chosen_js = {"class": "chosen-select-contains"}
 multi_select_js = {"class": "multi-select"}
@@ -414,8 +415,11 @@ class StatusReportForm(forms.ModelForm):
         self.fields["rationale_for_modified_completion_date"].widget.attrs = {
             "v-model": "status_report.rationale_for_modified_completion_date"}
         self.fields["general_comment"].widget.attrs = {"v-model": "status_report.general_comment"}
-        self.fields["section_head_comment"].widget.attrs = {"v-model": "status_report.section_head_comment"}
-        self.fields["section_head_reviewed"].widget.attrs = {"v-model": "status_report.section_head_reviewed"}
+        
+        if is_section_head(self.initial.get("user"), self.instance):
+            self.fields["section_head_comment"].widget.attrs = {"v-model": "status_report.section_head_comment"}
+        else:
+            del self.fields["section_head_comment"]
 
 
 class FileForm(forms.ModelForm):

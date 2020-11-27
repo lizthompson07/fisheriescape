@@ -522,6 +522,9 @@ var app = new Vue({
     goProjectYearClone(projectYearId) {
       window.location.href = `/project-planning/project-year/${projectYearId}/clone/`
     },
+    goStatusReportDetail(statusReportId) {
+      window.location.href = `/project-planning/status-reports/${statusReportId}/`
+    },
     isABase(name) {
       if (name && name.length) {
         return name.toLowerCase().search("a-base") > -1

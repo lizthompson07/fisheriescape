@@ -647,7 +647,7 @@ class StatusReport(models.Model):
         "rationale for a modified completion date"))
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
-    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"), choices=YES_NO_CHOICES)
+    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"), editable=False)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)

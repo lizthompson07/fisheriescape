@@ -56,16 +56,21 @@
           {% elif "reviewed" in field %}
             <td>${item.section_head_reviewed | yesNo }</td>
 
-            {% elif "supporting" in field %}
+          {% elif "supporting" in field %}
             <td>${item.supporting_resources | yesNo }</td>
           {% else %}
             <td>${ item.{{ field }} | nz}</td>
           {% endif %}
         {% endfor %}
-        <td class="to-the-right" v-if="canModify">
-          <button @click="openStatusReportModal(item)"><span class="mdi mdi-pencil"></span></button>
-          <button @click="deleteStatusReport(item)"><span class="mdi mdi-delete"></span></button>
+        <td class="to-the-right">
+          <button v-if="canModify" @click="openStatusReportModal(item)">
+            <span class="mdi mdi-pencil"></span>
+          </button>
+          <button @click="goStatusReportDetail(item.id)">
+            <span class="mdi mdi-arrow-top-right"></span>
+          </button>
         </td>
+
       </tr>
       </tbody>
 
