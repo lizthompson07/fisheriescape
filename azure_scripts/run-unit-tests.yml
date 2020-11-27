@@ -27,6 +27,7 @@ steps:
     displayName: 'Install Prerequisites and Run Local Migrations '
 
   - script: |
+      chmod 777 ./run_tests.sh
       ./run_tests.sh
     condition: succeededOrFailed()
     displayName: 'Run tests'
