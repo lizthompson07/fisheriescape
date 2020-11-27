@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 09:23-0400\n"
+"POT-Creation-Date: 2020-11-27 10:57-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -14,7 +14,7 @@ msgid "User"
 msgstr "Utilisateur"
 
 #: .\travel\filters.py:34 .\travel\models.py:106 .\travel\models.py:216
-#: .\travel\models.py:217 .\travel\models.py:370 .\travel\models.py:371
+#: .\travel\models.py:217 .\travel\models.py:371 .\travel\models.py:372
 #: .\travel\utils.py:18
 msgid "name"
 msgstr "nom"
@@ -131,24 +131,32 @@ msgstr ""
 "ce voyage."
 
 #: .\travel\forms.py:527
+#, fuzzy
+#| msgid ""
+#| "The abstract deadline of the trip (if present) must occur before the "
+#| "start date."
 msgid ""
-"The abstract deadline of the trip (if present) must occur before the start "
+"The abstract submission deadline (if present) must occur before the start "
 "date."
 msgstr ""
 "La date limite pour soumission des résumés (si présent) doit avoir lieu "
 "avant la date de début."
 
 #: .\travel\forms.py:532
+#, fuzzy
+#| msgid ""
+#| "The registration deadline of the trip (if present) must occur before or "
+#| "on the start date."
 msgid ""
-"The registration deadline of the trip (if present) must occur before or on "
-"the start date."
+"The registration deadline (if present) must occur before or on the start "
+"date of the trip."
 msgstr ""
 "La date limite d'inscription (si elle existe) doit avoir lieu avant ou à la "
 "date de début du voyage."
 
 #: .\travel\forms.py:548
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:9
-#: .\travel\templates\travel\index.html:133
+#: .\travel\templates\travel\index.html:131
 msgid "Traveller"
 msgstr "Voyageur"
 
@@ -184,8 +192,8 @@ msgstr ""
 "Désolé, l'ordre d'un examinateur dont le statut est fixé à {mon_objet."
 "status} ne peut être modifié"
 
-#: .\travel\models.py:33 .\travel\models.py:508 .\travel\models.py:998
-#: .\travel\models.py:1052
+#: .\travel\models.py:33 .\travel\models.py:509 .\travel\models.py:1005
+#: .\travel\models.py:1060
 msgid "DM Apps user"
 msgstr "Utilisateur de DM Apps"
 
@@ -281,7 +289,7 @@ msgstr "date limite d'inscription"
 msgid "general notes"
 msgstr "notes générales"
 
-#: .\travel\models.py:165 .\travel\models.py:502
+#: .\travel\models.py:165 .\travel\models.py:503
 msgid "fiscal year"
 msgstr "exercice fiscal"
 
@@ -297,7 +305,7 @@ msgstr "vérifié par"
 msgid "trip status"
 msgstr "statut du voyage"
 
-#: .\travel\models.py:174 .\travel\models.py:570
+#: .\travel\models.py:174 .\travel\models.py:572
 msgid "Administrative notes"
 msgstr "Notes administratives"
 
@@ -325,151 +333,179 @@ msgstr "Date d'admissibilité à l'examen du bureau du SMA"
 msgid "to"
 msgstr "à"
 
-#: .\travel\models.py:305
+#: .\travel\models.py:278 .\travel\models.py:534
+msgid "trip"
+msgstr "voyage"
+
+#. Translators: This is for a header
+#: .\travel\models.py:280
+#, fuzzy
+#| msgid "trip"
+msgid "trips"
+msgstr "voyage"
+
+#: .\travel\models.py:306
 msgid "not a DM Apps user"
 msgstr "pas un utilisateur de DM Apps"
 
-#: .\travel\models.py:491 .\travel\models.py:856 .\travel\models.py:862
+#: .\travel\models.py:492 .\travel\models.py:859 .\travel\models.py:865
 msgid "by"
 msgstr "par"
 
-#: .\travel\models.py:510
+#: .\travel\models.py:511
 msgid "Is the traveller a public servant?"
 msgstr "Le voyageur est-il un fonctionnaire ?"
 
-#: .\travel\models.py:512
+#: .\travel\models.py:513
 msgid "Traveller belongs to which DFO region"
 msgstr "Le voyageur appartient à quelle région du MPO"
 
-#: .\travel\models.py:516
+#: .\travel\models.py:517
 msgid "under which section is this request being made"
 msgstr "sous quelle section du MPO cette demande est faite"
 
-#: .\travel\models.py:519
+#: .\travel\models.py:520
 msgid "Is the traveller a research scientist (RES)?"
 msgstr "Le voyageur est-il un chercheur(se) scientifique (RES) ?"
 
-#: .\travel\models.py:520
+#: .\travel\models.py:521
 msgid "first name"
 msgstr "prénom"
 
-#: .\travel\models.py:521
+#: .\travel\models.py:522
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\travel\models.py:522
+#: .\travel\models.py:523
 msgid "address"
 msgstr "adresse"
 
-#: .\travel\models.py:524
+#: .\travel\models.py:525
 msgid "phone"
 msgstr "téléphone"
 
-#: .\travel\models.py:525
+#: .\travel\models.py:526
 msgid "email"
 msgstr "courriel"
 
-#: .\travel\models.py:526
+#: .\travel\models.py:527
 msgid "company name"
 msgstr "nom de l'entreprise"
 
-#: .\travel\models.py:531
+#: .\travel\models.py:532
 msgid "Is this a group request (i.e., a request for multiple individuals)?"
 msgstr ""
 "S'agit-il d'une demande de groupe (c'est-à-dire une demande pour plusieurs "
 "personnes) ?"
 
-#: .\travel\models.py:533
-msgid "trip"
-msgstr "voyage"
-
-#: .\travel\models.py:537
+#: .\travel\models.py:538
 msgid "departure location (city, province, country)"
 msgstr "le lieu de départ (ville, province, pays)"
 
-#: .\travel\models.py:539
+#: .\travel\models.py:540
 msgid "destination location (city, province, country)"
 msgstr "le lieu de destination (ville, province, pays)"
 
-#: .\travel\models.py:542
+#: .\travel\models.py:543
 msgid "start date of travel"
 msgstr "date de début du voyage"
 
-#: .\travel\models.py:543
+#: .\travel\models.py:544
 msgid "end date of travel"
 msgstr "la date de fin du voyage"
 
-#: .\travel\models.py:545
+#: .\travel\models.py:546
 msgid "role of traveller"
 msgstr "rôle du voyageur"
 
-#: .\travel\models.py:548
+#: .\travel\models.py:549
 msgid "role description"
 msgstr "description du rôle"
 
-#: .\travel\models.py:549
-msgid "Is this request included on your learning plan?"
+#: .\travel\models.py:550
+#, fuzzy
+#| msgid "Is this request included on your learning plan?"
+msgid "is this request included on your learning plan?"
 msgstr "Cette demande est-elle incluse dans votre plan d'apprentissage ?"
 
-#: .\travel\models.py:550
-msgid "objective of this meeting or conference"
+#: .\travel\models.py:551
+#, fuzzy
+#| msgid "objective of this meeting or conference"
+msgid "what is the objective of this meeting or conference?"
 msgstr "Quel est l'objectif de cette réunion ou conférence"
 
-#: .\travel\models.py:551
-msgid "benefit to DFO"
+#: .\travel\models.py:552
+#, fuzzy
+#| msgid "benefit to DFO"
+msgid "what are the benefits to DFO?"
 msgstr "Les avantages pour le MPO"
 
-#: .\travel\models.py:552
-msgid "Other attendees covered under BTA"
+#: .\travel\models.py:553
+#, fuzzy
+#| msgid "Other attendees covered under BTA"
+msgid "other attendees covered under BTA"
 msgstr "Autres participants couverts par un AGV"
 
-#: .\travel\models.py:555
-msgid "Justification for late submissions"
+#: .\travel\models.py:556
+#, fuzzy
+#| msgid "Justification for late submissions"
+msgid "justification for late submissions"
 msgstr "Justification des soumissions tardives"
 
-#: .\travel\models.py:556
-msgid "funding source"
+#: .\travel\models.py:557
+#, fuzzy
+#| msgid "funding source"
+msgid "what is the funding source?"
 msgstr "Quel est la source de financement?"
 
-#: .\travel\models.py:557
+#: .\travel\models.py:558
 msgid "optional notes"
 msgstr "Notes optionnelles"
 
-#: .\travel\models.py:559
-msgid "Amount of non-DFO funding (CAD)"
+#: .\travel\models.py:560
+#, fuzzy
+#| msgid "Amount of non-DFO funding (CAD)"
+msgid "amount of non-DFO funding (CAD)"
 msgstr "Montant du financement non-MPO (CAD)"
 
-#: .\travel\models.py:561
-msgid "full name(s) of organization providing non-DFO funding"
+#: .\travel\models.py:562
+#, fuzzy
+#| msgid "full name(s) of organization providing non-DFO funding"
+msgid ""
+"give the full name(s) of the of the organization(s) providing non-DFO funding"
 msgstr ""
 "Donnez le(s) nom(s) complet(s) de l'organisation qui fournit un financement "
 "autre que celui du MPO"
 
-#: .\travel\models.py:564
+#: .\travel\models.py:566
 msgid "date submitted"
 msgstr "date de soumission"
 
-#: .\travel\models.py:565
+#: .\travel\models.py:567
 msgid "original submission date"
 msgstr "date de soumission initiale"
 
-#: .\travel\models.py:567
+#: .\travel\models.py:569
 msgid "trip request status"
 msgstr "statut de la demande"
 
-#: .\travel\models.py:572
+#: .\travel\models.py:574
 msgid "Exclude this traveller from the travel plan?"
 msgstr "Exclure ce voyageur du plan de voyage ?"
 
-#: .\travel\models.py:576
+#: .\travel\models.py:578
 msgid "created by"
 msgstr "créé par"
 
-#: .\travel\models.py:603
+#: .\travel\models.py:605
 msgid "Group Request"
 msgstr "Demande de groupe"
 
-#: .\travel\models.py:682
+#: .\travel\models.py:624 .\travel\models.py:971
+msgid "trip request"
+msgstr "demande de voyage"
+
+#: .\travel\models.py:685
 msgid ""
 "NOTE: This trip request contains non-DFO funding sources from {}. Total DFO "
 "funding: ${:,.2f} | Total non-DFO funding: ${:,.2f}"
@@ -478,106 +514,149 @@ msgstr ""
 "autres que le MPO de {}. Total du financement du MPO : ${ :,.2f} | Total des "
 "financements hors MPO : ${ :,.2f}"
 
-#: .\travel\models.py:738
+#: .\travel\models.py:741
 msgid "Cost category"
 msgstr "Catégorie de coût"
 
-#: .\travel\models.py:738
+#: .\travel\models.py:741
 msgid "Amount (CAD)"
 msgstr "Montant (CAD)"
 
-#: .\travel\models.py:752
+#: .\travel\models.py:755
 #: .\travel\templates\travel\_child_cost_breakdown.html:8
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:20
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:42
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: .\travel\models.py:885 .\travel\models.py:888
+#: .\travel\models.py:888 .\travel\models.py:891
 msgid "day"
 msgstr "jour"
 
-#: .\travel\models.py:902
+#. Translators: as in "company name is missing"
+#: .\travel\models.py:906
 msgid "Company: "
 msgstr "Nom de l'entreprise : "
 
-#: .\travel\models.py:904
+#: .\travel\models.py:906
+#, fuzzy
+#| msgid "company name"
+msgid "missing company name"
+msgstr "nom de l'entreprise"
+
+#. Translators: as in "address is missing"
+#: .\travel\models.py:908
 msgid "Address: "
 msgstr "Adresse : "
 
-#: .\travel\models.py:905
+#: .\travel\models.py:908
+#, fuzzy
+#| msgid "address"
+msgid "missing address"
+msgstr "adresse"
+
+#. Translators: as in "phone number is missing"
+#: .\travel\models.py:910
 msgid "Phone: "
 msgstr "Téléphone : "
 
-#: .\travel\models.py:906
+#: .\travel\models.py:910
+msgid "missing phone"
+msgstr ""
+
+#. Translators: as in "email is missing"
+#: .\travel\models.py:912
 msgid "Email: "
 msgstr "Courriel : "
 
-#: .\travel\models.py:965
-msgid "trip request"
-msgstr "demande de voyage"
+#: .\travel\models.py:913
+msgid "missing email address"
+msgstr ""
 
-#: .\travel\models.py:967
+#: .\travel\models.py:973
 msgid "cost"
 msgstr "coût"
 
-#: .\travel\models.py:968
+#: .\travel\models.py:974
 msgid "daily rate (CAD/day)"
 msgstr "taux journalier (CAD/jour)"
 
-#: .\travel\models.py:969
+#: .\travel\models.py:975
 msgid "number of days"
 msgstr "nombre de jours"
 
-#: .\travel\models.py:970
+#: .\travel\models.py:976
 msgid "amount (CAD)"
 msgstr "montant (CAD)"
 
-#: .\travel\models.py:996 .\travel\models.py:1050
+#: .\travel\models.py:983
+#, fuzzy
+#| msgid "trip request status"
+msgid "trip request cost"
+msgstr "statut de la demande"
+
+#: .\travel\models.py:1003 .\travel\models.py:1058
 msgid "process order"
 msgstr "ordre de traitement"
 
-#: .\travel\models.py:999 .\travel\models.py:1053
+#: .\travel\models.py:1006 .\travel\models.py:1061
 msgid "role"
 msgstr "rôle"
 
-#: .\travel\models.py:1001 .\travel\models.py:1055
+#: .\travel\models.py:1008 .\travel\models.py:1063
 msgid "review status"
 msgstr "statut de révision"
 
-#: .\travel\models.py:1002 .\travel\models.py:1056
+#: .\travel\models.py:1009 .\travel\models.py:1064
 msgid "status date"
 msgstr "date du statut"
 
-#: .\travel\models.py:1003 .\travel\models.py:1057
+#: .\travel\models.py:1010 .\travel\models.py:1065 .\travel\views.py:374
 msgid "Comments"
 msgstr "Commentaires"
 
-#: .\travel\models.py:1006 .\travel\templates\travel\index.html:139
+#: .\travel\models.py:1013 .\travel\templates\travel\index.html:137
 msgid "Reviewer"
 msgstr "Examinateur"
 
-#: .\travel\models.py:1036 .\travel\models.py:1080
+#: .\travel\models.py:1018
+#, fuzzy
+#| msgid "Reviewer"
+msgid "reviewer"
+msgstr "Examinateur"
+
+#: .\travel\models.py:1044 .\travel\models.py:1089
 msgid "on"
 msgstr "sur"
 
-#: .\travel\models.py:1106
+#: .\travel\models.py:1070
+#, fuzzy
+#| msgid "Reviewer"
+msgid "trip reviewer"
+msgstr "Examinateur"
+
+#: .\travel\models.py:1115
 msgid "caption"
 msgstr "légende"
 
-#: .\travel\models.py:1107
+#: .\travel\models.py:1116
 msgid "file attachment"
 msgstr "pièce jointe"
 
-#: .\travel\models.py:1119
+#. Translators: This is a 'file' as in something you attach to an email
+#: .\travel\models.py:1122
+msgid "file"
+msgstr ""
+
+#: .\travel\models.py:1130
 msgid "English text"
 msgstr "Texte en anglais"
 
-#: .\travel\models.py:1120
+#: .\travel\models.py:1131
 msgid "French text"
 msgstr "Texte en français"
 
-#: .\travel\models.py:1124 .\travel\models.py:1125
+#: .\travel\models.py:1135 .\travel\models.py:1136
 msgid "eng_text"
 msgstr "ang_text"
 
@@ -746,12 +825,19 @@ msgid "Submission Deadlines"
 msgstr "Dates limites de soumission"
 
 #: .\travel\templates\travel\_process_timeline.html:17
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                        Travel requests can be submitted up to <b>180 "
+#| "days in advance of any potential trip</b>, regardless of the purpose\n"
+#| "                        and across fiscal years.\n"
+#| "                    "
 msgid ""
 "\n"
-"                        Travel requests can be submitted up to <b>180 days "
-"in advance of any potential trip</b>, regardless of the purpose\n"
-"                        and across fiscal years.\n"
-"                    "
+"            Travel requests can be submitted up to <b>180 days in advance of "
+"any potential trip</b>, regardless of the purpose\n"
+"            and across fiscal years.\n"
+"          "
 msgstr ""
 "\n"
 "                        Les demandes de voyage peuvent être soumises jusqu'à "
@@ -762,32 +848,36 @@ msgstr ""
 #: .\travel\templates\travel\_process_timeline.html:23
 msgid ""
 "\n"
-"                        Requests to participate in <b>conferences</b> must "
-"be submitted at least <b>90 days before</b> the registration or\n"
-"                        abstract deadline (whichever is earlier). No "
-"requests will be accepted after the review process has started.\n"
-"                    "
+"            Requests to participate in a <b>conference</b> should be "
+"submitted to NCR via the Conference and Travel Management System at least "
+"<b>60\n"
+"            calendar days</b> before the registration deadline of the "
+"conference or the abstract submission deadline, whichever is earlier. If\n"
+"            there is no abstract or registration deadline specified, the "
+"request should be submitted to NCR 60 calendar days prior to the\n"
+"            start date of the conference. Late requests will only be "
+"considered in very exceptional circumstances.\n"
+"          "
 msgstr ""
-"\n"
-"                        Les demandes de participation aux <b>conférences</b> "
-"doivent être soumises au moins <b>60 jours civil avant</b> la date limite de "
-"dépôt des résumés ou d'inscription\n"
-"                        (selon la première éventualité). Si aucune date "
-"limite de dépôt de résumé ou d’inscription n’est précisée, la demande doit "
-"être soumise 60 jours civils avant la date de début de la conférence. Les "
-"demandes tardives ne seront prise en considération que dans des cas très "
-"exceptionnels.\n"
-"                    "
 
-#: .\travel\templates\travel\_process_timeline.html:29
+#: .\travel\templates\travel\_process_timeline.html:31
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                        Requests for <b> all other types </b> of travel "
+#| "(i.e. not related to a conference) must be submitted at least\n"
+#| "                        <b>60 days prior </b> to the date of travel. Late "
+#| "requests will only be considered in very exceptional\n"
+#| "                        circumstances.\n"
+#| "                    "
 msgid ""
 "\n"
-"                        Requests for <b> all other types </b> of travel (i."
-"e. not related to a conference) must be submitted at least\n"
-"                        <b>60 days prior </b> to the date of travel. Late "
-"requests will only be considered in very exceptional\n"
-"                        circumstances.\n"
-"                    "
+"            Requests for <b> all other types </b> of travel (i.e. not "
+"related to a conference) must be submitted at least\n"
+"            <b>60 days prior </b> to the date of travel. Late requests will "
+"only be considered in very exceptional\n"
+"            circumstances.\n"
+"          "
 msgstr ""
 "\n"
 "                        Les demandes pour <b> tous les autres types </b> de "
@@ -798,21 +888,33 @@ msgstr ""
 "exceptionnels.\n"
 "                    "
 
-#: .\travel\templates\travel\_process_timeline.html:40
+#: .\travel\templates\travel\_process_timeline.html:42
 msgid "Service Standards"
 msgstr "Normes de service"
 
-#: .\travel\templates\travel\_process_timeline.html:44
+#: .\travel\templates\travel\_process_timeline.html:46
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                    All decisions regarding travel will be communicated "
+#| "at least 14 days before:\n"
+#| "                    The trip start date (for training, field work, or "
+#| "operational trips)\n"
+#| "                    <b>OR</b>\n"
+#| "                    The conference abstract or registration deadline – "
+#| "whichever is earliest\n"
+#| "                "
 msgid ""
 "\n"
-"                    All decisions regarding travel will be communicated at "
-"least 14 days before:\n"
-"                    The trip start date (for training, field work, or "
-"operational trips)\n"
-"                    <b>OR</b>\n"
-"                    The conference abstract or registration deadline – "
-"whichever is earliest\n"
-"                "
+"          All decisions regarding requests will be communicated at least 14 "
+"calendar days before:\n"
+"          <br><br>\n"
+"          The trip departure date (for training, field work, or operational "
+"trips)\n"
+"          <b>OR</b>\n"
+"          the trip departure date or the conference abstract or registration "
+"deadline - whichever is earliest\n"
+"        "
 msgstr ""
 "\n"
 "                    Toutes les décisions concernant le voyage seront "
@@ -977,8 +1079,6 @@ msgstr ""
 "l'ordre de traitement"
 
 #: .\travel\templates\travel\_trip_request_form_layout.html:53
-#, fuzzy
-#| msgid "Add a New Trip"
 msgid "add a new trip"
 msgstr "Ajouter un nouveau voyage"
 
@@ -1231,11 +1331,17 @@ msgid "\"Get Your Pre-approval to Travel Today!!\""
 msgstr "\"Obtenez votre pré-autorisation pour voyager aujourd'hui !!\""
 
 #: .\travel\templates\travel\index.html:91
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                    This application process supersedes existing "
+#| "mechanisms for requesting travel requiring RDG or EOS ADM approval.\n"
+#| "                "
 msgid ""
 "\n"
-"                    This application process supersedes existing mechanisms "
-"for requesting travel requiring RDG or EOS ADM approval.\n"
-"                "
+"          This application process supersedes existing mechanisms for "
+"requesting travel requiring RDG or EOS ADM approval.\n"
+"        "
 msgstr ""
 "\n"
 "                    Ce processus de demande remplace les mécanismes "
@@ -1244,16 +1350,26 @@ msgstr ""
 "                "
 
 #: .\travel\templates\travel\index.html:96
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                    A travel request can have multiple travellers from "
+#| "various sectors (e.g., public, academic, private), however, only a\n"
+#| "                    Fisheries and Oceans employee with a valid Government "
+#| "of Canada email address can initiate and submit a travel request.\n"
+#| "                    In\n"
+#| "                    addition, the travel request should already have "
+#| "confirmed or anticipated funding available to support the travel.\n"
+#| "                "
 msgid ""
 "\n"
-"                    A travel request can have multiple travellers from "
-"various sectors (e.g., public, academic, private), however, only a\n"
-"                    Fisheries and Oceans employee with a valid Government of "
-"Canada email address can initiate and submit a travel request.\n"
-"                    In\n"
-"                    addition, the travel request should already have "
-"confirmed or anticipated funding available to support the travel.\n"
-"                "
+"          A travel request can have multiple travellers from various sectors "
+"(e.g., public, academic, private), however, only a\n"
+"          Fisheries and Oceans employee with a valid Government of Canada "
+"email address can initiate and submit a travel request.\n"
+"          In addition, the request should already have confirmed or "
+"anticipated funding available to support the travel.\n"
+"        "
 msgstr ""
 "\n"
 "                    Une demande de voyage peut avoir plusieurs voyageurs de "
@@ -1265,16 +1381,26 @@ msgstr ""
 "anticipé les fonds disponibles pour financer le voyage.\n"
 "                "
 
-#: .\travel\templates\travel\index.html:104
+#: .\travel\templates\travel\index.html:103
+#, fuzzy
+#| msgid ""
+#| "\n"
+#| "                    Please ensure your travel request is properly "
+#| "completed and submitted on time to allow for efficient and appropriate\n"
+#| "                    review. Incomplete applications will not be "
+#| "evaluated. You can check the status of your travel request by going to "
+#| "the\n"
+#| "                    home page\n"
+#| "                    and selecting “view your request”.\n"
+#| "                "
 msgid ""
 "\n"
-"                    Please ensure your travel request is properly completed "
-"and submitted on time to allow for efficient and appropriate\n"
-"                    review. Incomplete applications will not be evaluated. "
-"You can check the status of your travel request by going to the\n"
-"                    home page\n"
-"                    and selecting “view your request”.\n"
-"                "
+"          Please ensure your request is properly completed and submitted on "
+"time to allow for efficient and appropriate\n"
+"          review. Incomplete requests will not be evaluated. You can check "
+"the status of your request by going to the\n"
+"          home page and selecting “view your request”.\n"
+"        "
 msgstr ""
 "\n"
 "                    Veuillez vous assurer que votre demande est correctement "
@@ -1287,65 +1413,69 @@ msgstr ""
 "                    et en sélectionnant \"Voir votre demande\".\n"
 "                "
 
-#: .\travel\templates\travel\index.html:178
+#: .\travel\templates\travel\index.html:176
 msgid "Create a New Request"
 msgstr "Créer une nouvelle demande"
 
-#: .\travel\templates\travel\index.html:184
+#: .\travel\templates\travel\index.html:182
 msgid "View Your Requests"
 msgstr "Voir vos demandes"
 
-#: .\travel\templates\travel\index.html:191
+#: .\travel\templates\travel\index.html:189
 msgid "Browse Upcoming Trips"
 msgstr "Parcourir les voyages à venir"
 
-#: .\travel\templates\travel\index.html:200
+#: .\travel\templates\travel\index.html:198
 msgid "There are trip requests requiring your attention!"
 msgstr "Il y a des demandes de voyage qui requièrent votre attention !"
 
-#: .\travel\templates\travel\index.html:224
+#: .\travel\templates\travel\index.html:222
 msgid "Your Reviews"
 msgstr "Vos évaluations"
 
-#: .\travel\templates\travel\index.html:225
+#: .\travel\templates\travel\index.html:223
 msgid "View and manage trips and/or trip requests for which you are a reviewer"
 msgstr ""
 "Affichez et gérez les demandes de voyage pour lesquelles vous êtes des "
 "réviseurs"
 
-#: .\travel\templates\travel\index.html:231
+#: .\travel\templates\travel\index.html:229
 msgid "Trips Awaiting Review"
 msgstr "Voyages en attente d'un examen"
 
-#: .\travel\templates\travel\index.html:241
+#: .\travel\templates\travel\index.html:239
 msgid "Requests Awaiting Review"
 msgstr "Demandes en cours de traitement"
 
-#: .\travel\templates\travel\index.html:257
-#, python-format
+#: .\travel\templates\travel\index.html:255
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                        Adding New Cost\n"
+#| "                    "
 msgid ""
 "\n"
-"                                                %(r)s Region - Admin\n"
-"                                            "
+"                        %(r)s Region - Admin\n"
+"                      "
 msgstr ""
 "\n"
-"                                                %(r)s Région - Admin\n"
-"␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
+"                    Ajouter un nouveau coût\n"
+"                "
 
-#: .\travel\templates\travel\index.html:264
+#: .\travel\templates\travel\index.html:262
 msgid "Perform tasks reserved for travel app administrators"
 msgstr ""
 "Effectuer des tâches réservées aux administrateurs d'applications de voyage"
 
-#: .\travel\templates\travel\index.html:269
+#: .\travel\templates\travel\index.html:267
 msgid "Requests Awaiting ADM"
 msgstr "Demandes en cours de traitement par la SMA"
 
-#: .\travel\templates\travel\index.html:279
+#: .\travel\templates\travel\index.html:277
 msgid "Requests Awaiting RDG"
 msgstr "Demandes en cours de traitement par le DGR"
 
-#: .\travel\templates\travel\index.html:289
+#: .\travel\templates\travel\index.html:287
 msgid "Trip Verifications"
 msgstr "Vérifications de voyage"
 
@@ -1439,6 +1569,30 @@ msgstr ""
 "\n"
 "                    Ajouter un nouveau coût\n"
 "                "
+
+#: .\travel\templates\travel\tr_cost_form_popout.html:30
+#, fuzzy
+#| msgid "Please select the report"
+msgid "Please select a cost:"
+msgstr "Veuillez sélectionner le rapport"
+
+#: .\travel\templates\travel\tr_cost_form_popout.html:32
+#, fuzzy
+#| msgid "Do you want to reset the reviewer list?"
+msgid "Do you want to enter cost by rate or total amount?"
+msgstr "Voulez-vous réinitialiser la liste des examinateurs?"
+
+#: .\travel\templates\travel\tr_cost_form_popout.html:34
+#, fuzzy
+#| msgid "Total cost"
+msgid "By Total Amount"
+msgstr "Coût total"
+
+#: .\travel\templates\travel\tr_cost_form_popout.html:35
+#, fuzzy
+#| msgid "dates"
+msgid "By Rates"
+msgstr "dates"
 
 #: .\travel\templates\travel\tr_cost_form_popout.html:41
 msgid ""
@@ -1594,8 +1748,6 @@ msgstr ""
 "chevauchement des voyageurs et/ou des propriétaires de la demande : "
 
 #: .\travel\templates\travel\trip_request_detail.html:18
-#, fuzzy
-#| msgid "The trip associated with this trip request has been cancelled."
 msgid "The trip associated with this request has been cancelled."
 msgstr "Le voyage associé à cette demande a été annulé."
 
@@ -1900,11 +2052,12 @@ msgstr "Statut de la demande"
 msgid "Departure location / Destination"
 msgstr "Lieu de départ / Destination"
 
+#. Translators: as in "Research Scientist?"
 #: .\travel\views.py:294 .\travel\views.py:359
 msgid "Travel dates"
 msgstr "Dates de voyage"
 
-#: .\travel\views.py:298
+#: .\travel\views.py:298 .\travel\views.py:324
 msgid "Role of participant"
 msgstr "Rôle du participant"
 
@@ -1947,6 +2100,18 @@ msgstr "Coût total"
 #: .\travel\views.py:365
 msgid "non-DFO funding"
 msgstr "financement non-MPO"
+
+#: .\travel\views.py:394
+#, fuzzy
+#| msgid "Total travellers (excluding BTA)"
+msgid "Total DFO cost (excluding BTA)"
+msgstr "Nombre total de voyageurs (excluant les AGV)"
+
+#: .\travel\views.py:395
+#, fuzzy
+#| msgid "Total travellers (excluding BTA)"
+msgid "Total DFO cost from non-RES travellers (excluding BTA)"
+msgstr "Nombre total de voyageurs (excluant les AGV)"
 
 #: .\travel\views.py:419 .\travel\views.py:467 .\travel\views.py:525
 #: .\travel\views.py:699 .\travel\views.py:871 .\travel\views.py:965
@@ -2347,6 +2512,34 @@ msgstr "Le coût a été supprimé avec succès."
 #: .\travel\views.py:2788
 msgid "All empty costs have been cleared."
 msgstr "Tous les frais vides ont été supprimés."
+
+#~ msgid ""
+#~ "\n"
+#~ "                        Requests to participate in <b>conferences</b> "
+#~ "must be submitted at least <b>90 days before</b> the registration or\n"
+#~ "                        abstract deadline (whichever is earlier). No "
+#~ "requests will be accepted after the review process has started.\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Les demandes de participation aux <b>conférences</"
+#~ "b> doivent être soumises au moins <b>60 jours civil avant</b> la date "
+#~ "limite de dépôt des résumés ou d'inscription\n"
+#~ "                        (selon la première éventualité). Si aucune date "
+#~ "limite de dépôt de résumé ou d’inscription n’est précisée, la demande "
+#~ "doit être soumise 60 jours civils avant la date de début de la "
+#~ "conférence. Les demandes tardives ne seront prise en considération que "
+#~ "dans des cas très exceptionnels.\n"
+#~ "                    "
+
+#~ msgid ""
+#~ "\n"
+#~ "                                                %(r)s Region - Admin\n"
+#~ "                                            "
+#~ msgstr ""
+#~ "\n"
+#~ "                                                %(r)s Région - Admin\n"
+#~ "␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣␣"
 
 #~ msgid "This trip is closed to additional requests."
 #~ msgstr "Ce voyage est fermé aux demandes supplémentaires."
