@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import Group
 from django.test import tag
 from django.urls import reverse_lazy
@@ -517,6 +519,32 @@ class TestTripRequestSubmitUpdateView(CommonTest):
         self.assertIsNone(self.instance.submitted)
         self.assertIsNotNone(self.instance.original_submission_date)
 
+        # test that you when submitting to a trip that is passed the submission deadline, the NCR Travel coordinator
+        # should be the first reviewer on the request
+
+        ## create the ncr travel coordinator
+        ncr_user = self.get_and_login_user(in_group="travel_adm_admin")
+        ncr_coordinator = models.DefaultReviewer.objects.create(user=ncr_user)
+        ncr_coordinator.reviewer_roles.add(3)
+
+        ## configure trip to be past eligibility deadline
+        my_trip = self.instance.trip
+        my_trip.is_adm_approval_required = True
+        my_trip.date_eligible_for_adm_review = timezone.now() - timedelta(days=2)
+        my_trip.save()
+        self.instance = models.TripRequest.objects.get(pk=self.instance.pk)
+
+        ## make sure the TR is considered as late
+        self.assertTrue(self.instance.is_late_request)
+
+        ## submit the form
+        self.assert_success_url(self.test_url, user=self.user)
+        self.instance = models.TripRequest.objects.get(pk=self.instance.pk)
+
+        ## ensure that it is still labelled at late
+        self.assertTrue(self.instance.is_late_request)
+        print(self.instance.reviewers.first())
+        self.assertEqual(self.instance.reviewers.first().user, ncr_user)
 
 
 class TestTripRequestUpdateView(CommonTest):
@@ -558,7 +586,9 @@ class TestTripRequestUpdateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.instance.user)
         data = FactoryFloor.ChildTripRequestFactory.get_valid_data()
         self.assert_success_url(self.test_url1, data=data, user=self.instance_child.user)
-
+        # TODO:
+        # test that you when submitting to a trip that is passed the submission deadline, a late justification is required
+        # also one this is submitted, the NCR Travel coordinator should be the first reviewer on the request
 
 class TestTripReviewerUpdateView(CommonTest):
     def setUp(self):

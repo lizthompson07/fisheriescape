@@ -297,7 +297,10 @@ class CommonTest(TestCase):
             form = Form(data=data, instance=instance)
         else:
             form = Form(data=data)
-        self.assertTrue(form.is_valid())
+        self.assertTrue(form.is_valid(),
+                        msg=f"Test data was likely invalid. /nHere's the error log from the form: {form.errors}/n"
+                            f"Here's the data from the form:{form.data}")
+
 
     def assert_form_invalid(self, Form, data, instance=None):
         """
