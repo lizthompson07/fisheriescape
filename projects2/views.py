@@ -291,6 +291,9 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["agreement_form"] = forms.AgreementForm
         context["random_agreement"] = models.CollaborativeAgreement.objects.first()
 
+        context["status_report_form"] = forms.StatusReportForm
+        context["random_status_report"] = models.StatusReport.objects.first()
+
         context["file_form"] = forms.FileForm
         context["random_file"] = models.File.objects.first()
 

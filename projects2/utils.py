@@ -543,6 +543,19 @@ def get_agreement_field_list():
     ]
     return my_list
 
+def get_status_report_field_list():
+    my_list = [
+        'report_number|{}'.format("number"),
+        'status',
+        'major_accomplishments',
+        'major_issues',
+        'target_completion_date',
+        'general_comment',
+        'supporting_resources|{}'.format(_("supporting resources")),
+        'section_head_reviewed',
+    ]
+    return my_list
+
 
 def get_file_field_list():
     my_list = [

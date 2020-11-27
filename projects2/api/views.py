@@ -407,6 +407,30 @@ class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
+
+
+# AGREEMENTS
+##############
+class StatusReportListCreateAPIView(ListCreateAPIView):
+    queryset = models.StatusReport.objects.all()
+    serializer_class = serializers.StatusReportSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        return year.reports.all()
+
+    def perform_create(self, serializer):
+        serializer.save(project_year_id=self.kwargs.get("project_year"))
+
+
+class StatusReportRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.StatusReport.objects.all()
+    serializer_class = serializers.StatusReportSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+
+
 # FILES / Supporting Resources
 ##############
 class FileListCreateAPIView(ListCreateAPIView):

@@ -337,6 +337,36 @@ class AgreementSerializer(serializers.ModelSerializer):
         return instance.project_year_id
 
 
+class StatusReportSerializer(serializers.ModelSerializer):
+    target_completion_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
+
+    class Meta:
+        model = models.StatusReport
+        exclude = ["project_year"]
+
+    project_year_id = serializers.SerializerMethodField()
+    target_completion_date_display = serializers.SerializerMethodField()
+    report_number = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    supporting_resources = serializers.SerializerMethodField()
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id
+
+    def get_target_completion_date_display(self, instance):
+        if instance.target_completion_date:
+            return instance.target_completion_date.strftime("%Y-%m-%d")
+
+    def get_report_number(self, instance):
+        return instance.report_number
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_supporting_resources(self, instance):
+        return instance.files.count()
+
+
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.File

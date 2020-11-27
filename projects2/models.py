@@ -638,22 +638,22 @@ class StatusReport(models.Model):
         (6, _("Aborted / cancelled")),
     )
     project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE)
-    status = models.IntegerField(default=1, editable=False, choices=status_choices)
+    status = models.IntegerField(default=1, editable=True, choices=status_choices)
     major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_(
-        "major accomplishments (this can be left blank if reported at the milestone level)"))
+        "major accomplishments"))
     major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
     target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
     rationale_for_modified_completion_date = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for a modified completion date"))
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
-    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"))
+    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"), choices=YES_NO_CHOICES)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_status_report", blank=True,
-                                    null=True)
+                                    null=True, editable=False)
 
     @property
     def metadata(self):
@@ -667,7 +667,7 @@ class StatusReport(models.Model):
 
     @property
     def report_number(self):
-        return [report for report in self.project_year.reports.order_by("created_at")].index(self) + 1
+        return [report for report in self.project_year.reports.all().order_by("created_at")].index(self) + 1
 
     def __str__(self):
         # what is the number of this report?
