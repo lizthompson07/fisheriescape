@@ -122,6 +122,18 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     it_needs_html = serializers.SerializerMethodField()
     default_funding_source_id = serializers.SerializerMethodField()
     formatted_status = serializers.SerializerMethodField()
+    allocated_budget = serializers.SerializerMethodField()
+    review_score_percentage = serializers.SerializerMethodField()
+    review_score_fraction = serializers.SerializerMethodField()
+
+    def get_review_score_percentage(self, instance):
+        return instance.review_score_percentage
+
+    def get_review_score_fraction(self, instance):
+        return instance.review_score_fraction
+
+    def get_allocated_budget(self, instance):
+        return instance.allocated_budget
 
     def get_display_name(self, instance):
         return str(instance.fiscal_year)
@@ -195,11 +207,7 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 class StaffSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Staff
-        exclude = ["project_year"]
-
-    # employee_type = serializers.StringRelatedField()
-    # level = serializers.StringRelatedField()
-    # funding_source = serializers.StringRelatedField()
+        fields = "__all__"
 
     smart_name = serializers.SerializerMethodField()
     employee_type_display = serializers.SerializerMethodField()
@@ -207,6 +215,7 @@ class StaffSerializer(serializers.ModelSerializer):
     funding_source_display = serializers.SerializerMethodField()
     student_program_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
+    project_year = ProjectYearSerializer(read_only=True)
 
     def get_smart_name(self, instance):
         return instance.smart_name
@@ -414,3 +423,8 @@ class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = shared_models.Section
         fields = "__all__"
+
+    full_name = serializers.SerializerMethodField()
+
+    def get_full_name(self, instance):
+        return instance.full_name

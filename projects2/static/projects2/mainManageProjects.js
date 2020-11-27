@@ -7,7 +7,7 @@ var app = new Vue({
     hover: false,
 
     errorNoFiscalYear: false,
-    errorTooBig: false,
+
 
     showProjectList: true,
     showStaffList: false,
@@ -18,7 +18,11 @@ var app = new Vue({
 
     projects_loading: true,
     staff_loading: true,
+    errorTooBigStaff: false,
+    errorTooSmallStaff: false,
     financial_loading: true,
+    errorTooBigFinancial: false,
+    errorTooSmallFinancial: false,
     projectYears: [],
     staff: [],
     financials: [],
@@ -39,6 +43,11 @@ var app = new Vue({
     filter_region: "",
     filter_division: "",
     filter_status: "",
+
+    showColumnAllocation: true,
+    showColumnLeads: true,
+    showColumnHidden: true,
+    showColumnScore: true,
 
     fiscalYears: [],
     tags: [],
@@ -133,24 +142,26 @@ var app = new Vue({
 
     getStaff() {
       this.staff_loading = true;
-      this.errorTooBig = false
+      this.errorTooBigStaff = false
+      this.errorTooSmallStaff = false
       this.errorNoFiscalYear = false
-
       if (!this.filter_fiscal_year) {
         this.staff_loading = false;
         this.errorNoFiscalYear = true;
-      } else if (!this.projectYears.length || this.count > 150) {
+      } else if (!this.projectYears.length) {
         this.staff_loading = false;
-        this.errorTooBig = true;
+        this.errorTooSmallStaff = true;
+      } else if (this.count > 150) {
+        this.staff_loading = false;
+        this.errorTooBigStaff = true;
       } else {
         // first get the full list of project years
         let endpoint1 = this.getProjectYearsEndpoint(pageSize = 150)
         apiService(endpoint1)
             .then(response => {
               if (response.results) {
-
                 if (response.next) {
-                  this.errorTooBig = true
+                  this.errorTooBigStaff = true
                 } else {
 
                   // need a list of projectYears
@@ -173,19 +184,24 @@ var app = new Vue({
     },
     getFinancials() {
       this.financial_loading = true;
-      this.errorTooBig = false
-      if (!this.projectYears.length || this.count > 500) {
+      this.errorTooBigFinancial = false
+      this.errorTooSmallFinancial = false
+
+      if (!this.projectYears.length) {
         this.financial_loading = false;
-        this.errorTooBig = true;
+        this.errorTooSmallFinancial = true;
+      } else if (this.count > 200) {
+        this.financial_loading = false;
+        this.errorTooBigFinancial = true;
       } else {
         // first get the full list of project years
-        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 500)
+        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 200)
         apiService(endpoint1)
             .then(response => {
               if (response.results) {
 
                 if (response.next) {
-                  this.errorTooBig = true
+                  this.errorTooBigFinancial = true
                 } else {
                   // need a list of projectYears
                   pyIds = []
@@ -262,15 +278,15 @@ var app = new Vue({
       this.getFilterData();
 
     },
-    openReviewModal(projectYear, which="review") {
+    openReviewModal(projectYear, which = "review") {
       this.projectYear2Review = projectYear;
       if (!this.projectYear2Review.review) {
         this.projectYear2Review.review = {}
       }
       this.showReviewModal = true;
-      if(which === "approval") {
-          this.approvalModal = true;
-          this.projectYear2Review.review.email_update = true
+      if (which === "approval") {
+        this.approvalModal = true;
+        this.projectYear2Review.review.email_update = true
       }
     },
 
@@ -287,7 +303,10 @@ var app = new Vue({
       this.approvalModal = false;
 
     },
-
+    toggleShowProjects(staff) {
+      staff.showRelatedProjects = !staff.showRelatedProjects
+      this.$forceUpdate()
+    },
   },
 
   filters: {

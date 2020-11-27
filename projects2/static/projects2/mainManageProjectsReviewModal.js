@@ -67,7 +67,28 @@ Vue.component("modal", {
   computed: {
     isOldReview() {
       return this.project_year.review && this.project_year.review.id
-    }
+    },
+    total_score() {
+      collaboration_score = 0
+      strategic_score = 0
+      operational_score = 0
+      ecological_score = 0
+      scale_score = 0
+      if (this.project_year.review.collaboration_score) collaboration_score = Number(this.project_year.review.collaboration_score)
+      if (this.project_year.review.strategic_score) strategic_score = Number(this.project_year.review.strategic_score)
+      if (this.project_year.review.operational_score) operational_score = Number(this.project_year.review.operational_score)
+      if (this.project_year.review.ecological_score) ecological_score = Number(this.project_year.review.ecological_score)
+      if (this.project_year.review.scale_score) scale_score = Number(this.project_year.review.scale_score)
+      return scale_score + ecological_score + operational_score + strategic_score + collaboration_score
+    },
+    total_score_percentage() {
+      value = this.total_score/15
+      if (!value) value = 0;
+      value = value * 100;
+      value = Math.round(value * Math.pow(10, 0)) / Math.pow(10, 0);
+      value = value + '%';
+      return value;
+    },
   },
   created() {
   },

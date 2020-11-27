@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-25 12:01-0400\n"
+"POT-Creation-Date: 2020-11-26 09:50-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,8 +13,8 @@ msgstr ""
 msgid "User"
 msgstr "Utilisateur"
 
-#: .\travel\filters.py:34 .\travel\models.py:106 .\travel\models.py:216
-#: .\travel\models.py:217 .\travel\models.py:370 .\travel\models.py:371
+#: .\travel\filters.py:34 .\travel\models.py:107 .\travel\models.py:217
+#: .\travel\models.py:218 .\travel\models.py:371 .\travel\models.py:372
 #: .\travel\utils.py:18
 msgid "name"
 msgstr "nom"
@@ -23,11 +23,11 @@ msgstr "nom"
 msgid "Trip title"
 msgstr "Titre du voyage"
 
-#: .\travel\filters.py:46 .\travel\filters.py:97 .\travel\forms.py:542
+#: .\travel\filters.py:46 .\travel\filters.py:97 .\travel\forms.py:544
 msgid "Fiscal year"
 msgstr "Exercice fiscal"
 
-#: .\travel\filters.py:47 .\travel\forms.py:546
+#: .\travel\filters.py:47 .\travel\forms.py:548
 #: .\travel\templates\travel\_trip_request_approvals.html:22
 msgid "Region"
 msgstr "Région"
@@ -57,29 +57,33 @@ msgstr "Approbation du SMA requis?"
 msgid "Name contains"
 msgstr "Le nom contient"
 
-#: .\travel\forms.py:18 .\travel\forms.py:23 .\travel\models.py:20
-#: .\travel\models.py:26 .\travel\templates\travel\reviewer_skip_form.html:40
+#: .\travel\forms.py:14 .\travel\forms.py:150 .\travel\forms.py:151
+msgid "Click to select a date.."
+msgstr "Cliquez pour sélectionner une date"
+
+#: .\travel\forms.py:20 .\travel\forms.py:25 .\travel\models.py:21
+#: .\travel\models.py:27 .\travel\templates\travel\reviewer_skip_form.html:40
 msgid "Yes"
 msgstr "Oui"
 
-#: .\travel\forms.py:19 .\travel\forms.py:24 .\travel\models.py:21
-#: .\travel\models.py:27
+#: .\travel\forms.py:21 .\travel\forms.py:26 .\travel\models.py:22
+#: .\travel\models.py:28
 msgid "No"
 msgstr "Non"
 
-#: .\travel\forms.py:40 .\travel\forms.py:57
+#: .\travel\forms.py:42 .\travel\forms.py:59
 msgid "Please provide your comments here..."
 msgstr "Veuillez fournir vos commentaires ici..."
 
-#: .\travel\forms.py:71
+#: .\travel\forms.py:73
 msgid "If so, please provide the rationale here..."
 msgstr "Si oui, veuillez en donner la raison ici..."
 
-#: .\travel\forms.py:103
+#: .\travel\forms.py:105
 msgid "Do you want to reset the reviewer list?"
 msgstr "Voulez-vous réinitialiser la liste des examinateurs?"
 
-#: .\travel\forms.py:118
+#: .\travel\forms.py:120
 msgid ""
 "Other attendees covered under BTA (i.e., they will not need to have a travel "
 "plan)"
@@ -87,7 +91,7 @@ msgstr ""
 "Autres participants couverts par la AGV (c'est-à-dire qu'ils n'auront pas "
 "besoin d'avoir un plan de voyage)"
 
-#: .\travel\forms.py:262 .\travel\templates\travel\trip_request_detail.html:28
+#: .\travel\forms.py:264 .\travel\templates\travel\trip_request_detail.html:28
 msgid ""
 "This trip is currently under review from NCR and is closed to additional "
 "requests."
@@ -95,7 +99,7 @@ msgstr ""
 "Ce voyage fait actuellement l'objet d'un examen de la part de la RCN et est "
 "fermé aux demandes supplémentaires."
 
-#: .\travel\forms.py:264 .\travel\templates\travel\trip_request_detail.html:30
+#: .\travel\forms.py:266 .\travel\templates\travel\trip_request_detail.html:30
 msgid ""
 "This trip has already been reviewed by NCR and is closed to additional "
 "requests."
@@ -103,20 +107,20 @@ msgstr ""
 "Ce voyage a déjà été examiné par la RCN et est fermé aux demandes "
 "supplémentaires."
 
-#: .\travel\forms.py:266 .\travel\templates\travel\trip_request_detail.html:32
+#: .\travel\forms.py:268 .\travel\templates\travel\trip_request_detail.html:32
 msgid "This trip is closed to additional requests."
 msgstr "Ce voyage est fermé aux demandes supplémentaires."
 
-#: .\travel\forms.py:274 .\travel\forms.py:277 .\travel\forms.py:457
-#: .\travel\forms.py:512 .\travel\forms.py:515
+#: .\travel\forms.py:276 .\travel\forms.py:279 .\travel\forms.py:459
+#: .\travel\forms.py:514 .\travel\forms.py:517
 msgid "The start date of the trip must occur before the end date."
 msgstr "La date de début du voyage doit être antérieure à la date de fin."
 
-#: .\travel\forms.py:279 .\travel\forms.py:461 .\travel\forms.py:517
+#: .\travel\forms.py:281 .\travel\forms.py:463 .\travel\forms.py:519
 msgid "The length of this trip is unrealistic."
 msgstr "La durée de ce voyage est irréaliste."
 
-#: .\travel\forms.py:288 .\travel\forms.py:469
+#: .\travel\forms.py:290 .\travel\forms.py:471
 msgid ""
 "The start date of this request ({request_start_date}) has to be within 10 "
 "days of the start date of the selected trip ({trip_start_date})!"
@@ -125,7 +129,7 @@ msgstr ""
 "les 10 jours suivant la date de début du voyage sélectionné "
 "({trip_start_date}) !"
 
-#: .\travel\forms.py:301 .\travel\forms.py:481
+#: .\travel\forms.py:303 .\travel\forms.py:483
 msgid ""
 "The end date of this request ({request_end_date}) must be within 10 days of "
 "the end date of the selected trip ({trip_end_date})!"
@@ -133,14 +137,14 @@ msgstr ""
 "La date de fin de cette demande ({request_end_date}) doit se situer dans les "
 "10 jours suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
 
-#: .\travel\forms.py:450
+#: .\travel\forms.py:452
 msgid ""
 "There is already a trip request in the system for this user and this trip."
 msgstr ""
 "Il existe déjà une demande de voyage dans le système pour cet utilisateur et "
 "ce voyage."
 
-#: .\travel\forms.py:523
+#: .\travel\forms.py:525
 msgid ""
 "The abstract deadline of the trip (if present) must occur before the start "
 "date."
@@ -148,7 +152,7 @@ msgstr ""
 "La date limite pour soumission des résumés (si présent) doit avoir lieu "
 "avant la date de début."
 
-#: .\travel\forms.py:528
+#: .\travel\forms.py:530
 msgid ""
 "The registration deadline of the trip (if present) must occur before or on "
 "the start date."
@@ -156,21 +160,21 @@ msgstr ""
 "La date limite d'inscription (si elle existe) doit avoir lieu avant ou à la "
 "date de début du voyage."
 
-#: .\travel\forms.py:544
+#: .\travel\forms.py:546
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:9
 #: .\travel\templates\travel\index.html:133
 msgid "Traveller"
 msgstr "Voyageur"
 
-#: .\travel\forms.py:545
+#: .\travel\forms.py:547
 msgid "Trip"
 msgstr "Voyage"
 
-#: .\travel\forms.py:547
+#: .\travel\forms.py:549
 msgid "ADM approval required"
 msgstr "Approbation du SMA requis"
 
-#: .\travel\forms.py:620 .\travel\forms.py:677
+#: .\travel\forms.py:622 .\travel\forms.py:679
 msgid ""
 "Sorry, the role of a reviewer whose status is set to {my_object.status} "
 "cannot be changed"
@@ -178,7 +182,7 @@ msgstr ""
 "Désolé, le rôle d'un examinateur dont le statut est fixé à {mon_objet."
 "status} ne peut être modifié"
 
-#: .\travel\forms.py:624 .\travel\forms.py:681
+#: .\travel\forms.py:626 .\travel\forms.py:683
 msgid ""
 "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
 "status is set to {my_object.status}"
@@ -186,7 +190,7 @@ msgstr ""
 "Désolé, vous ne pouvez pas changer l'utilisateur DM Apps associé à un "
 "examinateur dont le statut est défini sur {mon_objet.status}"
 
-#: .\travel\forms.py:628 .\travel\forms.py:685
+#: .\travel\forms.py:630 .\travel\forms.py:687
 msgid ""
 "Sorry, the order of a reviewer whose status is set to {my_object.status} "
 "cannot be changed"
@@ -194,296 +198,296 @@ msgstr ""
 "Désolé, l'ordre d'un examinateur dont le statut est fixé à {mon_objet."
 "status} ne peut être modifié"
 
-#: .\travel\models.py:25
+#: .\travel\models.py:26
 msgid "---------"
 msgstr ""
 
-#: .\travel\models.py:33 .\travel\models.py:508 .\travel\models.py:987
-#: .\travel\models.py:1041
+#: .\travel\models.py:34 .\travel\models.py:509 .\travel\models.py:988
+#: .\travel\models.py:1042
 msgid "DM Apps user"
 msgstr "Utilisateur de DM Apps"
 
-#: .\travel\models.py:34
+#: .\travel\models.py:35
 msgid "reviewer belongs to which DFO section(s)"
 msgstr "l'examinateur appartient à quelle(s) section(s) du MPO"
 
-#: .\travel\models.py:37
+#: .\travel\models.py:38
 msgid "reviewer belongs to which DFO branch(es)"
 msgstr "l'examinateur appartient à quelle(s) direction(s) du MPO"
 
-#: .\travel\models.py:40
+#: .\travel\models.py:41
 msgid "Do they have any special roles?"
 msgstr "Ont-ils un rôle particulier ?"
 
-#: .\travel\models.py:67
+#: .\travel\models.py:68
 msgid "Travel request process outline"
 msgstr "Aperçu de la procédure de demande de voyage"
 
-#: .\travel\models.py:68
+#: .\travel\models.py:69
 msgid "Review process outline"
 msgstr "Aperçu du processus de révision"
 
-#: .\travel\models.py:82
+#: .\travel\models.py:83
 msgid "category"
 msgstr "catégorie"
 
-#: .\travel\models.py:94
+#: .\travel\models.py:95
 msgid "Number of days before earliest date that is eligible for review"
 msgstr "Nombre de jours avant la première date admissible à l'examen"
 
-#: .\travel\models.py:99
+#: .\travel\models.py:100
 msgid "name (en)"
 msgstr "nom (anglais)"
 
-#: .\travel\models.py:144
+#: .\travel\models.py:145
 msgid "trip title (English)"
 msgstr "titre du voyage (anglais)"
 
-#: .\travel\models.py:145
+#: .\travel\models.py:146
 msgid "trip title (French)"
 msgstr "titre du voyage (français)"
 
-#: .\travel\models.py:146
+#: .\travel\models.py:147
 msgid "trip purpose"
 msgstr "but du voyage"
 
-#: .\travel\models.py:149
+#: .\travel\models.py:150
 msgid "does attendance to this require ADM approval?"
 msgstr ""
 "la participation à cette activité nécessite-t-elle l'approbation du SMA?"
 
-#: .\travel\models.py:151
+#: .\travel\models.py:152
 msgid "location (city, province, country)"
 msgstr "lieu (ville, province, pays)"
 
-#: .\travel\models.py:153
+#: .\travel\models.py:154
 msgid "Which region is the lead on this trip?"
 msgstr "Quelle région est en tête de ce voyage ?"
 
-#: .\travel\models.py:156
+#: .\travel\models.py:157
 msgid ""
 "Is there an event template being completed for this conference or meeting?"
 msgstr ""
 "Y a-t-il un plan d'événement en cours de réalisation pour cette conférence "
 "ou réunion ?"
 
-#: .\travel\models.py:157
+#: .\travel\models.py:158
 msgid "event number"
 msgstr "numéro d'événement"
 
-#: .\travel\models.py:158
+#: .\travel\models.py:159
 msgid "start date of event"
 msgstr "date de début de l'événement"
 
-#: .\travel\models.py:159
+#: .\travel\models.py:160
 msgid "end date of event"
 msgstr "date de fin de l'événement"
 
-#: .\travel\models.py:160
+#: .\travel\models.py:161
 msgid "meeting URL"
 msgstr "URL de la réunion"
 
-#: .\travel\models.py:161
+#: .\travel\models.py:162
 msgid "abstract submission deadline"
 msgstr "date limite de soumission des résumés"
 
-#: .\travel\models.py:162
+#: .\travel\models.py:163
 msgid "registration deadline"
 msgstr "date limite d'inscription"
 
-#: .\travel\models.py:163
+#: .\travel\models.py:164
 msgid "general notes"
 msgstr "notes générales"
 
-#: .\travel\models.py:165 .\travel\models.py:502
+#: .\travel\models.py:166 .\travel\models.py:503
 msgid "fiscal year"
 msgstr "exercice fiscal"
 
-#: .\travel\models.py:167
+#: .\travel\models.py:168
 msgid "verified?"
 msgstr "vérifié?"
 
-#: .\travel\models.py:170
+#: .\travel\models.py:171
 msgid "verified by"
 msgstr "vérifié par"
 
-#: .\travel\models.py:173
+#: .\travel\models.py:174
 msgid "trip status"
 msgstr "statut du voyage"
 
-#: .\travel\models.py:174 .\travel\models.py:570
+#: .\travel\models.py:175 .\travel\models.py:571
 msgid "Administrative notes"
 msgstr "Notes administratives"
 
-#: .\travel\models.py:175
+#: .\travel\models.py:176
 msgid "start date of the ADM review"
 msgstr "date de début de la révision du SMA"
 
-#: .\travel\models.py:176
+#: .\travel\models.py:177
 msgid "last modified"
 msgstr "dernière modification"
 
-#: .\travel\models.py:178
+#: .\travel\models.py:179
 msgid "last_modified_by"
 msgstr "dernière modification par"
 
-#: .\travel\models.py:181
+#: .\travel\models.py:182
 msgid "ADM Office review deadline"
 msgstr "Date limite d'examen du bureau du SMA"
 
-#: .\travel\models.py:182
+#: .\travel\models.py:183
 msgid "Date when eligible for ADM Office review"
 msgstr "Date d'admissibilité à l'examen du bureau du SMA"
 
-#: .\travel\models.py:221
+#: .\travel\models.py:222
 msgid "to"
 msgstr "à"
 
-#: .\travel\models.py:305
+#: .\travel\models.py:306
 msgid "not a DM Apps user"
 msgstr "pas un utilisateur de DM Apps"
 
-#: .\travel\models.py:491 .\travel\models.py:856 .\travel\models.py:862
+#: .\travel\models.py:492 .\travel\models.py:857 .\travel\models.py:863
 msgid "by"
 msgstr "par"
 
-#: .\travel\models.py:510
+#: .\travel\models.py:511
 msgid "Is the traveller a public servant?"
 msgstr "Le voyageur est-il un fonctionnaire ?"
 
-#: .\travel\models.py:512
+#: .\travel\models.py:513
 msgid "Traveller belongs to which DFO region"
 msgstr "Le voyageur appartient à quelle région du MPO"
 
-#: .\travel\models.py:516
+#: .\travel\models.py:517
 msgid "under which section is this request being made"
 msgstr "sous quelle section du MPO cette demande est faite"
 
-#: .\travel\models.py:519
+#: .\travel\models.py:520
 msgid "Is the traveller a research scientist (RES)?"
 msgstr "Le voyageur est-il un chercheur(se) scientifique (RES) ?"
 
-#: .\travel\models.py:520
+#: .\travel\models.py:521
 msgid "first name"
 msgstr "prénom"
 
-#: .\travel\models.py:521
+#: .\travel\models.py:522
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\travel\models.py:522
+#: .\travel\models.py:523
 msgid "address"
 msgstr "adresse"
 
-#: .\travel\models.py:524
+#: .\travel\models.py:525
 msgid "phone"
 msgstr "téléphone"
 
-#: .\travel\models.py:525
+#: .\travel\models.py:526
 msgid "email"
 msgstr "courriel"
 
-#: .\travel\models.py:526
+#: .\travel\models.py:527
 msgid "company name"
 msgstr "nom de l'entreprise"
 
-#: .\travel\models.py:531
+#: .\travel\models.py:532
 msgid "Is this a group request (i.e., a request for multiple individuals)?"
 msgstr ""
 "S'agit-il d'une demande de groupe (c'est-à-dire une demande pour plusieurs "
 "personnes) ?"
 
-#: .\travel\models.py:533
+#: .\travel\models.py:534
 msgid "trip"
 msgstr "voyage"
 
-#: .\travel\models.py:537
+#: .\travel\models.py:538
 msgid "departure location (city, province, country)"
 msgstr "le lieu de départ (ville, province, pays)"
 
-#: .\travel\models.py:539
+#: .\travel\models.py:540
 msgid "destination location (city, province, country)"
 msgstr "le lieu de destination (ville, province, pays)"
 
-#: .\travel\models.py:542
+#: .\travel\models.py:543
 msgid "start date of travel"
 msgstr "date de début du voyage"
 
-#: .\travel\models.py:543
+#: .\travel\models.py:544
 msgid "end date of travel"
 msgstr "la date de fin du voyage"
 
-#: .\travel\models.py:545
+#: .\travel\models.py:546
 msgid "role of traveller"
 msgstr "rôle du voyageur"
 
-#: .\travel\models.py:548
+#: .\travel\models.py:549
 msgid "role description"
 msgstr "description du rôle"
 
-#: .\travel\models.py:549
+#: .\travel\models.py:550
 msgid "Is this request included on your learning plan?"
 msgstr "Cette demande est-elle incluse dans votre plan d'apprentissage ?"
 
-#: .\travel\models.py:550
+#: .\travel\models.py:551
 msgid "objective of this meeting or conference"
 msgstr "Quel est l'objectif de cette réunion ou conférence"
 
-#: .\travel\models.py:551
+#: .\travel\models.py:552
 msgid "benefit to DFO"
 msgstr "Les avantages pour le MPO"
 
-#: .\travel\models.py:552
+#: .\travel\models.py:553
 msgid "Other attendees covered under BTA"
 msgstr "Autres participants couverts par un AGV"
 
-#: .\travel\models.py:555
+#: .\travel\models.py:556
 msgid "Justification for late submissions"
 msgstr "Justification des soumissions tardives"
 
-#: .\travel\models.py:556
+#: .\travel\models.py:557
 msgid "funding source"
 msgstr "Quel est la source de financement?"
 
-#: .\travel\models.py:557
+#: .\travel\models.py:558
 msgid "optional notes"
 msgstr "Notes optionnelles"
 
-#: .\travel\models.py:559
+#: .\travel\models.py:560
 msgid "Amount of non-DFO funding (CAD)"
 msgstr "Montant du financement non-MPO (CAD)"
 
-#: .\travel\models.py:561
+#: .\travel\models.py:562
 msgid "full name(s) of organization providing non-DFO funding"
 msgstr ""
 "Donnez le(s) nom(s) complet(s) de l'organisation qui fournit un financement "
 "autre que celui du MPO"
 
-#: .\travel\models.py:564
+#: .\travel\models.py:565
 msgid "date submitted"
 msgstr "date de soumission"
 
-#: .\travel\models.py:565
+#: .\travel\models.py:566
 msgid "original submission date"
 msgstr "date de soumission initiale"
 
-#: .\travel\models.py:567
+#: .\travel\models.py:568
 msgid "trip request status"
 msgstr "statut de la demande"
 
-#: .\travel\models.py:572
+#: .\travel\models.py:573
 msgid "Exclude this traveller from the travel plan?"
 msgstr "Exclure ce voyageur du plan de voyage ?"
 
-#: .\travel\models.py:576
+#: .\travel\models.py:577
 msgid "created by"
 msgstr "créé par"
 
-#: .\travel\models.py:603
+#: .\travel\models.py:604
 msgid "Group Request"
 msgstr "Demande de groupe"
 
-#: .\travel\models.py:682
+#: .\travel\models.py:683
 msgid ""
 "NOTE: This trip request contains non-DFO funding sources from {}. Total DFO "
 "funding: ${:,.2f} | Total non-DFO funding: ${:,.2f}"
@@ -492,106 +496,106 @@ msgstr ""
 "autres que le MPO de {}. Total du financement du MPO : ${ :,.2f} | Total des "
 "financements hors MPO : ${ :,.2f}"
 
-#: .\travel\models.py:738
+#: .\travel\models.py:739
 msgid "Cost category"
 msgstr "Catégorie de coût"
 
-#: .\travel\models.py:738
+#: .\travel\models.py:739
 msgid "Amount (CAD)"
 msgstr "Montant (CAD)"
 
-#: .\travel\models.py:752
+#: .\travel\models.py:753
 #: .\travel\templates\travel\_child_cost_breakdown.html:8
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:20
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:42
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: .\travel\models.py:885 .\travel\models.py:888
+#: .\travel\models.py:886 .\travel\models.py:889
 msgid "day"
 msgstr "jour"
 
-#: .\travel\models.py:902
+#: .\travel\models.py:903
 msgid "Company: "
-msgstr "nom de l'entreprise "
-
-#: .\travel\models.py:904
-msgid "Address: "
-msgstr "adresse:"
+msgstr "Nom de l'entreprise : "
 
 #: .\travel\models.py:905
-msgid "Phone: "
-msgstr "téléphone : "
+msgid "Address: "
+msgstr "Adresse : "
 
 #: .\travel\models.py:906
-msgid "Email: "
-msgstr "Courriel: "
+msgid "Phone: "
+msgstr "Téléphone : "
 
-#: .\travel\models.py:954
+#: .\travel\models.py:907
+msgid "Email: "
+msgstr "Courriel : "
+
+#: .\travel\models.py:955
 msgid "trip request"
 msgstr "demande de voyage"
 
-#: .\travel\models.py:956
+#: .\travel\models.py:957
 msgid "cost"
 msgstr "coût"
 
-#: .\travel\models.py:957
+#: .\travel\models.py:958
 msgid "daily rate (CAD/day)"
 msgstr "taux journalier (CAD/jour)"
 
-#: .\travel\models.py:958
+#: .\travel\models.py:959
 msgid "number of days"
 msgstr "nombre de jours"
 
-#: .\travel\models.py:959
+#: .\travel\models.py:960
 msgid "amount (CAD)"
 msgstr "montant (CAD)"
 
-#: .\travel\models.py:985 .\travel\models.py:1039
+#: .\travel\models.py:986 .\travel\models.py:1040
 msgid "process order"
 msgstr "ordre de traitement"
 
-#: .\travel\models.py:988 .\travel\models.py:1042
+#: .\travel\models.py:989 .\travel\models.py:1043
 msgid "role"
 msgstr "rôle"
 
-#: .\travel\models.py:990 .\travel\models.py:1044
+#: .\travel\models.py:991 .\travel\models.py:1045
 msgid "review status"
 msgstr "statut de révision"
 
-#: .\travel\models.py:991 .\travel\models.py:1045
+#: .\travel\models.py:992 .\travel\models.py:1046
 msgid "status date"
 msgstr "date du statut"
 
-#: .\travel\models.py:992 .\travel\models.py:1046
+#: .\travel\models.py:993 .\travel\models.py:1047
 msgid "Comments"
 msgstr "Commentaires"
 
-#: .\travel\models.py:995 .\travel\templates\travel\index.html:139
+#: .\travel\models.py:996 .\travel\templates\travel\index.html:139
 msgid "Reviewer"
 msgstr "Examinateur"
 
-#: .\travel\models.py:1025 .\travel\models.py:1069
+#: .\travel\models.py:1026 .\travel\models.py:1070
 msgid "on"
 msgstr "sur"
 
-#: .\travel\models.py:1095
+#: .\travel\models.py:1096
 msgid "caption"
 msgstr "légende"
 
-#: .\travel\models.py:1096
+#: .\travel\models.py:1097
 msgid "file attachment"
 msgstr "pièce jointe"
 
-#: .\travel\models.py:1108
+#: .\travel\models.py:1109
 msgid "English text"
 msgstr "Texte en anglais"
 
-#: .\travel\models.py:1109
+#: .\travel\models.py:1110
 msgid "French text"
 msgstr "Texte en français"
 
-#: .\travel\models.py:1113 .\travel\models.py:1114
+#: .\travel\models.py:1114 .\travel\models.py:1115
 msgid "eng_text"
 msgstr "ang_text"
 

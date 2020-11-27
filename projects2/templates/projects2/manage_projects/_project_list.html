@@ -4,25 +4,37 @@
 
 <div v-if="showProjectList" class="mt-5">
 
-  <table class="table table-sm">
+  <table class="table table-sm" style="width: auto">
     <thead>
     <tr>
       {% for field in field_list %}
         {% if "title" in field %}
-          <th @click="sort('{{ field }}')" style="width: 200px" class="clickable">
+          <th @click="sort('{{ field }}')" style="width: 400px" class="clickable">
             {% get_verbose_label random_project field %}
           </th>
-        {% elif "funding" in field %}
+        {% elif "funding" in field or "functional" in field %}
           <th @click="sort('{{ field }}')" style="width: 150px" class="clickable">
             {% get_verbose_label random_project field %}
           </th>
-        {% elif "fiscal" in field or "funding" in field %}
+        {% elif "fiscal" in field or "status" in field %}
           <th @click="sort('{{ field }}')" style="width: 100px" class="clickable">
             {% get_verbose_label random_project field %}
           </th>
-          {% elif "allocated" in field %}
-          <th @click="sort('{{ field }}')" style="width: 100px" class="clickable">
+        {% elif "allocated" in field %}
+          <th @click="sort('{{ field }}')" style="width: 100px" class="clickable" v-if="showColumnAllocation">
             {% trans "Allocation" %}
+          </th>
+        {% elif "id" in field %}
+          <th @click="sort('{{ field }}')" style="width: 75px" class="clickable">
+            {% trans "Project Id" %}
+          </th>
+        {% elif "score" in field %}
+          <th style="width: 100px" v-if="showColumnScore">
+            {% trans "Review score" %}
+          </th>
+        {% elif "lead" in field %}
+          <th v-if="showColumnLeads" style="width: 150px">
+            {% get_verbose_label random_project field %}
           </th>
         {% else %}
           <th @click="sort('{{ field }}')" class="clickable">
@@ -31,7 +43,8 @@
         {% endif %}
 
       {% endfor %}
-      <th @click="sort('is_hidden')" v-if="isAdminOrMgmt" class="clickable">
+
+      <th @click="sort('is_hidden')" v-if="isAdminOrMgmt && showColumnHidden" class="clickable">
         {% trans "Hidden?" %}
       </th>
 
@@ -48,20 +61,27 @@
       <td>${p.project.title}</td>
       <td>${p.project.default_funding_source}</td>
       <td>${p.project.functional_group}</td>
-      <td>${p.project.lead_staff}</td>
+      <td v-if="showColumnLeads">${p.project.lead_staff}</td>
       <td v-html="p.formatted_status"></td>
 
-      <td v-if="p.review">${p.review.allocated_budget | nz(0) | currencyFormat | zero2NullMark}</td>
-      <td v-else>---</td>
+      <td v-if="showColumnAllocation">
+        <span v-if="p.review">${p.review.allocated_budget | nz(0) | currencyFormat | zero2NullMark}</span>
+        <span v-else>---</span>
+      </td>
 
-      <td v-if="isAdminOrMgmt">
+      <td v-if="showColumnScore">
+        <span v-if="p.review">${p.review_score_percentage}</span>
+        <span v-else>---</span>
+      </td>
+
+      <td v-if="isAdminOrMgmt && showColumnHidden">
         <span v-if="p.project.is_hidden" class="highlight">{% trans "Yes" %}</span>
         <span v-else>{% trans "No" %}</span>
       </td>
 
-        {#  Button zone!!! #}
+      {#  Button zone!!! #}
 
-        {% echo "small-btn-text btn btn-sm" as btn_class %}
+      {% echo "small-btn-text btn btn-sm" as btn_class %}
 
       <td class="w85">
         <button v-if="!p.submitted" @click="submitProjectYear(p, 'submit')" class="px-1 {{ btn_class }} btn-success">
@@ -73,7 +93,8 @@
       </td>
 
       <td class="w85">
-        <button v-if="p.submitted && p.status != 4 && p.review && p.review.id" @click="openReviewModal(p)" class="px-1 {{ btn_class }} btn-warning">
+        <button v-if="p.submitted && p.status != 4 && p.review && p.review.id" @click="openReviewModal(p)"
+                class="px-1 {{ btn_class }} btn-warning">
           {% trans "Edit review" %}
         </button>
         <button v-else-if="p.submitted && p.status != 4" @click="openReviewModal(p)" class="px-1 {{ btn_class }} btn-info">

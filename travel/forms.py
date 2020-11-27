@@ -9,19 +9,19 @@ from travel.filters import get_region_choices
 from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
-attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
+attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
 attr_phone = {"class": "input-phone"}
 attr_row3 = {"rows": 3}
 attr_row4 = {"rows": 4}
 
 YES_NO_CHOICES = (
-    (True, _("Yes")),
-    (False, _("No")),
+    (True, gettext_lazy("Yes")),
+    (False, gettext_lazy("No")),
 )
 INT_YES_NO_CHOICES = (
     (None, "-----"),
-    (1, _("Yes")),
-    (0, _("No")),
+    (1, gettext_lazy("Yes")),
+    (0, gettext_lazy("No")),
 )
 
 
@@ -100,7 +100,7 @@ class TripTimestampUpdateForm(forms.ModelForm):
 class TripRequestForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     reset_reviewers = forms.BooleanField(widget=forms.Select(choices=YES_NO_CHOICES),
-                                         label=_("Do you want to reset the reviewer list?"), required=False)
+                                         label=gettext_lazy("Do you want to reset the reviewer list?"), required=False)
 
     class Meta:
         model = models.TripRequest
@@ -145,8 +145,8 @@ class TripRequestForm(forms.ModelForm):
             'company_name': forms.TextInput(attrs={"class": "not-a-group-field disappear-if-user hide-if-public-servant"}),
             'is_research_scientist': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}, choices=YES_NO_CHOICES),
 
-            'start_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
-            'end_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'start_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": _("Click to select a date..")}),
+            'end_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": _("Click to select a date..")}),
             'departure_location': forms.TextInput(attrs={"class": "not-a-group-field"}),
             # 'reason': forms.Select(attrs={"class": "not-a-group-field"}),
             'role': forms.Select(attrs={"class": "not-a-group-field"}),
@@ -163,9 +163,9 @@ class TripRequestForm(forms.ModelForm):
         user_choices.insert(0, tuple((None, "---")))
 
         section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(division__branch_id__in=[1, 3, 9, ]).order_by("division__branch__region",
-                                                                                                              "division__branch",
-                                                                                                              "division", "name")]
+                           shared_models.Section.objects.all().order_by("division__branch__region",
+                                                                        "division__branch",
+                                                                        "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
         trip_choices = [(t.id, f'{t} ({t.status})') for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
@@ -176,11 +176,14 @@ class TripRequestForm(forms.ModelForm):
         self.fields['user'].choices = user_choices
         self.fields['bta_attendees'].choices = user_choices
         self.fields['section'].choices = section_choices
+        self.fields['start_date'].widget.format = '%Y-%m-%d'
+        self.fields['end_date'].widget.format = '%Y-%m-%d'
 
         # general trip infomation
         field_list = [
             'is_group_request',
             'trip',
+            'late_justification',
             'departure_location',
             'destination',
             'start_date',
@@ -217,7 +220,6 @@ class TripRequestForm(forms.ModelForm):
             'learning_plan',
             'objective_of_event',
             'benefit_to_dfo',
-            'late_justification',
             'funding_source',
             'notes',
         ]
@@ -257,14 +259,9 @@ class TripRequestForm(forms.ModelForm):
         trip_start_date = trip.start_date
         trip_end_date = trip.end_date
 
-        if trip.status_id not in [30, 41] and self.instance not in trip.trip_requests.all():
-            if trip.status_id == 31:
-                message = _("This trip is currently under review from NCR and is closed to additional requests.")
-            elif trip.status_id == 32:
-                message = _("This trip has already been reviewed by NCR and is closed to additional requests.")
-            else:
-                message = _("This trip is closed to additional requests.")
-            self.add_error('trip', message)
+        if self.instance.is_late_request and not cleaned_data.get("late_justification"):
+            message = _("In order to submit this request, you will need to provide a justification for the late submission.")
+            self.add_error('late_justification', message)
             # raise forms.ValidationError(message)
 
         # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
@@ -384,6 +381,8 @@ class ChildTripRequestForm(forms.ModelForm):
         user_choices.insert(0, tuple((None, "---")))
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
+        self.fields['start_date'].widget.format = '%Y-%m-%d'
+        self.fields['end_date'].widget.format = '%Y-%m-%d'
 
         # general trip infomation
         field_list = [
@@ -499,6 +498,11 @@ class TripForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             # 'trip_subcategory': forms.RadioSelect(),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['start_date'].widget.format = '%Y-%m-%d'
+        self.fields['end_date'].widget.format = '%Y-%m-%d'
 
     def clean(self):
         cleaned_data = super().clean()
