@@ -409,7 +409,7 @@ class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 
 
-# AGREEMENTS
+# STATUS REPORTS
 ##############
 class StatusReportListCreateAPIView(ListCreateAPIView):
     queryset = models.StatusReport.objects.all()

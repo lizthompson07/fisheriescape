@@ -887,6 +887,28 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
     template_name = "projects2/status_report_detail.html"
     field_list = get_status_report_field_list()
 
+
+    def dispatch(self, request, *args, **kwargs):
+        # when the view loads, let's make sure that all the milestones are on the project.
+        my_object = self.get_object()
+        my_project_year = my_object.project_year
+        for milestone in my_project_year.milestones.all():
+            my_update, created = models.MilestoneUpdate.objects.get_or_create(
+                milestone=milestone,
+                status_report=my_object
+            )
+            # if the update is being created, what should be the starting status?
+            # to know, we would have to look and see if there is another report. if there is, we should grab the penultimate report and copy status from there.
+            if created:
+                # check to see if there is another update on the same milestone. We can do this since milestones are unique to projects.
+                if milestone.updates.count() > 1:
+                    # if there are more than just 1 (i.e. the one we just created), it will be the second record we are interested in...
+                    last_update = milestone.updates.all()[1]
+                    my_update.status = last_update.status
+                    my_update.save()
+
+        return super().dispatch(request, *args, **kwargs)
+
     def get_project_year(self):
         return self.get_object().project_year
 
