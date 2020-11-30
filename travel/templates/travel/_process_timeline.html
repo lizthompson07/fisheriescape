@@ -3,7 +3,7 @@
 <h2 class="center-col">
   {% trans "An Overview of the Travel App" %}
 </h2>
-{% with "300px" as w %}
+{% with "200px" as w %}
   {% if is_adm_admin %}
     <div class="mb-3 mt-5 text-center">
       <h3>{% trans "Submission Deadlines" %} </h3>
@@ -15,14 +15,16 @@
       <div class="text-black text-center">
         <p>
           {% blocktrans %}
-            Travel requests can be submitted up to <b>180 days in advance of any potential trip</b>, regardless of the purpose
+            Travel requests can be submitted up to <b>180 calendar days in advance of any potential trip</b>, regardless of the purpose
             and across fiscal years.
           {% endblocktrans %}
         </p>
         <p>
           {% blocktrans %}
-            Requests to participate in a <b>conference</b> should be submitted to NCR via the Conference and Travel Management System at least <b>60
-            calendar days</b> before the registration deadline of the conference or the abstract submission deadline, whichever is earlier. If
+            Requests to participate in a <b>conference</b> should be submitted to NCR via the Conference and Travel Management System at
+            least <b>60
+            calendar days</b> before the registration deadline of the conference or the abstract submission deadline, whichever is earlier.
+            If
             there is no abstract or registration deadline specified, the request should be submitted to NCR 60 calendar days prior to the
             start date of the conference. Late requests will only be considered in very exceptional circumstances.
           {% endblocktrans %}
@@ -30,7 +32,7 @@
         <p>
           {% blocktrans %}
             Requests for <b> all other types </b> of travel (i.e. not related to a conference) must be submitted at least
-            <b>60 days prior </b> to the date of travel. Late requests will only be considered in very exceptional
+            <b>60 calendar days prior </b> to the date of travel. Late requests will only be considered in very exceptional
             circumstances.
           {% endblocktrans %}
         </p>
@@ -45,7 +47,8 @@
       <p class="text-black text-center">
         {% blocktrans %}
           All decisions regarding requests will be communicated at least 14 calendar days before:
-          <br><br>
+          <br>
+          <br>
           The trip departure date (for training, field work, or operational trips)
           <b>OR</b>
           the trip departure date or the conference abstract or registration deadline - whichever is earliest
@@ -89,7 +92,7 @@
                 <v-card class="elevation-2">
                   <v-card-title class="headline">{{ step.tname }}</v-card-title>
                   <v-card-text>
-                    {{ step.tdescription }}
+                    {{ step.tdescription|safe }}
                   </v-card-text>
                 </v-card>
               </v-timeline-item>
