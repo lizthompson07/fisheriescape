@@ -18,7 +18,7 @@
       <a v-if="canModify" href="{% url 'projects2:report_delete' object.id %}" class="btn btn-danger ">{% trans "Delete" %}</a>
       {#      <a v-if="canModify" href="#" class="btn btn-primary">{% trans "Add a Supporting Resource" %}</a>#}
       <a v-if="isSectionHead || isAdmin" href="{% url 'projects2:report_review' object.id %}" class="btn btn-dark ">{% trans "Review the Report" %}</a>
-      <a href="#" class="btn btn-secondary ">{% trans "Print" %}</a>
+      <a href="{% url 'projects2:report_pdf' object.id %}" class="btn btn-secondary " target="_blank">{% trans "Print" %}</a>
     </div>
 
     <div class="mb-5">

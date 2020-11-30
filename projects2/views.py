@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -933,7 +934,9 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
         context["report_mode"] = True
         context['files'] = my_report.files.all()
         context['file_form'] = forms.FileForm
+        context["random_file"] = models.File.objects.first()
         context['update_form'] = forms.MilestoneUpdateForm
+        context["random_update"] = models.MilestoneUpdate.objects.first()
 
         return context
 
@@ -967,3 +970,29 @@ class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
 class StatusReportReviewUpdateView(ManagerOrAdminRequiredMixin, StatusReportUpdateView):
     form_class = forms.StatusReportReviewForm
     h1 = gettext_lazy("Please provide review comments")
+    container_class = "container-fluid"
+
+
+class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
+    template_name = "projects2/status_report_pdf.html"
+    model= models.StatusReport
+
+    def get_h2(self):
+        return f'{self.get_project_year().project} ({self.get_project_year()})'
+
+    def get_project_year(self):
+            return self.get_object().project_year
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[
+            self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_report = get_object_or_404(models.StatusReport, pk=self.kwargs["pk"])
+        context["object"] = my_report
+
+        context["random_file"] = models.File.objects.first()
+        context["random_update"] = models.MilestoneUpdate.objects.first()
+
+        return context
