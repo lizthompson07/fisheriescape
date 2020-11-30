@@ -36,10 +36,13 @@ class URLTest(TestCase):
     def test_url_create_cru_view(self):
         self.basic_en_url_test('bio_diversity:create_inst', 'bio_diversity/create/inst/', views.InstCreate)
 
-
     @tag('instc', 'url', 'create')
     def test_url_create_cru_view(self):
         self.basic_en_url_test('bio_diversity:create_instc', 'bio_diversity/create/instc/', views.InstcCreate)
+
+    @tag('instd', 'url', 'create')
+    def test_url_create_cru_view(self):
+        self.basic_en_url_test('bio_diversity:create_instd', 'bio_diversity/create/instd/', views.InstdCreate)
 
     @tag('instdc', 'url', 'create')
     def test_url_create_cru_view(self):

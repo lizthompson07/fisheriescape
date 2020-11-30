@@ -17,6 +17,12 @@ urlpatterns = [
     path('list/instc/', views.InstcList.as_view(), name="list_instc"),
     path('update/instc/<int:pk>/', views.InstcUpdate.as_view(), name="update_instc"),
 
+
+    path('create/instd/', views.InstdCreate.as_view(), name="create_instd"),
+    path('details/instd/<int:pk>/', views.InstdDetails.as_view(), name="details_instd"),
+    path('list/instd/', views.InstdList.as_view(), name="list_instd"),
+    path('update/instd/<int:pk>/', views.InstdUpdate.as_view(), name="update_instd"),
+
     path('create/instdc/', views.InstdcCreate.as_view(), name="create_instdc"),
     path('details/instdc/<int:pk>/', views.InstdcDetails.as_view(), name="details_instdc"),
     path('list/instdc/', views.InstdcList.as_view(), name="list_instdc"),

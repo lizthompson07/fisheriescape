@@ -187,6 +187,92 @@ class InstcUpdateView(CommonTest):
                                 [self.instance.pk])
 
 
+class TestInstdDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.InstdFactory()
+        self.test_url = reverse_lazy('bio_diversity:details_instd', args=[self.instance.pk, ])
+        self.expected_template = 'bio_diversity/bio_details.html'
+        self.user = self.get_and_login_user()
+
+    @tag("Instd", "details_instd", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.InstdDetails, CommonDetails)
+
+    @tag("Instd", "details_instd", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    # not sure how to do this bit
+    # @tag("Inst", "details_inst", "context")
+    # def test_context(self):
+    #     context_vars = [
+    #         "instc",
+    #         "serial_number",
+    #         "comments",
+    #         "created_by",
+    #         "created_date",
+    #     ]
+    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("Instd", "details_instd", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:details_instd", f"/en/bio_diversity/details/instd/{self.instance.pk}/", [self.instance.pk])
+
+
+class TestInstdListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('bio_diversity:list_instd')
+        self.expected_template = 'shared_models/shared_filter.html'
+        self.user = self.get_and_login_user()
+
+    @tag("Instd", "list_instd", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.InstdList, CommonList)
+
+    @tag("Instd", "list_instd", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Instd", "list_instd",  "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:list_instd", f"/en/bio_diversity/list/instd/")
+
+
+class InstdUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.InstdFactory()
+        self.test_url = reverse_lazy('bio_diversity:update_instd', args=[self.instance.pk, ])
+        self.expected_template = 'shared_models/shared_models_update_form.html'
+        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+
+    @tag("Instd", "update_instd", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.InstdUpdate, CommonUpdate)
+
+    @tag("Instd", "update_instd", "access")
+    def test_view(self):
+        self.assert_not_broken(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Instd", "update_instd", "submit")
+    def test_submit(self):
+        data = BioFactoryFloor.InstdFactory.build_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Instd", "update_instd", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:update_instd", f"/en/bio_diversity/update/instd/{self.instance.pk}/", \
+                                [self.instance.pk])
+
+
 class TestInstdcDetailView(CommonTest):
     def setUp(self):
         super().setUp()

@@ -19,6 +19,13 @@ class InstcMixin:
     title = "Instrument Code"
 
 
+class InstdMixin:
+    key = "instd"
+    form_class = forms.InstdForm
+    model = models.InstrumentDet
+    title = "Instrument Detail"
+
+
 class InstdcMixin:
     key = 'instdc'
     model = models.InstDetCode

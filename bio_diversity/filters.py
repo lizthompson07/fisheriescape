@@ -20,6 +20,14 @@ class InstcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class InstdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.InstrumentDet
+        fields = ["inst", "instdc", "valid", "created_by", "created_date", ]
+
+
+
 class InstdcFilter(django_filters.FilterSet):
 
     class Meta:

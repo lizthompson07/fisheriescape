@@ -46,6 +46,10 @@ class InstcCreate(mixins.InstcMixin, CommonCreate):
     pass
 
 
+class InstdCreate(mixins.InstdMixin, CommonCreate):
+    pass
+
+
 class InstdcCreate(mixins.InstdcMixin, CommonCreate):
     pass
 
@@ -93,6 +97,10 @@ class InstDetails(mixins.InstMixin, CommonDetails):
 
 class InstcDetails(mixins.InstcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+
+
+class InstdDetails(mixins.InstdMixin, CommonDetails):
+    fields = ["inst", "instdc", "created_by", "created_date",]
 
 
 class InstdcDetails(mixins.InstdcMixin, CommonDetails):
@@ -182,6 +190,10 @@ class InstcList(mixins.InstcMixin, CommonList):
     filterset_class = filters.InstcFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
 
+class InstdList(mixins.InstdMixin, CommonList):
+    filterset_class = filters.InstdFilter
+    fields = ["inst", "instdc", "created_by", "created_date",]
+
 
 class InstdcList(mixins.InstdcMixin, CommonList):
     filterset_class = filters.InstdcFilter
@@ -231,6 +243,10 @@ class InstUpdate(mixins.InstMixin, CommonUpdate):
 
 
 class InstcUpdate(mixins.InstcMixin, CommonUpdate):
+    pass
+
+
+class InstdUpdate(mixins.InstdMixin, CommonUpdate):
     pass
 
 
