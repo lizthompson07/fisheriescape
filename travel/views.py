@@ -234,7 +234,11 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
 
             if unverified_trips > 0 and in_travel_admin_group(self.request.user):
                 messages.error(self.request, mark_safe(
-                    f"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
+                    # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                    _(
+                        "<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
+                        region=region, unverified_trips=unverified_trips, pluralization=pluralize(unverified_trips)
+                    )))
 
             tab_dict[region]["rdg_number_waiting"] = rdg_number_waiting
             tab_dict[region]["rdg_approval_list_url"] = rdg_approval_list_url
@@ -255,7 +259,10 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
 
         if unverified_trips > 0 and in_adm_admin_group(self.request.user):
             messages.error(self.request, mark_safe(
-                f"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
+                # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                _("<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralization} requiring attention!!".format(
+                    unverified_trips=unverified_trips, pluralization=pluralize(unverified_trips)
+                ))))
 
         adm_ready_trips = utils.get_adm_eligible_trips().count()
 
