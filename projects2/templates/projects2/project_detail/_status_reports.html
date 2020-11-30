@@ -65,12 +65,13 @@
             {% endif %}
           {% endif %}
         {% endfor %}
-        <td class="to-the-right">
-          {#          <button v-if="canModify" @click="openStatusReportModal(item)">#}
-          {#            <span class="mdi mdi-pencil"></span>#}
-          {#          </button>#}
-          <button @click="goStatusReportDetail(item.id)">
+        <td class="to-the-right" >
+          <button @click="goStatusReportDetail(item.id, 'print')">
+            <span class="mdi mdi-printer"></span>
+          </button>
+          <button v-if="canModify" @click="goStatusReportDetail(item.id)">
             <span class="mdi mdi-arrow-top-right"></span>
+            {% trans "open" %}
           </button>
         </td>
 
