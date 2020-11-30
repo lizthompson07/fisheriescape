@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load bootstrap4 %}
 {% load custom_filters %}
+{% load project_filters %}
 {% load static %}
 <!-- template for the modal component -->
 <script type="text/x-template" id="modal-template">
@@ -156,7 +157,22 @@
               </div>
               {# STATUS REPORT FORM             #}
               <div v-else-if="mtype=='status_report'">
-                {% bootstrap_form status_report_form size='small' %}
+                {% for field in status_report_form %}
+                  {% if field.name|is_markdown_field %}
+
+                    <label for="id_priorities">{{ field.label }}</label>
+                    <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+                       title="{% trans "Markdown syntax is supported in this field" %}">
+                      <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px"></span>
+                    </a>
+                    {% bootstrap_field field placeholder="" show_label=False size='small' %}
+
+                  {% else %}
+                    {% bootstrap_field field placeholder="" size='small' %}
+                  {% endif %}
+                {% endfor %}
+
+
               </div>
               {# FILE FORM             #}
               <div v-else-if="mtype=='file'">

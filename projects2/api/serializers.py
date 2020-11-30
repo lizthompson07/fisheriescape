@@ -349,6 +349,14 @@ class StatusReportSerializer(serializers.ModelSerializer):
     report_number = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     supporting_resources = serializers.SerializerMethodField()
+    major_accomplishments_html = serializers.SerializerMethodField()
+    major_issues_html = serializers.SerializerMethodField()
+
+    def get_major_accomplishments_html(self, instance):
+        return instance.major_accomplishments_html
+
+    def get_major_issues_html(self, instance):
+        return instance.major_issues_html
 
     def get_project_year_id(self, instance):
         return instance.project_year_id

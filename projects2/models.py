@@ -676,6 +676,16 @@ class StatusReport(models.Model):
             self.report_number,
         )
 
+    @property
+    def major_accomplishments_html(self):
+        if self.major_accomplishments:
+            return mark_safe(markdown(self.major_accomplishments))
+
+    @property
+    def major_issues_html(self):
+        if self.major_issues:
+            return mark_safe(markdown(self.major_issues))
+
 
 class Review(models.Model):
     approval_status_choices = (

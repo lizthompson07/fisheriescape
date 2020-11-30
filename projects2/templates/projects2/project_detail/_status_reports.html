@@ -39,33 +39,36 @@
       <thead>
       {% get_status_report_field_list as status_report_field_list %}
       {% for field in status_report_field_list %}
-        <th>
-          {% get_verbose_label random_status_report field %}
-        </th>
+        {% if not "issues" in field and not "accomplishments" in field and not "section_head_comment" in field %}
+          <th>
+            {% get_verbose_label random_status_report field %}
+          </th>
+        {% endif %}
       {% endfor %}
       </thead>
       <tbody>
       <tr v-for="(item, index) in status_reports">
         {% for field in status_report_field_list %}
-          {% if "target" in field %}
-            <td>${item.target_completion_date_display | nz }</td>
-          {% elif "status" in field %}
-            <td>${item.status_display | nz }</td>
-          {% elif "number" in field %}
-            <td>${item.report_number | nz }</td>
-          {% elif "reviewed" in field %}
-            <td>${item.section_head_reviewed | yesNo }</td>
-
-          {% elif "supporting" in field %}
-            <td>${item.supporting_resources | yesNo }</td>
-          {% else %}
-            <td>${ item.{{ field }} | nz}</td>
+          {% if not "issues" in field and not "accomplishments" in field and not "section_head_comment" in field %}
+            {% if "target" in field %}
+              <td class="w150">${item.target_completion_date_display | nz }</td>
+            {% elif "status" in field %}
+              <td class="w100">${item.status_display | nz }</td>
+            {% elif "number" in field %}
+              <td>${item.report_number | nz }</td>
+            {% elif "reviewed" in field %}
+              <td class="w100">${item.section_head_reviewed | yesNo }</td>
+            {% elif "supporting" in field %}
+              <td class="w100">${item.supporting_resources | yesNo }</td>
+            {% else %}
+              <td>${ item.{{ field }} | nz}</td>
+            {% endif %}
           {% endif %}
         {% endfor %}
         <td class="to-the-right">
-          <button v-if="canModify" @click="openStatusReportModal(item)">
-            <span class="mdi mdi-pencil"></span>
-          </button>
+          {#          <button v-if="canModify" @click="openStatusReportModal(item)">#}
+          {#            <span class="mdi mdi-pencil"></span>#}
+          {#          </button>#}
           <button @click="goStatusReportDetail(item.id)">
             <span class="mdi mdi-arrow-top-right"></span>
           </button>

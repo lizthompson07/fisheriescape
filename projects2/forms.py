@@ -408,13 +408,13 @@ class StatusReportForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["status"].widget.attrs = {"v-model": "status_report.status"}
-        self.fields["major_accomplishments"].widget.attrs = {"v-model": "status_report.major_accomplishments"}
+        self.fields["major_accomplishments"].widget.attrs = {"v-model": "status_report.major_accomplishments", "rows":"4"}
         self.fields["major_accomplishments"].label = _("Major accomplishments (this can be left blank if reported at the milestone level")
-        self.fields["major_issues"].widget.attrs = {"v-model": "status_report.major_issues"}
-        self.fields["target_completion_date"].widget.attrs = {"v-model": "status_report.target_completion_date", "type": "date"}
+        self.fields["major_issues"].widget.attrs = {"v-model": "status_report.major_issues", "rows":"4"}
+        self.fields["target_completion_date"].widget = forms.DateInput(attrs = {"v-model": "status_report.target_completion_date", "type":"date"})
         self.fields["rationale_for_modified_completion_date"].widget.attrs = {
-            "v-model": "status_report.rationale_for_modified_completion_date"}
-        self.fields["general_comment"].widget.attrs = {"v-model": "status_report.general_comment"}
+            "v-model": "status_report.rationale_for_modified_completion_date", "rows":"4"}
+        self.fields["general_comment"].widget.attrs = {"v-model": "status_report.general_comment", "rows":"4"}
         
         if is_section_head(self.initial.get("user"), self.instance):
             self.fields["section_head_comment"].widget.attrs = {"v-model": "status_report.section_head_comment"}

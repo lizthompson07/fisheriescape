@@ -110,10 +110,6 @@ msgstr "La date de fin de cette demande ({request_end_date}) doit se situer dans
 msgid "There is already a trip request in the system for this user and this trip."
 msgstr "Il y a déjà une demande dans le système pour cet utilisateur et ce voyage."
 
-#: .\travel\forms.py:527
-msgid "The abstract submission deadline (if present) must occur before the start date."
-msgstr "La date limite de soumission des résumés ( si elle existe ) doit avoir lieu avant la date de début du voyage."
-
 #: .\travel\forms.py:532
 msgid "The registration deadline (if present) must occur before or on the start date of the trip."
 msgstr "La date limite d'inscription (si elle existe) doit avoir lieu avant ou à la date de début du voyage."
@@ -1978,18 +1974,6 @@ msgstr "c'est-à-dire des voyages qui sont équitables pour que l'examen du SMA 
 msgid "The trip has been added to the database!"
 msgstr "Le voyage a été ajouté à la base de données !"
 
-#: .\travel\views.py:1755
-msgid "Do you wish to start a review on the following trip?"
-msgstr "Souhaitez-vous commencer un examen sur le voyage suivant ?"
-
-#: .\travel\views.py:1757
-msgid "Do you wish to re-open the review on the following trip?"
-msgstr "Souhaitez-vous ouvrir à nouveau l’examen de ce voyage?"
-
-#: .\travel\views.py:1759
-msgid "Do you wish to end the review on the following trip?"
-msgstr "Souhaitez-vous terminer l'examen du voyage suivant ?"
-
 #: .\travel\views.py:1773
 msgid "Start a Review"
 msgstr "Commencer un examen"
@@ -2113,4 +2097,16 @@ msgstr "Tous les frais vides ont été supprimés."
 #: .\travel\forms.py:527
 msgid "The abstract submission deadline (if present) must occur before the start date of the trip."
 msgstr "La date limite de soumission des résumés (si elle existe) doit avoir lieu avant la date de début du voyage."
+
+#: .\travel\views.py:1755
+msgid "Do you wish to start a review on this trip?"
+msgstr "Souhaitez-vous commencer un examen sur ce voyage?"
+
+#: .\travel\views.py:1757
+msgid "you wish to re-open the review of this trip?"
+msgstr "Souhaitez-vous ouvrir à nouveau l’examen de ce voyage?"
+
+#: .\travel\views.py:1759
+msgid "Do you wish to end the review of this trip?"
+msgstr "Souhaitez-vous terminer l’examen de ce voyage?"
 

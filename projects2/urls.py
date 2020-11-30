@@ -32,9 +32,11 @@ urlpatterns = [
     # STATUS REPORT #
     #################
     # path('project/<int:project>/status-report/new/', views.StatusReportCreateView.as_view(), name="report_new"),
-    # path('status-report/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),
-    path('status-reports/<int:pk>/', views.StatusReportDetailView.as_view(), name="report_detail"),
+    path('status-reports/<int:pk>/view/', views.StatusReportDetailView.as_view(), name="report_detail"),
+    path('status-reports/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),
+
+
     # path('status-report/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_print"),
 
     # MILESTONE UPDATE #

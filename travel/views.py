@@ -1752,11 +1752,11 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
 
     def get_h1(self):
         if self.get_object().status_id in [30, 41]:
-            return _("Do you wish to start a review on the following trip?")
+            return _("Do you wish to start a review on this trip?")
         elif self.get_object().status_id in [32]:
-            return _("Do you wish to re-open the review on the following trip?")
+            return _("you wish to re-open the review of this trip?")
         else:
-            return _("Do you wish to end the review on the following trip?")
+            return _("Do you wish to end the review of this trip?")
 
     def get_h2(self):
         if self.get_object().status_id in [30, 41]:
