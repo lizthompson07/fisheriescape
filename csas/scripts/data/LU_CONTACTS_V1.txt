@@ -1,0 +1,139 @@
+old_value	pk	honorific	first_name	last_name	affiliation	region	sector	role	job_title	language	contact_type	status	notification_preference	phone	email	expertise	cc_grad	notes
+"Barrett, Melanie"	1	3	Melanie	Barrett						1								
+"Bennett, Lottie"	2	3	Lottie	Bennett						1								
+"Benoit, Hugues"	3	1	Hugues	Benoit						1								
+"Bradford, Mike"	4	1	Mike	Bradford						1								
+"Candy, John"	5	1	John	Candy						1								
+"Chaput, G"	6	1	G	Chaput						2								
+"Chaput, Gérald"	7	1	Gérald	Chaput						2								
+"Christensen, Lisa"	8	3	Lisa	Christensen						1								
+"Cleary,"	9	1		Cleary						1								
+"Collins, Roanne"	10	1	Roanne	Collins						1								
+"Cyr, Charley"	11	1	Charley	Cyr						1								
+"Dwyer, Karen"	12	3	Karen	Dwyer						1								
+"Enders, Eva"	13	3	Eva	Enders						1								
+"Grandin, Chris"	14	2	Chris	Grandin						1								
+"Gregory, Robert"	15	2	Robert	Gregory						1								
+"Hamoutene, Dounia"	16	3	Dounia	Hamoutene						1								
+"Hardy, Matthew"	17	1	Matthew	Hardy						1								
+"Komick, Nicholas"	18	1	Nicholas	Komick						1								
+"Koops, Marten"	19	1	Marten	Koops						1								
+"Lemieux, Jeffrey"	20	1	Jeffrey	Lemieux						1								
+"McIntyre, Tara"	21	3	Tara	McIntyre						1								
+"Morgan, Joanne"	22	3	Joanne	Morgan						1								
+"Olivier, Gilles"	23	1	Gilles	Olivier						2								
+"Parrill, Eri"	24	1	Eri	Parrill						1								
+"Patten, Bruce"	25	1	Bruce	Patten						1								
+"Postma, Lianne"	26	3	Lianne	Postma						1								
+"Richards, Dale E."	27	1	Dale E.	Richards						1								
+"Sainte-Marie, Bernard"	28	1	Bernard	Sainte-Marie						2								
+"Schut, Steve"	29	1	Steve	Schut						1								
+"Singh, Rabindra"	30	1	Rabindra	Singh						1								
+"Sonier, Remi"	31	1	Remi	Sonier						2								
+"Stenson, Garry"	32	1	Garry	Stenson						1								
+"Thiess, Mary"	33	3	Mary	Thiess						1								
+"Worcester, Tana"	34	3	Tana	Worcester						1								
+"Workman, Greg"	35	1	Greg	Workman						1								
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
+																		
