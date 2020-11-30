@@ -14,6 +14,13 @@ var app = new Vue({
     showNewFileModal: false,
     showOldFileModal: false,
 
+    // updates
+    update_loading: false,
+    updates: [],
+    updateToEdit: {},
+    showNewUpdateModal: false,
+    showOldUpdateModal: false,
+
   },
   methods: {
     getCurrentUser() {
@@ -80,12 +87,23 @@ var app = new Vue({
     },
 
 
-    openFileModal(file) {
-      if (!file) {
-        this.showNewFileModal = true;
+    // update
+    getUpdates() {
+      this.update_loading = true;
+      let endpoint = `/api/project-planning/status-reports/${statusReportId}/updates/`;
+      apiService(endpoint)
+          .then(response => {
+            this.update_loading = false;
+            this.updates = response;
+          })
+    },
+
+    openUpdateModal(update) {
+      if (!update) {
+        this.showNewUpdateModal = true;
       } else {
-        this.fileToEdit = file;
-        this.showOldFileModal = true;
+        this.updateToEdit = update;
+        this.showOldUpdateModal = true;
       }
     },
 
@@ -93,8 +111,12 @@ var app = new Vue({
       this.showNewFileModal = false;
       this.showOldFileModal = false;
 
+      this.showNewUpdateModal = false;
+      this.showOldUpdateModal = false;
+
       this.$nextTick(() => {
         this.getFiles()
+        this.getUpdates()
         this.getCurrentUser()
       })
     },
@@ -144,6 +166,7 @@ var app = new Vue({
   created() {
     this.getCurrentUser()
     this.getFiles()
+    this.getUpdates()
   },
   mounted() {
   },

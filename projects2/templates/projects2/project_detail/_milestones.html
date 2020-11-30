@@ -43,9 +43,11 @@
       <tr v-for="(item, index) in milestones">
         {% for field in milestone_field_list %}
           {% if "latest_update" in field %}
-            <td>${item.latest_update | nz }</td>
+            <td class="w150" v-html="item.latest_update"></td>
           {% elif "target" in field %}
-            <td>${item.target_date_display | nz }</td>
+            <td class="w150">${item.target_date_display | nz }</td>
+          {% elif "name" in field %}
+            <td class="w250">${ item.{{ field }} | nz}</td>
           {% else %}
             <td>${ item.{{ field }} | nz}</td>
           {% endif %}

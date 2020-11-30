@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from pandas import date_range
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView
+from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView, \
+    RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -414,6 +415,7 @@ class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 # STATUS REPORTS
 ##############
+
 class StatusReportListCreateAPIView(ListCreateAPIView):
     queryset = models.StatusReport.objects.all()
     serializer_class = serializers.StatusReportSerializer
@@ -434,6 +436,26 @@ class StatusReportRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
     def perform_update(self, serializer):
         serializer.save(modified_by=self.request.user)
+
+
+# Milestone Updates
+
+
+class MilestoneUpdateListAPIView(ListAPIView):
+    queryset = models.StatusReport.objects.all()
+    serializer_class = serializers.MilestoneUpdateSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        print(self.kwargs)
+        status_report = get_object_or_404(models.StatusReport, pk=self.kwargs.get("status_report"))
+        return status_report.updates.all()
+
+
+class MilestoneUpdateRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = models.MilestoneUpdate.objects.all()
+    serializer_class = serializers.MilestoneUpdateSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
 
 # FILES / Supporting Resources

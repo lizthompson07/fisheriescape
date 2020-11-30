@@ -17,7 +17,7 @@ from shared_models.views import CommonTemplateView, CommonCreateView, \
 from . import filters
 from . import forms
 from . import models
-from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin
+from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
     get_review_score_rubric, get_status_report_field_list
@@ -878,7 +878,6 @@ class StatusReportDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     container_class = "container bg-light curvy"
     delete_protection = False
 
-
     def get_project_year(self):
         return self.get_object().project_year
 
@@ -891,6 +890,7 @@ class StatusReportDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     def get_grandparent_crumb(self):
         return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[
             self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
+
 
 class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.StatusReport
@@ -933,6 +933,7 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
         context["report_mode"] = True
         context['files'] = my_report.files.all()
         context['file_form'] = forms.FileForm
+        context['update_form'] = forms.MilestoneUpdateForm
 
         return context
 
@@ -956,11 +957,13 @@ class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
         return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[
             self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
 
-    def get_delete_url(self):
-        return reverse("projects2:ref_mat_delete", args=[self.get_object().id])
-
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.modified_by = self.request.user
         obj.save()
         return super().form_valid(form)
+
+
+class StatusReportReviewUpdateView(ManagerOrAdminRequiredMixin, StatusReportUpdateView):
+    form_class = forms.StatusReportReviewForm
+    h1 = gettext_lazy("Please provide review comments")

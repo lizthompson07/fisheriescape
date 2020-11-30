@@ -290,7 +290,9 @@ class MilestoneSerializer(serializers.ModelSerializer):
     project_year_id = serializers.SerializerMethodField()
 
     def get_latest_update(self, instance):
-        return str(instance.latest_update)
+        if instance.latest_update:
+            return f"{instance.latest_update.get_status_display()} <br>(from {instance.latest_update.status_report})"
+        return "n/a"
 
     def get_target_date_display(self, instance):
         if instance.target_date:
@@ -373,6 +375,22 @@ class StatusReportSerializer(serializers.ModelSerializer):
 
     def get_supporting_resources(self, instance):
         return instance.files.count()
+
+
+class MilestoneUpdateSerializer(serializers.ModelSerializer):
+    milestone = serializers.StringRelatedField()
+    status_display = serializers.SerializerMethodField()
+    notes_html = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.MilestoneUpdate
+        exclude = ["status_report"]
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_notes_html(self, instance):
+        return instance.notes_html
 
 
 class FileSerializer(serializers.ModelSerializer):

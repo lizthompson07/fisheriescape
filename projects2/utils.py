@@ -559,6 +559,16 @@ def get_status_report_field_list():
     return my_list
 
 
+
+def get_milestone_update_field_list():
+    my_list = [
+        'milestone',
+        'status',
+        'notes_html|{}'.format("notes"),
+    ]
+    return my_list
+
+
 def get_file_field_list():
     my_list = [
         'name',
