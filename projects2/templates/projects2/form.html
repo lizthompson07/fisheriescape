@@ -1,5 +1,8 @@
 {% extends "shared_models/generic_form_with_help_text.html" %}
 {% load static %}
+{% load project_filters %}
+{% load i18n %}
+{% load bootstrap4 %}
 
 {% block bug_create %}
   {% include "projects2/base/_bug_url.html" %}
@@ -24,3 +27,21 @@
   {% include "projects2/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
 
+
+{% block form_field %}
+  <div class="{{ field.name }}_div">
+    {% if field.name|is_markdown_field %}
+
+      <label for="id_priorities">{{ field.label}}</label>
+      <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+         title="{% trans "Markdown syntax is supported in this field" %}">
+        <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px"></span>
+      </a>
+      {% bootstrap_field field placeholder="" show_label=False %}
+
+    {% else %}
+      {% bootstrap_field field placeholder="" %}
+    {% endif %}
+
+  </div>
+{% endblock %}

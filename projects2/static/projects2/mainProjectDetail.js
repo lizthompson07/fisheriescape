@@ -523,7 +523,7 @@ var app = new Vue({
       window.location.href = `/project-planning/project-year/${projectYearId}/clone/`
     },
     goStatusReportDetail(statusReportId) {
-      window.location.href = `/project-planning/status-reports/${statusReportId}/`
+      window.location.href = `/project-planning/status-reports/${statusReportId}/view/`
     },
     isABase(name) {
       if (name && name.length) {

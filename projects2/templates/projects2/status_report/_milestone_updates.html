@@ -2,12 +2,8 @@
 {% load humanize %}
 {% load custom_filters %}
 {% load i18n %}
-<style>
-    table, td {
-        font-size: small;
-    }
-</style>
 
+<div class="mb-5">
 
 <h4>
     {% trans "Progress on Project Milestones:" %}
@@ -49,4 +45,6 @@
         </table>
     {% endif %}
     <br>
+</div>
+
 {% endif %}

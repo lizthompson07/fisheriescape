@@ -17,7 +17,7 @@ from shared_models.views import CommonTemplateView, CommonCreateView, \
 from . import filters
 from . import forms
 from . import models
-from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ProjectLeadRequiredMixin
+from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin
 from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
     get_review_score_rubric, get_status_report_field_list
@@ -249,7 +249,7 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
 
 class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Project
-    template_name = 'projects2/project_detail/project_detail.html'
+    template_name = 'projects2/project_detail/main.html'
     home_url_name = "projects2:index"
     container_class = "container-fluid bg-light curvy"
 
@@ -291,7 +291,7 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["agreement_form"] = forms.AgreementForm
         context["random_agreement"] = models.CollaborativeAgreement.objects.first()
 
-        context["status_report_form"] = forms.StatusReportForm(initial={"user":self.request.user}, instance=project)
+        context["status_report_form"] = forms.StatusReportForm(initial={"user": self.request.user}, instance=project)
         context["random_status_report"] = models.StatusReport.objects.first()
 
         context["file_form"] = forms.FileForm
@@ -868,25 +868,35 @@ class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
     container_class = "container bg-light curvy"
 
 
-
 # STATUS REPORT #
 #################
 
 
 class StatusReportDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
-    template_name = "projects/status_report_confirm_delete.html"
+    template_name = "projects2/confirm_delete.html"
     model = models.StatusReport
+    container_class = "container bg-light curvy"
+    delete_protection = False
+
+
+    def get_project_year(self):
+        return self.get_object().project_year
 
     def get_success_url(self, **kwargs):
         return reverse_lazy("shared_models:close_me")
 
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("projects2:report_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[
+            self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
 
 class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.StatusReport
     home_url_name = "projects2:index"
-    template_name = "projects2/status_report_detail.html"
+    template_name = "projects2/status_report/main.html"
     field_list = get_status_report_field_list()
-
 
     def dispatch(self, request, *args, **kwargs):
         # when the view loads, let's make sure that all the milestones are on the project.
@@ -913,14 +923,8 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
         return self.get_object().project_year
 
     def get_parent_crumb(self):
-        return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
-
-    # def get_pdf_filename(self):
-    #     my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
-    #     pdf_filename = "{}.pdf".format(
-    #         my_report
-    #     )
-    #     return pdf_filename
+        return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[
+            self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -928,18 +932,35 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
         context["object"] = my_report
         context["report_mode"] = True
         context['files'] = my_report.files.all()
-
-        context["field_list"] = [
-            'date_created',
-            'created_by',
-            'status',
-            'major_accomplishments',
-            'major_issues',
-            'target_completion_date',
-            'rationale_for_modified_completion_date',
-            'general_comment',
-            'section_head_comment',
-            'section_head_reviewed',
-        ]
+        context['file_form'] = forms.FileForm
 
         return context
+
+
+class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+    model = models.StatusReport
+    form_class = forms.StatusReportForm
+    home_url_name = "projects2:index"
+    parent_crumb = {"title": _("Reference Materials"), "url": reverse_lazy("projects2:ref_mat_list")}
+    template_name = "projects2/form.html"
+    is_multipart_form_data = True
+    container_class = "container bg-light curvy"
+
+    def get_project_year(self):
+        return self.get_object().project_year
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("projects2:report_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[
+            self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
+
+    def get_delete_url(self):
+        return reverse("projects2:ref_mat_delete", args=[self.get_object().id])
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.modified_by = self.request.user
+        obj.save()
+        return super().form_valid(form)

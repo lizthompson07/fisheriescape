@@ -547,12 +547,14 @@ def get_status_report_field_list():
     my_list = [
         'report_number|{}'.format("number"),
         'status',
-        'major_accomplishments',
-        'major_issues',
+        'major_accomplishments_html|{}'.format(_("major accomplishments")),
+        'major_issues_html|{}'.format(_("major issues")),
         'target_completion_date',
         'general_comment',
         'supporting_resources|{}'.format(_("supporting resources")),
+        'section_head_comment',
         'section_head_reviewed',
+        'metadata',
     ]
     return my_list
 

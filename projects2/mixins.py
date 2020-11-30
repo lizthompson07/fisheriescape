@@ -66,6 +66,8 @@ class CanModifyProjectRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
                 project_id = obj.id
             elif isinstance(obj, models.ProjectYear):
                 project_id = obj.project_id
+            elif isinstance(obj, models.StatusReport):
+                project_id = obj.project_year.project_id
 
         except AttributeError:
             if self.kwargs.get("project"):
