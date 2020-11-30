@@ -133,8 +133,11 @@ urlpatterns = [
     # path('admin/project-approval-for/region/<int:region>/fiscal-year/<int:fy>/', views.ProjectApprovalFormsetView.as_view(), name="admin_project_approval"),
     #
     #
-    # # Reports #
-    # ###########
+    # Reports #
+    ###########
+
+    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
+
     # path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     # path(
     #     'reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',

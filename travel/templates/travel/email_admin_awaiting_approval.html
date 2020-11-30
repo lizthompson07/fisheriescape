@@ -1,5 +1,6 @@
 {% load verbose_names %}
 {% load custom_tags %}
+{% load i18n %}
 
 <style media="screen">
     table, td, th, tr {
@@ -22,10 +23,13 @@
     You can manage approvals via the <a href="{{ SITE_FULL_URL }}{% url 'travel:admin_approval_list' my_type %}">TMS admin console</a>.
     {#    To view the trips awaiting your approval, please click <a href="">HERE</a>. Here are the trip details:#}
 </p>
+{% language 'fr' %}
+
 <table>
     {% for field in field_list %}
         {% verbose_td_display triprequest field %}
     {% endfor %}
 </table>
+{% endlanguage %}
 
 

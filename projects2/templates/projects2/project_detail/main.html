@@ -26,7 +26,7 @@
 
 
     <div id="mySidebar" class="sidebar">
-      {% include "projects2/project_detail/_project_console.html" %}
+      {% include "projects2/project_detail/_console.html" %}
     </div>
 
     <div id="main">
@@ -224,7 +224,7 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.3.6" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.4" type="application/javascript"></script>
   <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.2.1" type="application/javascript"></script>
 
   {% if request.GET.project_year %}

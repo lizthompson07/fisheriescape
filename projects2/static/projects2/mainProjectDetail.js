@@ -6,7 +6,7 @@ var app = new Vue({
     currentUser: null,
     canModify: false,
     showSubmit: false,
-
+    isACRDP: false,
     project_loading: false,
     project: {},
 
@@ -123,6 +123,9 @@ var app = new Vue({
           .then(response => {
             this.project_loading = false;
             this.project = response;
+            if(response.id && response.default_funding_source.toLowerCase().search("acrdp") > -1) {
+              this.isACRDP = true;
+            }
           })
     },
     submitProjectYear(projectYear, action) {

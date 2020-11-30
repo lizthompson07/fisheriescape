@@ -259,7 +259,13 @@ class TripRequestForm(forms.ModelForm):
         trip_start_date = trip.start_date
         trip_end_date = trip.end_date
 
-        if self.instance.is_late_request and not cleaned_data.get("late_justification"):
+        # this only applies to trips requiring adm approval
+        if trip and trip.is_adm_approval_required:
+            is_late_request = trip.date_eligible_for_adm_review and timezone.now() > trip.date_eligible_for_adm_review
+        else:
+            is_late_request = False
+
+        if is_late_request and not cleaned_data.get("late_justification"):
             message = _("In order to submit this request, you will need to provide a justification for the late submission.")
             self.add_error('late_justification', message)
             # raise forms.ValidationError(message)

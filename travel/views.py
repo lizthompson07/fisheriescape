@@ -919,7 +919,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
                     reviewer, created = models.Reviewer.objects.get_or_create(
                         trip_request=my_object,
                         user=ncr_coord.user,
-                        role_id=1,
+                        role_id=3,
                     )
                     reviewer.order = 0
                     reviewer.save()

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-30 14:21-0400\n"
+"POT-Creation-Date: 2020-11-30 15:54-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,11 +23,11 @@ msgstr "nom"
 msgid "Trip title"
 msgstr "Titre du voyage"
 
-#: .\travel\filters.py:46 .\travel\filters.py:97 .\travel\forms.py:546
+#: .\travel\filters.py:46 .\travel\filters.py:97 .\travel\forms.py:552
 msgid "Fiscal year"
 msgstr "Exercice fiscal"
 
-#: .\travel\filters.py:47 .\travel\forms.py:550
+#: .\travel\filters.py:47 .\travel\forms.py:556
 #: .\travel\templates\travel\_trip_request_approvals.html:22
 msgid "Region"
 msgstr "Région"
@@ -91,7 +91,7 @@ msgstr ""
 "Autres participants couverts par la AGV (c'est-à-dire qu'ils n'auront pas "
 "besoin d'avoir un plan de voyage)"
 
-#: .\travel\forms.py:263 .\travel\templates\travel\trip_request_detail.html:32
+#: .\travel\forms.py:269 .\travel\templates\travel\trip_request_detail.html:32
 msgid ""
 "In order to submit this request, you will need to provide a justification "
 "for the late submission."
@@ -99,16 +99,16 @@ msgstr ""
 "Afin de soumettre cette demande, vous devrez fournir une justification pour "
 "la  soumission tardive."
 
-#: .\travel\forms.py:271 .\travel\forms.py:274 .\travel\forms.py:456
-#: .\travel\forms.py:516 .\travel\forms.py:519
+#: .\travel\forms.py:277 .\travel\forms.py:280 .\travel\forms.py:462
+#: .\travel\forms.py:522 .\travel\forms.py:525
 msgid "The start date of the trip must occur before the end date."
 msgstr "La date de début du voyage doit être antérieure à la date de fin."
 
-#: .\travel\forms.py:276 .\travel\forms.py:460 .\travel\forms.py:521
+#: .\travel\forms.py:282 .\travel\forms.py:466 .\travel\forms.py:527
 msgid "The length of this trip is unrealistic."
 msgstr "La durée de ce voyage est irréaliste."
 
-#: .\travel\forms.py:285 .\travel\forms.py:468
+#: .\travel\forms.py:291 .\travel\forms.py:474
 msgid ""
 "The start date of this request ({request_start_date}) has to be within 10 "
 "days of the start date of the selected trip ({trip_start_date})!"
@@ -117,7 +117,7 @@ msgstr ""
 "les 10 jours suivant la date de début du voyage sélectionné "
 "({trip_start_date}) !"
 
-#: .\travel\forms.py:298 .\travel\forms.py:480
+#: .\travel\forms.py:304 .\travel\forms.py:486
 msgid ""
 "The end date of this request ({request_end_date}) must be within 10 days of "
 "the end date of the selected trip ({trip_end_date})!"
@@ -125,13 +125,13 @@ msgstr ""
 "La date de fin de cette demande ({request_end_date}) doit se situer dans les "
 "10 jours suivant la date de fin du voyage sélectionné ({trip_end_date}) !"
 
-#: .\travel\forms.py:449
+#: .\travel\forms.py:455
 msgid ""
 "There is already a trip request in the system for this user and this trip."
 msgstr ""
 "Il y a déjà une demande dans le système pour cet utilisateur et ce voyage."
 
-#: .\travel\forms.py:527
+#: .\travel\forms.py:533
 msgid ""
 "The abstract submission deadline (if present) must occur before the start "
 "date of the trip."
@@ -139,7 +139,7 @@ msgstr ""
 "La date limite de soumission des résumés (si elle existe) doit avoir lieu "
 "avant la date de début du voyage."
 
-#: .\travel\forms.py:532
+#: .\travel\forms.py:538
 msgid ""
 "The registration deadline (if present) must occur before or on the start "
 "date of the trip."
@@ -147,21 +147,21 @@ msgstr ""
 "La date limite d'inscription (si elle existe) doit avoir lieu avant ou à la "
 "date de début du voyage."
 
-#: .\travel\forms.py:548
+#: .\travel\forms.py:554
 #: .\travel\templates\travel\_trip_traveller_cost_comparison.html:9
 #: .\travel\templates\travel\index.html:126
 msgid "Traveller"
 msgstr "Voyageur"
 
-#: .\travel\forms.py:549
+#: .\travel\forms.py:555
 msgid "Trip"
 msgstr "Voyage"
 
-#: .\travel\forms.py:551
+#: .\travel\forms.py:557
 msgid "ADM approval required"
 msgstr "Approbation du SMA requis"
 
-#: .\travel\forms.py:624 .\travel\forms.py:681
+#: .\travel\forms.py:630 .\travel\forms.py:687
 msgid ""
 "Sorry, the role of a reviewer whose status is set to {my_object.status} "
 "cannot be changed"
@@ -169,7 +169,7 @@ msgstr ""
 "Désolé, le rôle d'un examinateur dont le statut est fixé à {mon_objet."
 "status} ne peut être modifié"
 
-#: .\travel\forms.py:628 .\travel\forms.py:685
+#: .\travel\forms.py:634 .\travel\forms.py:691
 msgid ""
 "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
 "status is set to {my_object.status}"
@@ -177,7 +177,7 @@ msgstr ""
 "Désolé, vous ne pouvez pas changer l'utilisateur DM Apps associé à un "
 "examinateur dont le statut est défini sur {mon_objet.status}"
 
-#: .\travel\forms.py:632 .\travel\forms.py:689
+#: .\travel\forms.py:638 .\travel\forms.py:695
 msgid ""
 "Sorry, the order of a reviewer whose status is set to {my_object.status} "
 "cannot be changed"

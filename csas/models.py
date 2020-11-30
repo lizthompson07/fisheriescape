@@ -467,7 +467,7 @@ class PubPublicationDocLocation(models.Model):
     publication = models.ManyToManyField(PubPublication, blank=True, related_name="pub_doc_location",
                                          verbose_name=_('Publication'))
     # publication = models.OneToOneField(PubPublication, on_delete=models.DO_NOTHING, primary_key=True)
-    p1 = models.CharField(max_length=1, blank=True, verbose_name=_(""))
+    p1 = models.CharField(max_length=1, blank=True, verbose_name=_("p1"))
     attach_en_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) File"))
     attach_en_size = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (English) Size"))
     attach_fr_file = models.CharField(default="NA", max_length=255, verbose_name=_("Attachment (French) File"))

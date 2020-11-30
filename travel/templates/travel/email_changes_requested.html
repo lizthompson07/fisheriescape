@@ -1,5 +1,5 @@
 {% load verbose_names %}
-
+{% load i18n %}
 <style media="screen">
     table, td, th, tr {
         border: solid 1px black;
@@ -49,12 +49,14 @@
     Vous pouvez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_detail' triprequest.id triprequest.user|slugify %}">ICI</a> pour accéder la demande.
     Voici les détails du voyage:
 </p>
+{% language 'fr' %}
 
 <table>
     {% for field in field_list %}
         {% verbose_td_display triprequest field %}
     {% endfor %}
 </table>
+{% endlanguage %}
 
 
 
