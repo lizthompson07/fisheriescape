@@ -13,8 +13,11 @@
         <div class="modal-header">
           <slot name="header">
 
+            <h3 v-if="mtype === 'update'">
+              <span>{% trans "Update Milestone Status" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'file'">
 
-            <h3>
               <span v-if="!my_file">{% trans "New Supporting Resource" %}</span>
               <span v-else>{% trans "Edit Supporting Resource" %}</span>
             </h3>
@@ -32,8 +35,24 @@
           <div class="modal-body">
             <slot name="body">
 
-              {# FILE FORM             #}
-              <div>
+              {# Milestone Update FORM             #}
+              <div v-if="mtype=='update'">
+                {% for field in update_form %}
+                  {% if field.name|is_markdown_field %}
+                    <label for="id_priorities">{{ field.label }}</label>
+                    <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+                       title="{% trans "Markdown syntax is supported in this field" %}">
+                      <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
+                    </a>
+                    {% bootstrap_field field placeholder="" show_label=False size='small' %}
+
+                  {% else %}
+                    {% bootstrap_field field placeholder="" size='small' %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+              {# File FORM             #}
+              <div v-else-if="mtype=='file'">
                 {% bootstrap_form file_form size='small' %}
               </div>
             </slot>
@@ -50,7 +69,6 @@
         </form>
 
         {# OVERTIME CALC #}
-
 
 
       </div>

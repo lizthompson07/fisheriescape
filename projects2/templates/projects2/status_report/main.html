@@ -17,8 +17,8 @@
       <a v-if="canModify" href="{% url 'projects2:report_edit' object.id %}" class="btn btn-warning ">{% trans "Edit Report" %}</a>
       <a v-if="canModify" href="{% url 'projects2:report_delete' object.id %}" class="btn btn-danger ">{% trans "Delete" %}</a>
       {#      <a v-if="canModify" href="#" class="btn btn-primary">{% trans "Add a Supporting Resource" %}</a>#}
-      <a v-if="isSectionHead || isAdmin" href="#" class="btn btn-dark ">{% trans "Approve the Report" %}</a>
-      <a href="#" class="btn btn-secondary ">{% trans "Print" %}</a>
+      <a v-if="isSectionHead || isAdmin" href="{% url 'projects2:report_review' object.id %}" class="btn btn-dark ">{% trans "Review the Report" %}</a>
+      <a href="{% url 'projects2:report_pdf' object.id %}" class="btn btn-secondary " target="_blank">{% trans "Print" %}</a>
     </div>
 
     <div class="mb-5">
@@ -38,13 +38,15 @@
     </div>
 
 
-    {% include "projects2/status_report/_milestone_updates.html" %}
+    {% include "projects2/status_report/_updates.html" %}
     {% include "projects2/status_report/_files.html" %}
     {% include "projects2/status_report/_modal_form.html" %}
 
 
-    <modal v-if="showNewFileModal" @close="closeModals()"></modal>
-    <modal v-if="showOldFileModal" @close="closeModals()" :my_file="fileToEdit"></modal>
+    <modal v-if="showNewFileModal" @close="closeModals()" :mtype="file"></modal>
+    <modal v-if="showOldFileModal" @close="closeModals()" :my_file="fileToEdit" :mtype="'file'"></modal>
+
+    <modal v-if="showOldUpdateModal" @close="closeModals()" :my_update="updateToEdit" :mtype="'update'"></modal>
 
 
     <br><br>
@@ -66,8 +68,8 @@
 
   </script>
 
-  <script src="{% static '/projects2/mainStatusReport.js' %}?version=1.1" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainStatusReportModal.js' %}?version=1.0" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainStatusReport.js' %}?version=1.2" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainStatusReportModal.js' %}?version=1.1" type="application/javascript"></script>
 
 
 {% endblock %}

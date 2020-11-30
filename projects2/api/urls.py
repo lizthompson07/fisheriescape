@@ -58,6 +58,10 @@ urlpatterns = [
     # status reports
     path("project-planning/project-years/<int:project_year>/status-reports/", views.StatusReportListCreateAPIView.as_view(), name="status-report-list"),
     path("project-planning/status-reports/<int:pk>/", views.StatusReportRetrieveUpdateDestroyAPIView.as_view(), name="status-report-detail"),
+    path("project-planning/status-reports/<int:status_report>/updates/", views.MilestoneUpdateListAPIView.as_view(),
+         name="milestone-update-list"),
+    path("project-planning/milestone-updates/<int:pk>/", views.MilestoneUpdateRetrieveUpdateAPIView.as_view(),
+         name="milestone-update-detail"),
 
 
     # financials

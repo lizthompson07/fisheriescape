@@ -31,13 +31,11 @@ urlpatterns = [
 
     # STATUS REPORT #
     #################
-    # path('project/<int:project>/status-report/new/', views.StatusReportCreateView.as_view(), name="report_new"),
     path('status-reports/<int:pk>/view/', views.StatusReportDetailView.as_view(), name="report_detail"),
     path('status-reports/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),
+    path('status-reports/<int:pk>/review/', views.StatusReportReviewUpdateView.as_view(), name="report_review"),
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),
-
-
-    # path('status-report/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_print"),
+    path('status-reports/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),
 
     # MILESTONE UPDATE #
     ####################
@@ -135,8 +133,11 @@ urlpatterns = [
     # path('admin/project-approval-for/region/<int:region>/fiscal-year/<int:fy>/', views.ProjectApprovalFormsetView.as_view(), name="admin_project_approval"),
     #
     #
-    # # Reports #
-    # ###########
+    # Reports #
+    ###########
+
+    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
+
     # path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     # path(
     #     'reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',

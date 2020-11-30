@@ -2,7 +2,15 @@ Vue.component("modal", {
   template: "#modal-template",
   delimiters: ["${", "}"],
   props: {
+    mtype: {
+      type: String,
+      required: true,
+    },
     my_file: {
+      type: Object,
+      required: false,
+    },
+    my_update: {
       type: Object,
       required: false,
     },
@@ -17,6 +25,13 @@ Vue.component("modal", {
         name: null,
         external_url: null,
       },
+
+      // updates
+      update: {
+        status: "",
+        notes: "",
+      },
+
     }
   },
   methods: {
@@ -27,50 +42,69 @@ Vue.component("modal", {
     onSubmit() {
       this.errors = null;
 
+      if (this.mtype === "file") {
 
-      // file
+        // file
 
-      if (this.my_file) {
-        // if there is a file attribute, delete it since we send back the file through a separate request
-        if (this.file.file) delete this.file.file
+        if (this.my_file) {
+          // if there is a file attribute, delete it since we send back the file through a separate request
+          if (this.file.file) delete this.file.file
 
-        let endpoint = `/api/project-planning/files/${this.my_file.id}/?status_report=${statusReportId}`;
-        apiService(endpoint, "PATCH", this.file).then(response => {
-          if (response.id) {
-            if (this.fileToUpload) {
-              fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
-              this.fileToUpload = null
+          let endpoint = `/api/project-planning/files/${this.my_file.id}/?status_report=${statusReportId}`;
+          apiService(endpoint, "PATCH", this.file).then(response => {
+            if (response.id) {
+              if (this.fileToUpload) {
+                fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
+                this.fileToUpload = null
+              }
+              this.$emit('close')
+            } else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
             }
-            this.$emit('close')
-          } else {
-            var myString = "";
-            for (var i = 0; i < Object.keys(response).length; i++) {
-              key = Object.keys(response)[i]
-              myString += String(key) + ": " + response[key] + "<br>"
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${projectYearId}/files/?status_report=${statusReportId}`;
+          apiService(endpoint, "POST", this.file).then(response => {
+            if (response.id) {
+              // now we have to upload the file
+              if (this.fileToUpload) {
+                let endpoint = `/api/project-planning/files/${response.id}/`;
+                fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
+                this.fileToUpload = null
+              }
+              this.$emit('close')
+            } else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
             }
-            this.errors = myString
-          }
-        })
-      } else {
-        let endpoint = `/api/project-planning/project-years/${projectYearId}/files/?status_report=${statusReportId}`;
-        apiService(endpoint, "POST", this.file).then(response => {
-          if (response.id) {
-            // now we have to upload the file
-            if (this.fileToUpload) {
-              let endpoint = `/api/project-planning/files/${response.id}/`;
-              fileApiService(endpoint, "PATCH", "file", this.fileToUpload)
-              this.fileToUpload = null
+          })
+        }
+      } else if (this.mtype === "update") {
+        if (this.my_update) {
+          // should really only be one option here
+          let endpoint = `/api/project-planning/milestone-updates/${this.my_update.id}/`;
+          apiService(endpoint, "PATCH", this.update).then(response => {
+            if (response.id) {
+              this.$emit('close')
+            } else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
             }
-            this.$emit('close')
-          } else {
-            var myString = "";
-            for (var i = 0; i < Object.keys(response).length; i++) {
-              key = Object.keys(response)[i]
-              myString += String(key) + ": " + response[key] + "<br>"
-            }
-            this.errors = myString
-          }
-        })
+          })
+        }
       }
 
     },
@@ -89,8 +123,15 @@ Vue.component("modal", {
     this.getCurrentUser();
 
     this.$nextTick(() => {
-      if (this.my_file && this.my_file.id) {
-        this.file = this.my_file
+
+      if (this.mtype === "update") {
+        if (this.my_update && this.my_update.id) {
+          this.update = this.my_update
+        }
+      } else if (this.mtype === "file") {
+        if (this.my_file && this.my_file.id) {
+          this.file = this.my_file
+        }
       }
     })
 

@@ -1,11 +1,13 @@
 import json
+import os
 from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -14,10 +16,8 @@ from django.utils.translation import gettext as _, gettext_lazy
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
     CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView
-from . import filters
-from . import forms
-from . import models
-from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin
+from . import filters, forms, models, reports
+from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
     get_review_score_rubric, get_status_report_field_list
@@ -878,7 +878,6 @@ class StatusReportDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     container_class = "container bg-light curvy"
     delete_protection = False
 
-
     def get_project_year(self):
         return self.get_object().project_year
 
@@ -891,6 +890,7 @@ class StatusReportDeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
     def get_grandparent_crumb(self):
         return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[
             self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
+
 
 class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.StatusReport
@@ -933,6 +933,9 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
         context["report_mode"] = True
         context['files'] = my_report.files.all()
         context['file_form'] = forms.FileForm
+        context["random_file"] = models.File.objects.first()
+        context['update_form'] = forms.MilestoneUpdateForm
+        context["random_update"] = models.MilestoneUpdate.objects.first()
 
         return context
 
@@ -956,11 +959,148 @@ class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
         return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[
             self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
 
-    def get_delete_url(self):
-        return reverse("projects2:ref_mat_delete", args=[self.get_object().id])
-
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.modified_by = self.request.user
         obj.save()
         return super().form_valid(form)
+
+
+class StatusReportReviewUpdateView(ManagerOrAdminRequiredMixin, StatusReportUpdateView):
+    form_class = forms.StatusReportReviewForm
+    h1 = gettext_lazy("Please provide review comments")
+    container_class = "container-fluid"
+
+
+class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
+    template_name = "projects2/status_report_pdf.html"
+    model = models.StatusReport
+
+    def get_h2(self):
+        return f'{self.get_project_year().project} ({self.get_project_year()})'
+
+    def get_project_year(self):
+        return self.get_object().project_year
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_project_year().project), "url": reverse_lazy("projects2:project_detail", args=[
+            self.get_project_year().project.id]) + f"?project_year={self.get_project_year().id}"}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        my_report = get_object_or_404(models.StatusReport, pk=self.kwargs["pk"])
+        context["object"] = my_report
+
+        context["random_file"] = models.File.objects.first()
+        context["random_update"] = models.MilestoneUpdate.objects.first()
+
+        return context
+
+
+def export_acrdp_application(request, pk):
+    project = get_object_or_404(models.Project, pk=pk)
+    file_url = reports.generate_acrdp_application(project)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-word")
+            response['Content-Disposition'] = f'inline; filename="ACRDP application (Project ID {project.id}).docx"'
+            return response
+    raise Http404
+
+#
+# def export_acrdp_application(request, pk):
+#
+#
+#     filename = "diet_db_export_{}.csv".format(timezone.now().strftime("%Y-%m-%d"))
+#     qs = models.Prey.objects.all()
+#
+#     if year != "None":
+#         qs = qs.filter(predator__processing_date__year=year)
+#
+#     if cruise != "None":
+#         qs = qs.filter(predator__cruise_id=cruise)
+#
+#     if spp != "None":
+#         qs = qs.filter(predator__species_id__in=spp.split(","))
+#
+#     # Create the HttpResponse object with the appropriate CSV header.
+#     response = HttpResponse(content_type='text/csv')
+#     response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+#     response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
+#     writer = csv.writer(response)
+#
+#     header_row = [
+#
+#         # from predator
+#         'cruise_name',
+#         'cruise_number',
+#         'cruise_year',
+#         'set',
+#         'fish_number',
+#         'samplers',
+#         'processing_date',
+#         'processing_year',
+#         'predator_id',
+#         'stomach_id',
+#         'predator_species_code',
+#         'predator_species_common_name',
+#         'predator_species_latin_name',
+#         'somatic_length_cm',
+#         'stomach_wt_g',
+#         'content_wt_g',
+#         'predator_comments',
+#
+#         # from prey
+#         'prey_id',
+#         'prey_species_code',
+#         'prey_species_common_name',
+#         'prey_species_latin_name',
+#         'digestion_level_id',
+#         'digestion_level_description',
+#         'somatic_length_mm',
+#         'length_comment',
+#         'number_of_prey',
+#         'somatic_wt_g',
+#         'prey_comments',
+#
+#     ]
+#     writer.writerow(header_row)
+#
+#     for prey in qs:
+#         writer.writerow([
+#             # from predator
+#             prey.predator.cruise.mission_name if prey.predator.cruise else None,
+#             prey.predator.cruise.mission_number if prey.predator.cruise else None,
+#             prey.predator.cruise.season if prey.predator.cruise else None,
+#             prey.predator.set,
+#             prey.predator.fish_number,
+#             listrify([obj for obj in prey.predator.samplers.all()]),
+#             prey.predator.processing_date.strftime('%Y-%m-%d') if prey.predator.processing_date else None,
+#             prey.predator.processing_date.year if prey.predator.processing_date else None,
+#             prey.predator.id,
+#             prey.predator.stomach_id,
+#             prey.predator.species.id if prey.predator.species else None,
+#             prey.predator.species.common_name_eng if prey.predator.species else None,
+#             prey.predator.species.scientific_name if prey.predator.species else None,
+#             prey.predator.somatic_length_cm,
+#             prey.predator.stomach_wt_g,
+#             prey.predator.content_wt_g,
+#             prey.predator.comments,
+#
+#             # from prey
+#             prey.id,
+#             prey.species.id if prey.species else None,
+#             prey.species.common_name_eng if prey.species else None,
+#             prey.species.scientific_name if prey.species else None,
+#             prey.digestion_level.id if prey.digestion_level else None,
+#             prey.digestion_level.level if prey.digestion_level else None,
+#             prey.somatic_length_mm,
+#             prey.length_comment,
+#             prey.number_of_prey,
+#             prey.somatic_wt_g,
+#             prey.comments,
+#         ])
+#
+#
+#     return response

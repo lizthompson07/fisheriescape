@@ -64,8 +64,8 @@ class NJCRates(SimpleLookup):
 
 class ProcessStep(Lookup):
     stage_choices = (
-        (1, _("Travel request process outline")),
-        (2, _("Review process outline")),
+        (1, _("Travel Request Process Outline")),
+        (2, _("Review Process Outline")),
     )
     stage = models.IntegerField(blank=True, null=True, choices=stage_choices)
 

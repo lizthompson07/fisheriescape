@@ -647,7 +647,7 @@ class StatusReport(models.Model):
         "rationale for a modified completion date"))
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
-    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"), editable=False)
+    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"), choices=YES_NO_CHOICES)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -797,7 +797,7 @@ class MilestoneUpdate(models.Model):
     )
     milestone = models.ForeignKey(Milestone, related_name="updates", on_delete=models.CASCADE)
     status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)
-    status = models.IntegerField(default=7, editable=False, choices=status_choices)
+    status = models.IntegerField(default=7, choices=status_choices)
     notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     class Meta:
@@ -811,6 +811,10 @@ class MilestoneUpdate(models.Model):
             self.milestone,
         )
 
+    @property
+    def notes_html(self):
+        if self.notes:
+            return mark_safe(markdown(self.notes))
 
 #
 # class Note(models.Model):

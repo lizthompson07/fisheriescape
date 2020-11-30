@@ -29,6 +29,9 @@ def is_markdown_field(value):
         'major_accomplishments',
         'major_issues',
 
+        # milestone update
+        'notes',
+
     ]
     return value in target_field_list
 

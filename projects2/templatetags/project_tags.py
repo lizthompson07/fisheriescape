@@ -85,6 +85,14 @@ def get_status_report_field_list():
         return []
 
 @register.simple_tag
+def get_milestone_update_field_list():
+    try:
+        return utils.get_milestone_update_field_list()
+    except Exception as e:
+        print(e)
+        return []
+
+@register.simple_tag
 def get_file_field_list():
     try:
         return utils.get_file_field_list()
