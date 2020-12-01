@@ -4,7 +4,7 @@ from io import BytesIO
 from django.conf import settings
 from django.utils.translation import gettext as _
 from docx import Document
-from openpyxl import Workbook, load_workbook
+from openpyxl import load_workbook
 
 from . import models
 
@@ -23,12 +23,15 @@ def generate_acrdp_application(project):
     document = Document(source_stream)
     source_stream.close()
 
-    lead = project.lead_staff.first().user
-    contact_info = _("{full_address}\n\n{email}\n\n{phone}").format(
-        full_address=project.organization.full_address if project.organization else "MISSING!",
-        email=lead.email,
-        phone=lead.profile.phone
-    )
+    lead = None
+    contact_info = None
+    if project.lead_staff.exists():
+        lead = project.lead_staff.first().user
+        contact_info = _("{full_address}\n\n{email}\n\n{phone}").format(
+            full_address=project.organization.full_address if project.organization else "MISSING!",
+            email=lead.email,
+            phone=lead.profile.phone
+        )
 
     priorities = str()
     for year in project.years.all():
@@ -46,16 +49,16 @@ def generate_acrdp_application(project):
     field_dict = dict(
         TAG_TITLE=project.title,
         TAG_ORG_NAME=project.organization.tname if project.organization else "MISSING!",
-        TAG_ADDRESS=project.organization.address  if project.organization else "MISSING!",
+        TAG_ADDRESS=project.organization.address if project.organization else "MISSING!",
         TAG_CITY=project.organization.city if project.organization else "MISSING!",
         TAG_PROV=str(project.organization.location.tname) if project.organization else "MISSING!",
         TAG_POSTAL_CODE=project.organization.postal_code if project.organization else "MISSING!",
         TAG_SPECIES=project.species_involved if project.organization else "MISSING!",
-        TAG_LEAD_NAME=lead.get_full_name(),
-        TAG_LEAD_NUMBER=lead.profile.phone,
-        TAG_LEAD_EMAIL=lead.email,
-        TAG_LEAD_POSITION=lead.profile.tposition,
-        TAG_LEAD_CONTACT_INFO=contact_info,  # address email telephone
+        TAG_LEAD_NAME=lead.get_full_name() if lead else "MISSING!",
+        TAG_LEAD_NUMBER=lead.profile.phone if lead else "MISSING!",
+        TAG_LEAD_EMAIL=lead.email if lead else "MISSING!",
+        TAG_LEAD_POSITION=lead.profile.tposition if lead else "MISSING!",
+        TAG_LEAD_CONTACT_INFO=contact_info if contact_info else "MISSING!",
         TAG_SECTION_HEAD_NAME=project.section.head.get_full_name() if project.section else "MISSING!",
         TAG_DIVISION_MANAGER_NAME=project.section.division.head.get_full_name() if project.section else "MISSING!",
         TAG_START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y"),
@@ -113,7 +116,6 @@ def generate_acrdp_application(project):
     return target_url
 
 
-
 def generate_acrdp_budget(project):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
@@ -123,16 +125,42 @@ def generate_acrdp_budget(project):
 
     template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "acrdp_template.xlsx")
 
-    wb = load_workbook(filename = template_file_path)
+    wb = load_workbook(filename=template_file_path)
     for year in project.years.all():
         try:
             ws = wb[str(year.fiscal_year)]
         except KeyError:
             print(str(year.fiscal_year), "is not a valid name of a worksheet")
         else:
-            for cost in year.omcost_set.all():
-                pass
+            for cost in year.omcost_set.filter(funding_source__name__icontains="acrdp"):
+                if cost.cost_category_id == 5: ws['H13'].value = cost.amount
 
+    """
+    1	Field Travel	Voyage sur le terrain	1
+    2	DFO Business Travel (meeting etc.)	Voyage d'affaires du MPO (réunion, etc.)	1
+    3	Training, domestic conferences	Formation, conférences domestiques	1
+    4	Other	Autre	1
+    5	IM/IT - computers, hardware, software	GI / TI - ordinateurs, matériel informatique, logiciels	2
+    6	Lab Equipment	Équipement de laboratoire	2
+    7	Field Equipment	Équipement de terrain	2
+    8	Other	Autre	2
+    9	Office	Bureau	3
+    10	Lab	Laboratoire	3
+    11	Field	Terrain	3
+    12	Other	Autre	3
+    13	Students (FSWEP, Coop etc.)	Etudiants (PFETE, Coop, etc.)	4
+    14	Post-Doctoral Candidates	Candidats postdoctoraux	4
+    15	Contracts	Les contrats	5
+    16	Translation	Traduction	5
+    17	Publication costs	Frais de publication	5
+    18	Vessels, Boats	Navires, Bateaux	5
+    19	Facilities	Installations	5
+    20	Other	Autre	5
+    21	Fuel (e.g., boats)	Carburant (par exemple, bateaux)	3
+    22	International travel for meetings, science collaboration and conferences	Voyages internationaux pour réunions, collaboration scientifique et conférences	1
+    23	Equipment Maintenance	L'entretien de l'équipement	6
+    24	Regional Overhead Tax	taxe régionale sur les frais généraux	6
+    """
 
     # ws0['H7'].value = 1500
     # ws0['H8'].value = 2500
@@ -226,8 +254,6 @@ def generate_acrdp_budget(project):
     wb.save(target_file_path)
 
     return target_url
-
-
 
 #
 #

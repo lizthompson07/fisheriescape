@@ -1103,10 +1103,13 @@ def export_acrdp_application(request, pk):
     project = get_object_or_404(models.Project, pk=pk)
 
     # check if the project lead's profile is up-to-date
-    if not project.lead_staff.first().user.profile.tposition:
-        messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (position title)"))
-    if not project.lead_staff.first().user.profile.phone:
-        messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (phone number)"))
+    if not project.lead_staff.exists():
+        messages.error(request, _("Warning: There are no lead staff on this project!!"))
+    else:
+        if not project.lead_staff.first().user.profile.tposition:
+            messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (position title)"))
+        if not project.lead_staff.first().user.profile.phone:
+            messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (phone number)"))
     file_url = reports.generate_acrdp_application(project)
 
     if os.path.exists(file_url):
