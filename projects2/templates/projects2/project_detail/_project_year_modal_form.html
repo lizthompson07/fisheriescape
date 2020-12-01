@@ -143,9 +143,14 @@
                 {% bootstrap_form gc_cost_form size='small' %}
               </div>
 
-              {# MILESTONE FORM             #}
+              {# ACTIVITY FORM             #}
               <div v-else-if="mtype=='activity'">
-                {% bootstrap_form activity_form size='small' %}
+                {% for field in activity_form %}
+                  {% bootstrap_field field size='small' placeholder="" %}
+                  {% if field.name == "likelihood" %}
+                    {% include "projects2/project_detail/_risk_rating_diagram.html" %}
+                  {% endif %}
+                {% endfor %}
               </div>
               {# COLLABORATOR FORM             #}
               <div v-else-if="mtype=='collaborator'">

@@ -9,7 +9,7 @@
     <h2>{% trans "Activities" %}</h2>
   </div>
   <div v-if="!activity_loading" class="btn-group mb-3 neighbours">
-    <button @click="openActivityModal()"class="{{ btn_class_1 }}" v-if="canModify">
+    <button @click="openActivityModal()" class="{{ btn_class_1 }}" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Activity" %}
     </button>
   </div>
@@ -46,6 +46,13 @@
             <td class="w150" v-html="item.latest_update"></td>
           {% elif "target" in field %}
             <td class="w150">${item.target_date_display | nz }</td>
+          {% elif "type" in field %}
+            <td class="w100">${item.type_display }</td>
+          {% elif "risk_rating" in field %}
+            <td class="w100">
+              <span v-if="item.risk_rating_display" :class="`${item.risk_rating_display.toLowerCase()}`">${item.risk_rating_display }</span>
+              <span v-else>${item.risk_rating_display }</span>
+            </td>
           {% elif "name" in field %}
             <td class="w250">${ item.{{ field }} | nz}</td>
           {% else %}

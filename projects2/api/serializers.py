@@ -288,6 +288,14 @@ class ActivitySerializer(serializers.ModelSerializer):
     latest_update = serializers.SerializerMethodField()
     target_date_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
+    type_display = serializers.SerializerMethodField()
+    risk_rating_display = serializers.SerializerMethodField()
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
+
+    def get_risk_rating_display(self, instance):
+        return instance.get_risk_rating_display()
 
     def get_latest_update(self, instance):
         if instance.latest_update:

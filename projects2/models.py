@@ -11,6 +11,7 @@ from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify, nz
 from lib.templatetags.custom_filters import percentage
 from projects2 import emails
+from projects2.utils import get_risk_rating
 from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup, Lookup, HelpTextLookup
@@ -773,10 +774,47 @@ class Review(models.Model):
 
 
 class Activity(models.Model):
+    type_choices = (
+        (1, _("Milestone")),
+        (2, _("Deliverable")),
+    )
+    likelihood_choices = (
+        (1, _("1-Very unlikely")),
+        (2, _("2-Unlikely")),
+        (3, _("3-Low")),
+        (4, _("4-Likely")),
+        (5, _("5-Almost certain")),
+    )
+    impact_choices = (
+        (1, _("1-Negligible")),
+        (2, _("2-Low")),
+        (3, _("3-Medium")),
+        (4, _("4-High")),
+        (5, _("5-Extreme")),
+    )
+    risk_rating_choices = (
+        (None, "n/a"),
+        (1, _("Low")),
+        (2, _("Medium")),
+        (3, _("High")),
+    )
+
     project_year = models.ForeignKey(ProjectYear, related_name="activities", on_delete=models.CASCADE)
+    type = models.IntegerField(choices=type_choices)
     name = models.CharField(max_length=500, verbose_name=_("name"))
-    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+    responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party"), blank=True, null=True)
+    impact = models.IntegerField(choices=impact_choices, blank=True, null=True)
+    likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True)
+    risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)
+    risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences (ACRDP only)"))
+    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("mitigation measures (ACRDP only)"))
+
+    def save(self, *args, **kwargs):
+        if self.impact and self.likelihood:
+            self.risk_rating = get_risk_rating(self.impact, self.likelihood)
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['project_year', 'target_date', 'name']
@@ -787,6 +825,7 @@ class Activity(models.Model):
     @property
     def latest_update(self):
         return self.updates.first()
+
 
 
 class ActivityUpdate(models.Model):
@@ -815,6 +854,7 @@ class ActivityUpdate(models.Model):
     def notes_html(self):
         if self.notes:
             return mark_safe(markdown(self.notes))
+
 
 #
 # class Note(models.Model):

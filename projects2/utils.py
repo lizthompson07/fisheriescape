@@ -503,11 +503,14 @@ def get_capital_field_list():
     return my_list
 
 
-def get_milestone_field_list():
+def get_activity_field_list():
     my_list = [
+        'type',
         'name',
         'description',
+        'responsible_party',
         'target_date',
+        'risk_rating',
         'latest_update|{}'.format(_("latest status")),
     ]
     return my_list
@@ -543,6 +546,7 @@ def get_agreement_field_list():
     ]
     return my_list
 
+
 def get_status_report_field_list():
     my_list = [
         'report_number|{}'.format("number"),
@@ -559,10 +563,9 @@ def get_status_report_field_list():
     return my_list
 
 
-
-def get_milestone_update_field_list():
+def get_activity_update_field_list():
     my_list = [
-        'milestone',
+        'activity',
         'status',
         'notes_html|{}'.format("notes"),
     ]
@@ -667,3 +670,30 @@ def get_review_score_rubric():
         },
 
     }
+
+
+def get_risk_rating(impact, likelihood):
+    """This is taken from the ACRDP application form"""
+    l=1
+    m=2
+    h=3
+    rating_dict = {
+        # impact
+        1: {
+            # likelihood -- > risk rating
+            1: l, 2: l, 3: l, 4: m, 5: m,
+        },
+        2: {
+            1: l, 2: l, 3: m, 4: m, 5: m,
+        },
+        3: {
+            1: l, 2: m, 3: m, 4: m, 5: h,
+        },
+        4: {
+            1: m, 2: m, 3: m, 4: h, 5: h,
+        },
+        5: {
+            1: m, 2: m, 3: h, 4: h, 5: h,
+        },
+    }
+    return rating_dict[impact][likelihood]

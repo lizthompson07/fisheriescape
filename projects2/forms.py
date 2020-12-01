@@ -360,17 +360,21 @@ class GCCostForm(forms.ModelForm):
 
 
 class ActivityForm(forms.ModelForm):
-    field_order = ["name", "description", "target_date"]
-
     class Meta:
         model = models.Activity
         exclude = ["project_year"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["type"].widget.attrs = {"v-model": "activity.type"}
         self.fields["name"].widget.attrs = {"v-model": "activity.name"}
-        self.fields["description"].widget.attrs = {"v-model": "activity.description"}
+        self.fields["description"].widget.attrs = {"v-model": "activity.description", "rows": "4"}
+        self.fields["responsible_party"].widget.attrs = {"v-model": "activity.responsible_party"}
         self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "activity.target_date", "type": "date"})
+        self.fields["likelihood"].widget.attrs = {"v-model": "activity.likelihood"}
+        self.fields["impact"].widget.attrs = {"v-model": "activity.impact"}
+        self.fields["risk_description"].widget.attrs = {"v-model": "activity.risk_description", "rows": "4", ":disabled": "!isACRDP"}
+        self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP"}
 
 
 class CollaboratorForm(forms.ModelForm):
@@ -914,20 +918,17 @@ LevelFormset = modelformset_factory(
     extra=1,
 )
 
+
 class ResponsibilityCenterForm(forms.ModelForm):
     class Meta:
         model = shared_models.ResponsibilityCenter
         fields = "__all__"
 
 
-
 class ProjectCodeForm(forms.ModelForm):
     class Meta:
         shared_models = shared_models.Project
         fields = "__all__"
-
-
-
 
 #
 #

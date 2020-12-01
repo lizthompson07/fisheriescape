@@ -50,6 +50,7 @@ Vue.component("modal", {
   data() {
     return {
       currentUser: null,
+      isACRDP: false,
       staff: {
         name: null,
         user: null,
@@ -374,7 +375,7 @@ Vue.component("modal", {
         if (this.status_report.target_completion_date === "") this.status_report.target_completion_date = null
         if (this.status_report.section_head_reviewed == null) this.status_report.section_head_reviewed = "False"
         console.log(this.status_report.target_completion_date)
-        
+
         if (this.my_status_report) {
           let endpoint = `/api/project-planning/status-reports/${this.my_status_report.id}/`;
           apiService(endpoint, "PATCH", this.status_report).then(response => {
@@ -486,7 +487,7 @@ Vue.component("modal", {
 
       // if the current user is changing themselves away from project lead, give them a warning
       // only do this if we are editing an existing user
-      if(this.my_staff) {
+      if (this.my_staff) {
         if (this.currentUser && this.currentUser.id == this.my_staff.user && !this.projectLeadWarningIssued && this.staff.is_lead === "False") {
           alert(warningMsg);
           this.projectLeadWarningIssued = true
@@ -560,6 +561,10 @@ Vue.component("modal", {
 
     this.getCurrentUser();
 
+    if (this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
+      this.isACRDP = true;
+    }
+
     this.$nextTick(() => {
       if (this.mtype === "staff") {
         if (this.my_staff && this.my_staff.id) {
@@ -617,7 +622,7 @@ Vue.component("modal", {
         }
       }
 
-       // status reports
+      // status reports
       else if (this.mtype === "status_report") {
         if (this.my_status_report && this.my_status_report.id) {
           this.status_report = this.my_status_report
