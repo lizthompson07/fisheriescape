@@ -25,118 +25,50 @@ def generate_acrdp_application(project):
     #         paragraph.text = paragraph.text.replace("CLEARLY", "xyzABC")
 
     field_dict = dict(
-        TITLE="",
-        PROJECT_LEAD_NAME="",
+        TITLE=project.title,
+        DFO_ADDRESS="",
+        DFO_CITY="",
+        DFO_PROV="",
+        DFO_POSTAL_CODE="",
+        ACRDP_SPECIES="",
+        PROJECT_LEAD_NAME=project.lead_staff.first().user.get_full_name(),
         PROJECT_LEAD_NUMBER="",
-        PROJECT_LEAD_EMAIL="",
+        PROJECT_LEAD_EMAIL=project.lead_staff.first().user.email,
         PROJECT_LEAD_POSITION="",
         PROJECT_LEAD_CONTACT_INFO="",
-        SECTION_HEAD_NAME="",
-        DIVISION_MANAGER_NAME="",
-        START_YEAR="",
-        END_YEAR="",
-        COLLAB_CONTACT_INFO="",
-        COLLAB_POSITION="",
-        COLLAB_NAME="",
-        COLLAB_PROFILE="",
+        SECTION_HEAD_NAME=project.section.head.get_full_name(),
+        DIVISION_MANAGER_NAME=project.section.division.head.get_full_name(),
+        START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y"),
+        END_YEAR=project.years.first().end_date.strftime("%d/%m/%Y"),
+        TEAM_DESCRIPTION="",
+        RATIONALE="",
+        PROJECT_OVERVIEW=project.overview,
+        PROJECT_YEAR_PRIORITIES="",
+        EXPERIMENTAL_PROTOCOL="",
+        DELIVERABLES=""
     )
 
-    for table in document.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for paragraph in cell.paragraphs:
-                    if 'ID_TITLE' in paragraph.text:
-                        paragraph.text = paragraph.text.replace("ID_TITLE", getattr(project, "ID_TITLE".lower().replace("id_", "")))
+    for item in field_dict:
+        for table in document.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for paragraph in cell.paragraphs:
+                        if item in paragraph.text:
+                            paragraph.text = paragraph.text.replace(item, field_dict[item])
 
-    target_stream = BytesIO()
+        for paragraph in document.paragraphs:
+            if item in paragraph.text:
+                paragraph.text = paragraph.text.replace(item, field_dict[item])
+            # print(paragraph.text)
+        # for shape in document.inline_shapes:
+        #     for row in shape.rows:
+        #         for cell in row.cells:
+        #             for paragraph in cell.paragraphs:
+        #
+        #                 print(paragraph.text)
+
+    # target_stream = BytesIO()
     document.save(target_file_path)
-
-    # # create workbook and worksheets
-    # workbook = xlsxwriter.Workbook(target_file_path)
-    #
-    # # create formatting
-    # header_format = workbook.add_format(
-    #     {'bold': True, 'border': 1, 'border_color': 'black', 'bg_color': '#9ae0f5', "align": 'normal',
-    #      "text_wrap": True})
-    # normal_format = workbook.add_format({"valign": 'top', "align": 'left', "text_wrap": True, 'border': 1,
-    #                                      'border_color': 'black', })
-    #
-    # number_format = workbook.add_format({"valign": 'top', "align": 'left', 'border': 1,
-    #                                      'border_color': 'black', })
-    # number_format.set_num_format(8)
-    #
-    # # need to assemble a section list
-    # #  first look at the sections arg; if not null, we don't need anything else
-    # if sections != "None":
-    #     section_list = shared_models.Section.objects.filter(id__in=sections.split(","))
-    # #  next look at the divisions arg; if not null, we don't need anything else
-    # elif divisions != "None":
-    #     section_list = shared_models.Section.objects.filter(division_id__in=divisions.split(","))
-    # #  next look at the divisions arg; if not null, we don't need anything else
-    # elif regions != "None":
-    #     section_list = shared_models.Section.objects.filter(division__branch__region_id__in=regions.split(","))
-    # else:
-    #     section_list = shared_models.Section.objects.all()
-    #
-    # project_list = models.Project.objects.filter(year=fiscal_year, section__in=section_list)
-    #
-    # if omcatagory and omcatagory != "None":
-    #     # get a list of OM Categories matching what the user selected in the web form
-    #     om_list = models.OMCategory.objects.filter(pk__in=omcatagory.split(','))
-    #
-    #     # Use the OMCost table to get a list of projects that have one of the categories assiged to it
-    #     om_costs_projects = [omc.project.pk for omc in models.OMCost.objects.filter(om_category__in=om_list,
-    #                                                                                 budget_requested__gt=0)]
-    #
-    #     # filter down the list of projects to projects in both the project list and in the OMCost list
-    #     project_list = project_list.filter(pk__in=om_costs_projects)
-    #
-    #     header = {"Project ID": [normal_format, 20], "Project Title": [normal_format, 20],
-    #               "Project Leads": [normal_format, 20], "O&M Cost": [number_format, 20]}
-    #     # Use the header key as the col label, then use the array[0] for the col format and array[1] for col size
-    #     for om in om_list:
-    #         header[om.name] = [number_format, 20]
-    #     header["Project Objectives & Description"] = [normal_format, 150]
-    #
-    #     worksheet1 = workbook.add_worksheet(name="Submitted Projects")
-    #     write_funding_omcategory_sheet(worksheet1, header_format, header, project_list.filter(approved=False), om_list)
-    #
-    #     worksheet2 = workbook.add_worksheet(name="Approved Projects")
-    #     write_funding_omcategory_sheet(worksheet2, header_format, header, project_list.filter(approved=True), om_list)
-    #     workbook.close()
-    # else:
-    #
-    #     # We're only using B-Base funding
-    #     # funding_type = models.FundingSourceType.objects.get(pk=funding)
-    #     # funding_src = models.FundingSource.objects.filter(name="SARA", funding_source_type=funding_type)
-    #     funding_src = models.FundingSource.objects.get(pk=funding)
-    #
-    #     project_list = project_list.filter(default_funding_source=funding_src)
-    #
-    #     # Use the header key as the col label, then use the array[0] for the col format and array[1] for col size
-    #     header = {
-    #         "Project ID": [normal_format, 20],
-    #         "Project Title": [normal_format, 20],
-    #         "Salary": [number_format, 20],
-    #         "O&M Cost": [number_format, 20],
-    #         "Capital Cost": [number_format, 20],
-    #         "Project Staff": [normal_format, 20],
-    #         "Start Date of Project": [normal_format, 20],
-    #         "End Date of Project": [normal_format, 20],
-    #         "Project-Specific Priorities": [normal_format, 150],
-    #         "Project Objectives & Description": [normal_format, 150],
-    #         "Project Deliverables / Activities": [normal_format, 150],
-    #         "Milestones": [normal_format, 150],
-    #         "Additional Notes": [normal_format, 150],
-    #     }
-    #
-    #     worksheet1 = workbook.add_worksheet(name="Submitted Projects")
-    #     write_funding_sheet(worksheet1, header_format, header, project_list.filter(approved=False), funding_src)
-    #
-    #     worksheet2 = workbook.add_worksheet(name="Approved Projects")
-    #     write_funding_sheet(worksheet2, header_format, header, project_list.filter(approved=True), funding_src)
-    #
-    #     workbook.close()
 
     return target_url
 
@@ -535,7 +467,7 @@ def generate_acrdp_application(project):
 #             "Project-Specific Priorities": [normal_format, 150],
 #             "Project Objectives & Description": [normal_format, 150],
 #             "Project Deliverables / Activities": [normal_format, 150],
-#             "Milestones": [normal_format, 150],
+#             "Activities": [normal_format, 150],
 #             "Additional Notes": [normal_format, 150],
 #         }
 #
@@ -606,7 +538,7 @@ def generate_acrdp_application(project):
 #
 #         capital_cost = project.capital_costs.filter(funding_source=funding).aggregate(Sum("budget_requested"))
 #
-#         milestone = listrify([m.name + ": " + m.description for m in project.milestones.all()], "\n\n*")
+#         activity = listrify([m.name + ": " + m.description for m in project.activities.all()], "\n\n*")
 #
 #         data = [
 #             project.id,
@@ -623,7 +555,7 @@ def generate_acrdp_application(project):
 #                                                                                                            "\n\n"),
 #             html2text.html2text(project.deliverables).replace("\n\n", "[_EOL_]").replace("\n", " ").replace("[_EOL_]",
 #                                                                                                             "\n\n"),
-#             milestone,
+#             activity,
 #             project.notes]
 #         worksheet.write_row(row, 0, data)
 #

@@ -216,3 +216,19 @@ class FunctionalGroupFilter(django_filters.FilterSet):
         fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
         self.filters['name'] = django_filters.CharFilter(field_name='search_term', label=_("Name"), lookup_expr='icontains',
                                             widget=forms.TextInput())
+
+
+class ProjectCodeFilter(django_filters.FilterSet):
+    class Meta:
+        model = shared_models.Project
+        fields = {
+            'name': ['icontains'],
+            'code': ['icontains'],
+        }
+class RCFilter(django_filters.FilterSet):
+    class Meta:
+        model = shared_models.ResponsibilityCenter
+        fields = {
+            'name': ['icontains'],
+            'code': ['icontains'],
+        }

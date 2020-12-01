@@ -26,7 +26,7 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
-    my_milestone: {
+    my_activity: {
       type: Object,
       required: false,
     },
@@ -104,8 +104,8 @@ Vue.component("modal", {
         amount: 0,
       },
 
-      // milestones
-      milestone: {
+      // activities
+      activity: {
         name: "",
         description: "",
         target_date: null,
@@ -275,12 +275,12 @@ Vue.component("modal", {
         }
       }
 
-      // milestone
-      else if (this.mtype === "milestone") {
-        if (this.milestone.target_date === "") this.milestone.target_date = null
-        if (this.my_milestone) {
-          let endpoint = `/api/project-planning/milestones/${this.my_milestone.id}/`;
-          apiService(endpoint, "PATCH", this.milestone).then(response => {
+      // activity
+      else if (this.mtype === "activity") {
+        if (this.activity.target_date === "") this.activity.target_date = null
+        if (this.my_activity) {
+          let endpoint = `/api/project-planning/activities/${this.my_activity.id}/`;
+          apiService(endpoint, "PATCH", this.activity).then(response => {
             if (response.id) this.$emit('close')
             else {
               var myString = "";
@@ -292,8 +292,8 @@ Vue.component("modal", {
             }
           })
         } else {
-          let endpoint = `/api/project-planning/project-years/${this.year.id}/milestones/`;
-          apiService(endpoint, "POST", this.milestone).then(response => {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/activities/`;
+          apiService(endpoint, "POST", this.activity).then(response => {
             if (response.id) this.$emit('close')
             else {
               var myString = "";
@@ -589,13 +589,13 @@ Vue.component("modal", {
         }
       }
 
-      // milestones
-      else if (this.mtype === "milestone") {
-        if (this.my_milestone && this.my_milestone.id) {
-          this.milestone = this.my_milestone
+      // activities
+      else if (this.mtype === "activity") {
+        if (this.my_activity && this.my_activity.id) {
+          this.activity = this.my_activity
           // there is an annoying thing that has to happen to convert the html to js to pytonese...
-          if (this.milestone.target_date) this.milestone.target_date = this.milestone.target_date.slice(0, 10)
-          else this.milestone.target_date = null
+          if (this.activity.target_date) this.activity.target_date = this.activity.target_date.slice(0, 10)
+          else this.activity.target_date = null
         }
       }
       // collaborators

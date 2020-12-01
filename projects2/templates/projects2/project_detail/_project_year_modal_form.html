@@ -30,9 +30,9 @@
               <span v-if="!my_gc_cost">{% trans "New G&C Cost" %}</span>
               <span v-else>{% trans "Edit G&C Cost" %}</span>
             </h3>
-            <h3 v-else-if="mtype === 'milestone'">
-              <span v-if="!my_milestone">{% trans "New Milestone" %}</span>
-              <span v-else>{% trans "Edit Milestone" %}</span>
+            <h3 v-else-if="mtype === 'activity'">
+              <span v-if="!my_activity">{% trans "New Activity" %}</span>
+              <span v-else>{% trans "Edit Activity" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'collaborator'">
               <span v-if="!my_collaborator">{% trans "New External Collaborator" %}</span>
@@ -144,8 +144,8 @@
               </div>
 
               {# MILESTONE FORM             #}
-              <div v-else-if="mtype=='milestone'">
-                {% bootstrap_form milestone_form size='small' %}
+              <div v-else-if="mtype=='activity'">
+                {% bootstrap_form activity_form size='small' %}
               </div>
               {# COLLABORATOR FORM             #}
               <div v-else-if="mtype=='collaborator'">

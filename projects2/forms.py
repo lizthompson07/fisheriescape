@@ -359,18 +359,18 @@ class GCCostForm(forms.ModelForm):
         self.fields["amount"].widget.attrs = {"v-model": "gc_cost.amount"}
 
 
-class MilestoneForm(forms.ModelForm):
+class ActivityForm(forms.ModelForm):
     field_order = ["name", "description", "target_date"]
 
     class Meta:
-        model = models.Milestone
+        model = models.Activity
         exclude = ["project_year"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["name"].widget.attrs = {"v-model": "milestone.name"}
-        self.fields["description"].widget.attrs = {"v-model": "milestone.description"}
-        self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "milestone.target_date", "type": "date"})
+        self.fields["name"].widget.attrs = {"v-model": "activity.name"}
+        self.fields["description"].widget.attrs = {"v-model": "activity.description"}
+        self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "activity.target_date", "type": "date"})
 
 
 class CollaboratorForm(forms.ModelForm):
@@ -408,7 +408,7 @@ class StatusReportForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["status"].widget.attrs = {"v-model": "status_report.status"}
         self.fields["major_accomplishments"].widget.attrs = {"v-model": "status_report.major_accomplishments", "rows": "4"}
-        self.fields["major_accomplishments"].label = _("Major accomplishments (this can be left blank if reported at the milestone level")
+        self.fields["major_accomplishments"].label = _("Major accomplishments (this can be left blank if reported at the activity level")
         self.fields["major_issues"].widget.attrs = {"v-model": "status_report.major_issues", "rows": "4"}
         self.fields["target_completion_date"].widget = forms.DateInput(
             attrs={"v-model": "status_report.target_completion_date", "type": "date"})
@@ -417,10 +417,10 @@ class StatusReportForm(forms.ModelForm):
         self.fields["general_comment"].widget.attrs = {"v-model": "status_report.general_comment", "rows": "4"}
 
 
-class MilestoneUpdateForm(forms.ModelForm):
+class ActivityUpdateForm(forms.ModelForm):
     class Meta:
-        model = models.MilestoneUpdate
-        exclude = ["status_report", "milestone"]
+        model = models.ActivityUpdate
+        exclude = ["status_report", "activity"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -544,9 +544,9 @@ class ApprovalForm(forms.ModelForm):
 #         }
 #
 #
-# class MilestoneForm(forms.ModelForm):
+# class ActivityForm(forms.ModelForm):
 #     class Meta:
-#         model = models.Milestone
+#         model = models.Activity
 #         fields = "__all__"
 #         widgets = {
 #             'project': forms.HiddenInput(),
@@ -913,6 +913,21 @@ LevelFormset = modelformset_factory(
     form=LevelForm,
     extra=1,
 )
+
+class ResponsibilityCenterForm(forms.ModelForm):
+    class Meta:
+        model = shared_models.ResponsibilityCenter
+        fields = "__all__"
+
+
+
+class ProjectCodeForm(forms.ModelForm):
+    class Meta:
+        shared_models = shared_models.Project
+        fields = "__all__"
+
+
+
 
 #
 #

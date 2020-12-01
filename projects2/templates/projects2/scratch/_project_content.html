@@ -25,7 +25,7 @@
 <br>
 {% include "projects2/_agreements.html" %}
 <br>
-{% include "projects2/_milestones.html" %}
+{% include "projects2/_activities.html" %}
 <br>
 {% include "projects2/_files.html" %}
 <br>
@@ -112,13 +112,13 @@
         e.stopImmediatePropagation();
     });
 
-    $(".milestone-delete-me").click(function (e) {
+    $(".activity-delete-me").click(function (e) {
         var objectId = $(this)[0].getAttribute("val");
 
         var userInput = "";
-        userInput = confirm("{% trans "Are you sure you want to delete this milestone request from the project?" %}");
+        userInput = confirm("{% trans "Are you sure you want to delete this activity request from the project?" %}");
         if (userInput === true) {
-            document.location.href = $("#milestone-secrect-delete-btn-" + objectId)[0].getAttribute("href");
+            document.location.href = $("#activity-secrect-delete-btn-" + objectId)[0].getAttribute("href");
         }
         e.stopImmediatePropagation();
     });

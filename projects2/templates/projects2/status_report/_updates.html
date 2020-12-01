@@ -6,7 +6,7 @@
 
 <div class="mb-5">
   <div class="mb-2 neighbours">
-    <h2>{% trans "Progress on Milestones" %}</h2>
+    <h2>{% trans "Progress on Activities" %}</h2>
   </div>
 
   <div v-if="update_loading">
@@ -22,12 +22,12 @@
       v-if="!updates.length"
       class="font-italic"
     >
-      {% trans "No milestones have been added to this year of the project" %}
+      {% trans "No activities have been added to this year of the project" %}
     </div>
 
     <table v-else class="table table-sm" style="width: auto">
       <thead>
-      {% get_milestone_update_field_list as update_field_list %}
+      {% get_activity_update_field_list as update_field_list %}
       {% for field in update_field_list %}
         <th>
           {% get_verbose_label random_update field %}
@@ -39,7 +39,7 @@
         {% for field in update_field_list %}
           {% if "status" in field %}
             <td class="w100">${item.status_display }</td>
-          {% elif "milestone" in field %}
+          {% elif "activity" in field %}
             <td class="w150">${ item.{{ field }} | nz}</td>
           {% elif "notes" in field %}
             <td v-html="item.notes_html"></td>

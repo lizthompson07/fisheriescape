@@ -5,21 +5,21 @@
 
 <div class="mb-2 neighbours">
 <h4>
-    {% trans "Project Milestones" %}
+    {% trans "Project Activities" %}
 </h4>
 </div>
 {% if can_edit or is_lead %}
     <div class="mb-3 neighbours">
-        <a class="btn btn-sm btn-outline-primary add-btn" href="#" pop-href="{% url 'projects2:milestone_new' project.id %}">
-            {% trans "Add Milestone" %}
+        <a class="btn btn-sm btn-outline-primary add-btn" href="#" pop-href="{% url 'projects2:activity_new' project.id %}">
+            {% trans "Add Activity" %}
         </a>
     </div>
 {% endif %}
 
-{% if project.milestones.count == 0 %}
+{% if project.activities.count == 0 %}
     <div class="mb-3">
         <em>
-            {% trans "No milestones" %}...
+            {% trans "No activities" %}...
         </em>
     </div>
 {% else %}
@@ -43,16 +43,16 @@
 
         </tr>
         <tbody>
-        {% for obj in project.milestones.all %}
-            <tr  {% if can_edit %} href="{% url 'projects2:milestone_edit' obj.id %}" pop data-toggle="tooltip" title="Edit" {% endif %} >
+        {% for obj in project.activities.all %}
+            <tr  {% if can_edit %} href="{% url 'projects2:activity_edit' obj.id %}" pop data-toggle="tooltip" title="Edit" {% endif %} >
                 {% if can_edit %}
                     <td>
-                        <a class="milestone-delete-me" href="#" val="{{ obj.id }}">
+                        <a class="activity-delete-me" href="#" val="{{ obj.id }}">
                             <img src="{% static "/admin/img/icon-deletelink.svg" %}" data-toggle="tooltip"
                                  title="Delete" width="20px">
                         </a>
-                        <a id="milestone-secrect-delete-btn-{{ obj.id }}"
-                           href="{% url 'projects2:milestone_delete' obj.id %}" class="hidden"></a>
+                        <a id="activity-secrect-delete-btn-{{ obj.id }}"
+                           href="{% url 'projects2:activity_delete' obj.id %}" class="hidden"></a>
                     </td>
                 {% endif %}
                 <td>{{ obj.name }}</td>

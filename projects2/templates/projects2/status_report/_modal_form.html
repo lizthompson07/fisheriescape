@@ -14,7 +14,7 @@
           <slot name="header">
 
             <h3 v-if="mtype === 'update'">
-              <span>{% trans "Update Milestone Status" %}</span>
+              <span>{% trans "Update Activity Status" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'file'">
 
@@ -35,7 +35,7 @@
           <div class="modal-body">
             <slot name="body">
 
-              {# Milestone Update FORM             #}
+              {# Activity Update FORM             #}
               <div v-if="mtype=='update'">
                 {% for field in update_form %}
                   {% if field.name|is_markdown_field %}

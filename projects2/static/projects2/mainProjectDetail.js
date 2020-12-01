@@ -45,12 +45,12 @@ var app = new Vue({
     showNewGCCostModal: false,
     showOldGCCostModal: false,
 
-    // milestones
-    milestone_loading: false,
-    milestones: [],
-    milestoneToEdit: {},
-    showNewMilestoneModal: false,
-    showOldMilestoneModal: false,
+    // activities
+    activity_loading: false,
+    activities: [],
+    activityToEdit: {},
+    showNewActivityModal: false,
+    showOldActivityModal: false,
 
     // collaborators
     collaborator_loading: false,
@@ -108,7 +108,7 @@ var app = new Vue({
             this.getOMCosts(yearId)
             this.getCapitalCosts(yearId)
             this.getGCCosts(yearId)
-            this.getMilestones(yearId)
+            this.getActivities(yearId)
             this.getCollaborators(yearId)
             this.getAgreements(yearId)
             this.getStatusReports(yearId)
@@ -316,33 +316,33 @@ var app = new Vue({
       }
     },
 
-    // Milestones
-    getMilestones(yearId) {
-      this.milestone_loading = true;
-      let endpoint = `/api/project-planning/project-years/${yearId}/milestones/`;
+    // Activities
+    getActivities(yearId) {
+      this.activity_loading = true;
+      let endpoint = `/api/project-planning/project-years/${yearId}/activities/`;
       apiService(endpoint)
           .then(response => {
-            this.milestone_loading = false;
-            this.milestones = response;
+            this.activity_loading = false;
+            this.activities = response;
           })
     },
-    deleteMilestone(milestone) {
-      userInput = confirm(deleteMsg + milestone.name)
+    deleteActivity(activity) {
+      userInput = confirm(deleteMsg + activity.name)
       if (userInput) {
-        let endpoint = `/api/project-planning/milestones/${milestone.id}/`;
+        let endpoint = `/api/project-planning/activities/${activity.id}/`;
         apiService(endpoint, "DELETE")
             .then(response => {
-              if (!response.detail) this.$delete(this.milestones, this.milestones.indexOf(milestone))
+              if (!response.detail) this.$delete(this.activities, this.activities.indexOf(activity))
             })
       }
     },
 
-    openMilestoneModal(milestone) {
-      if (!milestone) {
-        this.showNewMilestoneModal = true;
+    openActivityModal(activity) {
+      if (!activity) {
+        this.showNewActivityModal = true;
       } else {
-        this.milestoneToEdit = milestone;
-        this.showOldMilestoneModal = true;
+        this.activityToEdit = activity;
+        this.showOldActivityModal = true;
       }
     },
 
@@ -480,8 +480,8 @@ var app = new Vue({
       this.showNewGCCostModal = false;
       this.showOldGCCostModal = false;
 
-      this.showNewMilestoneModal = false;
-      this.showOldMilestoneModal = false;
+      this.showNewActivityModal = false;
+      this.showOldActivityModal = false;
 
       this.showNewCollaboratorModal = false;
       this.showOldCollaboratorModal = false;
@@ -501,7 +501,7 @@ var app = new Vue({
           this.getOMCosts(projectYear.id)
           this.getCapitalCosts(projectYear.id)
           this.getGCCosts(projectYear.id)
-          this.getMilestones(projectYear.id)
+          this.getActivities(projectYear.id)
           this.getAgreements(projectYear.id)
           this.getStatusReports(projectYear.id)
           this.getCollaborators(projectYear.id)
