@@ -61,8 +61,8 @@ def generate_acrdp_application(project):
         TAG_LEAD_CONTACT_INFO=contact_info if contact_info else "MISSING!",
         TAG_SECTION_HEAD_NAME=project.section.head.get_full_name() if project.section else "MISSING!",
         TAG_DIVISION_MANAGER_NAME=project.section.division.head.get_full_name() if project.section else "MISSING!",
-        TAG_START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y"),
-        TAG_END_YEAR=project.years.last().end_date.strftime("%d/%m/%Y"),
+        TAG_START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y") if project.years.exists() else "MISSING!",
+        TAG_END_YEAR=project.years.last().end_date.strftime("%d/%m/%Y") if project.years.exists() and project.years.last().end_date else "MISSING!",
         TAG_TEAM_DESCRIPTION=project.team_description,
         TAG_RATIONALE=project.rationale,
         TAG_OVERVIEW=project.overview,
@@ -96,20 +96,20 @@ def generate_acrdp_application(project):
         if "date/period" in table.rows[0].cells[0].paragraphs[0].text.lower():
             for milestone in models.Activity.objects.filter(type=1, project_year__project=project).order_by("target_date"):
                 row = table.add_row()
-                row.cells[0].paragraphs[0].text = milestone.target_date.strftime("%Y-%m-%d")
+                row.cells[0].paragraphs[0].text = milestone.target_date.strftime("%Y-%m-%d") if milestone.target_date else "MISSING!"
                 row.cells[1].paragraphs[0].text = f"{milestone.name.upper()} - {milestone.description}"
-                row.cells[2].paragraphs[0].text = milestone.responsible_party
+                row.cells[2].paragraphs[0].text = milestone.responsible_party if milestone.responsible_party else "MISSING!"
 
         if "project risk analysis" in table.rows[0].cells[0].paragraphs[0].text.lower():
             for activity in models.Activity.objects.filter(project_year__project=project).order_by("target_date"):
                 row = table.add_row()
                 row.cells[0].paragraphs[0].text = f"{activity.name} ({activity.get_type_display()})"
-                row.cells[1].paragraphs[0].text = activity.risk_description
-                row.cells[2].paragraphs[0].text = f"{activity.likelihood}"
-                row.cells[3].paragraphs[0].text = f"{activity.impact}"
-                row.cells[4].paragraphs[0].text = activity.get_risk_rating_display()
-                row.cells[5].paragraphs[0].text = activity.mitigation_measures
-                row.cells[6].paragraphs[0].text = activity.responsible_party
+                row.cells[1].paragraphs[0].text = activity.risk_description if activity.risk_description else "MISSING!"
+                row.cells[2].paragraphs[0].text = f"{activity.likelihood}" if activity.likelihood else "MISSING!"
+                row.cells[3].paragraphs[0].text = f"{activity.impact}" if activity.impact else "MISSING!"
+                row.cells[4].paragraphs[0].text = activity.get_risk_rating_display() if activity.risk_rating else "MISSING!"
+                row.cells[5].paragraphs[0].text = activity.mitigation_measures if activity.mitigation_measures else "MISSING!"
+                row.cells[6].paragraphs[0].text = activity.responsible_party if activity.mitigation_measures else "MISSING!"
 
     document.save(target_file_path)
 
