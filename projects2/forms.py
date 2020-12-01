@@ -119,7 +119,8 @@ class ProjectForm(forms.ModelForm):
             ]
             for field in acrdp_fields:
                 del self.fields[field]
-
+        else:
+            self.fields["overview"].label += str(_(" /  ACRDP objectives"))
 
 class ProjectYearForm(forms.ModelForm):
     class Meta:
@@ -418,7 +419,7 @@ class AgreementForm(forms.ModelForm):
 class StatusReportForm(forms.ModelForm):
     class Meta:
         model = models.StatusReport
-        exclude = ["project_year, section_head_comment"]
+        exclude = ["project_year", "section_head_comment"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

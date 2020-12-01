@@ -1,5 +1,5 @@
 from django.db.models import Sum, Q
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -397,7 +397,7 @@ def get_project_field_list(project):
         'id',
         'section',
         # 'title',
-        'overview',  # do not call the html field directly or we loose the ability to get the model's verbose name
+        'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),  # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
         'functional_group',
         'default_funding_source',

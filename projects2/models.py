@@ -650,7 +650,7 @@ class StatusReport(models.Model):
         (5, _("Encountering issues")),
         (6, _("Aborted / cancelled")),
     )
-    project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE)
+    project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE, editable=False)
     status = models.IntegerField(default=1, editable=True, choices=status_choices)
     major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_(
         "major accomplishments"))
