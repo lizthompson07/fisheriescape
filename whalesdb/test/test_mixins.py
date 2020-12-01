@@ -69,6 +69,17 @@ class TestEca(CommonMixinsTest, TestCase):
         self.expected_form = forms.EcaForm
 
 
+@tag('ecp', 'mixin')
+class TestEcp(CommonMixinsTest, TestCase):
+
+    def setUp(self) -> None:
+        self.mixin = mixins.EcpMixin
+        self.expected_key = 'ecp'
+        self.expected_title = _("Equipment Channel Properties")
+        self.expected_model = models.EcpChannelProperty
+        self.expected_form = forms.EcpForm
+
+
 @tag('eda', 'mixin')
 class TestEda(CommonMixinsTest, TestCase):
 

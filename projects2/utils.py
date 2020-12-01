@@ -1,4 +1,4 @@
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.utils.translation import gettext as _
 
 from lib.templatetags.custom_filters import nz
@@ -22,16 +22,22 @@ def in_projects_admin_group(user):
         return user.groups.filter(name='projects_admin').exists()
 
 
+def is_management(user):
+    """
+        Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
+    """
+    if user.id:
+        return shared_models.Section.objects.filter(head=user).exists() or \
+               shared_models.Division.objects.filter(head=user).exists() or \
+               shared_models.Branch.objects.filter(head=user).exists()
+
+
 def is_management_or_admin(user):
     """
         Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
     """
     if user.id:
-        if in_projects_admin_group(user) or \
-                shared_models.Section.objects.filter(head=user).count() > 0 or \
-                shared_models.Division.objects.filter(head=user).count() > 0 or \
-                shared_models.Branch.objects.filter(head=user).count() > 0:
-            return True
+        return in_projects_admin_group(user) or is_management(user)
 
 
 def is_section_head(user, project):
@@ -48,11 +54,14 @@ def is_division_manager(user, project):
         pass
 
 
-def is_rds(user, project):
-    try:
-        return True if project.section.division.branch.head == user else False
-    except AttributeError:
-        pass
+def is_rds(user, project=None):
+    if project:
+        try:
+            return True if project.section.division.branch.head == user else False
+        except AttributeError:
+            pass
+    else:
+        return shared_models.Branch.objects.filter(head=user).exists()
 
 
 def is_project_lead(user, project_id=None, project_year_id=None):
@@ -128,6 +137,12 @@ def is_admin_or_project_manager(user, project):
             return True
 
 
+def get_manageable_sections(user):
+    if in_projects_admin_group(user):
+        return shared_models.Section.objects.filter(projects__isnull=False).distinct()
+    return shared_models.Section.objects.filter(Q(head=user) | Q(division__head=user) | Q(division__branch__head=user))
+
+
 def get_section_choices(all=False, full_name=True, region_filter=None, division_filter=None):
     if full_name:
         my_attr = "full_name"
@@ -198,13 +213,14 @@ def get_funding_sources(all=False):
 def get_user_fte_breakdown(user, fiscal_year_id):
     staff_instances = models.Staff.objects.filter(user=user, project_year__fiscal_year_id=fiscal_year_id)
     my_dict = dict()
+    my_dict['name'] = f"{user.last_name}, {user.first_name}"
     my_dict['fiscal_year'] = str(shared_models.FiscalYear.objects.get(pk=fiscal_year_id))
     my_dict['draft'] = nz(staff_instances.filter(
         project_year__status=1
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
-    my_dict['recommended'] = nz(staff_instances.filter(
-        project_year__status=3
+    my_dict['submitted_unapproved'] = nz(staff_instances.filter(
+        project_year__status__in=[2, 3]
     ).aggregate(dsum=Sum("duration_weeks"))["dsum"], 0)
 
     my_dict['approved'] = nz(staff_instances.filter(
@@ -280,6 +296,48 @@ def financial_project_summary_data(project):
             my_dict["capital"] += nz(cost.amount, 0)
 
         my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+
+        my_list.append(my_dict)
+
+    return my_list
+
+
+def multiple_financial_project_year_summary_data(project_years):
+    my_list = []
+
+    fs_list = list()
+    # first get funding source list
+    for py in project_years:
+        fs_list.extend([fs.id for fs in py.get_funding_sources()])
+    funding_sources = models.FundingSource.objects.filter(id__in=fs_list)
+
+    for fs in funding_sources:
+        my_dict = dict()
+        my_dict["type"] = fs.get_funding_source_type_display()
+        my_dict["name"] = str(fs)
+        my_dict["salary"] = 0
+        my_dict["om"] = 0
+        my_dict["capital"] = 0
+
+        for py in project_years:
+            # first calc for staff
+            for staff in models.Staff.objects.filter(funding_source=fs, project_year=py):
+                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+                if not staff.employee_type.exclude_from_rollup:
+                    if staff.employee_type.cost_type == 1:
+                        my_dict["salary"] += nz(staff.amount, 0)
+                    elif staff.employee_type.cost_type == 2:
+                        my_dict["om"] += nz(staff.amount, 0)
+
+            # O&M costs
+            for cost in models.OMCost.objects.filter(funding_source=fs, project_year=py):
+                my_dict["om"] += nz(cost.amount, 0)
+
+            # Capital costs
+            for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year=py):
+                my_dict["capital"] += nz(cost.amount, 0)
+
+            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
         my_list.append(my_dict)
 
@@ -397,7 +455,8 @@ def get_project_year_field_list(project_year=None):
         'coding',
         'submitted',
         'formatted_status|{}'.format(_("status")),
-        'allocated_budget',
+        'allocated_budget|{}'.format(_("allocated budget")),
+        'review_score|{}'.format(_("review score")),
         'metadata|{}'.format(_("metadata")),
     ]
 
@@ -484,6 +543,19 @@ def get_agreement_field_list():
     ]
     return my_list
 
+def get_status_report_field_list():
+    my_list = [
+        'report_number|{}'.format("number"),
+        'status',
+        'major_accomplishments',
+        'major_issues',
+        'target_completion_date',
+        'general_comment',
+        'supporting_resources|{}'.format(_("supporting resources")),
+        'section_head_reviewed',
+    ]
+    return my_list
+
 
 def get_file_field_list():
     my_list = [
@@ -495,3 +567,91 @@ def get_file_field_list():
 
     ]
     return my_list
+
+
+def get_review_score_rubric():
+    return {
+        "collaboration": {
+            1: {
+                "criteria": _(
+                    "no formal commitments; limited interest from stakeholders; limited opportunity for partnership or collaboration."),
+                "examples": _(
+                    "No expressed interest or identified as a low priority (or potential conflict) by a stakeholder advisory committee."),
+            },
+            2: {
+                "criteria": _("Informal departmental commitments; some interest from stakeholders; internal collaboration."),
+                "examples": _(
+                    "Verbal agreement with stakeholders or external partner. Collaboration between internal programs of science staff."),
+            },
+            3: {
+                "criteria": _(
+                    "regulatory or legal commitment; high interest from stakeholders; strong opportunity for external partnership and collaboration."),
+                "examples": _("Signed G&C agreement with external partner."),
+            },
+        },
+        "strategic": {
+            1: {
+                "criteria": _("limited long-term value; short-term benefit (fire-fighting)"),
+                "examples": _(
+                    "Local, archived dataset, with limited likelihood of replication going forward.   No clear link to decision-making."),
+            },
+            2: {
+                "criteria": _("some strategic value to department; medium-term benefit"),
+                "examples": _(
+                    "Regional dataset of current high value, but potential to be replaced by emerging technology.  Indirect link to decision."),
+            },
+            3: {
+                "criteria": _("high long-term strategic value to the department; high innovation value; broad applicability"),
+                "examples": _(
+                    "High value/priority, nationally consistent dataset using emerging, more cost effective (emerging) technology.  Clear link to high-priority decision-making."),
+            },
+        },
+        "operational": {
+            1: {
+                "criteria": _("One-off project; feasible now but not sustainable in the long-term."),
+                "examples": _("New data collection. Significant admin work required."),
+            },
+            2: {
+                "criteria": _(
+                    "Moderate level of feasibility or operational efficiency, e.g. equipment/tools readily available to be implemented within year"),
+                "examples": _("Some processing/analysis required of an existing dataset."),
+            },
+            3: {
+                "criteria": _(
+                    "high feasibility, e.g. data availability, expertise, existing monitoring platforms, and regulatory tools available"),
+                "examples": _(
+                    "Open publication of an existing data layer.  Low administrative burden (e.g. existing agreements in place)."),
+            },
+        },
+        "ecological": {
+            1: {
+                "criteria": _("limited ecological value, or lower priority species/habitats"),
+                "examples": _("Project related to a species or area with limited or unknown ecological role, or of localized interest."),
+            },
+            2: {
+                "criteria": _("Evidence of ecological value, e.g., prey linkages to key species."),
+                "examples": _(
+                    "Project related to a species or area with known linkages to a species of high ecological value (prey species), or importance identified through ecological modelling."),
+            },
+            3: {
+                "criteria": _("high ecological value (important species) or high ecological risk (SARA-listed species)"),
+                "examples": _(
+                    "Project related to a nationally or regionally recognized ESS (Eelgrass) or EBSA (Minas Basin), or SAR (Blue Whale)."),
+            },
+        },
+        "scale": {
+            1: {
+                "criteria": _("limited geographic or temporal scope; site-specific and lessons not readily applicable to other areas"),
+                "examples": _("Data only available for a single location or bay."),
+            },
+            2: {
+                "criteria": _("broad geographic/temporal scope; area of some significance"),
+                "examples": _("Subregional data layer, e.g., for a single NAFO Unit or MPA."),
+            },
+            3: {
+                "criteria": _("broad geographic or temporal scope; area of high significance"),
+                "examples": _("Bioregional data layers, e.g. remote sensing, RV Survey."),
+            },
+        },
+
+    }

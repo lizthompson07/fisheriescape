@@ -38,6 +38,10 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
+    my_status_report: {
+      type: Object,
+      required: false,
+    },
     my_file: {
       type: Object,
       required: false,
@@ -121,6 +125,18 @@ Vue.component("modal", {
         agreement_title: null,
         new_or_existing: null,
         notes: null,
+      },
+
+      // status reports
+      status_report: {
+        status: null,
+        major_accomplishments: null,
+        major_issues: null,
+        target_completion_date: null,
+        rationale_for_modified_completion_date: null,
+        general_comment: null,
+        section_head_comment: null,
+        section_head_reviewed: null,
       },
 
       // files
@@ -293,7 +309,6 @@ Vue.component("modal", {
 
       // collaborator
       else if (this.mtype === "collaborator") {
-        if (this.collaborator.target_date === "") this.collaborator.target_date = null
         if (this.my_collaborator) {
           let endpoint = `/api/project-planning/collaborators/${this.my_collaborator.id}/`;
           apiService(endpoint, "PATCH", this.collaborator).then(response => {
@@ -353,6 +368,42 @@ Vue.component("modal", {
           })
         }
       }
+
+      // status report
+      else if (this.mtype === "status_report") {
+        if (this.status_report.target_completion_date === "") this.status_report.target_completion_date = null
+        if (this.status_report.section_head_reviewed == null) this.status_report.section_head_reviewed = "False"
+        console.log(this.status_report.target_completion_date)
+        
+        if (this.my_status_report) {
+          let endpoint = `/api/project-planning/status-reports/${this.my_status_report.id}/`;
+          apiService(endpoint, "PATCH", this.status_report).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/status-reports/`;
+          apiService(endpoint, "POST", this.status_report).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+      }
+
 
       // file
       else if (this.mtype === "file") {
@@ -563,6 +614,19 @@ Vue.component("modal", {
           // there is an annoying thing that has to happen to convert the html to js to pytonese...
           if (this.agreement.critical) this.agreement.critical = "True"
           else this.agreement.critical = "False"
+        }
+      }
+
+       // status reports
+      else if (this.mtype === "status_report") {
+        if (this.my_status_report && this.my_status_report.id) {
+          this.status_report = this.my_status_report
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.status_report.section_head_reviewed) this.status_report.section_head_reviewed = "True"
+          else this.status_report.section_head_reviewed = "False"
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.status_report.target_completion_date) this.status_report.target_completion_date = this.status_report.target_completion_date.slice(0, 10)
+          else this.status_report.target_completion_date = null
         }
       }
 

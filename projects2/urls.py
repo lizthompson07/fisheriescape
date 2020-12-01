@@ -15,7 +15,10 @@ urlpatterns = [
     path('projects/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
     path('projects/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
     path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"),
-    path('admin/projects/all/', views.ProjectListView.as_view(), name="project_list"),
+
+    path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
+    path('projects/explore/', views.ExploreProjectsTemplateView.as_view(), name="explore_projects"),
+    path('projects/manage/', views.ManageProjectsTemplateView.as_view(), name="manage_projects"),
 
 
     # PROJECT YEAR #
@@ -26,30 +29,41 @@ urlpatterns = [
     path('project-year/<int:pk>/clone/', views.ProjectYearCloneView.as_view(), name="year_clone"),
 
 
+    # STATUS REPORT #
+    #################
+    # path('project/<int:project>/status-report/new/', views.StatusReportCreateView.as_view(), name="report_new"),
+    # path('status-report/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),
+    path('status-reports/<int:pk>/', views.StatusReportDetailView.as_view(), name="report_detail"),
+    path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),
+    # path('status-report/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_print"),
+
+    # MILESTONE UPDATE #
+    ####################
+    # path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
+
 ###################################
 
     # path('all/', views.ProjectListView.as_view(), name="project_list"),
-
-    path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
-    path('project/<int:pk>/print/', views.ProjectPrintDetailView.as_view(), name="project_print"),
-    path('project/<int:pk>/delete/popout/<int:pop>/', views.ProjectDeleteView.as_view(), name="project_delete"),
-    path('project/<int:pk>/notes/', views.ProjectNotesUpdateView.as_view(), name="project_notes"),
-    # path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
-    # path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
-    # path('recommendation/project/<int:pk>/', views.ProjectRecommendationUpdateView.as_view(), name="project_recommend"),
-
-    # management views
-    ################
-    path('section/<int:section>/', views.SectionProjectListView.as_view(), name="section_project_list"),
-    path('project/<int:pk>/overview/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
-    path('project/<int:pk>/overview/popout/<int:pop>/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
-
-    # STAFF #
-    #########
-    path('project/<int:project>/staff/new/', views.StaffCreateView.as_view(), name="staff_new"),
-    path('staff/<int:pk>/edit/', views.StaffUpdateView.as_view(), name="staff_edit"),
-    path('staff/<int:pk>/delete/', views.staff_delete, name="staff_delete"),
-    path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
+    #
+    # path('project/<int:pk>/print/', views.ProjectPrintDetailView.as_view(), name="project_print"),
+    # path('project/<int:pk>/delete/popout/<int:pop>/', views.ProjectDeleteView.as_view(), name="project_delete"),
+    # path('project/<int:pk>/notes/', views.ProjectNotesUpdateView.as_view(), name="project_notes"),
+    # # path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
+    # # path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
+    # # path('recommendation/project/<int:pk>/', views.ProjectRecommendationUpdateView.as_view(), name="project_recommend"),
+    #
+    # # management views
+    # ################
+    # path('section/<int:section>/', views.SectionProjectListView.as_view(), name="section_project_list"),
+    # path('project/<int:pk>/overview/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
+    # path('project/<int:pk>/overview/popout/<int:pop>/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
+    #
+    # # STAFF #
+    # #########
+    # path('project/<int:project>/staff/new/', views.StaffCreateView.as_view(), name="staff_new"),
+    # path('staff/<int:pk>/edit/', views.StaffUpdateView.as_view(), name="staff_edit"),
+    # path('staff/<int:pk>/delete/', views.staff_delete, name="staff_delete"),
+    # path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
 
     # # FILES #
     # #########
@@ -59,16 +73,7 @@ urlpatterns = [
     # path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     # path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
     #
-    # # STATUS REPORT #
-    # #################
-    # path('project/<int:project>/status-report/new/', views.StatusReportCreateView.as_view(), name="report_new"),
-    # path('status-report/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),
-    # path('status-report/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),
-    # path('status-report/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_print"),
-    #
-    # # MILESTONE UPDATE #
-    # ####################
-    # path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
+
     #
     #
     # # SETTINGS #

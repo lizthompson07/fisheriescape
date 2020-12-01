@@ -9,6 +9,7 @@ TRACK_PAGEVIEWS = getattr(settings, 'TRACK_PAGEVIEWS', False)
 TRACK_IGNORE_URLS = getattr(settings, 'TRACK_IGNORE_URLS', (
     r'^(favicon\.ico|robots\.txt|master\.css)$',
     r'(static)',
+    r'(api)',
     r'(accounts)',
 ))
 

@@ -86,6 +86,24 @@ def set_old_trips_to_reviewed():
             obj.status_id = 32
             obj.save()
 
+def update_participant_role():
+    for r in models.TripRequest.objects.filter(role_id=2):
+        r.role_id = 1
+        r.save()
+
+    for r in models.TripRequest.objects.filter(role_id=9):
+        r.role_id = 8
+        r.save()
+
+    for r in models.TripRequest.objects.filter(role_id=5):
+        r.role_id = 8
+        r.save()
+
+    for r in models.TripRequest.objects.filter(role_id=6):
+        r.role_id = 7
+        r.save()
+
+    models.Role.objects.filter(name__icontains="DELETE ME").delete()
 
 
 #

@@ -27,7 +27,7 @@ def get_section_choices(all=False, full_name=True):
                 )]
     else:
         return [(s.id, getattr(s, my_attr)) for s in
-                shared_models.Section.objects.filter(division__branch__name__icontains="science")]
+                shared_models.Section.objects.all()]
 
 
 def get_division_choices(all=False):
@@ -201,13 +201,17 @@ def end_trip_review_process(trip, reset=False):
     if not reset:
         # trip.review_start_date = None NEVER reset the review start date!
         trip.status_id = 41
-        trip.save()
+    else:
+        trip.status_id = 31
+    trip.save()
 
     for reviewer in trip.reviewers.all():
-        reviewer.status_id = 23
         if not reset:
+            reviewer.status_id = 23
             reviewer.status_date = None
             reviewer.comments = None
+        else:
+            reviewer.status_id = 24
         reviewer.save()
 
 

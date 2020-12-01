@@ -7,12 +7,12 @@
 
 <div class="card mb-2">
     <h3 class="card-header bg-outline-dark">
-        {% trans "Request Detail" %}
+        {% trans "Request Summary" %}
         <div class="neighbours">
             {% with help_text_dict|lookup:"trip_request_header" as help_text %}
                 <img src="{% static 'img/icons/information.png' %}" style="width: 30px" data-toggle="popover"
                      data-trigger="hover"
-                     title="{% trans "Trip Request Details" %}"
+                     title="{% trans "Request Summary" %}"
                      data-content="{{ help_text }}">
             {% endwith %}
         </div>
@@ -38,9 +38,9 @@
                         {#                    {% elif "phone" in field %}#}
                         {#                        {% verbose_td_display triprequest field th_width="20%" nullmark="<span class='highlight'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}#}
                     {% elif "original_submission" in field %}
-                        {% verbose_td_display triprequest field th_width="20%" nullmark="<span class='red-font'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y %H:%M" %}
+                        {% verbose_td_display triprequest field th_width="40%" nullmark="<span class='red-font'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y %H:%M" %}
                     {% else %}
-                        {% verbose_td_display triprequest field format="currency" th_width="20%" nullmark="<span class='red-font'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}
+                        {% verbose_td_display triprequest field format="currency" th_width="40%" nullmark="<span class='red-font'> &nbsp; n/a &nbsp;  </span>" date_format="%B %d, %Y" %}
                     {% endif %}
                 {% endfor %}
 
