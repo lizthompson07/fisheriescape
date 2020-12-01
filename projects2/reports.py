@@ -4,7 +4,8 @@ from io import BytesIO
 from django.conf import settings
 from django.utils.translation import gettext as _
 from docx import Document
-from html2text import html2text
+
+from . import models
 
 
 def generate_acrdp_application(project):
@@ -21,13 +22,9 @@ def generate_acrdp_application(project):
     document = Document(source_stream)
     source_stream.close()
 
-    # for paragraph in document.paragraphs:
-    #     if 'CLEARLY' in paragraph.text:
-    #         print(paragraph.text, 123)
-    #         paragraph.text = paragraph.text.replace("CLEARLY", "xyzABC")
     lead = project.lead_staff.first().user
-    contact_info = _("{full_address}\n\{email}\n\n{phone}").format(
-        full_address=project.organization.full_address,
+    contact_info = _("{full_address}\n\n{email}\n\n{phone}").format(
+        full_address=project.organization.full_address if project.organization else "MISSING!",
         email=lead.email,
         phone=lead.profile.phone
     )
@@ -47,19 +44,19 @@ def generate_acrdp_application(project):
 
     field_dict = dict(
         TAG_TITLE=project.title,
-        TAG_ORG_NAME=project.organization.tname,
-        TAG_ADDRESS=project.organization.address,
-        TAG_CITY=project.organization.city,
-        TAG_PROV=str(project.organization.location.tname),
-        TAG_POSTAL_CODE=project.organization.postal_code,
-        TAG_SPECIES=project.species_involved,
+        TAG_ORG_NAME=project.organization.tname if project.organization else "MISSING!",
+        TAG_ADDRESS=project.organization.address  if project.organization else "MISSING!",
+        TAG_CITY=project.organization.city if project.organization else "MISSING!",
+        TAG_PROV=str(project.organization.location.tname) if project.organization else "MISSING!",
+        TAG_POSTAL_CODE=project.organization.postal_code if project.organization else "MISSING!",
+        TAG_SPECIES=project.species_involved if project.organization else "MISSING!",
         TAG_LEAD_NAME=lead.get_full_name(),
         TAG_LEAD_NUMBER=lead.profile.phone,
         TAG_LEAD_EMAIL=lead.email,
         TAG_LEAD_POSITION=lead.profile.tposition,
         TAG_LEAD_CONTACT_INFO=contact_info,  # address email telephone
-        TAG_SECTION_HEAD_NAME=project.section.head.get_full_name(),
-        TAG_DIVISION_MANAGER_NAME=project.section.division.head.get_full_name(),
+        TAG_SECTION_HEAD_NAME=project.section.head.get_full_name() if project.section else "MISSING!",
+        TAG_DIVISION_MANAGER_NAME=project.section.division.head.get_full_name() if project.section else "MISSING!",
         TAG_START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y"),
         TAG_END_YEAR=project.years.last().end_date.strftime("%d/%m/%Y"),
         TAG_TEAM_DESCRIPTION=project.team_description,
@@ -71,16 +68,44 @@ def generate_acrdp_application(project):
     )
 
     for item in field_dict:
+        # replace the tagged placeholders in tables
         for table in document.tables:
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
                         if item in paragraph.text:
-                            paragraph.text = paragraph.text.replace(item, field_dict[item])
+                            try:
+                                paragraph.text = paragraph.text.replace(item, field_dict[item])
+                            except:
+                                paragraph.text = "MISSING!"
 
+        # replace the tagged placeholders in paragraphs
         for paragraph in document.paragraphs:
             if item in paragraph.text:
-                paragraph.text = paragraph.text.replace(item, field_dict[item])
+                try:
+                    paragraph.text = paragraph.text.replace(item, field_dict[item])
+                except:
+                    paragraph.text = "MISSING!"
+
+    # Find and populate the milestones and risk analysis table
+    for table in document.tables:
+        if "date/period" in table.rows[0].cells[0].paragraphs[0].text.lower():
+            for milestone in models.Activity.objects.filter(type=1, project_year__project=project).order_by("target_date"):
+                row = table.add_row()
+                row.cells[0].paragraphs[0].text = milestone.target_date.strftime("%Y-%m-%d")
+                row.cells[1].paragraphs[0].text = f"{milestone.name.upper()} - {milestone.description}"
+                row.cells[2].paragraphs[0].text = milestone.responsible_party
+
+        if "project risk analysis" in table.rows[0].cells[0].paragraphs[0].text.lower():
+            for activity in models.Activity.objects.filter(project_year__project=project).order_by("target_date"):
+                row = table.add_row()
+                row.cells[0].paragraphs[0].text = f"{activity.name} ({activity.get_type_display()})"
+                row.cells[1].paragraphs[0].text = activity.risk_description
+                row.cells[2].paragraphs[0].text = f"{activity.likelihood}"
+                row.cells[3].paragraphs[0].text = f"{activity.impact}"
+                row.cells[4].paragraphs[0].text = activity.get_risk_rating_display()
+                row.cells[5].paragraphs[0].text = activity.mitigation_measures
+                row.cells[6].paragraphs[0].text = activity.responsible_party
 
     document.save(target_file_path)
 
