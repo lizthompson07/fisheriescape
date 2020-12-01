@@ -384,8 +384,8 @@ class ActivityForm(forms.ModelForm):
         self.fields["description"].widget.attrs = {"v-model": "activity.description", "rows": "4"}
         self.fields["responsible_party"].widget.attrs = {"v-model": "activity.responsible_party"}
         self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "activity.target_date", "type": "date"})
-        self.fields["likelihood"].widget.attrs = {"v-model": "activity.likelihood"}
-        self.fields["impact"].widget.attrs = {"v-model": "activity.impact"}
+        self.fields["likelihood"].widget.attrs = {"v-model": "activity.likelihood", ":disabled": "!isACRDP"}
+        self.fields["impact"].widget.attrs = {"v-model": "activity.impact", ":disabled": "!isACRDP"}
         self.fields["risk_description"].widget.attrs = {"v-model": "activity.risk_description", "rows": "4", ":disabled": "!isACRDP"}
         self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP"}
 
