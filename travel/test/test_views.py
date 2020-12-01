@@ -38,7 +38,7 @@ class IndividualTripRequestCreate(CommonTest):
     @tag("trip_request", 'create', 'response')
     def test_access(self):
         # only logged in users can access the landing
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
@@ -77,7 +77,7 @@ class IndividualTripRequestDelete(CommonTest):
 
     @tag("trip_request", 'delete', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         # create an admin user (who should always be able to delete) and check to see there is a 200 response
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.admin_user)
@@ -110,7 +110,7 @@ class TestDefaultReviewerCreateView(CommonTest):
 
     @tag("default_reviewer_new", 'create', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
     @tag("default_reviewer_new", 'create', "submit")
@@ -148,7 +148,7 @@ class TestDefaultReviewerListView(CommonTest):
 
     @tag("default_reviewer_list", 'list', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
     @tag("default_reviewer_list", 'list', "context")
@@ -174,7 +174,7 @@ class TestDefaultReviewerUpdateView(CommonTest):
 
     @tag("default_reviewer_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
     @tag("default_reviewer_edit", "submit")
@@ -257,8 +257,8 @@ class TestTripCreateView(CommonTest):
 
     @tag("travel", 'create', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_not_broken(self.test_url2)
+        self.assert_valid_url(self.test_url)
+        self.assert_valid_url(self.test_url2)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
         self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template2)
 
@@ -295,10 +295,10 @@ class TestTripDeleteView(CommonTest):
 
     @tag("trip_delete", 'delete', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url0)
-        self.assert_not_broken(self.test_url1)
-        self.assert_not_broken(self.test_url2)
-        self.assert_not_broken(self.test_url3)
+        self.assert_valid_url(self.test_url0)
+        self.assert_valid_url(self.test_url1)
+        self.assert_valid_url(self.test_url2)
+        self.assert_valid_url(self.test_url3)
         # TODO: do some more elaborate testing here!!
         my_user = self.get_and_login_user(in_group="travel_admin")
         self.assert_non_public_view(test_url=self.test_url0, expected_template=self.expected_template, user=my_user)
@@ -335,8 +335,8 @@ class TestTripDetailView(CommonTest):
 
     @tag("travel", 'detail', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url0)
-        self.assert_not_broken(self.test_url1)
+        self.assert_valid_url(self.test_url0)
+        self.assert_valid_url(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url0, expected_template=self.expected_template)
         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template)
 
@@ -370,9 +370,9 @@ class TestTripListView(CommonTest):
 
     @tag("trip_list", 'list', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url2)
-        self.assert_not_broken(self.test_url3)
-        self.assert_not_broken(self.test_url1)
+        self.assert_valid_url(self.test_url2)
+        self.assert_valid_url(self.test_url3)
+        self.assert_valid_url(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template)
         self.assert_non_public_view(test_url=self.test_url3, expected_template=self.expected_template, user=self.admin_user)
         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.admin_user)
@@ -415,7 +415,7 @@ class TestTripRequestReviewerUpdateView(CommonTest):
 
     @tag("tr_reviewer_update", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url1)
+        self.assert_valid_url(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.reviewer1.user)
 
     @tag("tr_reviewer_update", "context")
@@ -483,7 +483,7 @@ class TestTripRequestSubmitUpdateView(CommonTest):
 
     @tag("request_submit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("request_submit", "context")
@@ -564,8 +564,8 @@ class TestTripRequestUpdateView(CommonTest):
 
     @tag("travel", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_not_broken(self.test_url1)
+        self.assert_valid_url(self.test_url)
+        self.assert_valid_url(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.instance.user)
         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.instance_child.user)
 
@@ -611,7 +611,7 @@ class TestTripReviewerUpdateView(CommonTest):
 
     @tag("trip_reviewer_update", 'type', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("trip_reviewer_update", 'type', "context")
@@ -674,7 +674,7 @@ class TestTripReviewProcessUpdateView(CommonTest):
 
     @tag("trip_review_toggle", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
         # if there is an inappropriate trip, we should get 302 response
@@ -764,9 +764,9 @@ class TestTripUpdateView(CommonTest):
 
     @tag("trip_update", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url0)
-        self.assert_not_broken(self.test_url1)
-        self.assert_not_broken(self.test_url2)
+        self.assert_valid_url(self.test_url0)
+        self.assert_valid_url(self.test_url1)
+        self.assert_valid_url(self.test_url2)
         self.assert_non_public_view(test_url=self.test_url0, expected_template=self.expected_template, user=self.admin_user)
         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.admin_user)
         self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template, user=self.admin_user)
@@ -803,7 +803,7 @@ class TestTripVerificationListView(CommonTest):
 
     @tag("travel", 'list', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         admin_user = self.get_and_login_user(in_group="travel_admin")
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
@@ -830,7 +830,7 @@ class TestTripVerifyUpdateView(CommonTest):
 
     @tag("travel", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
     @tag("travel", "context")
@@ -868,8 +868,8 @@ class TestUserListView(CommonTest):
 
     @tag("User", "user_list", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_not_broken(self.test_url1)
+        self.assert_valid_url(self.test_url)
+        self.assert_valid_url(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.user)
 
@@ -897,8 +897,8 @@ class TestUserToggleView(CommonTest):
 
     @tag("UserToggle", "toggle_user", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_not_broken(self.test_url1)
+        self.assert_valid_url(self.test_url)
+        self.assert_valid_url(self.test_url1)
 
         self.assert_non_public_view(test_url=self.test_url, user=self.user, expected_code=302)
         self.assert_non_public_view(test_url=self.test_url1, user=self.user, expected_code=302)
@@ -1029,7 +1029,7 @@ class TripRequestListView(CommonTest):
 
     @tag("trip_request", 'list', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_valid_url(self.test_url)
         # create an admin user (who should always be able to delete) and check to see there is a 200 response
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
