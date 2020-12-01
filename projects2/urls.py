@@ -1,6 +1,6 @@
 from django.urls import path
+
 from . import views
-from django.contrib.auth import views as auth_views
 
 app_name = 'projects2'
 
@@ -20,14 +20,12 @@ urlpatterns = [
     path('projects/explore/', views.ExploreProjectsTemplateView.as_view(), name="explore_projects"),
     path('projects/manage/', views.ManageProjectsTemplateView.as_view(), name="manage_projects"),
 
-
     # PROJECT YEAR #
     ################
     path('projects/<int:project>/new-project-year/', views.ProjectYearCreateView.as_view(), name="year_new"),
     path('project-year/<int:pk>/edit/', views.ProjectYearUpdateView.as_view(), name="year_edit"),
     path('project-year/<int:pk>/delete/', views.ProjectYearDeleteView.as_view(), name="year_delete"),
     path('project-year/<int:pk>/clone/', views.ProjectYearCloneView.as_view(), name="year_clone"),
-
 
     # STATUS REPORT #
     #################
@@ -41,7 +39,7 @@ urlpatterns = [
     ####################
     # path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
 
-###################################
+    ###################################
 
     # path('all/', views.ProjectListView.as_view(), name="project_list"),
     #
@@ -90,9 +88,6 @@ urlpatterns = [
     path('settings/employee-types/', views.EmployeeTypeFormsetView.as_view(), name="manage_employee_types"),
     path('settings/employee-type/<int:pk>/delete/', views.EmployeeTypeHardDeleteView.as_view(), name="delete_employee_type"),
 
-    # path('settings/statuses/', views.StatusFormsetView.as_view(), name="manage_statuses"),
-    # path('settings/status/<int:pk>/delete/', views.StatusHardDeleteView.as_view(), name="delete_status"),
-
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
 
@@ -101,9 +96,6 @@ urlpatterns = [
 
     path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),
     path('settings/level/<int:pk>/delete/', views.LevelHardDeleteView.as_view(), name="delete_level"),
-
-    # # path('settings/programs/', views.ProgramFormsetView.as_view(), name="manage_programs"),
-    # # path('settings/program/<int:pk>/delete/', views.ProgramHardDeleteView.as_view(), name="delete_program"),
 
     path('settings/themes/', views.ThemeFormsetView.as_view(), name="manage_themes"),
     path('settings/theme/<int:pk>/delete/', views.ThemeHardDeleteView.as_view(), name="delete_theme"),
@@ -120,6 +112,16 @@ urlpatterns = [
     path('settings/functional-group/new/', views.FunctionalGroupCreateView.as_view(), name="group_new"),
     path('settings/functional-group/<int:pk>/edit/', views.FunctionalGroupUpdateView.as_view(), name="group_edit"),
     path('settings/functional-group/<int:pk>/delete/', views.FunctionalGroupDeleteView.as_view(), name="group_delete"),
+
+    path('settings/project-codes/', views.ProjectCodeListView.as_view(), name="project_code_list"),
+    path('settings/project-codes/new/', views.ProjectCodeCreateView.as_view(), name="project_code_new"),
+    path('settings/project-codes/<int:pk>/edit/', views.ProjectCodeUpdateView.as_view(), name="project_code_edit"),
+    path('settings/project-codes/<int:pk>/delete/', views.ProjectCodeDeleteView.as_view(), name="project_code_delete"),
+
+    path('settings/responsibility-centers/', views.ResponsibilityCenterListView.as_view(), name="rc_list"),
+    path('settings/responsibility-centers/new/', views.ResponsibilityCenterCreateView.as_view(), name="rc_new"),
+    path('settings/responsibility-centers/<int:pk>/edit/', views.ResponsibilityCenterUpdateView.as_view(), name="rc_edit"),
+    path('settings/responsibility-centers/<int:pk>/delete/', views.ResponsibilityCenterDeleteView.as_view(), name="rc_delete"),
 
     #
     # path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),

@@ -914,6 +914,21 @@ LevelFormset = modelformset_factory(
     extra=1,
 )
 
+class ResponsibilityCenterForm(forms.ModelForm):
+    class Meta:
+        model = shared_models.ResponsibilityCenter
+        fields = "__all__"
+
+
+
+class ProjectCodeForm(forms.ModelForm):
+    class Meta:
+        shared_models = shared_models.Project
+        fields = "__all__"
+
+
+
+
 #
 #
 # class FileForm(forms.ModelForm):
