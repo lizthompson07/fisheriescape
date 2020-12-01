@@ -2,7 +2,9 @@ import os
 from io import BytesIO
 
 from django.conf import settings
+from django.utils.translation import gettext as _
 from docx import Document
+from html2text import html2text
 
 
 def generate_acrdp_application(project):
@@ -23,29 +25,49 @@ def generate_acrdp_application(project):
     #     if 'CLEARLY' in paragraph.text:
     #         print(paragraph.text, 123)
     #         paragraph.text = paragraph.text.replace("CLEARLY", "xyzABC")
+    lead = project.lead_staff.first().user
+    contact_info = _("{full_address}\n\{email}\n\n{phone}").format(
+        full_address=project.organization.full_address,
+        email=lead.email,
+        phone=lead.profile.phone
+    )
+
+    priorities = str()
+    for year in project.years.all():
+        priorities += f'{year.fiscal_year}:\n\n{year.priorities}\n\n'
+
+    deliverables = str()
+    for year in project.years.all():
+        if year.activities.filter(type=2).exists():
+            deliverables += f'{year.fiscal_year}:\n\n'
+            i = 1
+            for d in year.activities.filter(type=2):
+                deliverables += f'{i}) {d.name.upper()} - {d.description}\n\n'
+                i += 1
 
     field_dict = dict(
-        TITLE=project.title,
-        DFO_ADDRESS="",
-        DFO_CITY="",
-        DFO_PROV="",
-        DFO_POSTAL_CODE="",
-        ACRDP_SPECIES="",
-        PROJECT_LEAD_NAME=project.lead_staff.first().user.get_full_name(),
-        PROJECT_LEAD_NUMBER="",
-        PROJECT_LEAD_EMAIL=project.lead_staff.first().user.email,
-        PROJECT_LEAD_POSITION="",
-        PROJECT_LEAD_CONTACT_INFO="",
-        SECTION_HEAD_NAME=project.section.head.get_full_name(),
-        DIVISION_MANAGER_NAME=project.section.division.head.get_full_name(),
-        START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y"),
-        END_YEAR=project.years.first().end_date.strftime("%d/%m/%Y"),
-        TEAM_DESCRIPTION="",
-        RATIONALE="",
-        PROJECT_OVERVIEW=project.overview,
-        PROJECT_YEAR_PRIORITIES="",
-        EXPERIMENTAL_PROTOCOL="",
-        DELIVERABLES=""
+        TAG_TITLE=project.title,
+        TAG_ORG_NAME=project.organization.tname,
+        TAG_ADDRESS=project.organization.address,
+        TAG_CITY=project.organization.city,
+        TAG_PROV=str(project.organization.location.tname),
+        TAG_POSTAL_CODE=project.organization.postal_code,
+        TAG_SPECIES=project.species_involved,
+        TAG_LEAD_NAME=lead.get_full_name(),
+        TAG_LEAD_NUMBER=lead.profile.phone,
+        TAG_LEAD_EMAIL=lead.email,
+        TAG_LEAD_POSITION=lead.profile.tposition,
+        TAG_LEAD_CONTACT_INFO=contact_info,  # address email telephone
+        TAG_SECTION_HEAD_NAME=project.section.head.get_full_name(),
+        TAG_DIVISION_MANAGER_NAME=project.section.division.head.get_full_name(),
+        TAG_START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y"),
+        TAG_END_YEAR=project.years.last().end_date.strftime("%d/%m/%Y"),
+        TAG_TEAM_DESCRIPTION=project.team_description,
+        TAG_RATIONALE=project.rationale,
+        TAG_OVERVIEW=project.overview,
+        TAG_PRIORITIES=priorities,
+        TAG_EXPERIMENTAL_PROTOCOL=project.experimental_protocol,
+        TAG_DELIVERABLES=deliverables
     )
 
     for item in field_dict:
@@ -59,15 +81,7 @@ def generate_acrdp_application(project):
         for paragraph in document.paragraphs:
             if item in paragraph.text:
                 paragraph.text = paragraph.text.replace(item, field_dict[item])
-            # print(paragraph.text)
-        # for shape in document.inline_shapes:
-        #     for row in shape.rows:
-        #         for cell in row.cells:
-        #             for paragraph in cell.paragraphs:
-        #
-        #                 print(paragraph.text)
 
-    # target_stream = BytesIO()
     document.save(target_file_path)
 
     return target_url

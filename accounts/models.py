@@ -1,12 +1,9 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from shared_models import models as shared_models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-from django.utils.translation import gettext as _
 
 # Choices for language
 ENG = 1
@@ -23,9 +20,18 @@ class Profile(models.Model):
     position_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("position (French)"))
     phone = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("phone (office)"))
     language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=False,
-                                verbose_name=_("Section"))
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Section"))
     retired = models.BooleanField(default=False)
+
+    @property
+    def tposition(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("position_eng"))):
+            my_str = "{}".format(getattr(self, str(_("position_eng"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.position_eng
+        return my_str
 
     def __str__(self):
         return "{}, {}".format(self.user.last_name, self.user.first_name)
@@ -40,16 +46,15 @@ class Profile(models.Model):
 
 
 class Announcement(models.Model):
-
     alert_type_choices = (
-        ("alert-primary","primary (blue"),
-        ("alert-secondary","secondary (light grey)"),
-        ("alert-success","success (green)"),
-        ("alert-danger","danger (red)"),
-        ("alert-warning","warning (yellow)"),
-        ("alert-info","info (teal)"),
-        ("alert-light","light (white)"),
-        ("alert-dark","dark (dark grey)"),
+        ("alert-primary", "primary (blue"),
+        ("alert-secondary", "secondary (light grey)"),
+        ("alert-success", "success (green)"),
+        ("alert-danger", "danger (red)"),
+        ("alert-warning", "warning (yellow)"),
+        ("alert-info", "info (teal)"),
+        ("alert-light", "light (white)"),
+        ("alert-dark", "dark (dark grey)"),
     )
 
     valid_from = models.DateTimeField()

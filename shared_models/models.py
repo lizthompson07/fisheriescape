@@ -681,6 +681,18 @@ class Location(models.Model):
     abbrev_fr = models.CharField(max_length=25, blank=True, null=True)
     uuid_gcmd = models.CharField(max_length=255, blank=True, null=True)
 
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("location_en"))):
+            my_str = "{}".format(getattr(self, str(_("location_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.location_en
+        return my_str
+
+
     def __str__(self):
         return f"{self.location_en}, {self.get_country_display()}"
 
