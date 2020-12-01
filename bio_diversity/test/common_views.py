@@ -188,4 +188,3 @@ class CommonCreateTest(CommonTest):
             self.assertEquals(signature, resolve(response.url).view_name)
         else:
             self.assertRedirects(response=response, expected_url=self.expected_success_url)
-

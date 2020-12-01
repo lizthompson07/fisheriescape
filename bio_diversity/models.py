@@ -1,4 +1,4 @@
-from django.db import models
+#from django.db import models
 
 # Create your models here.
 from shared_models import models as shared_models
@@ -76,6 +76,7 @@ class ProtoCode(BioLookup):
 class Protofile(BioModel):
     # protf tag
     prot_id = models.IntegerField(verbose_name=_("Protocol Id"))
-    protf_file = models.CharField(max_length=32, verbose_name=_("Protocol File Path"))  # models.FilePathField(path='', verbose_name=_("Protocol File"))
+    protf_file = models.CharField(max_length=32, verbose_name=_("Protocol File Path"))
+    # models.FilePathField(path='', verbose_name=_("Protocol File"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     pass

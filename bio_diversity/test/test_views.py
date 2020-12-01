@@ -1,6 +1,5 @@
 from django.test import tag, RequestFactory
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView
 from faker import Faker
 
 from bio_diversity.test import BioFactoryFloor
@@ -10,7 +9,7 @@ from shared_models.test.common_tests import CommonTest
 # from bio_diversity.models import Cruise
 # from shared_models.test.SharedModelsFactoryFloor import CruiseFactory
 from bio_diversity.views import CommonCreate, CommonDetails, CommonList, CommonUpdate
-from .. import views, models
+from .. import views
 
 faker = Faker()
 
@@ -48,7 +47,6 @@ class TestCommonCreate(CommonTest):
         init = self.view.get_initial()
         self.assertIsNotNone(init)
         self.assertEqual(init['created_by'], user.username)
-
 
 
 @tag("Inst")
@@ -106,7 +104,8 @@ class TestInstDetailView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:details_inst", f"/en/bio_diversity/details/inst/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url("bio_diversity:details_inst", f"/en/bio_diversity/details/inst/{self.instance.pk}/",
+                                [self.instance.pk])
 
 
 @tag("Inst")
@@ -151,7 +150,7 @@ class InstUpdateView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:update_inst", f"/en/bio_diversity/update/inst/{self.instance.pk}/", \
+        self.assert_correct_url("bio_diversity:update_inst", f"/en/bio_diversity/update/inst/{self.instance.pk}/",
                                 [self.instance.pk])
 
 
@@ -210,7 +209,8 @@ class TestInstcDetailView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:details_instc", f"/en/bio_diversity/details/instc/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url("bio_diversity:details_instc", f"/en/bio_diversity/details/instc/{self.instance.pk}/",
+                                [self.instance.pk])
 
 
 @tag("Instc")
@@ -255,7 +255,7 @@ class InstcUpdateView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:update_instc", f"/en/bio_diversity/update/instc/{self.instance.pk}/", \
+        self.assert_correct_url("bio_diversity:update_instc", f"/en/bio_diversity/update/instc/{self.instance.pk}/",
                                 [self.instance.pk])
 
 
@@ -314,7 +314,8 @@ class TestInstdDetailView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:details_instd", f"/en/bio_diversity/details/instd/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url("bio_diversity:details_instd", f"/en/bio_diversity/details/instd/{self.instance.pk}/",
+                                [self.instance.pk])
 
 
 @tag("Instd")
@@ -359,7 +360,7 @@ class InstdUpdateView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:update_instd", f"/en/bio_diversity/update/instd/{self.instance.pk}/", \
+        self.assert_correct_url("bio_diversity:update_instd", f"/en/bio_diversity/update/instd/{self.instance.pk}/",
                                 [self.instance.pk])
 
 
@@ -418,7 +419,8 @@ class TestInstdcDetailView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:details_instdc", f"/en/bio_diversity/details/instdc/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url("bio_diversity:details_instdc", f"/en/bio_diversity/details/instdc/{self.instance.pk}/",
+                                [self.instance.pk])
 
 
 @tag("Instdc")
@@ -466,12 +468,8 @@ class InstdcUpdateView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:update_instdc", f"/en/bio_diversity/update/instdc/{self.instance.pk}/", \
+        self.assert_correct_url("bio_diversity:update_instdc", f"/en/bio_diversity/update/instdc/{self.instance.pk}/",
                                 [self.instance.pk])
-
-
-
-
 
 
 @tag("Orga")
@@ -529,7 +527,8 @@ class TestOrgaDetailView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:details_orga", f"/en/bio_diversity/details/orga/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url("bio_diversity:details_orga", f"/en/bio_diversity/details/orga/{self.instance.pk}/",
+                                [self.instance.pk])
 
 
 @tag("Orga")
@@ -577,9 +576,8 @@ class OrgaUpdateView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:update_orga", f"/en/bio_diversity/update/orga/{self.instance.pk}/", \
+        self.assert_correct_url("bio_diversity:update_orga", f"/en/bio_diversity/update/orga/{self.instance.pk}/",
                                 [self.instance.pk])
-
 
 
 @tag("Proga")
@@ -637,7 +635,8 @@ class TestProgaDetailView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:details_proga", f"/en/bio_diversity/details/proga/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url("bio_diversity:details_proga", f"/en/bio_diversity/details/proga/{self.instance.pk}/",
+                                [self.instance.pk])
 
 
 @tag("Proga")
@@ -685,10 +684,8 @@ class ProgaUpdateView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:update_proga", f"/en/bio_diversity/update/proga/{self.instance.pk}/", \
+        self.assert_correct_url("bio_diversity:update_proga", f"/en/bio_diversity/update/proga/{self.instance.pk}/",
                                 [self.instance.pk])
-
-
 
 
 @tag("Protc")
@@ -746,7 +743,8 @@ class TestProtcDetailView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:details_protc", f"/en/bio_diversity/details/protc/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url("bio_diversity:details_protc", f"/en/bio_diversity/details/protc/{self.instance.pk}/",
+                                [self.instance.pk])
 
 
 @tag("Protc")
@@ -794,10 +792,8 @@ class ProtcUpdateView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:update_protc", f"/en/bio_diversity/update/protc/{self.instance.pk}/", \
+        self.assert_correct_url("bio_diversity:update_protc", f"/en/bio_diversity/update/protc/{self.instance.pk}/",
                                 [self.instance.pk])
-
-
 
 
 @tag("Protf")
@@ -855,7 +851,8 @@ class TestProtfDetailView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:details_protf", f"/en/bio_diversity/details/protf/{self.instance.pk}/", [self.instance.pk])
+        self.assert_correct_url("bio_diversity:details_protf", f"/en/bio_diversity/details/protf/{self.instance.pk}/",
+                                [self.instance.pk])
 
 
 @tag("Protf")
@@ -903,6 +900,5 @@ class ProtfUpdateView(CommonTest):
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("bio_diversity:update_protf", f"/en/bio_diversity/update/protf/{self.instance.pk}/", \
+        self.assert_correct_url("bio_diversity:update_protf", f"/en/bio_diversity/update/protf/{self.instance.pk}/",
                                 [self.instance.pk])
-

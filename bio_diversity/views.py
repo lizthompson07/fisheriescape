@@ -2,7 +2,7 @@ from django.views.generic import TemplateView, DetailView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView
 from django.urls import reverse_lazy
 
-from . import models, forms, mixins, filters, utils
+from . import mixins, filters, utils
 
 
 class IndexTemplateView(TemplateView):
@@ -105,7 +105,7 @@ class CommonDetails(DetailView):
             context['fields'] = self.fields
 
         context['list_url'] = self.list_url if self.list_url else "bio_diversity:list_{}".format(self.key)
-        context['update_url'] = None # self.update_url if self.update_url else "bio_diversity:update_{}".format(self.key)
+        context['update_url'] = self.update_url if self.update_url else "bio_diversity:update_{}".format(self.key)
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
         context['auth'] = utils.bio_diverisity_authorized(self.request.user)
@@ -115,35 +115,35 @@ class CommonDetails(DetailView):
 
 
 class InstDetails(mixins.InstMixin, CommonDetails):
-    fields = ["instc", "serial_number", "comments", "created_by", "created_date",]
+    fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
 
 
 class InstcDetails(mixins.InstcMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class InstdDetails(mixins.InstdMixin, CommonDetails):
-    fields = ["inst", "instdc", "det_value", "start_date", "end_date", "valid", "created_by", "created_date",]
+    fields = ["inst", "instdc", "det_value", "start_date", "end_date", "valid", "created_by", "created_date", ]
 
 
 class InstdcDetails(mixins.InstdcMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class OrgaDetails(mixins.OrgaMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class ProgaDetails(mixins.ProgaMixin, CommonDetails):
-    fields = ["proga_last_name", "proga_first_name", "created_by", "created_date",]
+    fields = ["proga_last_name", "proga_first_name", "created_by", "created_date", ]
 
 
 class ProtcDetails(mixins.ProtcMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class ProtfDetails(mixins.ProtfMixin, CommonDetails):
-    fields = ["prot_id", "protf_file", "comments", "created_by", "created_date",]
+    fields = ["prot_id", "protf_file", "comments", "created_by", "created_date", ]
 
 
 # ----------------------------LIST VIEWS-----------------------------
@@ -222,42 +222,42 @@ class CommonList(CommonAuthFilterView):
 
 class InstList(mixins.InstMixin, CommonList):
     filterset_class = filters.InstFilter
-    fields = ["instc", "serial_number", "comments", "created_by", "created_date",]
+    fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
 
 
 class InstcList(mixins.InstcMixin, CommonList):
     filterset_class = filters.InstcFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class InstdList(mixins.InstdMixin, CommonList):
     filterset_class = filters.InstdFilter
-    fields = ["inst", "instdc", "created_by", "created_date",]
+    fields = ["inst", "instdc", "created_by", "created_date", ]
 
 
 class InstdcList(mixins.InstdcMixin, CommonList):
     filterset_class = filters.InstdcFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
     
 
 class OrgaList(mixins.OrgaMixin, CommonList):
     filterset_class = filters.OrgaFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class ProgaList(mixins.ProgaMixin, CommonList):
     filterset_class = filters.ProgaFilter
-    fields = ["proga_last_name", "proga_first_name", "created_by", "created_date",]
+    fields = ["proga_last_name", "proga_first_name", "created_by", "created_date", ]
 
 
 class ProtcList(mixins.ProtcMixin, CommonList):
     filterset_class = filters.ProtcFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class ProtfList(mixins.ProtfMixin, CommonList):
     filterset_class = filters.ProtfFilter
-    fields = ["prot_id", "protf_file", "comments", "created_by", "created_date",]
+    fields = ["prot_id", "protf_file", "comments", "created_by", "created_date", ]
 
 
 # ---------------------------UPDATE VIEWS-----------------------------------

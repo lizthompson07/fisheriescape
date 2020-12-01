@@ -7,7 +7,8 @@ class CreatePrams:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.fields['created_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+        self.fields['created_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                    "class": "fp-date"})
 
 
 class InstForm(CreatePrams, forms.ModelForm):
@@ -63,5 +64,3 @@ class ProtfForm(CreatePrams, forms.ModelForm):
         # widgets = {
         #     'prot_file': forms.FilePathField(path='.'),
         # }
-
-
