@@ -61,6 +61,22 @@ class InstdcCreate(mixins.InstdcMixin, CommonCreate):
     pass
 
 
+class OrgaCreate(mixins.OrgaMixin, CommonCreate):
+    pass
+
+
+class ProgaCreate(mixins.ProgaMixin, CommonCreate):
+    pass
+
+
+class ProtcCreate(mixins.ProtcMixin, CommonCreate):
+    pass
+
+
+class ProtfCreate(mixins.ProtfMixin, CommonCreate):
+    pass
+
+
 # ---------------------------DETAIL VIEWS-----------------------------------------------
 class CommonDetails(DetailView):
     # default template to use to create a details view
@@ -112,6 +128,22 @@ class InstdDetails(mixins.InstdMixin, CommonDetails):
 
 class InstdcDetails(mixins.InstdcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+
+
+class OrgaDetails(mixins.OrgaMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+
+
+class ProgaDetails(mixins.ProgaMixin, CommonDetails):
+    fields = ["proga_last_name", "proga_first_name", "created_by", "created_date",]
+
+
+class ProtcDetails(mixins.ProtcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+
+
+class ProtfDetails(mixins.ProtfMixin, CommonDetails):
+    fields = ["prot_id", "protf_file", "comments", "created_by", "created_date",]
 
 
 # ----------------------------LIST VIEWS-----------------------------
@@ -197,6 +229,7 @@ class InstcList(mixins.InstcMixin, CommonList):
     filterset_class = filters.InstcFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
 
+
 class InstdList(mixins.InstdMixin, CommonList):
     filterset_class = filters.InstdFilter
     fields = ["inst", "instdc", "created_by", "created_date",]
@@ -205,6 +238,26 @@ class InstdList(mixins.InstdMixin, CommonList):
 class InstdcList(mixins.InstdcMixin, CommonList):
     filterset_class = filters.InstdcFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+    
+
+class OrgaList(mixins.OrgaMixin, CommonList):
+    filterset_class = filters.OrgaFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+
+
+class ProgaList(mixins.ProgaMixin, CommonList):
+    filterset_class = filters.ProgaFilter
+    fields = ["proga_last_name", "proga_first_name", "created_by", "created_date",]
+
+
+class ProtcList(mixins.ProtcMixin, CommonList):
+    filterset_class = filters.ProtcFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date",]
+
+
+class ProtfList(mixins.ProtfMixin, CommonList):
+    filterset_class = filters.ProtfFilter
+    fields = ["prot_id", "protf_file", "comments", "created_by", "created_date",]
 
 
 # ---------------------------UPDATE VIEWS-----------------------------------
@@ -265,4 +318,20 @@ class InstdUpdate(mixins.InstdMixin, CommonUpdate):
 
 
 class InstdcUpdate(mixins.InstdcMixin, CommonUpdate):
+    pass
+
+
+class OrgaUpdate(mixins.OrgaMixin, CommonUpdate):
+    pass
+
+
+class ProgaUpdate(mixins.ProgaMixin, CommonUpdate):
+    pass
+
+
+class ProtcUpdate(mixins.ProtcMixin, CommonUpdate):
+    pass
+
+
+class ProtfUpdate(mixins.ProtfMixin, CommonUpdate):
     pass

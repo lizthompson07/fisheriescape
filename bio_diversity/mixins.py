@@ -33,3 +33,31 @@ class InstdcMixin:
     title = _("Instrument Detail Code")
 
 
+class OrgaMixin:
+    key = 'orga'
+    model = models.Organization
+    form_class = forms.OrgaForm
+    title = _("Organization")
+
+
+class ProgaMixin:
+    key = 'proga'
+    model = models.ProgAuthority
+    form_class = forms.ProgaForm
+    title = _("Program Authority")
+
+
+class ProtcMixin:
+    key = 'protc'
+    model = models.ProtoCode
+    form_class = forms.ProtcForm
+    title = _("Protocol Code")
+
+
+class ProtfMixin:
+    key = 'protf'
+    model = models.Protofile
+    form_class = forms.ProtfForm
+    title = _("Protocol File")
+
+

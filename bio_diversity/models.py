@@ -11,7 +11,7 @@ class BioLookup(shared_models.Lookup):
         abstract = True
 
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
-    created_date = models.DateField(verbose_name=_("Created Date"))
+    created_date = models.DateField(auto_now_add=True, verbose_name=_("Created Date"))
 
 
 class BioModel(models.Model):
@@ -53,4 +53,29 @@ class InstrumentDet(BioModel):
 
 class InstDetCode(BioLookup):
     # instdc tag
+    pass
+
+
+class Organization(BioLookup):
+    # orga tag
+    pass
+
+
+class ProgAuthority(BioModel):
+    # proga tag
+    proga_last_name = models.CharField(max_length=32, verbose_name=_("Last Name"))
+    proga_first_name = models.CharField(max_length=32, verbose_name=_("First Name"))
+    pass
+
+
+class ProtoCode(BioLookup):
+    # protc tag
+    pass
+
+
+class Protofile(BioModel):
+    # protf tag
+    prot_id = models.IntegerField(verbose_name=_("Protocol Id"))
+    protf_file = models.CharField(max_length=32, verbose_name=_("Protocol File Path"))  # models.FilePathField(path='', verbose_name=_("Protocol File"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     pass

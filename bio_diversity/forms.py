@@ -38,3 +38,30 @@ class InstdcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class OrgaForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Organization
+        exclude = []
+
+
+class ProgaForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.ProgAuthority
+        exclude = []
+
+
+class ProtcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.ProtoCode
+        exclude = []
+
+
+class ProtfForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Protofile
+        exclude = []
+        # widgets = {
+        #     'prot_file': forms.FilePathField(path='.'),
+        # }
+
+

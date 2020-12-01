@@ -17,7 +17,6 @@ urlpatterns = [
     path('list/instc/', views.InstcList.as_view(), name="list_instc"),
     path('update/instc/<int:pk>/', views.InstcUpdate.as_view(), name="update_instc"),
 
-
     path('create/instd/', views.InstdCreate.as_view(), name="create_instd"),
     path('details/instd/<int:pk>/', views.InstdDetails.as_view(), name="details_instd"),
     path('list/instd/', views.InstdList.as_view(), name="list_instd"),
@@ -27,5 +26,25 @@ urlpatterns = [
     path('details/instdc/<int:pk>/', views.InstdcDetails.as_view(), name="details_instdc"),
     path('list/instdc/', views.InstdcList.as_view(), name="list_instdc"),
     path('update/instdc/<int:pk>/', views.InstdcUpdate.as_view(), name="update_instdc"),
+
+    path('create/orga/', views.OrgaCreate.as_view(), name="create_orga"),
+    path('details/orga/<int:pk>/', views.OrgaDetails.as_view(), name="details_orga"),
+    path('list/orga/', views.OrgaList.as_view(), name="list_orga"),
+    path('update/orga/<int:pk>/', views.OrgaUpdate.as_view(), name="update_orga"),
+
+    path('create/proga/', views.ProgaCreate.as_view(), name="create_proga"),
+    path('details/proga/<int:pk>/', views.ProgaDetails.as_view(), name="details_proga"),
+    path('list/proga/', views.ProgaList.as_view(), name="list_proga"),
+    path('update/proga/<int:pk>/', views.ProgaUpdate.as_view(), name="update_proga"),
+
+    path('create/protc/', views.ProtcCreate.as_view(), name="create_protc"),
+    path('details/protc/<int:pk>/', views.ProtcDetails.as_view(), name="details_protc"),
+    path('list/protc/', views.ProtcList.as_view(), name="list_protc"),
+    path('update/protc/<int:pk>/', views.ProtcUpdate.as_view(), name="update_protc"),
+
+    path('create/protf/', views.ProtfCreate.as_view(), name="create_protf"),
+    path('details/protf/<int:pk>/', views.ProtfDetails.as_view(), name="details_protf"),
+    path('list/protf/', views.ProtfList.as_view(), name="list_protf"),
+    path('update/protf/<int:pk>/', views.ProtfUpdate.as_view(), name="update_protf"),
 
 ]
