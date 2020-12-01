@@ -725,7 +725,7 @@ class Organization(SimpleLookup):
         if self.location:
             if my_str:
                 my_str += ", "
-            my_str += self.location
+            my_str += str(self.location)
 
         # add postal code
         if self.postal_code:

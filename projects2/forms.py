@@ -108,6 +108,18 @@ class ProjectForm(forms.ModelForm):
         if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
             del self.fields["tags"]
 
+        # if not acrdp project, we should remove certain fields
+        if not kwargs.get("instance") or not kwargs.get("instance").is_acrdp:
+            acrdp_fields = [
+                'organization',
+                'species_involved',
+                'team_description',
+                'rationale',
+                'experimental_protocol',
+            ]
+            for field in acrdp_fields:
+                del self.fields[field]
+
 
 class ProjectYearForm(forms.ModelForm):
     class Meta:

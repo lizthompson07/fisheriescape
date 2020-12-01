@@ -391,6 +391,8 @@ def multiple_projects_financial_summary(project_list):
 
 
 def get_project_field_list(project):
+    is_acrdp = project.is_acrdp
+
     my_list = [
         'id',
         'section',
@@ -404,9 +406,18 @@ def get_project_field_list(project):
         'fiscal_years',
         'funding_sources',
         'lead_staff',
+
+        # acrdp fields
+        'organization' if is_acrdp else None,
+        'species_involved' if is_acrdp else None,
+        'team_description' if is_acrdp else None,
+        'rationale' if is_acrdp else None,
+        'experimental_protocol' if is_acrdp else None,
+
         'tags',
         'metadata|{}'.format(_("metadata")),
     ]
+    while None in my_list: my_list.remove(None)
     return my_list
 
 
@@ -674,9 +685,9 @@ def get_review_score_rubric():
 
 def get_risk_rating(impact, likelihood):
     """This is taken from the ACRDP application form"""
-    l=1
-    m=2
-    h=3
+    l = 1
+    m = 2
+    h = 3
     rating_dict = {
         # impact
         1: {

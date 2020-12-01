@@ -95,8 +95,7 @@ class HelpText(HelpTextLookup):
 
 class Project(models.Model):
     # basic
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects2",
-                                verbose_name=_("section"))
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects2", verbose_name=_("section"))
     title = models.TextField(verbose_name=_("Project title"))
     activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
     functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
@@ -109,6 +108,14 @@ class Project(models.Model):
     overview = models.TextField(blank=True, null=True, verbose_name=_("Project overview"))
 
     is_hidden = models.BooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
+
+    # ACRDP fields
+    organization = models.ForeignKey(shared_models.Organization, on_delete=models.DO_NOTHING, related_name="projects",
+                                      verbose_name=_("physical location (ACRDP)"), blank=True, null=True)
+    species_involved = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("species involved (ACRDP)"))
+    team_description = models.TextField(blank=True, null=True, verbose_name=_("description of team and required qualifications (ACRDP)"))
+    rationale = models.TextField(blank=True, null=True, verbose_name=_("project problem / rationale (ACRDP)"))
+    experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
 
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
@@ -205,6 +212,11 @@ class Project(models.Model):
                 if item.funding_source and item.amount and item.amount > 0:
                     my_list.append(item.funding_source)
             return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
+
+    @property
+    def is_acrdp(self):
+        if self.default_funding_source and "acrdp" in self.default_funding_source.name.lower():
+            return True
 
 
 class ProjectYear(models.Model):
@@ -808,8 +820,8 @@ class Activity(models.Model):
     impact = models.IntegerField(choices=impact_choices, blank=True, null=True)
     likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True)
     risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)
-    risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences (ACRDP only)"))
-    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("mitigation measures (ACRDP only)"))
+    risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences (ACRDP)"))
+    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("mitigation measures (ACRDP)"))
 
     def save(self, *args, **kwargs):
         if self.impact and self.likelihood:
@@ -825,7 +837,6 @@ class Activity(models.Model):
     @property
     def latest_update(self):
         return self.updates.first()
-
 
 
 class ActivityUpdate(models.Model):
