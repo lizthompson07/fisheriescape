@@ -15,7 +15,7 @@ class IndexTemplateView(TemplateView):
 
 # CommonCreate Extends the UserPassesTestMixin used to determine if a user has
 # has the correct privileges to interact with Creation Views
-# --------------------Create Views----------------------------------------
+# --------------------CREATE VIEWS----------------------------------------
 class CommonCreate(CommonAuthCreateView):
 
     nav_menu = 'bio_diversity/bio_diversity_nav.html'
@@ -61,7 +61,7 @@ class InstdcCreate(mixins.InstdcMixin, CommonCreate):
     pass
 
 
-# ---------------------------Detail VIEWS-----------------------------------------------
+# ---------------------------DETAIL VIEWS-----------------------------------------------
 class CommonDetails(DetailView):
     # default template to use to create a details view
     template_name = "bio_diversity/bio_details.html"
@@ -107,7 +107,7 @@ class InstcDetails(mixins.InstcMixin, CommonDetails):
 
 
 class InstdDetails(mixins.InstdMixin, CommonDetails):
-    fields = ["inst", "instdc", "created_by", "created_date",]
+    fields = ["inst", "instdc", "det_value", "start_date", "end_date", "valid", "created_by", "created_date",]
 
 
 class InstdcDetails(mixins.InstdcMixin, CommonDetails):

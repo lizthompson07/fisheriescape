@@ -27,8 +27,8 @@ class Instrument(BioModel):
     # inst tag
     instc = models.ForeignKey('InstrumentCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Code"),
                               related_name="instrument_code")
-    serial_number = models.CharField(max_length=250, verbose_name=_("Serial Number"))
-    comments = models.CharField(max_length=2000, verbose_name=_("Comments"))
+    serial_number = models.CharField(null=True, max_length=250, verbose_name=_("Serial Number"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     pass
 
 
@@ -45,9 +45,9 @@ class InstrumentDet(BioModel):
                                related_name="inst_det_code")
     det_value = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Value"))
     start_date = models.DateField(verbose_name=_("Date of change"))
-    end_date = models.DateField(verbose_name=_("Last Date Change is valid"))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("Last Date Change is valid"))
     valid = models.BooleanField(default="False", verbose_name=_("Detail still valid?"))
-    comments = models.CharField(max_length=2000, verbose_name=_("Comments"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     pass
 
 
