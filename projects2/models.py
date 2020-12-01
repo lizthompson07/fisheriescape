@@ -818,7 +818,7 @@ class Activity(models.Model):
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party"), blank=True, null=True)
     risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences (ACRDP)"))
-    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what is the impact is if the risks occurs (ACRDP)"))
+    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what will be the impact if the risks occurs (ACRDP)"))
     likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True, verbose_name=_("what is the likelihood of the risks occurring (ACRDP)"))
     risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)
     mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks (ACRDP)"))
