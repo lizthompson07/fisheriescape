@@ -689,11 +689,15 @@ class Location(models.Model):
 
 
 class Organization(SimpleLookup):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
     abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
     address = models.TextField(blank=True, null=True, verbose_name=_("address"))
     city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
     postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    def __str__(self):
+        return self.full_name_and_address
 
     @property
     def full_name_and_address(self):
