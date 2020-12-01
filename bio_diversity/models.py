@@ -11,7 +11,7 @@ class BioLookup(shared_models.Lookup):
         abstract = True
 
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
-    created_date = models.DateField(auto_now_add=True, verbose_name=_("Created Date"))
+    created_date = models.DateField(verbose_name=_("Created Date"))
 
 
 class BioModel(models.Model):
