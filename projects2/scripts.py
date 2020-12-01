@@ -61,6 +61,7 @@ def resave_all_reviews(projects=models.Project.objects.all()):
     for obj in models.Review.objects.all():
         obj.save()
 
+
 def compare_html():
     projects = models.Project.objects.all()
 
@@ -466,8 +467,9 @@ def from_project_to_reviewer():
         qs = models.ProjectYear.objects.filter(project_id=old_p.id)
         if qs.exists():
             if qs.count() > 1:
-                print("problem, more than one project year of this project exists: ", old_p.project_title," (",old_p.id, ") Going to choose this one: ",
-                      qs.first()," of ", listrify(qs))
+                print("problem, more than one project year of this project exists: ", old_p.project_title, " (", old_p.id,
+                      ") Going to choose this one: ",
+                      qs.first(), " of ", listrify(qs))
 
             new_py = qs.first()
             review, created = models.Review.objects.get_or_create(
@@ -481,3 +483,28 @@ def from_project_to_reviewer():
             review.save()
         else:
             print("cannot find matching project:", old_p.id, old_p.project_title)
+
+
+def transform_deliverables():
+    project_years = models.ProjectYear.objects.filter(deliverables__isnull=False)
+    for py in project_years:
+        models.Activity.objects.get_or_create(
+            project_year=py,
+            name="MISSING NAME",
+            description=py.deliverables,
+            type=2,
+        )
+
+
+
+def copy_orgs():
+    from inventory.models import Organization
+    inventory_orgs = Organization.objects.filter(name_eng__isnull=False)
+    for org in inventory_orgs:
+        new_org, created = shared_models.Organization.objects.get_or_create(
+            id=org.id,
+        )
+        new_org.name = org.name_eng
+        new_org.nom = org.name_fre
+
+

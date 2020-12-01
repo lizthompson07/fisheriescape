@@ -225,7 +225,7 @@ class ProjectYear(models.Model):
     # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_("year-specific priorities"))
     # HTML field
-    deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"))
+    deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"), editable=False)
 
     # SPECIALIZED EQUIPMENT
     ########################

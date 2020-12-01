@@ -414,7 +414,7 @@ def get_project_year_field_list(project_year=None):
     my_list = [
         'dates|dates',
         'priorities',  # do not call the html field directly or we loose the ability to get the model's verbose name
-        'deliverables',  # do not call the html field directly or we loose the ability to get the model's verbose name
+        # 'deliverables',  # do not call the html field directly or we loose the ability to get the model's verbose name
 
         # SPECIALIZED EQUIPMENT COMPONENT
         #################################
@@ -508,8 +508,8 @@ def get_activity_field_list():
         'type',
         'name',
         'description',
-        'responsible_party',
         'target_date',
+        'responsible_party',
         'risk_rating',
         'latest_update|{}'.format(_("latest status")),
     ]

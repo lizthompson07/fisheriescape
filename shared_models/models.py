@@ -664,3 +664,11 @@ class Script(Lookup):
     @property
     def metadata(self):
         return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+
+
+class Organization(SimpleLookup):
+    abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
+    address = models.TextField(blank=True, null=True, verbose_name=_("address"))
+    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
+    postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
+    country = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("country"))
