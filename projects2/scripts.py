@@ -330,7 +330,7 @@ def fetch_project_data():
         # MILESTONE
         qry = omodels.Milestone.objects.filter(project=old_p)
         for obj in qry:
-            new_obj, created = models.Milestone.objects.get_or_create(
+            new_obj, created = models.Activity.objects.get_or_create(
                 id=obj.id,
                 project_year=new_py,
                 name=obj.name,
@@ -360,7 +360,7 @@ def fetch_project_data():
         # MILESTONE
         qry = omodels.Milestone.objects.filter(project=old_p)
         for obj in qry:
-            new_obj, created = models.Milestone.objects.get_or_create(
+            new_obj, created = models.Activity.objects.get_or_create(
                 id=obj.id,
                 project_year=new_py,
                 name=obj.name,
@@ -370,7 +370,7 @@ def fetch_project_data():
             # MILESTONE UPDATE
             qry1 = omodels.MilestoneUpdate.objects.filter(milestone=obj)
             for obj1 in qry1:
-                new_obj1, created1 = models.MilestoneUpdate.objects.get_or_create(
+                new_obj1, created1 = models.ActivityUpdate.objects.get_or_create(
                     id=obj1.id,
                     milestone_id=new_obj.id,
                     status_report_id=obj1.status_report_id,

@@ -467,7 +467,7 @@ def generate_acrdp_application(project):
 #             "Project-Specific Priorities": [normal_format, 150],
 #             "Project Objectives & Description": [normal_format, 150],
 #             "Project Deliverables / Activities": [normal_format, 150],
-#             "Milestones": [normal_format, 150],
+#             "Activities": [normal_format, 150],
 #             "Additional Notes": [normal_format, 150],
 #         }
 #
@@ -538,7 +538,7 @@ def generate_acrdp_application(project):
 #
 #         capital_cost = project.capital_costs.filter(funding_source=funding).aggregate(Sum("budget_requested"))
 #
-#         milestone = listrify([m.name + ": " + m.description for m in project.milestones.all()], "\n\n*")
+#         activity = listrify([m.name + ": " + m.description for m in project.activities.all()], "\n\n*")
 #
 #         data = [
 #             project.id,
@@ -555,7 +555,7 @@ def generate_acrdp_application(project):
 #                                                                                                            "\n\n"),
 #             html2text.html2text(project.deliverables).replace("\n\n", "[_EOL_]").replace("\n", " ").replace("[_EOL_]",
 #                                                                                                             "\n\n"),
-#             milestone,
+#             activity,
 #             project.notes]
 #         worksheet.write_row(row, 0, data)
 #

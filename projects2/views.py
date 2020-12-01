@@ -282,8 +282,8 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["gc_cost_form"] = forms.GCCostForm
         context["random_gc_cost"] = models.GCCost.objects.first()
 
-        context["milestone_form"] = forms.MilestoneForm
-        context["random_milestone"] = models.Milestone.objects.first()
+        context["activity_form"] = forms.ActivityForm
+        context["random_activity"] = models.Activity.objects.first()
 
         context["collaborator_form"] = forms.CollaboratorForm
         context["random_collaborator"] = models.Collaborator.objects.first()
@@ -436,8 +436,8 @@ class ProjectCloneView(ProjectUpdateView):
                 new_rel_obj.project_year = new_year
                 new_rel_obj.save()
 
-            # 7) Milestones
-            for old_rel_obj in old_year.milestones.all():
+            # 7) Activities
+            for old_rel_obj in old_year.activities.all():
                 new_rel_obj = deepcopy(old_rel_obj)
                 new_rel_obj.pk = None
                 new_rel_obj.project_year = new_year
@@ -610,8 +610,8 @@ class ProjectYearCloneView(ProjectYearUpdateView):
             new_rel_obj.project_year = new_obj
             new_rel_obj.save()
 
-        # 7) Milestones
-        for old_rel_obj in old_obj.milestones.all():
+        # 7) Activities
+        for old_rel_obj in old_obj.activities.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
             new_rel_obj.project_year = new_obj
@@ -1004,21 +1004,21 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
     field_list = get_status_report_field_list()
 
     def dispatch(self, request, *args, **kwargs):
-        # when the view loads, let's make sure that all the milestones are on the project.
+        # when the view loads, let's make sure that all the activities are on the project.
         my_object = self.get_object()
         my_project_year = my_object.project_year
-        for milestone in my_project_year.milestones.all():
-            my_update, created = models.MilestoneUpdate.objects.get_or_create(
-                milestone=milestone,
+        for activity in my_project_year.activities.all():
+            my_update, created = models.ActivityUpdate.objects.get_or_create(
+                activity=activity,
                 status_report=my_object
             )
             # if the update is being created, what should be the starting status?
             # to know, we would have to look and see if there is another report. if there is, we should grab the penultimate report and copy status from there.
             if created:
-                # check to see if there is another update on the same milestone. We can do this since milestones are unique to projects.
-                if milestone.updates.count() > 1:
+                # check to see if there is another update on the same activity. We can do this since activities are unique to projects.
+                if activity.updates.count() > 1:
                     # if there are more than just 1 (i.e. the one we just created), it will be the second record we are interested in...
-                    last_update = milestone.updates.all()[1]
+                    last_update = activity.updates.all()[1]
                     my_update.status = last_update.status
                     my_update.save()
 
@@ -1039,8 +1039,8 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
         context['files'] = my_report.files.all()
         context['file_form'] = forms.FileForm
         context["random_file"] = models.File.objects.first()
-        context['update_form'] = forms.MilestoneUpdateForm
-        context["random_update"] = models.MilestoneUpdate.objects.first()
+        context['update_form'] = forms.ActivityUpdateForm
+        context["random_update"] = models.ActivityUpdate.objects.first()
 
         return context
 
@@ -1097,7 +1097,7 @@ class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
         context["object"] = my_report
 
         context["random_file"] = models.File.objects.first()
-        context["random_update"] = models.MilestoneUpdate.objects.first()
+        context["random_update"] = models.ActivityUpdate.objects.first()
 
         return context
 

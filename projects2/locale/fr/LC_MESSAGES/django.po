@@ -56,7 +56,7 @@ msgstr "Section"
 
 #: .\projects2\filters.py:217 .\projects2\models.py:572
 #: .\projects2\templates\projects2\scratch\_collaborators.html:32
-#: .\projects2\templates\projects2\scratch\_milestones.html:33
+#: .\projects2\templates\projects2\scratch\_activities.html:33
 #: .\projects2\templates\projects2\scratch\_staff.html:34
 msgid "Name"
 msgstr "Nom"
@@ -100,9 +100,9 @@ msgstr "Utilisateur du MPO"
 #, fuzzy
 #| msgid ""
 #| "major accomplishments (this can be left blank if reported at the "
-#| "milestone level)"
+#| "activity level)"
 msgid ""
-"Major accomplishments (this can be left blank if reported at the milestone "
+"Major accomplishments (this can be left blank if reported at the activity "
 "level"
 msgstr ""
 "réalisations majeures (ceci peut être laissé en blanc si signalé au niveau "
@@ -1509,18 +1509,18 @@ msgstr "Ajouter S & C"
 msgid "No G&C costs have been added to this year of the project"
 msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
-#: .\projects2\templates\projects2\project_detail\_milestones.html:9
+#: .\projects2\templates\projects2\project_detail\_activities.html:9
 #: .\projects2\templates\projects2\scratch\report_pdf_funding.html:119
 #, fuzzy
 msgid "Milestones"
 msgstr "Jalons"
 
-#: .\projects2\templates\projects2\project_detail\_milestones.html:13
-#: .\projects2\templates\projects2\scratch\_milestones.html:14
+#: .\projects2\templates\projects2\project_detail\_activities.html:13
+#: .\projects2\templates\projects2\scratch\_activities.html:14
 msgid "Add Milestone"
 msgstr "Ajouter un jalon"
 
-#: .\projects2\templates\projects2\project_detail\_milestones.html:30
+#: .\projects2\templates\projects2\project_detail\_activities.html:30
 #: .\projects2\templates\projects2\status_report\_updates.html:25
 #: .\projects2\templates\projects2\status_report_pdf.html:61
 #, fuzzy

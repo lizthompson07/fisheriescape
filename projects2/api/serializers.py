@@ -278,11 +278,11 @@ class CapitalCostSerializer(serializers.ModelSerializer):
         return instance.project_year_id
 
 
-class MilestoneSerializer(serializers.ModelSerializer):
+class ActivitySerializer(serializers.ModelSerializer):
     target_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
 
     class Meta:
-        model = models.Milestone
+        model = models.Activity
         exclude = ["project_year"]
 
     latest_update = serializers.SerializerMethodField()
@@ -377,13 +377,13 @@ class StatusReportSerializer(serializers.ModelSerializer):
         return instance.files.count()
 
 
-class MilestoneUpdateSerializer(serializers.ModelSerializer):
-    milestone = serializers.StringRelatedField()
+class ActivityUpdateSerializer(serializers.ModelSerializer):
+    activity = serializers.StringRelatedField()
     status_display = serializers.SerializerMethodField()
     notes_html = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.MilestoneUpdate
+        model = models.ActivityUpdate
         exclude = ["status_report"]
 
     def get_status_display(self, instance):

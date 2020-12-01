@@ -772,8 +772,8 @@ class Review(models.Model):
         self.save()
 
 
-class Milestone(models.Model):
-    project_year = models.ForeignKey(ProjectYear, related_name="milestones", on_delete=models.CASCADE)
+class Activity(models.Model):
+    project_year = models.ForeignKey(ProjectYear, related_name="activities", on_delete=models.CASCADE)
     name = models.CharField(max_length=500, verbose_name=_("name"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
@@ -789,26 +789,26 @@ class Milestone(models.Model):
         return self.updates.first()
 
 
-class MilestoneUpdate(models.Model):
+class ActivityUpdate(models.Model):
     status_choices = (
         (7, _("In progress")),
         (8, _("Completed")),
         (9, _("Aborted / cancelled")),
     )
-    milestone = models.ForeignKey(Milestone, related_name="updates", on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, related_name="updates", on_delete=models.CASCADE)
     status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)
     status = models.IntegerField(default=7, choices=status_choices)
     notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     class Meta:
         ordering = ['-status_report', 'status']
-        unique_together = [('milestone', 'status_report'), ]
+        unique_together = [('activity', 'status_report'), ]
 
     def __str__(self):
         # what is the number of this report?
         return "{} {}".format(
             gettext("Update on "),
-            self.milestone,
+            self.activity,
         )
 
     @property

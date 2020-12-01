@@ -39,9 +39,9 @@ urlpatterns = [
     path("project-planning/project-years/<int:project_year>/gc-costs/", views.GCCostListCreateAPIView.as_view(), name="gc-list"),
     path("project-planning/gc-costs/<int:pk>/", views.GCCostRetrieveUpdateDestroyAPIView.as_view(), name="gc-detail"),
 
-    # milestones
-    path("project-planning/project-years/<int:project_year>/milestones/", views.MilestoneListCreateAPIView.as_view(), name="milestone-list"),
-    path("project-planning/milestones/<int:pk>/", views.MilestoneRetrieveUpdateDestroyAPIView.as_view(), name="milestone-detail"),
+    # activities
+    path("project-planning/project-years/<int:project_year>/activities/", views.ActivityListCreateAPIView.as_view(), name="activity-list"),
+    path("project-planning/activities/<int:pk>/", views.ActivityRetrieveUpdateDestroyAPIView.as_view(), name="activity-detail"),
 
     # collaborators
     path("project-planning/project-years/<int:project_year>/collaborators/", views.CollaboratorListCreateAPIView.as_view(), name="collaborator-list"),
@@ -58,10 +58,10 @@ urlpatterns = [
     # status reports
     path("project-planning/project-years/<int:project_year>/status-reports/", views.StatusReportListCreateAPIView.as_view(), name="status-report-list"),
     path("project-planning/status-reports/<int:pk>/", views.StatusReportRetrieveUpdateDestroyAPIView.as_view(), name="status-report-detail"),
-    path("project-planning/status-reports/<int:status_report>/updates/", views.MilestoneUpdateListAPIView.as_view(),
-         name="milestone-update-list"),
-    path("project-planning/milestone-updates/<int:pk>/", views.MilestoneUpdateRetrieveUpdateAPIView.as_view(),
-         name="milestone-update-detail"),
+    path("project-planning/status-reports/<int:status_report>/updates/", views.ActivityUpdateListAPIView.as_view(),
+         name="activity-update-list"),
+    path("project-planning/activity-updates/<int:pk>/", views.ActivityUpdateRetrieveUpdateAPIView.as_view(),
+         name="activity-update-detail"),
 
 
     # financials

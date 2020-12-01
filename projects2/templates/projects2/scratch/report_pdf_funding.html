@@ -116,8 +116,8 @@
     <h3>{% trans 'Project Deliverables / Activities' %}</h3>
     {{ project.deliverables|html_to_text|safe}}
 
-    <h3>{% trans 'Milestones' %}</h3>
-    {% with milestone|lookup:project.id as mile %}
+    <h3>{% trans 'Activities' %}</h3>
+    {% with activity|lookup:project.id as mile %}
         {% if mile %}
             {% for m in mile %}
                 <h5>{{m.name}}</h5>

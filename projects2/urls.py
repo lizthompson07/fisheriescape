@@ -37,7 +37,7 @@ urlpatterns = [
 
     # MILESTONE UPDATE #
     ####################
-    # path('milestone-update/<int:pk>/edit/', views.MilestoneUpdateUpdateView.as_view(), name="milestone_update_edit"),
+    # path('activity-update/<int:pk>/edit/', views.ActivityUpdateUpdateView.as_view(), name="activity_update_edit"),
 
     ###################################
 

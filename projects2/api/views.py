@@ -352,22 +352,22 @@ class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 # MILESTONE
 ###########
-class MilestoneListCreateAPIView(ListCreateAPIView):
-    queryset = models.Milestone.objects.all()
-    serializer_class = serializers.MilestoneSerializer
+class ActivityListCreateAPIView(ListCreateAPIView):
+    queryset = models.Activity.objects.all()
+    serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.milestones.all()
+        return year.activities.all()
 
     def perform_create(self, serializer):
         serializer.save(project_year_id=self.kwargs.get("project_year"))
 
 
-class MilestoneRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = models.Milestone.objects.all()
-    serializer_class = serializers.MilestoneSerializer
+class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Activity.objects.all()
+    serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
@@ -438,12 +438,12 @@ class StatusReportRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         serializer.save(modified_by=self.request.user)
 
 
-# Milestone Updates
+# Activity Updates
 
 
-class MilestoneUpdateListAPIView(ListAPIView):
+class ActivityUpdateListAPIView(ListAPIView):
     queryset = models.StatusReport.objects.all()
-    serializer_class = serializers.MilestoneUpdateSerializer
+    serializer_class = serializers.ActivityUpdateSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
@@ -452,9 +452,9 @@ class MilestoneUpdateListAPIView(ListAPIView):
         return status_report.updates.all()
 
 
-class MilestoneUpdateRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-    queryset = models.MilestoneUpdate.objects.all()
-    serializer_class = serializers.MilestoneUpdateSerializer
+class ActivityUpdateRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = models.ActivityUpdate.objects.all()
+    serializer_class = serializers.ActivityUpdateSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
