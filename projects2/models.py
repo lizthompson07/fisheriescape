@@ -817,11 +817,11 @@ class Activity(models.Model):
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party"), blank=True, null=True)
-    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("impact on project if activity does not occur"))
-    likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True, verbose_name=_("likelihood of activity occurring"))
-    risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)
     risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences (ACRDP)"))
-    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("mitigation measures (ACRDP)"))
+    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what is the impact is if the risks occurs (ACRDP)"))
+    likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True, verbose_name=_("what is the likelihood of the risks occurring (ACRDP)"))
+    risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)
+    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks (ACRDP)"))
 
     def save(self, *args, **kwargs):
         if self.impact and self.likelihood:

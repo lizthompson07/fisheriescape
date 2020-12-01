@@ -521,7 +521,6 @@ def get_activity_field_list():
         'description',
         'target_date',
         'responsible_party',
-        'risk_rating',
         'latest_update|{}'.format(_("latest status")),
     ]
     return my_list

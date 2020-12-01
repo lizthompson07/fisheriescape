@@ -918,7 +918,6 @@ class ResponsibilityCenterDeleteView(AdminRequiredMixin, CommonDeleteView):
     container_class = "container bg-light curvy"
 
 
-
 # PROJECT CODE
 ##############
 
@@ -969,7 +968,6 @@ class ProjectCodeDeleteView(AdminRequiredMixin, CommonDeleteView):
     template_name = "projects2/confirm_delete.html"
     delete_protection = False
     container_class = "container bg-light curvy"
-
 
 
 # STATUS REPORT #
@@ -1115,5 +1113,23 @@ def export_acrdp_application(request, pk):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-word")
             response['Content-Disposition'] = f'inline; filename="ACRDP application (Project ID {project.id}).docx"'
+            return response
+    raise Http404
+
+
+def export_acrdp_budget(request, pk):
+    project = get_object_or_404(models.Project, pk=pk)
+
+    # check if the project lead's profile is up-to-date
+    if not project.lead_staff.first().user.profile.tposition:
+        messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (position title)"))
+    if not project.lead_staff.first().user.profile.phone:
+        messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (phone number)"))
+    file_url = reports.generate_acrdp_budget(project)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="ACRDP Budget (Project ID {project.id}).xls"'
             return response
     raise Http404

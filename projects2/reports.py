@@ -4,6 +4,7 @@ from io import BytesIO
 from django.conf import settings
 from django.utils.translation import gettext as _
 from docx import Document
+from openpyxl import Workbook, load_workbook
 
 from . import models
 
@@ -110,6 +111,123 @@ def generate_acrdp_application(project):
     document.save(target_file_path)
 
     return target_url
+
+
+
+def generate_acrdp_budget(project):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'projects', 'temp')
+    target_file = "temp_export.xlsx"
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'projects', 'temp', target_file)
+
+    template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "acrdp_template.xlsx")
+
+    wb = load_workbook(filename = template_file_path)
+    for year in project.years.all():
+        try:
+            ws = wb[str(year.fiscal_year)]
+        except KeyError:
+            print(str(year.fiscal_year), "is not a valid name of a worksheet")
+        else:
+            for cost in year.omcost_set.all():
+                pass
+
+
+    # ws0['H7'].value = 1500
+    # ws0['H8'].value = 2500
+    # ws0['H9'].value = 3500
+    # ws0['H10'].value = 4500
+    # lead = project.lead_staff.first().user
+    # contact_info = _("{full_address}\n\n{email}\n\n{phone}").format(
+    #     full_address=project.organization.full_address if project.organization else "MISSING!",
+    #     email=lead.email,
+    #     phone=lead.profile.phone
+    # )
+    #
+    # priorities = str()
+    # for year in project.years.all():
+    #     priorities += f'{year.fiscal_year}:\n\n{year.priorities}\n\n'
+    #
+    # deliverables = str()
+    # for year in project.years.all():
+    #     if year.activities.filter(type=2).exists():
+    #         deliverables += f'{year.fiscal_year}:\n\n'
+    #         i = 1
+    #         for d in year.activities.filter(type=2):
+    #             deliverables += f'{i}) {d.name.upper()} - {d.description}\n\n'
+    #             i += 1
+    #
+    # field_dict = dict(
+    #     TAG_TITLE=project.title,
+    #     TAG_ORG_NAME=project.organization.tname if project.organization else "MISSING!",
+    #     TAG_ADDRESS=project.organization.address  if project.organization else "MISSING!",
+    #     TAG_CITY=project.organization.city if project.organization else "MISSING!",
+    #     TAG_PROV=str(project.organization.location.tname) if project.organization else "MISSING!",
+    #     TAG_POSTAL_CODE=project.organization.postal_code if project.organization else "MISSING!",
+    #     TAG_SPECIES=project.species_involved if project.organization else "MISSING!",
+    #     TAG_LEAD_NAME=lead.get_full_name(),
+    #     TAG_LEAD_NUMBER=lead.profile.phone,
+    #     TAG_LEAD_EMAIL=lead.email,
+    #     TAG_LEAD_POSITION=lead.profile.tposition,
+    #     TAG_LEAD_CONTACT_INFO=contact_info,  # address email telephone
+    #     TAG_SECTION_HEAD_NAME=project.section.head.get_full_name() if project.section else "MISSING!",
+    #     TAG_DIVISION_MANAGER_NAME=project.section.division.head.get_full_name() if project.section else "MISSING!",
+    #     TAG_START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y"),
+    #     TAG_END_YEAR=project.years.last().end_date.strftime("%d/%m/%Y"),
+    #     TAG_TEAM_DESCRIPTION=project.team_description,
+    #     TAG_RATIONALE=project.rationale,
+    #     TAG_OVERVIEW=project.overview,
+    #     TAG_PRIORITIES=priorities,
+    #     TAG_EXPERIMENTAL_PROTOCOL=project.experimental_protocol,
+    #     TAG_DELIVERABLES=deliverables
+    # )
+    #
+    # for item in field_dict:
+    #     # replace the tagged placeholders in tables
+    #     for table in document.tables:
+    #         for row in table.rows:
+    #             for cell in row.cells:
+    #                 for paragraph in cell.paragraphs:
+    #                     if item in paragraph.text:
+    #                         try:
+    #                             paragraph.text = paragraph.text.replace(item, field_dict[item])
+    #                         except:
+    #                             paragraph.text = "MISSING!"
+    #
+    #     # replace the tagged placeholders in paragraphs
+    #     for paragraph in document.paragraphs:
+    #         if item in paragraph.text:
+    #             try:
+    #                 paragraph.text = paragraph.text.replace(item, field_dict[item])
+    #             except:
+    #                 paragraph.text = "MISSING!"
+    #
+    # # Find and populate the milestones and risk analysis table
+    # for table in document.tables:
+    #     if "date/period" in table.rows[0].cells[0].paragraphs[0].text.lower():
+    #         for milestone in models.Activity.objects.filter(type=1, project_year__project=project).order_by("target_date"):
+    #             row = table.add_row()
+    #             row.cells[0].paragraphs[0].text = milestone.target_date.strftime("%Y-%m-%d")
+    #             row.cells[1].paragraphs[0].text = f"{milestone.name.upper()} - {milestone.description}"
+    #             row.cells[2].paragraphs[0].text = milestone.responsible_party
+    #
+    #     if "project risk analysis" in table.rows[0].cells[0].paragraphs[0].text.lower():
+    #         for activity in models.Activity.objects.filter(project_year__project=project).order_by("target_date"):
+    #             row = table.add_row()
+    #             row.cells[0].paragraphs[0].text = f"{activity.name} ({activity.get_type_display()})"
+    #             row.cells[1].paragraphs[0].text = activity.risk_description
+    #             row.cells[2].paragraphs[0].text = f"{activity.likelihood}"
+    #             row.cells[3].paragraphs[0].text = f"{activity.impact}"
+    #             row.cells[4].paragraphs[0].text = activity.get_risk_rating_display()
+    #             row.cells[5].paragraphs[0].text = activity.mitigation_measures
+    #             row.cells[6].paragraphs[0].text = activity.responsible_party
+
+    wb.save(target_file_path)
+
+    return target_url
+
+
 
 #
 #

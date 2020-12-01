@@ -20,6 +20,10 @@
       <span class="icon mdi mdi-file-word"></span>
       {% trans "ACRDP Application" %}
     </a>
+     <a v-if="isACRDP" class="{{ btn_class_black }}" href="{% url 'projects2:export_acrdp_budget' object.id %}">
+      <span class="icon mdi mdi-file-excel"></span>
+      {% trans "ACRDP Budget" %}
+    </a>
 
   </div>
 
