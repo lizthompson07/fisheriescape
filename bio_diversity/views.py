@@ -22,6 +22,13 @@ class CommonCreate(CommonAuthCreateView):
     site_css = 'bio_diversity/bio_diversity.css'
     home_url_name = "bio_diversity:index"
 
+    def get_initial(self):
+        init = super().get_initial()
+
+        init["created_by"] = self.request.user.username
+
+        return init
+
     # Upon success most creation views will be redirected to their respective 'CommonList' view. To send
     # a successful creation view somewhere else, override this method
     def get_success_url(self):
@@ -221,6 +228,13 @@ class CommonUpdate(CommonAuthUpdateView):
             return None
 
         return self.nav_menu
+
+    def get_initial(self):
+        init = super().get_initial()
+
+        init["created_by"] = self.request.user.username
+
+        return init
 
     # this function overrides UserPassesTestMixin.test_func() to determine if
     # the user should have access to this content, if the user is logged in
