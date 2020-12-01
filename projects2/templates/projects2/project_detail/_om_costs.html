@@ -61,7 +61,7 @@
       <tr v-for="(item, index) in om_costs">
         {% for field in om_field_list %}
           {% if "funding_source" in field %}
-            <td>
+            <td class="w150">
               <span v-if="isABase(item.funding_source_display)" class="a-base py-1 px-1">${item.funding_source_display | nz }</span>
               <span v-else-if="isBBase(item.funding_source_display)" class="b-base py-1 px-1">${item.funding_source_display | nz }</span>
               <span v-else-if="isCBase(item.funding_source_display)" class="c-base py-1 px-1">${item.funding_source_display | nz }</span>

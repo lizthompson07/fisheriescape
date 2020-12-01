@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from docx import Document
 from openpyxl import load_workbook
 
+from lib.templatetags.custom_filters import nz
 from . import models
 
 
@@ -125,6 +126,55 @@ def generate_acrdp_budget(project):
 
     template_file_path = os.path.join(settings.BASE_DIR, 'projects2', 'static', "projects2", "acrdp_template.xlsx")
 
+    om_category_2_cell = {
+        # 1	Field Travel	Voyage sur le terrain(Travel)
+        1: "24",
+        # 2	DFO Business Travel (meeting etc.)	Voyage d'affaires du MPO (réunion, etc.) (Travel)
+        2: "25",
+        # 3	Training, domestic conferences	Formation, conférences domestiques (Travel)
+        3: "26",
+        # 4	Other Autre(Travel)
+        4: "27",
+        # 5	IM/IT - computers, hardware, software	GI / TI - ordinateurs, matériel informatique, logiciels (Equipment Purchase)
+        5: "13",
+        # 6	Lab Equipment	Équipement de laboratoire (Equipment Purchase)
+        6: "14",
+        # 7	Field Equipment	Équipement de terrain (Equipment Purchase)
+        7: "15",
+        # 8	Other	Autre (Equipment Purchase)
+        8: "16",
+        # 9	Office	Bureau (Material and Supplies)
+        9: "21",
+        # 10	Lab	Laboratoire (Material and Supplies)
+        10: "19",
+        # 11	Field	Terrain (Material and Supplies)
+        11: "20",
+        # 12	Other	Autre (Material and Supplies)
+        12: "21",
+        # 13	Students (FSWEP, Coop etc.)	Etudiants (PFETE, Coop, etc.) (Human Resources)
+        13: "10",
+        # 14	Post-Doctoral Candidates	Candidats postdoctoraux (Human Resources)
+        14: "10",
+        # 15	Contracts	Les contrats (Contracts, Leases, Services)
+        15: "33",
+        # 16	Translation	Traduction (Contracts, Leases, Services)
+        16: "30",
+        # 17	Publication costs	Frais de publication (Contracts, Leases, Services)
+        17: "30",
+        # 18	Vessels, Boats	Navires, Bateaux (Contracts, Leases, Services)
+        18: "31",
+        # 19	Facilities	Installations (Contracts, Leases, Services)
+        19: "32",
+        # 20	Other	Autre (Contracts, Leases, Services)
+        20: "33",
+        # 21	Fuel (e.g., boats)	Carburant (par exemple, bateaux) (Material and Supplies)
+        21: "20",
+        # 22	International travel for meetings, science collaboration and conferences	Voyages internationaux pour réunions, collaboration scientifique et conférences (Travel)
+        22: "25",
+        # 23	Equipment Maintenance	L'entretien de l'équipement (Other)
+        23: "33",
+    }
+
     wb = load_workbook(filename=template_file_path)
     for year in project.years.all():
         try:
@@ -133,123 +183,15 @@ def generate_acrdp_budget(project):
             print(str(year.fiscal_year), "is not a valid name of a worksheet")
         else:
             for cost in year.omcost_set.filter(funding_source__name__icontains="acrdp"):
-                if cost.cost_category_id == 5: ws['H13'].value = cost.amount
-
-    """
-    1	Field Travel	Voyage sur le terrain	1
-    2	DFO Business Travel (meeting etc.)	Voyage d'affaires du MPO (réunion, etc.)	1
-    3	Training, domestic conferences	Formation, conférences domestiques	1
-    4	Other	Autre	1
-    5	IM/IT - computers, hardware, software	GI / TI - ordinateurs, matériel informatique, logiciels	2
-    6	Lab Equipment	Équipement de laboratoire	2
-    7	Field Equipment	Équipement de terrain	2
-    8	Other	Autre	2
-    9	Office	Bureau	3
-    10	Lab	Laboratoire	3
-    11	Field	Terrain	3
-    12	Other	Autre	3
-    13	Students (FSWEP, Coop etc.)	Etudiants (PFETE, Coop, etc.)	4
-    14	Post-Doctoral Candidates	Candidats postdoctoraux	4
-    15	Contracts	Les contrats	5
-    16	Translation	Traduction	5
-    17	Publication costs	Frais de publication	5
-    18	Vessels, Boats	Navires, Bateaux	5
-    19	Facilities	Installations	5
-    20	Other	Autre	5
-    21	Fuel (e.g., boats)	Carburant (par exemple, bateaux)	3
-    22	International travel for meetings, science collaboration and conferences	Voyages internationaux pour réunions, collaboration scientifique et conférences	1
-    23	Equipment Maintenance	L'entretien de l'équipement	6
-    24	Regional Overhead Tax	taxe régionale sur les frais généraux	6
-    """
-
-    # ws0['H7'].value = 1500
-    # ws0['H8'].value = 2500
-    # ws0['H9'].value = 3500
-    # ws0['H10'].value = 4500
-    # lead = project.lead_staff.first().user
-    # contact_info = _("{full_address}\n\n{email}\n\n{phone}").format(
-    #     full_address=project.organization.full_address if project.organization else "MISSING!",
-    #     email=lead.email,
-    #     phone=lead.profile.phone
-    # )
-    #
-    # priorities = str()
-    # for year in project.years.all():
-    #     priorities += f'{year.fiscal_year}:\n\n{year.priorities}\n\n'
-    #
-    # deliverables = str()
-    # for year in project.years.all():
-    #     if year.activities.filter(type=2).exists():
-    #         deliverables += f'{year.fiscal_year}:\n\n'
-    #         i = 1
-    #         for d in year.activities.filter(type=2):
-    #             deliverables += f'{i}) {d.name.upper()} - {d.description}\n\n'
-    #             i += 1
-    #
-    # field_dict = dict(
-    #     TAG_TITLE=project.title,
-    #     TAG_ORG_NAME=project.organization.tname if project.organization else "MISSING!",
-    #     TAG_ADDRESS=project.organization.address  if project.organization else "MISSING!",
-    #     TAG_CITY=project.organization.city if project.organization else "MISSING!",
-    #     TAG_PROV=str(project.organization.location.tname) if project.organization else "MISSING!",
-    #     TAG_POSTAL_CODE=project.organization.postal_code if project.organization else "MISSING!",
-    #     TAG_SPECIES=project.species_involved if project.organization else "MISSING!",
-    #     TAG_LEAD_NAME=lead.get_full_name(),
-    #     TAG_LEAD_NUMBER=lead.profile.phone,
-    #     TAG_LEAD_EMAIL=lead.email,
-    #     TAG_LEAD_POSITION=lead.profile.tposition,
-    #     TAG_LEAD_CONTACT_INFO=contact_info,  # address email telephone
-    #     TAG_SECTION_HEAD_NAME=project.section.head.get_full_name() if project.section else "MISSING!",
-    #     TAG_DIVISION_MANAGER_NAME=project.section.division.head.get_full_name() if project.section else "MISSING!",
-    #     TAG_START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y"),
-    #     TAG_END_YEAR=project.years.last().end_date.strftime("%d/%m/%Y"),
-    #     TAG_TEAM_DESCRIPTION=project.team_description,
-    #     TAG_RATIONALE=project.rationale,
-    #     TAG_OVERVIEW=project.overview,
-    #     TAG_PRIORITIES=priorities,
-    #     TAG_EXPERIMENTAL_PROTOCOL=project.experimental_protocol,
-    #     TAG_DELIVERABLES=deliverables
-    # )
-    #
-    # for item in field_dict:
-    #     # replace the tagged placeholders in tables
-    #     for table in document.tables:
-    #         for row in table.rows:
-    #             for cell in row.cells:
-    #                 for paragraph in cell.paragraphs:
-    #                     if item in paragraph.text:
-    #                         try:
-    #                             paragraph.text = paragraph.text.replace(item, field_dict[item])
-    #                         except:
-    #                             paragraph.text = "MISSING!"
-    #
-    #     # replace the tagged placeholders in paragraphs
-    #     for paragraph in document.paragraphs:
-    #         if item in paragraph.text:
-    #             try:
-    #                 paragraph.text = paragraph.text.replace(item, field_dict[item])
-    #             except:
-    #                 paragraph.text = "MISSING!"
-    #
-    # # Find and populate the milestones and risk analysis table
-    # for table in document.tables:
-    #     if "date/period" in table.rows[0].cells[0].paragraphs[0].text.lower():
-    #         for milestone in models.Activity.objects.filter(type=1, project_year__project=project).order_by("target_date"):
-    #             row = table.add_row()
-    #             row.cells[0].paragraphs[0].text = milestone.target_date.strftime("%Y-%m-%d")
-    #             row.cells[1].paragraphs[0].text = f"{milestone.name.upper()} - {milestone.description}"
-    #             row.cells[2].paragraphs[0].text = milestone.responsible_party
-    #
-    #     if "project risk analysis" in table.rows[0].cells[0].paragraphs[0].text.lower():
-    #         for activity in models.Activity.objects.filter(project_year__project=project).order_by("target_date"):
-    #             row = table.add_row()
-    #             row.cells[0].paragraphs[0].text = f"{activity.name} ({activity.get_type_display()})"
-    #             row.cells[1].paragraphs[0].text = activity.risk_description
-    #             row.cells[2].paragraphs[0].text = f"{activity.likelihood}"
-    #             row.cells[3].paragraphs[0].text = f"{activity.impact}"
-    #             row.cells[4].paragraphs[0].text = activity.get_risk_rating_display()
-    #             row.cells[5].paragraphs[0].text = activity.mitigation_measures
-    #             row.cells[6].paragraphs[0].text = activity.responsible_party
+                ref_cell = om_category_2_cell.get(cost.om_category_id)
+                if ref_cell:
+                    amount = ws['H' + ref_cell].value
+                    description = ws['K' + ref_cell].value
+                    ws['H' + ref_cell].value = nz(amount, 0) + nz(cost.amount, 0)
+                    if not description:
+                        ws['K' + ref_cell].value = cost.description
+                    else:
+                        ws['K' + ref_cell].value += "; " + cost.description
 
     wb.save(target_file_path)
 
