@@ -498,13 +498,41 @@ def transform_deliverables():
 
 
 def copy_orgs():
-    from inventory.models import Organization
+    from inventory.models import Organization, Location
+    inventory_locs = Location.objects.filter(location_eng__isnull=False)
+    for loc in inventory_locs:
+        new_loc, created = shared_models.Location.objects.get_or_create(
+            id=loc.id,
+            location_en=loc.location_eng,
+            location_fr=loc.location_fre,
+            country=loc.country,
+            abbrev_en=loc.abbrev_eng,
+            abbrev_fr=loc.abbrev_fre,
+            uuid_gcmd=loc.uuid_gcmd,
+
+        )
+
     inventory_orgs = Organization.objects.filter(name_eng__isnull=False)
+    i=0
     for org in inventory_orgs:
         new_org, created = shared_models.Organization.objects.get_or_create(
             id=org.id,
         )
         new_org.name = org.name_eng
         new_org.nom = org.name_fre
+        new_org.abbrev = org.abbrev
+        new_org.address = org.address
+        new_org.city = org.city
+        new_org.postal_code = org.postal_code
+        new_org.location_id = org.location_id
+
+        try:
+            new_org.save()
+        except Exception as e:
+            print(e, new_org.name)
+            new_org.name += f" ({i})"
+            new_org.save()
+
+        i += 1
 
 
