@@ -555,6 +555,19 @@ Vue.component("modal", {
             this.currentUser = response;
           })
     },
+    populateTargetDate(quarter){
+      sap_year = this.year.fiscal_year
+      if(quarter === "q1") {
+        this.activity.target_date = `${sap_year-1}-06-30`
+      } else if(quarter === "q2") {
+        this.activity.target_date = `${sap_year-1}-09-30`
+      } else if(quarter === "q3") {
+        this.activity.target_date = `${sap_year-1}-12-31`
+      } else if(quarter === "q4") {
+        this.activity.target_date = `${sap_year}-03-31`
+      }
+
+    },
   },
   computed: {},
   created() {

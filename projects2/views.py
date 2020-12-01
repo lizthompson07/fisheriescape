@@ -553,7 +553,6 @@ class ProjectYearCloneView(ProjectYearUpdateView):
 
         new_obj.pk = None
         new_obj.submitted = None
-        new_obj.allocated_budget = None
         new_obj.status = 1
         new_obj.notification_email_sent = None
         new_obj.save()
