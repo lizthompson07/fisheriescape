@@ -189,6 +189,45 @@ class OrgaFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class ProgFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Program
+
+    prog_name = factory.lazy_attribute(lambda o: faker.word())
+    prog_desc = factory.lazy_attribute(lambda o: faker.text())
+    proga_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgaFactory")
+    orga_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.OrgaFactory")
+    start_date = factory.lazy_attribute(lambda o: faker.date())
+    end_date = factory.lazy_attribute(lambda o: faker.date())
+    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        proga = ProgaFactory()
+        orga = OrgaFactory()
+
+        obj = ProgFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'prog_name': obj.prog_name,
+            'prog_desc': obj.prog_desc,
+            'proga_id' : proga.pk,
+            'orga_id' : orga.pk,
+            'start_date': obj.start_date,
+            'end_date': obj.end_date,
+            'valid': obj.valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class ProgaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ProgAuthority
@@ -207,6 +246,46 @@ class ProgaFactory(factory.django.DjangoModelFactory):
         data = {
             'proga_last_name': obj.proga_last_name,
             'proga_first_name': obj.proga_first_name,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class ProtFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Protocol
+
+    prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
+    protc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtcFactory")
+    protf_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtfFactory")
+    prot_desc = factory.lazy_attribute(lambda o: faker.text())
+    start_date = factory.lazy_attribute(lambda o: faker.date())
+    end_date = factory.lazy_attribute(lambda o: faker.date())
+    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        prog = ProgFactory()
+        protc = ProtcFactory()
+        protf = ProtFactory()
+
+        obj = ProtFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'prog_id' : prog.pk,
+            'protc_id' : protc.pk,
+            'protf_id' : protf.pk,
+            'prot_desc':obj.prot_desc,
+            'start_date': obj.start_date,
+            'end_date': obj.end_date,
+            'valid': obj.valid,
+            'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
