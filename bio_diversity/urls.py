@@ -32,10 +32,20 @@ urlpatterns = [
     path('list/orga/', views.OrgaList.as_view(), name="list_orga"),
     path('update/orga/<int:pk>/', views.OrgaUpdate.as_view(), name="update_orga"),
 
+    path('create/prog/', views.ProgCreate.as_view(), name="create_prog"),
+    path('details/prog/<int:pk>/', views.ProgDetails.as_view(), name="details_prog"),
+    path('list/prog/', views.ProgList.as_view(), name="list_prog"),
+    path('update/prog/<int:pk>/', views.ProgUpdate.as_view(), name="update_prog"),
+
     path('create/proga/', views.ProgaCreate.as_view(), name="create_proga"),
     path('details/proga/<int:pk>/', views.ProgaDetails.as_view(), name="details_proga"),
     path('list/proga/', views.ProgaList.as_view(), name="list_proga"),
     path('update/proga/<int:pk>/', views.ProgaUpdate.as_view(), name="update_proga"),
+
+    path('create/prot/', views.ProtCreate.as_view(), name="create_prot"),
+    path('details/prot/<int:pk>/', views.ProtDetails.as_view(), name="details_prot"),
+    path('list/prot/', views.ProtList.as_view(), name="list_prot"),
+    path('update/prot/<int:pk>/', views.ProtUpdate.as_view(), name="update_prot"),
 
     path('create/protc/', views.ProtcCreate.as_view(), name="create_protc"),
     path('details/protc/<int:pk>/', views.ProtcDetails.as_view(), name="details_protc"),

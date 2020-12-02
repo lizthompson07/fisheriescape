@@ -11,6 +11,19 @@ class CreatePrams:
                                                                     "class": "fp-date"})
 
 
+class CreateTimePrams:
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        self.fields['created_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                    "class": "fp-date"})
+        self.fields['start_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                  "class": "fp-date"})
+        self.fields['end_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
+                                                                "class": "fp-date"})
+
+
 class InstForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Instrument
@@ -23,14 +36,10 @@ class InstcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
-class InstdForm(CreatePrams, forms.ModelForm):
+class InstdForm(CreateTimePrams, forms.ModelForm):
     class Meta:
         model = models.InstrumentDet
         exclude = []
-        widgets = {
-            'start_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
-            'end_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
-        }
 
 
 class InstdcForm(CreatePrams, forms.ModelForm):
@@ -45,9 +54,21 @@ class OrgaForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class ProgForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.Program
+        exclude = []
+
+
 class ProgaForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.ProgAuthority
+        exclude = []
+
+
+class ProtForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.Protocol
         exclude = []
 
 

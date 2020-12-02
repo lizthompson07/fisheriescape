@@ -40,11 +40,25 @@ class OrgaMixin:
     title = _("Organization")
 
 
+class ProgMixin:
+    key = 'prog'
+    model = models.Program
+    form_class = forms.ProgForm
+    title = _("Program")
+
+
 class ProgaMixin:
     key = 'proga'
     model = models.ProgAuthority
     form_class = forms.ProgaForm
     title = _("Program Authority")
+
+
+class ProtMixin:
+    key = 'prot'
+    model = models.Protocol
+    form_class = forms.ProtForm
+    title = _("Protocol")
 
 
 class ProtcMixin:

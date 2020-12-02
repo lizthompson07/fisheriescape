@@ -41,11 +41,25 @@ class OrgaFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class ProgFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Program
+        fields = ["prog_name", "proga_id", "orga_id",  "created_by", "created_date", ]
+
+
 class ProgaFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.ProgAuthority
         fields = ["proga_last_name", "proga_first_name", "created_by", "created_date", ]
+
+
+class ProtFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Protocol
+        fields = ["prog_id", "protc_id", "created_by", "created_date", ]
 
 
 class ProtcFilter(django_filters.FilterSet):

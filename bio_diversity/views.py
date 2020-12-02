@@ -65,7 +65,15 @@ class OrgaCreate(mixins.OrgaMixin, CommonCreate):
     pass
 
 
+class ProgCreate(mixins.ProgMixin, CommonCreate):
+    pass
+
+
 class ProgaCreate(mixins.ProgaMixin, CommonCreate):
+    pass
+
+
+class ProtCreate(mixins.ProtMixin, CommonCreate):
     pass
 
 
@@ -134,8 +142,18 @@ class OrgaDetails(mixins.OrgaMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class ProgDetails(mixins.ProgMixin, CommonDetails):
+    fields = ["prog_name", "prog_desc", "proga_id", "orga_id","start_date", "end_date", "valid", "created_by",
+              "created_date", ]
+
+
 class ProgaDetails(mixins.ProgaMixin, CommonDetails):
     fields = ["proga_last_name", "proga_first_name", "created_by", "created_date", ]
+
+
+class ProtDetails(mixins.ProgaMixin, CommonDetails):
+    fields = ["prog_id", "protc_id", "protf_id", "prot_desc","start_date", "end_date", "valid", "created_by",
+              "created_date", ]
 
 
 class ProtcDetails(mixins.ProtcMixin, CommonDetails):
@@ -245,9 +263,19 @@ class OrgaList(mixins.OrgaMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class ProgList(mixins.ProgMixin, CommonList):
+    filterset_class = filters.ProgFilter
+    fields = ["prog_name", "proga_id", "orga_id", "created_by", "created_date", ]
+
+
 class ProgaList(mixins.ProgaMixin, CommonList):
     filterset_class = filters.ProgaFilter
     fields = ["proga_last_name", "proga_first_name", "created_by", "created_date", ]
+
+
+class ProtList(mixins.ProtMixin, CommonList):
+    filterset_class = filters.ProtFilter
+    fields = ["prog_id", "protc_id", "created_by", "created_date", ]
 
 
 class ProtcList(mixins.ProtcMixin, CommonList):
@@ -325,7 +353,15 @@ class OrgaUpdate(mixins.OrgaMixin, CommonUpdate):
     pass
 
 
+class ProgUpdate(mixins.ProgMixin, CommonUpdate):
+    pass
+
+
 class ProgaUpdate(mixins.ProgaMixin, CommonUpdate):
+    pass
+
+
+class ProtUpdate(mixins.ProtMixin, CommonUpdate):
     pass
 
 
