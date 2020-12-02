@@ -23,31 +23,46 @@ class BioModel(models.Model):
     created_date = models.DateField(verbose_name=_("Created Date"))
 
 
+class BioTimeModel(models.Model):
+    # model with start date/end date, still valid, created by and created date fields
+    class Meta:
+        abstract = True
+
+    start_date = models.DateField(verbose_name=_("Date of change"))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("Last Date Change is valid"))
+    valid = models.BooleanField(default="False", verbose_name=_("Detail still valid?"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
+    created_date = models.DateField(verbose_name=_("Created Date"))
+
+
 class Instrument(BioModel):
     # inst tag
     instc = models.ForeignKey('InstrumentCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Code"),
                               related_name="instrument_code")
     serial_number = models.CharField(null=True, max_length=250, verbose_name=_("Serial Number"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    def __str__(self):
+        return "{} - {}".format(self.instc.__str__(), self.serial_number)
+
     pass
 
 
 class InstrumentCode(BioLookup):
     # instc tag
+
+
     pass
 
 
-class InstrumentDet(BioModel):
+class InstrumentDet(BioTimeModel):
     # instd tag
     inst = models.ForeignKey('Instrument', on_delete=models.DO_NOTHING, verbose_name=_("Instrument"),
                              related_name="inst")
     instdc = models.ForeignKey('InstDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Detail Code"),
                                related_name="inst_det_code")
     det_value = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Value"))
-    start_date = models.DateField(verbose_name=_("Date of change"))
-    end_date = models.DateField(null=True, blank=True, verbose_name=_("Last Date Change is valid"))
-    valid = models.BooleanField(default="False", verbose_name=_("Detail still valid?"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     pass
 
 
