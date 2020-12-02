@@ -12,10 +12,10 @@
     {% trans "Reports" %}
   </h6>
   <div class="btn-group-vertical vgroup">
-    <a class="{{ btn_class_black }} under-dev" href="#">
-      <span class="icon mdi mdi-file-pdf"></span>
-      {% trans "Export PDF" %}
-    </a>
+    <button class="{{ btn_class_black }}" onclick="window.print()">
+      <span class="icon mdi mdi-printer"></span>
+      {% trans "Print" %}
+    </button>
     <a v-if="isACRDP" class="{{ btn_class_black }}" href="{% url 'projects2:export_acrdp_application' object.id %}">
       <span class="icon mdi mdi-file-word"></span>
       {% trans "ACRDP Application" %}

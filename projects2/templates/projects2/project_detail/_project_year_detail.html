@@ -3,17 +3,17 @@
 {% load i18n %}
 
 <div v-if="canModify" class="float-right">
-  <button class=""
+  <button class="no-print"
           @click="goProjectYearEdit(projectYear.id)">
     <span class="mdi mdi-pencil"></span>
     {% trans "Edit" %}
   </button>
-  <button class=""
+  <button class="no-print"
           @click="goProjectYearDelete(projectYear.id)">
     <span class="mdi mdi-delete"></span>
     {% trans "Delete" %}
   </button>
-  <button class=""
+  <button class="no-print"
           @click="goProjectYearClone(projectYear.id)">
     <span class="mdi mdi-content-copy"></span>
     {% trans "Clone" %}

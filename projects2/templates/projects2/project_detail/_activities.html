@@ -9,13 +9,13 @@
     <h2>{% trans "Activities" %}</h2>
   </div>
   <div v-if="!activity_loading" class="btn-group mb-3 neighbours">
-    <button @click="openActivityModal()" class="{{ btn_class_1 }}" v-if="canModify">
+    <button @click="openActivityModal()" class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Activity" %}
     </button>
   </div>
 
   <div v-if="activity_loading">
-    <button class="btn btn-primary" type="button" disabled>
+    <button class="btn btn-primary no-print" type="button" disabled>
       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       <span class="sr-only">Loading...</span>
     </button>
@@ -60,8 +60,8 @@
           {% endif %}
         {% endfor %}
         <td class="to-the-right" v-if="canModify">
-          <button @click="openActivityModal(item)"><span class="mdi mdi-pencil"></span></button>
-          <button @click="deleteActivity(item)"><span class="mdi mdi-delete"></span></button>
+          <button @click="openActivityModal(item)" class="no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteActivity(item)" class="no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>
       </tbody>

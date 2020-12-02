@@ -276,24 +276,13 @@
 }
 
 
-
-@media print
-{
-    .no-print, .no-print *
-    {
-        display: none !important;
-    }
-}
-
 .breadcrumb {
     background-color: rgba(255, 255, 255, 1);
 }
 
 
-@media print
-{
-    .no-print, .no-print *
-    {
+@media print {
+    .no-print, .no-print * {
         display: none !important;
     }
 }
@@ -301,24 +290,24 @@
 
 .rotate {
 
-  transform: rotate(-90deg);
+    transform: rotate(-90deg);
 
 
-  /* Legacy vendor prefixes that you probably don't need... */
+    /* Legacy vendor prefixes that you probably don't need... */
 
-  /* Safari */
-  -webkit-transform: rotate(-90deg);
+    /* Safari */
+    -webkit-transform: rotate(-90deg);
 
-  /* Firefox */
-  -moz-transform: rotate(-90deg);
+    /* Firefox */
+    -moz-transform: rotate(-90deg);
 
-  /* IE */
-  -ms-transform: rotate(-90deg);
+    /* IE */
+    -ms-transform: rotate(-90deg);
 
-  /* Opera */
-  -o-transform: rotate(-90deg);
+    /* Opera */
+    -o-transform: rotate(-90deg);
 
-  /* Internet Explorer */
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    /* Internet Explorer */
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 
 }

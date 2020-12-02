@@ -24,8 +24,7 @@
     @keydown.esc.prevent="closeModals()"
   >
 
-
-    <div id="mySidebar" class="sidebar">
+    <div id="mySidebar" class="sidebar no-print">
       {% include "projects2/project_detail/_console.html" %}
     </div>
 
@@ -33,7 +32,7 @@
       {% include "shared_models/_generic_breadcrumbs.html" %}
       {% include "shared_models/_generic_title_area.html" %}
       {% bootstrap_messages %}
-      <div v-if="canModify" class="alert alert-primary" role="alert" style="width: 60%">
+      <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 60%">
         <p class="mb-0">
           <span class="h5 mdi mdi-information-outline mr-3"></span> <span class="h6">${currentUser.reason}</span>
         </p>
@@ -50,7 +49,7 @@
           <div v-if="showOverview">
 
             <div v-if="canModify" class="float-right">
-              <button class=""
+              <button class="no-print"
                       @click="goProjectEdit(project.id)">
                 <span class="mdi mdi-pencil"></span>
                 {% trans "Edit" %}
