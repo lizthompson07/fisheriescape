@@ -282,8 +282,6 @@ def generate_page_visit_report(app_list, user=None, app=None):
         toolbar_location="above",
     )
 
-    # p.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
-
     # generate color palette
     if len(app_list) <= 2:
         colors = palettes.Set1[3][:len(app_list)]

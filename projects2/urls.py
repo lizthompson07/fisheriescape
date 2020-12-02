@@ -35,45 +35,6 @@ urlpatterns = [
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),
     path('status-reports/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),
 
-    # MILESTONE UPDATE #
-    ####################
-    # path('activity-update/<int:pk>/edit/', views.ActivityUpdateUpdateView.as_view(), name="activity_update_edit"),
-
-    ###################################
-
-    # path('all/', views.ProjectListView.as_view(), name="project_list"),
-    #
-    # path('project/<int:pk>/print/', views.ProjectPrintDetailView.as_view(), name="project_print"),
-    # path('project/<int:pk>/delete/popout/<int:pop>/', views.ProjectDeleteView.as_view(), name="project_delete"),
-    # path('project/<int:pk>/notes/', views.ProjectNotesUpdateView.as_view(), name="project_notes"),
-    # # path('project/<int:pk>/clone/', views.ProjectCloneUpdateView.as_view(), name="project_clone"),
-    # # path('approval/project/<int:pk>/', views.ProjectApprovalUpdateView.as_view(), name="project_approve"),
-    # # path('recommendation/project/<int:pk>/', views.ProjectRecommendationUpdateView.as_view(), name="project_recommend"),
-    #
-    # # management views
-    # ################
-    # path('section/<int:section>/', views.SectionProjectListView.as_view(), name="section_project_list"),
-    # path('project/<int:pk>/overview/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
-    # path('project/<int:pk>/overview/popout/<int:pop>/', views.ProjectOverviewDetailView.as_view(), name="project_overview"),
-    #
-    # # STAFF #
-    # #########
-    # path('project/<int:project>/staff/new/', views.StaffCreateView.as_view(), name="staff_new"),
-    # path('staff/<int:pk>/edit/', views.StaffUpdateView.as_view(), name="staff_edit"),
-    # path('staff/<int:pk>/delete/', views.staff_delete, name="staff_delete"),
-    # path('staff/<int:pk>/overtime-calculator/', views.OverTimeCalculatorTemplateView.as_view(), name="ot_calc"),
-
-    # # FILES #
-    # #########
-    # path('project/<int:project>/file/new/', views.FileCreateView.as_view(), name='file_new'),
-    # path('project/<int:project>/file/new/status-report/<int:status_report>/', views.FileCreateView.as_view(), name='file_new'),
-    # path('file/<int:pk>/view/', views.FileDetailView.as_view(), name='file_detail'),
-    # path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
-    # path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
-    #
-
-    #
-    #
     # # SETTINGS #
     # ############
     path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),
@@ -123,76 +84,12 @@ urlpatterns = [
     path('settings/responsibility-centers/<int:pk>/edit/', views.ResponsibilityCenterUpdateView.as_view(), name="rc_edit"),
     path('settings/responsibility-centers/<int:pk>/delete/', views.ResponsibilityCenterDeleteView.as_view(), name="rc_delete"),
 
-    #
-    # path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
-    # path('admin/staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
-    # path('admin/staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
-    #
-    # path('admin/submitted-unapproved-list/', views.SubmittedUnapprovedProjectsListView.as_view(), name="admin_submitted_unapproved"),
-    #
-    # # project approvals
-    # path('admin/project-approvals/search/', views.ProjectApprovalsSearchView.as_view(), name="admin_project_approval_search"),
-    # path('admin/project-approval-for/region/<int:region>/fiscal-year/<int:fy>/', views.ProjectApprovalFormsetView.as_view(), name="admin_project_approval"),
-    #
-    #
+
     # Reports #
     ###########
 
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
     path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),
 
-    # path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
-    # path(
-    #     'reports/master-spreadsheet/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #     views.master_spreadsheet, name="report_master"),
-    # path('reports/project-summary/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.PDFProjectSummaryReport.as_view(), name="pdf_project_summary"),
-    # path(
-    #     'reports/batch-workplan-export/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #     views.PDFProjectPrintoutReport.as_view(), name="pdf_printout"),
-    #
-    # # this is a special view of the masterlist report that is called from the my_section view
-    # path('reports/section-head-spreadsheet/fiscal-year/<int:fiscal_year>/user/<int:user>', views.master_spreadsheet, name="report_sh"),
-    #
-    # path('reports/export-program-list/', views.export_program_list, name="export_program_list"),
-    #
-    # # GULF REGION REPORTS
-    # path('reports/FTE_summary/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.PDFFTESummaryReport.as_view(), name="pdf_fte_summary"),
-    # path('reports/OT/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.PDFOTSummaryReport.as_view(), name="pdf_ot"),
-    # path('reports/costs/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.PDFCostSummaryReport.as_view(), name="pdf_costs"),
-    # path('reports/collaborators/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.PDFCollaboratorReport.as_view(), name="pdf_collab"),
-    # path('reports/agreements/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.PDFAgreementsReport.as_view(), name="pdf_agreements"),
-    # path('reports/dougs-report/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.dougs_spreadsheet, name="doug_report"),
-    # path('reports/data-management/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.PDFDataReport.as_view(), name="pdf_data"),
-    # path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>',
-    #      views.PDFFundingReport.as_view(), name="pdf_funding"),
-    # path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.funding_spreadsheet, name="xls_funding"),
-    # path('reports/sara-report/fiscal-year/<int:fiscal_year>/funding/<int:funding>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/omcatagory/<str:omcatagory>/',
-    #      views.funding_spreadsheet, name="xls_funding_by_om"),
-    # path('reports/covid/fiscal-year/<int:fiscal_year>/regions/<str:regions>/divisions/<str:divisions>/sections/<str:sections>/',
-    #      views.covid_spreadsheet, name="xls_covid"),
-    # # path('reports/workplan-summary/fiscal-year/<int:fiscal_year>', views.workplan_summary, name="workplan_summary"),
-    #
-    # # INTERACTIVE WORKPLANS #
-    # #########################
-    # path('interactive-workplan/region/<int:region>/division/<int:division>/section/<int:section>/year/<int:fiscal_year>/type/<str:type>/', views.IWGroupList.as_view(),
-    #      name="iw_group_list"),
-    #
-    # # by section / program by fgroup
-    # path('interactive-workplan/<int:fiscal_year>/region/<int:region>/division/<int:division>/section/<int:section>/small-item/<int:small_item>/group/<int:group>/projects/type/<str:type>/',
-    #      views.IWProjectList.as_view(), name="iw_project_list"),
-    # # by section / program
-    # path('interactive-workplan/<int:fiscal_year>/region/<int:region>/division/<int:division>/section/<int:section>/small-item/<int:small_item>/projects/type/<str:type>/',
-    #      views.IWProjectList.as_view(), name="iw_project_list"),
-    #
-    # path('note/<int:pk>/edit/', views.NoteUpdateView.as_view(), name="note_edit"),
 
 ]

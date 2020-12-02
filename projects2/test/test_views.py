@@ -3,58 +3,42 @@ from django.urls import reverse_lazy
 
 from projects.test.common_tests import CommonProjectTest as CommonTest
 from shared_models.test.SharedModelsFactoryFloor import RegionFactory
-from shared_models.views import CommonFormView, CommonFormsetView
-from .. import views
+from shared_models.views import CommonFormView, CommonFormsetView, CommonCreateView
+from . import FactoryFloor
+from .. import views, models
 from shared_models import models as shared_models
 from faker import Factory
 
 faker = Factory.create()
 
-
-class TestProjectApprovalSearchView(CommonTest):
+class TestProjectCreateView(CommonTest):
     def setUp(self):
         super().setUp()
-        self.test_url = reverse_lazy('projects2:admin_project_approval_search')
-        self.expected_template = 'projects/form.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
+        self.test_url = reverse_lazy('projects2:project_new')
+        self.expected_template = 'projects2/project_form.html'
+        self.user = self.get_and_login_user()
 
-    @tag("admin_project_approval_search", "view")
+    @tag("Project", "project_new", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.ProjectApprovalsSearchView, CommonFormView)
+        self.assert_inheritance(views.ProjectCreateView, CommonCreateView)
 
-    @tag("admin_project_approval_search", "access")
+    @tag("Project", "project_new", "access")
     def test_view(self):
         self.assert_valid_url(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    @tag("admin_project_approval_search", "submit")
-    def test_submit(self):
-        fy = shared_models.FiscalYear.objects.all()[faker.random_int(0, shared_models.FiscalYear.objects.count() - 1)]
-        region = RegionFactory().id
-        data = {"region": region, "fy": fy}
-        self.assert_success_url(self.test_url, data=data)
+    @tag("Project", "project_new", "context")
+    def test_context(self):
+        context_vars = [
+            "help_text_dict",
+            "division_json",
+            "section_json",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
 
 
-class TestProjectApprovalFormsetView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        fy = shared_models.FiscalYear.objects.all()[faker.random_int(0, shared_models.FiscalYear.objects.count() - 1)].id
-        region = RegionFactory().id
-        self.test_url = reverse_lazy('projects2:admin_project_approval', kwargs={"region": region, "fy": fy})
-        self.expected_template = 'projects/formset.html'
-        self.user = self.get_and_login_user(in_group="projects_admin")
-
-    @tag("admin_project_approval", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.ProjectApprovalFormsetView, CommonFormsetView)
-
-    @tag("admin_project_approval", "access")
-    def test_view(self):
-        self.assert_valid_url(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("admin_project_approval", "submit")
-    def test_submit(self):
-        data = dict()  # should be fine to submit an empty dict
-        self.assert_success_url(self.test_url, data=data)
+    @tag("Project", "project_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:project_new", f"/en/project-planning/projects/new/")
 
