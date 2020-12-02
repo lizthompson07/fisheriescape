@@ -1,3 +1,4 @@
+import datetime
 import logging
 import os
 
@@ -208,7 +209,12 @@ def summarize_data(context, user=None, app=None):
             # create a new file containing data
             result = VisitSummary.objects.filter(user=my_user).values('user').order_by(
                 "user").distinct().annotate(dsum=Sum('page_visits'))
-            user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
+            if User.objects.filter(pk=my_user).exists():
+                user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
+            else:
+                User.objects.create(pk=my_user, username="test"+str(timezone.now()))
+                user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
+                print("creating")
 
         for key, value in sorted(user_dict.items(), key=lambda item: item[1], reverse=True):
             final_user_dict[key] = value
@@ -289,10 +295,21 @@ def generate_page_visit_report(app_list, user=None, app=None):
         colors = palettes.Set1[3][:len(app_list)]
     elif len(app_list) <= 9:
         colors = palettes.Set1[len(app_list)]
-    elif len(app_list) <= 20:
-        colors = palettes.Category20[len(app_list)]
     else:
-        colors = palettes.viridis(len(app_list))
+        # if the app list is too big, let's just take the apps of interest...
+        app_list = [
+            "project-planning",
+            "whalesdb",
+            "csas",
+            "grais",
+            "hermorrhage",
+            "diets",
+            "inventory",
+            # "cruises",
+            "travel",
+            "ihub",
+        ]
+        colors = palettes.Set1[len(app_list)]
 
     # get a list of days
     if not user and not app:
@@ -312,7 +329,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
         else:
             qs = VisitSummary.objects.filter(application_name=app, user=user).values('date').order_by("date").distinct().annotate(
                 dsum=Sum('page_visits'))
-        dates = [i["date"] for i in qs]
+        dates = [datetime.datetime(i["date"].year, i["date"].month, i["date"].day, 0 ,0) for i in qs]
         counts = [i["dsum"] for i in qs]
         source = ColumnDataSource(data=dict(dates=dates, counts=counts, apps=[app for i in range(0, len(dates))]))
         r0 = p.line('dates', 'counts', line_color=colors[i], line_width=2, source=source)
@@ -345,8 +362,8 @@ def generate_page_visit_report(app_list, user=None, app=None):
                     dsum=Sum('page_visits'))
             total_count.append(result[0]["dsum"])
 
-        p.line(date_list, total_count, legend="total", line_color='black', line_width=3, line_dash=[6, 3])
-        p.circle(date_list, total_count, legend="total", fill_color='black', line_color="black", size=5)
+        p.line(date_list, total_count, legend_label="total", line_color='black', line_width=3, line_dash=[6, 3])
+        p.circle(date_list, total_count, legend_label="total", fill_color='black', line_color="black", size=5)
         p.legend.location = "top_left"
 
     save(p)
