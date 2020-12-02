@@ -1,5 +1,5 @@
 from django.db.models import Sum, Q
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -391,11 +391,13 @@ def multiple_projects_financial_summary(project_list):
 
 
 def get_project_field_list(project):
+    is_acrdp = project.is_acrdp
+
     my_list = [
         'id',
         'section',
         # 'title',
-        'overview',  # do not call the html field directly or we loose the ability to get the model's verbose name
+        'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),  # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
         'functional_group',
         'default_funding_source',
@@ -404,9 +406,18 @@ def get_project_field_list(project):
         'fiscal_years',
         'funding_sources',
         'lead_staff',
+
+        # acrdp fields
+        'organization' if is_acrdp else None,
+        'species_involved' if is_acrdp else None,
+        'team_description' if is_acrdp else None,
+        'rationale' if is_acrdp else None,
+        'experimental_protocol' if is_acrdp else None,
+
         'tags',
         'metadata|{}'.format(_("metadata")),
     ]
+    while None in my_list: my_list.remove(None)
     return my_list
 
 
@@ -414,7 +425,7 @@ def get_project_year_field_list(project_year=None):
     my_list = [
         'dates|dates',
         'priorities',  # do not call the html field directly or we loose the ability to get the model's verbose name
-        'deliverables',  # do not call the html field directly or we loose the ability to get the model's verbose name
+        # 'deliverables',  # do not call the html field directly or we loose the ability to get the model's verbose name
 
         # SPECIALIZED EQUIPMENT COMPONENT
         #################################
@@ -503,11 +514,13 @@ def get_capital_field_list():
     return my_list
 
 
-def get_milestone_field_list():
+def get_activity_field_list():
     my_list = [
+        'type',
         'name',
         'description',
         'target_date',
+        'responsible_party',
         'latest_update|{}'.format(_("latest status")),
     ]
     return my_list
@@ -543,6 +556,7 @@ def get_agreement_field_list():
     ]
     return my_list
 
+
 def get_status_report_field_list():
     my_list = [
         'report_number|{}'.format("number"),
@@ -559,10 +573,9 @@ def get_status_report_field_list():
     return my_list
 
 
-
-def get_milestone_update_field_list():
+def get_activity_update_field_list():
     my_list = [
-        'milestone',
+        'activity',
         'status',
         'notes_html|{}'.format("notes"),
     ]
@@ -667,3 +680,30 @@ def get_review_score_rubric():
         },
 
     }
+
+
+def get_risk_rating(impact, likelihood):
+    """This is taken from the ACRDP application form"""
+    l = 1
+    m = 2
+    h = 3
+    rating_dict = {
+        # impact
+        1: {
+            # likelihood -- > risk rating
+            1: l, 2: l, 3: l, 4: m, 5: m,
+        },
+        2: {
+            1: l, 2: l, 3: m, 4: m, 5: m,
+        },
+        3: {
+            1: l, 2: m, 3: m, 4: m, 5: h,
+        },
+        4: {
+            1: m, 2: m, 3: m, 4: h, 5: h,
+        },
+        5: {
+            1: m, 2: m, 3: h, 4: h, 5: h,
+        },
+    }
+    return rating_dict[impact][likelihood]

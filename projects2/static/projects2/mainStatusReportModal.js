@@ -91,7 +91,7 @@ Vue.component("modal", {
       } else if (this.mtype === "update") {
         if (this.my_update) {
           // should really only be one option here
-          let endpoint = `/api/project-planning/milestone-updates/${this.my_update.id}/`;
+          let endpoint = `/api/project-planning/activity-updates/${this.my_update.id}/`;
           apiService(endpoint, "PATCH", this.update).then(response => {
             if (response.id) {
               this.$emit('close')

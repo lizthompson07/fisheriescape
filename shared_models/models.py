@@ -664,3 +664,84 @@ class Script(Lookup):
     @property
     def metadata(self):
         return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+
+
+class Location(models.Model):
+    # Choices for surface_type
+    CAN = 'Canada'
+    US = 'United States'
+    COUNTRY_CHOICES = (
+        (CAN, 'Canada'),
+        (US, 'United States'),
+    )
+    location_en = models.CharField(max_length=1000)
+    location_fr = models.CharField(max_length=1000, blank=True, null=True)
+    country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
+    abbrev_en = models.CharField(max_length=25, blank=True, null=True)
+    abbrev_fr = models.CharField(max_length=25, blank=True, null=True)
+    uuid_gcmd = models.CharField(max_length=255, blank=True, null=True)
+
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("location_en"))):
+            my_str = "{}".format(getattr(self, str(_("location_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.location_en
+        return my_str
+
+
+    def __str__(self):
+        return f"{self.location_en}, {self.get_country_display()}"
+
+    class Meta:
+        ordering = ["country", "location_en"]
+
+
+class Organization(SimpleLookup):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
+    address = models.TextField(blank=True, null=True, verbose_name=_("address"))
+    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
+    postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    def __str__(self):
+        return self.full_name_and_address
+
+    @property
+    def full_name_and_address(self):
+        mystr = self.tname
+        if self.abbrev:
+            mystr += f", ({self.abbrev})"
+        mystr += f" - {self.full_address}"
+        return mystr
+
+    @property
+    def full_address(self):
+        # initial my_str with either address or None
+        if self.address:
+            my_str = self.address
+        else:
+            my_str = ""
+
+        # add city
+        if self.city:
+            if my_str:
+                my_str += ", "
+            my_str += self.city
+
+        # add province abbrev.
+        if self.location:
+            if my_str:
+                my_str += ", "
+            my_str += str(self.location)
+
+        # add postal code
+        if self.postal_code:
+            if my_str:
+                my_str += ", "
+            my_str += self.postal_code
+        return my_str

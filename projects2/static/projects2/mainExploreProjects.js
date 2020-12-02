@@ -6,6 +6,9 @@ var app = new Vue({
     isAdminOrMgmt: false,
     hover: false,
 
+    currentSort: 'name',
+    currentSortDir: 'asc',
+
     projects_loading: true,
     projectYears: [],
     next: null,
@@ -137,7 +140,14 @@ var app = new Vue({
       this.getProjectYears();
       this.getFilterData();
     },
-
+    sort(s) {
+      // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+      //if s == current sort, reverse
+      if (s === this.currentSort) {
+        this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+      }
+      this.currentSort = s;
+    },
   },
 
   filters: {
@@ -179,7 +189,30 @@ var app = new Vue({
       return value;
     }
   },
-  computed: {},
+  computed: {
+
+    sortedProjectYears() {
+      return this.projectYears.sort((a, b) => {
+        let modifier = 1;
+        if (this.currentSortDir === 'desc') modifier = -1;
+
+        if (this.currentSort && this.currentSort.search("fiscal") > -1) {
+          if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
+          if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
+        } else if (this.currentSort === "id") {
+          if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
+          if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
+        } else if (this.projectYears[0][this.currentSort] == null) {
+          if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
+          if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
+        } else {
+          if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+          if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+        }
+        return 0;
+      });
+    },
+  },
   created() {
     this.getCurrentUser()
     this.getProjectYears()

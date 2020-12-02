@@ -11,6 +11,7 @@ from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify, nz
 from lib.templatetags.custom_filters import percentage
 from projects2 import emails
+from projects2.utils import get_risk_rating
 from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup, Lookup, HelpTextLookup
@@ -94,8 +95,7 @@ class HelpText(HelpTextLookup):
 
 class Project(models.Model):
     # basic
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects2",
-                                verbose_name=_("section"))
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects2", verbose_name=_("section"))
     title = models.TextField(verbose_name=_("Project title"))
     activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
     functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
@@ -108,6 +108,14 @@ class Project(models.Model):
     overview = models.TextField(blank=True, null=True, verbose_name=_("Project overview"))
 
     is_hidden = models.BooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
+
+    # ACRDP fields
+    organization = models.ForeignKey(shared_models.Organization, on_delete=models.DO_NOTHING, related_name="projects",
+                                      verbose_name=_("physical location (ACRDP)"), blank=True, null=True)
+    species_involved = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("species involved (ACRDP)"))
+    team_description = models.TextField(blank=True, null=True, verbose_name=_("description of team and required qualifications (ACRDP)"))
+    rationale = models.TextField(blank=True, null=True, verbose_name=_("project problem / rationale (ACRDP)"))
+    experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
 
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
@@ -205,6 +213,11 @@ class Project(models.Model):
                     my_list.append(item.funding_source)
             return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
 
+    @property
+    def is_acrdp(self):
+        if self.default_funding_source and "acrdp" in self.default_funding_source.name.lower():
+            return True
+
 
 class ProjectYear(models.Model):
     status_choices = [
@@ -224,7 +237,7 @@ class ProjectYear(models.Model):
     # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_("year-specific priorities"))
     # HTML field
-    deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"))
+    deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"), editable=False)
 
     # SPECIALIZED EQUIPMENT
     ########################
@@ -637,7 +650,7 @@ class StatusReport(models.Model):
         (5, _("Encountering issues")),
         (6, _("Aborted / cancelled")),
     )
-    project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE)
+    project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE, editable=False)
     status = models.IntegerField(default=1, editable=True, choices=status_choices)
     major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_(
         "major accomplishments"))
@@ -773,10 +786,47 @@ class Review(models.Model):
 
 
 class Activity(models.Model):
+    type_choices = (
+        (1, _("Milestone")),
+        (2, _("Deliverable")),
+    )
+    likelihood_choices = (
+        (1, _("1-Very unlikely")),
+        (2, _("2-Unlikely")),
+        (3, _("3-Low")),
+        (4, _("4-Likely")),
+        (5, _("5-Almost certain")),
+    )
+    impact_choices = (
+        (1, _("1-Negligible")),
+        (2, _("2-Low")),
+        (3, _("3-Medium")),
+        (4, _("4-High")),
+        (5, _("5-Extreme")),
+    )
+    risk_rating_choices = (
+        (None, "n/a"),
+        (1, _("Low")),
+        (2, _("Medium")),
+        (3, _("High")),
+    )
+
     project_year = models.ForeignKey(ProjectYear, related_name="activities", on_delete=models.CASCADE)
+    type = models.IntegerField(choices=type_choices)
     name = models.CharField(max_length=500, verbose_name=_("name"))
-    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+    responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party"), blank=True, null=True)
+    risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences (ACRDP)"))
+    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what will be the impact if the risks occurs (ACRDP)"))
+    likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True, verbose_name=_("what is the likelihood of the risks occurring (ACRDP)"))
+    risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)
+    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks (ACRDP)"))
+
+    def save(self, *args, **kwargs):
+        if self.impact and self.likelihood:
+            self.risk_rating = get_risk_rating(self.impact, self.likelihood)
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['project_year', 'target_date', 'name']
@@ -815,6 +865,7 @@ class ActivityUpdate(models.Model):
     def notes_html(self):
         if self.notes:
             return mark_safe(markdown(self.notes))
+
 
 #
 # class Note(models.Model):

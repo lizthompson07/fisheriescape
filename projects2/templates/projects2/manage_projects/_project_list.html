@@ -33,7 +33,7 @@
             {% trans "Review score" %}
           </th>
         {% elif "lead" in field %}
-          <th v-if="showColumnLeads" style="width: 150px">
+          <th @click="sort('{{ field }}')" v-if="showColumnLeads" style="width: 150px" class="clickable">
             {% get_verbose_label random_project field %}
           </th>
         {% else %}
