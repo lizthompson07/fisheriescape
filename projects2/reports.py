@@ -175,6 +175,17 @@ def generate_acrdp_budget(project):
         23: "33",
     }
 
+    capital_category_2_cell = {
+        # 1, _("IM / IT - computers, hardware")),
+        1: "13",
+        # 2, _("Lab Equipment")),
+        2: "14",
+        # 3, _("Field Equipment")),
+        3: "15",
+        # 4, _("Other")),
+        4: "16",
+    }
+
     wb = load_workbook(filename=template_file_path)
     for year in project.years.all():
         try:
@@ -192,6 +203,52 @@ def generate_acrdp_budget(project):
                         ws['K' + ref_cell].value = cost.description
                     else:
                         ws['K' + ref_cell].value += "; " + cost.description
+
+            for cost in year.capitalcost_set.filter(funding_source__name__icontains="acrdp"):
+                ref_cell = capital_category_2_cell.get(cost.category)
+                if ref_cell:
+                    amount = ws['H' + ref_cell].value
+                    description = ws['K' + ref_cell].value
+                    ws['H' + ref_cell].value = nz(amount, 0) + nz(cost.amount, 0)
+                    if not description:
+                        ws['K' + ref_cell].value = cost.description
+                    else:
+                        ws['K' + ref_cell].value += "; " + cost.description
+
+            for staff in year.staff_set.filter(funding_source__name__icontains="acrdp"):
+
+                # determine the ref_cell
+                if "student" in staff.employee_type.name.lower() or "post-doc" in staff.employee_type.name.lower() or staff.student_program:
+                    ref_cell = 10
+                elif not staff.level:
+                    ref_cell = 7  # if we have no information about the level, we cannot choose a cell. Let's default to scientist
+                elif "bi" in staff.level.name.lower():
+                    ref_cell = 8  # if we have no information about the level, we cannot choose a cell. Let's default to scientist
+                elif "eg" in staff.level.name.lower():
+                    ref_cell = 9  # if we have no information about the level, we cannot choose a cell. Let's default to scientist
+                elif "pc" in staff.level.name.lower() or "res" in staff.level.name.lower():
+                    ref_cell = 7  # if we have no information about the level, we cannot choose a cell. Let's default to scientist
+                else:
+                    ref_cell = 7  # if we didn't catch it above, just through into the scientist bin again...
+                ref_cell = str(ref_cell)
+                # first need to determine if this is inkind or not:
+                inkind = False
+                if staff.amount == 0:  # in-kind
+                    inkind = True
+
+                amount = ws["H" + ref_cell].value
+                description = ws["K" + ref_cell].value
+
+                staff_description = staff.smart_name
+                if staff.level: staff_description += f" ({staff.level})"
+                if staff.duration_weeks: staff_description += f" @ {staff.duration_weeks} weeks"
+                if inkind: staff_description += f" (in-kind)"
+
+                ws["H" + ref_cell].value = nz(amount, 0) + nz(staff.amount, 0)
+                if not description:
+                    ws['K' + ref_cell].value = staff_description
+                else:
+                    ws['K' + ref_cell].value += "; " + staff_description
 
     wb.save(target_file_path)
 

@@ -469,11 +469,11 @@ Vue.component("modal", {
       if (this.staff.employee_type == 1 || (this.staff.employee_type == 6 && this.staff.funding_source == 1)) {
         this.staff.amount = null;
         this.disableAmountField = true;
-        this.staff.level = null;
-        this.disableLevelField = true;
+        // this.staff.level = null;
+        // this.disableLevelField = true;
       } else {
         this.disableAmountField = false;
-        this.disableLevelField = false;
+        // this.disableLevelField = false;
       }
 
 
