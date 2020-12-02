@@ -74,6 +74,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     functional_group = factory.SubFactory(FunctionalGroupFactory)
     default_funding_source = factory.SubFactory(FundingSourceFactory)
     title = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    activity_type = factory.lazy_attribute(lambda o: models.ActivityType.objects.all()[faker.random_int(0, models.ActivityType.objects.count() - 1)])
 
     @staticmethod
     def get_valid_data():
@@ -82,7 +83,9 @@ class ProjectFactory(factory.django.DjangoModelFactory):
             'functional_group': FunctionalGroupFactory().id,
             'default_funding_source': FundingSourceFactory().id,
             'title': faker.catch_phrase(),
+            'activity_type': models.ActivityType.objects.all()[faker.random_int(0, models.ActivityType.objects.count() - 1)].id,
         }
+
 
 
 class ProjectYearFactory(factory.django.DjangoModelFactory):

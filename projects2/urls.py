@@ -10,15 +10,15 @@ urlpatterns = [
     # PROJECTS #
     ############
 
-    path('projects/new/', views.ProjectCreateView.as_view(), name="project_new"),
-    path('projects/<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),
-    path('projects/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),
-    path('projects/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),
-    path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"),
+    path('projects/new/', views.ProjectCreateView.as_view(), name="project_new"),  # tested
+    path('projects/<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),  # tested
+    path('projects/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),  # tested
+    path('projects/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),  # tested
+    path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"), # tested
 
-    path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),
-    path('projects/explore/', views.ExploreProjectsTemplateView.as_view(), name="explore_projects"),
-    path('projects/manage/', views.ManageProjectsTemplateView.as_view(), name="manage_projects"),
+    path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),  # tested
+    path('projects/explore/', views.ExploreProjectsTemplateView.as_view(), name="explore_projects"),  # tested
+    path('projects/manage/', views.ManageProjectsTemplateView.as_view(), name="manage_projects"),  # tested
 
     # PROJECT YEAR #
     ################
@@ -84,12 +84,10 @@ urlpatterns = [
     path('settings/responsibility-centers/<int:pk>/edit/', views.ResponsibilityCenterUpdateView.as_view(), name="rc_edit"),
     path('settings/responsibility-centers/<int:pk>/delete/', views.ResponsibilityCenterDeleteView.as_view(), name="rc_delete"),
 
-
     # Reports #
     ###########
 
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
     path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),
-
 
 ]

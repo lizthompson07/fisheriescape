@@ -77,7 +77,7 @@ class ExploreProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
         return context
 
 
-class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
+class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView):
     h1 = gettext_lazy("Projects")
     template_name = 'projects2/manage_projects/main.html'
     home_url_name = "projects2:index"
@@ -108,7 +108,6 @@ class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 class MyProjectListView(LoginRequiredMixin, CommonListView):
     template_name = 'projects2/my_project_list.html'
-    # filterset_class = filters.MyProjectFilter
     h1 = gettext_lazy("My projects")
     home_url_name = "projects2:index"
     container_class = "container-fluid bg-light curvy"
@@ -126,63 +125,9 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
         {"name": 'updated_at', "class": "", "width": "150px"},
     ]
 
-    # x = [
-    #     "recommended_for_funding",
-    #     "approved",
-    #     "status_report|{}".format("Status reports"),
-    # ]
-
     def get_queryset(self):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
         return models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title")
-
-    # def get_filterset_kwargs(self, filterset_class):
-    #     kwargs = super().get_filterset_kwargs(filterset_class)
-    #     if kwargs["data"] is None:
-    #         kwargs["data"] = {"year": fiscal_year(next=True, sap_style=True)}
-    #     return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my"] = True
-        # # Based on the default sorting order, we get the fiscal year from the first project instance
-        # object_list = context.get("object_list")  # grab the projects returned by the filter
-        # fy = object_list.first().year if object_list.count() > 0 else None
-        #
-        # staff_instances = self.request.user.staff_instances2.filter(project__year=fy)
-        #
-        # context['fte_approved_projects'] = staff_instances.filter(
-        #     project__recommended_for_funding=True, project__submitted=True
-        # ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
-        #
-        # context['fte_unapproved_projects'] = staff_instances.filter(
-        #     project__recommended_for_funding=False, project__submitted=True
-        # ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
-        #
-        # context['fte_unsubmitted_projects'] = staff_instances.filter(
-        #     project__submitted=False
-        # ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
-        #
-        # context['fy'] = fy
-        #
-        # context["project_list"] = models.Project.objects.filter(
-        #     id__in=[s.project.id for s in self.request.user.staff_instances.all()]
-        # )
-        #
-        # context["project_field_list"] = [
-        #     "year",
-        #     "submitted|{}".format("Submitted"),
-        #     "recommended_for_funding",
-        #     "approved",
-        #     "allocated_budget",
-        #     "section|Section",
-        #     "project_title",
-        #     "is_hidden|is this a hidden project?",
-        #     "is_lead|{}?".format("Are you a project lead"),
-        #     "status_report|{}".format("Status reports"),
-        # ]
-
-        return context
 
 
 class ProjectCreateView(LoginRequiredMixin, CommonCreateView):

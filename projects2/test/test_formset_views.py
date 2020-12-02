@@ -3,8 +3,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import activate
 
-from projects.test import FactoryFloor
-from projects.test.common_tests import CommonProjectTest as CommonTest
+from ..test import FactoryFloor
+from ..test.common_tests import CommonProjectTest as CommonTest
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from .. import views
 from .. import models
