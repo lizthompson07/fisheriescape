@@ -1,6 +1,7 @@
 from django.test import tag, RequestFactory
 from django.urls import reverse_lazy
 from faker import Faker
+from datetime import date
 
 from bio_diversity.test import BioFactoryFloor
 # from cruises.test.common_tests import CommonCruisesTest as CommonTest
@@ -47,6 +48,10 @@ class TestCommonCreate(CommonTest):
         init = self.view.get_initial()
         self.assertIsNotNone(init)
         self.assertEqual(init['created_by'], user.username)
+        self.assertEqual(init['created_by'], user.username)
+        self.assertEqual(init['created_date'], date.today)
+        self.assertEqual(init['start_date'], date.today)
+
 
 
 @tag("Inst")

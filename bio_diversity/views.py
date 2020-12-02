@@ -3,7 +3,7 @@ from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, Comm
 from django.urls import reverse_lazy
 
 from . import mixins, filters, utils
-
+from datetime import date
 
 class IndexTemplateView(TemplateView):
     nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
@@ -26,6 +26,12 @@ class CommonCreate(CommonAuthCreateView):
         init = super().get_initial()
 
         init["created_by"] = self.request.user.username
+        init["created_date"] = date.today
+        init["start_date"] = date.today
+
+        if "start_date" in init:
+            # this doesn't work?  doing it without the check doesn't break anything either?
+            init["start_date"] = date.today
 
         return init
 
@@ -312,8 +318,8 @@ class CommonUpdate(CommonAuthUpdateView):
 
     def get_initial(self):
         init = super().get_initial()
-
-        init["created_by"] = self.request.user.username
+        # can uncomment this to auto update user on any update
+        # init["created_by"] = self.request.user.username
 
         return init
 
