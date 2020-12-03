@@ -1,5 +1,5 @@
 from . import models
-#from shared_models import models as shared_models
+# from shared_models import models as shared_models
 
 from . import forms
 from django.utils.translation import gettext_lazy as _

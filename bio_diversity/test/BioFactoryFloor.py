@@ -14,8 +14,8 @@ class ContdcFactory(factory.django.DjangoModelFactory):
     nom = factory.lazy_attribute(lambda o: faker.word())
     description_en = factory.lazy_attribute(lambda o: faker.text())
     description_fr = factory.lazy_attribute(lambda o: faker.text())
-    min_val = factory.lazy_attribute(lambda o: faker.random_int(1,1000))
-    max_val = factory.lazy_attribute(lambda o: faker.random_int(1000,2000))
+    min_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    max_val = factory.lazy_attribute(lambda o: faker.random_int(1000, 2000))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
     cont_subj_flag = factory.lazy_attribute(lambda o: faker.random_letter())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -36,6 +36,34 @@ class ContdcFactory(factory.django.DjangoModelFactory):
             'max_val': obj.max_val,
             'unit_id': unit.pk,
             'cont_subj_flag': obj.cont_subj_flag,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class CupFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Cup
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = CupFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
@@ -252,8 +280,8 @@ class ProgFactory(factory.django.DjangoModelFactory):
         data = {
             'prog_name': obj.prog_name,
             'prog_desc': obj.prog_desc,
-            'proga_id' : proga.pk,
-            'orga_id' : orga.pk,
+            'proga_id': proga.pk,
+            'orga_id': orga.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
             'valid': obj.valid,
@@ -315,10 +343,10 @@ class ProtFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'prog_id' : prog.pk,
-            'protc_id' : protc.pk,
+            'prog_id': prog.pk,
+            'protc_id': protc.pk,
             # 'protf_id' : protf.pk,
-            'prot_desc':obj.prot_desc,
+            'prot_desc': obj.prot_desc,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
             'valid': obj.valid,
@@ -363,7 +391,7 @@ class ProtfFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Protofile
 
-    prot_id =  factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtFactory")
+    prot_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtFactory")
     protf_pdf = factory.lazy_attribute(lambda o: faker.url())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -379,6 +407,90 @@ class ProtfFactory(factory.django.DjangoModelFactory):
         data = {
             'prot_id': prot.pk,
             'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class TankFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Tank
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = TankFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class TrayFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Tray
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = TrayFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class TrofFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Trough
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = TrofFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

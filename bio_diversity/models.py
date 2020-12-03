@@ -1,4 +1,4 @@
-#from django.db import models
+# from django.db import models
 
 # Create your models here.
 import os
@@ -133,7 +133,7 @@ class Protofile(BioModel):
     # protf tag
     prot_id = models.ForeignKey('Protocol', on_delete=models.DO_NOTHING,  related_name="protocol_files", verbose_name=_("Protocol"))
 
-    protf_pdf = models.FileField(upload_to=protf_directory_path, blank=True, null=True, verbose_name=_("Protocol File"),)
+    protf_pdf = models.FileField(upload_to=protf_directory_path, blank=True, null=True, verbose_name=_("Protocol File"))
     # protf_file = models.CharField(max_length=32, verbose_name=_("Protocol File Path"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 

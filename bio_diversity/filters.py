@@ -116,4 +116,3 @@ class UnitFilter(django_filters.FilterSet):
     class Meta:
         model = models.UnitCode
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
-

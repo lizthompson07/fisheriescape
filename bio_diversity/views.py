@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 from . import mixins, filters, utils
 from datetime import date
 
+
 class IndexTemplateView(TemplateView):
     nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
     site_css = 'bio_diversity/bio_diversity_css.css'
@@ -46,7 +47,7 @@ class CommonCreate(CommonAuthCreateView):
 
         return success_url
 
-    # overrides the UserPassesTestMixin test to check that a user belongs to the whalesdb_admin group
+    # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
     def test_func(self):
         return utils.bio_diverisity_authorized(self.request.user)
 
@@ -153,7 +154,8 @@ class CommonDetails(DetailView):
 
 
 class ContdcDetails(mixins.ContdcMixin, CommonDetails):
-    fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "cont_subj_flag", "created_by", "created_date", ]
+    fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "cont_subj_flag",
+              "created_by", "created_date", ]
 
 
 class CupDetails(mixins.CupMixin, CommonDetails):
@@ -181,7 +183,7 @@ class OrgaDetails(mixins.OrgaMixin, CommonDetails):
 
 
 class ProgDetails(mixins.ProgMixin, CommonDetails):
-    fields = ["prog_name", "prog_desc", "proga_id", "orga_id","start_date", "end_date", "valid", "created_by",
+    fields = ["prog_name", "prog_desc", "proga_id", "orga_id", "start_date", "end_date", "valid", "created_by",
               "created_date", ]
 
 
@@ -190,7 +192,7 @@ class ProgaDetails(mixins.ProgaMixin, CommonDetails):
 
 
 class ProtDetails(mixins.ProtMixin, CommonDetails):
-    fields = ["prog_id", "protc_id", "prot_desc","start_date", "end_date", "valid", "created_by",
+    fields = ["prog_id", "protc_id", "prot_desc", "start_date", "end_date", "valid", "created_by",
               "created_date", ]
 
 
@@ -359,11 +361,9 @@ class TankList(mixins.TankMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
-
 class TrayList(mixins.TrayMixin, CommonList):
     filterset_class = filters.TrayFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
-
 
 
 class TrofList(mixins.TrofMixin, CommonList):
