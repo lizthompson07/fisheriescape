@@ -1,5 +1,5 @@
 from django.db.models import Sum, Q
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
@@ -26,7 +26,7 @@ def is_management(user):
     """
         Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
     """
-    if user.id:
+    if user and user.id:
         return shared_models.Section.objects.filter(head=user).exists() or \
                shared_models.Division.objects.filter(head=user).exists() or \
                shared_models.Branch.objects.filter(head=user).exists()
@@ -139,7 +139,7 @@ def is_admin_or_project_manager(user, project):
 
 def get_manageable_sections(user):
     if in_projects_admin_group(user):
-        return shared_models.Section.objects.filter(projects__isnull=False).distinct()
+        return shared_models.Section.objects.filter(projects2__isnull=False).distinct()
     return shared_models.Section.objects.filter(Q(head=user) | Q(division__head=user) | Q(division__branch__head=user))
 
 
@@ -344,69 +344,35 @@ def multiple_financial_project_year_summary_data(project_years):
     return my_list
 
 
-def multiple_projects_financial_summary(project_list):
-    my_dict = {}
-
-    # first, get the list of funding sources
-    funding_sources = []
-    for project in project_list:
-        funding_sources.extend(project.get_funding_sources())
-    funding_sources = list(set(funding_sources))
-    funding_sources_order = ["{} {}".format(fs.funding_source_type, fs.tname) for fs in funding_sources]
-    for fs in [x for _, x in sorted(zip(funding_sources_order, funding_sources))]:
-        my_dict[fs] = {}
-        my_dict[fs]["salary"] = 0
-        my_dict[fs]["om"] = 0
-        my_dict[fs]["capital"] = 0
-        my_dict[fs]["total"] = 0
-        for project in project_list.all():
-            # first calc for staff
-            for staff in project.staff_members.filter(funding_source=fs):
-                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
-                if not staff.employee_type.exclude_from_rollup:
-                    if staff.employee_type.cost_type == 1:
-                        my_dict[fs]["salary"] += nz(staff.cost, 0)
-                    elif staff.employee_type.cost_type == 2:
-                        my_dict[fs]["om"] += nz(staff.cost, 0)
-            # O&M costs
-            for cost in project.om_costs.filter(funding_source=fs):
-                my_dict[fs]["om"] += nz(cost.budget_requested, 0)
-            # Capital costs
-            for cost in project.capital_costs.filter(funding_source=fs):
-                my_dict[fs]["capital"] += nz(cost.budget_requested, 0)
-
-    my_dict["total"] = {}
-    my_dict["total"]["salary"] = 0
-    my_dict["total"]["om"] = 0
-    my_dict["total"]["capital"] = 0
-    my_dict["total"]["total"] = 0
-    for fs in funding_sources:
-        my_dict[fs]["total"] = float(my_dict[fs]["capital"]) + float(my_dict[fs]["salary"]) + float(my_dict[fs]["om"])
-        my_dict["total"]["salary"] += my_dict[fs]["salary"]
-        my_dict["total"]["om"] += my_dict[fs]["om"]
-        my_dict["total"]["capital"] += my_dict[fs]["capital"]
-        my_dict["total"]["total"] += my_dict[fs]["total"]
-
-    return my_dict
-
-
 def get_project_field_list(project):
+    is_acrdp = project.is_acrdp
+
     my_list = [
         'id',
         'section',
         # 'title',
-        'overview',  # do not call the html field directly or we loose the ability to get the model's verbose name
+        'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),
+        # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
         'functional_group',
         'default_funding_source',
         'start_date',
         'end_date',
-        'fiscal_years',
+        'fiscal_years|{}'.format(_("Project years")),
         'funding_sources',
         'lead_staff',
+
+        # acrdp fields
+        'organization' if is_acrdp else None,
+        'species_involved' if is_acrdp else None,
+        'team_description' if is_acrdp else None,
+        'rationale' if is_acrdp else None,
+        'experimental_protocol' if is_acrdp else None,
+
         'tags',
         'metadata|{}'.format(_("metadata")),
     ]
+    while None in my_list: my_list.remove(None)
     return my_list
 
 
@@ -414,7 +380,7 @@ def get_project_year_field_list(project_year=None):
     my_list = [
         'dates|dates',
         'priorities',  # do not call the html field directly or we loose the ability to get the model's verbose name
-        'deliverables',  # do not call the html field directly or we loose the ability to get the model's verbose name
+        # 'deliverables',  # do not call the html field directly or we loose the ability to get the model's verbose name
 
         # SPECIALIZED EQUIPMENT COMPONENT
         #################################
@@ -503,11 +469,13 @@ def get_capital_field_list():
     return my_list
 
 
-def get_milestone_field_list():
+def get_activity_field_list():
     my_list = [
+        'type',
         'name',
         'description',
         'target_date',
+        'responsible_party',
         'latest_update|{}'.format(_("latest status")),
     ]
     return my_list
@@ -543,16 +511,28 @@ def get_agreement_field_list():
     ]
     return my_list
 
+
 def get_status_report_field_list():
     my_list = [
         'report_number|{}'.format("number"),
         'status',
-        'major_accomplishments',
-        'major_issues',
+        'major_accomplishments_html|{}'.format(_("major accomplishments")),
+        'major_issues_html|{}'.format(_("major issues")),
         'target_completion_date',
         'general_comment',
         'supporting_resources|{}'.format(_("supporting resources")),
+        'section_head_comment',
         'section_head_reviewed',
+        'metadata',
+    ]
+    return my_list
+
+
+def get_activity_update_field_list():
+    my_list = [
+        'activity',
+        'status',
+        'notes_html|{}'.format("notes"),
     ]
     return my_list
 
@@ -655,3 +635,30 @@ def get_review_score_rubric():
         },
 
     }
+
+
+def get_risk_rating(impact, likelihood):
+    """This is taken from the ACRDP application form"""
+    l = 1
+    m = 2
+    h = 3
+    rating_dict = {
+        # impact
+        1: {
+            # likelihood -- > risk rating
+            1: l, 2: l, 3: l, 4: m, 5: m,
+        },
+        2: {
+            1: l, 2: l, 3: m, 4: m, 5: m,
+        },
+        3: {
+            1: l, 2: m, 3: m, 4: m, 5: h,
+        },
+        4: {
+            1: m, 2: m, 3: m, 4: h, 5: h,
+        },
+        5: {
+            1: m, 2: m, 3: h, 4: h, 5: h,
+        },
+    }
+    return rating_dict[impact][likelihood]

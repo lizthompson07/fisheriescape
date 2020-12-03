@@ -26,7 +26,7 @@
           <select
             v-model="filter_region"
             @change="updateResults"
-            class="w100 filter" id="filter_region"
+            class="w90 filter" id="filter_region"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in regions" :value="obj.id">${obj.name}</option>
@@ -43,7 +43,7 @@
           <select
             v-model="filter_division"
             @change="updateResults"
-            class="w100 filter" id="filter_division"
+            class="w90 filter" id="filter_division"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in divisions" :value="obj.id">${obj.display}</option>
@@ -60,7 +60,7 @@
           <select
             v-model="filter_section"
             @change="updateResults"
-            class="w100 filter" id="filter_section"
+            class="w90 filter" id="filter_section"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in sections" :value="obj.id">${obj.full_name}</option>
@@ -78,7 +78,7 @@
           <select
             v-model="filter_fiscal_year"
             @change="updateResults"
-            class="w100 filter" id="filter_fiscal_year"
+            class="w90 filter" id="filter_fiscal_year"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in fiscalYears" :value="obj.id">${obj.full}</option>
@@ -96,7 +96,7 @@
           <select
             v-model="filter_status"
             @change="updateResults"
-            class="w100 filter" id="filter_status"
+            class="w90 filter" id="filter_status"
           >
             <option value selected>{% trans "all" %}</option>
             {% for status in status_choices %}
@@ -116,7 +116,7 @@
             v-model="filter_id"
             @change="updateResults"
             type="number"
-            class="w100 filter" id="filter_id" placeholder="">
+            class="w90 filter" id="filter_id" placeholder="">
         </div>
       </div>
 
@@ -130,7 +130,7 @@
             v-model="filter_title"
             @change="updateResults"
             type="text"
-            class="w100 filter" id="filter_title" placeholder="">
+            class="w90 filter" id="filter_title" placeholder="">
         </div>
       </div>
 
@@ -144,7 +144,7 @@
             v-model="filter_staff"
             @change="updateResults"
             type="text"
-            class="w100 filter" id="filter_staff" placeholder="">
+            class="w90 filter" id="filter_staff" placeholder="">
         </div>
       </div>
 
@@ -159,7 +159,7 @@
           <select
             v-model="filter_functional_group"
             @change="updateResults"
-            class="w100 filter" id="filter_functional_group"
+            class="w90 filter" id="filter_functional_group"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in functionalGroups" :value="obj.id">${obj.name}</option>
@@ -177,7 +177,7 @@
           <select
             v-model="filter_tag"
             @change="updateResults"
-            class="w100 filter" id="filter_tag"
+            class="w90 filter" id="filter_tag"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in tags" :value="obj.id">${obj.name}</option>
@@ -195,7 +195,7 @@
           <select
             v-model="filter_theme"
             @change="updateResults"
-            class="w100 filter" id="filter_theme"
+            class="w90 filter" id="filter_theme"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in themes" :value="obj.id">${obj.name}</option>
@@ -214,7 +214,7 @@
           <select
             v-model="filter_funding_source"
             @change="updateResults"
-            class="w100 filter" id="filter_funding_source"
+            class="w90 filter" id="filter_funding_source"
           >
             <option value="">{% trans "all" %}</option>
             <option v-for="(obj, index) in fundingSources" :value="obj.id">${obj.display}</option>

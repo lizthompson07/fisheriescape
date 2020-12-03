@@ -1,0 +1,78 @@
+{% load i18n %}
+{% load bootstrap4 %}
+{% load custom_filters %}
+{% load project_filters %}
+{% load static %}
+<!-- template for the modal component -->
+<script type="text/x-template" id="modal-template">
+<transition name="modal">
+  <div class="modal-mask">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+
+        <div class="modal-header">
+          <slot name="header">
+
+            <h3 v-if="mtype === 'update'">
+              <span>{% trans "Update Activity Status" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'file'">
+
+              <span v-if="!my_file">{% trans "New Supporting Resource" %}</span>
+              <span v-else>{% trans "Edit Supporting Resource" %}</span>
+            </h3>
+            <div v-if="errors" class="alert alert-danger" role="alert">
+              <h4 class="alert-heading">
+                {% trans "The form has a few errors:" %}
+              </h4>
+              <hr>
+              <span v-html="errors"></span>
+            </div>
+          </slot>
+        </div>
+
+        <form method="post" @submit.prevent="onSubmit" class="form" enctype="multipart/form-data">
+          <div class="modal-body">
+            <slot name="body">
+
+              {# Activity Update FORM             #}
+              <div v-if="mtype=='update'">
+                {% for field in update_form %}
+                  {% if field.name|is_markdown_field %}
+                    <label for="id_priorities">{{ field.label }}</label>
+                    <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+                       title="{% trans "Markdown syntax is supported in this field" %}">
+                      <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
+                    </a>
+                    {% bootstrap_field field placeholder="" show_label=False size='small' %}
+
+                  {% else %}
+                    {% bootstrap_field field placeholder="" size='small' %}
+                  {% endif %}
+                {% endfor %}
+              </div>
+              {# File FORM             #}
+              <div v-else-if="mtype=='file'">
+                {% bootstrap_form file_form size='small' %}
+              </div>
+            </slot>
+          </div>
+
+          <div class="modal-footer">
+            <slot name="footer">
+              <button class="modal-default-button" id="closeBtn">{% trans "Save" %}</button>
+              <button class="modal-default-button" @click="$emit('close')" id="closeBtn" type="button">
+                {% trans "Close" %}
+              </button>
+            </slot>
+          </div>
+        </form>
+
+        {# OVERTIME CALC #}
+
+
+      </div>
+    </div>
+  </div>
+</transition>
+</script>

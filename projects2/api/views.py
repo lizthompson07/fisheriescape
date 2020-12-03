@@ -2,7 +2,8 @@ from django.contrib.auth.models import User
 from pandas import date_range
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView
+from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView, \
+    RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,7 +14,7 @@ from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays, emails
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
-    get_manageable_sections, multiple_financial_project_year_summary_data
+    get_manageable_sections, multiple_financial_project_year_summary_data, is_section_head
 from ..utils import is_management_or_admin
 
 
@@ -25,6 +26,11 @@ class CurrentUserAPIView(APIView):
         data = serializer.data
         if request.query_params.get("project"):
             data.update(can_modify_project(request.user, request.query_params.get("project"), True))
+
+        if request.query_params.get("status_report"):
+            status_report = get_object_or_404(models.StatusReport, pk=request.query_params.get("status_report"))
+            data.update(can_modify_project(request.user, status_report.project_year.project_id, True))
+            data.update(dict(is_section_head=is_section_head(request.user, status_report.project_year.project)))
         return Response(data)
 
 
@@ -346,22 +352,22 @@ class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 # MILESTONE
 ###########
-class MilestoneListCreateAPIView(ListCreateAPIView):
-    queryset = models.Milestone.objects.all()
-    serializer_class = serializers.MilestoneSerializer
+class ActivityListCreateAPIView(ListCreateAPIView):
+    queryset = models.Activity.objects.all()
+    serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.milestones.all()
+        return year.activities.all()
 
     def perform_create(self, serializer):
         serializer.save(project_year_id=self.kwargs.get("project_year"))
 
 
-class MilestoneRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = models.Milestone.objects.all()
-    serializer_class = serializers.MilestoneSerializer
+class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Activity.objects.all()
+    serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
@@ -407,10 +413,9 @@ class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-
-
 # STATUS REPORTS
 ##############
+
 class StatusReportListCreateAPIView(ListCreateAPIView):
     queryset = models.StatusReport.objects.all()
     serializer_class = serializers.StatusReportSerializer
@@ -429,6 +434,28 @@ class StatusReportRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = serializers.StatusReportSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
+    def perform_update(self, serializer):
+        serializer.save(modified_by=self.request.user)
+
+
+# Activity Updates
+
+
+class ActivityUpdateListAPIView(ListAPIView):
+    queryset = models.StatusReport.objects.all()
+    serializer_class = serializers.ActivityUpdateSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        print(self.kwargs)
+        status_report = get_object_or_404(models.StatusReport, pk=self.kwargs.get("status_report"))
+        return status_report.updates.all()
+
+
+class ActivityUpdateRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = models.ActivityUpdate.objects.all()
+    serializer_class = serializers.ActivityUpdateSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
 
 # FILES / Supporting Resources
@@ -440,11 +467,21 @@ class FileListCreateAPIView(ListCreateAPIView):
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.files.all()
+        qs = year.files.all()
+
+        qp = self.request.query_params
+        if qp.get("status_report"):
+            qs = qs.filter(status_report=qp.get("status_report"))
+
+        return qs
 
     def perform_create(self, serializer):
-        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        serializer.save(project=year.project, project_year=year)
+        year = get_object_or_404(models.ProjectYear, pk=self.kwargs.get("project_year"))
+        kwargs = dict(project=year.project, project_year=year)
+        qp = self.request.query_params
+        if qp.get("status_report"):
+            kwargs["status_report_id"] = qp.get("status_report")
+        serializer.save(**kwargs)
 
 
 class FileRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -508,7 +545,7 @@ class TagListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        qs = models.Tag.objects.filter(projects__isnull=False)
+        qs = models.Tag.objects.filter(projects2__isnull=False)
 
         if self.request.query_params.get("user") == 'true':
             qs = qs.filter(projects__section__in=get_manageable_sections(self.request.user))

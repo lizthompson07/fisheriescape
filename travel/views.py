@@ -234,7 +234,11 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
 
             if unverified_trips > 0 and in_travel_admin_group(self.request.user):
                 messages.error(self.request, mark_safe(
-                    f"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
+                    # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                    _(
+                        "<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
+                        region=region, unverified_trips=unverified_trips, pluralization=pluralize(unverified_trips)
+                    )))
 
             tab_dict[region]["rdg_number_waiting"] = rdg_number_waiting
             tab_dict[region]["rdg_approval_list_url"] = rdg_approval_list_url
@@ -255,7 +259,10 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
 
         if unverified_trips > 0 and in_adm_admin_group(self.request.user):
             messages.error(self.request, mark_safe(
-                f"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
+                # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                _("<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralization} requiring attention!!".format(
+                    unverified_trips=unverified_trips, pluralization=pluralize(unverified_trips)
+                ))))
 
         adm_ready_trips = utils.get_adm_eligible_trips().count()
 
@@ -912,7 +919,7 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
                     reviewer, created = models.Reviewer.objects.get_or_create(
                         trip_request=my_object,
                         user=ncr_coord.user,
-                        role_id=1,
+                        role_id=3,
                     )
                     reviewer.order = 0
                     reviewer.save()
@@ -1752,11 +1759,11 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
 
     def get_h1(self):
         if self.get_object().status_id in [30, 41]:
-            return _("Do you wish to start a review on the following trip?")
+            return _("Do you wish to start a review on this trip?")
         elif self.get_object().status_id in [32]:
-            return _("Do you wish to re-open the review on the following trip?")
+            return _("you wish to re-open the review of this trip?")
         else:
-            return _("Do you wish to end the review on the following trip?")
+            return _("Do you wish to end the review of this trip?")
 
     def get_h2(self):
         if self.get_object().status_id in [30, 41]:

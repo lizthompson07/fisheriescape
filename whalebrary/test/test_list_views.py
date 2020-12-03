@@ -31,7 +31,7 @@ class TestItemListView(CommonTest):
 
     @tag("Item", "item_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Item", "item_list", "context")
@@ -57,7 +57,7 @@ class TestItemTransactionListView(CommonTest):
 
     @tag("ItemTransaction", "item_transaction_detail", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ItemTransaction", "item_transaction_detail", "context")
@@ -83,7 +83,7 @@ class TestLocationListView(CommonTest):
 
     @tag("Location", "location_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Location", "location_list", "context")
@@ -109,7 +109,7 @@ class TestTransactionListView(CommonTest):
 
     @tag("Transaction", "transaction_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Transaction", "transaction_list", "context")
@@ -135,7 +135,7 @@ class TestBulkTransactionListView(CommonTest):
 
     @tag("BulkTransaction", "bulk_transaction_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("BulkTransaction", "bulk_transaction_list", "context")
@@ -161,7 +161,7 @@ class TestOrderListView(CommonTest):
 
     @tag("Order", "order_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Order", "order_list", "context")
@@ -187,7 +187,7 @@ class TestPersonnelListView(CommonTest):
 
     @tag("Personnel", "personnel_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Personnel", "personnel_list", "context")
@@ -213,7 +213,7 @@ class TestSupplierListView(CommonTest):
 
     @tag("Supplier", "supplier_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Supplier", "supplier_list", "context")
@@ -239,7 +239,7 @@ class TestFileListView(CommonTest):
 
     @tag("File", "file_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("File", "file_list", "context")
@@ -265,7 +265,7 @@ class TestIncidentListView(CommonTest):
 
     @tag("Incident", "incident_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Incident", "incident_list", "context")
@@ -291,7 +291,7 @@ class TestImageListView(CommonTest):
 
     @tag("Image", "image_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Image", "image_list", "context")
@@ -317,7 +317,7 @@ class TestContainerSummaryListView(CommonTest):
 
     @tag("ContainerSummary", "report_container_summary", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ContainerSummary", "report_container_summary", "context")
@@ -343,7 +343,7 @@ class TestSizedItemSummaryListView(CommonTest):
 
     @tag("SizedItemSummary", "report_sized_item", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("SizedItemSummary", "report_sized_item", "context")

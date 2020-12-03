@@ -22,13 +22,13 @@
     <td>
       <button
         v-if="year.submitted && year.status != 4"
-        class="btn btn-sm btn-danger py-0 px-1"
+        class="btn btn-sm btn-danger py-0 px-1 no-print"
         @click="submitProjectYear(year, 'unsubmit')"
       >{% trans "Un-submit" %}</button>
 
       <button
         v-else-if="!year.submitted"
-        class="btn btn-sm btn-success py-0 px-1"
+        class="btn btn-sm btn-success py-0 px-1 no-print"
         @click="submitProjectYear(year, 'submit')"
       >{% trans "submit" %}</button>
 

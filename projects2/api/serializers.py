@@ -278,19 +278,29 @@ class CapitalCostSerializer(serializers.ModelSerializer):
         return instance.project_year_id
 
 
-class MilestoneSerializer(serializers.ModelSerializer):
+class ActivitySerializer(serializers.ModelSerializer):
     target_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
 
     class Meta:
-        model = models.Milestone
+        model = models.Activity
         exclude = ["project_year"]
 
     latest_update = serializers.SerializerMethodField()
     target_date_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
+    type_display = serializers.SerializerMethodField()
+    risk_rating_display = serializers.SerializerMethodField()
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
+
+    def get_risk_rating_display(self, instance):
+        return instance.get_risk_rating_display()
 
     def get_latest_update(self, instance):
-        return str(instance.latest_update)
+        if instance.latest_update:
+            return f"{instance.latest_update.get_status_display()} <br>(from {instance.latest_update.status_report})"
+        return "n/a"
 
     def get_target_date_display(self, instance):
         if instance.target_date:
@@ -349,6 +359,14 @@ class StatusReportSerializer(serializers.ModelSerializer):
     report_number = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     supporting_resources = serializers.SerializerMethodField()
+    major_accomplishments_html = serializers.SerializerMethodField()
+    major_issues_html = serializers.SerializerMethodField()
+
+    def get_major_accomplishments_html(self, instance):
+        return instance.major_accomplishments_html
+
+    def get_major_issues_html(self, instance):
+        return instance.major_issues_html
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
@@ -365,6 +383,22 @@ class StatusReportSerializer(serializers.ModelSerializer):
 
     def get_supporting_resources(self, instance):
         return instance.files.count()
+
+
+class ActivityUpdateSerializer(serializers.ModelSerializer):
+    activity = serializers.StringRelatedField()
+    status_display = serializers.SerializerMethodField()
+    notes_html = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.ActivityUpdate
+        exclude = ["status_report"]
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+    def get_notes_html(self, instance):
+        return instance.notes_html
 
 
 class FileSerializer(serializers.ModelSerializer):

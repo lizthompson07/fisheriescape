@@ -52,6 +52,7 @@ class RegionFactory(factory.django.DjangoModelFactory):
         model = shared_models.Region
 
     name = factory.LazyAttribute(lambda o: faker.word())
+    head = factory.SubFactory(UserFactory)
 
     @staticmethod
     def get_valid_data():
@@ -68,6 +69,7 @@ class BranchFactory(factory.django.DjangoModelFactory):
 
     region = factory.SubFactory(RegionFactory)
     name = factory.LazyAttribute(lambda o: faker.word())
+    head = factory.SubFactory(UserFactory)
 
     @staticmethod
     def get_valid_data():
@@ -85,6 +87,7 @@ class DivisionFactory(factory.django.DjangoModelFactory):
 
     branch = factory.SubFactory(BranchFactory)
     name = factory.LazyAttribute(lambda o: faker.word())
+    head = factory.SubFactory(UserFactory)
 
     @staticmethod
     def get_valid_data():

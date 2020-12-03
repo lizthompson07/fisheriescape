@@ -40,6 +40,14 @@ urlpatterns = [
     path('region/<int:pk>/delete/', views.RegionDeleteView.as_view(), name="region_delete"), # TESTED
     path('region/new/', views.RegionCreateView.as_view(), name="region_new"), # TESTED
 
+    # ORGANIZATION #
+    ################
+    path('orgs/', views.OrganizationListView.as_view(), name="org_list"), # TESTED
+    path('orgs/<int:pk>/update/', views.OrganizationUpdateView.as_view(), name="org_edit"), # TESTED
+    path('orgs/<int:pk>/delete/', views.OrganizationDeleteView.as_view(), name="org_delete"), # TESTED
+    path('orgs/new/', views.OrganizationCreateView.as_view(), name="org_new"), # TESTED
+
+
     # USER # (NOT TESTED)
     ########
     path('user/new/', views.UserCreateView.as_view(), name="user_new"), # TESTED

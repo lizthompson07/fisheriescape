@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-27 13:54-0400\n"
+"POT-Creation-Date: 2020-12-01 12:56-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 "Language: en\n"
 
-#: .\accounts\forms.py:47
+#: .\accounts\forms.py:59
 msgid ""
 "Required - a verification email will be sent to you once this form is "
 "submitted"
@@ -17,7 +17,7 @@ msgstr ""
 "Obligatoire - un courriel de vérification vous sera envoyé une fois que ce "
 "formulaire aura été soumis"
 
-#: .\accounts\forms.py:64
+#: .\accounts\forms.py:76
 msgid ""
 "Only DFO employees can register for an account. Please enter an email ending "
 "with '@DFO-MPO.GC.CA'"
@@ -25,34 +25,38 @@ msgstr ""
 "Seulement les employés du MPO peuvent s'inscrire pour un compte. Veuillez "
 "entrer un courriel finissant par '@DFO-MPO.GC.CA'"
 
-#: .\accounts\models.py:22
+#: .\accounts\models.py:19
 msgid "position (English)"
 msgstr "titre du poste (anglais)"
 
-#: .\accounts\models.py:23
+#: .\accounts\models.py:20
 msgid "position (French)"
 msgstr "titre du poste (français)"
 
-#: .\accounts\models.py:24
+#: .\accounts\models.py:21
 msgid "phone (office)"
 msgstr "téléphone (bureau)"
 
-#: .\accounts\models.py:25 .\inventory\models.py:82
+#: .\accounts\models.py:22 .\inventory\models.py:82
 msgid "language preference"
 msgstr "préférence linguistique"
 
-#: .\accounts\models.py:27 .\inventory\filters.py:50 .\inventory\filters.py:62
+#: .\accounts\models.py:23 .\inventory\filters.py:50 .\inventory\filters.py:62
 #: .\inventory\templates\inventory\resource_list.html:94
 #: .\ios2\templates\ios2\instrument_list.html:77
 #: .\ios2\templates\ios2\mooring_list.html:77
 msgid "Section"
 msgstr "Section"
 
-#: .\accounts\models.py:72 .\accounts\models.py:73
+#: .\accounts\models.py:29 .\accounts\models.py:30
+msgid "position_eng"
+msgstr "position_fre"
+
+#: .\accounts\models.py:77 .\accounts\models.py:78
 msgid "subject_en"
 msgstr "subject_fr"
 
-#: .\accounts\models.py:81 .\accounts\models.py:82
+#: .\accounts\models.py:86 .\accounts\models.py:87
 msgid "message_en"
 msgstr "message_fr"
 
@@ -154,6 +158,10 @@ msgstr "Demande d'accès"
 msgid "Sorry, you are not authorized to view this page."
 msgstr "Désolé, vous n'êtes pas autorisé à consulter cette page."
 
+#: .\accounts\views.py:99
+msgid "Successfully updated!"
+msgstr ""
+
 #: .\camp\templates\camp\sample_detail.html:48
 msgid "Samples with observations cannot be deleted."
 msgstr ""
@@ -230,7 +238,7 @@ msgstr "Nouveau"
 #: .\shared_models\models.py:393 .\shared_models\models.py:536
 #: .\shared_models\models.py:537 .\shared_models\models.py:543
 #: .\shared_models\models.py:645 .\shared_models\models.py:646
-#: .\shared_models\utils.py:11 .\shared_models\views.py:849
+#: .\shared_models\utils.py:11 .\shared_models\views.py:917
 #: .\shares\models.py:61 .\staff\views.py:34 .\staff\views.py:221
 #: .\staff\views.py:222 .\tickets\models.py:59 .\tickets\models.py:60
 msgid "name"
@@ -1957,61 +1965,61 @@ msgstr ""
 
 #: .\shared_models\filters.py:20 .\shared_models\filters.py:65
 #: .\shared_models\filters.py:98 .\shared_models\models.py:129
-#: .\shared_models\templates\shared_models\org_index.html:9
+#: .\shared_models\templates\shared_models\org_index.html:10
 msgid "Region - Sector (NCR)"
 msgstr ""
 
 #: .\shared_models\filters.py:21 .\shared_models\filters.py:66
 #: .\shared_models\filters.py:99 .\shared_models\models.py:150
-#: .\shared_models\templates\shared_models\org_index.html:12
+#: .\shared_models\templates\shared_models\org_index.html:13
 msgid "Branch - Directorate (NCR)"
 msgstr ""
 
 #: .\shared_models\filters.py:22 .\shared_models\filters.py:67
 #: .\shared_models\models.py:170
-#: .\shared_models\templates\shared_models\org_index.html:15
+#: .\shared_models\templates\shared_models\org_index.html:16
 msgid "Division - Branch (NCR)"
 msgstr ""
 
 #: .\shared_models\filters.py:23 .\shared_models\models.py:194
-#: .\shared_models\templates\shared_models\org_index.html:18
+#: .\shared_models\templates\shared_models\org_index.html:19
 #, fuzzy
 msgid "Section - Team (NCR)"
 msgstr "chef de section"
 
-#: .\shared_models\forms.py:85
+#: .\shared_models\forms.py:91
 msgid "First name"
 msgstr "Prénom"
 
-#: .\shared_models\forms.py:86
+#: .\shared_models\forms.py:92
 msgid "Last name"
 msgstr "Nom de famille"
 
-#: .\shared_models\forms.py:87
+#: .\shared_models\forms.py:93
 msgid "Email"
 msgstr "Courriel"
 
-#: .\shared_models\forms.py:88
+#: .\shared_models\forms.py:94
 msgid "Confirm email address"
 msgstr "Courriel"
 
-#: .\shared_models\forms.py:94
+#: .\shared_models\forms.py:100
 #, fuzzy
 msgid "This email address already exists in the database."
 msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
 
-#: .\shared_models\forms.py:97
+#: .\shared_models\forms.py:103
 msgid "The email address provided must be a DFO email address."
 msgstr ""
 "Le courriel électronique fournie doit être une adresse électronique du MPO."
 
-#: .\shared_models\forms.py:113
+#: .\shared_models\forms.py:119
 msgid "Please make sure the two email addresses provided match."
 msgstr "Assurez-vous que les deux adresses e-mail fournies correspondent."
 
 #: .\shared_models\models.py:18 .\shared_models\models.py:134
 #: .\shared_models\models.py:155 .\shared_models\models.py:176
-#: .\shared_models\models.py:640
+#: .\shared_models\models.py:640 .\shared_models\models.py:704
 #, fuzzy
 msgid "name (en)"
 msgstr "nom (fra)"
@@ -2063,7 +2071,7 @@ msgstr "abbrev_fre"
 
 #: .\shared_models\models.py:120 .\shared_models\models.py:135
 #: .\shared_models\models.py:156 .\shared_models\models.py:180
-#: .\shared_models\models.py:386
+#: .\shared_models\models.py:386 .\shared_models\models.py:705
 msgid "abbreviation"
 msgstr ""
 
@@ -2243,6 +2251,25 @@ msgstr "enregistrement"
 msgid "script"
 msgstr "description"
 
+#: .\shared_models\models.py:688 .\shared_models\models.py:689
+msgid "location_en"
+msgstr "Location_fr"
+
+#: .\shared_models\models.py:706
+#, fuzzy
+#| msgid "Email address"
+msgid "address"
+msgstr "Courriel"
+
+#: .\shared_models\models.py:707
+#, fuzzy
+msgid "city"
+msgstr "description"
+
+#: .\shared_models\models.py:708
+msgid "postal code"
+msgstr ""
+
 #: .\shared_models\templates\shared_models\generic_confirm_delete.html:13
 msgid "You cannot delete this object since it has related items."
 msgstr ""
@@ -2315,10 +2342,26 @@ msgid ""
 "          "
 msgstr ""
 
+#: .\shared_models\templates\shared_models\org_index.html:7
+#, fuzzy
+#| msgid "DFO Contacts"
+msgid "DFO Governance"
+msgstr "Contacts du MPO"
+
 #: .\shared_models\templates\shared_models\org_index.html:24
 #, fuzzy
 msgid "Add a new DM Apps User"
 msgstr "Utilisateur de DM Apps"
+
+#: .\shared_models\templates\shared_models\org_index.html:30
+#, fuzzy
+#| msgid "Location"
+msgid "Physcial Locations"
+msgstr "Location"
+
+#: .\shared_models\templates\shared_models\org_index.html:33
+msgid "DFO Physical Locations"
+msgstr ""
 
 #: .\shared_models\templates\shared_models\shared_filter.html:85
 #, fuzzy
@@ -2370,7 +2413,9 @@ msgstr "section"
 #: .\shared_models\views.py:710 .\shared_models\views.py:721
 #: .\shared_models\views.py:742 .\shared_models\views.py:758
 #: .\shared_models\views.py:774 .\shared_models\views.py:785
-#: .\shared_models\views.py:884 .\shared_models\views.py:896
+#: .\shared_models\views.py:809 .\shared_models\views.py:825
+#: .\shared_models\views.py:841 .\shared_models\views.py:852
+#: .\shared_models\views.py:952 .\shared_models\views.py:964
 #, fuzzy
 msgid "DFO Orgs"
 msgstr "Secteurs du MPO"
@@ -2379,25 +2424,30 @@ msgstr "Secteurs du MPO"
 msgid "division"
 msgstr "division"
 
-#: .\shared_models\views.py:799
+#: .\shared_models\views.py:802
+#, fuzzy
+msgid "Organizations - Sectors (NCR)"
+msgstr "Organisations"
+
+#: .\shared_models\views.py:867
 msgid "Create a New DM Apps User"
 msgstr "Créer un nouveau utilisateur de DM Apps"
 
-#: .\shared_models\views.py:801
+#: .\shared_models\views.py:869
 msgid "Please use extreme vigilance with this form."
 msgstr ""
 
-#: .\shared_models\views.py:802
+#: .\shared_models\views.py:870
 msgid ""
 "After this form is submitted, the new user will receive a confirmation e-"
 "mail."
 msgstr ""
 
-#: .\shared_models\views.py:833
+#: .\shared_models\views.py:901
 msgid "The user '{}' was created and an email was sent"
 msgstr ""
 
-#: .\shared_models\views.py:850 .\shiny\views.py:30
+#: .\shared_models\views.py:918 .\shiny\views.py:30
 msgid "description"
 msgstr "description"
 
