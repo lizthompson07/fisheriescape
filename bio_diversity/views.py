@@ -158,7 +158,7 @@ class ProgaDetails(mixins.ProgaMixin, CommonDetails):
 
 
 class ProtDetails(mixins.ProtMixin, CommonDetails):
-    fields = ["prog_id", "protc_id", "protf_id", "prot_desc","start_date", "end_date", "valid", "created_by",
+    fields = ["prog_id", "protc_id", "prot_desc","start_date", "end_date", "valid", "created_by",
               "created_date", ]
 
 

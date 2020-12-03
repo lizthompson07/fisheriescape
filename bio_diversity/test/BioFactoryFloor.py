@@ -259,7 +259,7 @@ class ProtFactory(factory.django.DjangoModelFactory):
 
     prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
     protc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtcFactory")
-    protf_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtfFactory")
+    # protf_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtfFactory")
     prot_desc = factory.lazy_attribute(lambda o: faker.text())
     start_date = factory.lazy_attribute(lambda o: faker.date())
     end_date = factory.lazy_attribute(lambda o: faker.date())
@@ -272,7 +272,7 @@ class ProtFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
         prog = ProgFactory()
         protc = ProtcFactory()
-        protf = ProtFactory()
+        # protf = ProtFactory()
 
         obj = ProtFactory.build(**kwargs)
 
@@ -280,7 +280,7 @@ class ProtFactory(factory.django.DjangoModelFactory):
         data = {
             'prog_id' : prog.pk,
             'protc_id' : protc.pk,
-            'protf_id' : protf.pk,
+            # 'protf_id' : protf.pk,
             'prot_desc':obj.prot_desc,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
@@ -326,7 +326,8 @@ class ProtfFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Protofile
 
-    prot_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtFactory")
+    prot_id =  factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtFactory")
+    protf_pdf = factory.lazy_attribute(lambda o: faker.url())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -339,7 +340,7 @@ class ProtfFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'prot_id': obj.prot.pk,
+            'prot_id': prot.pk,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
