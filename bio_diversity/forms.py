@@ -30,6 +30,12 @@ class ContdcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class CupForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Cup
+        exclude = []
+
+
 class InstForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Instrument
@@ -87,6 +93,24 @@ class ProtcForm(CreatePrams, forms.ModelForm):
 class ProtfForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Protofile
+        exclude = []
+
+
+class TankForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Tank
+        exclude = []
+
+
+class TrayForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Tray
+        exclude = []
+
+
+class TrofForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Trough
         exclude = []
 
 

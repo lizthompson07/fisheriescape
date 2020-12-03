@@ -12,6 +12,13 @@ class ContdcMixin:
     title = "Container Detail Code"
 
 
+class CupMixin:
+    key = "cup"
+    form_class = forms.CupForm
+    model = models.Cup
+    title = "Cup"
+
+
 class InstMixin:
     key = "inst"
     form_class = forms.InstForm
@@ -80,6 +87,27 @@ class ProtfMixin:
     model = models.Protofile
     form_class = forms.ProtfForm
     title = _("Protocol File")
+
+
+class TankMixin:
+    key = 'tank'
+    model = models.Tank
+    form_class = forms.TankForm
+    title = _("Tank")
+
+
+class TrayMixin:
+    key = 'tray'
+    model = models.Tray
+    form_class = forms.TrayForm
+    title = _("Tray")
+
+
+class TrofMixin:
+    key = 'trof'
+    model = models.Trough
+    form_class = forms.TrofForm
+    title = _("Trough")
 
 
 class UnitMixin:

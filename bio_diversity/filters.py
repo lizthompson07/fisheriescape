@@ -13,6 +13,13 @@ class ContdcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
 
 
+class CupFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Cup
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class InstFilter(django_filters.FilterSet):
 
     class Meta:
@@ -81,6 +88,27 @@ class ProtfFilter(django_filters.FilterSet):
     class Meta:
         model = models.Protofile
         fields = ["prot_id", "created_by", "created_date", ]
+
+
+class TankFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Tank
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class TrayFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Tray
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class TrofFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Trough
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class UnitFilter(django_filters.FilterSet):

@@ -55,6 +55,10 @@ class ContdcCreate(mixins.ContdcMixin, CommonCreate):
     pass
 
 
+class CupCreate(mixins.CupMixin, CommonCreate):
+    pass
+
+
 class InstCreate(mixins.InstMixin, CommonCreate):
     pass
 
@@ -92,6 +96,18 @@ class ProtcCreate(mixins.ProtcMixin, CommonCreate):
 
 
 class ProtfCreate(mixins.ProtfMixin, CommonCreate):
+    pass
+
+
+class TankCreate(mixins.TankMixin, CommonCreate):
+    pass
+
+
+class TrayCreate(mixins.TrayMixin, CommonCreate):
+    pass
+
+
+class TrofCreate(mixins.TrofMixin, CommonCreate):
     pass
 
 
@@ -140,6 +156,10 @@ class ContdcDetails(mixins.ContdcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "cont_subj_flag", "created_by", "created_date", ]
 
 
+class CupDetails(mixins.CupMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class InstDetails(mixins.InstMixin, CommonDetails):
     fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
 
@@ -182,6 +202,18 @@ class ProtfDetails(mixins.ProtfMixin, CommonDetails):
     template_name = 'bio_diversity/details_protf.html'
 
     fields = ["prot_id", "protf_pdf", "comments", "created_by", "created_date", ]
+
+
+class TankDetails(mixins.TankMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class TrayDetails(mixins.TrayMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class TrofDetails(mixins.TrofMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class UnitDetails(mixins.UnitMixin, CommonDetails):
@@ -267,6 +299,11 @@ class ContdcList(mixins.ContdcMixin, CommonList):
     fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
 
 
+class CupList(mixins.CupMixin, CommonList):
+    filterset_class = filters.CupFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class InstList(mixins.InstMixin, CommonList):
     filterset_class = filters.InstFilter
     fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
@@ -315,6 +352,23 @@ class ProtcList(mixins.ProtcMixin, CommonList):
 class ProtfList(mixins.ProtfMixin, CommonList):
     filterset_class = filters.ProtfFilter
     fields = ["prot_id", "comments", "created_by", "created_date", ]
+
+
+class TankList(mixins.TankMixin, CommonList):
+    filterset_class = filters.TankFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+
+class TrayList(mixins.TrayMixin, CommonList):
+    filterset_class = filters.TrayFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+
+class TrofList(mixins.TrofMixin, CommonList):
+    filterset_class = filters.TrofFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class UnitList(mixins.UnitMixin, CommonList):
@@ -371,6 +425,10 @@ class ContdcUpdate(mixins.ContdcMixin, CommonUpdate):
     pass
 
 
+class CupUpdate(mixins.CupMixin, CommonUpdate):
+    pass
+
+
 class InstUpdate(mixins.InstMixin, CommonUpdate):
     pass
 
@@ -408,6 +466,18 @@ class ProtcUpdate(mixins.ProtcMixin, CommonUpdate):
 
 
 class ProtfUpdate(mixins.ProtfMixin, CommonUpdate):
+    pass
+
+
+class TankUpdate(mixins.TankMixin, CommonUpdate):
+    pass
+
+
+class TrayUpdate(mixins.TrayMixin, CommonUpdate):
+    pass
+
+
+class TrofUpdate(mixins.TrofMixin, CommonUpdate):
     pass
 
 

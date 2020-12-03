@@ -12,6 +12,11 @@ urlpatterns = [
     path('list/contdc/', views.ContdcList.as_view(), name="list_contdc"),
     path('update/contdc/<int:pk>/', views.ContdcUpdate.as_view(), name="update_contdc"),
 
+    path('create/cup/', views.CupCreate.as_view(), name="create_cup"),
+    path('details/cup/<int:pk>/', views.CupDetails.as_view(), name="details_cup"),
+    path('list/cup/', views.CupList.as_view(), name="list_cup"),
+    path('update/cup/<int:pk>/', views.CupUpdate.as_view(), name="update_cup"),
+    
     path('create/inst/', views.InstCreate.as_view(), name="create_inst"),
     path('details/inst/<int:pk>/', views.InstDetails.as_view(), name="details_inst"),
     path('list/inst/', views.InstList.as_view(), name="list_inst"),
@@ -62,6 +67,21 @@ urlpatterns = [
     path('list/protf/', views.ProtfList.as_view(), name="list_protf"),
     path('update/protf/<int:pk>/', views.ProtfUpdate.as_view(), name="update_protf"),
 
+    path('create/tank/', views.TankCreate.as_view(), name="create_tank"),
+    path('details/tank/<int:pk>/', views.TankDetails.as_view(), name="details_tank"),
+    path('list/tank/', views.TankList.as_view(), name="list_tank"),
+    path('update/tank/<int:pk>/', views.TankUpdate.as_view(), name="update_tank"),
+
+    path('create/tray/', views.TrayCreate.as_view(), name="create_tray"),
+    path('details/tray/<int:pk>/', views.TrayDetails.as_view(), name="details_tray"),
+    path('list/tray/', views.TrayList.as_view(), name="list_tray"),
+    path('update/tray/<int:pk>/', views.TrayUpdate.as_view(), name="update_tray"),
+
+    path('create/trof/', views.TrofCreate.as_view(), name="create_trof"),
+    path('details/trof/<int:pk>/', views.TrofDetails.as_view(), name="details_trof"),
+    path('list/trof/', views.TrofList.as_view(), name="list_trof"),
+    path('update/trof/<int:pk>/', views.TrofUpdate.as_view(), name="update_trof"),
+    
     path('create/unit/', views.UnitCreate.as_view(), name="create_unit"),
     path('details/unit/<int:pk>/', views.UnitDetails.as_view(), name="details_unit"),
     path('list/unit/', views.UnitList.as_view(), name="list_unit"),

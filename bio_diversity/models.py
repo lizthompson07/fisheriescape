@@ -48,6 +48,11 @@ class ContainerDetCode(BioLookup):
     cont_subj_flag = models.CharField(max_length=1, verbose_name=_("Container Subject Flag"))
 
 
+class Cup(BioLookup):
+    # cup tag
+    pass
+
+
 class Instrument(BioModel):
     # inst tag
     instc = models.ForeignKey('InstrumentCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Code"))
@@ -114,10 +119,10 @@ class Protocol(BioTimeModel):
         return "{}, {}".format(self.protc_id.__str__(), self.prog_id.__str__())
 
 
-
 class ProtoCode(BioLookup):
     # protc tag
     pass
+
 
 def protf_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/bio_diversity/protofiles/<filename>
@@ -165,6 +170,21 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if old_file and not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+class Tank(BioLookup):
+    # tank tag
+    pass
+
+
+class Tray(BioLookup):
+    # tray tag
+    pass
+
+
+class Trough(BioLookup):
+    # trof tag
+    pass
 
 
 class UnitCode(BioLookup):
