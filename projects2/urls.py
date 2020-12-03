@@ -38,32 +38,32 @@ urlpatterns = [
     # # SETTINGS #
     # ############
     # formsets
-    path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),
-    path('settings/funding-source/<int:pk>/delete/', views.FundingSourceHardDeleteView.as_view(), name="delete_funding_source"),
+    path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),# tested
+    path('settings/funding-source/<int:pk>/delete/', views.FundingSourceHardDeleteView.as_view(), name="delete_funding_source"),# tested
 
-    path('settings/activity-types/', views.ActivityTypeFormsetView.as_view(), name="manage_activity_types"),
-    path('settings/activity-type/<int:pk>/delete/', views.ActivityTypeHardDeleteView.as_view(), name="delete_activity_type"),
+    path('settings/activity-types/', views.ActivityTypeFormsetView.as_view(), name="manage_activity_types"),# tested
+    path('settings/activity-type/<int:pk>/delete/', views.ActivityTypeHardDeleteView.as_view(), name="delete_activity_type"),# tested
 
-    path('settings/om-categories/', views.OMCategoryFormsetView.as_view(), name="manage_om_cats"),
-    path('settings/om-category/<int:pk>/delete/', views.OMCategoryHardDeleteView.as_view(), name="delete_om_cat"),
+    path('settings/om-categories/', views.OMCategoryFormsetView.as_view(), name="manage_om_cats"),# tested
+    path('settings/om-category/<int:pk>/delete/', views.OMCategoryHardDeleteView.as_view(), name="delete_om_cat"),# tested
 
-    path('settings/employee-types/', views.EmployeeTypeFormsetView.as_view(), name="manage_employee_types"),
-    path('settings/employee-type/<int:pk>/delete/', views.EmployeeTypeHardDeleteView.as_view(), name="delete_employee_type"),
+    path('settings/employee-types/', views.EmployeeTypeFormsetView.as_view(), name="manage_employee_types"),# tested
+    path('settings/employee-type/<int:pk>/delete/', views.EmployeeTypeHardDeleteView.as_view(), name="delete_employee_type"),# tested
 
-    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),
-    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),
+    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),# tested
+    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),# tested
 
-    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),
-    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),# tested
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),# tested
 
-    path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),
-    path('settings/level/<int:pk>/delete/', views.LevelHardDeleteView.as_view(), name="delete_level"),
+    path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),# tested
+    path('settings/level/<int:pk>/delete/', views.LevelHardDeleteView.as_view(), name="delete_level"),# tested
 
-    path('settings/themes/', views.ThemeFormsetView.as_view(), name="manage_themes"),
-    path('settings/theme/<int:pk>/delete/', views.ThemeHardDeleteView.as_view(), name="delete_theme"),
+    path('settings/themes/', views.ThemeFormsetView.as_view(), name="manage_themes"),# tested
+    path('settings/theme/<int:pk>/delete/', views.ThemeHardDeleteView.as_view(), name="delete_theme"),# tested
 
-    path('settings/upcoming-dates/', views.UpcomingDateFormsetView.as_view(), name="manage-upcoming-dates"),
-    path('settings/upcoming-date/<int:pk>/delete/', views.UpcomingDateHardDeleteView.as_view(), name="delete-upcoming-date"),
+    path('settings/upcoming-dates/', views.UpcomingDateFormsetView.as_view(), name="manage-upcoming-dates"),# tested
+    path('settings/upcoming-date/<int:pk>/delete/', views.UpcomingDateHardDeleteView.as_view(), name="delete-upcoming-date"),# tested
 
     # full
     path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),

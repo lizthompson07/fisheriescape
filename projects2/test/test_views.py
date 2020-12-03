@@ -23,7 +23,7 @@ class TestProjectCreateView(CommonTest):
 
     @tag("Project", "project_new", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Project", "project_new", "context")
@@ -55,7 +55,7 @@ class TestProjectDetailView(CommonTest):
 
     @tag("Project", "project_detail", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Project", "project_detail", "context")
@@ -105,7 +105,7 @@ class TestProjectUpdateView(CommonTest):
 
     @tag("Project", "project_edit", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Project", "project_edit", "context")
@@ -140,7 +140,7 @@ class TestProjectDeleteView(CommonTest):
 
     @tag("Project", "project_delete", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Project", "project_delete", "submit")
@@ -171,7 +171,7 @@ class TestProjectCloneView(CommonTest):
 
     @tag("Project", "project_clone", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user,
                                     login_search_term='/accounts/login_required')
 
@@ -206,7 +206,7 @@ class TestProjectListView(CommonTest):  # My Projects
 
     @tag("Project", "my_project_list", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # @tag("Project", "my_project_list", "context")
@@ -235,7 +235,7 @@ class TestProjectExploreTemplateView(CommonTest):
 
     @tag("Project", "explore_projects", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Project", "explore_projects", "context")
@@ -266,7 +266,7 @@ class TestProjectManageTemplateView(CommonTest):
 
     @tag("Project", "manage_projects", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user1)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user2)
 
@@ -302,7 +302,7 @@ class TestProjectYearCreateView(CommonTest):
 
     @tag("ProjectYear", "year_new", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ProjectYear", "year_new", "submit")
@@ -330,7 +330,7 @@ class TestProjectYearUpdateView(CommonTest):
 
     @tag("ProjectYear", "year_edit", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ProjectYear", "year_edit", "submit")
@@ -358,7 +358,7 @@ class TestProjectYearDeleteView(CommonTest):
 
     @tag("ProjectYear", "year_delete", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ProjectYear", "year_delete", "submit")
@@ -389,7 +389,7 @@ class TestProjectYearCloneView(CommonTest):
 
     @tag("ProjectYear", "year_clone", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ProjectYear", "year_clone", "context")
@@ -424,7 +424,7 @@ class TestStatusReportDetailView(CommonTest):
 
     @tag("StatusReport", "report_detail", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("StatusReport", "report_detail", "access")
@@ -434,7 +434,7 @@ class TestStatusReportDetailView(CommonTest):
         # there should be no updates...
         self.assertFalse(m1.updates.exists())
         # visit the detail page
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assertEqual(m1.updates.count(), 1)
 
     @tag("StatusReport", "report_detail", "context")
@@ -468,7 +468,7 @@ class TestStatusReportUpdateView(CommonTest):
 
     @tag("StatusReport", "report_edit", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("StatusReport", "report_edit", "submit")
@@ -496,7 +496,7 @@ class TestStatusReportReviewUpdateView(CommonTest):
 
     @tag("StatusReport", "report_review", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("StatusReport", "report_review", "submit")
@@ -523,7 +523,7 @@ class TestIndexTemplateView(CommonTest):
 
     @tag("Index", "index", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Index", "index", "context")
@@ -556,7 +556,7 @@ class TestStatusReportDeleteView(CommonTest):
 
     @tag("StatusReport", "report_delete", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("StatusReport", "report_delete", "submit")
@@ -586,7 +586,7 @@ class TestStatusReportPrintView(CommonTest):
 
     @tag("StatusReport", "report_pdf", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("StatusReport", "report_pdf", "context")
@@ -612,7 +612,7 @@ class TestACRDPApplicationView(CommonTest):
 
     @tag("ACRDPApplication", "export_acrdp_application", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, user=self.user)
 
     @tag("ACRDPApplication", "export_acrdp_application", "correct_url")
@@ -632,7 +632,7 @@ class TestACRDPBugdetView(CommonTest):
 
     @tag("ACRDPApplication", "export_acrdp_budget", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, user=self.user)
 
     @tag("ACRDPApplication", "export_acrdp_budget", "correct_url")

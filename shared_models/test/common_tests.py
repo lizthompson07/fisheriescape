@@ -149,7 +149,7 @@ class CommonTest(TestCase):
                 self.assertIn(expected_template, response.template_name)
             self.client.logout()
 
-    def assert_valid_url(self, test_url, locales=('en', 'fr'), anonymous=True):
+    def assert_good_response(self, test_url, locales=('en', 'fr'), anonymous=True):
         """
         This will test check to see if the test url returns something bad like a 404 or a 500 response
         :param test_url: the url to test

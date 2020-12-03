@@ -21,7 +21,7 @@ class TestIndexTemplateView(CommonTest):
 
     @tag("inventory", 'index', "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
 
@@ -37,7 +37,7 @@ class TestMyResourceListView(CommonTest):
 
     @tag("inventory", 'list', "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
@@ -62,7 +62,7 @@ class TestOpenDataDashboardTemplateView(CommonTest):
 
     @tag("inventory", 'open_data', "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     @tag("inventory", 'open_data', "context")
@@ -87,7 +87,7 @@ class TestResourceCreateView(CommonTest):
 
     @tag("inventory", 'create', "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
@@ -121,7 +121,7 @@ class TestResourceDeleteView(CommonTest):
 
     @tag("inventory", 'delete', "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
         test_user = self.get_and_login_user()
         self.assert_user_access_denied(test_url=self.test_url, user=test_user, login_search_term="accounts/denied")
@@ -146,7 +146,7 @@ class TestResourceDetailPDFView(CommonTest):
 
     @tag("resource_pdf", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url)
 
     @tag("resource_pdf", "context")
@@ -172,7 +172,7 @@ class TestResourceDetailView(CommonTest):
 
     @tag("inventory", 'detail', "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
@@ -204,7 +204,7 @@ class TestResourceFullDetailView(CommonTest):
 
     @tag("inventory", 'detail', "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
@@ -229,7 +229,7 @@ class TestResourceListView(CommonTest):
 
     @tag("inventory", 'list', "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # create an admin user (who should always be able to delete) and check to see there is a 200 response
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
@@ -256,7 +256,7 @@ class TestResourceUpdateView(CommonTest):
 
     @tag("inventory", 'update', "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # the user must be a custodian...
         user = FactoryFloor.CustodianResourcePersonFactory(resource=self.instance)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.resource_person.person.user)
@@ -289,7 +289,7 @@ class TestResourceCloneUpdateView(CommonTest):
 
     @tag("Resource", "resource_clone", "access")
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Resource", "resource_clone", "context")
@@ -325,7 +325,7 @@ class TestResourceXMLExport(CommonTest):
         self.assertIsNone(self.instance.fgp_publication_date)
         self.assertIsNone(self.instance.last_revision_date)
 
-        self.assert_valid_url(self.test_url1)
+        self.assert_good_response(self.test_url1)
         self.assert_public_view(test_url=self.test_url1)
 
         # update the instance to check to see if fields were updated. they should not be
