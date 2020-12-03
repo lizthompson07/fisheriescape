@@ -94,13 +94,13 @@ class ProjectYearFactory(factory.django.DjangoModelFactory):
 
     project = factory.SubFactory(ProjectFactory)
     status = factory.lazy_attribute(lambda o: faker.pyint(1, 100))
-    start_date = factory.lazy_attribute(lambda o: datetime.datetime(year=faker.py_int(2000, 2030), month=4, day=1))
-    end_date = factory.lazy_attribute(lambda o: datetime.datetime(year=o.start_date.year + 1, month=3, day=31))
+    start_date = factory.lazy_attribute(lambda o: datetime.datetime(year=faker.pyint(2000, 2030), month=4, day=1, tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: datetime.datetime(year=o.start_date.year + 1, month=3, day=31, tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
     def get_valid_data():
-        start_date = datetime.datetime(year=faker.py_int(2000, 2030), month=4, day=1)
-        end_date = datetime.datetime(year=start_date.year + 1, month=3, day=31)
+        start_date = datetime.datetime(year=faker.py_int(2000, 2030), month=4, day=1, tzinfo=timezone.get_current_timezone())
+        end_date = datetime.datetime(year=start_date.year + 1, month=3, day=31, tzinfo=timezone.get_current_timezone())
         return {
             'project': ProjectFactory().id,
             'status': faker.pyint(1, 100),
@@ -180,7 +180,7 @@ class CapitalCostFactory(factory.django.DjangoModelFactory):
     project_year = factory.SubFactory(ProjectYearFactory)
     funding_source = factory.SubFactory(FundingSourceFactory)
     amount = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
-    category = factory.lazy_attribute(lambda o: faker.py_int(1, 4))
+    category = factory.lazy_attribute(lambda o: faker.pyint(1, 4))
 
     @staticmethod
     def get_valid_data():
