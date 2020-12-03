@@ -56,7 +56,15 @@ class ContdcCreate(mixins.ContdcMixin, CommonCreate):
     pass
 
 
+class CdscCreate(mixins.CdscMixin, CommonCreate):
+    pass
+
+
 class CupCreate(mixins.CupMixin, CommonCreate):
+    pass
+
+
+class CupdCreate(mixins.CupdMixin, CommonCreate):
     pass
 
 
@@ -104,11 +112,23 @@ class TankCreate(mixins.TankMixin, CommonCreate):
     pass
 
 
+class TankdCreate(mixins.TankdMixin, CommonCreate):
+    pass
+
+
 class TrayCreate(mixins.TrayMixin, CommonCreate):
     pass
 
 
+class TraydCreate(mixins.TraydMixin, CommonCreate):
+    pass
+
+
 class TrofCreate(mixins.TrofMixin, CommonCreate):
+    pass
+
+
+class TrofdCreate(mixins.TrofdMixin, CommonCreate):
     pass
 
 
@@ -158,8 +178,16 @@ class ContdcDetails(mixins.ContdcMixin, CommonDetails):
               "created_by", "created_date", ]
 
 
+class CdscDetails(mixins.CdscMixin, CommonDetails):
+    fields = ["contdc_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class CupDetails(mixins.CupMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class CupdDetails(mixins.CupdMixin, CommonDetails):
+    fields = ["cup_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments", "created_by", "created_date", ]
 
 
 class InstDetails(mixins.InstMixin, CommonDetails):
@@ -210,12 +238,24 @@ class TankDetails(mixins.TankMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class TankdDetails(mixins.TankdMixin, CommonDetails):
+    fields = ["tank_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments", "created_by", "created_date", ]
+
+
 class TrayDetails(mixins.TrayMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class TraydDetails(mixins.TraydMixin, CommonDetails):
+    fields = ["tray_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments", "created_by", "created_date", ]
+
+
 class TrofDetails(mixins.TrofMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class TrofdDetails(mixins.TrofdMixin, CommonDetails):
+    fields = ["trof_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments", "created_by", "created_date", ]
 
 
 class UnitDetails(mixins.UnitMixin, CommonDetails):
@@ -301,9 +341,19 @@ class ContdcList(mixins.ContdcMixin, CommonList):
     fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
 
 
+class CdscList(mixins.CdscMixin, CommonList):
+    filterset_class = filters.CdscFilter
+    fields = ["contdc_id", "name", "nom", "created_by", "created_date", ]
+
+
 class CupList(mixins.CupMixin, CommonList):
     filterset_class = filters.CupFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class CupdList(mixins.CupdMixin, CommonList):
+    filterset_class = filters.CupdFilter
+    fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
 class InstList(mixins.InstMixin, CommonList):
@@ -361,14 +411,29 @@ class TankList(mixins.TankMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class TankdList(mixins.TankdMixin, CommonList):
+    filterset_class = filters.TankdFilter
+    fields = ["tank_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
 class TrayList(mixins.TrayMixin, CommonList):
     filterset_class = filters.TrayFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class TraydList(mixins.TraydMixin, CommonList):
+    filterset_class = filters.TraydFilter
+    fields = ["tray_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
 class TrofList(mixins.TrofMixin, CommonList):
     filterset_class = filters.TrofFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class TrofdList(mixins.TrofdMixin, CommonList):
+    filterset_class = filters.TrofdFilter
+    fields = ["trof_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
 class UnitList(mixins.UnitMixin, CommonList):
@@ -425,7 +490,15 @@ class ContdcUpdate(mixins.ContdcMixin, CommonUpdate):
     pass
 
 
+class CdscUpdate(mixins.CdscMixin, CommonUpdate):
+    pass
+
+
 class CupUpdate(mixins.CupMixin, CommonUpdate):
+    pass
+
+
+class CupdUpdate(mixins.CupdMixin, CommonUpdate):
     pass
 
 
@@ -473,11 +546,23 @@ class TankUpdate(mixins.TankMixin, CommonUpdate):
     pass
 
 
+class TankdUpdate(mixins.TankdMixin, CommonUpdate):
+    pass
+
+
 class TrayUpdate(mixins.TrayMixin, CommonUpdate):
     pass
 
 
+class TraydUpdate(mixins.TraydMixin, CommonUpdate):
+    pass
+
+
 class TrofUpdate(mixins.TrofMixin, CommonUpdate):
+    pass
+
+
+class TrofdUpdate(mixins.TrofdMixin, CommonUpdate):
     pass
 
 

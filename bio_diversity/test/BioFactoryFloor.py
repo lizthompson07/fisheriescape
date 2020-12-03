@@ -43,6 +43,37 @@ class ContdcFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class CdscFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ContDetSubjCode
+
+    cont_det_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        contdc = ContdcFactory()
+        obj = ContdcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'cont_det_id': contdc.pk,
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class CupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Cup
@@ -69,6 +100,48 @@ class CupFactory(factory.django.DjangoModelFactory):
         }
 
         return data
+
+
+class CupdFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.CupDet
+
+    contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
+    cup_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CupFactory")
+
+    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
+    start_date = factory.lazy_attribute(lambda o: faker.date())
+    end_date = factory.lazy_attribute(lambda o: faker.date())
+    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        contdc = ContdcFactory()
+        cup = CupFactory()
+        cdsc = CdscFactory()
+        obj = CupFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'contdc_id': contdc.pk,
+            'cup_id': cup.pk,
+            'det_value': obj.det_value,
+            'cdsc_id': cdsc.pk,
+            'start_date': obj.start_date,
+            'end_date': obj.end_date,
+            'valid': obj.valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
 
 
 class InstFactory(factory.django.DjangoModelFactory):
@@ -442,6 +515,45 @@ class TankFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class TankdFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TankDet
+
+    contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
+    tank_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TankFactory")
+
+    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
+    start_date = factory.lazy_attribute(lambda o: faker.date())
+    end_date = factory.lazy_attribute(lambda o: faker.date())
+    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        contdc = ContdcFactory()
+        tank = TankFactory()
+        cdsc = CdscFactory()
+        obj = CupFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'contdc_id': contdc.pk,
+            'tank_id': tank.pk,
+            'det_value': obj.det_value,
+            'cdsc_id': cdsc.pk,
+            'start_date': obj.start_date,
+            'end_date': obj.end_date,
+            'valid': obj.valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
 class TrayFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Tray
@@ -470,6 +582,45 @@ class TrayFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class TraydFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TrayDet
+
+    contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
+    tray_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TrayFactory")
+
+    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
+    start_date = factory.lazy_attribute(lambda o: faker.date())
+    end_date = factory.lazy_attribute(lambda o: faker.date())
+    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        contdc = ContdcFactory()
+        tray = TrayFactory()
+        cdsc = CdscFactory()
+        obj = CupFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'contdc_id': contdc.pk,
+            'tray_id': tray.pk,
+            'det_value': obj.det_value,
+            'cdsc_id': cdsc.pk,
+            'start_date': obj.start_date,
+            'end_date': obj.end_date,
+            'valid': obj.valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
 class TrofFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Trough
@@ -491,6 +642,46 @@ class TrofFactory(factory.django.DjangoModelFactory):
             'nom': obj.nom,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class TrofdFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.TroughDet
+
+    contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
+    trof_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TrofFactory")
+
+    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
+    start_date = factory.lazy_attribute(lambda o: faker.date())
+    end_date = factory.lazy_attribute(lambda o: faker.date())
+    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        contdc = ContdcFactory()
+        trof = TrofFactory()
+        cdsc = CdscFactory()
+        obj = CupFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'contdc_id': contdc.pk,
+            'trof_id': trof.pk,
+            'det_value': obj.det_value,
+            'cdsc_id': cdsc.pk,
+            'start_date': obj.start_date,
+            'end_date': obj.end_date,
+            'valid': obj.valid,
+            'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

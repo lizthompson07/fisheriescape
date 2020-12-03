@@ -12,10 +12,20 @@ urlpatterns = [
     path('list/contdc/', views.ContdcList.as_view(), name="list_contdc"),
     path('update/contdc/<int:pk>/', views.ContdcUpdate.as_view(), name="update_contdc"),
 
+    path('create/cdsc/', views.CdscCreate.as_view(), name="create_cdsc"),
+    path('details/cdsc/<int:pk>/', views.CdscDetails.as_view(), name="details_cdsc"),
+    path('list/cdsc/', views.CdscList.as_view(), name="list_cdsc"),
+    path('update/cdsc/<int:pk>/', views.CdscUpdate.as_view(), name="update_cdsc"),
+
     path('create/cup/', views.CupCreate.as_view(), name="create_cup"),
     path('details/cup/<int:pk>/', views.CupDetails.as_view(), name="details_cup"),
     path('list/cup/', views.CupList.as_view(), name="list_cup"),
     path('update/cup/<int:pk>/', views.CupUpdate.as_view(), name="update_cup"),
+    
+    path('create/cupd/', views.CupdCreate.as_view(), name="create_cupd"),
+    path('details/cupd/<int:pk>/', views.CupdDetails.as_view(), name="details_cupd"),
+    path('list/cupd/', views.CupdList.as_view(), name="list_cupd"),
+    path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
     
     path('create/inst/', views.InstCreate.as_view(), name="create_inst"),
     path('details/inst/<int:pk>/', views.InstDetails.as_view(), name="details_inst"),
@@ -72,15 +82,30 @@ urlpatterns = [
     path('list/tank/', views.TankList.as_view(), name="list_tank"),
     path('update/tank/<int:pk>/', views.TankUpdate.as_view(), name="update_tank"),
 
+    path('create/tankd/', views.TankdCreate.as_view(), name="create_tankd"),
+    path('details/tankd/<int:pk>/', views.TankdDetails.as_view(), name="details_tankd"),
+    path('list/tankd/', views.TankdList.as_view(), name="list_tankd"),
+    path('update/tankd/<int:pk>/', views.TankdUpdate.as_view(), name="update_tankd"),
+
     path('create/tray/', views.TrayCreate.as_view(), name="create_tray"),
     path('details/tray/<int:pk>/', views.TrayDetails.as_view(), name="details_tray"),
     path('list/tray/', views.TrayList.as_view(), name="list_tray"),
     path('update/tray/<int:pk>/', views.TrayUpdate.as_view(), name="update_tray"),
+    
+    path('create/trayd/', views.TraydCreate.as_view(), name="create_trayd"),
+    path('details/trayd/<int:pk>/', views.TraydDetails.as_view(), name="details_trayd"),
+    path('list/trayd/', views.TraydList.as_view(), name="list_trayd"),
+    path('update/trayd/<int:pk>/', views.TraydUpdate.as_view(), name="update_trayd"),
 
     path('create/trof/', views.TrofCreate.as_view(), name="create_trof"),
     path('details/trof/<int:pk>/', views.TrofDetails.as_view(), name="details_trof"),
     path('list/trof/', views.TrofList.as_view(), name="list_trof"),
     path('update/trof/<int:pk>/', views.TrofUpdate.as_view(), name="update_trof"),
+    
+    path('create/trofd/', views.TrofdCreate.as_view(), name="create_trofd"),
+    path('details/trofd/<int:pk>/', views.TrofdDetails.as_view(), name="details_trofd"),
+    path('list/trofd/', views.TrofdList.as_view(), name="list_trofd"),
+    path('update/trofd/<int:pk>/', views.TrofdUpdate.as_view(), name="update_trofd"),
     
     path('create/unit/', views.UnitCreate.as_view(), name="create_unit"),
     path('details/unit/<int:pk>/', views.UnitDetails.as_view(), name="details_unit"),

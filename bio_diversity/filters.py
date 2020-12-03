@@ -13,11 +13,25 @@ class ContdcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
 
 
+class CdscFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.ContDetSubjCode
+        fields = ["name", "nom",  "created_by", "created_date", ]
+
+
 class CupFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Cup
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class CupdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.CupDet
+        fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
 class InstFilter(django_filters.FilterSet):
@@ -97,6 +111,13 @@ class TankFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class TankdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.TankDet
+        fields = ["tank_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
 class TrayFilter(django_filters.FilterSet):
 
     class Meta:
@@ -104,11 +125,25 @@ class TrayFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class TraydFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.TrayDet
+        fields = ["tray_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
 class TrofFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Trough
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class TrofdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.TroughDet
+        fields = ["trof_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
 class UnitFilter(django_filters.FilterSet):

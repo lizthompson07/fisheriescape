@@ -12,11 +12,25 @@ class ContdcMixin:
     title = "Container Detail Code"
 
 
+class CdscMixin:
+    key = "cdsc"
+    form_class = forms.CdscForm
+    model = models.ContDetSubjCode
+    title = "Container Detail Subject Code"
+
+
 class CupMixin:
     key = "cup"
     form_class = forms.CupForm
     model = models.Cup
     title = "Cup"
+
+
+class CupdMixin:
+    key = "cupd"
+    form_class = forms.CupdForm
+    model = models.CupDet
+    title = "Cup Detail"
 
 
 class InstMixin:
@@ -96,6 +110,13 @@ class TankMixin:
     title = _("Tank")
 
 
+class TankdMixin:
+    key = 'tankd'
+    model = models.TankDet
+    form_class = forms.TankdForm
+    title = _("Tank Detail")
+
+
 class TrayMixin:
     key = 'tray'
     model = models.Tray
@@ -103,11 +124,25 @@ class TrayMixin:
     title = _("Tray")
 
 
+class TraydMixin:
+    key = 'trayd'
+    model = models.TrayDet
+    form_class = forms.TraydForm
+    title = _("Tray Detail")
+
+
 class TrofMixin:
     key = 'trof'
     model = models.Trough
     form_class = forms.TrofForm
     title = _("Trough")
+
+
+class TrofdMixin:
+    key = 'trofd'
+    model = models.TroughDet
+    form_class = forms.TrofdForm
+    title = _("Trough Detail")
 
 
 class UnitMixin:

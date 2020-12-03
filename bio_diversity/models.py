@@ -10,6 +10,23 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
+class BioContainerDet(models.Model):
+    class Meta:
+        abstract = True
+
+    contdc_id = models.ForeignKey("ContainerDetCode", on_delete=models.DO_NOTHING,
+                                  verbose_name=_("Container Detail Code"))
+    det_value = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
+    cdsc_id = models.ForeignKey("ContDetSubjCode", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Container Detail Subject Code"))
+    start_date = models.DateField(verbose_name=_("Date detail was recorded"))
+    end_date = models.DateField(null=True, blank=True, verbose_name=_("Last Date Detail is valid"))
+    det_valid = models.BooleanField(default="False", verbose_name=_("Detail still valid?"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
+    created_date = models.DateField(verbose_name=_("Created Date"))
+
+
 class BioLookup(shared_models.Lookup):
     class Meta:
         abstract = True
@@ -48,9 +65,19 @@ class ContainerDetCode(BioLookup):
     cont_subj_flag = models.CharField(max_length=1, verbose_name=_("Container Subject Flag"))
 
 
+class ContDetSubjCode(BioLookup):
+    # cdsc tag
+    contdc_id = models.ForeignKey("ContainerDetCode", on_delete=models.DO_NOTHING, verbose_name=_("Container detail code"))
+
+
 class Cup(BioLookup):
     # cup tag
     pass
+
+
+class CupDet(BioContainerDet):
+    # cupd tag
+    cup_id = models.ForeignKey('Cup', on_delete=models.DO_NOTHING, verbose_name=_("Cup"))
 
 
 class Instrument(BioModel):
@@ -177,14 +204,29 @@ class Tank(BioLookup):
     pass
 
 
+class TankDet(BioContainerDet):
+    # tankd tag
+    tank_id = models.ForeignKey('Tank', on_delete=models.DO_NOTHING, verbose_name=_("Tank"))
+
+
 class Tray(BioLookup):
     # tray tag
     pass
 
 
+class TrayDet(BioContainerDet):
+    # trayd tag
+    tray_id = models.ForeignKey('Tray', on_delete=models.DO_NOTHING, verbose_name=_("Tray"))
+
+
 class Trough(BioLookup):
     # trof tag
     pass
+
+
+class TroughDet(BioContainerDet):
+    # trofd tag
+    trof_id = models.ForeignKey('Trough', on_delete=models.DO_NOTHING, verbose_name=_("Trough"))
 
 
 class UnitCode(BioLookup):

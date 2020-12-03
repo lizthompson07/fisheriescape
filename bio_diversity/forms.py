@@ -30,9 +30,21 @@ class ContdcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class CdscForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.ContDetSubjCode
+        exclude = []
+
+
 class CupForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Cup
+        exclude = []
+
+
+class CupdForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.CupDet
         exclude = []
 
 
@@ -102,15 +114,33 @@ class TankForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class TankdForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.TankDet
+        exclude = []
+
+
 class TrayForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Tray
         exclude = []
 
 
+class TraydForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.TrayDet
+        exclude = []
+
+
 class TrofForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Trough
+        exclude = []
+
+
+class TrofdForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.TroughDet
         exclude = []
 
 
