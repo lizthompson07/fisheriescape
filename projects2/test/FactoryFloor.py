@@ -345,3 +345,21 @@ class UpcomingDateFactory(factory.django.DjangoModelFactory):
             'description_en': faker.text(),
             'date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
+
+
+class ReferenceMaterialFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ReferenceMaterial
+
+    region = factory.SubFactory(RegionFactory)
+    file_en = factory.lazy_attribute(lambda o: faker.url())
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'region': RegionFactory().id,
+            'file_en': faker.url(),
+            'name': faker.catch_phrase(),
+
+        }

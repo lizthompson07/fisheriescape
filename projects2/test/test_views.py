@@ -622,7 +622,6 @@ class TestACRDPApplicationView(CommonTest):
                                 [self.instance.pk])
 
 
-
 class TestACRDPBugdetView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -640,3 +639,225 @@ class TestACRDPBugdetView(CommonTest):
         # use the 'en' locale prefix to url
         self.assert_correct_url("projects2:export_acrdp_budget", f"/en/project-planning/projects/{self.instance.pk}/acrdp-budget/",
                                 [self.instance.pk])
+
+
+class TestReferenceMaterialListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ReferenceMaterialFactory()
+        self.test_url = reverse_lazy('projects2:ref_mat_list')
+        self.expected_template = 'projects2/list.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("ReferenceMaterial", "ref_mat_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ReferenceMaterialListView, CommonListView)
+        self.assert_inheritance(views.ReferenceMaterialListView, views.AdminRequiredMixin)
+
+    @tag("ReferenceMaterial", "ref_mat_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:ref_mat_list", f"/en/project-planning/settings/reference-materials/")
+
+
+class TestReferenceMaterialCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('projects2:ref_mat_new')
+        self.expected_template = 'projects2/form.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("ReferenceMaterial", "ref_mat_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ReferenceMaterialCreateView, CommonCreateView)
+
+    @tag("ReferenceMaterial", "ref_mat_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ReferenceMaterialFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user, file_field_name="file_en")
+
+    @tag("ReferenceMaterial", "ref_mat_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:ref_mat_new", f"/en/project-planning/settings/reference-materials/new/")
+
+
+class TestReferenceMaterialUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ReferenceMaterialFactory()
+        self.test_url = reverse_lazy('projects2:ref_mat_edit', args=[self.instance.pk, ])
+        self.expected_template = 'projects2/form.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("ReferenceMaterial", "ref_mat_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ReferenceMaterialUpdateView, CommonUpdateView)
+
+    @tag("ReferenceMaterial", "ref_mat_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ReferenceMaterialFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:ref_mat_edit", f"/en/project-planning/settings/reference-materials/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestReferenceMaterialDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ReferenceMaterialFactory()
+        self.test_url = reverse_lazy('projects2:ref_mat_delete', args=[self.instance.pk, ])
+        self.expected_template = 'projects2/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("ReferenceMaterial", "ref_mat_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ReferenceMaterialDeleteView, CommonDeleteView)
+
+    @tag("ReferenceMaterial", "ref_mat_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("ReferenceMaterial", "ref_mat_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ReferenceMaterialFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.ReferenceMaterial.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("ReferenceMaterial", "ref_mat_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:ref_mat_delete", f"/en/project-planning/settings/reference-materials/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+
+
+class TestFunctionalGroupListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FunctionalGroupFactory()
+        self.test_url = reverse_lazy('projects2:group_list')
+        self.expected_template = 'projects2/list.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("FunctionalGroup", "group_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FunctionalGroupListView, CommonListView)
+        self.assert_inheritance(views.FunctionalGroupListView, views.AdminRequiredMixin)
+
+    @tag("FunctionalGroup", "group_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FunctionalGroup", "group_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:group_list", f"/en/project-planning/settings/functional-groups/")
+
+
+class TestFunctionalGroupCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('projects2:group_new')
+        self.expected_template = 'projects2/form.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("FunctionalGroup", "group_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FunctionalGroupCreateView, CommonCreateView)
+
+    @tag("FunctionalGroup", "group_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FunctionalGroup", "group_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FunctionalGroupFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user, file_field_name="file_en")
+
+    @tag("FunctionalGroup", "group_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:group_new", f"/en/project-planning/settings/functional-groups/new/")
+
+
+class TestFunctionalGroupUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FunctionalGroupFactory()
+        self.test_url = reverse_lazy('projects2:group_edit', args=[self.instance.pk, ])
+        self.expected_template = 'projects2/form.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("FunctionalGroup", "group_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FunctionalGroupUpdateView, CommonUpdateView)
+
+    @tag("FunctionalGroup", "group_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FunctionalGroup", "group_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FunctionalGroupFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("FunctionalGroup", "group_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:group_edit", f"/en/project-planning/settings/functional-groups/{self.instance.pk}/edit/", [self.instance.pk])
+
+
+class TestFunctionalGroupDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.FunctionalGroupFactory()
+        self.test_url = reverse_lazy('projects2:group_delete', args=[self.instance.pk, ])
+        self.expected_template = 'projects2/confirm_delete.html'
+        self.user = self.get_and_login_user(in_group="projects_admin")
+
+    @tag("FunctionalGroup", "group_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.FunctionalGroupDeleteView, CommonDeleteView)
+
+    @tag("FunctionalGroup", "group_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("FunctionalGroup", "group_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.FunctionalGroupFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.FunctionalGroup.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("FunctionalGroup", "group_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("projects2:group_delete", f"/en/project-planning/settings/functional-groups/{self.instance.pk}/delete/", [self.instance.pk])

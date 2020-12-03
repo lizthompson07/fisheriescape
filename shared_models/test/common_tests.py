@@ -294,23 +294,24 @@ class CommonTest(TestCase):
         if expected_success_url:
             self.assertRedirects(response=response, expected_url=expected_success_url)
 
-    def assert_form_valid(self, Form, data, instance=None):
+    def assert_form_valid(self, form_class, data, instance=None, initial=None):
         """
         assert that upon submission a form is valid.
         :param Form: the form instance to test
         :param data: the data to use when testing the form
         :param instance: an instance of some model to use when testing the form. applicable to ModelForms only
+        :param initial: initial kwargs to pass into the form upon initialization
         """
         if instance:
-            form = Form(data=data, instance=instance)
+            form = form_class(data=data, instance=instance, initial=initial)
         else:
-            form = Form(data=data)
+            form = form_class(data=data, initial=initial)
         self.assertTrue(form.is_valid(),
                         msg=f"Test data was likely invalid. /nHere's the error log from the form: {form.errors}/n"
                             f"Here's the data from the form:{form.data}")
 
 
-    def assert_form_invalid(self, Form, data, instance=None):
+    def assert_form_invalid(self, form_class, data, instance=None, initial=None):
         """
         assert that upon submission a form is invalid.
         :param Form: the form instance to test
@@ -318,9 +319,9 @@ class CommonTest(TestCase):
         :param instance: an instance of some model to use when testing the form. applicable to ModelForms only
         """
         if instance:
-            form = Form(data, instance=instance)
+            form = form_class(data, instance=instance, initial=initial)
         else:
-            form = Form(data)
+            form = form_class(data, initial=initial)
         self.assertFalse(form.is_valid())
 
     def assert_field_in_form(self, Form, field_name, instance=None):
