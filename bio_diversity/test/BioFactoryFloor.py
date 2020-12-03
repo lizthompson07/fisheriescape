@@ -326,8 +326,7 @@ class ProtfFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Protofile
 
-    prot_id = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
-    protf_file = factory.lazy_attribute(lambda o: faker.word())
+    prot_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtFactory")
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -335,12 +334,12 @@ class ProtfFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
 
+        prot = ProtFactory()
         obj = ProtfFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'prot_id': obj.prot_id,
-            'protf_file': obj.protf_file,
+            'prot_id': obj.prot.pk,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,

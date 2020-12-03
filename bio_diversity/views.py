@@ -157,7 +157,7 @@ class ProgaDetails(mixins.ProgaMixin, CommonDetails):
     fields = ["proga_last_name", "proga_first_name", "created_by", "created_date", ]
 
 
-class ProtDetails(mixins.ProgaMixin, CommonDetails):
+class ProtDetails(mixins.ProtMixin, CommonDetails):
     fields = ["prog_id", "protc_id", "protf_id", "prot_desc","start_date", "end_date", "valid", "created_by",
               "created_date", ]
 
@@ -167,7 +167,9 @@ class ProtcDetails(mixins.ProtcMixin, CommonDetails):
 
 
 class ProtfDetails(mixins.ProtfMixin, CommonDetails):
-    fields = ["prot_id", "protf_file", "comments", "created_by", "created_date", ]
+    template_name = 'bio_diversity/details_protf.html'
+
+    fields = ["prot_id", "protf_pdf", "comments", "created_by", "created_date", ]
 
 
 # ----------------------------LIST VIEWS-----------------------------
@@ -291,7 +293,7 @@ class ProtcList(mixins.ProtcMixin, CommonList):
 
 class ProtfList(mixins.ProtfMixin, CommonList):
     filterset_class = filters.ProtfFilter
-    fields = ["prot_id", "protf_file", "comments", "created_by", "created_date", ]
+    fields = ["prot_id", "comments", "created_by", "created_date", ]
 
 
 # ---------------------------UPDATE VIEWS-----------------------------------
