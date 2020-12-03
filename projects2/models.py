@@ -111,7 +111,7 @@ class Project(models.Model):
 
     # ACRDP fields
     organization = models.ForeignKey(shared_models.Organization, on_delete=models.DO_NOTHING, related_name="projects",
-                                      verbose_name=_("physical location (ACRDP)"), blank=True, null=True)
+                                     verbose_name=_("physical location (ACRDP)"), blank=True, null=True)
     species_involved = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("species involved (ACRDP)"))
     team_description = models.TextField(blank=True, null=True, verbose_name=_("description of team and required qualifications (ACRDP)"))
     rationale = models.TextField(blank=True, null=True, verbose_name=_("project problem / rationale (ACRDP)"))

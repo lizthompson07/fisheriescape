@@ -310,7 +310,6 @@ class ProjectCloneView(ProjectUpdateView):
             new_year.project = new_obj
             new_year.pk = None
             new_year.submitted = None
-            new_year.allocated_budget = None
             new_year.status = 1
             new_year.notification_email_sent = None
             new_year.save()

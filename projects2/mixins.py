@@ -4,8 +4,9 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from .utils import can_modify_project, is_project_lead, in_projects_admin_group, is_management_or_admin
 from . import models
+from .utils import can_modify_project, is_project_lead, in_projects_admin_group, is_management_or_admin
+
 
 class ProjectLeadRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
@@ -79,11 +80,9 @@ class CanModifyProjectRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         finally:
             if project_id:
                 return can_modify_project(self.request.user, project_id)
-            
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
             return HttpResponseRedirect(reverse('accounts:denied_access'))
         return super().dispatch(request, *args, **kwargs)
-
