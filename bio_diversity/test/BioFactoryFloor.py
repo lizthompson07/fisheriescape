@@ -6,6 +6,43 @@ from bio_diversity import models
 faker = Factory.create()
 
 
+class ContdcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ContainerDetCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    min_val = factory.lazy_attribute(lambda o: faker.random_int(1,1000))
+    max_val = factory.lazy_attribute(lambda o: faker.random_int(1000,2000))
+    unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
+    cont_subj_flag = factory.lazy_attribute(lambda o: faker.random_letter())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        unit = UnitFactory()
+        obj = ContdcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'min_val': obj.min_val,
+            'max_val': obj.max_val,
+            'unit_id': unit.pk,
+            'cont_subj_flag': obj.cont_subj_flag,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class InstFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Instrument

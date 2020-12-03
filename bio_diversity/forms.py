@@ -24,6 +24,12 @@ class CreateTimePrams:
                                                                 "class": "fp-date"})
 
 
+class ContdcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.ContainerDetCode
+        exclude = []
+
+
 class InstForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Instrument

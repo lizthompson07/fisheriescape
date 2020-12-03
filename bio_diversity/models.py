@@ -40,10 +40,18 @@ class BioTimeModel(models.Model):
     created_date = models.DateField(verbose_name=_("Created Date"))
 
 
+class ContainerDetCode(BioLookup):
+    # contdc tag
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
+    unit_id = models.ForeignKey("UnitCode", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Units"))
+    cont_subj_flag = models.CharField(max_length=1, verbose_name=_("Container Subject Flag"))
+
+
 class Instrument(BioModel):
     # inst tag
     instc = models.ForeignKey('InstrumentCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Code"))
-    serial_number = models.CharField(null=True, max_length=250, verbose_name=_("Serial Number"))
+    serial_number = models.CharField(null=True, blank=True, max_length=250, verbose_name=_("Serial Number"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):

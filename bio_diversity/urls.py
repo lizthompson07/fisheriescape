@@ -7,6 +7,11 @@ urlpatterns = [
     # for home/index page
     path('', views.IndexTemplateView.as_view(),    name="index"),
 
+    path('create/contdc/', views.ContdcCreate.as_view(), name="create_contdc"),
+    path('details/contdc/<int:pk>/', views.ContdcDetails.as_view(), name="details_contdc"),
+    path('list/contdc/', views.ContdcList.as_view(), name="list_contdc"),
+    path('update/contdc/<int:pk>/', views.ContdcUpdate.as_view(), name="update_contdc"),
+
     path('create/inst/', views.InstCreate.as_view(), name="create_inst"),
     path('details/inst/<int:pk>/', views.InstDetails.as_view(), name="details_inst"),
     path('list/inst/', views.InstList.as_view(), name="list_inst"),

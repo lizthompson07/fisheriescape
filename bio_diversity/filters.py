@@ -6,11 +6,18 @@ from . import models
 import shared_models.models as shared_models
 
 
+class ContdcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.ContainerDetCode
+        fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
+
+
 class InstFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Instrument
-        fields = ["instc", "serial_number", "created_by", "created_date",]
+        fields = ["instc", "serial_number", "created_by", "created_date", ]
 
 
 class InstcFilter(django_filters.FilterSet):

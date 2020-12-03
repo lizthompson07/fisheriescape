@@ -5,6 +5,13 @@ from . import forms
 from django.utils.translation import gettext_lazy as _
 
 
+class ContdcMixin:
+    key = "contdc"
+    form_class = forms.ContdcForm
+    model = models.ContainerDetCode
+    title = "Container Detail Code"
+
+
 class InstMixin:
     key = "inst"
     form_class = forms.InstForm

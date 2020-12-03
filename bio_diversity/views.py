@@ -51,6 +51,10 @@ class CommonCreate(CommonAuthCreateView):
         return utils.bio_diverisity_authorized(self.request.user)
 
 
+class ContdcCreate(mixins.ContdcMixin, CommonCreate):
+    pass
+
+
 class InstCreate(mixins.InstMixin, CommonCreate):
     pass
 
@@ -130,6 +134,10 @@ class CommonDetails(DetailView):
         context['editable'] = context['auth'] and self.editable
 
         return context
+
+
+class ContdcDetails(mixins.ContdcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "cont_subj_flag", "created_by", "created_date", ]
 
 
 class InstDetails(mixins.InstMixin, CommonDetails):
@@ -254,6 +262,11 @@ class CommonList(CommonAuthFilterView):
         return context
 
 
+class ContdcList(mixins.ContdcMixin, CommonList):
+    filterset_class = filters.ContdcFilter
+    fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
+
+
 class InstList(mixins.InstMixin, CommonList):
     filterset_class = filters.InstFilter
     fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
@@ -352,6 +365,10 @@ class CommonUpdate(CommonAuthUpdateView):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
         return context
+
+
+class ContdcUpdate(mixins.ContdcMixin, CommonUpdate):
+    pass
 
 
 class InstUpdate(mixins.InstMixin, CommonUpdate):
