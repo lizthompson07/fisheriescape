@@ -231,8 +231,8 @@ class ProjectYear(models.Model):
     status = models.IntegerField(default=1, editable=False, choices=status_choices)
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="years", verbose_name=_("project"))
-    start_date = models.DateTimeField(default=timezone.now, verbose_name=_("Start date of project"))
-    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
+    start_date = models.DateTimeField(default=timezone.now, verbose_name=_("Start date of project year"))
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project year"))
 
     # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_("year-specific priorities"))
