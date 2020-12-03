@@ -280,10 +280,8 @@ class ProjectCloneView(ProjectUpdateView):
         context["cloning"] = True
         return context
 
-    def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:login_required'))
-        return super().dispatch(request, *args, **kwargs)
+    def test_func(self):
+        return self.request.user.is_authenticated
 
     def get_initial(self):
         obj = self.get_object()
@@ -466,10 +464,8 @@ class ProjectYearCloneView(ProjectYearUpdateView):
         context["cloning"] = True
         return context
 
-    def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:login_required'))
-        return super().dispatch(request, *args, **kwargs)
+    def test_func(self):
+        return self.request.user.is_authenticated
 
     def get_initial(self):
         init = super().get_initial()

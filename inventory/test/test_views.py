@@ -105,6 +105,8 @@ class TestResourceCreateView(CommonTest):
         # get the instance just created and ensure there is a uuid
         my_instance = models.Resource.objects.get(**data)
         self.assertIsNotNone(my_instance.uuid)
+
+
 class TestResourceDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -273,6 +275,41 @@ class TestResourceUpdateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.resource_person.person.user)
 
 
+class TestResourceCloneUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ResourceFactory()
+        self.test_url = reverse_lazy('inventory:resource_clone', args=[self.instance.pk, ])
+        self.expected_template = 'inventory/resource_form.html'
+        self.user = self.get_and_login_user()
+
+    @tag("Resource", "resource_clone", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ResourceCloneUpdateView, views.ResourceUpdateView)
+
+    @tag("Resource", "resource_clone", "access")
+    def test_view(self):
+        self.assert_valid_url(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Resource", "resource_clone", "context")
+    def test_context(self):
+        context_vars = [
+            "cloning",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("Resource", "resource_clone", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ResourceFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Resource", "resource_clone", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("inventory:resource_clone", f"/en/inventory/{self.instance.pk}/clone/", [self.instance.pk])
+
+
 class TestResourceXMLExport(CommonTest):
     def setUp(self):
         super().setUp()
@@ -308,5 +345,3 @@ class TestResourceXMLExport(CommonTest):
         self.instance = models.Resource.objects.get(pk=self.instance.pk)
         self.assertIsNotNone(self.instance.fgp_publication_date)
         self.assertIsNotNone(self.instance.last_revision_date)
-
-
