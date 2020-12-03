@@ -66,21 +66,7 @@
 
             <table class="table table-sm mb-5">
               {% for field in project_field_list %}
-                {% if "fiscal" in field %}
-                  <tr>
-                    <th>{% trans "Project years" %}</th>
-                    <td>
-                      <ul>
-                        {% for year in object.years.all %}
-                          <li>{{ year }}</li>
-                        {% empty %}
-                          <em>This project has no fiscal years added yet.</em>
-                        {% endfor %}
-
-                      </ul>
-                    </td>
-                  </tr>
-                {% elif "overview" in field %}
+                {% if "overview" in field %}
                   <tr>
                     <th>{% get_verbose_label object field %}</th>
                     <td>

@@ -139,7 +139,7 @@ def is_admin_or_project_manager(user, project):
 
 def get_manageable_sections(user):
     if in_projects_admin_group(user):
-        return shared_models.Section.objects.filter(projects__isnull=False).distinct()
+        return shared_models.Section.objects.filter(projects2__isnull=False).distinct()
     return shared_models.Section.objects.filter(Q(head=user) | Q(division__head=user) | Q(division__branch__head=user))
 
 
@@ -403,7 +403,7 @@ def get_project_field_list(project):
         'default_funding_source',
         'start_date',
         'end_date',
-        'fiscal_years',
+        'fiscal_years|{}'.format(_("Project years")),
         'funding_sources',
         'lead_staff',
 

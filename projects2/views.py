@@ -119,7 +119,7 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
         {"name": 'title', "class": "", "width": ""},
         {"name": 'start_date', "class": "", "width": "150px"},
         {"name": 'lead_staff', "class": "", "width": ""},
-        {"name": 'fiscal_years', "class": "", "width": ""},
+        {"name": 'fiscal_years|{}'.format(_("fiscal years")), "class": "", "width": ""},
         {"name": 'has_unsubmitted_years|{}'.format("has unsubmitted years?"), "class": "", "width": ""},
         {"name": 'is_hidden|{}'.format(_("hidden?")), "class": "", "width": ""},
         {"name": 'updated_at', "class": "", "width": "150px"},

@@ -11,63 +11,6 @@ from . import models
 chosen_js = {"class": "chosen-select-contains"}
 
 
-class ProjectFilter(django_filters.FilterSet):
-    project_id = django_filters.NumberFilter(field_name='id', lookup_expr='exact')
-    title = django_filters.CharFilter(field_name='title', lookup_expr='icontains')
-    staff_name = django_filters.CharFilter(field_name="staff_search_field", label=_("Staff name"), lookup_expr='icontains')
-    fiscal_year = django_filters.ModelChoiceFilter(field_name='fiscal_years__full', lookup_expr='exact', label=_("Fiscal Year"),
-                                            queryset=shared_models.FiscalYear.objects.all())
-    tags = django_filters.ModelChoiceFilter(field_name='tags__name', lookup_expr='exact', label=_("Tag / Keyword"),
-                                            queryset=models.Tag.objects.all())
-    region = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact')
-    division = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', label=_("Division"))
-    section = django_filters.ChoiceFilter(field_name='section', lookup_expr='exact', label=_("Section"))
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        region_choices = utils.get_region_choices()
-        division_choices = utils.get_division_choices()
-        section_choices = utils.get_section_choices()
-        # fy_choices = [(fy.id, str(fy)) for fy in shared_models.FiscalYear.objects.all() if fy.projects.count() > 0]
-        yes_no_choices = [(True, "Yes"), (False, "No"), ]
-
-        # self.filters['fiscal_year'] = django_filters.ChoiceFilter(field_name='year', lookup_expr='exact', choices=fy_choices,
-        #                                                           label=_("Fiscal year"))
-        self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
-                                                              lookup_expr='exact', choices=section_choices)
-        self.filters['region'] = django_filters.ChoiceFilter(field_name="section__division__branch__region", label=_("Region"),
-                                                             lookup_expr='exact', choices=region_choices)
-        self.filters['division'] = django_filters.ChoiceFilter(field_name="section__division", label=_("Division"),
-                                                               lookup_expr='exact', choices=division_choices)
-        # self.filters['division'] = django_filters.ChoiceFilter(field_name='section__division', lookup_expr='exact', choices=div_choices)
-
-        try:
-            # if there is a filter on region, filter the division and section filter accordingly
-            if self.data["region"] != "":
-                my_region_id = int(self.data["region"])
-                division_choices = [my_set for my_set in utils.get_division_choices() if
-                                    shared_models.Division.objects.get(pk=my_set[0]).branch.region_id == my_region_id]
-                self.filters['division'] = django_filters.ChoiceFilter(field_name="section__division", label=_("Division"),
-                                                                       lookup_expr='exact', choices=division_choices)
-
-                section_choices = [my_set for my_set in utils.get_section_choices() if
-                                   shared_models.Section.objects.get(pk=my_set[0]).division.branch.region_id == my_region_id]
-                self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
-                                                                      lookup_expr='exact', choices=section_choices)
-
-            # if there is a filter on division, filter the section filter accordingly
-            if self.data["division"] != "":
-                my_division_id = int(self.data["division"])
-
-                section_choices = [my_set for my_set in utils.get_section_choices() if
-                                   shared_models.Section.objects.get(pk=my_set[0]).division_id == my_division_id]
-                self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
-                                                                      lookup_expr='exact', choices=section_choices)
-
-        except KeyError:
-            pass
-
-
 class StaffFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='project__year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="project__section__division__branch__region", label=_("Region"), lookup_expr='exact')

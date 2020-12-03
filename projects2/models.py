@@ -120,7 +120,6 @@ class Project(models.Model):
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"), editable=False)
-    fiscal_years = models.ManyToManyField(shared_models.FiscalYear, editable=False, verbose_name=_("fiscal years"))
     funding_sources = models.ManyToManyField(FundingSource, editable=False, verbose_name=_("complete list of funding sources"))
     staff_search_field = models.CharField(editable=False, max_length=1000, blank=True, null=True)
     lead_staff = models.ManyToManyField("Staff", editable=False, verbose_name=_("project leads"))
@@ -141,7 +140,6 @@ class Project(models.Model):
 
             # reset some calculated fields
             self.staff_search_field = ""
-            self.fiscal_years.clear()
             self.funding_sources.clear()
             self.lead_staff.clear()
 
@@ -153,8 +151,6 @@ class Project(models.Model):
                         self.staff_search_field += s.smart_name + " "
                     if s.is_lead and not self.lead_staff.filter(user=s.user).exists():
                         self.lead_staff.add(s)
-                # add the fiscal year
-                self.fiscal_years.add(y.fiscal_year)
 
                 # cycle through all costs and pull out funding sources
                 for c in y.costs:
@@ -218,6 +214,13 @@ class Project(models.Model):
         if self.default_funding_source and "acrdp" in self.default_funding_source.name.lower():
             return True
 
+    @property
+    def fiscal_years(self):
+        if self.years.exists():
+
+            return listrify([str(y) for y in self.years.all()])
+        else:
+            return "<em>{}</em>".format(_("This project has no fiscal years added yet."))
 
 class ProjectYear(models.Model):
     status_choices = [

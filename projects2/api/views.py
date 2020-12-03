@@ -545,7 +545,7 @@ class TagListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        qs = models.Tag.objects.filter(projects__isnull=False)
+        qs = models.Tag.objects.filter(projects2__isnull=False)
 
         if self.request.query_params.get("user") == 'true':
             qs = qs.filter(projects__section__in=get_manageable_sections(self.request.user))
