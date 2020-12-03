@@ -14,7 +14,7 @@ urlpatterns = [
     path('projects/<int:pk>/view/', views.ProjectDetailView.as_view(), name="project_detail"),  # tested
     path('projects/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),  # tested
     path('projects/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),  # tested
-    path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"), # tested
+    path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"),  # tested
 
     path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),  # tested
     path('projects/explore/', views.ExploreProjectsTemplateView.as_view(), name="explore_projects"),  # tested
@@ -22,21 +22,22 @@ urlpatterns = [
 
     # PROJECT YEAR #
     ################
-    path('projects/<int:project>/new-project-year/', views.ProjectYearCreateView.as_view(), name="year_new"),
-    path('project-year/<int:pk>/edit/', views.ProjectYearUpdateView.as_view(), name="year_edit"),
-    path('project-year/<int:pk>/delete/', views.ProjectYearDeleteView.as_view(), name="year_delete"),
-    path('project-year/<int:pk>/clone/', views.ProjectYearCloneView.as_view(), name="year_clone"),
+    path('projects/<int:project>/new-project-year/', views.ProjectYearCreateView.as_view(), name="year_new"),  # tested
+    path('project-years/<int:pk>/edit/', views.ProjectYearUpdateView.as_view(), name="year_edit"),  # tested
+    path('project-years/<int:pk>/delete/', views.ProjectYearDeleteView.as_view(), name="year_delete"),  # tested
+    path('project-years/<int:pk>/clone/', views.ProjectYearCloneView.as_view(), name="year_clone"),  # tested
 
     # STATUS REPORT #
     #################
-    path('status-reports/<int:pk>/view/', views.StatusReportDetailView.as_view(), name="report_detail"),
-    path('status-reports/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),
-    path('status-reports/<int:pk>/review/', views.StatusReportReviewUpdateView.as_view(), name="report_review"),
-    path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),
-    path('status-reports/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),
+    path('status-reports/<int:pk>/view/', views.StatusReportDetailView.as_view(), name="report_detail"),  # tested
+    path('status-reports/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),# tested
+    path('status-reports/<int:pk>/review/', views.StatusReportReviewUpdateView.as_view(), name="report_review"),# tested
+    path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),# tested
+    path('status-reports/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),# tested
 
     # # SETTINGS #
     # ############
+    # formsets
     path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),
     path('settings/funding-source/<int:pk>/delete/', views.FundingSourceHardDeleteView.as_view(), name="delete_funding_source"),
 
@@ -64,6 +65,7 @@ urlpatterns = [
     path('settings/upcoming-dates/', views.UpcomingDateFormsetView.as_view(), name="manage-upcoming-dates"),
     path('settings/upcoming-date/<int:pk>/delete/', views.UpcomingDateHardDeleteView.as_view(), name="delete-upcoming-date"),
 
+    # full
     path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),
     path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),
     path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),
@@ -86,8 +88,7 @@ urlpatterns = [
 
     # Reports #
     ###########
-
-    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),
-    path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),
+    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),#tested
+    path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"), #tested
 
 ]

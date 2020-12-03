@@ -3,6 +3,7 @@ import os
 from copy import deepcopy
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
@@ -956,9 +957,7 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
-        context["object"] = my_report
-        context["report_mode"] = True
+        my_report = self.get_object()
         context['files'] = my_report.files.all()
         context['file_form'] = forms.FileForm
         context["random_file"] = models.File.objects.first()
@@ -1025,6 +1024,7 @@ class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
         return context
 
 
+@login_required()
 def export_acrdp_application(request, pk):
     project = get_object_or_404(models.Project, pk=pk)
 
@@ -1046,13 +1046,14 @@ def export_acrdp_application(request, pk):
     raise Http404
 
 
+@login_required()
 def export_acrdp_budget(request, pk):
     project = get_object_or_404(models.Project, pk=pk)
 
     # check if the project lead's profile is up-to-date
-    if not project.lead_staff.first().user.profile.tposition:
+    if project.lead_staff.first() and not project.lead_staff.first().user.profile.tposition:
         messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (position title)"))
-    if not project.lead_staff.first().user.profile.phone:
+    if project.lead_staff.first() and not project.lead_staff.first().user.profile.phone:
         messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (phone number)"))
     file_url = reports.generate_acrdp_budget(project)
 
