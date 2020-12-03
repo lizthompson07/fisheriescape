@@ -74,3 +74,9 @@ class ProtfMixin:
     form_class = forms.ProtfForm
     title = _("Protocol File")
 
+
+class UnitMixin:
+    key = 'unit'
+    model = models.UnitCode
+    form_class = forms.UnitForm
+    title = _("Unit")

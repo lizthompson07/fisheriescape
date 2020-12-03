@@ -82,6 +82,9 @@ class ProtfForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Protofile
         exclude = []
-        # widgets = {
-        #     'prot_file': forms.FilePathField(path='.'),
-        # }
+
+
+class UnitForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.UnitCode
+        exclude = []

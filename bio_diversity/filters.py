@@ -74,3 +74,11 @@ class ProtfFilter(django_filters.FilterSet):
     class Meta:
         model = models.Protofile
         fields = ["prot_id", "created_by", "created_date", ]
+
+
+class UnitFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.UnitCode
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+

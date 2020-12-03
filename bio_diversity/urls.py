@@ -57,4 +57,9 @@ urlpatterns = [
     path('list/protf/', views.ProtfList.as_view(), name="list_protf"),
     path('update/protf/<int:pk>/', views.ProtfUpdate.as_view(), name="update_protf"),
 
+    path('create/unit/', views.UnitCreate.as_view(), name="create_unit"),
+    path('details/unit/<int:pk>/', views.UnitDetails.as_view(), name="details_unit"),
+    path('list/unit/', views.UnitList.as_view(), name="list_unit"),
+    path('update/unit/<int:pk>/', views.UnitUpdate.as_view(), name="update_unit"),
+
 ]

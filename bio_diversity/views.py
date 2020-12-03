@@ -91,6 +91,10 @@ class ProtfCreate(mixins.ProtfMixin, CommonCreate):
     pass
 
 
+class UnitCreate(mixins.UnitMixin, CommonCreate):
+    pass
+
+
 # ---------------------------DETAIL VIEWS-----------------------------------------------
 class CommonDetails(DetailView):
     # default template to use to create a details view
@@ -170,6 +174,10 @@ class ProtfDetails(mixins.ProtfMixin, CommonDetails):
     template_name = 'bio_diversity/details_protf.html'
 
     fields = ["prot_id", "protf_pdf", "comments", "created_by", "created_date", ]
+
+
+class UnitDetails(mixins.UnitMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 # ----------------------------LIST VIEWS-----------------------------
@@ -296,6 +304,11 @@ class ProtfList(mixins.ProtfMixin, CommonList):
     fields = ["prot_id", "comments", "created_by", "created_date", ]
 
 
+class UnitList(mixins.UnitMixin, CommonList):
+    filterset_class = filters.UnitFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 # ---------------------------UPDATE VIEWS-----------------------------------
 class CommonUpdate(CommonAuthUpdateView):
 
@@ -378,4 +391,8 @@ class ProtcUpdate(mixins.ProtcMixin, CommonUpdate):
 
 
 class ProtfUpdate(mixins.ProtfMixin, CommonUpdate):
+    pass
+
+
+class UnitUpdate(mixins.UnitMixin, CommonUpdate):
     pass
