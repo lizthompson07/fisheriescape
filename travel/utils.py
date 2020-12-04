@@ -296,10 +296,10 @@ def __set_request_status__(trip_request, request):
                         trip_request.status_id = 12
                     # if role is 'ncr reviewer'
                     elif reviewer.role_id == 3:
-                        trip_request.status_id = 18
+                        trip_request.status_id = 17
                     # if role is 'ncr recommender'
                     elif reviewer.role_id == 4:
-                        trip_request.status_id = 19
+                        trip_request.status_id = 12
                     # if role is 'adm'
                     elif reviewer.role_id == 5:
                         trip_request.status_id = 14
@@ -342,7 +342,7 @@ def approval_seeker(trip_request, suppress_email=False, request=None):
             if next_reviewer.role_id in [1, 2, 3, 4, ] and request:  # essentially, just not the RDG or ADM
                 email = emails.ReviewAwaitingEmail(trip_request, next_reviewer, request)
 
-            elif next_reviewer.role_id in [5, 6] and request:  # if we are going for ADM or RDG signature...
+            elif next_reviewer.role_id in [6,] and request:  # if we are going for RDG signature...
                 email = emails.AdminApprovalAwaitingEmail(trip_request, next_reviewer.role_id, request)
 
             if email and not suppress_email:

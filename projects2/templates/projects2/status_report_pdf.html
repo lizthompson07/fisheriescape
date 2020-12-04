@@ -1,0 +1,112 @@
+{% extends 'projects2/base.html' %}
+
+{% load verbose_names %}
+{% load bootstrap4 %}
+{% load humanize %}
+{% load custom_filters %}
+{% load project_tags %}
+{% load i18n %}
+
+
+{% block title_area %}
+  <div class="float-right">
+    <button onclick="printWindow()" class="no-print">
+      {% trans "Print this page" %} <span class="mdi mdi-printer"></span>
+    </button>
+  </div>
+  {{ block.super }}
+{% endblock %}
+
+
+{% block subcontent %}
+
+  <div class="mb-5">
+
+    <h4>
+      {% trans "Report Details" %}
+    </h4>
+
+    {% get_status_report_field_list as status_report_field_list %}
+    <table class="table">
+      {% for field in status_report_field_list %}
+        {% verbose_td_display object field th_width="20%" td_width="80%" %}
+      {% endfor %}
+
+    </table>
+
+  </div>
+
+  <div class="mb-5">
+    <h4>
+      {% trans "Progress on Activities" %}
+    </h4>
+    {% get_activity_update_field_list as update_field_list %}
+    <table class="table table-sm" style="width: auto">
+      <thead>
+      {% for field in update_field_list %}
+        <th>
+          {% get_verbose_label random_update field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      {% for item in object.updates.all %}
+        <tr>
+          {% for field in update_field_list %}
+            <td>{% get_field_value item field %}</td>
+          {% endfor %}
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="{{ update_field_list|length }}">{% trans "No activities have been added to this year of the project" %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+
+    </table>
+
+
+  </div>
+
+  <div class="mb-5">
+    <h4>
+      {% trans "Supporting Resources" %}
+    </h4>
+    {% get_file_field_list as file_field_list %}
+    <table class="table table-sm" style="width: auto">
+      <thead>
+      {% for field in file_field_list %}
+        <th>
+          {% get_verbose_label random_file field %}
+        </th>
+      {% endfor %}
+      </thead>
+      <tbody>
+      {% for item in object.files.all %}
+        <tr>
+          {% for field in file_field_list %}
+            <td>{% get_field_value item field %}</td>
+          {% endfor %}
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="{{ update_field_list|length }}">{% trans "No supporting resources have been added to this year of the project" %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+
+    </table>
+
+
+  </div>
+
+{% endblock %}
+
+
+{% block body_js %}
+  <script type="application/javascript">
+  function printWindow() {
+    window.print();
+  }
+  </script>
+{% endblock %}

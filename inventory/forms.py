@@ -231,6 +231,19 @@ class ResourceForm(forms.ModelForm):
                     self.fields[field_key].label,
                 ))
 
+        if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
+            # m2m
+            del self.fields["paa_items"]
+            del self.fields["distribution_formats"]
+            # non-cloning fields
+            del self.fields["odi_id"]
+            del self.fields["fgp_url"]
+            del self.fields["public_url"]
+            del self.fields["fgp_publication_date"]
+            del self.fields["od_publication_date"]
+            del self.fields["od_release_date"]
+            del self.fields["last_revision_date"]
+
 
 class ResourceKeywordForm(forms.ModelForm):
     class Meta:

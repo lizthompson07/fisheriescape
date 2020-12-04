@@ -6,6 +6,10 @@ register = template.Library()
 @register.filter
 def is_markdown_field(value):
     target_field_list = [
+        #project
+        'overview',
+
+        #project-year
         'deliverables',
         'priorities',
         'technical_service_needs',
@@ -20,6 +24,14 @@ def is_markdown_field(value):
         'data_management_needs',
         'other_lab_support_needs',
         'it_needs',
+
+        # status report
+        'major_accomplishments',
+        'major_issues',
+
+        # activity update
+        'notes',
+
     ]
     return value in target_field_list
 
