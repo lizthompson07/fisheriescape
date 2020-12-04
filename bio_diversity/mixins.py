@@ -96,6 +96,13 @@ class InstdcMixin:
     title = _("Instrument Detail Code")
 
 
+class LocMixin:
+    key = 'loc'
+    model = models.Location
+    form_class = forms.LocForm
+    title = _("Location")
+
+
 class LoccMixin:
     key = 'locc'
     model = models.LocCode
@@ -150,6 +157,13 @@ class ProtfMixin:
     model = models.Protofile
     form_class = forms.ProtfForm
     title = _("Protocol File")
+
+
+class RelcMixin:
+    key = 'relc'
+    model = models.ReleaseSiteCode
+    form_class = forms.RelcForm
+    title = _("Release Site Code")
 
 
 class RiveMixin:

@@ -144,6 +144,29 @@ class InstDetCode(BioLookup):
     pass
 
 
+class Location(BioModel):
+    # Loc tag
+    evnt_id = models.ForeignKey('Event', on_delete=models.DO_NOTHING, verbose_name=_("Event"))
+    locc_id = models.ForeignKey('LocCode', on_delete=models.DO_NOTHING, verbose_name=_("Location Code"))
+    rive_id = models.ForeignKey('RiverCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("River"))
+    trib_id = models.ForeignKey('Tributary', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Tributary"))
+    subr_id = models.ForeignKey('SubRiverCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("SubRiver Code"))
+    relc_id = models.ForeignKey('ReleaseSiteCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("SubRiver Code"))
+    loc_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Lattitude"))
+    loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Longitude"))
+    loc_date = models.DateField(verbose_name=_("Date event took place"))
+    loc_time = models.TimeField(null=True, blank=True, verbose_name=_("Time event took place"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+
+
+
 class LocCode(BioLookup):
     # Locc tag
     pass
@@ -248,6 +271,23 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
             os.remove(old_file.path)
 
 
+class ReleaseSiteCode(BioLookup):
+    # Relc tag
+    rive_id = models.ForeignKey('RiverCode', on_delete=models.DO_NOTHING, verbose_name=_("River"))
+    trib_id = models.ForeignKey('Tributary', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Tributary"))
+    subr_id =models.ForeignKey('SubRiverCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("SubRiver Code"))
+    min_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Min Lattitude"))
+    max_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Max Lattitude"))
+    min_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Min Longitude"))
+    max_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
+                                  verbose_name=_("Max Longitude"))
+
+
 class RiverCode(BioLookup):
     # rive tag
     pass
@@ -261,7 +301,7 @@ class RoleCode(BioLookup):
 class SubRiverCode(BioLookup):
     # subr tag
     rive_id = models.ForeignKey('RiverCode', on_delete=models.DO_NOTHING, verbose_name=_("River"))
-    trib_id = models.ForeignKey('Tributary', on_delete=models.DO_NOTHING, null =True, blank=True,
+    trib_id = models.ForeignKey('Tributary', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Tributary"))
 
 

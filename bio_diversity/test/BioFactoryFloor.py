@@ -472,6 +472,54 @@ class InstdcFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class LocFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Location
+
+    evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
+    locc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LoccFactory")
+    rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
+    trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
+    subr_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SubrFactory")
+    relc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RelcFactory")
+    loc_lat = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
+    loc_lon = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
+    loc_date = factory.lazy_attribute(lambda o: faker.date())
+    loc_time = factory.lazy_attribute(lambda o: faker.time())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        evnt = EvntFactory()
+        locc= LoccFactory()
+        rive = RiveFactory()
+        trib = TribFactory()
+        subr = SubrFactory()
+        relc = RelcFactory()
+        obj = LocFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'evnt_id': evnt.pk,
+            'locc_id': locc.pk,
+            'rive_id': rive.pk,
+            'trib_id': trib.pk,
+            'subr_id': subr.pk,
+            'relc_id': relc.pk,
+            'loc_lat': obj.loc_lat,
+            'loc_lon': obj.loc_lon,
+            'loc_date': obj.loc_date,
+            'loc_time': obj.loc_time,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class LoccFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.LocCode
@@ -710,6 +758,52 @@ class ProtfFactory(factory.django.DjangoModelFactory):
         data = {
             'prot_id': prot.pk,
             'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class RelcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ReleaseSiteCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
+    trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
+    subr_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SubrFactory")
+    min_lat = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
+    max_lat = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
+    min_lon = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
+    max_lon = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
+
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        rive = RiveFactory()
+        trib = TribFactory()
+        subr = SubrFactory()
+        obj = RelcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'rive_id':rive.pk,
+            'trib_id':trib.pk,
+            'subr_id':subr.pk,
+            'min_lat':obj.min_lat,
+            'max_lat':obj.max_lat,
+            'min_lon':obj.min_lon,
+            'max_lon':obj.max_lon,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

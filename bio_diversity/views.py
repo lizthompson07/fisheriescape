@@ -104,6 +104,10 @@ class InstdcCreate(mixins.InstdcMixin, CommonCreate):
     pass
 
 
+class LocCreate(mixins.LocMixin, CommonCreate):
+    pass
+
+
 class LoccCreate(mixins.LoccMixin, CommonCreate):
     pass
 
@@ -133,6 +137,10 @@ class ProtcCreate(mixins.ProtcMixin, CommonCreate):
 
 
 class ProtfCreate(mixins.ProtfMixin, CommonCreate):
+    pass
+
+
+class RelcCreate(mixins.RelcMixin, CommonCreate):
     pass
 
 
@@ -278,6 +286,11 @@ class InstdcDetails(mixins.InstdcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class LocDetails(mixins.LocMixin, CommonDetails):
+    fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "loc_date",
+              "loc_time", "comments", "created_by", "created_date", ]
+
+
 class LoccDetails(mixins.LoccMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
@@ -313,8 +326,13 @@ class ProtfDetails(mixins.ProtfMixin, CommonDetails):
     fields = ["prot_id", "protf_pdf", "comments", "created_by", "created_date", ]
 
 
-class RiveDetails(mixins.RiveMixin, CommonDetails):
+class RelcDetails(mixins.RelcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class RiveDetails(mixins.RiveMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "rive_id", "trib_id", "subr_id", "min_lat", "max_lat",
+              "min_lon", "max_lon", "created_by", "created_date", ]
 
 
 class RoleDetails(mixins.RoleMixin, CommonDetails):
@@ -504,6 +522,11 @@ class InstdcList(mixins.InstdcMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
     
 
+class LocList(mixins.LocMixin, CommonList):
+    filterset_class = filters.LocFilter
+    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "loc_date", "created_by", "created_date", ]
+
+
 class LoccList(mixins.LoccMixin, CommonList):
     filterset_class = filters.LoccFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
@@ -544,6 +567,11 @@ class ProtfList(mixins.ProtfMixin, CommonList):
     fields = ["prot_id", "comments", "created_by", "created_date", ]
 
 
+class RelcList(mixins.RelcMixin, CommonList):
+    filterset_class = filters.RelcFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class RiveList(mixins.RiveMixin, CommonList):
     filterset_class = filters.RiveFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
@@ -551,7 +579,7 @@ class RiveList(mixins.RiveMixin, CommonList):
 
 class RoleList(mixins.RoleMixin, CommonList):
     filterset_class = filters.RoleFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["rive_id", "trib_id", "name", "nom", "created_by", "created_date", ]
 
 
 class SubrList(mixins.SubrMixin, CommonList):
@@ -701,6 +729,10 @@ class InstdcUpdate(mixins.InstdcMixin, CommonUpdate):
     pass
 
 
+class LocUpdate(mixins.LocMixin, CommonUpdate):
+    pass
+
+
 class LoccUpdate(mixins.LoccMixin, CommonUpdate):
     pass
 
@@ -730,6 +762,10 @@ class ProtcUpdate(mixins.ProtcMixin, CommonUpdate):
 
 
 class ProtfUpdate(mixins.ProtfMixin, CommonUpdate):
+    pass
+
+
+class RelcUpdate(mixins.RelcMixin, CommonUpdate):
     pass
 
 

@@ -112,6 +112,16 @@ class InstdcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class LocForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Location
+        exclude = []
+        widgets = {
+            'loc_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'loc_time': forms.TimeInput(attrs={"class": "fp-time"}),
+        }
+
+
 class LoccForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.LocCode
@@ -157,6 +167,12 @@ class ProtcForm(CreatePrams, forms.ModelForm):
 class ProtfForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Protofile
+        exclude = []
+
+
+class RelcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.ReleaseSiteCode
         exclude = []
 
 

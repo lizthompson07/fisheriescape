@@ -72,6 +72,11 @@ urlpatterns = [
     path('list/instdc/', views.InstdcList.as_view(), name="list_instdc"),
     path('update/instdc/<int:pk>/', views.InstdcUpdate.as_view(), name="update_instdc"),
 
+    path('create/loc/', views.LocCreate.as_view(), name="create_loc"),
+    path('details/loc/<int:pk>/', views.LocDetails.as_view(), name="details_loc"),
+    path('list/loc/', views.LocList.as_view(), name="list_loc"),
+    path('update/loc/<int:pk>/', views.LocUpdate.as_view(), name="update_loc"),
+
     path('create/locc/', views.LoccCreate.as_view(), name="create_locc"),
     path('details/locc/<int:pk>/', views.LoccDetails.as_view(), name="details_locc"),
     path('list/locc/', views.LoccList.as_view(), name="list_locc"),
@@ -112,6 +117,11 @@ urlpatterns = [
     path('list/protf/', views.ProtfList.as_view(), name="list_protf"),
     path('update/protf/<int:pk>/', views.ProtfUpdate.as_view(), name="update_protf"),
 
+    path('create/relc/', views.RelcCreate.as_view(), name="create_relc"),
+    path('details/relc/<int:pk>/', views.RelcDetails.as_view(), name="details_relc"),
+    path('list/relc/', views.RelcList.as_view(), name="list_relc"),
+    path('update/relc/<int:pk>/', views.RelcUpdate.as_view(), name="update_relc"),
+    
     path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
     path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
     path('list/rive/', views.RiveList.as_view(), name="list_rive"),

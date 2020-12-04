@@ -98,6 +98,13 @@ class InstdcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class LocFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Location
+        fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "loc_date", "created_by", "created_date", ]
+
+
 class LoccFilter(django_filters.FilterSet):
 
     class Meta:
@@ -152,6 +159,13 @@ class ProtfFilter(django_filters.FilterSet):
     class Meta:
         model = models.Protofile
         fields = ["prot_id", "created_by", "created_date", ]
+
+
+class RelcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.ReleaseSiteCode
+        fields = ["rive_id", "trib_id", "name", "nom", "created_by", "created_date", ]
 
 
 class RiveFilter(django_filters.FilterSet):
