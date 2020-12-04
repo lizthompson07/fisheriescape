@@ -96,6 +96,13 @@ class InstdcMixin:
     title = _("Instrument Detail Code")
 
 
+class LoccMixin:
+    key = 'locc'
+    model = models.LocCode
+    form_class = forms.LoccForm
+    title = _("Location Code")
+
+
 class OrgaMixin:
     key = 'orga'
     model = models.Organization
@@ -145,11 +152,25 @@ class ProtfMixin:
     title = _("Protocol File")
 
 
+class RiveMixin:
+    key = 'rive'
+    model = models.RiverCode
+    form_class = forms.RiveForm
+    title = _("River Code")
+
+
 class RoleMixin:
     key = 'role'
     model = models.RoleCode
     form_class = forms.RoleForm
     title = _("Role Code")
+
+
+class SubrMixin:
+    key = 'subr'
+    model = models.SubRiverCode
+    form_class = forms.SubrForm
+    title = _("Sub river Code")
 
 
 class TankMixin:
@@ -185,6 +206,13 @@ class TraydMixin:
     model = models.TrayDet
     form_class = forms.TraydForm
     title = _("Tray Detail")
+
+
+class TribMixin:
+    key = 'trib'
+    model = models.Tributary
+    form_class = forms.TribForm
+    title = _("Tributary")
 
 
 class TrofMixin:

@@ -472,6 +472,35 @@ class InstdcFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class LoccFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.LocCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = LoccFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class OrgaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Organization
@@ -688,6 +717,35 @@ class ProtfFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class RiveFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.RiverCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = RiveFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class RoleFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.RoleCode
@@ -706,6 +764,41 @@ class RoleFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class SubrFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SubRiverCode
+
+    rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
+    trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        rive = RiveFactory()
+        trib = TribFactory()
+        obj = SubrFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'rive_id': rive.pk,
+            'trib_id': trib.pk,
             'name': obj.name,
             'nom': obj.nom,
             'description_en': obj.description_en,
@@ -873,6 +966,38 @@ class TraydFactory(factory.django.DjangoModelFactory):
             'end_date': obj.end_date,
             'det_valid': obj.det_valid,
             'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class TribFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Tributary
+
+    rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        rive = RiveFactory()
+        obj = TribFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'rive_id': rive.pk,
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

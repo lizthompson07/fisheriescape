@@ -104,6 +104,10 @@ class InstdcCreate(mixins.InstdcMixin, CommonCreate):
     pass
 
 
+class LoccCreate(mixins.LoccMixin, CommonCreate):
+    pass
+
+
 class OrgaCreate(mixins.OrgaMixin, CommonCreate):
     pass
 
@@ -132,7 +136,15 @@ class ProtfCreate(mixins.ProtfMixin, CommonCreate):
     pass
 
 
+class RiveCreate(mixins.RiveMixin, CommonCreate):
+    pass
+
+
 class RoleCreate(mixins.RoleMixin, CommonCreate):
+    pass
+
+
+class SubrCreate(mixins.SubrMixin, CommonCreate):
     pass
 
 
@@ -153,6 +165,10 @@ class TrayCreate(mixins.TrayMixin, CommonCreate):
 
 
 class TraydCreate(mixins.TraydMixin, CommonCreate):
+    pass
+
+
+class TribCreate(mixins.TribMixin, CommonCreate):
     pass
 
 
@@ -224,7 +240,8 @@ class CupdDetails(mixins.CupdMixin, CommonDetails):
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
-    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_starttime", "evnt_end", "evnt_endtime", "comments", "created_by", "created_date", ]
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_starttime", "evnt_end",
+              "evnt_endtime", "comments", "created_by", "created_date", ]
 
 
 class EvntcDetails(mixins.EvntcMixin, CommonDetails):
@@ -261,6 +278,10 @@ class InstdcDetails(mixins.InstdcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class LoccDetails(mixins.LoccMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class OrgaDetails(mixins.OrgaMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
@@ -292,8 +313,16 @@ class ProtfDetails(mixins.ProtfMixin, CommonDetails):
     fields = ["prot_id", "protf_pdf", "comments", "created_by", "created_date", ]
 
 
+class RiveDetails(mixins.RiveMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class RoleDetails(mixins.RoleMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class SubrDetails(mixins.SubrMixin, CommonDetails):
+    fields = ["name", "nom", "rive_id", "trib_id", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class TankDetails(mixins.TankMixin, CommonDetails):
@@ -316,6 +345,10 @@ class TrayDetails(mixins.TrayMixin, CommonDetails):
 class TraydDetails(mixins.TraydMixin, CommonDetails):
     fields = ["tray_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
               "created_by", "created_date", ]
+
+
+class TribDetails(mixins.TribMixin, CommonDetails):
+    fields = ["name", "nom", "rive_id", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class TrofDetails(mixins.TrofMixin, CommonDetails):
@@ -471,6 +504,11 @@ class InstdcList(mixins.InstdcMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
     
 
+class LoccList(mixins.LoccMixin, CommonList):
+    filterset_class = filters.LoccFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class OrgaList(mixins.OrgaMixin, CommonList):
     filterset_class = filters.OrgaFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
@@ -506,9 +544,19 @@ class ProtfList(mixins.ProtfMixin, CommonList):
     fields = ["prot_id", "comments", "created_by", "created_date", ]
 
 
+class RiveList(mixins.RiveMixin, CommonList):
+    filterset_class = filters.RiveFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class RoleList(mixins.RoleMixin, CommonList):
     filterset_class = filters.RoleFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class SubrList(mixins.SubrMixin, CommonList):
+    filterset_class = filters.SubrFilter
+    fields = ["name", "nom", "rive_id", "trib_id", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class TankList(mixins.TankMixin, CommonList):
@@ -534,6 +582,11 @@ class TrayList(mixins.TrayMixin, CommonList):
 class TraydList(mixins.TraydMixin, CommonList):
     filterset_class = filters.TraydFilter
     fields = ["tray_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
+class TribList(mixins.TribMixin, CommonList):
+    filterset_class = filters.TribFilter
+    fields = ["name", "nom", "rive_id", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class TrofList(mixins.TrofMixin, CommonList):
@@ -648,6 +701,10 @@ class InstdcUpdate(mixins.InstdcMixin, CommonUpdate):
     pass
 
 
+class LoccUpdate(mixins.LoccMixin, CommonUpdate):
+    pass
+
+
 class OrgaUpdate(mixins.OrgaMixin, CommonUpdate):
     pass
 
@@ -676,7 +733,15 @@ class ProtfUpdate(mixins.ProtfMixin, CommonUpdate):
     pass
 
 
+class RiveUpdate(mixins.RiveMixin, CommonUpdate):
+    pass
+
+
 class RoleUpdate(mixins.RoleMixin, CommonUpdate):
+    pass
+
+
+class SubrUpdate(mixins.SubrMixin, CommonUpdate):
     pass
 
 
@@ -697,6 +762,10 @@ class TrayUpdate(mixins.TrayMixin, CommonUpdate):
 
 
 class TraydUpdate(mixins.TraydMixin, CommonUpdate):
+    pass
+
+
+class TribUpdate(mixins.TribMixin, CommonUpdate):
     pass
 
 

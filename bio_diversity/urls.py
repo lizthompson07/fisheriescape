@@ -72,6 +72,11 @@ urlpatterns = [
     path('list/instdc/', views.InstdcList.as_view(), name="list_instdc"),
     path('update/instdc/<int:pk>/', views.InstdcUpdate.as_view(), name="update_instdc"),
 
+    path('create/locc/', views.LoccCreate.as_view(), name="create_locc"),
+    path('details/locc/<int:pk>/', views.LoccDetails.as_view(), name="details_locc"),
+    path('list/locc/', views.LoccList.as_view(), name="list_locc"),
+    path('update/locc/<int:pk>/', views.LoccUpdate.as_view(), name="update_locc"),
+
     path('create/orga/', views.OrgaCreate.as_view(), name="create_orga"),
     path('details/orga/<int:pk>/', views.OrgaDetails.as_view(), name="details_orga"),
     path('list/orga/', views.OrgaList.as_view(), name="list_orga"),
@@ -107,10 +112,20 @@ urlpatterns = [
     path('list/protf/', views.ProtfList.as_view(), name="list_protf"),
     path('update/protf/<int:pk>/', views.ProtfUpdate.as_view(), name="update_protf"),
 
+    path('create/rive/', views.RiveCreate.as_view(), name="create_rive"),
+    path('details/rive/<int:pk>/', views.RiveDetails.as_view(), name="details_rive"),
+    path('list/rive/', views.RiveList.as_view(), name="list_rive"),
+    path('update/rive/<int:pk>/', views.RiveUpdate.as_view(), name="update_rive"),
+    
     path('create/role/', views.RoleCreate.as_view(), name="create_role"),
     path('details/role/<int:pk>/', views.RoleDetails.as_view(), name="details_role"),
     path('list/role/', views.RoleList.as_view(), name="list_role"),
     path('update/role/<int:pk>/', views.RoleUpdate.as_view(), name="update_role"),
+    
+    path('create/subr/', views.SubrCreate.as_view(), name="create_subr"),
+    path('details/subr/<int:pk>/', views.SubrDetails.as_view(), name="details_subr"),
+    path('list/subr/', views.SubrList.as_view(), name="list_subr"),
+    path('update/subr/<int:pk>/', views.SubrUpdate.as_view(), name="update_subr"),
 
     path('create/tank/', views.TankCreate.as_view(), name="create_tank"),
     path('details/tank/<int:pk>/', views.TankDetails.as_view(), name="details_tank"),
@@ -136,6 +151,11 @@ urlpatterns = [
     path('details/trayd/<int:pk>/', views.TraydDetails.as_view(), name="details_trayd"),
     path('list/trayd/', views.TraydList.as_view(), name="list_trayd"),
     path('update/trayd/<int:pk>/', views.TraydUpdate.as_view(), name="update_trayd"),
+    
+    path('create/trib/', views.TribCreate.as_view(), name="create_trib"),
+    path('details/trib/<int:pk>/', views.TribDetails.as_view(), name="details_trib"),
+    path('list/trib/', views.TribList.as_view(), name="list_trib"),
+    path('update/trib/<int:pk>/', views.TribUpdate.as_view(), name="update_trib"),
 
     path('create/trof/', views.TrofCreate.as_view(), name="create_trof"),
     path('details/trof/<int:pk>/', views.TrofDetails.as_view(), name="details_trof"),

@@ -144,6 +144,11 @@ class InstDetCode(BioLookup):
     pass
 
 
+class LocCode(BioLookup):
+    # Locc tag
+    pass
+
+
 class Organization(BioLookup):
     # orga tag
     pass
@@ -243,9 +248,21 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
             os.remove(old_file.path)
 
 
+class RiverCode(BioLookup):
+    # rive tag
+    pass
+
+
 class RoleCode(BioLookup):
     # role tag
     pass
+
+
+class SubRiverCode(BioLookup):
+    # subr tag
+    rive_id = models.ForeignKey('RiverCode', on_delete=models.DO_NOTHING, verbose_name=_("River"))
+    trib_id = models.ForeignKey('Tributary', on_delete=models.DO_NOTHING, null =True, blank=True,
+                                verbose_name=_("Tributary"))
 
 
 class Tank(BioLookup):
@@ -272,6 +289,11 @@ class Tray(BioLookup):
 class TrayDet(BioContainerDet):
     # trayd tag
     tray_id = models.ForeignKey('Tray', on_delete=models.DO_NOTHING, verbose_name=_("Tray"))
+
+
+class Tributary(BioLookup):
+    # trib tag
+    rive_id = models.ForeignKey('RiverCode', on_delete=models.DO_NOTHING, verbose_name=_("River"))
 
 
 class Trough(BioLookup):

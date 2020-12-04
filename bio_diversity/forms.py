@@ -112,6 +112,12 @@ class InstdcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class LoccForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.LocCode
+        exclude = []
+
+
 class OrgaForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Organization
@@ -154,9 +160,21 @@ class ProtfForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class RiveForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.RiverCode
+        exclude = []
+
+
 class RoleForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.RoleCode
+        exclude = []
+
+
+class SubrForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.SubRiverCode
         exclude = []
 
 
@@ -172,6 +190,12 @@ class TankdForm(CreateTimePrams, forms.ModelForm):
         exclude = []
 
 
+class TeamForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Team
+        exclude = []
+
+
 class TrayForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Tray
@@ -184,9 +208,9 @@ class TraydForm(CreateTimePrams, forms.ModelForm):
         exclude = []
 
 
-class TeamForm(CreatePrams, forms.ModelForm):
+class TribForm(CreatePrams, forms.ModelForm):
     class Meta:
-        model = models.Team
+        model = models.Tributary
         exclude = []
 
 

@@ -98,6 +98,13 @@ class InstdcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class LoccFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.LocCode
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class OrgaFilter(django_filters.FilterSet):
 
     class Meta:
@@ -147,11 +154,26 @@ class ProtfFilter(django_filters.FilterSet):
         fields = ["prot_id", "created_by", "created_date", ]
 
 
+class RiveFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.RiverCode
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class RoleFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.RoleCode
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class SubrFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.SubRiverCode
+        fields = ["name", "nom", "rive_id", "trib_id", "description_en", "description_fr", "created_by",
+                  "created_date", ]
 
 
 class TankFilter(django_filters.FilterSet):
@@ -187,6 +209,13 @@ class TraydFilter(django_filters.FilterSet):
     class Meta:
         model = models.TrayDet
         fields = ["tray_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
+class TribFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Tributary
+        fields = ["name", "nom", "rive_id", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class TrofFilter(django_filters.FilterSet):
