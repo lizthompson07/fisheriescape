@@ -34,6 +34,21 @@ class CupdFilter(django_filters.FilterSet):
         fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class HeatFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.HeathUnit
+        fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
+                  "created_by", "created_date", ]
+
+
+class HeatdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.HeathUnitDet
+        fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
 class InstFilter(django_filters.FilterSet):
 
     class Meta:

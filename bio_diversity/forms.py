@@ -48,6 +48,21 @@ class CupdForm(CreateTimePrams, forms.ModelForm):
         exclude = []
 
 
+class HeatForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.HeathUnit
+        exclude = []
+        widgets = {
+            'inservice_date' : forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+        }
+
+
+class HeatdForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.HeathUnitDet
+        exclude = []
+
+
 class InstForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Instrument

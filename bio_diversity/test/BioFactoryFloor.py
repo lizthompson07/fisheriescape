@@ -143,6 +143,80 @@ class CupdFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class HeatFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.HeathUnit
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    manufacturer = factory.lazy_attribute(lambda o: faker.word())
+    inservice_date = factory.lazy_attribute(lambda o: faker.date())
+    serial_number = factory.lazy_attribute(lambda o: faker.word())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = HeatFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'manufacturer': obj.manufacturer,
+            'inservice_date': obj.inservice_date,
+            'serial_number': obj.serial_number,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class HeatdFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.HeathUnitDet
+
+    contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
+    heat_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.HeatFactory")
+    det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
+    start_date = factory.lazy_attribute(lambda o: faker.date())
+    end_date = factory.lazy_attribute(lambda o: faker.date())
+    det_valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        contdc = ContdcFactory()
+        heat = HeatFactory()
+        cdsc = CdscFactory()
+        obj = HeatdFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'contdc_id': contdc.pk,
+            'heat_id': heat.pk,
+            'det_value': obj.det_value,
+            'cdsc_id': cdsc.pk,
+            'start_date': obj.start_date,
+            'end_date': obj.end_date,
+            'det_valid': obj.det_valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 
 class InstFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -553,6 +627,7 @@ class TankdFactory(factory.django.DjangoModelFactory):
         }
 
         return data
+
 
 class TrayFactory(factory.django.DjangoModelFactory):
     class Meta:

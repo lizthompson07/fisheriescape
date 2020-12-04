@@ -68,6 +68,14 @@ class CupdCreate(mixins.CupdMixin, CommonCreate):
     pass
 
 
+class HeatCreate(mixins.HeatMixin, CommonCreate):
+    pass
+
+
+class HeatdCreate(mixins.HeatdMixin, CommonCreate):
+    pass
+
+
 class InstCreate(mixins.InstMixin, CommonCreate):
     pass
 
@@ -187,7 +195,18 @@ class CupDetails(mixins.CupMixin, CommonDetails):
 
 
 class CupdDetails(mixins.CupdMixin, CommonDetails):
-    fields = ["cup_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments", "created_by", "created_date", ]
+    fields = ["cup_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
+              "created_by", "created_date", ]
+
+
+class HeatDetails(mixins.HeatMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
+              "created_by", "created_date", ]
+
+
+class HeatdDetails(mixins.HeatdMixin, CommonDetails):
+    fields = ["heat_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
+              "created_by", "created_date", ]
 
 
 class InstDetails(mixins.InstMixin, CommonDetails):
@@ -356,6 +375,17 @@ class CupdList(mixins.CupdMixin, CommonList):
     fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class HeatList(mixins.HeatMixin, CommonList):
+    filterset_class = filters.HeatFilter
+    fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
+              "created_by", "created_date", ]
+
+
+class HeatdList(mixins.HeatdMixin, CommonList):
+    filterset_class = filters.HeatdFilter
+    fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
 class InstList(mixins.InstMixin, CommonList):
     filterset_class = filters.InstFilter
     fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
@@ -499,6 +529,14 @@ class CupUpdate(mixins.CupMixin, CommonUpdate):
 
 
 class CupdUpdate(mixins.CupdMixin, CommonUpdate):
+    pass
+
+
+class HeatUpdate(mixins.HeatMixin, CommonUpdate):
+    pass
+
+
+class HeatdUpdate(mixins.HeatdMixin, CommonUpdate):
     pass
 
 

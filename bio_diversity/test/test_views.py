@@ -66,7 +66,7 @@ class TestContdcCreateView(CommonTest):
         self.assert_inheritance(views.ContdcCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -91,7 +91,7 @@ class TestContdcDetailView(CommonTest):
         self.assert_inheritance(views.ContdcDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -124,7 +124,7 @@ class TestContdcListView(CommonTest):
         self.assert_inheritance(views.ContdcList, CommonList)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -145,7 +145,7 @@ class ContdcUpdateView(CommonTest):
         self.assert_inheritance(views.ContdcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -171,7 +171,7 @@ class TestCdscCreateView(CommonTest):
         self.assert_inheritance(views.CdscCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -196,7 +196,7 @@ class TestCdscDetailView(CommonTest):
         self.assert_inheritance(views.CdscDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -229,7 +229,7 @@ class TestCdscListView(CommonTest):
         self.assert_inheritance(views.CdscList, CommonList)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -250,7 +250,7 @@ class CdscUpdateView(CommonTest):
         self.assert_inheritance(views.CdscUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -276,7 +276,7 @@ class TestCupCreateView(CommonTest):
         self.assert_inheritance(views.CupCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -301,7 +301,7 @@ class TestCupDetailView(CommonTest):
         self.assert_inheritance(views.CupDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -334,7 +334,7 @@ class TestCupListView(CommonTest):
         self.assert_inheritance(views.CupList, CommonList)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -355,7 +355,7 @@ class CupUpdateView(CommonTest):
         self.assert_inheritance(views.CupUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -381,7 +381,7 @@ class TestCupdCreateView(CommonTest):
         self.assert_inheritance(views.CupdCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -406,7 +406,7 @@ class TestCupdDetailView(CommonTest):
         self.assert_inheritance(views.CupdDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -439,7 +439,7 @@ class TestCupdListView(CommonTest):
         self.assert_inheritance(views.CupdList, CommonList)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -460,7 +460,7 @@ class CupdUpdateView(CommonTest):
         self.assert_inheritance(views.CupdUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -470,6 +470,216 @@ class CupdUpdateView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("bio_diversity:update_cupd", f"/en/bio_diversity/update/cupd/{self.instance.pk}/",
+                                [self.instance.pk])
+
+
+@tag("Heat")
+class TestHeatCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.HeatFactory()
+        self.test_url = reverse_lazy('bio_diversity:create_heat')
+        self.expected_template = 'shared_models/shared_entry_form.html'
+        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+
+    def test_view_class(self):
+        self.assert_inheritance(views.HeatCreate, CommonCreate)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_submit(self):
+        data = BioFactoryFloor.HeatFactory.build_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:create_heat", "/en/bio_diversity/create/heat/")
+
+
+@tag("Heat")
+class TestHeatDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.HeatFactory()
+        self.test_url = reverse_lazy('bio_diversity:details_heat', args=[self.instance.pk, ])
+        self.expected_template = 'bio_diversity/bio_details.html'
+        self.user = self.get_and_login_user()
+
+    def test_view_class(self):
+        self.assert_inheritance(views.HeatDetails, CommonDetails)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    # not sure how to do this bit
+    # @tag("Heat", "details_heat", "context")
+    # def test_context(self):
+    #     context_vars = [
+    #         "heatc",
+    #         "serial_number",
+    #         "comments",
+    #         "created_by",
+    #         "created_date",
+    #     ]
+    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:details_heat", f"/en/bio_diversity/details/heat/{self.instance.pk}/",
+                                [self.instance.pk])
+
+
+@tag("Heat")
+class TestHeatListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('bio_diversity:list_heat')
+        self.expected_template = 'shared_models/shared_filter.html'
+        self.user = self.get_and_login_user()
+
+    def test_view_class(self):
+        self.assert_inheritance(views.HeatList, CommonList)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:list_heat", f"/en/bio_diversity/list/heat/")
+
+
+@tag("Heat")
+class HeatUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.HeatFactory()
+        self.test_url = reverse_lazy('bio_diversity:update_heat', args=[self.instance.pk, ])
+        self.expected_template = 'shared_models/shared_models_update_form.html'
+        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+
+    def test_view_class(self):
+        self.assert_inheritance(views.HeatUpdate, CommonUpdate)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_submit(self):
+        data = BioFactoryFloor.HeatFactory.build_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:update_heat", f"/en/bio_diversity/update/heat/{self.instance.pk}/",
+                                [self.instance.pk])
+
+
+@tag("Heatd")
+class TestHeatdCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.HeatdFactory()
+        self.test_url = reverse_lazy('bio_diversity:create_heatd')
+        self.expected_template = 'shared_models/shared_entry_form.html'
+        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+
+    def test_view_class(self):
+        self.assert_inheritance(views.HeatdCreate, CommonCreate)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_submit(self):
+        data = BioFactoryFloor.HeatdFactory.build_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:create_heatd", "/en/bio_diversity/create/heatd/")
+
+
+@tag("Heatd")
+class TestHeatdDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.HeatdFactory()
+        self.test_url = reverse_lazy('bio_diversity:details_heatd', args=[self.instance.pk, ])
+        self.expected_template = 'bio_diversity/bio_details.html'
+        self.user = self.get_and_login_user()
+
+    def test_view_class(self):
+        self.assert_inheritance(views.HeatdDetails, CommonDetails)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    # not sure how to do this bit
+    # @tag("Heatd", "details_heatd", "context")
+    # def test_context(self):
+    #     context_vars = [
+    #         "heatdc",
+    #         "serial_number",
+    #         "comments",
+    #         "created_by",
+    #         "created_date",
+    #     ]
+    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:details_heatd", f"/en/bio_diversity/details/heatd/{self.instance.pk}/",
+                                [self.instance.pk])
+
+
+@tag("Heatd")
+class TestHeatdListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('bio_diversity:list_heatd')
+        self.expected_template = 'shared_models/shared_filter.html'
+        self.user = self.get_and_login_user()
+
+    def test_view_class(self):
+        self.assert_inheritance(views.HeatdList, CommonList)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:list_heatd", f"/en/bio_diversity/list/heatd/")
+
+
+@tag("Heatd")
+class HeatdUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.HeatdFactory()
+        self.test_url = reverse_lazy('bio_diversity:update_heatd', args=[self.instance.pk, ])
+        self.expected_template = 'shared_models/shared_models_update_form.html'
+        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+
+    def test_view_class(self):
+        self.assert_inheritance(views.HeatdUpdate, CommonUpdate)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_submit(self):
+        data = BioFactoryFloor.HeatdFactory.build_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:update_heatd", f"/en/bio_diversity/update/heatd/{self.instance.pk}/",
                                 [self.instance.pk])
 
 
@@ -486,7 +696,7 @@ class TestInstCreateView(CommonTest):
         self.assert_inheritance(views.InstCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -511,7 +721,7 @@ class TestInstDetailView(CommonTest):
         self.assert_inheritance(views.InstDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -544,7 +754,7 @@ class TestInstListView(CommonTest):
         self.assert_inheritance(views.InstList, CommonList)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -565,7 +775,7 @@ class InstUpdateView(CommonTest):
         self.assert_inheritance(views.InstUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -591,7 +801,7 @@ class TestInstcCreateView(CommonTest):
         self.assert_inheritance(views.InstcCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -616,7 +826,7 @@ class TestInstcDetailView(CommonTest):
         self.assert_inheritance(views.InstcDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -649,7 +859,7 @@ class TestInstcListView(CommonTest):
         self.assert_inheritance(views.InstcList, CommonList)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -670,7 +880,7 @@ class InstcUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -696,7 +906,7 @@ class TestInstdCreateView(CommonTest):
         self.assert_inheritance(views.InstdCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -721,7 +931,7 @@ class TestInstdDetailView(CommonTest):
         self.assert_inheritance(views.InstdDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -754,7 +964,7 @@ class TestInstdListView(CommonTest):
         self.assert_inheritance(views.InstdList, CommonList)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -775,7 +985,7 @@ class InstdUpdateView(CommonTest):
         self.assert_inheritance(views.InstdUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -801,7 +1011,7 @@ class TestInstdcCreateView(CommonTest):
         self.assert_inheritance(views.InstdcCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -826,7 +1036,7 @@ class TestInstdcDetailView(CommonTest):
         self.assert_inheritance(views.InstdcDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -861,7 +1071,7 @@ class TestInstdcListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -883,7 +1093,7 @@ class InstdcUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -909,7 +1119,7 @@ class TestOrgaCreateView(CommonTest):
         self.assert_inheritance(views.OrgaCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -934,7 +1144,7 @@ class TestOrgaDetailView(CommonTest):
         self.assert_inheritance(views.OrgaDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -969,7 +1179,7 @@ class TestOrgaListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -991,7 +1201,7 @@ class OrgaUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1017,7 +1227,7 @@ class TestProgCreateView(CommonTest):
         self.assert_inheritance(views.ProgCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1042,7 +1252,7 @@ class TestProgDetailView(CommonTest):
         self.assert_inheritance(views.ProgDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -1077,7 +1287,7 @@ class TestProgListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -1099,7 +1309,7 @@ class ProgUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1125,7 +1335,7 @@ class TestProgaCreateView(CommonTest):
         self.assert_inheritance(views.ProgaCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1150,7 +1360,7 @@ class TestProgaDetailView(CommonTest):
         self.assert_inheritance(views.ProgaDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -1185,7 +1395,7 @@ class TestProgaListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -1207,7 +1417,7 @@ class ProgaUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1233,7 +1443,7 @@ class TestProtCreateView(CommonTest):
         self.assert_inheritance(views.ProtCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1258,7 +1468,7 @@ class TestProtDetailView(CommonTest):
         self.assert_inheritance(views.ProtDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -1293,7 +1503,7 @@ class TestProtListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -1315,7 +1525,7 @@ class ProtUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1341,7 +1551,7 @@ class TestProtcCreateView(CommonTest):
         self.assert_inheritance(views.ProtcCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1366,7 +1576,7 @@ class TestProtcDetailView(CommonTest):
         self.assert_inheritance(views.ProtcDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -1401,7 +1611,7 @@ class TestProtcListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -1423,7 +1633,7 @@ class ProtcUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1449,7 +1659,7 @@ class TestProtfCreateView(CommonTest):
         self.assert_inheritance(views.ProtfCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1474,7 +1684,7 @@ class TestProtfDetailView(CommonTest):
         self.assert_inheritance(views.ProtfDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -1509,7 +1719,7 @@ class TestProtfListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -1531,7 +1741,7 @@ class ProtfUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1557,7 +1767,7 @@ class TestTankCreateView(CommonTest):
         self.assert_inheritance(views.TankCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1582,7 +1792,7 @@ class TestTankDetailView(CommonTest):
         self.assert_inheritance(views.TankDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -1618,7 +1828,7 @@ class TestTankListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -1640,7 +1850,7 @@ class TankUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1667,7 +1877,7 @@ class TestTankdCreateView(CommonTest):
         self.assert_inheritance(views.TankdCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1692,7 +1902,7 @@ class TestTankdDetailView(CommonTest):
         self.assert_inheritance(views.TankdDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -1728,7 +1938,7 @@ class TestTankdListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -1750,7 +1960,7 @@ class TankdUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1777,7 +1987,7 @@ class TestTrayCreateView(CommonTest):
         self.assert_inheritance(views.TrayCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1802,7 +2012,7 @@ class TestTrayDetailView(CommonTest):
         self.assert_inheritance(views.TrayDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -1837,7 +2047,7 @@ class TestTrayListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -1859,7 +2069,7 @@ class TrayUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1885,7 +2095,7 @@ class TestTraydCreateView(CommonTest):
         self.assert_inheritance(views.TraydCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1910,7 +2120,7 @@ class TestTraydDetailView(CommonTest):
         self.assert_inheritance(views.TraydDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -1945,7 +2155,7 @@ class TestTraydListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -1967,7 +2177,7 @@ class TraydUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -1993,7 +2203,7 @@ class TestTrofCreateView(CommonTest):
         self.assert_inheritance(views.TrofCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -2018,7 +2228,7 @@ class TestTrofDetailView(CommonTest):
         self.assert_inheritance(views.TrofDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -2053,7 +2263,7 @@ class TestTrofListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -2075,7 +2285,7 @@ class TrofUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -2101,7 +2311,7 @@ class TestTrofdCreateView(CommonTest):
         self.assert_inheritance(views.TrofdCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -2126,7 +2336,7 @@ class TestTrofdDetailView(CommonTest):
         self.assert_inheritance(views.TrofdDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -2161,7 +2371,7 @@ class TestTrofdListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -2183,7 +2393,7 @@ class TrofdUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -2209,7 +2419,7 @@ class TestUnitCreateView(CommonTest):
         self.assert_inheritance(views.UnitCreate, CommonCreate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):
@@ -2234,7 +2444,7 @@ class TestUnitDetailView(CommonTest):
         self.assert_inheritance(views.UnitDetails, CommonDetails)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     # not sure how to do this bit
@@ -2269,7 +2479,7 @@ class TestUnitListView(CommonTest):
 
     def test_view(self):
         # access
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_correct_url(self):
@@ -2291,7 +2501,7 @@ class UnitUpdateView(CommonTest):
         self.assert_inheritance(views.InstcUpdate, CommonUpdate)
 
     def test_view(self):
-        self.assert_valid_url(self.test_url)
+        self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     def test_submit(self):

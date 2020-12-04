@@ -80,6 +80,18 @@ class CupDet(BioContainerDet):
     cup_id = models.ForeignKey('Cup', on_delete=models.DO_NOTHING, verbose_name=_("Cup"))
 
 
+class HeathUnit(BioLookup):
+    # Heat tag
+    manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"))
+    inservice_date = models.DateField(verbose_name=_("Date unit was put into service"))
+    serial_number = models.CharField(max_length=50, verbose_name=_("Serial Number"))
+
+
+class HeathUnitDet(BioContainerDet):
+    # Heatd tag
+    heat_id = models.ForeignKey('HeathUnit', on_delete=models.DO_NOTHING, verbose_name=_("HeathUnit"))
+
+
 class Instrument(BioModel):
     # inst tag
     instc = models.ForeignKey('InstrumentCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Code"))

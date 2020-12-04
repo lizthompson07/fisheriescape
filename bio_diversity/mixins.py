@@ -32,6 +32,19 @@ class CupdMixin:
     model = models.CupDet
     title = "Cup Detail"
 
+class HeatMixin:
+    key = "heat"
+    form_class = forms.HeatForm
+    model = models.HeathUnit
+    title = "Heath Unit"
+
+
+class HeatdMixin:
+    key = "heatd"
+    form_class = forms.HeatdForm
+    model = models.HeathUnitDet
+    title = "Heath Unit Detail"
+
 
 class InstMixin:
     key = "inst"

@@ -27,6 +27,16 @@ urlpatterns = [
     path('list/cupd/', views.CupdList.as_view(), name="list_cupd"),
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
     
+    path('create/heat/', views.HeatCreate.as_view(), name="create_heat"),
+    path('details/heat/<int:pk>/', views.HeatDetails.as_view(), name="details_heat"),
+    path('list/heat/', views.HeatList.as_view(), name="list_heat"),
+    path('update/heat/<int:pk>/', views.HeatUpdate.as_view(), name="update_heat"),
+    
+    path('create/heatd/', views.HeatdCreate.as_view(), name="create_heatd"),
+    path('details/heatd/<int:pk>/', views.HeatdDetails.as_view(), name="details_heatd"),
+    path('list/heatd/', views.HeatdList.as_view(), name="list_heatd"),
+    path('update/heatd/<int:pk>/', views.HeatdUpdate.as_view(), name="update_heatd"),
+    
     path('create/inst/', views.InstCreate.as_view(), name="create_inst"),
     path('details/inst/<int:pk>/', views.InstDetails.as_view(), name="details_inst"),
     path('list/inst/', views.InstList.as_view(), name="list_inst"),
