@@ -34,6 +34,13 @@ class CupdFilter(django_filters.FilterSet):
         fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class EnvtFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Event
+        fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "created_by", "created_date", ]
+
+
 class EnvtcFilter(django_filters.FilterSet):
 
     class Meta:

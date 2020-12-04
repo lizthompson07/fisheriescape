@@ -68,6 +68,10 @@ class CupdCreate(mixins.CupdMixin, CommonCreate):
     pass
 
 
+class EvntCreate(mixins.EvntMixin, CommonCreate):
+    pass
+
+
 class EvntcCreate(mixins.EvntcMixin, CommonCreate):
     pass
 
@@ -217,6 +221,10 @@ class CupDetails(mixins.CupMixin, CommonDetails):
 class CupdDetails(mixins.CupdMixin, CommonDetails):
     fields = ["cup_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
               "created_by", "created_date", ]
+
+
+class EvntDetails(mixins.EvntMixin, CommonDetails):
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_starttime", "evnt_end", "evnt_endtime", "comments", "created_by", "created_date", ]
 
 
 class EvntcDetails(mixins.EvntcMixin, CommonDetails):
@@ -417,6 +425,11 @@ class CupdList(mixins.CupdMixin, CommonList):
     fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class EvntList(mixins.EvntMixin, CommonList):
+    filterset_class = filters.EnvtFilter
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "created_by", "created_date", ]
+
+
 class EvntcList(mixins.EvntcMixin, CommonList):
     filterset_class = filters.EnvtcFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
@@ -596,6 +609,10 @@ class CupUpdate(mixins.CupMixin, CommonUpdate):
 
 
 class CupdUpdate(mixins.CupdMixin, CommonUpdate):
+    pass
+
+
+class EvntUpdate(mixins.EvntMixin, CommonUpdate):
     pass
 
 

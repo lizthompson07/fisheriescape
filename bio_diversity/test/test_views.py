@@ -473,6 +473,112 @@ class CupdUpdateView(CommonTest):
                                 [self.instance.pk])
 
 
+
+@tag("Evnt")
+class TestEvntCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.EvntFactory()
+        self.test_url = reverse_lazy('bio_diversity:create_evnt')
+        self.expected_template = 'shared_models/shared_entry_form.html'
+        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+
+    def test_view_class(self):
+        self.assert_inheritance(views.EvntCreate, CommonCreate)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_submit(self):
+        data = BioFactoryFloor.EvntFactory.build_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:create_evnt", "/en/bio_diversity/create/evnt/")
+
+
+@tag("Evnt")
+class TestEvntDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.EvntFactory()
+        self.test_url = reverse_lazy('bio_diversity:details_evnt', args=[self.instance.pk, ])
+        self.expected_template = 'bio_diversity/bio_details.html'
+        self.user = self.get_and_login_user()
+
+    def test_view_class(self):
+        self.assert_inheritance(views.EvntDetails, CommonDetails)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    # not sure how to do this bit
+    # @tag("Evnt", "details_evnt", "context")
+    # def test_context(self):
+    #     context_vars = [
+    #         "evntc",
+    #         "serial_number",
+    #         "comments",
+    #         "created_by",
+    #         "created_date",
+    #     ]
+    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:details_evnt", f"/en/bio_diversity/details/evnt/{self.instance.pk}/",
+                                [self.instance.pk])
+
+
+@tag("Evnt")
+class TestEvntListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('bio_diversity:list_evnt')
+        self.expected_template = 'shared_models/shared_filter.html'
+        self.user = self.get_and_login_user()
+
+    def test_view_class(self):
+        self.assert_inheritance(views.EvntList, CommonList)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:list_evnt", f"/en/bio_diversity/list/evnt/")
+
+
+@tag("Evnt")
+class EvntUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = BioFactoryFloor.EvntFactory()
+        self.test_url = reverse_lazy('bio_diversity:update_evnt', args=[self.instance.pk, ])
+        self.expected_template = 'shared_models/shared_models_update_form.html'
+        self.user = self.get_and_login_user(in_group="bio_diversity_admin")
+
+    def test_view_class(self):
+        self.assert_inheritance(views.EvntUpdate, CommonUpdate)
+
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    def test_submit(self):
+        data = BioFactoryFloor.EvntFactory.build_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("bio_diversity:update_evnt", f"/en/bio_diversity/update/evnt/{self.instance.pk}/",
+                                [self.instance.pk])
+
+
 @tag("Evntc")
 class TestEvntcCreateView(CommonTest):
     def setUp(self):

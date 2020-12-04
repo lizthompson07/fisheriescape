@@ -33,6 +33,13 @@ class CupdMixin:
     title = "Cup Detail"
 
 
+class EvntMixin:
+    key = "evnt"
+    form_class = forms.EvntForm
+    model = models.Event
+    title = "Event"
+
+
 class EvntcMixin:
     key = "evntc"
     form_class = forms.EvntcForm

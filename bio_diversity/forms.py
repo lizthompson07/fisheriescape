@@ -48,19 +48,17 @@ class CupdForm(CreateTimePrams, forms.ModelForm):
         exclude = []
 
 
-class HeatForm(CreatePrams, forms.ModelForm):
+class EvntForm(CreatePrams, forms.ModelForm):
     class Meta:
-        model = models.HeathUnit
+        model = models.Event
         exclude = []
         widgets = {
-            'inservice_date' : forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+            'evnt_start': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'evnt_starttime': forms.TimeInput(attrs={"class": "fp-time"}),
+            'evnt_end': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'evnt_endtime': forms.TimeInput(attrs={"class": "fp-time"}),
+
         }
-
-
-class HeatdForm(CreateTimePrams, forms.ModelForm):
-    class Meta:
-        model = models.HeathUnitDet
-        exclude = []
 
 
 class EvntcForm(CreatePrams, forms.ModelForm):
@@ -72,6 +70,21 @@ class EvntcForm(CreatePrams, forms.ModelForm):
 class FacicForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.FacilityCode
+        exclude = []
+
+
+class HeatForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.HeathUnit
+        exclude = []
+        widgets = {
+            'inservice_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
+        }
+
+
+class HeatdForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.HeathUnitDet
         exclude = []
 
 
@@ -139,7 +152,6 @@ class ProtfForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Protofile
         exclude = []
-
 
 
 class RoleForm(CreatePrams, forms.ModelForm):

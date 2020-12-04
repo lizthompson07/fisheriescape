@@ -27,6 +27,11 @@ urlpatterns = [
     path('list/cupd/', views.CupdList.as_view(), name="list_cupd"),
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
         
+    path('create/evnt/', views.EvntCreate.as_view(), name="create_evnt"),
+    path('details/evnt/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
+    path('list/evnt/', views.EvntList.as_view(), name="list_evnt"),
+    path('update/evnt/<int:pk>/', views.EvntUpdate.as_view(), name="update_evnt"),
+                  
     path('create/evntc/', views.EvntcCreate.as_view(), name="create_evntc"),
     path('details/evntc/<int:pk>/', views.EvntcDetails.as_view(), name="details_evntc"),
     path('list/evntc/', views.EvntcList.as_view(), name="list_evntc"),

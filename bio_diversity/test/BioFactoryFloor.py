@@ -143,6 +143,51 @@ class CupdFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class EvntFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Event
+
+    facic_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FacicFactory")
+    evntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntcFactory")
+    perc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PercFactory")
+    prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
+    team_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TeamFactory")
+    evnt_start = factory.lazy_attribute(lambda o: faker.date())
+    evnt_starttime = factory.lazy_attribute(lambda o: faker.time())
+    evnt_end = factory.lazy_attribute(lambda o: faker.date())
+    evnt_endtime = factory.lazy_attribute(lambda o: faker.time())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        fabic = FacicFactory()
+        evntc = EvntcFactory()
+        perc = PercFactory()
+        prog = ProgFactory()
+        team = TeamFactory()
+        obj = EvntFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'facic_id': fabic.pk,
+            'evntc_id': evntc.pk,
+            'perc_id': perc.pk,
+            'prog_id': prog.pk,
+            'team_id': team.pk,
+            'evnt_start': obj.evnt_start,
+            'evnt_starttime': obj.evnt_starttime,
+            'evnt_end': obj.evnt_end,
+            'evnt_endtime': obj.evnt_endtime,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class EvntcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EventCode
@@ -833,6 +878,7 @@ class TraydFactory(factory.django.DjangoModelFactory):
         }
 
         return data
+
 
 class TrofFactory(factory.django.DjangoModelFactory):
     class Meta:

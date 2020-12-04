@@ -67,7 +67,8 @@ class ContainerDetCode(BioLookup):
 
 class ContDetSubjCode(BioLookup):
     # cdsc tag
-    contdc_id = models.ForeignKey("ContainerDetCode", on_delete=models.DO_NOTHING, verbose_name=_("Container detail code"))
+    contdc_id = models.ForeignKey("ContainerDetCode", on_delete=models.DO_NOTHING,
+                                  verbose_name=_("Container detail code"))
 
 
 class Cup(BioLookup):
@@ -78,6 +79,20 @@ class Cup(BioLookup):
 class CupDet(BioContainerDet):
     # cupd tag
     cup_id = models.ForeignKey('Cup', on_delete=models.DO_NOTHING, verbose_name=_("Cup"))
+
+
+class Event(BioModel):
+    # evnt tag
+    facic_id = models.ForeignKey('FacilityCode', on_delete=models.DO_NOTHING, verbose_name=_("Facility Code"))
+    evntc_id = models.ForeignKey('EventCode', on_delete=models.DO_NOTHING, verbose_name=_("Event Code"))
+    perc_id = models.ForeignKey('PersonnelCode', on_delete=models.DO_NOTHING, verbose_name=_("Personnel Code"))
+    prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"))
+    team_id = models.ForeignKey('Team', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Team"))
+    evnt_start = models.DateField(verbose_name=_("Event start date"))
+    evnt_starttime = models.TimeField(null=True, blank=True, verbose_name=_("Event start time"))
+    evnt_end = models.DateField(verbose_name=_("Event end date"))
+    evnt_endtime = models.TimeField(null=True, blank=True, verbose_name=_("Event end time"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
 
 class EventCode(BioLookup):
@@ -164,7 +179,6 @@ class ProgAuthority(BioModel):
         return "{} {}".format(self.proga_first_name, self.proga_last_name)
 
 
-
 class Protocol(BioTimeModel):
     # prot tag
     prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"))
@@ -188,7 +202,8 @@ def protf_directory_path(instance, filename):
 
 class Protofile(BioModel):
     # protf tag
-    prot_id = models.ForeignKey('Protocol', on_delete=models.DO_NOTHING,  related_name="protocol_files", verbose_name=_("Protocol"))
+    prot_id = models.ForeignKey('Protocol', on_delete=models.DO_NOTHING,  related_name="protocol_files",
+                                verbose_name=_("Protocol"))
 
     protf_pdf = models.FileField(upload_to=protf_directory_path, blank=True, null=True, verbose_name=_("Protocol File"))
     # protf_file = models.CharField(max_length=32, verbose_name=_("Protocol File Path"))
@@ -196,7 +211,6 @@ class Protofile(BioModel):
 
     def __str__(self):
         return "{}".format(self.protf_pdf)
-
 
 
 @receiver(models.signals.post_delete, sender=Protofile)
@@ -233,6 +247,7 @@ class RoleCode(BioLookup):
     # role tag
     pass
 
+
 class Tank(BioLookup):
     # tank tag
     pass
@@ -245,7 +260,7 @@ class TankDet(BioContainerDet):
 
 class Team(BioModel):
     # team tag
-    perc_id = models.ForeignKey("PersonnelCode", on_delete=models.DO_NOTHING, verbose_name=_("Team"))
+    perc_id = models.ForeignKey("PersonnelCode", on_delete=models.DO_NOTHING, verbose_name=_("Team Member"))
     role_id = models.ForeignKey("RoleCode", on_delete=models.DO_NOTHING, verbose_name=_("Role Code"))
 
 
