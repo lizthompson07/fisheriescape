@@ -80,6 +80,16 @@ class CupDet(BioContainerDet):
     cup_id = models.ForeignKey('Cup', on_delete=models.DO_NOTHING, verbose_name=_("Cup"))
 
 
+class EventCode(BioLookup):
+    # evntc tag
+    pass
+
+
+class FacilityCode(BioLookup):
+    # facic tag
+    pass
+
+
 class HeathUnit(BioLookup):
     # Heat tag
     manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"))
@@ -100,7 +110,6 @@ class Instrument(BioModel):
 
     def __str__(self):
         return "{} - {}".format(self.instc.__str__(), self.serial_number)
-    pass
 
 
 class InstrumentCode(BioLookup):
@@ -113,7 +122,6 @@ class InstrumentDet(BioTimeModel):
     inst = models.ForeignKey('Instrument', on_delete=models.DO_NOTHING, verbose_name=_("Instrument"))
     instdc = models.ForeignKey('InstDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Detail Code"))
     det_value = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Value"))
-    pass
 
 
 class InstDetCode(BioLookup):
@@ -124,6 +132,16 @@ class InstDetCode(BioLookup):
 class Organization(BioLookup):
     # orga tag
     pass
+
+
+class PersonnelCode(BioModel):
+    # perc tag
+    perc_last_name = models.CharField(max_length=32, verbose_name=_("Last Name"))
+    perc_first_name = models.CharField(max_length=32, verbose_name=_("First Name"))
+    perc_valid = models.BooleanField(default="False", verbose_name=_("Record still valid?"))
+
+    def __str__(self):
+        return "{} {}".format(self.perc_first_name, self.perc_last_name)
 
 
 class Program(BioTimeModel):
@@ -144,7 +162,7 @@ class ProgAuthority(BioModel):
 
     def __str__(self):
         return "{} {}".format(self.proga_first_name, self.proga_last_name)
-    pass
+
 
 
 class Protocol(BioTimeModel):
@@ -178,7 +196,7 @@ class Protofile(BioModel):
 
     def __str__(self):
         return "{}".format(self.protf_pdf)
-    pass
+
 
 
 @receiver(models.signals.post_delete, sender=Protofile)
@@ -211,6 +229,10 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
             os.remove(old_file.path)
 
 
+class RoleCode(BioLookup):
+    # role tag
+    pass
+
 class Tank(BioLookup):
     # tank tag
     pass
@@ -219,6 +241,12 @@ class Tank(BioLookup):
 class TankDet(BioContainerDet):
     # tankd tag
     tank_id = models.ForeignKey('Tank', on_delete=models.DO_NOTHING, verbose_name=_("Tank"))
+
+
+class Team(BioModel):
+    # team tag
+    perc_id = models.ForeignKey("PersonnelCode", on_delete=models.DO_NOTHING, verbose_name=_("Team"))
+    role_id = models.ForeignKey("RoleCode", on_delete=models.DO_NOTHING, verbose_name=_("Role Code"))
 
 
 class Tray(BioLookup):

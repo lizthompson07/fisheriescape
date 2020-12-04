@@ -32,6 +32,21 @@ class CupdMixin:
     model = models.CupDet
     title = "Cup Detail"
 
+
+class EvntcMixin:
+    key = "evntc"
+    form_class = forms.EvntcForm
+    model = models.EventCode
+    title = "Event Code"
+
+
+class FacicMixin:
+    key = "facic"
+    form_class = forms.FacicForm
+    model = models.FacilityCode
+    title = "Facility Code"
+
+
 class HeatMixin:
     key = "heat"
     form_class = forms.HeatForm
@@ -81,6 +96,13 @@ class OrgaMixin:
     title = _("Organization")
 
 
+class PercMixin:
+    key = 'perc'
+    model = models.PersonnelCode
+    form_class = forms.PercForm
+    title = _("Personnel Code")
+
+
 class ProgMixin:
     key = 'prog'
     model = models.Program
@@ -116,6 +138,13 @@ class ProtfMixin:
     title = _("Protocol File")
 
 
+class RoleMixin:
+    key = 'role'
+    model = models.RoleCode
+    form_class = forms.RoleForm
+    title = _("Role Code")
+
+
 class TankMixin:
     key = 'tank'
     model = models.Tank
@@ -128,6 +157,13 @@ class TankdMixin:
     model = models.TankDet
     form_class = forms.TankdForm
     title = _("Tank Detail")
+
+
+class TeamMixin:
+    key = 'team'
+    model = models.Team
+    form_class = forms.TeamForm
+    title = _("Team")
 
 
 class TrayMixin:

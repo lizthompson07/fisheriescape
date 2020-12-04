@@ -34,6 +34,20 @@ class CupdFilter(django_filters.FilterSet):
         fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class EnvtcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EventCode
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class FacicFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.FacilityCode
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class HeatFilter(django_filters.FilterSet):
 
     class Meta:
@@ -84,6 +98,13 @@ class OrgaFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class PercFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.PersonnelCode
+        fields = ["perc_first_name", "perc_last_name", "perc_valid", "created_by", "created_date", ]
+
+
 class ProgFilter(django_filters.FilterSet):
 
     class Meta:
@@ -119,6 +140,13 @@ class ProtfFilter(django_filters.FilterSet):
         fields = ["prot_id", "created_by", "created_date", ]
 
 
+class RoleFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.RoleCode
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class TankFilter(django_filters.FilterSet):
 
     class Meta:
@@ -131,6 +159,13 @@ class TankdFilter(django_filters.FilterSet):
     class Meta:
         model = models.TankDet
         fields = ["tank_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
+class TeamFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Team
+        fields = ["perc_id", "role_id", "created_by", "created_date", ]
 
 
 class TrayFilter(django_filters.FilterSet):

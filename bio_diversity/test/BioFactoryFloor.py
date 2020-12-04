@@ -143,6 +143,62 @@ class CupdFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class EvntcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EventCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = EvntcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class FacicFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.FacilityCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = FacicFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class HeatFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.HeathUnit
@@ -215,7 +271,6 @@ class HeatdFactory(factory.django.DjangoModelFactory):
         }
 
         return data
-
 
 
 class InstFactory(factory.django.DjangoModelFactory):
@@ -401,6 +456,33 @@ class OrgaFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class PercFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.PersonnelCode
+
+    perc_first_name = factory.lazy_attribute(lambda o: faker.word())
+    perc_last_name = factory.lazy_attribute(lambda o: faker.word())
+    perc_valid = factory.lazy_attribute(lambda o: faker.boolean())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = PercFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'perc_first_name': obj.perc_first_name,
+            'perc_last_name': obj.perc_last_name,
+            'perc_valid': obj.perc_valid,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class ProgFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Program
@@ -561,6 +643,35 @@ class ProtfFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class RoleFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.RoleCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = RoleFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class TankFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Tank
@@ -622,6 +733,33 @@ class TankdFactory(factory.django.DjangoModelFactory):
             'end_date': obj.end_date,
             'det_valid': obj.det_valid,
             'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class TeamFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Team
+
+    perc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PercFactory")
+    role_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RoleFactory")
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        perc = PercFactory()
+        role = RoleFactory()
+
+        obj = TeamFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'perc_id': perc.pk,
+            'role_id': role.pk,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

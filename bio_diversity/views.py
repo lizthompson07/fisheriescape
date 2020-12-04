@@ -68,6 +68,14 @@ class CupdCreate(mixins.CupdMixin, CommonCreate):
     pass
 
 
+class EvntcCreate(mixins.EvntcMixin, CommonCreate):
+    pass
+
+
+class FacicCreate(mixins.FacicMixin, CommonCreate):
+    pass
+
+
 class HeatCreate(mixins.HeatMixin, CommonCreate):
     pass
 
@@ -96,6 +104,10 @@ class OrgaCreate(mixins.OrgaMixin, CommonCreate):
     pass
 
 
+class PercCreate(mixins.PercMixin, CommonCreate):
+    pass
+
+
 class ProgCreate(mixins.ProgMixin, CommonCreate):
     pass
 
@@ -116,11 +128,19 @@ class ProtfCreate(mixins.ProtfMixin, CommonCreate):
     pass
 
 
+class RoleCreate(mixins.RoleMixin, CommonCreate):
+    pass
+
+
 class TankCreate(mixins.TankMixin, CommonCreate):
     pass
 
 
 class TankdCreate(mixins.TankdMixin, CommonCreate):
+    pass
+
+
+class TeamCreate(mixins.TeamMixin, CommonCreate):
     pass
 
 
@@ -199,6 +219,14 @@ class CupdDetails(mixins.CupdMixin, CommonDetails):
               "created_by", "created_date", ]
 
 
+class EvntcDetails(mixins.EvntcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class FacicDetails(mixins.FacicMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class HeatDetails(mixins.HeatMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
               "created_by", "created_date", ]
@@ -229,6 +257,10 @@ class OrgaDetails(mixins.OrgaMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class PercDetails(mixins.PercMixin, CommonDetails):
+    fields = ["perc_first_name", "perc_last_name", "Perc_valid", "created_by", "created_date", ]
+
+
 class ProgDetails(mixins.ProgMixin, CommonDetails):
     fields = ["prog_name", "prog_desc", "proga_id", "orga_id", "start_date", "end_date", "valid", "created_by",
               "created_date", ]
@@ -249,8 +281,11 @@ class ProtcDetails(mixins.ProtcMixin, CommonDetails):
 
 class ProtfDetails(mixins.ProtfMixin, CommonDetails):
     template_name = 'bio_diversity/details_protf.html'
-
     fields = ["prot_id", "protf_pdf", "comments", "created_by", "created_date", ]
+
+
+class RoleDetails(mixins.RoleMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class TankDetails(mixins.TankMixin, CommonDetails):
@@ -258,7 +293,12 @@ class TankDetails(mixins.TankMixin, CommonDetails):
 
 
 class TankdDetails(mixins.TankdMixin, CommonDetails):
-    fields = ["tank_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments", "created_by", "created_date", ]
+    fields = ["tank_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
+              "created_by", "created_date", ]
+
+
+class TeamDetails(mixins.TeamMixin, CommonDetails):
+    fields = ["perc_id", "role_id", "created_by", "created_date", ]
 
 
 class TrayDetails(mixins.TrayMixin, CommonDetails):
@@ -266,7 +306,8 @@ class TrayDetails(mixins.TrayMixin, CommonDetails):
 
 
 class TraydDetails(mixins.TraydMixin, CommonDetails):
-    fields = ["tray_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments", "created_by", "created_date", ]
+    fields = ["tray_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
+              "created_by", "created_date", ]
 
 
 class TrofDetails(mixins.TrofMixin, CommonDetails):
@@ -274,7 +315,8 @@ class TrofDetails(mixins.TrofMixin, CommonDetails):
 
 
 class TrofdDetails(mixins.TrofdMixin, CommonDetails):
-    fields = ["trof_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments", "created_by", "created_date", ]
+    fields = ["trof_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
+              "created_by", "created_date", ]
 
 
 class UnitDetails(mixins.UnitMixin, CommonDetails):
@@ -375,6 +417,16 @@ class CupdList(mixins.CupdMixin, CommonList):
     fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class EvntcList(mixins.EvntcMixin, CommonList):
+    filterset_class = filters.EnvtcFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class FacicList(mixins.FacicMixin, CommonList):
+    filterset_class = filters.FacicFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class HeatList(mixins.HeatMixin, CommonList):
     filterset_class = filters.HeatFilter
     fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
@@ -411,6 +463,11 @@ class OrgaList(mixins.OrgaMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class PercList(mixins.PercMixin, CommonList):
+    filterset_class = filters.PercFilter
+    fields = ["perc_first_name", "perc_last_name", "perc_valid", "created_by", "created_date", ]
+
+
 class ProgList(mixins.ProgMixin, CommonList):
     filterset_class = filters.ProgFilter
     fields = ["prog_name", "proga_id", "orga_id", "created_by", "created_date", ]
@@ -436,6 +493,11 @@ class ProtfList(mixins.ProtfMixin, CommonList):
     fields = ["prot_id", "comments", "created_by", "created_date", ]
 
 
+class RoleList(mixins.RoleMixin, CommonList):
+    filterset_class = filters.RoleFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class TankList(mixins.TankMixin, CommonList):
     filterset_class = filters.TankFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
@@ -444,6 +506,11 @@ class TankList(mixins.TankMixin, CommonList):
 class TankdList(mixins.TankdMixin, CommonList):
     filterset_class = filters.TankdFilter
     fields = ["tank_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
+class TeamList(mixins.TeamMixin, CommonList):
+    filterset_class = filters.TeamFilter
+    fields = ["perc_id", "role_id", "created_by", "created_date", ]
 
 
 class TrayList(mixins.TrayMixin, CommonList):
@@ -532,6 +599,14 @@ class CupdUpdate(mixins.CupdMixin, CommonUpdate):
     pass
 
 
+class EvntcUpdate(mixins.EvntcMixin, CommonUpdate):
+    pass
+
+
+class FacicUpdate(mixins.FacicMixin, CommonUpdate):
+    pass
+
+
 class HeatUpdate(mixins.HeatMixin, CommonUpdate):
     pass
 
@@ -560,6 +635,10 @@ class OrgaUpdate(mixins.OrgaMixin, CommonUpdate):
     pass
 
 
+class PercUpdate(mixins.PercMixin, CommonUpdate):
+    pass
+
+
 class ProgUpdate(mixins.ProgMixin, CommonUpdate):
     pass
 
@@ -580,11 +659,19 @@ class ProtfUpdate(mixins.ProtfMixin, CommonUpdate):
     pass
 
 
+class RoleUpdate(mixins.RoleMixin, CommonUpdate):
+    pass
+
+
 class TankUpdate(mixins.TankMixin, CommonUpdate):
     pass
 
 
 class TankdUpdate(mixins.TankdMixin, CommonUpdate):
+    pass
+
+
+class TeamUpdate(mixins.TeamMixin, CommonUpdate):
     pass
 
 

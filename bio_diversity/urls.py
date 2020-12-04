@@ -26,6 +26,16 @@ urlpatterns = [
     path('details/cupd/<int:pk>/', views.CupdDetails.as_view(), name="details_cupd"),
     path('list/cupd/', views.CupdList.as_view(), name="list_cupd"),
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
+        
+    path('create/evntc/', views.EvntcCreate.as_view(), name="create_evntc"),
+    path('details/evntc/<int:pk>/', views.EvntcDetails.as_view(), name="details_evntc"),
+    path('list/evntc/', views.EvntcList.as_view(), name="list_evntc"),
+    path('update/evntc/<int:pk>/', views.EvntcUpdate.as_view(), name="update_evntc"),
+            
+    path('create/facic/', views.FacicCreate.as_view(), name="create_facic"),
+    path('details/facic/<int:pk>/', views.FacicDetails.as_view(), name="details_facic"),
+    path('list/facic/', views.FacicList.as_view(), name="list_facic"),
+    path('update/facic/<int:pk>/', views.FacicUpdate.as_view(), name="update_facic"),
     
     path('create/heat/', views.HeatCreate.as_view(), name="create_heat"),
     path('details/heat/<int:pk>/', views.HeatDetails.as_view(), name="details_heat"),
@@ -62,6 +72,11 @@ urlpatterns = [
     path('list/orga/', views.OrgaList.as_view(), name="list_orga"),
     path('update/orga/<int:pk>/', views.OrgaUpdate.as_view(), name="update_orga"),
 
+    path('create/perc/', views.PercCreate.as_view(), name="create_perc"),
+    path('details/perc/<int:pk>/', views.PercDetails.as_view(), name="details_perc"),
+    path('list/perc/', views.PercList.as_view(), name="list_perc"),
+    path('update/perc/<int:pk>/', views.PercUpdate.as_view(), name="update_perc"),
+
     path('create/prog/', views.ProgCreate.as_view(), name="create_prog"),
     path('details/prog/<int:pk>/', views.ProgDetails.as_view(), name="details_prog"),
     path('list/prog/', views.ProgList.as_view(), name="list_prog"),
@@ -87,6 +102,11 @@ urlpatterns = [
     path('list/protf/', views.ProtfList.as_view(), name="list_protf"),
     path('update/protf/<int:pk>/', views.ProtfUpdate.as_view(), name="update_protf"),
 
+    path('create/role/', views.RoleCreate.as_view(), name="create_role"),
+    path('details/role/<int:pk>/', views.RoleDetails.as_view(), name="details_role"),
+    path('list/role/', views.RoleList.as_view(), name="list_role"),
+    path('update/role/<int:pk>/', views.RoleUpdate.as_view(), name="update_role"),
+
     path('create/tank/', views.TankCreate.as_view(), name="create_tank"),
     path('details/tank/<int:pk>/', views.TankDetails.as_view(), name="details_tank"),
     path('list/tank/', views.TankList.as_view(), name="list_tank"),
@@ -96,6 +116,11 @@ urlpatterns = [
     path('details/tankd/<int:pk>/', views.TankdDetails.as_view(), name="details_tankd"),
     path('list/tankd/', views.TankdList.as_view(), name="list_tankd"),
     path('update/tankd/<int:pk>/', views.TankdUpdate.as_view(), name="update_tankd"),
+
+    path('create/team/', views.TeamCreate.as_view(), name="create_team"),
+    path('details/team/<int:pk>/', views.TeamDetails.as_view(), name="details_team"),
+    path('list/team/', views.TeamList.as_view(), name="list_team"),
+    path('update/team/<int:pk>/', views.TeamUpdate.as_view(), name="update_team"),
 
     path('create/tray/', views.TrayCreate.as_view(), name="create_tray"),
     path('details/tray/<int:pk>/', views.TrayDetails.as_view(), name="details_tray"),

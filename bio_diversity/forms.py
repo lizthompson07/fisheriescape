@@ -63,6 +63,18 @@ class HeatdForm(CreateTimePrams, forms.ModelForm):
         exclude = []
 
 
+class EvntcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.EventCode
+        exclude = []
+
+
+class FacicForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.FacilityCode
+        exclude = []
+
+
 class InstForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Instrument
@@ -90,6 +102,12 @@ class InstdcForm(CreatePrams, forms.ModelForm):
 class OrgaForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Organization
+        exclude = []
+
+
+class PercForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.PersonnelCode
         exclude = []
 
 
@@ -123,6 +141,13 @@ class ProtfForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+
+class RoleForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.RoleCode
+        exclude = []
+
+
 class TankForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Tank
@@ -144,6 +169,12 @@ class TrayForm(CreatePrams, forms.ModelForm):
 class TraydForm(CreateTimePrams, forms.ModelForm):
     class Meta:
         model = models.TrayDet
+        exclude = []
+
+
+class TeamForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Team
         exclude = []
 
 
