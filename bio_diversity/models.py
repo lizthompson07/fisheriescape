@@ -155,7 +155,7 @@ class Location(BioModel):
     subr_id = models.ForeignKey('SubRiverCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("SubRiver Code"))
     relc_id = models.ForeignKey('ReleaseSiteCode', on_delete=models.DO_NOTHING, null=True, blank=True,
-                                verbose_name=_("SubRiver Code"))
+                                verbose_name=_("Release Site Code"))
     loc_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
                                   verbose_name=_("Lattitude"))
     loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
