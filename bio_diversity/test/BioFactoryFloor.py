@@ -47,7 +47,7 @@ class CdscFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ContDetSubjCode
 
-    cont_det_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
+    contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
     description_en = factory.lazy_attribute(lambda o: faker.text())
@@ -62,7 +62,7 @@ class CdscFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'cont_det_id': contdc.pk,
+            'contdc_id': contdc.pk,
             'name': obj.name,
             'nom': obj.nom,
             'description_en': obj.description_en,
@@ -113,7 +113,7 @@ class CupdFactory(factory.django.DjangoModelFactory):
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date())
     end_date = factory.lazy_attribute(lambda o: faker.date())
-    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    det_valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -124,7 +124,7 @@ class CupdFactory(factory.django.DjangoModelFactory):
         contdc = ContdcFactory()
         cup = CupFactory()
         cdsc = CdscFactory()
-        obj = CupFactory.build(**kwargs)
+        obj = CupdFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -134,7 +134,7 @@ class CupdFactory(factory.django.DjangoModelFactory):
             'cdsc_id': cdsc.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'valid': obj.valid,
+            'det_valid': obj.det_valid,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -526,7 +526,7 @@ class TankdFactory(factory.django.DjangoModelFactory):
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date())
     end_date = factory.lazy_attribute(lambda o: faker.date())
-    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    det_valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -536,7 +536,7 @@ class TankdFactory(factory.django.DjangoModelFactory):
         contdc = ContdcFactory()
         tank = TankFactory()
         cdsc = CdscFactory()
-        obj = CupFactory.build(**kwargs)
+        obj = TankdFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -546,7 +546,7 @@ class TankdFactory(factory.django.DjangoModelFactory):
             'cdsc_id': cdsc.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'valid': obj.valid,
+            'det_valid': obj.det_valid,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -593,7 +593,7 @@ class TraydFactory(factory.django.DjangoModelFactory):
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date())
     end_date = factory.lazy_attribute(lambda o: faker.date())
-    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    det_valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -603,7 +603,7 @@ class TraydFactory(factory.django.DjangoModelFactory):
         contdc = ContdcFactory()
         tray = TrayFactory()
         cdsc = CdscFactory()
-        obj = CupFactory.build(**kwargs)
+        obj = TraydFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -613,7 +613,7 @@ class TraydFactory(factory.django.DjangoModelFactory):
             'cdsc_id': cdsc.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'valid': obj.valid,
+            'det_valid': obj.det_valid,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -660,7 +660,7 @@ class TrofdFactory(factory.django.DjangoModelFactory):
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
     start_date = factory.lazy_attribute(lambda o: faker.date())
     end_date = factory.lazy_attribute(lambda o: faker.date())
-    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    det_valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
@@ -670,7 +670,7 @@ class TrofdFactory(factory.django.DjangoModelFactory):
         contdc = ContdcFactory()
         trof = TrofFactory()
         cdsc = CdscFactory()
-        obj = CupFactory.build(**kwargs)
+        obj = TrofdFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -680,7 +680,7 @@ class TrofdFactory(factory.django.DjangoModelFactory):
             'cdsc_id': cdsc.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'valid': obj.valid,
+            'det_valid': obj.det_valid,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
