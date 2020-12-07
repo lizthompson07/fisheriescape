@@ -1,9 +1,11 @@
 from datetime import timedelta
 
+from django.db.models import Q
 from django.test import tag
 from django.utils import timezone
 
 from .. import forms
+from ..models import FundingSource
 from ..test import FactoryFloor as FactoryFloor
 from ..test.common_tests import CommonProjectTest as CommonTest
 
@@ -46,20 +48,46 @@ class TestProjectYearForm(CommonTest):
         data = FactoryFloor.ProjectYearFactory.get_valid_data()
         data['start_date'] = project_year2.start_date
         data['end_date'] = project_year2.end_date
+        data['project'] = project.id
         self.assert_form_valid(self.Form, data=data, instance=project_year2)
+        # but if we are cloning the project year,  the logic should be reversed
+        self.assert_form_invalid(self.Form, data=data, instance=project_year2, initial=dict(cloning=True))
+
         # if we try to change this to a FY where there is already a year, this should be invalid
         data['start_date'] = project_year1.start_date
         data['end_date'] = None
         self.assert_form_invalid(self.Form, data=data, instance=project_year2)
 
-        # but if we are cloning the first  this logic should be reversed
-        # self.assert_form_valid(self.Form, data=data, instance=project_year1, initial=dict(cloning=True))
 
-    @ tag("ProjectYear", 'forms')
+class TestProjectForm(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixutres
+        self.Form = forms.ProjectYearForm
+
+
+    @tag("ProjectYear", 'forms')
     def test_fields(self):
-        self.assert_field_not_in_form(self.Form, "reset_reviewers")
-
-        instance = FactoryFloor.ProjectYearFactory()
-        fields = []
+        instance = FactoryFloor.ProjectFactory()
+        # if we are cloning, there should not be a "tags" field
+        self.assert_field_not_in_form(self.Form, "tags", instance=instance)
+        # if ACRDP we should have the following fields
+        funding_source = FundingSource.objects.filter(name__icontains="acrdp").first()
+        instance.default_funding_source = funding_source
+        instance.save()
+        fields = [
+            'organization',
+            'species_involved',
+            'team_description',
+            'rationale',
+            'experimental_protocol',
+        ]
         for f in fields:
-            self.assert_field_in_form(self.Form, fields, instance=instance)
+            self.assert_field_in_form(self.Form, f, instance=instance)
+        # but if is not acrdp, then the fields should not be there
+        funding_source = FundingSource.objects.filter(~Q(name__icontains="acrdp")).first()
+        instance.default_funding_source = funding_source
+        instance.save()
+        for f in fields:
+            self.assert_field_not_in_form(self.Form, f, instance=instance)
+
