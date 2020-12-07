@@ -2,7 +2,6 @@ from django import forms
 from bio_diversity import models
 
 
-## "fp-date-time-with-seconds
 
 class CreatePrams:
 
@@ -67,11 +66,10 @@ class EvntForm(CreatePrams, forms.ModelForm):
         model = models.Event
         exclude = []
         widgets = {
-            'evnt_start': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
-            'evnt_starttime': forms.TimeInput(attrs={"class": "fp-time"}),
-            'evnt_end': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'evnt_start': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
+            'evnt_starttime': forms.TimeInput(attrs={"class": "fp-date-time"}),
+            'evnt_end': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
             'evnt_endtime': forms.TimeInput(attrs={"class": "fp-time"}),
-
         }
 
 
@@ -149,7 +147,7 @@ class LocForm(CreatePrams, forms.ModelForm):
         model = models.Location
         exclude = []
         widgets = {
-            'loc_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"}),
+            'loc_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
             'loc_time': forms.TimeInput(attrs={"class": "fp-time"}),
         }
 

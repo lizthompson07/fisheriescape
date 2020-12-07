@@ -257,7 +257,8 @@ class Protocol(BioTimeModel):
     # prot tag
     prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"))
     protc_id = models.ForeignKey('ProtoCode', on_delete=models.DO_NOTHING, verbose_name=_("Protocol Code"))
-    # protf_id = models.ForeignKey('Protofile', null=True, blank=True, on_delete=models.DO_NOTHING, verbose_name=_("Protocol File"))
+    protf_id = models.ForeignKey('Protofile', null=True, blank=True, on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Protocol File"))
     prot_desc = models.CharField(max_length=4000, verbose_name=_("Protocol Description"))
 
     def __str__(self):
