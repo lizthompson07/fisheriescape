@@ -915,7 +915,7 @@ class ResponsibilityCenterDeleteView(AdminRequiredMixin, CommonDeleteView):
 
 class ProjectCodeListView(AdminRequiredMixin, CommonFilterView):
     template_name = "shared_models/org_list.html"
-    filterset_class = filters.RCFilter
+    filterset_class = filters.ProjectCodeFilter
     model = models.Project
     field_list = [
         {"name": "name|{}".format(gettext_lazy("name")), "class": "", "width": ""},
@@ -934,20 +934,20 @@ class ProjectCodeUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Project
     form_class = forms.ProjectCodeForm
     home_url_name = "shared_models:index"
-    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:rc_list")}
+    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:project_list")}
     template_name = "shared_models/org_form.html"
     is_multipart_form_data = True
     container_class = "container bg-light curvy"
 
     def get_delete_url(self):
-        return reverse("shared_models:rc_delete", args=[self.get_object().id])
+        return reverse("shared_models:project_delete", args=[self.get_object().id])
 
 
 class ProjectCodeCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Project
     form_class = forms.ProjectCodeForm
     home_url_name = "shared_models:index"
-    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:rc_list")}
+    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:project_list")}
     template_name = "shared_models/org_form.html"
     container_class = "container bg-light curvy"
 
@@ -956,7 +956,7 @@ class ProjectCodeDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Project
     success_url = reverse_lazy('shared_models:project_list')
     home_url_name = "shared_models:index"
-    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:rc_list")}
+    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:project_list")}
     template_name = "shared_models/generic_confirm_delete.html"
     delete_protection = False
     container_class = "container bg-light curvy"
