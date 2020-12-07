@@ -216,8 +216,8 @@ class ProjectYearSubmitAPIView(APIView):
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
-    def post(self, request, pk):
-        project_year = get_object_or_404(models.ProjectYear, pk=pk)
+    def post(self, request, project_year):
+        project_year = get_object_or_404(models.ProjectYear, pk=project_year)
         project_year.submit()
 
         # create a new email object
@@ -238,8 +238,8 @@ class ProjectYearUnsubmitAPIView(APIView):
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
-    def post(self, request, pk):
-        project_year = get_object_or_404(models.ProjectYear, pk=pk)
+    def post(self, request, project_year):
+        project_year = get_object_or_404(models.ProjectYear, pk=project_year)
         project_year.unsubmit()
         return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
 

@@ -187,7 +187,7 @@ class CapitalCostFactory(factory.django.DjangoModelFactory):
             'project_year': ProjectYearFactory().id,
             'funding_source': FundingSourceFactory().id,
             'amount': faker.pyfloat(positive=True),
-            'category': faker.py_int(1, 4),
+            'category': faker.pyint(1, 4),
         }
 
 
@@ -309,7 +309,7 @@ class ActivityFactory(factory.django.DjangoModelFactory):
             'project_year': ProjectYearFactory().id,
             'type': faker.pyint(1, 2),
             'name': faker.catch_phrase(),
-            'target_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+            'target_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).strftime("%Y-%m-%d"),
         }
 
 

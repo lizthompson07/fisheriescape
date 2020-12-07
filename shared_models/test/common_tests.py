@@ -244,9 +244,6 @@ class CommonTest(TestCase):
         for key in keys:
             self.assertIn(key, my_dict)
 
-
-
-
     # Tests for forms (create, update, delete and form views)
     #################
 
@@ -281,7 +278,7 @@ class CommonTest(TestCase):
             self.get_and_login_user(user)
 
         if data and file_field_name:
-            with open(os.path.join(settings.BASE_DIR, "static","img","inventory","good to go.jpg"), mode='rb') as fp:
+            with open(os.path.join(settings.BASE_DIR, "static", "img", "inventory", "good to go.jpg"), mode='rb') as fp:
                 data[file_field_name] = fp
                 response = self.client.post(test_url, data=data, )
         else:
@@ -320,7 +317,6 @@ class CommonTest(TestCase):
                         msg=f"Test data was likely invalid. /nHere's the error log from the form: {form.errors}/n"
                             f"Here's the data from the form:{form.data}")
 
-
     def assert_form_invalid(self, form_class, data, instance=None, initial=None):
         """
         assert that upon submission a form is invalid.
@@ -334,7 +330,7 @@ class CommonTest(TestCase):
             form = form_class(data, initial=initial)
         self.assertFalse(form.is_valid())
 
-    def assert_field_in_form(self, Form, field_name, instance=None):
+    def assert_field_in_form(self, Form, field_name, instance=None, initial=None):
         """
         assert that a form contains a specific field
         :param Form: the form instance to test
@@ -343,12 +339,12 @@ class CommonTest(TestCase):
         """
 
         if instance:
-            form = Form(instance=instance)
+            form = Form(instance=instance, initial=initial)
         else:
-            form = Form()
+            form = Form(initial=initial)
         self.assertIn(field_name, form.fields)
 
-    def assert_field_not_in_form(self, Form, field_name, instance=None):
+    def assert_field_not_in_form(self, Form, field_name, instance=None, initial=None):
         """
         assert that a form does not contains a specific field
         :param Form: the form instance to test
@@ -356,9 +352,9 @@ class CommonTest(TestCase):
         :param instance: an instance of some model to use when testing the form. applicable to ModelForms only
         """
         if instance:
-            form = Form(instance=instance)
+            form = Form(instance=instance, initial=initial)
         else:
-            form = Form()
+            form = Form(initial=initial)
         self.assertNotIn(field_name, form.fields)
 
     # Tests for models

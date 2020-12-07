@@ -5,9 +5,274 @@ from faker import Factory
 from rest_framework import status
 
 from . import FactoryFloor
+from .. import models
 from ..test.common_tests import CommonProjectTest as CommonTest
 
 faker = Factory.create()
+
+
+class TestActivityListCreateAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.obj = FactoryFloor.ActivityFactory(project_year=self.instance)
+        self.test_url = reverse("activity-list", args=[self.instance.pk])
+
+    @tag("api", 'activity-list')
+    def test_url(self):
+        self.assert_correct_url("activity-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/activities/")
+
+    @tag("api", 'activity-list')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+
+    @tag("api", 'activity-list')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.ActivityFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.ActivityFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # lead staff user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.ActivityFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # RESPONSE DATA
+        valid_user = self.staff.user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.ActivityFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = self.client.post(self.test_url, data=FactoryFloor.ActivityFactory.get_valid_data()).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
+
+    @tag("api", 'activity-list')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestCapitalCostListCreateAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.cost = FactoryFloor.CapitalCostFactory(project_year=self.instance)
+        self.test_url = reverse("capital-list", args=[self.instance.pk])
+
+    @tag("api", 'capital-cost')
+    def test_url(self):
+        self.assert_correct_url("capital-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/capital-costs/")
+
+    @tag("api", 'capital-cost')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+
+    @tag("api", 'capital-cost')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.CapitalCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.CapitalCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # lead staff user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.CapitalCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # RESPONSE DATA
+        valid_user = self.staff.user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.CapitalCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = self.client.post(self.test_url, data=FactoryFloor.CapitalCostFactory.get_valid_data()).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
+
+    @tag("api", 'capital-cost')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestCollaborativeAgreementListCreateAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.obj = FactoryFloor.CollaborativeAgreementFactory(project_year=self.instance)
+        self.test_url = reverse("agreement-list", args=[self.instance.pk])
+
+    @tag("api", 'agreement-list')
+    def test_url(self):
+        self.assert_correct_url("agreement-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/agreements/")
+
+    @tag("api", 'agreement-list')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+
+    @tag("api", 'agreement-list')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # lead staff user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # RESPONSE DATA
+        valid_user = self.staff.user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = self.client.post(self.test_url, data=FactoryFloor.CollaborativeAgreementFactory.get_valid_data()).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
+
+    @tag("api", 'agreement-list')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestCollaboratorListCreateAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.obj = FactoryFloor.CollaboratorFactory(project_year=self.instance)
+        self.test_url = reverse("collaborator-list", args=[self.instance.pk])
+
+    @tag("api", 'collaborator-list')
+    def test_url(self):
+        self.assert_correct_url("collaborator-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/collaborators/")
+
+    @tag("api", 'collaborator-list')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+
+    @tag("api", 'collaborator-list')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # lead staff user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # RESPONSE DATA
+        valid_user = self.staff.user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = self.client.post(self.test_url, data=FactoryFloor.CollaboratorFactory.get_valid_data()).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
+
+    @tag("api", 'collaborator-list')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
 
 
 class TestCurrentUser(CommonTest):
@@ -57,6 +322,137 @@ class TestCurrentUser(CommonTest):
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
 
 
+class TestFileListCreateAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.obj = FactoryFloor.FileFactory(project_year=self.instance)
+        self.test_url = reverse("file-list", args=[self.instance.pk])
+
+    @tag("api", 'file-list')
+    def test_url(self):
+        self.assert_correct_url("file-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/files/")
+
+    @tag("api", 'file-list')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+
+    @tag("api", 'file-list')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.FileFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.FileFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # lead staff user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.FileFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # RESPONSE DATA
+        valid_user = self.staff.user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.FileFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = self.client.post(self.test_url, data=FactoryFloor.FileFactory.get_valid_data()).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
+
+    @tag("api", 'file-list')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+
+# class TestReviewListCreateAPIView(CommonTest):
+#     def setUp(self):
+#         super().setUp()
+#         self.user = self.get_and_login_user()
+#         self.staff = FactoryFloor.LeadStaffFactory()
+#         self.instance = self.staff.project_year
+#         self.obj = FactoryFloor.ReviewFactory(project_year=self.instance)
+#         self.test_url = reverse("review-list", args=[self.instance.pk])
+#
+#     @tag("api", 'review-list')
+#     def test_url(self):
+#         self.assert_correct_url("review-list", test_url_args=[self.instance.pk],
+#                                 expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/reviews/")
+#
+#     @tag("api", 'review-list')
+#     def test_get(self):
+#         # PERMISSIONS
+#         # authenticated users
+#         response = self.client.get(self.test_url)
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         # unauthenticated users
+#         self.client.logout()
+#         response = self.client.get(self.test_url)
+#         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+#
+#         # RESPONSE DATA
+#         valid_user = None
+#         self.get_and_login_user(user=None)
+#         response = self.client.get(self.test_url)
+#         self.assertEqual(len(response.data), 1)
+#         self.assertEqual(response.data[0]["id"], self.instance.id)
+#
+#     @tag("api", 'review-list')
+#     def test_post(self):
+#         # PERMISSIONS
+#         # authenticated users
+#         response = self.client.post(self.test_url, data=FactoryFloor.ReviewFactory.get_valid_data())
+#         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+#         # unauthenticated users
+#         self.client.logout()
+#         response = self.client.post(self.test_url, data=FactoryFloor.ReviewFactory.get_valid_data())
+#         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+#         # lead staff user
+#         self.get_and_login_user(user=self.staff.user)
+#         response = self.client.post(self.test_url, data=FactoryFloor.ReviewFactory.get_valid_data())
+#         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+#
+#         # RESPONSE DATA
+#         valid_user = self.staff.user
+#         self.get_and_login_user(user=self.staff.user)
+#         response = self.client.post(self.test_url, data=FactoryFloor.ReviewFactory.get_valid_data())
+#         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+#         data = self.client.post(self.test_url, data=FactoryFloor.ReviewFactory.get_valid_data()).data
+#         keys = [
+#             "id",
+#         ]
+#         self.assert_dict_has_keys(data, keys)
+#
+#     @tag("api", 'review-list')
+#     def test_unallowed_methods_only(self):
+#         restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+#         self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+#         self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+#         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
 class TestFTEBreakdownAPIView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -133,43 +529,131 @@ class TestFTEBreakdownAPIView(CommonTest):
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
 
 
-class TestProjectRetrieveAPIView(CommonTest):
+class TestGCCostListCreateAPIView(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.instance = FactoryFloor.ProjectFactory()
-        self.test_url = reverse("project-detail", args=[self.instance.pk])
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.cost = FactoryFloor.GCCostFactory(project_year=self.instance)
+        self.test_url = reverse("gc-list", args=[self.instance.pk])
 
-    @tag("api", 'project-detail')
+    @tag("api", 'gc-cost')
     def test_url(self):
-        self.assert_correct_url("project-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/project-planning/projects/{self.instance.pk}/")
+        self.assert_correct_url("gc-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/gc-costs/")
 
-    @tag("api", 'project-detail')
-    def test_authenticated(self):
+    @tag("api", 'gc-cost')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
         response = self.client.get(self.test_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    @tag("api", 'project-detail')
-    def test_unauthenticated(self):
+        # unauthenticated users
         self.client.logout()
         response = self.client.get(self.test_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    @tag("api", 'project-detail')
-    def test_response_data(self):
-        data = None
-        data = self.client.get(self.test_url, data=data).data
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+
+    @tag("api", 'gc-cost')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # lead staff user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # RESPONSE DATA
+        valid_user = self.staff.user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = self.client.post(self.test_url, data=FactoryFloor.GCCostFactory.get_valid_data()).data
         keys = [
             "id",
         ]
         self.assert_dict_has_keys(data, keys)
 
-    @tag("api", 'project-detail')
-    def test_safe_methods_only(self):
+    @tag("api", 'gc-cost')
+    def test_unallowed_methods_only(self):
         restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
         self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
-        self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestOMCostListCreateAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.om_cost = FactoryFloor.OMCostFactory(project_year=self.instance)
+        self.test_url = reverse("om-list", args=[self.instance.pk])
+
+    @tag("api", 'om-list')
+    def test_url(self):
+        self.assert_correct_url("om-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/om-costs/")
+
+    @tag("api", 'om-list')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+
+    @tag("api", 'om-list')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.OMCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.OMCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = self.staff.user
+        self.get_and_login_user(user=valid_user)
+        response = self.client.post(self.test_url, data=FactoryFloor.OMCostFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = self.client.post(self.test_url, data=FactoryFloor.OMCostFactory.get_valid_data()).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
+
+    @tag("api", 'om-list')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
 
 
@@ -202,6 +686,46 @@ class TestProjectListAPIView(CommonTest):
         self.assertEqual(data["results"][0]["id"], self.instance.id)
 
     @tag("api", 'project-list')
+    def test_safe_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.post(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestProjectRetrieveAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.instance = FactoryFloor.ProjectFactory()
+        self.test_url = reverse("project-detail", args=[self.instance.pk])
+
+    @tag("api", 'project-detail')
+    def test_url(self):
+        self.assert_correct_url("project-detail", test_url_args=[self.instance.pk], expected_url_path=f"/api/project-planning/projects/{self.instance.pk}/")
+
+    @tag("api", 'project-detail')
+    def test_authenticated(self):
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @tag("api", 'project-detail')
+    def test_unauthenticated(self):
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    @tag("api", 'project-detail')
+    def test_response_data(self):
+        data = None
+        data = self.client.get(self.test_url, data=data).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
+
+    @tag("api", 'project-detail')
     def test_safe_methods_only(self):
         restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
         self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
@@ -298,7 +822,11 @@ class TestProjectYearSubmitAPIView(CommonTest):
     def setUp(self):
         super().setUp()
         self.user = self.get_and_login_user()
-        self.instance = FactoryFloor.ProjectYearFactory()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.instance.status = 1
+        self.instance.save()
+
         self.test_url = reverse("year-submit", args=[self.instance.pk])
 
     @tag("api", 'year-submit')
@@ -317,22 +845,30 @@ class TestProjectYearSubmitAPIView(CommonTest):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # project lead should be allowed - but will not test extensively the CanModify permissions class since this is done in utils
-        staff = FactoryFloor.LeadStaffFactory(project_year=self.instance)
-        self.get_and_login_user(user=staff.user)
+        self.get_and_login_user(user=self.staff.user)
         response = self.client.post(self.test_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    @tag("api", 'year-submit')
+    def test_response_data(self):
+        # ensure project is unsubmitted
+        self.assertIsNone(self.instance.submitted)
 
-    # @tag("api", 'year-submit')
-    # def test_response_data(self):
-    #     data = None
-    #     data = self.client.get(self.test_url, data=data).data
-    #     keys = [
-    #         "id",
-    #     ]
-    #     self.assert_dict_has_keys(data, keys)
+        self.get_and_login_user(user=self.staff.user)
+        data = None
+        data = self.client.post(self.test_url, data=data).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
 
-
+        # ensure project is submitted
+        self.instance = models.ProjectYear.objects.get(pk=self.instance.id)
+        self.assertIsNotNone(self.instance.submitted)
+        self.assertEqual(self.instance.submitted.year, timezone.now().year)
+        self.assertEqual(self.instance.submitted.month, timezone.now().month)
+        self.assertEqual(self.instance.submitted.day, timezone.now().day)
+        self.assertEqual(self.instance.status, 2)
 
     @tag("api", 'year-submit')
     def test_unallowed_methods_only(self):
@@ -341,3 +877,191 @@ class TestProjectYearSubmitAPIView(CommonTest):
         self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
         self.assertIn(self.client.get(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestProjectYearUnsubmitAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.instance.status = 1
+        self.instance.save()
+        self.instance.submit()
+        self.test_url = reverse("year-unsubmit", args=[self.instance.pk])
+
+    @tag("api", 'year-unsubmit')
+    def test_url(self):
+        self.assert_correct_url("year-unsubmit", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/unsubmit/")
+
+    @tag("api", 'year-unsubmit')
+    def test_permissions(self):
+        # authenticated users
+        response = self.client.post(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # project lead should be allowed - but will not test extensively the CanModify permissions class since this is done in utils
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @tag("api", 'year-unsubmit')
+    def test_response_data(self):
+        # ensure project is submitted
+        self.assertIsNotNone(self.instance.submitted)
+
+        self.get_and_login_user(user=self.staff.user)
+        data = None
+        data = self.client.post(self.test_url, data=data).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
+
+        # ensure project is unsubmitted
+        self.instance = models.ProjectYear.objects.get(pk=self.instance.id)
+        self.assertIsNone(self.instance.submitted)
+        self.assertEqual(self.instance.status, 1)
+
+    @tag("api", 'year-unsubmit')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.get(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestStaffListCreateAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.test_url = reverse("staff-list", args=[self.instance.pk])
+
+    @tag("api", 'staff-list')
+    def test_url(self):
+        self.assert_correct_url("staff-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/staff/")
+
+    @tag("api", 'staff-list')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=valid_user)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+
+    @tag("api", 'staff-list')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.StaffFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.StaffFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # lead staff user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.StaffFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # RESPONSE DATA
+        valid_user = self.staff.user
+        self.get_and_login_user(user=valid_user)
+        response = self.client.post(self.test_url, data=FactoryFloor.StaffFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn("id", response.data)
+
+    @tag("api", 'staff-list')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+class TestStatusReportListCreateAPIView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.user = self.get_and_login_user()
+        self.staff = FactoryFloor.LeadStaffFactory()
+        self.instance = self.staff.project_year
+        self.obj = FactoryFloor.StatusReportFactory(project_year=self.instance)
+        self.test_url = reverse("status-report-list", args=[self.instance.pk])
+
+    @tag("api", 'status-report-list')
+    def test_url(self):
+        self.assert_correct_url("status-report-list", test_url_args=[self.instance.pk],
+                                expected_url_path=f"/api/project-planning/project-years/{self.instance.pk}/status-reports/")
+
+    @tag("api", 'status-report-list')
+    def test_get(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.get(self.test_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # RESPONSE DATA
+        valid_user = None
+        self.get_and_login_user(user=None)
+        response = self.client.get(self.test_url)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["id"], self.instance.id)
+
+    @tag("api", 'status-report-list')
+    def test_post(self):
+        # PERMISSIONS
+        # authenticated users
+        response = self.client.post(self.test_url, data=FactoryFloor.StatusReportFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # unauthenticated users
+        self.client.logout()
+        response = self.client.post(self.test_url, data=FactoryFloor.StatusReportFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # lead staff user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.StatusReportFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # RESPONSE DATA
+        valid_user = self.staff.user
+        self.get_and_login_user(user=self.staff.user)
+        response = self.client.post(self.test_url, data=FactoryFloor.StatusReportFactory.get_valid_data())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = self.client.post(self.test_url, data=FactoryFloor.StatusReportFactory.get_valid_data()).data
+        keys = [
+            "id",
+        ]
+        self.assert_dict_has_keys(data, keys)
+
+    @tag("api", 'status-report-list')
+    def test_unallowed_methods_only(self):
+        restricted_statuses = [status.HTTP_405_METHOD_NOT_ALLOWED, status.HTTP_403_FORBIDDEN]
+        self.assertIn(self.client.put(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.delete(self.test_url, data=None).status_code, restricted_statuses)
+        self.assertIn(self.client.patch(self.test_url, data=None).status_code, restricted_statuses)
+
+
+

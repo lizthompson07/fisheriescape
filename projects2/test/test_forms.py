@@ -63,17 +63,17 @@ class TestProjectForm(CommonTest):
 
     def setUp(self):
         super().setUp()  # used to import fixutres
-        self.Form = forms.ProjectYearForm
+        self.Form = forms.ProjectForm
 
 
     @tag("ProjectYear", 'forms')
     def test_fields(self):
         instance = FactoryFloor.ProjectFactory()
         # if we are cloning, there should not be a "tags" field
-        self.assert_field_not_in_form(self.Form, "tags", instance=instance)
+        self.assert_field_not_in_form(self.Form, "tags", instance=instance, initial=dict(cloning=True))
         # if ACRDP we should have the following fields
-        funding_source = FundingSource.objects.filter(name__icontains="acrdp").first()
-        instance.default_funding_source = funding_source
+        acrdp_funding_source = FactoryFloor.FundingSourceFactory(name="ACRDP")
+        instance.default_funding_source = acrdp_funding_source
         instance.save()
         fields = [
             'organization',
@@ -85,7 +85,7 @@ class TestProjectForm(CommonTest):
         for f in fields:
             self.assert_field_in_form(self.Form, f, instance=instance)
         # but if is not acrdp, then the fields should not be there
-        funding_source = FundingSource.objects.filter(~Q(name__icontains="acrdp")).first()
+        funding_source = FactoryFloor.FundingSourceFactory()
         instance.default_funding_source = funding_source
         instance.save()
         for f in fields:

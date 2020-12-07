@@ -15,14 +15,17 @@ class CanModifyOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
+        #depending on who is calling this class, it might not call the `has_object_permission` method. We will call it here in case
         if view.kwargs.get("project_year"):
             project_year = get_object_or_404(models.ProjectYear, pk=view.kwargs.get("project_year"))
-            return can_modify_project(request.user, project_year.project_id)
+            return self.has_object_permission(request=request, view=view, obj=project_year)
 
         return True
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS and request.user.is_authenticated:
+        if not request.user.is_authenticated:
+            return False
+        if request.method in permissions.SAFE_METHODS:
             return True
         if hasattr(obj, "project_id"):
             return can_modify_project(request.user, obj.project_id)
