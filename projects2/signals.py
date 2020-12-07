@@ -145,5 +145,3 @@ def save_project_year_on_review_creation(sender, instance, created, **kwargs):
 @receiver(models.signals.pre_delete, sender=Project)
 def delete_project_years_before_deleting_project(sender, instance, **kwargs):
     Staff.objects.filter(project_year__project=instance).delete()
-    print([s for s in Staff.objects.filter(project_year__project=instance)])
-    print(instance)

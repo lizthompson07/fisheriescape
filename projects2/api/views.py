@@ -452,7 +452,6 @@ class ActivityUpdateListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        print(self.kwargs)
         status_report = get_object_or_404(models.StatusReport, pk=self.kwargs.get("status_report"))
         return status_report.updates.all()
 
