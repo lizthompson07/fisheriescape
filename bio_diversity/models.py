@@ -98,6 +98,40 @@ class Drawer(BioLookup):
     pass
 
 
+class EnvCode(BioLookup):
+    # envc tag
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
+    unit_id = models.ForeignKey('UnitCode', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Units"))
+    env_subj_flag = models.BooleanField(verbose_name=_("Objective observation?"))
+
+
+class EnvCondition(BioModel):
+    # env tag
+    contx_id = models.ForeignKey('ContainerXRef', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Container Cross Reference"))
+    loc_id = models.ForeignKey('Location', on_delete=models.DO_NOTHING, null=True, blank=True,
+                               verbose_name=_("Location"))
+    inst_id = models.ForeignKey('Instrument', on_delete=models.DO_NOTHING, verbose_name=_("Instrument"))
+    envc_id = models.ForeignKey('EnvCode', on_delete=models.DO_NOTHING, verbose_name=_("Environment variable"))
+    env_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
+    envsc_id = models.ForeignKey('EnvSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Environment Subject Code"))
+    env_start = models.DateField(verbose_name=_("Event start date"))
+    env_starttime = models.TimeField(null=True, blank=True, verbose_name=_("Event start time"))
+    env_end = models.DateField(null=True, blank=True, verbose_name=_("Event end date"))
+    env_endtime = models.TimeField(null=True, blank=True, verbose_name=_("Event end time"))
+    env_avg = models.BooleanField(default=False,verbose_name=_("Is value an average?"))
+    qual_id = models.ForeignKey('QualCode', on_delete=models.DO_NOTHING, verbose_name=_("Quality of observation"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+
+class EnvSubjCode(BioLookup):
+    # envsc tag
+    envc_id = models.ForeignKey('EnvCode', null=True, blank=True, on_delete=models.DO_NOTHING,
+                                verbose_name=_("Environment Code"))
+
+
 class Event(BioModel):
     # evnt tag
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.DO_NOTHING, verbose_name=_("Facility Code"))
@@ -316,6 +350,11 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if old_file and not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+class QualCode(BioLookup):
+    # qual tag
+    pass
 
 
 class ReleaseSiteCode(BioLookup):

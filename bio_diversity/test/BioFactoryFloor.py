@@ -203,6 +203,128 @@ class DrawFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class EnvFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EnvCondition
+
+    contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
+    inst_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstFactory")
+    envc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvcFactory")
+    env_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    envsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvscFactory")
+    env_start = factory.lazy_attribute(lambda o: faker.date())
+    env_starttime = factory.lazy_attribute(lambda o: faker.time())
+    env_end = factory.lazy_attribute(lambda o: faker.date())
+    env_endtime = factory.lazy_attribute(lambda o: faker.time())
+    env_avg = factory.lazy_attribute(lambda o: faker.boolean())
+    qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        contx = ContxFactory()
+        loc = LocFactory()
+        inst = InstFactory()
+        envc = EnvcFactory()
+        envsc= EnvscFactory()
+        qual = QualFactory()
+
+        obj = EnvFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'contx_id': contx.pk,
+            'loc_id': loc.pk,
+            'inst_id': inst.pk,
+            'envc_id': envc.pk,
+            'env_val': obj.env_val,
+            'envsc_id': envsc.pk,
+            'env_start': obj.env_start,
+            'env_starttime': obj.env_starttime,
+            'env_end': obj.env_end,
+            'env_endtime': obj.env_endtime,
+            'env_avg': obj.env_avg,
+            'qual_id': qual.pk,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class EnvcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EnvCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    min_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    max_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
+    env_subj_flag = factory.lazy_attribute(lambda o: faker.boolean())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        unit = UnitFactory()
+
+        obj = EnvcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'min_val':obj.min_val,
+            'max_val': obj.max_val,
+            'unit_id': unit.pk,
+            'env_subj_flag': obj.env_subj_flag,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class EnvscFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EnvSubjCode
+
+    envc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvcFactory")
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        envc = EnvcFactory()
+        obj = EnvscFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'envc_id':envc.pk,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class EvntFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Event
@@ -917,6 +1039,35 @@ class ProtfFactory(factory.django.DjangoModelFactory):
         data = {
             'prot_id': prot.pk,
             'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class QualFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.QualCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = QualFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

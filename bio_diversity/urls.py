@@ -37,6 +37,21 @@ urlpatterns = [
     path('list/draw/', views.DrawList.as_view(), name="list_draw"),
     path('update/draw/<int:pk>/', views.DrawUpdate.as_view(), name="update_draw"),
         
+    path('create/env/', views.EnvCreate.as_view(), name="create_env"),
+    path('details/env/<int:pk>/', views.EnvDetails.as_view(), name="details_env"),
+    path('list/env/', views.EnvList.as_view(), name="list_env"),
+    path('update/env/<int:pk>/', views.EnvUpdate.as_view(), name="update_env"),   
+    
+    path('create/envc/', views.EnvcCreate.as_view(), name="create_envc"),
+    path('details/envc/<int:pk>/', views.EnvcDetails.as_view(), name="details_envc"),
+    path('list/envc/', views.EnvcList.as_view(), name="list_envc"),
+    path('update/envc/<int:pk>/', views.EnvcUpdate.as_view(), name="update_envc"),   
+    
+    path('create/envsc/', views.EnvscCreate.as_view(), name="create_envsc"),
+    path('details/envsc/<int:pk>/', views.EnvscDetails.as_view(), name="details_envsc"),
+    path('list/envsc/', views.EnvscList.as_view(), name="list_envsc"),
+    path('update/envsc/<int:pk>/', views.EnvscUpdate.as_view(), name="update_envsc"),  
+    
     path('create/evnt/', views.EvntCreate.as_view(), name="create_evnt"),
     path('details/evnt/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
     path('list/evnt/', views.EvntList.as_view(), name="list_evnt"),
@@ -141,6 +156,11 @@ urlpatterns = [
     path('details/protf/<int:pk>/', views.ProtfDetails.as_view(), name="details_protf"),
     path('list/protf/', views.ProtfList.as_view(), name="list_protf"),
     path('update/protf/<int:pk>/', views.ProtfUpdate.as_view(), name="update_protf"),
+
+    path('create/qual/', views.QualCreate.as_view(), name="create_qual"),
+    path('details/qual/<int:pk>/', views.QualDetails.as_view(), name="details_qual"),
+    path('list/qual/', views.QualList.as_view(), name="list_qual"),
+    path('update/qual/<int:pk>/', views.QualUpdate.as_view(), name="update_qual"),
 
     path('create/relc/', views.RelcCreate.as_view(), name="create_relc"),
     path('details/relc/<int:pk>/', views.RelcDetails.as_view(), name="details_relc"),

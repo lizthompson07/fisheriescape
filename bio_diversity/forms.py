@@ -61,6 +61,30 @@ class DrawForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class EnvForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.EnvCondition
+        exclude = []
+        widgets = {
+            'env_start': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
+            'env_starttime': forms.TimeInput(attrs={"class": "fp-date-time"}),
+            'env_end': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
+            'env_endtime': forms.TimeInput(attrs={"class": "fp-date-time"}),
+        }
+
+
+class EnvcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.EnvCode
+        exclude = []
+
+
+class EnvscForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.EnvSubjCode
+        exclude = []
+
+
 class EvntForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Event
@@ -197,6 +221,12 @@ class ProtcForm(CreatePrams, forms.ModelForm):
 class ProtfForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Protofile
+        exclude = []
+
+
+class QualForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.QualCode
         exclude = []
 
 

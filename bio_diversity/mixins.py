@@ -47,6 +47,27 @@ class DrawMixin:
     title = "Drawer"
 
 
+class EnvcMixin:
+    key = "envc"
+    form_class = forms.EnvcForm
+    model = models.EnvCode
+    title = "Environment Code"
+
+
+class EnvMixin:
+    key = "env"
+    form_class = forms.EnvForm
+    model = models.EnvCondition
+    title = "Environment Condition"
+
+
+class EnvscMixin:
+    key = "envsc"
+    form_class = forms.EnvscForm
+    model = models.EnvSubjCode
+    title = "Event Subject Code"
+
+
 class EvntMixin:
     key = "evnt"
     form_class = forms.EvntForm
@@ -192,6 +213,13 @@ class ProtfMixin:
     model = models.Protofile
     form_class = forms.ProtfForm
     title = _("Protocol File")
+
+
+class QualMixin:
+    key = 'qual'
+    model = models.QualCode
+    form_class = forms.QualForm
+    title = _("Quality Code")
 
 
 class RelcMixin:

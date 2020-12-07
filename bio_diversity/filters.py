@@ -49,14 +49,35 @@ class DrawFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
-class EnvtFilter(django_filters.FilterSet):
+class EnvFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EnvCondition
+        fields = ["contx_id", "loc_id", "inst_id", "envc_id", "created_by", "created_date", ]
+
+
+class EnvcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EnvCode
+        fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class EnvscFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EnvSubjCode
+        fields = ["name", "nom", "envc_id",  "created_by", "created_date", ]
+
+
+class EvntFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Event
         fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "created_by", "created_date", ]
 
 
-class EnvtcFilter(django_filters.FilterSet):
+class EvntcFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.EventCode
@@ -195,6 +216,13 @@ class ProtfFilter(django_filters.FilterSet):
     class Meta:
         model = models.Protofile
         fields = ["prot_id", "created_by", "created_date", ]
+
+
+class QualFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.QualCode
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class RelcFilter(django_filters.FilterSet):

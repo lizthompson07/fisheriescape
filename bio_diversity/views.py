@@ -76,6 +76,18 @@ class DrawCreate(mixins.DrawMixin, CommonCreate):
     pass
 
 
+class EnvCreate(mixins.EnvMixin, CommonCreate):
+    pass
+
+
+class EnvcCreate(mixins.EnvcMixin, CommonCreate):
+    pass
+
+
+class EnvscCreate(mixins.EnvscMixin, CommonCreate):
+    pass
+
+
 class EvntCreate(mixins.EvntMixin, CommonCreate):
     pass
 
@@ -157,6 +169,10 @@ class ProtcCreate(mixins.ProtcMixin, CommonCreate):
 
 
 class ProtfCreate(mixins.ProtfMixin, CommonCreate):
+    pass
+
+
+class QualCreate(mixins.QualMixin, CommonCreate):
     pass
 
 
@@ -275,6 +291,20 @@ class DrawDetails(mixins.DrawMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class EnvDetails(mixins.EnvMixin, CommonDetails):
+    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "env_start", "env_starttime",
+              "env_end", "env_endtime", "env_avg", "qual_id", "comments", "created_by", "created_date"]
+
+
+class EnvcDetails(mixins.EnvcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "env_subj_flag",
+              "created_by", "created_date", ]
+
+
+class EnvscDetails(mixins.EnvscMixin, CommonDetails):
+    fields = ["name", "nom", "envc_id","description_en", "description_fr", "created_by", "created_date", ]
+
+
 class EvntDetails(mixins.EvntMixin, CommonDetails):
     fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_starttime", "evnt_end",
               "evnt_endtime", "comments", "created_by", "created_date", ]
@@ -365,6 +395,10 @@ class ProtcDetails(mixins.ProtcMixin, CommonDetails):
 class ProtfDetails(mixins.ProtfMixin, CommonDetails):
     template_name = 'bio_diversity/details_protf.html'
     fields = ["prot_id", "protf_pdf", "comments", "created_by", "created_date", ]
+
+
+class QualDetails(mixins.QualMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class RelcDetails(mixins.RelcMixin, CommonDetails):
@@ -527,13 +561,28 @@ class DrawList(mixins.DrawMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class EnvList(mixins.EnvMixin, CommonList):
+    filterset_class = filters.EnvFilter
+    fields = ["contx_id", "loc_id", "inst_id", "env_id", "created_by", "created_date", ]
+
+
+class EnvcList(mixins.EnvcMixin, CommonList):
+    filterset_class = filters.EnvcFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class EnvscList(mixins.EnvscMixin, CommonList):
+    filterset_class = filters.EnvscFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class EvntList(mixins.EvntMixin, CommonList):
-    filterset_class = filters.EnvtFilter
+    filterset_class = filters.EvntFilter
     fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "created_by", "created_date", ]
 
 
 class EvntcList(mixins.EvntcMixin, CommonList):
-    filterset_class = filters.EnvtcFilter
+    filterset_class = filters.EvntcFilter
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
@@ -631,6 +680,11 @@ class ProtcList(mixins.ProtcMixin, CommonList):
 class ProtfList(mixins.ProtfMixin, CommonList):
     filterset_class = filters.ProtfFilter
     fields = ["prot_id", "comments", "created_by", "created_date", ]
+
+
+class QualList(mixins.QualMixin, CommonList):
+    filterset_class = filters.QualFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class RelcList(mixins.RelcMixin, CommonList):
@@ -767,6 +821,18 @@ class DrawUpdate(mixins.DrawMixin, CommonUpdate):
     pass
 
 
+class EnvUpdate(mixins.EnvMixin, CommonUpdate):
+    pass
+
+
+class EnvcUpdate(mixins.EnvcMixin, CommonUpdate):
+    pass
+
+
+class EnvscUpdate(mixins.EnvscMixin, CommonUpdate):
+    pass
+
+
 class EvntUpdate(mixins.EvntMixin, CommonUpdate):
     pass
 
@@ -848,6 +914,10 @@ class ProtcUpdate(mixins.ProtcMixin, CommonUpdate):
 
 
 class ProtfUpdate(mixins.ProtfMixin, CommonUpdate):
+    pass
+
+
+class QualUpdate(mixins.QualMixin, CommonUpdate):
     pass
 
 
