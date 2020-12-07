@@ -410,17 +410,16 @@ class TestCupDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Cup", "details_cup", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "cupc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -620,17 +619,16 @@ class TestDrawDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Draw", "details_draw", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "drawc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -1355,17 +1353,16 @@ class TestInstcDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -1565,17 +1562,16 @@ class TestInstdcDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -1781,17 +1777,16 @@ class TestLoccDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -1889,17 +1884,16 @@ class TestOrgaDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -2429,17 +2423,16 @@ class TestProtcDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -2753,17 +2746,16 @@ class TestRiveDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -2861,17 +2853,16 @@ class TestRoleDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -2969,17 +2960,18 @@ class TestSubrDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "rive_id",
+            "trib_id",
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -3077,17 +3069,16 @@ class TestTankDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -3407,17 +3398,16 @@ class TestTrayDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -3623,17 +3613,17 @@ class TestTribDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "rive_id",
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -3731,18 +3721,16 @@ class TestTrofDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("bio_diversity:details_trof", f"/en/bio_diversity/details/trof/{self.instance.pk}/",
@@ -3947,17 +3935,16 @@ class TestUnitDetailView(CommonTest):
         self.assert_good_response(self.test_url)
         # self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
-    # not sure how to do this bit
-    # @tag("Inst", "details_inst", "context")
-    # def test_context(self):
-    #     context_vars = [
-    #         "instc",
-    #         "serial_number",
-    #         "comments",
-    #         "created_by",
-    #         "created_date",
-    #     ]
-    #     self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+    def test_context(self):
+        context_vars = [
+            "name",
+            "nom",
+            "description_en",
+            "description_fr",
+            "created_by",
+            "created_date",
+        ]
+        self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url

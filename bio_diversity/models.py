@@ -111,6 +111,9 @@ class Event(BioModel):
     evnt_endtime = models.TimeField(null=True, blank=True, verbose_name=_("Event end time"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
+    def __str__(self):
+        return "{}-{}".format(self.prog_id.__str__(), self.evnt_start)
+
 
 class EventCode(BioLookup):
     # evntc tag
