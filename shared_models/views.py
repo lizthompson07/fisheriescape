@@ -923,8 +923,8 @@ class ProjectCodeListView(AdminRequiredMixin, CommonFilterView):
         {"name": "description", "class": "", "width": ""},
         {"name": "project_lead", "class": "", "width": ""},
     ]
-    new_object_url_name = "shared_models:rc_new"
-    row_object_url_name = "shared_models:rc_edit"
+    new_object_url_name = "shared_models:project_new"
+    row_object_url_name = "shared_models:project_edit"
     home_url_name = "shared_models:index"
     h1 = gettext_lazy("Project Codes")
     container_class = "container bg-light curvy"
