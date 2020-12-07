@@ -12,6 +12,14 @@ class ContdcMixin:
     title = "Container Detail Code"
 
 
+
+class ContxMixin:
+    key = "contx"
+    form_class = forms.ContxForm
+    model = models.ContainerXRef
+    title = "Container Cross Reference"
+
+
 class CdscMixin:
     key = "cdsc"
     form_class = forms.CdscForm
@@ -31,6 +39,13 @@ class CupdMixin:
     form_class = forms.CupdForm
     model = models.CupDet
     title = "Cup Detail"
+
+
+class DrawMixin:
+    key = "draw"
+    form_class = forms.DrawForm
+    model = models.Drawer
+    title = "Drawer"
 
 
 class EvntMixin:

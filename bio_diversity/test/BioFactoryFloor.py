@@ -43,6 +43,38 @@ class ContdcFactory(factory.django.DjangoModelFactory):
         return data
 
 
+
+class ContxFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ContainerXRef
+
+    evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
+    tank_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TankFactory")
+    trof_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TrofFactory")
+    tray_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TrayFactory")
+    heat_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.HeatFactory")
+    draw_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.DrawFactory")
+    cup_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CupFactory")
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        evnt = EvntFactory()
+        tank = TankFactory()
+        obj = ContxFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'evnt_id': evnt.pk,
+            'tank_id': tank.pk,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class CdscFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ContDetSubjCode
@@ -136,6 +168,34 @@ class CupdFactory(factory.django.DjangoModelFactory):
             'end_date': obj.end_date,
             'det_valid': obj.det_valid,
             'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class DrawFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Drawer
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = DrawFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }

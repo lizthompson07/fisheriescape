@@ -71,6 +71,18 @@ class ContDetSubjCode(BioLookup):
                                   verbose_name=_("Container detail code"))
 
 
+class ContainerXRef(BioModel):
+    # Contx tag
+    evnt_id = models.ForeignKey("Event", on_delete=models.DO_NOTHING, verbose_name=_("Event"))
+    tank_id = models.ForeignKey("Tank", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Tank"))
+    trof_id = models.ForeignKey("Trough", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Trough"))
+    tray_id = models.ForeignKey("Tray", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Tray"))
+    heat_id = models.ForeignKey("HeathUnit", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Heath Unit"))
+    draw_id = models.ForeignKey("Drawer", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Drawer"))
+    cup_id = models.ForeignKey("Cup", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Cup"))
+
+
 class Cup(BioLookup):
     # cup tag
     pass
@@ -79,6 +91,11 @@ class Cup(BioLookup):
 class CupDet(BioContainerDet):
     # cupd tag
     cup_id = models.ForeignKey('Cup', on_delete=models.DO_NOTHING, verbose_name=_("Cup"))
+
+
+class Drawer(BioLookup):
+    # draw tag
+    pass
 
 
 class Event(BioModel):

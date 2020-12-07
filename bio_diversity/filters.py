@@ -13,6 +13,14 @@ class ContdcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
 
 
+
+class ContxFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.ContainerXRef
+        fields = ["evnt_id", "created_by", "created_date", ]
+
+
 class CdscFilter(django_filters.FilterSet):
 
     class Meta:
@@ -32,6 +40,13 @@ class CupdFilter(django_filters.FilterSet):
     class Meta:
         model = models.CupDet
         fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
+class DrawFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Drawer
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class EnvtFilter(django_filters.FilterSet):

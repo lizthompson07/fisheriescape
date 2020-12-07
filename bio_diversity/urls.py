@@ -12,6 +12,11 @@ urlpatterns = [
     path('list/contdc/', views.ContdcList.as_view(), name="list_contdc"),
     path('update/contdc/<int:pk>/', views.ContdcUpdate.as_view(), name="update_contdc"),
 
+    path('create/contx/', views.ContxCreate.as_view(), name="create_contx"),
+    path('details/contx/<int:pk>/', views.ContxDetails.as_view(), name="details_contx"),
+    path('list/contx/', views.ContxList.as_view(), name="list_contx"),
+    path('update/contx/<int:pk>/', views.ContxUpdate.as_view(), name="update_contx"),
+
     path('create/cdsc/', views.CdscCreate.as_view(), name="create_cdsc"),
     path('details/cdsc/<int:pk>/', views.CdscDetails.as_view(), name="details_cdsc"),
     path('list/cdsc/', views.CdscList.as_view(), name="list_cdsc"),
@@ -26,6 +31,11 @@ urlpatterns = [
     path('details/cupd/<int:pk>/', views.CupdDetails.as_view(), name="details_cupd"),
     path('list/cupd/', views.CupdList.as_view(), name="list_cupd"),
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
+        
+    path('create/draw/', views.DrawCreate.as_view(), name="create_draw"),
+    path('details/draw/<int:pk>/', views.DrawDetails.as_view(), name="details_draw"),
+    path('list/draw/', views.DrawList.as_view(), name="list_draw"),
+    path('update/draw/<int:pk>/', views.DrawUpdate.as_view(), name="update_draw"),
         
     path('create/evnt/', views.EvntCreate.as_view(), name="create_evnt"),
     path('details/evnt/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),

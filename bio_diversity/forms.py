@@ -30,6 +30,12 @@ class ContdcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class ContxForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.ContainerXRef
+        exclude = []
+
+
 class CdscForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.ContDetSubjCode
@@ -45,6 +51,12 @@ class CupForm(CreatePrams, forms.ModelForm):
 class CupdForm(CreateTimePrams, forms.ModelForm):
     class Meta:
         model = models.CupDet
+        exclude = []
+
+
+class DrawForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Drawer
         exclude = []
 
 

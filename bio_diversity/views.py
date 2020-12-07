@@ -56,6 +56,10 @@ class ContdcCreate(mixins.ContdcMixin, CommonCreate):
     pass
 
 
+class ContxCreate(mixins.ContxMixin, CommonCreate):
+    pass
+
+
 class CdscCreate(mixins.CdscMixin, CommonCreate):
     pass
 
@@ -65,6 +69,10 @@ class CupCreate(mixins.CupMixin, CommonCreate):
 
 
 class CupdCreate(mixins.CupdMixin, CommonCreate):
+    pass
+
+
+class DrawCreate(mixins.DrawMixin, CommonCreate):
     pass
 
 
@@ -234,6 +242,10 @@ class ContdcDetails(mixins.ContdcMixin, CommonDetails):
               "created_by", "created_date", ]
 
 
+class ContxDetails(mixins.ContxMixin, CommonDetails):
+    fields = ["evnt_id", "cup_id", "draw_id", "heat_id", "tank_id", "tray_id", "trof_id", "created_by", "created_date"]
+
+
 class CdscDetails(mixins.CdscMixin, CommonDetails):
     fields = ["contdc_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
@@ -245,6 +257,10 @@ class CupDetails(mixins.CupMixin, CommonDetails):
 class CupdDetails(mixins.CupdMixin, CommonDetails):
     fields = ["cup_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
               "created_by", "created_date", ]
+
+
+class DrawDetails(mixins.DrawMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
@@ -461,6 +477,11 @@ class ContdcList(mixins.ContdcMixin, CommonList):
     fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
 
 
+class ContxList(mixins.ContxMixin, CommonList):
+    filterset_class = filters.ContxFilter
+    fields = ["evnt_id", "created_by", "created_date", ]
+
+
 class CdscList(mixins.CdscMixin, CommonList):
     filterset_class = filters.CdscFilter
     fields = ["contdc_id", "name", "nom", "created_by", "created_date", ]
@@ -474,6 +495,11 @@ class CupList(mixins.CupMixin, CommonList):
 class CupdList(mixins.CupdMixin, CommonList):
     filterset_class = filters.CupdFilter
     fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
+class DrawList(mixins.DrawMixin, CommonList):
+    filterset_class = filters.DrawFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class EvntList(mixins.EvntMixin, CommonList):
@@ -681,6 +707,10 @@ class ContdcUpdate(mixins.ContdcMixin, CommonUpdate):
     pass
 
 
+class ContxUpdate(mixins.ContxMixin, CommonUpdate):
+    pass
+
+
 class CdscUpdate(mixins.CdscMixin, CommonUpdate):
     pass
 
@@ -690,6 +720,10 @@ class CupUpdate(mixins.CupMixin, CommonUpdate):
 
 
 class CupdUpdate(mixins.CupdMixin, CommonUpdate):
+    pass
+
+
+class DrawUpdate(mixins.DrawMixin, CommonUpdate):
     pass
 
 
