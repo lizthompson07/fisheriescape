@@ -51,6 +51,21 @@ urlpatterns = [
     path('details/facic/<int:pk>/', views.FacicDetails.as_view(), name="details_facic"),
     path('list/facic/', views.FacicList.as_view(), name="list_facic"),
     path('update/facic/<int:pk>/', views.FacicUpdate.as_view(), name="update_facic"),
+             
+    path('create/feed/', views.FeedCreate.as_view(), name="create_feed"),
+    path('details/feed/<int:pk>/', views.FeedDetails.as_view(), name="details_feed"),
+    path('list/feed/', views.FeedList.as_view(), name="list_feed"),
+    path('update/feed/<int:pk>/', views.FeedUpdate.as_view(), name="update_feed"),
+             
+    path('create/feedc/', views.FeedcCreate.as_view(), name="create_feedc"),
+    path('details/feedc/<int:pk>/', views.FeedcDetails.as_view(), name="details_feedc"),
+    path('list/feedc/', views.FeedcList.as_view(), name="list_feedc"),
+    path('update/feedc/<int:pk>/', views.FeedcUpdate.as_view(), name="update_feedc"),
+             
+    path('create/feedm/', views.FeedmCreate.as_view(), name="create_feedm"),
+    path('details/feedm/<int:pk>/', views.FeedmDetails.as_view(), name="details_feedm"),
+    path('list/feedm/', views.FeedmList.as_view(), name="list_feedm"),
+    path('update/feedm/<int:pk>/', views.FeedmUpdate.as_view(), name="update_feedm"),
     
     path('create/heat/', views.HeatCreate.as_view(), name="create_heat"),
     path('details/heat/<int:pk>/', views.HeatDetails.as_view(), name="details_heat"),

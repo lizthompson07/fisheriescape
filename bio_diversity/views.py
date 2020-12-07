@@ -88,6 +88,18 @@ class FacicCreate(mixins.FacicMixin, CommonCreate):
     pass
 
 
+class FeedCreate(mixins.FeedMixin, CommonCreate):
+    pass
+
+
+class FeedcCreate(mixins.FeedcMixin, CommonCreate):
+    pass
+
+
+class FeedmCreate(mixins.FeedmMixin, CommonCreate):
+    pass
+
+
 class HeatCreate(mixins.HeatMixin, CommonCreate):
     pass
 
@@ -273,6 +285,19 @@ class EvntcDetails(mixins.EvntcMixin, CommonDetails):
 
 
 class FacicDetails(mixins.FacicMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class FeedDetails(mixins.FeedMixin, CommonDetails):
+    fields = ["contx_id", "feedm_id", "feedc_id", "lot_num", "amt", "unit_id", "freq", "comments", "created_by",
+              "created_date", ]
+
+
+class FeedcDetails(mixins.FeedcMixin, CommonDetails):
+    fields = ["name", "nom", "manufacturer", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class FeedmDetails(mixins.FeedmMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
@@ -517,6 +542,21 @@ class FacicList(mixins.FacicMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class FeedList(mixins.FeedMixin, CommonList):
+    filterset_class = filters.FeedFilter
+    fields = ["contx_id", "feedm_id", "feedc_id", "created_by", "created_date", ]
+
+
+class FeedcList(mixins.FeedcMixin, CommonList):
+    filterset_class = filters.FeedcFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class FeedmList(mixins.FeedmMixin, CommonList):
+    filterset_class = filters.FeedmFilter
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class HeatList(mixins.HeatMixin, CommonList):
     filterset_class = filters.HeatFilter
     fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
@@ -736,6 +776,18 @@ class EvntcUpdate(mixins.EvntcMixin, CommonUpdate):
 
 
 class FacicUpdate(mixins.FacicMixin, CommonUpdate):
+    pass
+
+
+class FeedUpdate(mixins.FeedMixin, CommonUpdate):
+    pass
+
+
+class FeedcUpdate(mixins.FeedcMixin, CommonUpdate):
+    pass
+
+
+class FeedmUpdate(mixins.FeedmMixin, CommonUpdate):
     pass
 
 

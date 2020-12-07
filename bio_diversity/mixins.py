@@ -12,7 +12,6 @@ class ContdcMixin:
     title = "Container Detail Code"
 
 
-
 class ContxMixin:
     key = "contx"
     form_class = forms.ContxForm
@@ -67,6 +66,27 @@ class FacicMixin:
     form_class = forms.FacicForm
     model = models.FacilityCode
     title = "Facility Code"
+
+
+class FeedMixin:
+    key = "feed"
+    form_class = forms.FeedForm
+    model = models.Feeding
+    title = "Feeding"
+
+
+class FeedcMixin:
+    key = "feedc"
+    form_class = forms.FeedcForm
+    model = models.FeedCode
+    title = "Feeding Code"
+
+
+class FeedmMixin:
+    key = "feedm"
+    form_class = forms.FeedmForm
+    model = models.FeedMethod
+    title = "Feeding Method"
 
 
 class HeatMixin:

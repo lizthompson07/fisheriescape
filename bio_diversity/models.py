@@ -125,6 +125,32 @@ class FacilityCode(BioLookup):
     pass
 
 
+class Feeding(BioModel):
+    # feed tag
+    contx_id = models.ForeignKey('ContainerXRef', on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Container Cross Reference"))
+    feedm_id = models.ForeignKey('FeedMethod', on_delete=models.DO_NOTHING, verbose_name=_("Feeding Method"))
+    feedc_id = models.ForeignKey('FeedCode', on_delete=models.DO_NOTHING, verbose_name=_("Feeding Code"))
+    lot_num = models.CharField(max_length=40, null=True, blank=True, verbose_name=_("Lot Number"))
+    amt = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Amount of Feed"))
+    unit_id = models.ForeignKey('UnitCode', on_delete=models.DO_NOTHING, verbose_name=_("Units"))
+    freq = models.CharField(max_length=40, null=True, blank=True, verbose_name=_("Description of frequency"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    def __str__(self):
+        return "{}-{}-{}".format(self.contx_id.__str__(), self.feedc_id.__str__(), self.feedm_id.__str__())
+
+
+class FeedCode(BioLookup):
+    # feedc tag
+    manufacturer = models.CharField(max_length=50, verbose_name=_("Maufacturer"))
+
+
+class FeedMethod(BioLookup):
+    # feedm tag
+    pass
+
+
 class HeathUnit(BioLookup):
     # Heat tag
     manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"))

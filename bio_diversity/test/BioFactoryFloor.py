@@ -304,6 +304,105 @@ class FacicFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class FeedFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Feeding
+
+    contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    feedm_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FeedmFactory")
+    feedc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.FeedcFactory")
+    lot_num = factory.lazy_attribute(lambda o: faker.word())
+    amt = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
+    freq = factory.lazy_attribute(lambda o: faker.word())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        contx = ContxFactory()
+        feedm = FeedmFactory()
+        feedc = FeedcFactory()
+        unit = UnitFactory()
+        obj = FeedFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'contx_id': contx.pk,
+            'feedm_id': feedm.pk,
+            'feedc_id': feedc.pk,
+            # 'lot_num': obj.lot_num,
+            'amt': obj.amt,
+            'unit_id': unit.pk,
+            # 'freq': obj.freq,
+            # 'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class FeedcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.FeedCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    manufacturer = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = FeedcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'manufacturer': obj.manufacturer,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class FeedmFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.FeedMethod
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = FeedmFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class HeatFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.HeathUnit

@@ -70,6 +70,27 @@ class FacicFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class FeedFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Feeding
+        fields = ["contx_id", "feedm_id", "feedc_id", "created_by", "created_date", ]
+
+
+class FeedcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.FeedCode
+        fields = ["name", "nom", "manufacturer", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class FeedmFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.FeedMethod
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class HeatFilter(django_filters.FilterSet):
 
     class Meta:

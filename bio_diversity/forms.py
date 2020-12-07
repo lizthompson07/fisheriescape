@@ -85,6 +85,24 @@ class FacicForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class FeedForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Feeding
+        exclude = []
+
+
+class FeedcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.FeedCode
+        exclude = []
+
+
+class FeedmForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.FeedMethod
+        exclude = []
+
+
 class HeatForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.HeathUnit
