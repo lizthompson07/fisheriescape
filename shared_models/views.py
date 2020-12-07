@@ -954,7 +954,7 @@ class ProjectCodeCreateView(AdminRequiredMixin, CommonCreateView):
 
 class ProjectCodeDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Project
-    success_url = reverse_lazy('shared_models:rc_list')
+    success_url = reverse_lazy('shared_models:project_list')
     home_url_name = "shared_models:index"
     parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:rc_list")}
     template_name = "shared_models/generic_confirm_delete.html"
