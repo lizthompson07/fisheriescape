@@ -30,65 +30,55 @@ urlpatterns = [
     # STATUS REPORT #
     #################
     path('status-reports/<int:pk>/view/', views.StatusReportDetailView.as_view(), name="report_detail"),  # tested
-    path('status-reports/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),# tested
-    path('status-reports/<int:pk>/review/', views.StatusReportReviewUpdateView.as_view(), name="report_review"),# tested
-    path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),# tested
-    path('status-reports/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),# tested
+    path('status-reports/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),  # tested
+    path('status-reports/<int:pk>/review/', views.StatusReportReviewUpdateView.as_view(), name="report_review"),  # tested
+    path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),  # tested
+    path('status-reports/<int:pk>/print/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),  # tested
 
     # # SETTINGS #
     # ############
     # formsets
-    path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),# tested
-    path('settings/funding-source/<int:pk>/delete/', views.FundingSourceHardDeleteView.as_view(), name="delete_funding_source"),# tested
+    path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),  # tested
+    path('settings/funding-source/<int:pk>/delete/', views.FundingSourceHardDeleteView.as_view(), name="delete_funding_source"),  # tested
 
-    path('settings/activity-types/', views.ActivityTypeFormsetView.as_view(), name="manage_activity_types"),# tested
-    path('settings/activity-type/<int:pk>/delete/', views.ActivityTypeHardDeleteView.as_view(), name="delete_activity_type"),# tested
+    path('settings/activity-types/', views.ActivityTypeFormsetView.as_view(), name="manage_activity_types"),  # tested
+    path('settings/activity-type/<int:pk>/delete/', views.ActivityTypeHardDeleteView.as_view(), name="delete_activity_type"),  # tested
 
-    path('settings/om-categories/', views.OMCategoryFormsetView.as_view(), name="manage_om_cats"),# tested
-    path('settings/om-category/<int:pk>/delete/', views.OMCategoryHardDeleteView.as_view(), name="delete_om_cat"),# tested
+    path('settings/om-categories/', views.OMCategoryFormsetView.as_view(), name="manage_om_cats"),  # tested
+    path('settings/om-category/<int:pk>/delete/', views.OMCategoryHardDeleteView.as_view(), name="delete_om_cat"),  # tested
 
-    path('settings/employee-types/', views.EmployeeTypeFormsetView.as_view(), name="manage_employee_types"),# tested
-    path('settings/employee-type/<int:pk>/delete/', views.EmployeeTypeHardDeleteView.as_view(), name="delete_employee_type"),# tested
+    path('settings/employee-types/', views.EmployeeTypeFormsetView.as_view(), name="manage_employee_types"),  # tested
+    path('settings/employee-type/<int:pk>/delete/', views.EmployeeTypeHardDeleteView.as_view(), name="delete_employee_type"),  # tested
 
-    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),# tested
-    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),# tested
+    path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),  # tested
+    path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),  # tested
 
-    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),# tested
-    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),# tested
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),  # tested
+    path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),  # tested
 
-    path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),# tested
-    path('settings/level/<int:pk>/delete/', views.LevelHardDeleteView.as_view(), name="delete_level"),# tested
+    path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),  # tested
+    path('settings/level/<int:pk>/delete/', views.LevelHardDeleteView.as_view(), name="delete_level"),  # tested
 
-    path('settings/themes/', views.ThemeFormsetView.as_view(), name="manage_themes"),# tested
-    path('settings/theme/<int:pk>/delete/', views.ThemeHardDeleteView.as_view(), name="delete_theme"),# tested
+    path('settings/themes/', views.ThemeFormsetView.as_view(), name="manage_themes"),  # tested
+    path('settings/theme/<int:pk>/delete/', views.ThemeHardDeleteView.as_view(), name="delete_theme"),  # tested
 
-    path('settings/upcoming-dates/', views.UpcomingDateFormsetView.as_view(), name="manage-upcoming-dates"),# tested
-    path('settings/upcoming-date/<int:pk>/delete/', views.UpcomingDateHardDeleteView.as_view(), name="delete-upcoming-date"),# tested
+    path('settings/upcoming-dates/', views.UpcomingDateFormsetView.as_view(), name="manage-upcoming-dates"),  # tested
+    path('settings/upcoming-date/<int:pk>/delete/', views.UpcomingDateHardDeleteView.as_view(), name="delete-upcoming-date"),  # tested
 
     # full
-    path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),
-    path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),
-    path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),
-    path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),
+    path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),   # tested
+    path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),  # tested
+    path('settings/reference-materials/<int:pk>/edit/', views.ReferenceMaterialUpdateView.as_view(), name="ref_mat_edit"),  # tested
+    path('settings/reference-materials/<int:pk>/delete/', views.ReferenceMaterialDeleteView.as_view(), name="ref_mat_delete"),  # tested
 
-    path('settings/functional-groups/', views.FunctionalGroupListView.as_view(), name="group_list"),
-    path('settings/functional-group/new/', views.FunctionalGroupCreateView.as_view(), name="group_new"),
-    path('settings/functional-group/<int:pk>/edit/', views.FunctionalGroupUpdateView.as_view(), name="group_edit"),
-    path('settings/functional-group/<int:pk>/delete/', views.FunctionalGroupDeleteView.as_view(), name="group_delete"),
-
-    path('settings/project-codes/', views.ProjectCodeListView.as_view(), name="project_code_list"),
-    path('settings/project-codes/new/', views.ProjectCodeCreateView.as_view(), name="project_code_new"),
-    path('settings/project-codes/<int:pk>/edit/', views.ProjectCodeUpdateView.as_view(), name="project_code_edit"),
-    path('settings/project-codes/<int:pk>/delete/', views.ProjectCodeDeleteView.as_view(), name="project_code_delete"),
-
-    path('settings/responsibility-centers/', views.ResponsibilityCenterListView.as_view(), name="rc_list"),
-    path('settings/responsibility-centers/new/', views.ResponsibilityCenterCreateView.as_view(), name="rc_new"),
-    path('settings/responsibility-centers/<int:pk>/edit/', views.ResponsibilityCenterUpdateView.as_view(), name="rc_edit"),
-    path('settings/responsibility-centers/<int:pk>/delete/', views.ResponsibilityCenterDeleteView.as_view(), name="rc_delete"),
+    path('settings/functional-groups/', views.FunctionalGroupListView.as_view(), name="group_list"),  # tested
+    path('settings/functional-groups/new/', views.FunctionalGroupCreateView.as_view(), name="group_new"),  # tested
+    path('settings/functional-groups/<int:pk>/edit/', views.FunctionalGroupUpdateView.as_view(), name="group_edit"),  # tested
+    path('settings/functional-groups/<int:pk>/delete/', views.FunctionalGroupDeleteView.as_view(), name="group_delete"),  # tested
 
     # Reports #
     ###########
-    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),#tested
-    path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"), #tested
+    path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),  # tested
+    path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),  # tested
 
 ]
