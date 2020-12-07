@@ -240,6 +240,8 @@ class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
         'phone',
         'fax',
         'notes',
+        'regions',
+        'sectors',
         'dfo_contact_instructions',
         'relationship_rating',
         'orgs',

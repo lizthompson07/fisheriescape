@@ -21,6 +21,8 @@ from ..utils import is_management_or_admin
 # USER
 #######
 class CurrentUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         data = serializer.data
@@ -35,6 +37,8 @@ class CurrentUserAPIView(APIView):
 
 
 class FTEBreakdownAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         # if there are no project year ids, do this
         if not request.query_params.get("ids"):
@@ -74,6 +78,8 @@ class FTEBreakdownAPIView(APIView):
 
 
 class GetDatesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         fiscal_year = self.request.query_params.get("year")  # to be formatted as follows: YYYY; SAP style
         if fiscal_year:

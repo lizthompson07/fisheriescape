@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from django.utils.translation import gettext as _
 
+from lib.functions.custom_functions import listrify
 from masterlist import models as ml_models
 from shared_models import models as shared_models
 from . import models
@@ -24,7 +25,7 @@ class EntryCreateForm(forms.ModelForm):
             'anticipated_end_date': forms.DateInput(attrs=attr_fp_date),
             'last_modified_by': forms.HiddenInput(),
             'created_by': forms.HiddenInput(),
-            'organizations': forms.SelectMultiple(attrs={'class': "multi-select"}),
+            'organizations': forms.SelectMultiple(attrs=chosen_js),
             'regions': forms.SelectMultiple(attrs={'class': "multi-select"}),
             'sectors': forms.SelectMultiple(attrs={'class': "multi-select"}),
         }
@@ -32,7 +33,7 @@ class EntryCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from ihub.views import get_ind_organizations
-        org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
+        org_choices_all = [(obj.id, f"{obj} ({listrify(obj.regions.all())})") for obj in get_ind_organizations()]
         self.fields["organizations"].choices = org_choices_all
 
 

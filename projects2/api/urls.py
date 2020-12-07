@@ -1,18 +1,14 @@
 from django.urls import path
-from rest_framework.routers import DefaultRouter
 
 from . import views
 
-router = DefaultRouter()
-# router.register(r'project-years', views.ProjectYearViewSet)
 urlpatterns = [
-    # path("", include(router.urls)),
-    path("project-planning/user/", views.CurrentUserAPIView.as_view(), name="current-user"),
-    path("project-planning/fte-breakdown/", views.FTEBreakdownAPIView.as_view(), name="fte-breakdown"),
+    path("project-planning/user/", views.CurrentUserAPIView.as_view(), name="current-user"),  # tested
+    path("project-planning/fte-breakdown/", views.FTEBreakdownAPIView.as_view(), name="fte-breakdown"),  # tested
 
     # Project
-    path("project-planning/projects/<int:pk>/", views.ProjectRetrieveAPIView.as_view(), name="year-detail"),
-    path("project-planning/projects/", views.ProjectListAPIView.as_view(), name="project-list"),
+    path("project-planning/projects/<int:pk>/", views.ProjectRetrieveAPIView.as_view(), name="project-detail"),  # tested
+    path("project-planning/projects/", views.ProjectListAPIView.as_view(), name="project-list"),  # tested
 
     # Project year
     path("project-planning/project-years/", views.ProjectYearListAPIView.as_view(), name="year-list"),
@@ -63,12 +59,10 @@ urlpatterns = [
     path("project-planning/activity-updates/<int:pk>/", views.ActivityUpdateRetrieveUpdateAPIView.as_view(),
          name="activity-update-detail"),
 
-
     # financials
     path("project-planning/project-years/<int:project_year>/financials/", views.FinancialsAPIView.as_view(), name="financials"),
     path("project-planning/projects/<int:project>/financials/", views.FinancialsAPIView.as_view(), name="financials"),
     path("project-planning/financials/", views.FinancialsAPIView.as_view(), name="financials"),
-
 
     # lookups
     path("project-planning/fiscal-years/", views.FiscalYearListAPIView.as_view(), name="fiscal-year-list"),
@@ -85,4 +79,3 @@ urlpatterns = [
     path("project-planning/reviews/<int:pk>/", views.ReviewRetrieveUpdateDestroyAPIView.as_view(), name="review-detail"),
 
 ]
-

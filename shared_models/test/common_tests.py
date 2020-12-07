@@ -237,6 +237,16 @@ class CommonTest(TestCase):
         my_path = reverse(test_url_name, args=test_url_args)
         self.assertEqual(my_path, f'{expected_url_path}')
 
+    # Tests for API views
+    #################
+    def assert_dict_has_keys(self, my_dict, keys):
+        # arbitrarily activate the english locale
+        for key in keys:
+            self.assertIn(key, my_dict)
+
+
+
+
     # Tests for forms (create, update, delete and form views)
     #################
 

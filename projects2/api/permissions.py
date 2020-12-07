@@ -9,17 +9,17 @@ from .. import models
 class CanModifyOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in permissions.SAFE_METHODS and request.user.is_authenticated:
             return True
 
         if view.kwargs.get("project_year"):
             project_year = get_object_or_404(models.ProjectYear, pk=view.kwargs.get("project_year"))
             return can_modify_project(request.user, project_year.project_id)
 
-        return True
+        return False
 
     def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in permissions.SAFE_METHODS and request.user.is_authenticated:
             return True
         if hasattr(obj, "project_id"):
             return can_modify_project(request.user, obj.project_id)
@@ -27,3 +27,5 @@ class CanModifyOrReadOnly(permissions.BasePermission):
             return can_modify_project(request.user, obj.project_year.project_id)
         else:
             return can_modify_project(request.user, obj.id)
+
+
