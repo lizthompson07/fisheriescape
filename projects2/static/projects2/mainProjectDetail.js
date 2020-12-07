@@ -514,16 +514,16 @@ var app = new Vue({
       }
     },
     goProjectYearEdit(projectYearId) {
-      window.location.href = `/project-planning/project-year/${projectYearId}/edit/`
+      window.location.href = `/project-planning/project-years/${projectYearId}/edit/`
     },
     goProjectEdit(projectId) {
       window.location.href = `/project-planning/projects/${projectId}/edit/`
     },
     goProjectYearDelete(projectYearId) {
-      window.location.href = `/project-planning/project-year/${projectYearId}/delete/`
+      window.location.href = `/project-planning/project-years/${projectYearId}/delete/`
     },
     goProjectYearClone(projectYearId) {
-      window.location.href = `/project-planning/project-year/${projectYearId}/clone/`
+      window.location.href = `/project-planning/project-years/${projectYearId}/clone/`
     },
     goStatusReportDetail(statusReportId) {
       window.location.href = `/project-planning/status-reports/${statusReportId}/view/`

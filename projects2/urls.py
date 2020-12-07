@@ -33,7 +33,7 @@ urlpatterns = [
     path('status-reports/<int:pk>/edit/', views.StatusReportUpdateView.as_view(), name="report_edit"),  # tested
     path('status-reports/<int:pk>/review/', views.StatusReportReviewUpdateView.as_view(), name="report_review"),  # tested
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),  # tested
-    path('status-reports/<int:pk>/pdf/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),  # tested
+    path('status-reports/<int:pk>/print/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),  # tested
 
     # # SETTINGS #
     # ############

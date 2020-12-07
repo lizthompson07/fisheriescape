@@ -2,7 +2,7 @@ from django.test import tag
 from django.urls import reverse_lazy
 from faker import Factory
 
-from shared_models.views import CommonCreateView, CommonDetailView, CommonUpdateView, CommonDeleteView, CommonListView, CommonTemplateView
+from shared_models.views import CommonCreateView, CommonDetailView, CommonUpdateView, CommonDeleteView, CommonListView, CommonTemplateView, CommonFilterView
 from . import FactoryFloor
 from .. import views, models
 from ..test.common_tests import CommonProjectTest as CommonTest
@@ -172,8 +172,7 @@ class TestProjectCloneView(CommonTest):
     @tag("Project", "project_clone", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user,
-                                    login_search_term='/accounts/login_required')
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Project", "project_clone", "context")
     def test_context(self):
@@ -546,8 +545,8 @@ class TestStatusReportDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.StatusReportFactory()
-        self.test_url = reverse_lazy('projects:report_delete', args=[self.instance.pk, ])
-        self.expected_template = 'projects/confirm_delete.html'
+        self.test_url = reverse_lazy('projects2:report_delete', args=[self.instance.pk, ])
+        self.expected_template = 'projects2/confirm_delete.html'
         self.user = self.get_and_login_user()
 
     @tag("StatusReport", "report_delete", "view")
@@ -569,7 +568,7 @@ class TestStatusReportDeleteView(CommonTest):
     @tag("StatusReport", "report_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("projects:report_delete", f"/en/project-planning/status-reports/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("projects2:report_delete", f"/en/project-planning/status-reports/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestStatusReportPrintView(CommonTest):
@@ -751,8 +750,6 @@ class TestReferenceMaterialDeleteView(CommonTest):
         self.assert_correct_url("projects2:ref_mat_delete", f"/en/project-planning/settings/reference-materials/{self.instance.pk}/delete/", [self.instance.pk])
 
 
-
-
 class TestFunctionalGroupListView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -763,7 +760,7 @@ class TestFunctionalGroupListView(CommonTest):
 
     @tag("FunctionalGroup", "group_list", "view")
     def test_view_class(self):
-        self.assert_inheritance(views.FunctionalGroupListView, CommonListView)
+        self.assert_inheritance(views.FunctionalGroupListView, CommonFilterView)
         self.assert_inheritance(views.FunctionalGroupListView, views.AdminRequiredMixin)
 
     @tag("FunctionalGroup", "group_list", "access")
