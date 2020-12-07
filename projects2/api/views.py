@@ -202,7 +202,6 @@ class ProjectYearListAPIView(ListAPIView):
         # if a regular user is making the request, show only approved projects (and not hidden projects)
         if not is_management_or_admin(self.request.user):
             qs = qs.filter(project__is_hidden=False, status=4)
-
         return qs.distinct()
 
 
