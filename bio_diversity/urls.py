@@ -32,6 +32,11 @@ urlpatterns = [
     path('list/cntd/', views.CntdList.as_view(), name="list_cntd"),
     path('update/cntd/<int:pk>/', views.CntdUpdate.as_view(), name="update_cntd"),
     
+    path('create/coll/', views.CollCreate.as_view(), name="create_coll"),
+    path('details/coll/<int:pk>/', views.CollDetails.as_view(), name="details_coll"),
+    path('list/coll/', views.CollList.as_view(), name="list_coll"),
+    path('update/coll/<int:pk>/', views.CollUpdate.as_view(), name="update_coll"),
+
     path('create/contdc/', views.ContdcCreate.as_view(), name="create_contdc"),
     path('details/contdc/<int:pk>/', views.ContdcDetails.as_view(), name="details_contdc"),
     path('list/contdc/', views.ContdcList.as_view(), name="list_contdc"),
@@ -157,6 +162,11 @@ urlpatterns = [
     path('list/perc/', views.PercList.as_view(), name="list_perc"),
     path('update/perc/<int:pk>/', views.PercUpdate.as_view(), name="update_perc"),
 
+    path('create/prio/', views.PrioCreate.as_view(), name="create_prio"),
+    path('details/prio/<int:pk>/', views.PrioDetails.as_view(), name="details_prio"),
+    path('list/prio/', views.PrioList.as_view(), name="list_prio"),
+    path('update/prio/<int:pk>/', views.PrioUpdate.as_view(), name="update_prio"),
+
     path('create/prog/', views.ProgCreate.as_view(), name="create_prog"),
     path('details/prog/<int:pk>/', views.ProgDetails.as_view(), name="details_prog"),
     path('list/prog/', views.ProgList.as_view(), name="list_prog"),
@@ -221,6 +231,11 @@ urlpatterns = [
     path('details/spec/<int:pk>/', views.SpecDetails.as_view(), name="details_spec"),
     path('list/spec/', views.SpecList.as_view(), name="list_spec"),
     path('update/spec/<int:pk>/', views.SpecUpdate.as_view(), name="update_spec"),
+    
+    path('create/stok/', views.StokCreate.as_view(), name="create_stok"),
+    path('details/stok/<int:pk>/', views.StokDetails.as_view(), name="details_stok"),
+    path('list/stok/', views.StokList.as_view(), name="list_stok"),
+    path('update/stok/<int:pk>/', views.StokUpdate.as_view(), name="update_stok"),
     
     path('create/subr/', views.SubrCreate.as_view(), name="create_subr"),
     path('details/subr/<int:pk>/', views.SubrDetails.as_view(), name="details_subr"),

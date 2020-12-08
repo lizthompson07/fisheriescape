@@ -72,6 +72,10 @@ class CntdCreate(mixins.CntdMixin, CommonCreate):
     pass
 
 
+class CollCreate(mixins.CollMixin, CommonCreate):
+    pass
+
+
 class ContdcCreate(mixins.ContdcMixin, CommonCreate):
     pass
 
@@ -172,6 +176,10 @@ class PercCreate(mixins.PercMixin, CommonCreate):
     pass
 
 
+class PrioCreate(mixins.PrioMixin, CommonCreate):
+    pass
+
+
 class ProgCreate(mixins.ProgMixin, CommonCreate):
     pass
 
@@ -221,6 +229,10 @@ class SampdCreate(mixins.SampdMixin, CommonCreate):
 
 
 class SpecCreate(mixins.SpecMixin, CommonCreate):
+    pass
+
+
+class StokCreate(mixins.StokMixin, CommonCreate):
     pass
 
 
@@ -320,6 +332,10 @@ class CntcDetails(mixins.CntcMixin, CommonDetails):
 
 class CntdDetails(mixins.CntdMixin, CommonDetails):
     fields = ["cnt_id", "anidc_id", "adsc_id", "det_val", "qual_id", "comments", "created_by", "created_date", ]
+
+
+class CollDetails(mixins.CollMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class ContdcDetails(mixins.ContdcMixin, CommonDetails):
@@ -431,6 +447,10 @@ class PercDetails(mixins.PercMixin, CommonDetails):
     fields = ["perc_first_name", "perc_last_name", "Perc_valid", "created_by", "created_date", ]
 
 
+class PrioDetails(mixins.PrioMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class ProgDetails(mixins.ProgMixin, CommonDetails):
     fields = ["prog_name", "prog_desc", "proga_id", "orga_id", "start_date", "end_date", "valid", "created_by",
               "created_date", ]
@@ -485,6 +505,10 @@ class SampdDetails(mixins.SampdMixin, CommonDetails):
 
 class SpecDetails(mixins.SpecMixin, CommonDetails):
     fields = ["name", "species", "com_name", "created_by", "created_date", ]
+
+
+class StokDetails(mixins.StokMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class SubrDetails(mixins.SubrMixin, CommonDetails):
@@ -629,6 +653,11 @@ class CntdList(mixins.CntdMixin, CommonList):
     fields = ["cnt_id", "anidc_id", "qual_id", "created_by", "created_date", ]
 
 
+class CollList(mixins.CollMixin, CommonList):
+    filterset_class = filters.CollFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
+
+
 class ContdcList(mixins.ContdcMixin, CommonList):
     filterset_class = filters.ContdcFilter
     fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
@@ -755,6 +784,11 @@ class PercList(mixins.PercMixin, CommonList):
     fields = ["perc_first_name", "perc_last_name", "perc_valid", "created_by", "created_date", ]
 
 
+class PrioList(mixins.PrioMixin, CommonList):
+    filterset_class = filters.PrioFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
+
+
 class ProgList(mixins.ProgMixin, CommonList):
     filterset_class = filters.ProgFilter
     fields = ["prog_name", "proga_id", "orga_id", "created_by", "created_date", ]
@@ -818,6 +852,11 @@ class SampdList(mixins.SampdMixin, CommonList):
 class SpecList(mixins.SpecMixin, CommonList):
     filterset_class = filters.SpecFilter
     fields = ["name", "species", "com_name", "created_by", "created_date", ]
+
+
+class StokList(mixins.StokMixin, CommonList):
+    filterset_class = filters.StokFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
 
 
 class SubrList(mixins.SubrMixin, CommonList):
@@ -935,6 +974,10 @@ class CntdUpdate(mixins.CntdMixin, CommonUpdate):
     pass
 
 
+class CollUpdate(mixins.CollMixin, CommonUpdate):
+    pass
+
+
 class ContdcUpdate(mixins.ContdcMixin, CommonUpdate):
     pass
 
@@ -1035,6 +1078,10 @@ class PercUpdate(mixins.PercMixin, CommonUpdate):
     pass
 
 
+class PrioUpdate(mixins.PrioMixin, CommonUpdate):
+    pass
+
+
 class ProgUpdate(mixins.ProgMixin, CommonUpdate):
     pass
 
@@ -1084,6 +1131,10 @@ class SampdUpdate(mixins.SampdMixin, CommonUpdate):
 
 
 class SpecUpdate(mixins.SpecMixin, CommonUpdate):
+    pass
+
+
+class StokUpdate(mixins.StokMixin, CommonUpdate):
     pass
 
 

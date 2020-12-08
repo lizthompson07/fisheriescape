@@ -82,6 +82,10 @@ class AniDetSubjCode(BioLookup):
                                  verbose_name=_("Type of measurement"))
 
 
+class Collection(BioLookup):
+    # coll tag
+    pass
+
 class ContainerDetCode(BioLookup):
     # contdc tag
     min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
@@ -328,6 +332,11 @@ class PersonnelCode(BioModel):
         return "{} {}".format(self.perc_first_name, self.perc_last_name)
 
 
+class PriorityCode(BioLookup):
+    # prio tag
+    pass
+
+
 class Program(BioTimeModel):
     # prog tag
     prog_name = models.CharField(max_length=30, verbose_name=_("Program Name"))
@@ -478,6 +487,10 @@ class SpeciesCode(BioModel):
     def __str__(self):
         return self.name
 
+
+class StockCode(BioLookup):
+    # stok tag
+    pass
 
 class SubRiverCode(BioLookup):
     # subr tag

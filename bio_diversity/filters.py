@@ -41,6 +41,13 @@ class CntdFilter(django_filters.FilterSet):
         fields = ["cnt_id", "anidc_id", "qual_id", "created_by", "created_date", ]
 
 
+class CollFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Collection
+        fields = ["name", "nom", "created_by", "created_date", ]
+
+
 class ContdcFilter(django_filters.FilterSet):
 
     class Meta:
@@ -217,6 +224,13 @@ class PercFilter(django_filters.FilterSet):
         fields = ["perc_first_name", "perc_last_name", "perc_valid", "created_by", "created_date", ]
 
 
+class PrioFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.PriorityCode
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class ProgFilter(django_filters.FilterSet):
 
     class Meta:
@@ -306,6 +320,13 @@ class SpecFilter(django_filters.FilterSet):
     class Meta:
         model = models.SpeciesCode
         fields = ["name", "species", "com_name", "created_by", "created_date", ]
+
+
+class StokFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.StockCode
+        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class SubrFilter(django_filters.FilterSet):

@@ -181,6 +181,35 @@ class CntdFactory(factory.django.DjangoModelFactory):
         return data
 
 
+
+class CollFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Collection
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = CollFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class ContdcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ContainerDetCode
@@ -1060,6 +1089,34 @@ class PercFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class PrioFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.PriorityCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = PrioFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class ProgFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Program
@@ -1480,6 +1537,33 @@ class SpecFactory(factory.django.DjangoModelFactory):
 
         return data
 
+
+class StokFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.StockCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        obj = StokFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
 
 class SubrFactory(factory.django.DjangoModelFactory):
     class Meta:

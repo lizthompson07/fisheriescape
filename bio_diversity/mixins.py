@@ -40,6 +40,13 @@ class CntdMixin:
     title = "Count Detail"
 
 
+class CollMixin:
+    key = "coll"
+    form_class = forms.CollForm
+    model = models.Collection
+    title = "Collection"
+
+
 class ContdcMixin:
     key = "contdc"
     form_class = forms.ContdcForm
@@ -215,6 +222,13 @@ class PercMixin:
     title = _("Personnel Code")
 
 
+class PrioMixin:
+    key = 'prio'
+    model = models.PriorityCode
+    form_class = forms.PrioForm
+    title = _("Priority Code")
+
+
 class ProgMixin:
     key = 'prog'
     model = models.Program
@@ -304,6 +318,13 @@ class SpecMixin:
     model = models.SpeciesCode
     form_class = forms.SpecForm
     title = _("Species Code")
+
+
+class StokMixin:
+    key = 'stok'
+    model = models.StockCode
+    form_class = forms.StokForm
+    title = _("Stock Code")
 
 
 class SubrMixin:

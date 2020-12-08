@@ -76,6 +76,12 @@ class CntdForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class CollForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Collection
+        exclude = []
+
+
 class ContdcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.ContainerDetCode
@@ -269,6 +275,12 @@ class PercForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class PrioForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.PriorityCode
+        exclude = []
+
+
 class ProgForm(CreateTimePrams, forms.ModelForm):
     class Meta:
         model = models.Program
@@ -344,6 +356,12 @@ class SampdForm(CreatePrams, forms.ModelForm):
 class SpecForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.SpeciesCode
+        exclude = []
+
+
+class StokForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.StockCode
         exclude = []
 
 
