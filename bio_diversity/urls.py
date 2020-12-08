@@ -186,12 +186,22 @@ urlpatterns = [
     path('details/role/<int:pk>/', views.RoleDetails.as_view(), name="details_role"),
     path('list/role/', views.RoleList.as_view(), name="list_role"),
     path('update/role/<int:pk>/', views.RoleUpdate.as_view(), name="update_role"),
-    
+
+    path('create/samp/', views.SampCreate.as_view(), name="create_samp"),
+    path('details/samp/<int:pk>/', views.SampDetails.as_view(), name="details_samp"),
+    path('list/samp/', views.SampList.as_view(), name="list_samp"),
+    path('update/samp/<int:pk>/', views.SampUpdate.as_view(), name="update_samp"),
+
     path('create/sampc/', views.SampcCreate.as_view(), name="create_sampc"),
     path('details/sampc/<int:pk>/', views.SampcDetails.as_view(), name="details_sampc"),
     path('list/sampc/', views.SampcList.as_view(), name="list_sampc"),
     path('update/sampc/<int:pk>/', views.SampcUpdate.as_view(), name="update_sampc"),
-    
+
+    path('create/sampd/', views.SampdCreate.as_view(), name="create_sampd"),
+    path('details/sampd/<int:pk>/', views.SampdDetails.as_view(), name="details_sampd"),
+    path('list/sampd/', views.SampdList.as_view(), name="list_sampd"),
+    path('update/sampd/<int:pk>/', views.SampdUpdate.as_view(), name="update_sampd"),
+
     path('create/spec/', views.SpecCreate.as_view(), name="create_spec"),
     path('details/spec/<int:pk>/', views.SpecDetails.as_view(), name="details_spec"),
     path('list/spec/', views.SpecList.as_view(), name="list_spec"),

@@ -257,11 +257,25 @@ class RoleMixin:
     title = _("Role Code")
 
 
+class SampMixin:
+    key = 'samp'
+    model = models.Sample
+    form_class = forms.SampForm
+    title = _("Sample ")
+
+
 class SampcMixin:
     key = 'sampc'
     model = models.SampleCode
     form_class = forms.SampcForm
     title = _("Sample Code")
+
+
+class SampdMixin:
+    key = 'sampd'
+    model = models.SampleDet
+    form_class = forms.SampdForm
+    title = _("Sample Detail")
 
 
 class SpecMixin:

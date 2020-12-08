@@ -305,9 +305,21 @@ class RoleForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class SampForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Sample
+        exclude = []
+
+
 class SampcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.SampleCode
+        exclude = []
+
+
+class SampdForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.SampleDet
         exclude = []
 
 

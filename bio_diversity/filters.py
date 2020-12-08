@@ -259,11 +259,25 @@ class RoleFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class SampFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Sample
+        fields = ["loc_id", "samp_num",  "spec_id", "created_by", "created_date", ]
+
+
 class SampcFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.SampleCode
         fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class SampdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.SampleDet
+        fields = ["samp_id", "anidc_id", "created_by", "created_date", ]
 
 
 class SpecFilter(django_filters.FilterSet):

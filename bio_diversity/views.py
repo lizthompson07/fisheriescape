@@ -196,7 +196,15 @@ class RoleCreate(mixins.RoleMixin, CommonCreate):
     pass
 
 
+class SampCreate(mixins.SampMixin, CommonCreate):
+    pass
+
+
 class SampcCreate(mixins.SampcMixin, CommonCreate):
+    pass
+
+
+class SampdCreate(mixins.SampdMixin, CommonCreate):
     pass
 
 
@@ -439,8 +447,16 @@ class RoleDetails(mixins.RoleMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class SampDetails(mixins.SampMixin, CommonDetails):
+    fields = ["loc_id", "samp_num", "spec_id", "sampc_id", "comments", "created_by", "created_date", ]
+
+
 class SampcDetails(mixins.SampcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class SampdDetails(mixins.SampdMixin, CommonDetails):
+    fields = ["samp_id", "anidc_id",  "samp_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
 
 
 class SpecDetails(mixins.SpecMixin, CommonDetails):
@@ -745,9 +761,19 @@ class RoleList(mixins.RoleMixin, CommonList):
     fields = ["rive_id", "trib_id", "name", "nom", "created_by", "created_date", ]
 
 
+class SampList(mixins.SampMixin, CommonList):
+    filterset_class = filters.SampFilter
+    fields = ["loc_id", "samp_num", "spec_id", "created_by", "created_date", ]
+
+
 class SampcList(mixins.SampcMixin, CommonList):
     filterset_class = filters.SampcFilter
     fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class SampdList(mixins.SampdMixin, CommonList):
+    filterset_class = filters.SampdFilter
+    fields = ["samp_id", "anidc_id", "created_by", "created_date", ]
 
 
 class SpecList(mixins.SpecMixin, CommonList):
@@ -994,7 +1020,15 @@ class RoleUpdate(mixins.RoleMixin, CommonUpdate):
     pass
 
 
+class SampUpdate(mixins.SampMixin, CommonUpdate):
+    pass
+
+
 class SampcUpdate(mixins.SampcMixin, CommonUpdate):
+    pass
+
+
+class SampdUpdate(mixins.SampdMixin, CommonUpdate):
     pass
 
 

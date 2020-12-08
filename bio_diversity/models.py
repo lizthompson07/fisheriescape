@@ -406,9 +406,28 @@ class RoleCode(BioLookup):
     pass
 
 
+class Sample(BioModel):
+    # samp tag
+    loc_id = models.ForeignKey('Location', on_delete=models.DO_NOTHING, verbose_name=_("Location"))
+    samp_num = models.IntegerField(verbose_name=_("Sample Fish Number"))
+    spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
+    sampc_id = models.ForeignKey('SampleCode', on_delete=models.DO_NOTHING, verbose_name=_("Sample Code"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+
 class SampleCode(BioLookup):
     # sampc tag
     pass
+
+
+class SampleDet(BioModel):
+    samp_id = models.ForeignKey('Sample', on_delete=models.DO_NOTHING, verbose_name=_("Sample"))
+    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
+    samp_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
+    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Animal Detail SubjectCode"))
+    qual_id = models.ForeignKey('QualCode', on_delete=models.DO_NOTHING, verbose_name=_("Quality"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
 
 class SpeciesCode(BioModel):

@@ -1,4 +1,7 @@
+from datetime import tzinfo
+
 import factory
+from django.utils import timezone
 from faker import Factory
 
 from bio_diversity import models
@@ -832,7 +835,7 @@ class LocFactory(factory.django.DjangoModelFactory):
     relc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RelcFactory")
     loc_lat = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
     loc_lon = factory.lazy_attribute(lambda o: faker.random_number(1, 90))
-    loc_date = factory.lazy_attribute(lambda o: faker.date())
+    loc_date = factory.lazy_attribute(lambda o: faker.date_time(tzinfo=timezone.get_current_timezone()))
     loc_time = factory.lazy_attribute(lambda o: faker.time())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -1246,6 +1249,41 @@ class RoleFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class SampFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Sample
+
+    loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
+    samp_num = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
+    sampc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SampcFactory")
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        loc = LocFactory()
+        sampc = SampcFactory()
+        spec = SpecFactory()
+
+        obj = SampFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'loc_id': loc.pk,
+            'samp_num': obj.samp_num,
+            'spec_id': spec.pk,
+            'sampc_id': sampc.pk,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class SampcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SampleCode
@@ -1268,6 +1306,43 @@ class SampcFactory(factory.django.DjangoModelFactory):
             'nom': obj.nom,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class SampdFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SampleDet
+
+    samp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SampFactory")
+    anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
+    samp_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
+    qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        samp = SampFactory()
+        anidc = AnidcFactory()
+        adsc = AdscFactory()
+        qual = QualFactory()
+        obj = SampdFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'samp_id': samp.pk,
+            'anidc_id': anidc.pk,
+            'samp_val': obj.samp_val,
+            'adsc_id': adsc.pk,
+            'qual_id': qual.pk,
+            'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
