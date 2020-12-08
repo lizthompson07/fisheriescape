@@ -1,6 +1,9 @@
-from django import forms
-from bio_diversity import models
+from datetime import date
 
+from django import forms
+from django.utils.translation import gettext
+
+from bio_diversity import models
 
 
 class CreatePrams:
@@ -23,6 +26,24 @@ class CreateTimePrams:
                                                                   "class": "fp-date"})
         self.fields['end_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
                                                                 "class": "fp-date"})
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # we have to make sure
+        # 1) the end date is after the start date and
+        # 2) valid is false if today is after end_date
+        end_date = cleaned_data.get("end_date")
+        valid = cleaned_data.get("det_valid")
+        if end_date:
+            start_date = cleaned_data.get("start_date")
+            today = date.today()
+            if end_date and start_date and end_date < start_date:
+                self.add_error('end_date', gettext(
+                    "The end date must be after the start date!"
+                ))
+            elif end_date and valid and end_date < today:
+                self.add_error('det_valid', gettext("Cannot be valid after end date"))
 
 
 class ContdcForm(CreatePrams, forms.ModelForm):
@@ -72,6 +93,19 @@ class EnvForm(CreatePrams, forms.ModelForm):
             'env_endtime': forms.TimeInput(attrs={"class": "fp-date-time"}),
         }
 
+        def clean(self):
+            cleaned_data = super().clean()
+
+            # we have to make sure
+            # 1) the end date is after the start date and
+            end_date = cleaned_data.get("env_end")
+            if end_date:
+                start_date = cleaned_data.get("env_start")
+                if end_date and start_date and end_date < start_date:
+                    self.add_error('env_end', gettext(
+                        "The end date must be after the start date!"
+                    ))
+
 
 class EnvcForm(CreatePrams, forms.ModelForm):
     class Meta:
@@ -91,10 +125,22 @@ class EvntForm(CreatePrams, forms.ModelForm):
         exclude = []
         widgets = {
             'evnt_start': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
-            'evnt_starttime': forms.TimeInput(attrs={"class": "fp-date-time"}),
             'evnt_end': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
-            'evnt_endtime': forms.TimeInput(attrs={"class": "fp-time"}),
         }
+
+        def clean(self):
+            cleaned_data = super().clean()
+
+            # we have to make sure
+            # 1) the end date is after the start date
+            # 2) if today is after end date
+            end_date = cleaned_data.get("evnt_end")
+            if end_date:
+                start_date = cleaned_data.get("evnt_start")
+                if end_date and start_date and end_date < start_date:
+                    self.add_error('evnt_end', gettext(
+                        "The end date must be after the start date!"
+                    ))
 
 
 class EvntcForm(CreatePrams, forms.ModelForm):
@@ -169,10 +215,9 @@ class InstdcForm(CreatePrams, forms.ModelForm):
 class LocForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Location
-        exclude = []
+        exclude = ['loc_time']
         widgets = {
             'loc_date': forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
-            'loc_time': forms.TimeInput(attrs={"class": "fp-time"}),
         }
 
 
