@@ -268,7 +268,6 @@ class Location(BioModel):
         self.loc_time = self.loc_date
         super().save(*args, **kwargs)
 
-
     def __str__(self):
         return "{} location".format(self.locc_id.__str__())
 
@@ -417,6 +416,9 @@ class Sample(BioModel):
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
     sampc_id = models.ForeignKey('SampleCode', on_delete=models.DO_NOTHING, verbose_name=_("Sample Code"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    def __str__(self):
+        return "{} - {}".format(self.sampc_id.__str__(), self.samp_num)
 
 
 class SampleCode(BioLookup):
