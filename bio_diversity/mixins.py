@@ -5,6 +5,20 @@ from . import forms
 from django.utils.translation import gettext_lazy as _
 
 
+class AnidcMixin:
+    key = "anidc"
+    form_class = forms.AnidcForm
+    model = models.AnimalDetCode
+    title = "Animal Detail Code"
+
+
+class AdscMixin:
+    key = "adsc"
+    form_class = forms.AdscForm
+    model = models.AniDetSubjCode
+    title = "Animal Detail Subject Code"
+
+
 class ContdcMixin:
     key = "contdc"
     form_class = forms.ContdcForm
@@ -241,6 +255,20 @@ class RoleMixin:
     model = models.RoleCode
     form_class = forms.RoleForm
     title = _("Role Code")
+
+
+class SampcMixin:
+    key = 'sampc'
+    model = models.SampleCode
+    form_class = forms.SampcForm
+    title = _("Sample Code")
+
+
+class SpecMixin:
+    key = 'spec'
+    model = models.SpeciesCode
+    form_class = forms.SpecForm
+    title = _("Species Code")
 
 
 class SubrMixin:

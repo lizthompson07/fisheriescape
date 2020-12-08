@@ -7,6 +7,16 @@ urlpatterns = [
     # for home/index page
     path('', views.IndexTemplateView.as_view(),    name="index"),
 
+    path('create/anidc/', views.AnidcCreate.as_view(), name="create_anidc"),
+    path('details/anidc/<int:pk>/', views.AnidcDetails.as_view(), name="details_anidc"),
+    path('list/anidc/', views.AnidcList.as_view(), name="list_anidc"),
+    path('update/anidc/<int:pk>/', views.AnidcUpdate.as_view(), name="update_anidc"),
+    
+    path('create/adsc/', views.AdscCreate.as_view(), name="create_adsc"),
+    path('details/adsc/<int:pk>/', views.AdscDetails.as_view(), name="details_adsc"),
+    path('list/adsc/', views.AdscList.as_view(), name="list_adsc"),
+    path('update/adsc/<int:pk>/', views.AdscUpdate.as_view(), name="update_adsc"),
+    
     path('create/contdc/', views.ContdcCreate.as_view(), name="create_contdc"),
     path('details/contdc/<int:pk>/', views.ContdcDetails.as_view(), name="details_contdc"),
     path('list/contdc/', views.ContdcList.as_view(), name="list_contdc"),
@@ -176,6 +186,16 @@ urlpatterns = [
     path('details/role/<int:pk>/', views.RoleDetails.as_view(), name="details_role"),
     path('list/role/', views.RoleList.as_view(), name="list_role"),
     path('update/role/<int:pk>/', views.RoleUpdate.as_view(), name="update_role"),
+    
+    path('create/sampc/', views.SampcCreate.as_view(), name="create_sampc"),
+    path('details/sampc/<int:pk>/', views.SampcDetails.as_view(), name="details_sampc"),
+    path('list/sampc/', views.SampcList.as_view(), name="list_sampc"),
+    path('update/sampc/<int:pk>/', views.SampcUpdate.as_view(), name="update_sampc"),
+    
+    path('create/spec/', views.SpecCreate.as_view(), name="create_spec"),
+    path('details/spec/<int:pk>/', views.SpecDetails.as_view(), name="details_spec"),
+    path('list/spec/', views.SpecList.as_view(), name="list_spec"),
+    path('update/spec/<int:pk>/', views.SpecUpdate.as_view(), name="update_spec"),
     
     path('create/subr/', views.SubrCreate.as_view(), name="create_subr"),
     path('details/subr/<int:pk>/', views.SubrDetails.as_view(), name="details_subr"),

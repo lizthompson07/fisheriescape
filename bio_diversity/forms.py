@@ -46,6 +46,18 @@ class CreateTimePrams:
                 self.add_error('det_valid', gettext("Cannot be valid after end date"))
 
 
+class AnidcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.AnimalDetCode
+        exclude = []
+
+
+class AdscForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.AniDetSubjCode
+        exclude = []
+
+
 class ContdcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.ContainerDetCode
@@ -290,6 +302,18 @@ class RiveForm(CreatePrams, forms.ModelForm):
 class RoleForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.RoleCode
+        exclude = []
+
+
+class SampcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.SampleCode
+        exclude = []
+
+
+class SpecForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.SpeciesCode
         exclude = []
 
 

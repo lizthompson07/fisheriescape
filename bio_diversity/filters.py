@@ -6,12 +6,25 @@ from . import models
 import shared_models.models as shared_models
 
 
+class AnidcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.AnimalDetCode
+        fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class AdscFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.AniDetSubjCode
+        fields = ["name", "nom", "created_by", "created_date", ]
+
+
 class ContdcFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.ContainerDetCode
         fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
-
 
 
 class ContxFilter(django_filters.FilterSet):
@@ -244,6 +257,20 @@ class RoleFilter(django_filters.FilterSet):
     class Meta:
         model = models.RoleCode
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class SampcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.SampleCode
+        fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class SpecFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.SpeciesCode
+        fields = ["name", "species", "com_name", "created_by", "created_date", ]
 
 
 class SubrFilter(django_filters.FilterSet):

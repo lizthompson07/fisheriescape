@@ -57,6 +57,20 @@ class BioTimeModel(models.Model):
     created_date = models.DateField(verbose_name=_("Created Date"))
 
 
+class AnimalDetCode(BioLookup):
+    # anidc tag
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
+    unit_id = models.ForeignKey("UnitCode", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Units"))
+    ani_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
+
+
+class AniDetSubjCode(BioLookup):
+    # ansc tag
+    anidc_id = models.ForeignKey("AnimalDetCode", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Type of measurement"))
+
+
 class ContainerDetCode(BioLookup):
     # contdc tag
     min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
@@ -390,6 +404,18 @@ class RiverCode(BioLookup):
 class RoleCode(BioLookup):
     # role tag
     pass
+
+
+class SampleCode(BioLookup):
+    # sampc tag
+    pass
+
+
+class SpeciesCode(BioModel):
+    # spec tag
+    name = models.CharField(max_length=10, verbose_name=_("Species Name"))
+    species = models.CharField(max_length=100, verbose_name=_("Species"))
+    com_name = models.CharField(max_length=35, null=True, blank=True, verbose_name=_("Species Common Nme"))
 
 
 class SubRiverCode(BioLookup):

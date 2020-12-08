@@ -52,6 +52,14 @@ class CommonCreate(CommonAuthCreateView):
         return utils.bio_diverisity_authorized(self.request.user)
 
 
+class AnidcCreate(mixins.AnidcMixin, CommonCreate):
+    pass
+
+
+class AdscCreate(mixins.AdscMixin, CommonCreate):
+    pass
+
+
 class ContdcCreate(mixins.ContdcMixin, CommonCreate):
     pass
 
@@ -188,6 +196,14 @@ class RoleCreate(mixins.RoleMixin, CommonCreate):
     pass
 
 
+class SampcCreate(mixins.SampcMixin, CommonCreate):
+    pass
+
+
+class SpecCreate(mixins.SpecMixin, CommonCreate):
+    pass
+
+
 class SubrCreate(mixins.SubrMixin, CommonCreate):
     pass
 
@@ -263,6 +279,15 @@ class CommonDetails(DetailView):
         context['editable'] = context['auth'] and self.editable
 
         return context
+
+
+class AnidcDetails(mixins.AnidcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "ani_subj_flag",
+              "created_by", "created_date", ]
+
+
+class AdscDetails(mixins.AdscMixin, CommonDetails):
+    fields = ["anidc_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class ContdcDetails(mixins.ContdcMixin, CommonDetails):
@@ -414,6 +439,14 @@ class RoleDetails(mixins.RoleMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class SampcDetails(mixins.SampcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class SpecDetails(mixins.SpecMixin, CommonDetails):
+    fields = ["name", "species", "com_name", "created_by", "created_date", ]
+
+
 class SubrDetails(mixins.SubrMixin, CommonDetails):
     fields = ["name", "nom", "rive_id", "trib_id", "description_en", "description_fr", "created_by", "created_date", ]
 
@@ -529,6 +562,16 @@ class CommonList(CommonAuthFilterView):
             context['height'] = self.creation_form_height
 
         return context
+
+
+class AnidcList(mixins.AnidcMixin, CommonList):
+    filterset_class = filters.AnidcFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class AdscList(mixins.AdscMixin, CommonList):
+    filterset_class = filters.AdscFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
 
 
 class ContdcList(mixins.ContdcMixin, CommonList):
@@ -702,6 +745,16 @@ class RoleList(mixins.RoleMixin, CommonList):
     fields = ["rive_id", "trib_id", "name", "nom", "created_by", "created_date", ]
 
 
+class SampcList(mixins.SampcMixin, CommonList):
+    filterset_class = filters.SampcFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class SpecList(mixins.SpecMixin, CommonList):
+    filterset_class = filters.SpecFilter
+    fields = ["name", "species", "com_name", "created_by", "created_date", ]
+
+
 class SubrList(mixins.SubrMixin, CommonList):
     filterset_class = filters.SubrFilter
     fields = ["name", "nom", "rive_id", "trib_id", "description_en", "description_fr", "created_by", "created_date", ]
@@ -795,6 +848,14 @@ class CommonUpdate(CommonAuthUpdateView):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
         return context
+
+
+class AnidcUpdate(mixins.AnidcMixin, CommonUpdate):
+    pass
+
+
+class AdscUpdate(mixins.AdscMixin, CommonUpdate):
+    pass
 
 
 class ContdcUpdate(mixins.ContdcMixin, CommonUpdate):
@@ -930,6 +991,14 @@ class RiveUpdate(mixins.RiveMixin, CommonUpdate):
 
 
 class RoleUpdate(mixins.RoleMixin, CommonUpdate):
+    pass
+
+
+class SampcUpdate(mixins.SampcMixin, CommonUpdate):
+    pass
+
+
+class SpecUpdate(mixins.SpecMixin, CommonUpdate):
     pass
 
 

@@ -6,6 +6,74 @@ from bio_diversity import models
 faker = Factory.create()
 
 
+class AnidcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.AnimalDetCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    min_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    max_val = factory.lazy_attribute(lambda o: faker.random_int(1000, 2000))
+    unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
+    ani_subj_flag = factory.lazy_attribute(lambda o: faker.boolean())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        unit = UnitFactory()
+        obj = AnidcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'min_val': obj.min_val,
+            'max_val': obj.max_val,
+            'unit_id': unit.pk,
+            'ani_subj_flag': obj.ani_subj_flag,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class AdscFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.AniDetSubjCode
+
+    anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        anidc_id = AnidcFactory()
+        obj = AdscFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'unit_id': anidc_id.pk,
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class ContdcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ContainerDetCode
@@ -221,8 +289,6 @@ class EnvFactory(factory.django.DjangoModelFactory):
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
-
-
 
     @staticmethod
     def build_valid_data(**kwargs):
@@ -1173,6 +1239,62 @@ class RoleFactory(factory.django.DjangoModelFactory):
             'nom': obj.nom,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class SampcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SampleCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = SampcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class SpecFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SpeciesCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    species = factory.lazy_attribute(lambda o: faker.word())
+    com_name = factory.lazy_attribute(lambda o: faker.word())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = SpecFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'species': obj.species,
+            'com_name': obj.com_name,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
