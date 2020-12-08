@@ -269,6 +269,10 @@ class Location(BioModel):
         super().save(*args, **kwargs)
 
 
+    def __str__(self):
+        return "{} location".format(self.locc_id.__str__())
+
+
 class LocCode(BioLookup):
     # Locc tag
     pass
@@ -435,6 +439,9 @@ class SpeciesCode(BioModel):
     name = models.CharField(max_length=10, verbose_name=_("Species Name"))
     species = models.CharField(max_length=100, verbose_name=_("Species"))
     com_name = models.CharField(max_length=35, null=True, blank=True, verbose_name=_("Species Common Nme"))
+
+    def __str__(self):
+        return self.name
 
 
 class SubRiverCode(BioLookup):
