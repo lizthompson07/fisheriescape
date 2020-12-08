@@ -214,7 +214,9 @@ class ProjectYearForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        # we have to make sure 1) the end date is after the start date and 2)the start and end dates are within the same fiscal year
+        # we have to make sure
+        # 1) the end date is after the start date and
+        # 2)the start and end dates are within the same fiscal year
         end_date = cleaned_data.get("end_date")
         if end_date:
             start_date = cleaned_data.get("start_date")
@@ -641,15 +643,3 @@ LevelFormset = modelformset_factory(
     form=LevelForm,
     extra=1,
 )
-
-
-class ResponsibilityCenterForm(forms.ModelForm):
-    class Meta:
-        model = shared_models.ResponsibilityCenter
-        fields = "__all__"
-
-
-class ProjectCodeForm(forms.ModelForm):
-    class Meta:
-        shared_models = shared_models.Project
-        fields = "__all__"
