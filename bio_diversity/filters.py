@@ -20,6 +20,27 @@ class AdscFilter(django_filters.FilterSet):
         fields = ["name", "nom", "created_by", "created_date", ]
 
 
+class CntFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Count
+        fields = ["loc_id", "contx_id", "spec_id", "created_by", "created_date", ]
+
+
+class CntcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.CountCode
+        fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class CntdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.CountDet
+        fields = ["cnt_id", "anidc_id", "qual_id", "created_by", "created_date", ]
+
+
 class ContdcFilter(django_filters.FilterSet):
 
     class Meta:

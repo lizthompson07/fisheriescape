@@ -17,6 +17,21 @@ urlpatterns = [
     path('list/adsc/', views.AdscList.as_view(), name="list_adsc"),
     path('update/adsc/<int:pk>/', views.AdscUpdate.as_view(), name="update_adsc"),
     
+    path('create/cnt/', views.CntCreate.as_view(), name="create_cnt"),
+    path('details/cnt/<int:pk>/', views.CntDetails.as_view(), name="details_cnt"),
+    path('list/cnt/', views.CntList.as_view(), name="list_cnt"),
+    path('update/cnt/<int:pk>/', views.CntUpdate.as_view(), name="update_cnt"),
+    
+    path('create/cntc/', views.CntcCreate.as_view(), name="create_cntc"),
+    path('details/cntc/<int:pk>/', views.CntcDetails.as_view(), name="details_cntc"),
+    path('list/cntc/', views.CntcList.as_view(), name="list_cntc"),
+    path('update/cntc/<int:pk>/', views.CntcUpdate.as_view(), name="update_cntc"),
+    
+    path('create/cntd/', views.CntdCreate.as_view(), name="create_cntd"),
+    path('details/cntd/<int:pk>/', views.CntdDetails.as_view(), name="details_cntd"),
+    path('list/cntd/', views.CntdList.as_view(), name="list_cntd"),
+    path('update/cntd/<int:pk>/', views.CntdUpdate.as_view(), name="update_cntd"),
+    
     path('create/contdc/', views.ContdcCreate.as_view(), name="create_contdc"),
     path('details/contdc/<int:pk>/', views.ContdcDetails.as_view(), name="details_contdc"),
     path('list/contdc/', views.ContdcList.as_view(), name="list_contdc"),

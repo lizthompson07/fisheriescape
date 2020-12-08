@@ -60,6 +60,18 @@ class AdscCreate(mixins.AdscMixin, CommonCreate):
     pass
 
 
+class CntCreate(mixins.CntMixin, CommonCreate):
+    pass
+
+
+class CntcCreate(mixins.CntcMixin, CommonCreate):
+    pass
+
+
+class CntdCreate(mixins.CntdMixin, CommonCreate):
+    pass
+
+
 class ContdcCreate(mixins.ContdcMixin, CommonCreate):
     pass
 
@@ -298,6 +310,18 @@ class AdscDetails(mixins.AdscMixin, CommonDetails):
     fields = ["anidc_id", "name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class CntDetails(mixins.CntMixin, CommonDetails):
+    fields = ["loc_id", "contx_id", "cntc_id", "spec_id", "cnt", "est", "comments", "created_by", "created_date", ]
+
+
+class CntcDetails(mixins.CntcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class CntdDetails(mixins.CntdMixin, CommonDetails):
+    fields = ["cnt_id", "anidc_id", "adsc_id", "det_val", "qual_id", "comments", "created_by", "created_date", ]
+
+
 class ContdcDetails(mixins.ContdcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "cont_subj_flag",
               "created_by", "created_date", ]
@@ -335,7 +359,7 @@ class EnvcDetails(mixins.EnvcMixin, CommonDetails):
 
 
 class EnvscDetails(mixins.EnvscMixin, CommonDetails):
-    fields = ["name", "nom", "envc_id","description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom", "envc_id", "description_en", "description_fr", "created_by", "created_date", ]
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
@@ -456,7 +480,7 @@ class SampcDetails(mixins.SampcMixin, CommonDetails):
 
 
 class SampdDetails(mixins.SampdMixin, CommonDetails):
-    fields = ["samp_id", "anidc_id",  "samp_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+    fields = ["samp_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
 
 
 class SpecDetails(mixins.SpecMixin, CommonDetails):
@@ -588,6 +612,21 @@ class AnidcList(mixins.AnidcMixin, CommonList):
 class AdscList(mixins.AdscMixin, CommonList):
     filterset_class = filters.AdscFilter
     fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class CntList(mixins.CntMixin, CommonList):
+    filterset_class = filters.CntFilter
+    fields = ["loc_id", "contx_id", "spec_id", "created_by", "created_date", ]
+
+
+class CntcList(mixins.CntcMixin, CommonList):
+    filterset_class = filters.CntcFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
+
+
+class CntdList(mixins.CntdMixin, CommonList):
+    filterset_class = filters.CntdFilter
+    fields = ["cnt_id", "anidc_id", "qual_id", "created_by", "created_date", ]
 
 
 class ContdcList(mixins.ContdcMixin, CommonList):
@@ -881,6 +920,18 @@ class AnidcUpdate(mixins.AnidcMixin, CommonUpdate):
 
 
 class AdscUpdate(mixins.AdscMixin, CommonUpdate):
+    pass
+
+
+class CntUpdate(mixins.CntMixin, CommonUpdate):
+    pass
+
+
+class CntcUpdate(mixins.CntcMixin, CommonUpdate):
+    pass
+
+
+class CntdUpdate(mixins.CntdMixin, CommonUpdate):
     pass
 
 

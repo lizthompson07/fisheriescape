@@ -58,6 +58,24 @@ class AdscForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class CntForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Count
+        exclude = []
+
+
+class CntcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.CountCode
+        exclude = []
+
+
+class CntdForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.CountDet
+        exclude = []
+
+
 class ContdcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.ContainerDetCode

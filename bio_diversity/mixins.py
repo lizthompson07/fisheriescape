@@ -19,6 +19,27 @@ class AdscMixin:
     title = "Animal Detail Subject Code"
 
 
+class CntMixin:
+    key = "cnt"
+    form_class = forms.CntForm
+    model = models.Count
+    title = "Count"
+
+
+class CntcMixin:
+    key = "cntc"
+    form_class = forms.CntcForm
+    model = models.CountCode
+    title = "Count Code"
+
+
+class CntdMixin:
+    key = "cntd"
+    form_class = forms.CntdForm
+    model = models.CountDet
+    title = "Count Detail"
+
+
 class ContdcMixin:
     key = "contdc"
     form_class = forms.ContdcForm

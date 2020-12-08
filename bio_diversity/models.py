@@ -27,6 +27,17 @@ class BioContainerDet(models.Model):
     created_date = models.DateField(verbose_name=_("Created Date"))
 
 
+class BioDet(models.Model):
+    class Meta:
+        abstract = True
+
+    det_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
+    qual_id = models.ForeignKey('QualCode', on_delete=models.DO_NOTHING, verbose_name=_("Quality"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
+    created_date = models.DateField(verbose_name=_("Created Date"))
+
+
 class BioLookup(shared_models.Lookup):
     class Meta:
         abstract = True
@@ -97,6 +108,31 @@ class ContainerXRef(BioModel):
     cup_id = models.ForeignKey("Cup", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Cup"))
 
 
+class Count(BioModel):
+    # cnt tag
+    loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, verbose_name=_("Location"))
+    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Container Cross Reference"))
+    cntc_id = models.ForeignKey("CountCode", on_delete=models.DO_NOTHING, verbose_name=_("Count Code"))
+    spec_id = models.ForeignKey("SpeciesCode", on_delete=models.DO_NOTHING, verbose_name=_("Species"))
+    cnt = models.DecimalField(max_digits=6, decimal_places=0, verbose_name=_("Count"))
+    est = models.BooleanField(verbose_name=_("Estimated?"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+
+class CountCode(BioLookup):
+    # cntc tag
+    pass
+
+
+class CountDet(BioDet):
+    # cntd tag
+    cnt_id = models.ForeignKey("Count", on_delete=models.DO_NOTHING, verbose_name=_("Count"))
+    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
+    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING,
+                                verbose_name=_("Animal Detail Subject Code"))
+
+
 class Cup(BioLookup):
     # cup tag
     pass
@@ -135,7 +171,7 @@ class EnvCondition(BioModel):
     env_starttime = models.TimeField(null=True, blank=True, verbose_name=_("Event start time"))
     env_end = models.DateField(null=True, blank=True, verbose_name=_("Event end date"))
     env_endtime = models.TimeField(null=True, blank=True, verbose_name=_("Event end time"))
-    env_avg = models.BooleanField(default=False,verbose_name=_("Is value an average?"))
+    env_avg = models.BooleanField(default=False, verbose_name=_("Is value an average?"))
     qual_id = models.ForeignKey('QualCode', on_delete=models.DO_NOTHING, verbose_name=_("Quality of observation"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
@@ -336,7 +372,7 @@ def protf_directory_path(instance, filename):
 
 class Protofile(BioModel):
     # protf tag
-    prot_id = models.ForeignKey('Protocol', on_delete=models.DO_NOTHING,  related_name="protocol_files",
+    prot_id = models.ForeignKey('Protocol', on_delete=models.DO_NOTHING, related_name="protocol_files",
                                 verbose_name=_("Protocol"))
 
     protf_pdf = models.FileField(upload_to=protf_directory_path, blank=True, null=True, verbose_name=_("Protocol File"))
@@ -387,7 +423,7 @@ class ReleaseSiteCode(BioLookup):
     rive_id = models.ForeignKey('RiverCode', on_delete=models.DO_NOTHING, verbose_name=_("River"))
     trib_id = models.ForeignKey('Tributary', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Tributary"))
-    subr_id =models.ForeignKey('SubRiverCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+    subr_id = models.ForeignKey('SubRiverCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("SubRiver Code"))
     min_lat = models.DecimalField(max_digits=7, decimal_places=5, null=True, blank=True,
                                   verbose_name=_("Min Lattitude"))
@@ -426,14 +462,11 @@ class SampleCode(BioLookup):
     pass
 
 
-class SampleDet(BioModel):
+class SampleDet(BioDet):
     samp_id = models.ForeignKey('Sample', on_delete=models.DO_NOTHING, verbose_name=_("Sample"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
-    samp_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Animal Detail SubjectCode"))
-    qual_id = models.ForeignKey('QualCode', on_delete=models.DO_NOTHING, verbose_name=_("Quality"))
-    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
 
 class SpeciesCode(BioModel):
