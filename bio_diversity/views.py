@@ -423,7 +423,7 @@ class InstcDetails(mixins.InstcMixin, CommonDetails):
 
 
 class InstdDetails(mixins.InstdMixin, CommonDetails):
-    fields = ["inst", "instdc", "det_value", "start_date", "end_date", "valid", "created_by", "created_date", ]
+    fields = ["inst", "instdc", "det_value", "start_date", "end_date", "valid", "comments", "created_by", "created_date", ]
 
 
 class InstdcDetails(mixins.InstdcMixin, CommonDetails):
