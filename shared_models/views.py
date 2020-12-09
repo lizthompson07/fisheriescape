@@ -790,8 +790,6 @@ class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
             "pk": self.get_object().id})}
 
 
-
-
 # ORGANIZATION #
 ################
 
@@ -855,8 +853,6 @@ class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
     def get_parent_crumb(self):
         return {"title": str(self.get_object()), "url": reverse_lazy("shared_models:org_edit", kwargs={
             "pk": self.get_object().id})}
-
-
 
 
 # RESPONSIBILITY CENTER
@@ -960,8 +956,6 @@ class ProjectCodeDeleteView(AdminRequiredMixin, CommonDeleteView):
     template_name = "shared_models/generic_confirm_delete.html"
     delete_protection = False
     container_class = "container bg-light curvy"
-
-
 
 
 # USER #
@@ -1083,11 +1077,9 @@ def run_script(request, pk):
         scr = mod.pop()
         mod = ".".join(mod)
         i = __import__(mod, fromlist=[''])
-        getattr(i,scr)()
+        getattr(i, scr)()
         messages.success(request, f"The '{script}' script has been run successfully.")
 
     except Exception as e:
         messages.error(request, e)
     return HttpResponseRedirect(reverse("shared_models:script_list"))
-
-
