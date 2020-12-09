@@ -364,6 +364,13 @@ class SpwndcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "created_by", "created_date", ]
 
 
+class SpwnscFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.SpawnDetSubjCode
+        fields = ["name", "nom", "created_by", "created_date", ]
+
+
 class SpecFilter(django_filters.FilterSet):
 
     class Meta:

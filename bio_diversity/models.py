@@ -546,6 +546,11 @@ class SpawnDetCode(BioLookup):
     spwn_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
 
 
+class SpawnDetSubjCode(BioLookup):
+    # spwnsc tag
+    spwndc_id = models.ForeignKey('SpawnDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Spawn Detail Code"))
+
+
 class SpeciesCode(BioModel):
     # spec tag
     name = models.CharField(max_length=10, verbose_name=_("Species Name"))

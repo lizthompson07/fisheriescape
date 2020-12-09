@@ -1769,6 +1769,36 @@ class SpwndcFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class SpwnscFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SpawnDetSubjCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    spwndc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwndcFactory")
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        spwndc = SpwndcFactory()
+        obj = SpwnscFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'spwndc_id': spwndc.pk,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
 
 class SpecFactory(factory.django.DjangoModelFactory):
     class Meta:
