@@ -132,6 +132,16 @@ urlpatterns = [
     path('list/indv/', views.IndvList.as_view(), name="list_indv"),
     path('update/indv/<int:pk>/', views.IndvUpdate.as_view(), name="update_indv"),
 
+    path('create/indvt/', views.IndvtCreate.as_view(), name="create_indvt"),
+    path('details/indvt/<int:pk>/', views.IndvtDetails.as_view(), name="details_indvt"),
+    path('list/indvt/', views.IndvtList.as_view(), name="list_indvt"),
+    path('update/indvt/<int:pk>/', views.IndvtUpdate.as_view(), name="update_indvt"),
+
+    path('create/indvtc/', views.IndvtcCreate.as_view(), name="create_indvtc"),
+    path('details/indvtc/<int:pk>/', views.IndvtcDetails.as_view(), name="details_indvtc"),
+    path('list/indvtc/', views.IndvtcList.as_view(), name="list_indvtc"),
+    path('update/indvtc/<int:pk>/', views.IndvtcUpdate.as_view(), name="update_indvtc"),
+
     path('create/inst/', views.InstCreate.as_view(), name="create_inst"),
     path('details/inst/<int:pk>/', views.InstDetails.as_view(), name="details_inst"),
     path('list/inst/', views.InstList.as_view(), name="list_inst"),

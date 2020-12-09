@@ -346,8 +346,10 @@ class CupdFactory(factory.django.DjangoModelFactory):
 
     det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
-    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
-    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today',
+                                                                     tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y',
+                                                                   tzinfo=timezone.get_current_timezone()))
     det_valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -416,9 +418,11 @@ class EnvFactory(factory.django.DjangoModelFactory):
     envc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvcFactory")
     env_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
     envsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvscFactory")
-    env_start = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now'))
+    env_start = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
+                                                                         tzinfo=timezone.get_current_timezone()))
     env_starttime = factory.lazy_attribute(lambda o: faker.time())
-    env_end = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y'))
+    env_end = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
+                                                                       tzinfo=timezone.get_current_timezone()))
     env_endtime = factory.lazy_attribute(lambda o: faker.time())
     env_avg = factory.lazy_attribute(lambda o: faker.boolean())
     qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
@@ -537,9 +541,11 @@ class EvntFactory(factory.django.DjangoModelFactory):
     perc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PercFactory")
     prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
     team_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TeamFactory")
-    evnt_start = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now'))
+    evnt_start = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
+                                                                          tzinfo=timezone.get_current_timezone()))
     evnt_starttime = factory.lazy_attribute(lambda o: faker.time())
-    evnt_end = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y'))
+    evnt_end = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
+                                                                        tzinfo=timezone.get_current_timezone()))
     evnt_endtime = factory.lazy_attribute(lambda o: faker.time())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -809,8 +815,10 @@ class HeatdFactory(factory.django.DjangoModelFactory):
     heat_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.HeatFactory")
     det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
-    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
-    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today',
+                                                                     tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y',
+                                                                   tzinfo=timezone.get_current_timezone()))
     det_valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -876,6 +884,80 @@ class IndvFactory(factory.django.DjangoModelFactory):
             'pit_tag': obj.pit_tag,
             'indv_valid': obj.indv_valid,
             'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class IndvtFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.IndTreatment
+
+    indvtc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtcFactory")
+    lot_num = factory.lazy_attribute(lambda o: faker.word())
+    dose = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
+    start_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='-30y', end_date='now',
+                                                                              tzinfo=timezone.get_current_timezone()))
+    end_datetime = factory.lazy_attribute(lambda o: faker.date_time_between(start_date='now', end_date='+30y',
+                                                                            tzinfo=timezone.get_current_timezone()))
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        indvtc = IndvtcFactory()
+        unit = UnitFactory()
+        obj = IndvtFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+
+            'indvtc_id': indvtc.pk,
+            'lot_num': obj.lot_num,
+            'dose': obj.dose,
+            'unit_id': unit.pk,
+            'start_datetime': obj.start_datetime,
+            'end_datetime': obj.end_datetime,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class IndvtcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.IndTreatCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    rec_dose = factory.lazy_attribute(lambda o: faker.text())
+    manufacturer = factory.lazy_attribute(lambda o: faker.word())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = IndvtcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'rec_dose': obj.rec_dose,
+            'manufacturer': obj.manufacturer,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
@@ -963,8 +1045,10 @@ class InstdFactory(factory.django.DjangoModelFactory):
     inst = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstFactory")
     instdc = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstdcFactory")
     det_value = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
-    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
-    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today',
+                                                                     tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y',
+                                                                   tzinfo=timezone.get_current_timezone()))
     valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -1206,8 +1290,10 @@ class ProgFactory(factory.django.DjangoModelFactory):
     prog_desc = factory.lazy_attribute(lambda o: faker.text())
     proga_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgaFactory")
     orga_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.OrgaFactory")
-    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
-    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today',
+                                                                     tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y',
+                                                                   tzinfo=timezone.get_current_timezone()))
     valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -1270,8 +1356,10 @@ class ProtFactory(factory.django.DjangoModelFactory):
     protc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtcFactory")
     # protf_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtfFactory")
     prot_desc = factory.lazy_attribute(lambda o: faker.text())
-    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
-    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today',
+                                                                     tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y',
+                                                                   tzinfo=timezone.get_current_timezone()))
     valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -1718,8 +1806,10 @@ class TankdFactory(factory.django.DjangoModelFactory):
 
     det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
-    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
-    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today',
+                                                                     tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y',
+                                                                   tzinfo=timezone.get_current_timezone()))
     det_valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -1813,8 +1903,10 @@ class TraydFactory(factory.django.DjangoModelFactory):
 
     det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
-    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
-    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today',
+                                                                     tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y',
+                                                                   tzinfo=timezone.get_current_timezone()))
     det_valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -1913,8 +2005,10 @@ class TrofdFactory(factory.django.DjangoModelFactory):
 
     det_value = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
     cdsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CdscFactory")
-    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
-    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today',
+                                                                     tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y',
+                                                                   tzinfo=timezone.get_current_timezone()))
     det_valid = factory.lazy_attribute(lambda o: faker.boolean())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())

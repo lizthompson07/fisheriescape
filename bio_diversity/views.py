@@ -152,6 +152,14 @@ class IndvCreate(mixins.IndvMixin, CommonCreate):
     pass
 
 
+class IndvtCreate(mixins.IndvtMixin, CommonCreate):
+    pass
+
+
+class IndvtcCreate(mixins.IndvtcMixin, CommonCreate):
+    pass
+
+
 class InstCreate(mixins.InstMixin, CommonCreate):
     pass
 
@@ -428,6 +436,16 @@ class HeatdDetails(mixins.HeatdMixin, CommonDetails):
 
 class IndvDetails(mixins.IndvMixin, CommonDetails):
     fields = ["grp_id", "spec_id", "stok_id", "coll_id", "ufid", "pit_tag", "indv_valid", "comments", "created_by",
+              "created_date", ]
+
+
+class IndvtDetails(mixins.IndvtMixin, CommonDetails):
+    fields = ["indvtc_id", "lot_num", "dose", "unit_id", "start_datetime", "end_datetime", "comments", "created_by",
+              "created_date", ]
+
+
+class IndvtcDetails(mixins.IndvtcMixin, CommonDetails):
+    fields = ["name", "nom", "rec_dose", "manufacturer", "description_en", "description_fr", "created_by",
               "created_date", ]
 
 
@@ -771,6 +789,16 @@ class IndvList(mixins.IndvMixin, CommonList):
     fields = ["ufid", "spec_id", "stok_id", "created_by", "created_date", ]
 
 
+class IndvtList(mixins.IndvtMixin, CommonList):
+    filterset_class = filters.IndvtFilter
+    fields = ["indvtc_id", "lot_num", "created_by", "created_date", ]
+
+
+class IndvtcList(mixins.IndvtcMixin, CommonList):
+    filterset_class = filters.IndvtcFilter
+    fields = ["name", "nom", "rec_dose", "manufacturer", "created_by", "created_date", ]
+
+
 class InstList(mixins.InstMixin, CommonList):
     filterset_class = filters.InstFilter
     fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
@@ -1078,6 +1106,14 @@ class HeatdUpdate(mixins.HeatdMixin, CommonUpdate):
 
 
 class IndvUpdate(mixins.IndvMixin, CommonUpdate):
+    pass
+
+
+class IndvtUpdate(mixins.IndvtMixin, CommonUpdate):
+    pass
+
+
+class IndvtcUpdate(mixins.IndvtcMixin, CommonUpdate):
     pass
 
 

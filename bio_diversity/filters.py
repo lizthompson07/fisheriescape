@@ -182,6 +182,19 @@ class IndvFilter(django_filters.FilterSet):
         fields = ["ufid", "spec_id", "stok_id", "created_by", "created_date", ]
 
 
+class IndvtFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.IndTreatment
+        fields = ["indvtc_id", "lot_num", "created_by", "created_date", ]
+
+
+class IndvtcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.IndTreatCode
+        fields = ["name", "nom", "rec_dose", "manufacturer", "created_by", "created_date", ]
+
 
 class InstFilter(django_filters.FilterSet):
 

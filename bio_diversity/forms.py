@@ -236,6 +236,36 @@ class IndvForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class IndvtForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.IndTreatment
+        exclude = []
+        widgets = {
+            'start_datetime': forms.DateInput(attrs={"placeholder": "Click to select a date...",
+                                                     "class": "fp-date-time"}),
+            'end_datetime': forms.DateInput(attrs={"placeholder": "Click to select a date...",
+                                                   "class": "fp-date-time"}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # we have to make sure
+        # 1) the end date is after the start date and
+        end_date = cleaned_data.get("end_datetime")
+        if end_date:
+            start_date = cleaned_data.get("start_datetime")
+            if end_date and start_date and end_date < start_date:
+                self.add_error('end_datetime', gettext(
+                    "The end date must be after the start date!"
+                ))
+
+
+class IndvtcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.IndTreatCode
+        exclude = []
+
+
 class InstForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Instrument

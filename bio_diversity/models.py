@@ -282,6 +282,7 @@ class Individual(BioModel):
     stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
     coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
                                verbose_name=_("Collection"))
+    # ufid = unique FISH id
     ufid = models.CharField(max_length=50, verbose_name=_("ABL Fish UFID"))
     pit_tag = models.CharField(max_length=50, verbose_name=_("PIT tag ID"))
     indv_valid = models.BooleanField(default="False", verbose_name=_("Entry still valid?"))
@@ -289,6 +290,26 @@ class Individual(BioModel):
 
     def __str__(self):
         return "{}".format(self.ufid)
+
+
+class IndTreatCode(BioLookup):
+    # indvtc tag
+    rec_dose = models.CharField(max_length=400, verbose_name=_("Recommended Dosage"))
+    manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"))
+
+
+class IndTreatment(BioModel):
+    # indvt tag
+    indvtc_id = models.ForeignKey('IndTreatCode', on_delete=models.DO_NOTHING,
+                                  verbose_name=_("Individual Treatment Code"))
+    lot_num = models.CharField(max_length=30, verbose_name=_("Lot Number"))
+    dose = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"))
+    unit_id = models.ForeignKey('UnitCode', on_delete=models.DO_NOTHING, verbose_name=_("Units"))
+    start_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("Start Date"))
+    end_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("End Date"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
+    created_date = models.DateField(verbose_name=_("Created Date"))
 
 
 class Instrument(BioModel):

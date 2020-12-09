@@ -180,6 +180,20 @@ class IndvMixin:
     title = "Individual"
 
 
+class IndvtMixin:
+    key = "indvt"
+    form_class = forms.IndvtForm
+    model = models.IndTreatment
+    title = "Individual Treatment"
+
+
+class IndvtcMixin:
+    key = "indvtc"
+    form_class = forms.IndvtcForm
+    model = models.IndTreatCode
+    title = "Individual Treatment Code"
+
+
 class InstMixin:
     key = "inst"
     form_class = forms.InstForm
