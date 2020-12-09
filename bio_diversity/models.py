@@ -245,6 +245,22 @@ class FeedMethod(BioLookup):
     pass
 
 
+class Group(BioModel):
+    # grp tag
+
+    frm_grp_id = models.ForeignKey('Group', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                   verbose_name=_("From Parent Group"))
+    spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
+    stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
+    coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
+                               verbose_name=_("Collection"))
+    grp_valid = models.BooleanField(default="False", verbose_name=_("Group still valid?"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    def __str__(self):
+        return "{}-{} group".format(self.spec_id.__str__(), self.stok.__str__())
+
+
 class HeathUnit(BioLookup):
     # Heat tag
     manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"))

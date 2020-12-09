@@ -152,6 +152,13 @@ class FeedmMixin:
     title = "Feeding Method"
 
 
+class GrpMixin:
+    key = "grp"
+    form_class = forms.GrpForm
+    model = models.Group
+    title = "Group"
+
+
 class HeatMixin:
     key = "heat"
     form_class = forms.HeatForm

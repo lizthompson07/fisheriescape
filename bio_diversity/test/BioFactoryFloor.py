@@ -728,6 +728,45 @@ class FeedmFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class GrpFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Group
+
+    # frm_grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
+    spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
+    stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
+    coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
+    grp_valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        # recursive...
+        # frm_grp = GrpFactory()
+        spec = SpecFactory()
+        stok = StokFactory()
+        coll = CollFactory()
+        obj = GrpFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+
+            # 'frm_grp_id':frm_grp.pk,
+            'spec_id': spec.pk,
+            'stok_id': stok.pk,
+            'coll_id': coll.pk,
+            'grp_valid': obj.grp_valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class HeatFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.HeathUnit

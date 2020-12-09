@@ -209,6 +209,12 @@ class FeedmForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class GrpForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Group
+        exclude = []
+
+
 class HeatForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.HeathUnit

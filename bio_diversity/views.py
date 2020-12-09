@@ -136,6 +136,10 @@ class FeedmCreate(mixins.FeedmMixin, CommonCreate):
     pass
 
 
+class GrpCreate(mixins.GrpMixin, CommonCreate):
+    pass
+
+
 class HeatCreate(mixins.HeatMixin, CommonCreate):
     pass
 
@@ -402,6 +406,10 @@ class FeedcDetails(mixins.FeedcMixin, CommonDetails):
 
 class FeedmDetails(mixins.FeedmMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class GrpDetails(mixins.GrpMixin, CommonDetails):
+    fields = ["frm_grp_id", "spec_id", "stok_id", "coll_id", "grp_valid", "comments", "created_by", "created_date", ]
 
 
 class HeatDetails(mixins.HeatMixin, CommonDetails):
@@ -733,6 +741,11 @@ class FeedmList(mixins.FeedmMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class GrpList(mixins.GrpMixin, CommonList):
+    filterset_class = filters.GrpFilter
+    fields = ["spec_id", "stok_id", "created_by", "created_date", ]
+
+
 class HeatList(mixins.HeatMixin, CommonList):
     filterset_class = filters.HeatFilter
     fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
@@ -1035,6 +1048,10 @@ class FeedcUpdate(mixins.FeedcMixin, CommonUpdate):
 
 
 class FeedmUpdate(mixins.FeedmMixin, CommonUpdate):
+    pass
+
+
+class GrpUpdate(mixins.GrpMixin, CommonUpdate):
     pass
 
 

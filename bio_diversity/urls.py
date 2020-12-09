@@ -111,6 +111,11 @@ urlpatterns = [
     path('details/feedm/<int:pk>/', views.FeedmDetails.as_view(), name="details_feedm"),
     path('list/feedm/', views.FeedmList.as_view(), name="list_feedm"),
     path('update/feedm/<int:pk>/', views.FeedmUpdate.as_view(), name="update_feedm"),
+                 
+    path('create/grp/', views.GrpCreate.as_view(), name="create_grp"),
+    path('details/grp/<int:pk>/', views.GrpDetails.as_view(), name="details_grp"),
+    path('list/grp/', views.GrpList.as_view(), name="list_grp"),
+    path('update/grp/<int:pk>/', views.GrpUpdate.as_view(), name="update_grp"),
     
     path('create/heat/', views.HeatCreate.as_view(), name="create_heat"),
     path('details/heat/<int:pk>/', views.HeatDetails.as_view(), name="details_heat"),
