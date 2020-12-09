@@ -27,7 +27,7 @@
             <div class="card-body">
             {% for field in fields %}
             <div class="row" >
-                    <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field%}</span></div>
+                    <div class="container"><span class="font-weight-bold">{% get_verbose_label object field %} : </span><span>{% get_field_value object field display_time=True%}</span></div>
             </div>
             {% endfor %}
             </div>

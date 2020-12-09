@@ -171,10 +171,8 @@ class EnvCondition(BioModel):
     env_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
     envsc_id = models.ForeignKey('EnvSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Environment Subject Code"))
-    env_start = models.DateField(verbose_name=_("Event start date"))
-    env_starttime = models.TimeField(null=True, blank=True, verbose_name=_("Event start time"))
-    env_end = models.DateField(null=True, blank=True, verbose_name=_("Event end date"))
-    env_endtime = models.TimeField(null=True, blank=True, verbose_name=_("Event end time"))
+    env_start = models.DateTimeField(verbose_name=_("Event start date"))
+    env_end = models.DateTimeField(null=True, blank=True, verbose_name=_("Event end date"))
     env_avg = models.BooleanField(default=False, verbose_name=_("Is value an average?"))
     qual_id = models.ForeignKey('QualCode', on_delete=models.DO_NOTHING, verbose_name=_("Quality of observation"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
@@ -214,20 +212,12 @@ class Event(BioModel):
     perc_id = models.ForeignKey('PersonnelCode', on_delete=models.DO_NOTHING, verbose_name=_("Personnel Code"))
     prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"))
     team_id = models.ForeignKey('Team', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Team"))
-    evnt_start = models.DateField(verbose_name=_("Event start date"))
-    evnt_starttime = models.TimeField(null=True, blank=True, verbose_name=_("Event start time"))
-    evnt_end = models.DateField(verbose_name=_("Event end date"))
-    evnt_endtime = models.TimeField(null=True, blank=True, verbose_name=_("Event end time"))
+    evnt_start = models.DateTimeField(verbose_name=_("Event start date"))
+    evnt_end = models.DateTimeField(verbose_name=_("Event end date"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
         return "{}-{}".format(self.prog_id.__str__(), self.evnt_start)
-
-    def save(self, *args, **kwargs):
-        self.evnt_starttime = self.evnt_start
-        self.evnt_endtime = self.evnt_end
-
-        super().save(*args, **kwargs)
 
 
 class EventCode(BioLookup):
@@ -375,12 +365,7 @@ class Location(BioModel):
     loc_lon = models.DecimalField(max_digits=8, decimal_places=5, null=True, blank=True,
                                   verbose_name=_("Longitude"))
     loc_date = models.DateTimeField(verbose_name=_("Date event took place"))
-    loc_time = models.TimeField(null=True, blank=True, verbose_name=_("Time event took place"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-
-    def save(self, *args, **kwargs):
-        self.loc_time = self.loc_date
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return "{} location".format(self.locc_id.__str__())

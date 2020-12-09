@@ -389,8 +389,8 @@ class DrawDetails(mixins.DrawMixin, CommonDetails):
 
 
 class EnvDetails(mixins.EnvMixin, CommonDetails):
-    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "env_start", "env_starttime",
-              "env_end", "env_endtime", "env_avg", "qual_id", "comments", "created_by", "created_date"]
+    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "env_start",
+              "env_end", "env_avg", "qual_id", "comments", "created_by", "created_date"]
 
 
 class EnvcDetails(mixins.EnvcMixin, CommonDetails):
@@ -413,8 +413,8 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
-    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_starttime", "evnt_end",
-              "evnt_endtime", "comments", "created_by", "created_date", ]
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_end",
+               "comments", "created_by", "created_date", ]
 
 
 class EvntcDetails(mixins.EvntcMixin, CommonDetails):
@@ -485,7 +485,7 @@ class InstdcDetails(mixins.InstdcMixin, CommonDetails):
 
 class LocDetails(mixins.LocMixin, CommonDetails):
     fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "loc_date",
-              "loc_time", "comments", "created_by", "created_date", ]
+               "comments", "created_by", "created_date", ]
 
 
 class LoccDetails(mixins.LoccMixin, CommonDetails):
