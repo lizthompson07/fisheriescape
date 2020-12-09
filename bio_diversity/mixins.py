@@ -173,6 +173,13 @@ class HeatdMixin:
     title = "Heath Unit Detail"
 
 
+class IndvMixin:
+    key = "indv"
+    form_class = forms.IndvForm
+    model = models.Individual
+    title = "Individual"
+
+
 class InstMixin:
     key = "inst"
     form_class = forms.InstForm

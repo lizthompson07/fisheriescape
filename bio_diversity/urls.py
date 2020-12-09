@@ -126,7 +126,12 @@ urlpatterns = [
     path('details/heatd/<int:pk>/', views.HeatdDetails.as_view(), name="details_heatd"),
     path('list/heatd/', views.HeatdList.as_view(), name="list_heatd"),
     path('update/heatd/<int:pk>/', views.HeatdUpdate.as_view(), name="update_heatd"),
-    
+
+    path('create/indv/', views.IndvCreate.as_view(), name="create_indv"),
+    path('details/indv/<int:pk>/', views.IndvDetails.as_view(), name="details_indv"),
+    path('list/indv/', views.IndvList.as_view(), name="list_indv"),
+    path('update/indv/<int:pk>/', views.IndvUpdate.as_view(), name="update_indv"),
+
     path('create/inst/', views.InstCreate.as_view(), name="create_inst"),
     path('details/inst/<int:pk>/', views.InstDetails.as_view(), name="details_inst"),
     path('list/inst/', views.InstList.as_view(), name="list_inst"),

@@ -148,6 +148,10 @@ class HeatdCreate(mixins.HeatdMixin, CommonCreate):
     pass
 
 
+class IndvCreate(mixins.IndvMixin, CommonCreate):
+    pass
+
+
 class InstCreate(mixins.InstMixin, CommonCreate):
     pass
 
@@ -420,6 +424,11 @@ class HeatDetails(mixins.HeatMixin, CommonDetails):
 class HeatdDetails(mixins.HeatdMixin, CommonDetails):
     fields = ["heat_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
               "created_by", "created_date", ]
+
+
+class IndvDetails(mixins.IndvMixin, CommonDetails):
+    fields = ["grp_id", "spec_id", "stok_id", "coll_id", "ufid", "pit_tag", "indv_valid", "comments", "created_by",
+              "created_date", ]
 
 
 class InstDetails(mixins.InstMixin, CommonDetails):
@@ -757,6 +766,11 @@ class HeatdList(mixins.HeatdMixin, CommonList):
     fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class IndvList(mixins.IndvMixin, CommonList):
+    filterset_class = filters.IndvFilter
+    fields = ["ufid", "spec_id", "stok_id", "created_by", "created_date", ]
+
+
 class InstList(mixins.InstMixin, CommonList):
     filterset_class = filters.InstFilter
     fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
@@ -1060,6 +1074,10 @@ class HeatUpdate(mixins.HeatMixin, CommonUpdate):
 
 
 class HeatdUpdate(mixins.HeatdMixin, CommonUpdate):
+    pass
+
+
+class IndvUpdate(mixins.IndvMixin, CommonUpdate):
     pass
 
 

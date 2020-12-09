@@ -230,6 +230,12 @@ class HeatdForm(CreateTimePrams, forms.ModelForm):
         exclude = []
 
 
+class IndvForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Individual
+        exclude = []
+
+
 class InstForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Instrument

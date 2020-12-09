@@ -258,7 +258,7 @@ class Group(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}-{} group".format(self.spec_id.__str__(), self.stok.__str__())
+        return "{}-{} group".format(self.spec_id.__str__(), self.stok_id.__str__())
 
 
 class HeathUnit(BioLookup):
@@ -271,6 +271,24 @@ class HeathUnit(BioLookup):
 class HeathUnitDet(BioContainerDet):
     # Heatd tag
     heat_id = models.ForeignKey('HeathUnit', on_delete=models.DO_NOTHING, verbose_name=_("HeathUnit"))
+
+
+class Individual(BioModel):
+    # indv tag
+
+    grp_id = models.ForeignKey('Group', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                   verbose_name=_("From Parent Group"))
+    spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
+    stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
+    coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
+                               verbose_name=_("Collection"))
+    ufid = models.CharField(max_length=50, verbose_name=_("ABL Fish UFID"))
+    pit_tag = models.CharField(max_length=50, verbose_name=_("PIT tag ID"))
+    indv_valid = models.BooleanField(default="False", verbose_name=_("Entry still valid?"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    def __str__(self):
+        return "{}".format(self.ufid)
 
 
 class Instrument(BioModel):

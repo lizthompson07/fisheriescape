@@ -841,6 +841,48 @@ class HeatdFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class IndvFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Individual
+
+    grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
+    spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
+    stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
+    coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
+    ufid = factory.lazy_attribute(lambda o: faker.word())
+    pit_tag = factory.lazy_attribute(lambda o: faker.word())
+    indv_valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        grp = GrpFactory()
+        spec = SpecFactory()
+        stok = StokFactory()
+        coll = CollFactory()
+        obj = IndvFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+
+            'grp_id': grp.pk,
+            'spec_id': spec.pk,
+            'stok_id': stok.pk,
+            'coll_id': coll.pk,
+            'ufid': obj.ufid,
+            'pit_tag': obj.pit_tag,
+            'indv_valid': obj.indv_valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class InstFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Instrument
