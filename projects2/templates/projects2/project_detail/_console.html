@@ -16,10 +16,18 @@
       <span class="icon mdi mdi-printer"></span>
       {% trans "Print" %}
     </button>
-    <a v-if="isACRDP" class="{{ btn_class_black }}" href="{% url 'projects2:export_acrdp_application' object.id %}">
+    <a v-if="isACRDP" class="{{ btn_class_black }}" onclick="userProfileWarning()" href="{% url 'projects2:export_acrdp_application' object.id %}">
       <span class="icon mdi mdi-file-word"></span>
       {% trans "ACRDP Application" %}
     </a>
+
+    <script type="application/javascript">
+        function userProfileWarning() {
+          alert("This report will pull some information from the project lead's DM Apps profile. Please ensure the profile information is complete and up-to-date. " +
+              "You can access your profile by clicking on the circle with your initials at the top right.")
+        }
+    </script>
+
      <a v-if="isACRDP" class="{{ btn_class_black }}" href="{% url 'projects2:export_acrdp_budget' object.id %}">
       <span class="icon mdi mdi-file-excel"></span>
       {% trans "ACRDP Budget" %}

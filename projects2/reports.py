@@ -31,7 +31,7 @@ def generate_acrdp_application(project):
         contact_info = _("{full_address}\n\n{email}\n\n{phone}").format(
             full_address=project.organization.full_address if project.organization else "MISSING!",
             email=lead.email,
-            phone=lead.profile.phone
+            phone=nz(lead.profile.phone,"MISSING!")
         )
 
     priorities = str()
