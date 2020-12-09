@@ -82,6 +82,16 @@ urlpatterns = [
     path('list/envsc/', views.EnvscList.as_view(), name="list_envsc"),
     path('update/envsc/<int:pk>/', views.EnvscUpdate.as_view(), name="update_envsc"),  
     
+    path('create/envt/', views.EnvtCreate.as_view(), name="create_envt"),
+    path('details/envt/<int:pk>/', views.EnvtDetails.as_view(), name="details_envt"),
+    path('list/envt/', views.EnvtList.as_view(), name="list_envt"),
+    path('update/envt/<int:pk>/', views.EnvtUpdate.as_view(), name="update_envt"),  
+    
+    path('create/envtc/', views.EnvtcCreate.as_view(), name="create_envtc"),
+    path('details/envtc/<int:pk>/', views.EnvtcDetails.as_view(), name="details_envtc"),
+    path('list/envtc/', views.EnvtcList.as_view(), name="list_envtc"),
+    path('update/envtc/<int:pk>/', views.EnvtcUpdate.as_view(), name="update_envtc"),  
+    
     path('create/evnt/', views.EvntCreate.as_view(), name="create_evnt"),
     path('details/evnt/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
     path('list/evnt/', views.EvntList.as_view(), name="list_evnt"),

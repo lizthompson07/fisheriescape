@@ -107,7 +107,21 @@ class EnvscMixin:
     key = "envsc"
     form_class = forms.EnvscForm
     model = models.EnvSubjCode
-    title = "Event Subject Code"
+    title = "Environment Subject Code"
+
+
+class EnvtMixin:
+    key = "envt"
+    form_class = forms.EnvtForm
+    model = models.EnvTreatment
+    title = "Environment Treatment"
+
+
+class EnvtcMixin:
+    key = "envtc"
+    form_class = forms.EnvtcForm
+    model = models.EnvTreatCode
+    title = "Environment Treatment Code"
 
 
 class EvntMixin:

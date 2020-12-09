@@ -186,6 +186,27 @@ class EnvSubjCode(BioLookup):
                                 verbose_name=_("Environment Code"))
 
 
+class EnvTreatCode(BioLookup):
+    # envtc tag
+    rec_dose = models.CharField(max_length=400, verbose_name=_("Recommended Dosage"))
+    manufacturer = models.CharField(max_length=50, verbose_name=_("Treatment Manufacturer"))
+
+
+class EnvTreatment(BioModel):
+    # envt tag
+    contx_id = models.ForeignKey('ContainerXRef', on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Container Cross Reference"))
+    envtc_id = models.ForeignKey('EnvTreatCode', on_delete=models.DO_NOTHING,
+                                  verbose_name=_("Environment Treatment Code"))
+    lot_num = models.CharField(max_length=30, verbose_name=_("Lot Number"))
+    amt = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"))
+    unit_id = models.ForeignKey('UnitCode', on_delete=models.DO_NOTHING, verbose_name=_("Units"))
+    duration = models.DecimalField(max_digits=5, decimal_places=0, verbose_name=_("Duration (minutes)"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
+    created_date = models.DateField(verbose_name=_("Created Date"))
+
+
 class Event(BioModel):
     # evnt tag
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.DO_NOTHING, verbose_name=_("Facility Code"))
@@ -308,8 +329,6 @@ class IndTreatment(BioModel):
     start_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("Start Date"))
     end_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("End Date"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
-    created_date = models.DateField(verbose_name=_("Created Date"))
 
 
 class Instrument(BioModel):

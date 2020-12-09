@@ -181,7 +181,6 @@ class CntdFactory(factory.django.DjangoModelFactory):
         return data
 
 
-
 class CollFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Collection
@@ -525,6 +524,79 @@ class EnvscFactory(factory.django.DjangoModelFactory):
             'envc_id': envc.pk,
             'description_en': obj.description_en,
             'description_fr': obj.description_fr,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class EnvtFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EnvTreatment
+
+    contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    envtc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvtcFactory")
+    lot_num = factory.lazy_attribute(lambda o: faker.word())
+    amt = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
+    unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
+    duration = factory.lazy_attribute(lambda o: faker.random_int(1, 100))
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        contx = ContxFactory()
+        envtc = EnvtcFactory()
+        unit = UnitFactory()
+        obj = EnvtFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+
+            'contx_id': contx.pk,
+            'envtc_id': envtc.pk,
+            'lot_num': obj.lot_num,
+            'amt': obj.amt,
+            'unit_id': unit.pk,
+            'duration': obj.duration,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class EnvtcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EnvTreatCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    rec_dose = factory.lazy_attribute(lambda o: faker.text())
+    manufacturer = factory.lazy_attribute(lambda o: faker.word())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        obj = EnvtcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'rec_dose': obj.rec_dose,
+            'manufacturer': obj.manufacturer,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
@@ -1733,6 +1805,7 @@ class StokFactory(factory.django.DjangoModelFactory):
         }
 
         return data
+
 
 class SubrFactory(factory.django.DjangoModelFactory):
     class Meta:

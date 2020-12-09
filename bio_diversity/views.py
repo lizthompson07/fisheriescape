@@ -112,6 +112,14 @@ class EnvscCreate(mixins.EnvscMixin, CommonCreate):
     pass
 
 
+class EnvtCreate(mixins.EnvtMixin, CommonCreate):
+    pass
+
+
+class EnvtcCreate(mixins.EnvtcMixin, CommonCreate):
+    pass
+
+
 class EvntCreate(mixins.EvntMixin, CommonCreate):
     pass
 
@@ -392,6 +400,16 @@ class EnvcDetails(mixins.EnvcMixin, CommonDetails):
 
 class EnvscDetails(mixins.EnvscMixin, CommonDetails):
     fields = ["name", "nom", "envc_id", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class EnvtDetails(mixins.EnvtMixin, CommonDetails):
+    fields = ["contx_id", "envtc_id", "lot_num", "amt", "unit_id", "duration", "comments", "created_by",
+              "created_date", ]
+
+
+class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
+    fields = ["name", "nom", "rec_dose", "manufacturer", "description_en", "description_fr", "created_by",
+              "created_date", ]
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
@@ -738,6 +756,16 @@ class EnvscList(mixins.EnvscMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class EnvtList(mixins.EnvtMixin, CommonList):
+    filterset_class = filters.EnvtFilter
+    fields = ["contx_id", "envtc_id", "lot_num", "created_by", "created_date", ]
+
+
+class EnvtcList(mixins.EnvtcMixin, CommonList):
+    filterset_class = filters.EnvtcFilter
+    fields = ["name", "nom", "rec_dose", "manufacturer", "created_by", "created_date", ]
+
+
 class EvntList(mixins.EvntMixin, CommonList):
     filterset_class = filters.EvntFilter
     fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "created_by", "created_date", ]
@@ -1066,6 +1094,14 @@ class EnvcUpdate(mixins.EnvcMixin, CommonUpdate):
 
 
 class EnvscUpdate(mixins.EnvscMixin, CommonUpdate):
+    pass
+
+
+class EnvtUpdate(mixins.EnvtMixin, CommonUpdate):
+    pass
+
+
+class EnvtcUpdate(mixins.EnvtcMixin, CommonUpdate):
     pass
 
 

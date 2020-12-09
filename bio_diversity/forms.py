@@ -155,6 +155,18 @@ class EnvscForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class EnvtForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.EnvTreatment
+        exclude = []
+
+
+class EnvtcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.EnvTreatCode
+        exclude = []
+
+
 class EvntForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Event

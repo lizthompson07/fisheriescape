@@ -111,6 +111,20 @@ class EnvscFilter(django_filters.FilterSet):
         fields = ["name", "nom", "envc_id",  "created_by", "created_date", ]
 
 
+class EnvtFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EnvTreatment
+        fields = ["contx_id", "envtc_id", "lot_num",  "created_by", "created_date", ]
+
+
+class EnvtcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EnvTreatCode
+        fields = ["name", "nom", "rec_dose", "manufacturer", "created_by", "created_date", ]
+
+
 class EvntFilter(django_filters.FilterSet):
 
     class Meta:
