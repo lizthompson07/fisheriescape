@@ -86,6 +86,7 @@ class Collection(BioLookup):
     # coll tag
     pass
 
+
 class ContainerDetCode(BioLookup):
     # contdc tag
     min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
@@ -537,6 +538,14 @@ class SampleDet(BioDet):
                                 verbose_name=_("Animal Detail SubjectCode"))
 
 
+class SpawnDetCode(BioLookup):
+    # spwndc tag
+    min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
+    max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
+    unit_id = models.ForeignKey("UnitCode", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Units"))
+    spwn_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
+
+
 class SpeciesCode(BioModel):
     # spec tag
     name = models.CharField(max_length=10, verbose_name=_("Species Name"))
@@ -550,6 +559,7 @@ class SpeciesCode(BioModel):
 class StockCode(BioLookup):
     # stok tag
     pass
+
 
 class SubRiverCode(BioLookup):
     # subr tag

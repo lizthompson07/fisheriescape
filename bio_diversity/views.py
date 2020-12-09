@@ -252,6 +252,10 @@ class SampdCreate(mixins.SampdMixin, CommonCreate):
     pass
 
 
+class SpwndcCreate(mixins.SpwndcMixin, CommonCreate):
+    pass
+
+
 class SpecCreate(mixins.SpecMixin, CommonCreate):
     pass
 
@@ -554,6 +558,11 @@ class SampcDetails(mixins.SampcMixin, CommonDetails):
 
 class SampdDetails(mixins.SampdMixin, CommonDetails):
     fields = ["samp_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+
+
+class SpwndcDetails(mixins.SpwndcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "spwn_subj_flag",
+              "created_by", "created_date", ]
 
 
 class SpecDetails(mixins.SpecMixin, CommonDetails):
@@ -932,6 +941,11 @@ class SampdList(mixins.SampdMixin, CommonList):
     fields = ["samp_id", "anidc_id", "created_by", "created_date", ]
 
 
+class SpwndcList(mixins.SpwndcMixin, CommonList):
+    filterset_class = filters.SpwndcFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
+
+
 class SpecList(mixins.SpecMixin, CommonList):
     filterset_class = filters.SpecFilter
     fields = ["name", "species", "com_name", "created_by", "created_date", ]
@@ -1234,6 +1248,10 @@ class SampcUpdate(mixins.SampcMixin, CommonUpdate):
 
 
 class SampdUpdate(mixins.SampdMixin, CommonUpdate):
+    pass
+
+
+class SpwndcUpdate(mixins.SpwndcMixin, CommonUpdate):
     pass
 
 

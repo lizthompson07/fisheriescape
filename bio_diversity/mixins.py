@@ -355,6 +355,13 @@ class SampdMixin:
     title = _("Sample Detail")
 
 
+class SpwndcMixin:
+    key = 'spwndc'
+    model = models.SpawnDetCode
+    form_class = forms.SpwndcForm
+    title = _("Spawn Detail Code")
+
+
 class SpecMixin:
     key = 'spec'
     model = models.SpeciesCode

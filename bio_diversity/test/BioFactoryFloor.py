@@ -1732,6 +1732,44 @@ class SampdFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class SpwndcFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SpawnDetCode
+
+    name = factory.lazy_attribute(lambda o: faker.word())
+    nom = factory.lazy_attribute(lambda o: faker.word())
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    description_fr = factory.lazy_attribute(lambda o: faker.text())
+    min_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    max_val = factory.lazy_attribute(lambda o: faker.random_int(1000, 2000))
+    unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
+    spwn_subj_flag = factory.lazy_attribute(lambda o: faker.boolean())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        unit = UnitFactory()
+        obj = SpwndcFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'name': obj.name,
+            'nom': obj.nom,
+            'description_en': obj.description_en,
+            'description_fr': obj.description_fr,
+            'min_val': obj.min_val,
+            'max_val': obj.max_val,
+            'unit_id': unit.pk,
+            'spwn_subj_flag': obj.spwn_subj_flag,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+
 class SpecFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SpeciesCode

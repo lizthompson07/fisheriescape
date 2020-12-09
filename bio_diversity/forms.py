@@ -403,6 +403,12 @@ class SampdForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class SpwndcForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.SpawnDetCode
+        exclude = []
+
+
 class SpecForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.SpeciesCode

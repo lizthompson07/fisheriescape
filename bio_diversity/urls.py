@@ -257,6 +257,11 @@ urlpatterns = [
     path('list/sampd/', views.SampdList.as_view(), name="list_sampd"),
     path('update/sampd/<int:pk>/', views.SampdUpdate.as_view(), name="update_sampd"),
 
+    path('create/spwndc/', views.SpwndcCreate.as_view(), name="create_spwndc"),
+    path('details/spwndc/<int:pk>/', views.SpwndcDetails.as_view(), name="details_spwndc"),
+    path('list/spwndc/', views.SpwndcList.as_view(), name="list_spwndc"),
+    path('update/spwndc/<int:pk>/', views.SpwndcUpdate.as_view(), name="update_spwndc"),
+    
     path('create/spec/', views.SpecCreate.as_view(), name="create_spec"),
     path('details/spec/<int:pk>/', views.SpecDetails.as_view(), name="details_spec"),
     path('list/spec/', views.SpecList.as_view(), name="list_spec"),
