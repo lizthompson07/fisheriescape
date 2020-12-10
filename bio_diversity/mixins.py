@@ -16,7 +16,7 @@ class AdscMixin:
     key = "adsc"
     form_class = forms.AdscForm
     model = models.AniDetSubjCode
-    title = "Animal Detail Subject Code"
+    title = "Animal Detail Subjective Code"
 
 
 class CntMixin:
@@ -65,7 +65,7 @@ class CdscMixin:
     key = "cdsc"
     form_class = forms.CdscForm
     model = models.ContDetSubjCode
-    title = "Container Detail Subject Code"
+    title = "Container Detail Subjective Code"
 
 
 class CupMixin:
@@ -107,7 +107,7 @@ class EnvscMixin:
     key = "envsc"
     form_class = forms.EnvscForm
     model = models.EnvSubjCode
-    title = "Environment Subject Code"
+    title = "Environment Subjective Code"
 
 
 class EnvtMixin:
@@ -366,7 +366,7 @@ class SpwnscMixin:
     key = 'spwnsc'
     model = models.SpawnDetSubjCode
     form_class = forms.SpwnscForm
-    title = _("Spawn Detail Subject Code")
+    title = _("Spawn Detail Subjective Code")
 
 
 class SpecMixin:

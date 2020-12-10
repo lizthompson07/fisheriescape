@@ -18,7 +18,7 @@ class BioContainerDet(models.Model):
                                   verbose_name=_("Container Detail Code"))
     det_value = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
     cdsc_id = models.ForeignKey("ContDetSubjCode", on_delete=models.DO_NOTHING, null=True, blank=True,
-                                verbose_name=_("Container Detail Subject Code"))
+                                verbose_name=_("Container Detail Subjective Code"))
     start_date = models.DateField(verbose_name=_("Date detail was recorded"))
     end_date = models.DateField(null=True, blank=True, verbose_name=_("Last Date Detail is valid"))
     det_valid = models.BooleanField(default="False", verbose_name=_("Detail still valid?"))
@@ -135,7 +135,7 @@ class CountDet(BioDet):
     cnt_id = models.ForeignKey("Count", on_delete=models.DO_NOTHING, verbose_name=_("Count"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING,
-                                verbose_name=_("Animal Detail Subject Code"))
+                                verbose_name=_("Animal Detail Subjective Code"))
 
 
 class Cup(BioLookup):
@@ -171,7 +171,7 @@ class EnvCondition(BioModel):
     envc_id = models.ForeignKey('EnvCode', on_delete=models.DO_NOTHING, verbose_name=_("Environment variable"))
     env_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))
     envsc_id = models.ForeignKey('EnvSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
-                                 verbose_name=_("Environment Subject Code"))
+                                 verbose_name=_("Environment Subjective Code"))
     env_start = models.DateTimeField(verbose_name=_("Event start date"))
     env_end = models.DateTimeField(null=True, blank=True, verbose_name=_("Event end date"))
     env_avg = models.BooleanField(default=False, verbose_name=_("Is value an average?"))
@@ -282,7 +282,7 @@ class HeathUnit(BioLookup):
 
 class HeathUnitDet(BioContainerDet):
     # Heatd tag
-    heat_id = models.ForeignKey('HeathUnit', on_delete=models.DO_NOTHING, verbose_name=_("HeathUnit"))
+    heat_id = models.ForeignKey('HeathUnit', on_delete=models.DO_NOTHING, verbose_name=_("Heath Unit"))
 
 
 class Individual(BioModel):
@@ -535,7 +535,7 @@ class SampleDet(BioDet):
     samp_id = models.ForeignKey('Sample', on_delete=models.DO_NOTHING, verbose_name=_("Sample"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
-                                verbose_name=_("Animal Detail SubjectCode"))
+                                verbose_name=_("Animal Detail Subjective Code"))
 
 
 class SpawnDetCode(BioLookup):
