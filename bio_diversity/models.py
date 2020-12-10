@@ -231,6 +231,15 @@ class FacilityCode(BioLookup):
     pass
 
 
+class Fecundity(BioTimeModel):
+    # fecu tag
+    stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
+    coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Collection"))
+    alpha = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("A"))
+    beta = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("B"))
+
+
 class Feeding(BioModel):
     # feed tag
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.DO_NOTHING,

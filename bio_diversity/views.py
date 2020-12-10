@@ -132,6 +132,10 @@ class FacicCreate(mixins.FacicMixin, CommonCreate):
     pass
 
 
+class FecuCreate(mixins.FecuMixin, CommonCreate):
+    pass
+
+
 class FeedCreate(mixins.FeedMixin, CommonCreate):
     pass
 
@@ -431,6 +435,11 @@ class EvntcDetails(mixins.EvntcMixin, CommonDetails):
 
 class FacicDetails(mixins.FacicMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class FecuDetails(mixins.FecuMixin, CommonDetails):
+    fields = ["stok_id", "coll_id", "description_en", "start_date", "end_date", "alpha", "beta", "valid", "comments",
+              "created_by", "created_date", ]
 
 
 class FeedDetails(mixins.FeedMixin, CommonDetails):
@@ -798,6 +807,11 @@ class FacicList(mixins.FacicMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class FecuList(mixins.FecuMixin, CommonList):
+    filterset_class = filters.FecuFilter
+    fields = ["stok_id", "coll_id", "alpha", "beta", "created_by", "created_date", ]
+
+
 class FeedList(mixins.FeedMixin, CommonList):
     filterset_class = filters.FeedFilter
     fields = ["contx_id", "feedm_id", "feedc_id", "created_by", "created_date", ]
@@ -1141,6 +1155,10 @@ class EvntcUpdate(mixins.EvntcMixin, CommonUpdate):
 
 
 class FacicUpdate(mixins.FacicMixin, CommonUpdate):
+    pass
+
+
+class FecuUpdate(mixins.FecuMixin, CommonUpdate):
     pass
 
 

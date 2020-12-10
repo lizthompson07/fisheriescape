@@ -697,6 +697,47 @@ class FacicFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class FecuFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Fecundity
+
+    # needs an inst id
+    stok_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.StokFactory")
+    coll_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.CollFactory")
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    alpha = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    beta = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        stok = StokFactory()
+        coll = CollFactory()
+
+        obj = FecuFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'stok_id': stok.pk,
+            'coll_id': coll.pk,
+            'start_date': obj.start_date,
+            'end_date': obj.end_date,
+            'alpha': obj.alpha,
+            'beta': obj.beta,
+            'valid': obj.valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class FeedFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Feeding

@@ -146,6 +146,13 @@ class FacicFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class FecuFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Fecundity
+        fields = ["stok_id", "coll_id", "alpha", "beta", "created_by", "created_date", ]
+
+
 class FeedFilter(django_filters.FilterSet):
 
     class Meta:

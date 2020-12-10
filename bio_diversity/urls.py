@@ -106,6 +106,11 @@ urlpatterns = [
     path('details/facic/<int:pk>/', views.FacicDetails.as_view(), name="details_facic"),
     path('list/facic/', views.FacicList.as_view(), name="list_facic"),
     path('update/facic/<int:pk>/', views.FacicUpdate.as_view(), name="update_facic"),
+                         
+    path('create/fecu/', views.FecuCreate.as_view(), name="create_fecu"),
+    path('details/fecu/<int:pk>/', views.FecuDetails.as_view(), name="details_fecu"),
+    path('list/fecu/', views.FecuList.as_view(), name="list_fecu"),
+    path('update/fecu/<int:pk>/', views.FecuUpdate.as_view(), name="update_fecu"),
              
     path('create/feed/', views.FeedCreate.as_view(), name="create_feed"),
     path('details/feed/<int:pk>/', views.FeedDetails.as_view(), name="details_feed"),

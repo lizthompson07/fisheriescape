@@ -199,6 +199,12 @@ class FacicForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class FecuForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.Fecundity
+        exclude = []
+
+
 class FeedForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Feeding

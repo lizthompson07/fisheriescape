@@ -145,6 +145,13 @@ class FacicMixin:
     title = "Facility Code"
 
 
+class FecuMixin:
+    key = "fecu"
+    form_class = forms.FecuForm
+    model = models.Fecundity
+    title = "Fecundity"
+
+
 class FeedMixin:
     key = "feed"
     form_class = forms.FeedForm
