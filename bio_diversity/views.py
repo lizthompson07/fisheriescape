@@ -2,7 +2,7 @@ from django.views.generic import TemplateView, DetailView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView
 from django.urls import reverse_lazy
 
-from . import mixins, filters, utils
+from . import mixins, filters, utils, models
 from datetime import date
 
 
@@ -522,7 +522,19 @@ class OrgaDetails(mixins.OrgaMixin, CommonDetails):
 
 
 class PairDetails(mixins.PairMixin, CommonDetails):
+    template_name = "bio_diversity/details_pair.html"
     fields = ["indv_id", "start_date", "end_date", "valid", "comments", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["sire_object"] = models.Sire.objects.first()
+        context["sire_field_list"] = [
+            "indv_id",
+            "prio_id",
+            "choice",
+        ]
+
+        return context
 
 
 class PercDetails(mixins.PercMixin, CommonDetails):
