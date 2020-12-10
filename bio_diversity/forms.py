@@ -415,6 +415,12 @@ class SampdForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class SireForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Sire
+        exclude = []
+
+
 class SpwndcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.SpawnDetCode

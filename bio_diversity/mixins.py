@@ -369,6 +369,13 @@ class SampdMixin:
     title = _("Sample Detail")
 
 
+class SireMixin:
+    key = 'sire'
+    model = models.Sire
+    form_class = forms.SireForm
+    title = _("Sire")
+
+
 class SpwndcMixin:
     key = 'spwndc'
     model = models.SpawnDetCode

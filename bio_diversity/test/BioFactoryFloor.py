@@ -1324,7 +1324,6 @@ class OrgaFactory(factory.django.DjangoModelFactory):
         return data
 
 
-
 class PairFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Pairing
@@ -1357,6 +1356,7 @@ class PairFactory(factory.django.DjangoModelFactory):
         }
 
         return data
+
 
 class PercFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -1799,6 +1799,39 @@ class SampdFactory(factory.django.DjangoModelFactory):
             'det_val': obj.det_val,
             'adsc_id': adsc.pk,
             'qual_id': qual.pk,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class SireFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Sire
+
+    prio_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PrioFactory")
+    pair_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PairFactory")
+    indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
+    choice = factory.lazy_attribute(lambda o: faker.random_int(1, 10))
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        prio = PrioFactory()
+        pair = PairFactory()
+        indv = IndvFactory()
+        obj = SireFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'prio_id': prio.pk,
+            'pair_id': pair.pk,
+            'indv_id': indv.pk,
+            'choice': obj.choice,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,

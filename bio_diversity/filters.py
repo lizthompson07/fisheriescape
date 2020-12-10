@@ -371,6 +371,13 @@ class SampdFilter(django_filters.FilterSet):
         fields = ["samp_id", "anidc_id", "created_by", "created_date", ]
 
 
+class SireFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Sire
+        fields = ["prio_id", "pair_id", "created_by", "created_date", ]
+
+
 class SpwndcFilter(django_filters.FilterSet):
 
     class Meta:
