@@ -92,7 +92,7 @@ class ContainerDetCode(BioLookup):
     min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
     max_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Maximum Value"))
     unit_id = models.ForeignKey("UnitCode", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Units"))
-    cont_subj_flag = models.CharField(max_length=1, verbose_name=_("Container Subject Flag"))
+    cont_subj_flag = models.BooleanField(verbose_name=_("Subjective detail?"))
 
 
 class ContDetSubjCode(BioLookup):
@@ -218,7 +218,7 @@ class Event(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}-{}".format(self.prog_id.__str__(), self.evnt_start)
+        return "{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__())
 
 
 class EventCode(BioLookup):

@@ -333,7 +333,7 @@ class RoleFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.RoleCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom", "created_by", "created_date", ]
 
 
 class SampFilter(django_filters.FilterSet):

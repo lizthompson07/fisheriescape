@@ -220,7 +220,7 @@ class ContdcFactory(factory.django.DjangoModelFactory):
     min_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
     max_val = factory.lazy_attribute(lambda o: faker.random_int(1000, 2000))
     unit_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.UnitFactory")
-    cont_subj_flag = factory.lazy_attribute(lambda o: faker.random_letter())
+    cont_subj_flag = factory.lazy_attribute(lambda o: faker.boolean())
     created_by = factory.lazy_attribute(lambda o: faker.name())
     created_date = factory.lazy_attribute(lambda o: faker.date())
 

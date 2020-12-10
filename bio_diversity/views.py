@@ -931,7 +931,7 @@ class RiveList(mixins.RiveMixin, CommonList):
 
 class RoleList(mixins.RoleMixin, CommonList):
     filterset_class = filters.RoleFilter
-    fields = ["rive_id", "trib_id", "name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", "created_by", "created_date", ]
 
 
 class SampList(mixins.SampMixin, CommonList):
