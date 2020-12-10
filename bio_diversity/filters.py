@@ -266,6 +266,13 @@ class OrgaFilter(django_filters.FilterSet):
         fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class PairFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Pairing
+        fields = ["indv_id", "created_by", "created_date", ]
+
+
 class PercFilter(django_filters.FilterSet):
 
     class Meta:

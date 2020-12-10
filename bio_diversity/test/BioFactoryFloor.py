@@ -1324,6 +1324,40 @@ class OrgaFactory(factory.django.DjangoModelFactory):
         return data
 
 
+
+class PairFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Pairing
+
+    # needs an inst id
+    indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
+    start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
+    end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
+    valid = factory.lazy_attribute(lambda o: faker.boolean())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        indv = IndvFactory()
+
+        obj = PairFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'indv_id': indv.pk,
+            'start_date': obj.start_date,
+            'end_date': obj.end_date,
+            'valid': obj.valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
 class PercFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.PersonnelCode

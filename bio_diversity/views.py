@@ -200,6 +200,10 @@ class OrgaCreate(mixins.OrgaMixin, CommonCreate):
     pass
 
 
+class PairCreate(mixins.PairMixin, CommonCreate):
+    pass
+
+
 class PercCreate(mixins.PercMixin, CommonCreate):
     pass
 
@@ -511,6 +515,10 @@ class LoccDetails(mixins.LoccMixin, CommonDetails):
 
 class OrgaDetails(mixins.OrgaMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
+class PairDetails(mixins.PairMixin, CommonDetails):
+    fields = ["indv_id", "start_date", "end_date", "valid", "comments", "created_by", "created_date", ]
 
 
 class PercDetails(mixins.PercMixin, CommonDetails):
@@ -893,6 +901,11 @@ class OrgaList(mixins.OrgaMixin, CommonList):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
 
 
+class PairList(mixins.PairMixin, CommonList):
+    filterset_class = filters.PairFilter
+    fields = ["indv_id", "created_by", "created_date", ]
+
+
 class PercList(mixins.PercMixin, CommonList):
     filterset_class = filters.PercFilter
     fields = ["perc_first_name", "perc_last_name", "perc_valid", "created_by", "created_date", ]
@@ -1223,6 +1236,10 @@ class LoccUpdate(mixins.LoccMixin, CommonUpdate):
 
 
 class OrgaUpdate(mixins.OrgaMixin, CommonUpdate):
+    pass
+
+
+class PairUpdate(mixins.PairMixin, CommonUpdate):
     pass
 
 

@@ -391,6 +391,11 @@ class Organization(BioLookup):
     pass
 
 
+class Pairing(BioTimeModel):
+    # pair tag
+    indv_id = models.ForeignKey('Individual',  on_delete=models.DO_NOTHING, verbose_name=_("Dam"))
+
+
 class PersonnelCode(BioModel):
     # perc tag
     perc_last_name = models.CharField(max_length=32, verbose_name=_("Last Name"))

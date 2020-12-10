@@ -264,6 +264,13 @@ class OrgaMixin:
     title = _("Organization")
 
 
+class PairMixin:
+    key = 'pair'
+    model = models.Pairing
+    form_class = forms.PairForm
+    title = _("Pairing")
+
+
 class PercMixin:
     key = 'perc'
     model = models.PersonnelCode

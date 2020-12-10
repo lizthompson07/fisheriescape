@@ -325,6 +325,12 @@ class OrgaForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class PairForm(CreateTimePrams, forms.ModelForm):
+    class Meta:
+        model = models.Pairing
+        exclude = []
+
+
 class PercForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.PersonnelCode

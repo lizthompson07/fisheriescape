@@ -192,6 +192,11 @@ urlpatterns = [
     path('list/orga/', views.OrgaList.as_view(), name="list_orga"),
     path('update/orga/<int:pk>/', views.OrgaUpdate.as_view(), name="update_orga"),
 
+    path('create/pair/', views.PairCreate.as_view(), name="create_pair"),
+    path('details/pair/<int:pk>/', views.PairDetails.as_view(), name="details_pair"),
+    path('list/pair/', views.PairList.as_view(), name="list_pair"),
+    path('update/pair/<int:pk>/', views.PairUpdate.as_view(), name="update_pair"),
+
     path('create/perc/', views.PercCreate.as_view(), name="create_perc"),
     path('details/perc/<int:pk>/', views.PercDetails.as_view(), name="details_perc"),
     path('list/perc/', views.PercList.as_view(), name="list_perc"),
