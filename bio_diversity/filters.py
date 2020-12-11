@@ -385,6 +385,13 @@ class SpwnFilter(django_filters.FilterSet):
         fields = ["pair_id", "spwn_date", "created_by", "created_date", ]
 
 
+class SpwndFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.SpawnDet
+        fields = ["spwndc_id", "spwn_id", "created_by", "created_date", ]
+
+
 class SpwndcFilter(django_filters.FilterSet):
 
     class Meta:

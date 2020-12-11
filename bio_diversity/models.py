@@ -577,6 +577,14 @@ class Spawning(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
 
+class SpawnDet(BioDet):
+    # spwnd tag
+    spwn_id = models.ForeignKey('Spawning', on_delete=models.DO_NOTHING, verbose_name=_("Spawning"))
+    spwndc_id = models.ForeignKey('SpawnDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Spawning Detail Code"))
+    spwnsc_id = models.ForeignKey('SpawnDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                  verbose_name=_("Spawning Detail Subjective Code"))
+
+
 class SpawnDetCode(BioLookup):
     # spwndc tag
     min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))

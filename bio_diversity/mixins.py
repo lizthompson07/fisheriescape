@@ -382,6 +382,14 @@ class SpwnMixin:
     form_class = forms.SpwnForm
     title = _("Spawning")
 
+
+class SpwndMixin:
+    key = 'spwnd'
+    model = models.SpawnDet
+    form_class = forms.SpwndForm
+    title = _("Spawning Detail")
+
+
 class SpwndcMixin:
     key = 'spwndc'
     model = models.SpawnDetCode

@@ -1868,6 +1868,41 @@ class SpwnFactory(factory.django.DjangoModelFactory):
 
         return data
 
+class SpwndFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SpawnDet
+
+    spwn_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwnFactory")
+    spwndc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwndcFactory")
+    spwnsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwnscFactory")
+    qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
+    det_val = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        spwn = SpwnFactory()
+        spwndc = SpwndcFactory()
+        spwnsc = SpwnscFactory()
+        qual = QualFactory()
+        obj = SpwndFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'spwn_id': spwn.pk,
+            'spwndc_id': spwndc.pk,
+            'spwnsc_id': spwnsc.pk,
+            'qual_id': qual.pk,
+            'det_val': obj.det_val,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
 
 class SpwndcFactory(factory.django.DjangoModelFactory):
     class Meta:
