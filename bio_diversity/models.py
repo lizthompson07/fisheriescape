@@ -304,13 +304,19 @@ class Individual(BioModel):
     coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Collection"))
     # ufid = unique FISH id
-    ufid = models.CharField(max_length=50, verbose_name=_("ABL Fish UFID"))
-    pit_tag = models.CharField(max_length=50, verbose_name=_("PIT tag ID"))
+    ufid = models.CharField(max_length=50, blank=True, null=True, verbose_name=("ABL Fish UFID"))
+    pit_tag = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("PIT tag ID"))
     indv_valid = models.BooleanField(default="False", verbose_name=_("Entry still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}".format(self.ufid)
+        if self.ufid:
+            return "{}".format(self.ufid)
+        elif self.pit_tag:
+            return "{}".format(self.pit_tag)
+        else:
+            return "Non Id'd {} from {}".format(self.spec_id.__str__(), self.stok_id.__str__())
+
 
 
 class IndTreatCode(BioLookup):
@@ -393,7 +399,8 @@ class Organization(BioLookup):
 
 class Pairing(BioTimeModel):
     # pair tag
-    indv_id = models.ForeignKey('Individual',  on_delete=models.DO_NOTHING, verbose_name=_("Dam"))
+    indv_id = models.ForeignKey('Individual',  on_delete=models.DO_NOTHING, verbose_name=_("Dam"),
+                                limit_choices_to={'ufid__isnull':False})
 
 
 class PersonnelCode(BioModel):
@@ -556,7 +563,8 @@ class Sire(BioModel):
     # sire tag
     prio_id = models.ForeignKey('PriorityCode', on_delete=models.DO_NOTHING, verbose_name=_("Priority"))
     pair_id = models.ForeignKey('Pairing', on_delete=models.DO_NOTHING, verbose_name=_("Pairing"), related_name="sire")
-    indv_id = models.ForeignKey('Individual', on_delete=models.DO_NOTHING, verbose_name=_("Sire UFID"))
+    indv_id = models.ForeignKey('Individual', on_delete=models.DO_NOTHING, verbose_name=_("Sire UFID"),
+                                limit_choices_to={'ufid__isnull':False})
     choice = models.IntegerField(verbose_name=_("Choice"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 

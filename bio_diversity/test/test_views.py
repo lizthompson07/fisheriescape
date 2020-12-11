@@ -4024,7 +4024,7 @@ class TestPairDetailView(CommonTest):
         super().setUp()
         self.instance = BioFactoryFloor.PairFactory()
         self.test_url = reverse_lazy('bio_diversity:details_pair', args=[self.instance.pk, ])
-        self.expected_template = 'bio_diversity/bio_details.html'
+        self.expected_template = 'bio_diversity/details_pair.html'
         self.user = self.get_and_login_user()
 
     def test_view_class(self):

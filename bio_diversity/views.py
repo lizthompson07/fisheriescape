@@ -526,6 +526,7 @@ class PairDetails(mixins.PairMixin, CommonDetails):
     fields = ["indv_id", "start_date", "end_date", "valid", "comments", "created_by", "created_date", ]
 
     def get_context_data(self, **kwargs):
+        # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
         context["sire_object"] = models.Sire.objects.first()
         context["sire_field_list"] = [
