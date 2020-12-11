@@ -45,6 +45,49 @@ class AnidcFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class AnixFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.AniDetailXref
+
+    evnt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntFactory")
+    contx_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContxFactory")
+    loc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.LocFactory")
+    indvt_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvtFactory")
+    indv_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.IndvFactory")
+    spwn_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpwnFactory")
+    grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
+
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        evnt = EvntFactory()
+        contx = ContxFactory()
+        loc = LocFactory()
+        indvt = IndvtFactory()
+        indv = IndvFactory()
+        spwn = SpwnFactory()
+        grp = GrpFactory()
+        obj = AnixFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+
+            'evnt_id': evnt.pk,
+            'contx_id': contx.pk,
+            'loc_id': loc.pk,
+            'indvt_id': indvt.pk,
+            'indv_id': indv.pk,
+            'spwn_id': spwn.pk,
+            'grp_id': grp.pk,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class AdscFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.AniDetSubjCode

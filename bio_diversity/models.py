@@ -82,6 +82,22 @@ class AniDetSubjCode(BioLookup):
                                  verbose_name=_("Type of measurement"))
 
 
+class AniDetailXref(BioModel):
+    # anix tag
+    evnt_id = models.ForeignKey("Event", on_delete=models.DO_NOTHING, verbose_name=_("Event"))
+    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Container Cross Reference"))
+    loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, null=True, blank=True,
+                               verbose_name=_("Location"))
+    indvt_id = models.ForeignKey("IndTreatment", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Individual Treatment"))
+    indv_id = models.ForeignKey("Individual", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Individual"))
+    spwn_id = models.ForeignKey("Spawning", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Spawning"))
+    grp_id = models.ForeignKey("Group", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Group"))
+
+
 class Collection(BioLookup):
     # coll tag
     pass

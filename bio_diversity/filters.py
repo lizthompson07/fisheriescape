@@ -13,6 +13,13 @@ class AnidcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "created_by", "created_date", ]
 
 
+class AnixFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.AniDetailXref
+        fields = ["evnt_id", "created_by", "created_date", ]
+
+
 class AdscFilter(django_filters.FilterSet):
 
     class Meta:

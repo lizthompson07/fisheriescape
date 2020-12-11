@@ -52,6 +52,12 @@ class AnidcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class AnixForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.AniDetailXref
+        exclude = []
+
+
 class AdscForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.AniDetSubjCode

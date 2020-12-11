@@ -12,6 +12,13 @@ class AnidcMixin:
     title = "Animal Detail Code"
 
 
+class AnixMixin:
+    key = "anix"
+    form_class = forms.AnixForm
+    model = models.AniDetailXref
+    title = "Animal Detail Cross Reference"
+
+
 class AdscMixin:
     key = "adsc"
     form_class = forms.AdscForm

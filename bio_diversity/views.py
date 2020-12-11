@@ -56,6 +56,10 @@ class AnidcCreate(mixins.AnidcMixin, CommonCreate):
     pass
 
 
+class AnixCreate(mixins.AnixMixin, CommonCreate):
+    pass
+
+
 class AdscCreate(mixins.AdscMixin, CommonCreate):
     pass
 
@@ -368,6 +372,11 @@ class CommonDetails(DetailView):
 class AnidcDetails(mixins.AnidcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "ani_subj_flag",
               "created_by", "created_date", ]
+
+
+class AnixDetails(mixins.AnixMixin, CommonDetails):
+    fields = ["evnt_id", "contx_id", "loc_id", "indvt_id", "indv_id", "spwn_id", "grp_id", "created_by",
+              "created_date", ]
 
 
 class AdscDetails(mixins.AdscMixin, CommonDetails):
@@ -757,6 +766,11 @@ class AnidcList(mixins.AnidcMixin, CommonList):
     fields = ["name", "nom", "created_by", "created_date", ]
 
 
+class AnixList(mixins.AnixMixin, CommonList):
+    filterset_class = filters.AnixFilter
+    fields = ["evnt_id", "created_by", "created_date", ]
+
+
 class AdscList(mixins.AdscMixin, CommonList):
     filterset_class = filters.AdscFilter
     fields = ["name", "nom", "created_by", "created_date", ]
@@ -1144,6 +1158,10 @@ class CommonUpdate(CommonAuthUpdateView):
 
 
 class AnidcUpdate(mixins.AnidcMixin, CommonUpdate):
+    pass
+
+
+class AnixUpdate(mixins.AnixMixin, CommonUpdate):
     pass
 
 
