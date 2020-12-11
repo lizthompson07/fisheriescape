@@ -199,6 +199,9 @@ class Location(models.Model):
             my_str += f' (bin # {self.bin_id})'
         return my_str
 
+    class Meta:
+        ordering = ["location", ]
+
     def get_absolute_url(self):
         return reverse("whalebrary:location_detail", kwargs={"pk": self.id})
 
