@@ -318,7 +318,6 @@ class Individual(BioModel):
             return "Non Id'd {} from {}".format(self.spec_id.__str__(), self.stok_id.__str__())
 
 
-
 class IndTreatCode(BioLookup):
     # indvtc tag
     rec_dose = models.CharField(max_length=400, verbose_name=_("Recommended Dosage"))
@@ -401,6 +400,9 @@ class Pairing(BioTimeModel):
     # pair tag
     indv_id = models.ForeignKey('Individual',  on_delete=models.DO_NOTHING, verbose_name=_("Dam"),
                                 limit_choices_to={'ufid__isnull':False})
+
+    def __str__(self):
+       return "Pair: {}-{}".format(self.indv_id.__str__(), self.start_date)
 
 
 class PersonnelCode(BioModel):
@@ -568,6 +570,9 @@ class Sire(BioModel):
     choice = models.IntegerField(verbose_name=_("Choice"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
+    def __str__(self):
+        return self.indv_id.ufid
+
 
 class Spawning(BioModel):
     # spwn tag
@@ -575,6 +580,9 @@ class Spawning(BioModel):
     spwn_date = models.DateField(verbose_name=_("Date of spawning"))
     est_fecu = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Estimated Fecundity"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    def __str__(self):
+        return "{}-{}".format(self.pair_id.indv_id.__str__(), self.spwn_date)
 
 
 class SpawnDet(BioDet):
