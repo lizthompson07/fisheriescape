@@ -102,3 +102,22 @@ class BranchFilter(django_filters.FilterSet):
         self.filters['region'] = django_filters.ChoiceFilter(field_name="region", label=region_label,
                                                              lookup_expr='exact', choices=region_choices)
 
+
+
+
+class ProjectCodeFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Project
+        fields = {
+            'name': ['icontains'],
+            'code': ['icontains'],
+        }
+
+
+class RCFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.ResponsibilityCenter
+        fields = {
+            'name': ['icontains'],
+            'code': ['icontains'],
+        }

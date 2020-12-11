@@ -21,6 +21,8 @@ from ..utils import is_management_or_admin
 # USER
 #######
 class CurrentUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         data = serializer.data
@@ -35,6 +37,8 @@ class CurrentUserAPIView(APIView):
 
 
 class FTEBreakdownAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         # if there are no project year ids, do this
         if not request.query_params.get("ids"):
@@ -74,6 +78,8 @@ class FTEBreakdownAPIView(APIView):
 
 
 class GetDatesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         fiscal_year = self.request.query_params.get("year")  # to be formatted as follows: YYYY; SAP style
         if fiscal_year:
@@ -196,7 +202,6 @@ class ProjectYearListAPIView(ListAPIView):
         # if a regular user is making the request, show only approved projects (and not hidden projects)
         if not is_management_or_admin(self.request.user):
             qs = qs.filter(project__is_hidden=False, status=4)
-
         return qs.distinct()
 
 
@@ -211,8 +216,8 @@ class ProjectYearSubmitAPIView(APIView):
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
-    def post(self, request, pk):
-        project_year = get_object_or_404(models.ProjectYear, pk=pk)
+    def post(self, request, project_year):
+        project_year = get_object_or_404(models.ProjectYear, pk=project_year)
         project_year.submit()
 
         # create a new email object
@@ -233,8 +238,8 @@ class ProjectYearUnsubmitAPIView(APIView):
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
-    def post(self, request, pk):
-        project_year = get_object_or_404(models.ProjectYear, pk=pk)
+    def post(self, request, project_year):
+        project_year = get_object_or_404(models.ProjectYear, pk=project_year)
         project_year.unsubmit()
         return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
 
@@ -447,7 +452,6 @@ class ActivityUpdateListAPIView(ListAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
-        print(self.kwargs)
         status_report = get_object_or_404(models.StatusReport, pk=self.kwargs.get("status_report"))
         return status_report.updates.all()
 
