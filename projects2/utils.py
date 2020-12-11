@@ -269,35 +269,35 @@ def financial_project_year_summary_data(project_year):
 
 def financial_project_summary_data(project):
     my_list = []
+    if project.get_funding_sources():
+        for fs in project.get_funding_sources():
+            my_dict = dict()
+            my_dict["type"] = fs.get_funding_source_type_display()
+            my_dict["name"] = str(fs)
+            my_dict["salary"] = 0
+            my_dict["om"] = 0
+            my_dict["capital"] = 0
 
-    for fs in project.get_funding_sources():
-        my_dict = dict()
-        my_dict["type"] = fs.get_funding_source_type_display()
-        my_dict["name"] = str(fs)
-        my_dict["salary"] = 0
-        my_dict["om"] = 0
-        my_dict["capital"] = 0
+            # first calc for staff
+            for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
+                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+                if not staff.employee_type.exclude_from_rollup:
+                    if staff.employee_type.cost_type == 1:
+                        my_dict["salary"] += nz(staff.amount, 0)
+                    elif staff.employee_type.cost_type == 2:
+                        my_dict["om"] += nz(staff.amount, 0)
 
-        # first calc for staff
-        for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
-            # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
-            if not staff.employee_type.exclude_from_rollup:
-                if staff.employee_type.cost_type == 1:
-                    my_dict["salary"] += nz(staff.amount, 0)
-                elif staff.employee_type.cost_type == 2:
-                    my_dict["om"] += nz(staff.amount, 0)
+            # O&M costs
+            for cost in models.OMCost.objects.filter(funding_source=fs, project_year__project=project):
+                my_dict["om"] += nz(cost.amount, 0)
 
-        # O&M costs
-        for cost in models.OMCost.objects.filter(funding_source=fs, project_year__project=project):
-            my_dict["om"] += nz(cost.amount, 0)
+            # Capital costs
+            for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
+                my_dict["capital"] += nz(cost.amount, 0)
 
-        # Capital costs
-        for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
-            my_dict["capital"] += nz(cost.amount, 0)
+            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
-        my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
-
-        my_list.append(my_dict)
+            my_list.append(my_dict)
 
     return my_list
 
