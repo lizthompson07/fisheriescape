@@ -1,6 +1,7 @@
 import django_filters
 from django import forms
 from . import models
+from django.utils.translation import gettext as _
 
 
 class ItemFilter(django_filters.FilterSet):
@@ -92,3 +93,8 @@ class IncidentFilter(django_filters.FilterSet):
 class ImageFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Image (any part of name...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
+
+
+class UserFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Name contains"), lookup_expr='icontains',
+                                            widget=forms.TextInput())
