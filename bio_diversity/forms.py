@@ -235,6 +235,12 @@ class GrpForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class GrpdForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.GroupDet
+        exclude = []
+
+
 class HeatForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.HeathUnit
@@ -253,6 +259,12 @@ class HeatdForm(CreateTimePrams, forms.ModelForm):
 class IndvForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Individual
+        exclude = []
+
+
+class IndvdForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.IndividualDet
         exclude = []
 
 

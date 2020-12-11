@@ -187,6 +187,13 @@ class GrpMixin:
     title = "Group"
 
 
+class GrpdMixin:
+    key = "grpd"
+    form_class = forms.GrpdForm
+    model = models.GroupDet
+    title = "Group Detail"
+
+
 class HeatMixin:
     key = "heat"
     form_class = forms.HeatForm
@@ -206,6 +213,13 @@ class IndvMixin:
     form_class = forms.IndvForm
     model = models.Individual
     title = "Individual"
+
+
+class IndvdMixin:
+    key = "indvd"
+    form_class = forms.IndvdForm
+    model = models.IndividualDet
+    title = "Individual Detail"
 
 
 class IndvtMixin:

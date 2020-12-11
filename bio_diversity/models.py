@@ -298,6 +298,15 @@ class Group(BioModel):
         return "{}-{} group".format(self.spec_id.__str__(), self.stok_id.__str__())
 
 
+class GroupDet(BioDet):
+    # grpd tag
+    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING,
+                                verbose_name=_("Animal Detail Cross Reference"))
+    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
+    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Animal Detail Subjective Code"))
+
+
 class HeathUnit(BioLookup):
     # Heat tag
     manufacturer = models.CharField(max_length=35, verbose_name=_("Maufacturer"))
@@ -332,6 +341,15 @@ class Individual(BioModel):
             return "{}".format(self.pit_tag)
         else:
             return "Non Id'd {} from {}".format(self.spec_id.__str__(), self.stok_id.__str__())
+
+
+class IndividualDet(BioDet):
+    # indvd tag
+    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING,
+                                verbose_name=_("Animal Detail Cross Reference"))
+    anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
+    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Animal Detail Subjective Code"))
 
 
 class IndTreatCode(BioLookup):

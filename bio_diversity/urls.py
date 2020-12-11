@@ -137,6 +137,11 @@ urlpatterns = [
     path('list/grp/', views.GrpList.as_view(), name="list_grp"),
     path('update/grp/<int:pk>/', views.GrpUpdate.as_view(), name="update_grp"),
     
+    path('create/grpd/', views.GrpdCreate.as_view(), name="create_grpd"),
+    path('details/grpd/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
+    path('list/grpd/', views.GrpdList.as_view(), name="list_grpd"),
+    path('update/grpd/<int:pk>/', views.GrpdUpdate.as_view(), name="update_grpd"),
+    
     path('create/heat/', views.HeatCreate.as_view(), name="create_heat"),
     path('details/heat/<int:pk>/', views.HeatDetails.as_view(), name="details_heat"),
     path('list/heat/', views.HeatList.as_view(), name="list_heat"),
@@ -151,6 +156,11 @@ urlpatterns = [
     path('details/indv/<int:pk>/', views.IndvDetails.as_view(), name="details_indv"),
     path('list/indv/', views.IndvList.as_view(), name="list_indv"),
     path('update/indv/<int:pk>/', views.IndvUpdate.as_view(), name="update_indv"),
+
+    path('create/indvd/', views.IndvdCreate.as_view(), name="create_indvd"),
+    path('details/indvd/<int:pk>/', views.IndvdDetails.as_view(), name="details_indvd"),
+    path('list/indvd/', views.IndvdList.as_view(), name="list_indvd"),
+    path('update/indvd/<int:pk>/', views.IndvdUpdate.as_view(), name="update_indvd"),
 
     path('create/indvt/', views.IndvtCreate.as_view(), name="create_indvt"),
     path('details/indvt/<int:pk>/', views.IndvtDetails.as_view(), name="details_indvt"),

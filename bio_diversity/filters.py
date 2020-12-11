@@ -188,6 +188,13 @@ class GrpFilter(django_filters.FilterSet):
         fields = ["spec_id", "stok_id", "created_by", "created_date", ]
 
 
+class GrpdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.GroupDet
+        fields = ["anix_id", "anidc_id", "created_by", "created_date", ]
+
+
 class HeatFilter(django_filters.FilterSet):
 
     class Meta:
@@ -208,6 +215,13 @@ class IndvFilter(django_filters.FilterSet):
     class Meta:
         model = models.Individual
         fields = ["ufid", "spec_id", "stok_id", "created_by", "created_date", ]
+
+
+class IndvdFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.IndividualDet
+        fields = ["anix_id", "anidc_id", "created_by", "created_date", ]
 
 
 class IndvtFilter(django_filters.FilterSet):

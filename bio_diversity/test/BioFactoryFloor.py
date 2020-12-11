@@ -919,6 +919,43 @@ class GrpFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class GrpdFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.GroupDet
+
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
+    anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
+    det_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
+    qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        anix = AnixFactory()
+        anidc = AnidcFactory()
+        adsc = AdscFactory()
+        qual = QualFactory()
+        obj = GrpdFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'anix_id': anix.pk,
+            'anidc_id': anidc.pk,
+            'det_val': obj.det_val,
+            'adsc_id': adsc.pk,
+            'qual_id': qual.pk,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class HeatFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.HeathUnit
@@ -1027,6 +1064,43 @@ class IndvFactory(factory.django.DjangoModelFactory):
             'ufid': obj.ufid,
             'pit_tag': obj.pit_tag,
             'indv_valid': obj.indv_valid,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
+class IndvdFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.IndividualDet
+
+    anix_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnixFactory")
+    anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
+    det_val = factory.lazy_attribute(lambda o: faker.random_number(1, 1000))
+    adsc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AdscFactory")
+    qual_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.QualFactory")
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+
+        anix = AnixFactory()
+        anidc = AnidcFactory()
+        adsc = AdscFactory()
+        qual = QualFactory()
+        obj = IndvdFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'anix_id': anix.pk,
+            'anidc_id': anidc.pk,
+            'det_val': obj.det_val,
+            'adsc_id': adsc.pk,
+            'qual_id': qual.pk,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,

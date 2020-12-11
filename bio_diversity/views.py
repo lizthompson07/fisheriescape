@@ -156,6 +156,10 @@ class GrpCreate(mixins.GrpMixin, CommonCreate):
     pass
 
 
+class GrpdCreate(mixins.GrpdMixin, CommonCreate):
+    pass
+
+
 class HeatCreate(mixins.HeatMixin, CommonCreate):
     pass
 
@@ -165,6 +169,10 @@ class HeatdCreate(mixins.HeatdMixin, CommonCreate):
 
 
 class IndvCreate(mixins.IndvMixin, CommonCreate):
+    pass
+
+
+class IndvdCreate(mixins.IndvdMixin, CommonCreate):
     pass
 
 
@@ -484,6 +492,10 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
     fields = ["frm_grp_id", "spec_id", "stok_id", "coll_id", "grp_valid", "comments", "created_by", "created_date", ]
 
 
+class GrpdDetails(mixins.GrpdMixin, CommonDetails):
+    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
+
+
 class HeatDetails(mixins.HeatMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
               "created_by", "created_date", ]
@@ -497,6 +509,10 @@ class HeatdDetails(mixins.HeatdMixin, CommonDetails):
 class IndvDetails(mixins.IndvMixin, CommonDetails):
     fields = ["grp_id", "spec_id", "stok_id", "coll_id", "ufid", "pit_tag", "indv_valid", "comments", "created_by",
               "created_date", ]
+
+
+class IndvdDetails(mixins.IndvdMixin, CommonDetails):
+    fields = ["anix_id", "anidc_id",  "det_val", "adsc_id", "qual_id", "comments", "created_by", "created_date", ]
 
 
 class IndvtDetails(mixins.IndvtMixin, CommonDetails):
@@ -891,6 +907,11 @@ class GrpList(mixins.GrpMixin, CommonList):
     fields = ["spec_id", "stok_id", "created_by", "created_date", ]
 
 
+class GrpdList(mixins.GrpdMixin, CommonList):
+    filterset_class = filters.GrpdFilter
+    fields = ["anix_id", "anidc_id", "created_by", "created_date", ]
+
+
 class HeatList(mixins.HeatMixin, CommonList):
     filterset_class = filters.HeatFilter
     fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
@@ -905,6 +926,11 @@ class HeatdList(mixins.HeatdMixin, CommonList):
 class IndvList(mixins.IndvMixin, CommonList):
     filterset_class = filters.IndvFilter
     fields = ["ufid", "spec_id", "stok_id", "created_by", "created_date", ]
+
+
+class IndvdList(mixins.IndvdMixin, CommonList):
+    filterset_class = filters.IndvdFilter
+    fields = ["anix_id", "anidc_id", "created_by", "created_date", ]
 
 
 class IndvtList(mixins.IndvtMixin, CommonList):
@@ -1261,6 +1287,10 @@ class GrpUpdate(mixins.GrpMixin, CommonUpdate):
     pass
 
 
+class GrpdUpdate(mixins.GrpdMixin, CommonUpdate):
+    pass
+
+
 class HeatUpdate(mixins.HeatMixin, CommonUpdate):
     pass
 
@@ -1270,6 +1300,10 @@ class HeatdUpdate(mixins.HeatdMixin, CommonUpdate):
 
 
 class IndvUpdate(mixins.IndvMixin, CommonUpdate):
+    pass
+
+
+class IndvdUpdate(mixins.IndvdMixin, CommonUpdate):
     pass
 
 
