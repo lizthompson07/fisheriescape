@@ -421,6 +421,15 @@ class SireForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class SpwnForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Spawning
+        exclude = []
+        widgets = {
+            'spwn_date': forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}),
+        }
+
+
 class SpwndcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.SpawnDetCode

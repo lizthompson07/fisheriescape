@@ -264,6 +264,10 @@ class SireCreate(mixins.SireMixin, CommonCreate):
     pass
 
 
+class SpwnCreate(mixins.SpwnMixin, CommonCreate):
+    pass
+
+
 class SpwndcCreate(mixins.SpwndcMixin, CommonCreate):
     pass
 
@@ -600,6 +604,10 @@ class SampdDetails(mixins.SampdMixin, CommonDetails):
 
 class SireDetails(mixins.SireMixin, CommonDetails):
     fields = ["prio_id", "pair_id",  "indv_id", "choice", "comments", "created_by", "created_date", ]
+
+
+class SpwnDetails(mixins.SpwnMixin, CommonDetails):
+    fields = ["pair_id", "spwn_date", "est_fecu", "comments", "created_by", "created_date", ]
 
 
 class SpwndcDetails(mixins.SpwndcMixin, CommonDetails):
@@ -1002,6 +1010,11 @@ class SireList(mixins.SireMixin, CommonList):
     fields = ["prio_id", "pair_id", "created_by", "created_date", ]
 
 
+class SpwnList(mixins.SpwnMixin, CommonList):
+    filterset_class = filters.SpwnFilter
+    fields = ["pair_id", "spwn_date", "created_by", "created_date", ]
+
+
 class SpwndcList(mixins.SpwndcMixin, CommonList):
     filterset_class = filters.SpwndcFilter
     fields = ["name", "nom", "created_by", "created_date", ]
@@ -1326,6 +1339,10 @@ class SampdUpdate(mixins.SampdMixin, CommonUpdate):
 
 
 class SireUpdate(mixins.SireMixin, CommonUpdate):
+    pass
+
+
+class SpwnUpdate(mixins.SpwnMixin, CommonUpdate):
     pass
 
 

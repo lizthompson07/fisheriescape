@@ -1840,6 +1840,35 @@ class SireFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class SpwnFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Spawning
+
+    pair_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.PairFactory")
+    spwn_date = factory.lazy_attribute(lambda o: faker.date())
+    est_fecu = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        pair = PairFactory()
+        obj = SpwnFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'pair_id': pair.pk,
+            'spwn_date': obj.spwn_date,
+            'est_fecu': obj.est_fecu,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
+
 class SpwndcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SpawnDetCode

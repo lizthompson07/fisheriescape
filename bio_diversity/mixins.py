@@ -376,6 +376,12 @@ class SireMixin:
     title = _("Sire")
 
 
+class SpwnMixin:
+    key = 'spwn'
+    model = models.Spawning
+    form_class = forms.SpwnForm
+    title = _("Spawning")
+
 class SpwndcMixin:
     key = 'spwndc'
     model = models.SpawnDetCode

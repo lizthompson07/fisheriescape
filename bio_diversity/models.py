@@ -569,6 +569,14 @@ class Sire(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
 
+class Spawning(BioModel):
+    # spwn tag
+    pair_id = models.ForeignKey('Pairing', on_delete=models.DO_NOTHING, verbose_name=_("Pairing"))
+    spwn_date = models.DateField(verbose_name=_("Date of spawning"))
+    est_fecu = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Estimated Fecundity"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+
 class SpawnDetCode(BioLookup):
     # spwndc tag
     min_val = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Minimum Value"))
