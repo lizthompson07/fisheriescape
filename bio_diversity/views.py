@@ -572,7 +572,7 @@ class PairDetails(mixins.PairMixin, CommonDetails):
 
 
 class PercDetails(mixins.PercMixin, CommonDetails):
-    fields = ["perc_first_name", "perc_last_name", "Perc_valid", "created_by", "created_date", ]
+    fields = ["perc_first_name", "perc_last_name", "perc_valid", "created_by", "created_date", ]
 
 
 class PrioDetails(mixins.PrioMixin, CommonDetails):
@@ -580,8 +580,8 @@ class PrioDetails(mixins.PrioMixin, CommonDetails):
 
 
 class ProgDetails(mixins.ProgMixin, CommonDetails):
-    fields = ["prog_name", "prog_desc", "proga_id", "orga_id", "start_date", "end_date", "valid", "created_by",
-              "created_date", ]
+    fields = ["prog_name", "prog_desc", "proga_id", "orga_id", "start_date", "end_date", "valid", "comments",
+              "created_by", "created_date", ]
 
 
 class ProgaDetails(mixins.ProgaMixin, CommonDetails):
