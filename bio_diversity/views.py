@@ -515,6 +515,7 @@ class HeatdDetails(mixins.HeatdMixin, CommonDetails):
 
 
 class ImgDetails(mixins.ImgMixin, CommonDetails):
+    template_name = 'bio_diversity/details_img.html'
     fields = ["imgc_id", "loc_id", "cntd_id", "grpd_id", "sampd_id", "indvd_id", "spwnd_id", "tankd_id", "heatd_id",
               "draw_id", "trofd_id", "trayd_id", "cupd_id", "img_png", "comments", "created_by", "created_date", ]
 
