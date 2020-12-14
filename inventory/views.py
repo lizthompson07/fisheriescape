@@ -22,7 +22,7 @@ from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
 from dm_apps.utils import custom_send_mail
-from lib.functions.custom_functions import fiscal_year
+from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
 from . import emails
 from . import filters
@@ -1716,7 +1716,7 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        sections = str(form.cleaned_data["sections"]).replace("[", "").replace("]", "").replace(" ", "").replace("'", "")
+        sections = listrify(form.cleaned_data["sections"],",")
 
         if sections == "":
             sections = "None"
@@ -1729,6 +1729,8 @@ class ReportSearchFormView(InventoryDMRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("inventory:export_odi_report"))
         if report == 3:
             return HttpResponseRedirect(reverse("inventory:export_phyiscal_samples"))
+        if report == 4:
+            return HttpResponseRedirect(reverse("inventory:export_resources") + f"?sections={sections}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("inventory:report_search"))
@@ -1774,15 +1776,17 @@ def export_phyiscal_samples(request):
     raise Http404
 
 
-# def capacity_export_spreadsheet(request, fy=None, orgs=None):
-#     file_url = reports.generate_capacity_spreadsheet(fy, orgs)
-#
-#     if os.path.exists(file_url):
-#         with open(file_url, 'rb') as fh:
-#             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-#             response['Content-Disposition'] = 'inline; filename="iHub export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
-#             return response
-#     raise Http404
+@login_required()
+def export_resources(request):
+    sections = request.GET.get("sections") if request.GET.get("sections") else None
+    file_url = reports.generate_resources_report(sections)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="resources report {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
 
 
 # TEMP #
