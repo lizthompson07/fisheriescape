@@ -112,6 +112,10 @@ class EnvcCreate(mixins.EnvcMixin, CommonCreate):
     pass
 
 
+class EnvcfCreate(mixins.EnvcfMixin, CommonCreate):
+    pass
+
+
 class EnvscCreate(mixins.EnvscMixin, CommonCreate):
     pass
 
@@ -449,6 +453,11 @@ class EnvDetails(mixins.EnvMixin, CommonDetails):
 class EnvcDetails(mixins.EnvcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "min_val", "max_val", "unit_id", "env_subj_flag",
               "created_by", "created_date", ]
+
+
+class EnvcfDetails(mixins.EnvcfMixin, CommonDetails):
+    template_name = 'bio_diversity/details_envcf.html'
+    fields = ["env_id", "env_pdf", "comments", "created_by", "created_date", ]
 
 
 class EnvscDetails(mixins.EnvscMixin, CommonDetails):
@@ -870,6 +879,11 @@ class EnvcList(mixins.EnvcMixin, CommonList):
     fields = ["name", "nom", "created_by", "created_date", ]
 
 
+class EnvcfList(mixins.EnvcfMixin, CommonList):
+    filterset_class = filters.EnvcfFilter
+    fields = ["env_id", "created_by", "created_date", ]
+
+
 class EnvscList(mixins.EnvscMixin, CommonList):
     filterset_class = filters.EnvscFilter
     fields = ["name", "nom",  "created_by", "created_date", ]
@@ -1268,6 +1282,10 @@ class EnvUpdate(mixins.EnvMixin, CommonUpdate):
 
 
 class EnvcUpdate(mixins.EnvcMixin, CommonUpdate):
+    pass
+
+
+class EnvcfUpdate(mixins.EnvcfMixin, CommonUpdate):
     pass
 
 

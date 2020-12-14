@@ -110,6 +110,13 @@ class EnvMixin:
     title = "Environment Condition"
 
 
+class EnvcfMixin:
+    key = "envcf"
+    form_class = forms.EnvcfForm
+    model = models.EnvCondFile
+    title = "Environment Condition File"
+
+
 class EnvscMixin:
     key = "envsc"
     form_class = forms.EnvscForm

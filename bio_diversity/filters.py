@@ -111,6 +111,13 @@ class EnvcFilter(django_filters.FilterSet):
         fields = ["name", "nom", "created_by", "created_date", ]
 
 
+class EnvcfFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.EnvCondFile
+        fields = ["env_id", "created_by", "created_date", ]
+
+
 class EnvscFilter(django_filters.FilterSet):
 
     class Meta:

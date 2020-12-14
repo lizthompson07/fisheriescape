@@ -232,6 +232,53 @@ class EnvCondition(BioModel):
         ]
 
 
+def envcf_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/bio_diversity/env_conditions/<filename>
+    return 'bio_diversity/env_conditions/{}'.format(filename)
+
+
+class EnvCondFile(BioModel):
+    # envcf tag
+    env_id = models.OneToOneField("EnvCondition", on_delete=models.DO_NOTHING, verbose_name=_("Environment Condition"))
+
+    env_pdf = models.FileField(upload_to=envcf_directory_path, null=True, blank=True,
+                               verbose_name=_("Environment Condition File"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    def __str__(self):
+        return "{}".format(self.img_png)
+
+
+@receiver(models.signals.post_delete, sender=EnvCondFile)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.env_pdf:
+        if os.path.isfile(instance.env_pdf.path):
+            os.remove(instance.env_pdf.path)
+
+
+@receiver(models.signals.pre_save, sender=EnvCondFile)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+    try:
+        old_file = EnvCondFile.objects.get(pk=instance.pk).env_pdf
+    except EnvCondFile.DoesNotExist:
+        return False
+    new_file = instance.env_pdf
+    if old_file and not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
 class EnvSubjCode(BioLookup):
     # envsc tag
     envc_id = models.ForeignKey('EnvCode', null=True, blank=True, on_delete=models.DO_NOTHING,

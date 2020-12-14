@@ -537,6 +537,31 @@ class EnvcFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class EnvcfFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.EnvCondFile
+    # only using one id for this test, can add more if necesary
+    env_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvFactory")
+    env_pdf = factory.lazy_attribute(lambda o: faker.url())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        env = EnvFactory()
+        obj = EnvcfFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'env_id': env.pk,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
 class EnvscFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EnvSubjCode

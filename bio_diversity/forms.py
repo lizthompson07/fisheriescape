@@ -156,6 +156,12 @@ class EnvcForm(CreatePrams, forms.ModelForm):
         exclude = []
 
 
+class EnvcfForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.EnvCondFile
+        exclude = []
+
+
 class EnvscForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.EnvSubjCode
