@@ -43,7 +43,7 @@
                     </thead>
                     <tbody>
                         {% for obj in object.sire.all %}
-                            <tr href="{% url 'bio_diversity:update_sire' obj.id %}">
+                            <tr href="{% url 'bio_diversity:details_sire' obj.id %}">
                             {% for field in sire_field_list %}
                                 <td>
                                     {% get_field_value obj field %}

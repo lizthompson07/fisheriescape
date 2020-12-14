@@ -368,6 +368,9 @@ class PairForm(CreateTimePrams, forms.ModelForm):
     class Meta:
         model = models.Pairing
         exclude = []
+        widgets = {
+            "indv_id": forms.Select(attrs={"class": "chosen-select-contains"}),
+        }
 
 
 class PercForm(CreatePrams, forms.ModelForm):
@@ -458,6 +461,9 @@ class SireForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Sire
         exclude = []
+        widgets = {
+            "indv_id": forms.Select(attrs={"class": "chosen-select-contains"}),
+        }
 
 
 class SpwnForm(CreatePrams, forms.ModelForm):
