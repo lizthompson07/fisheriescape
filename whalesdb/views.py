@@ -497,11 +497,11 @@ class DepDetails(mixins.DepMixin, CommonDetails):
                     if not hasattr(context, 'rec'):
                         context['rec'] = []
 
-                    rec = models.RecDataset.objects.get(eda_id=eda.pk)
-                    context['rec'].append({
-                        'text': str(rec),
-                        'id': rec.pk,
-                    })
+                    for rec in models.RecDataset.objects.filter(eda_id=eda.pk):
+                        context['rec'].append({
+                            'text': str(rec),
+                            'id': rec.pk,
+                        })
 
         return context
 
