@@ -11,8 +11,10 @@ class CreatePrams:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.fields['created_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
-                                                                    "class": "fp-date"})
+        self.fields['created_date'].widget = forms.HiddenInput()
+        self.fields['created_by'].widget = forms.HiddenInput()
+        # forms.DateInput(attrs={"placeholder": "Click to select a date..",
+        #                       "class": "fp-date"})
 
 
 class CreateTimePrams:
@@ -20,8 +22,9 @@ class CreateTimePrams:
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.fields['created_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
-                                                                    "class": "fp-date"})
+        self.fields['created_date'].widget = forms.HiddenInput()
+        self.fields['created_by'].widget = forms.HiddenInput()
+        # forms.DateInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date"})
         self.fields['start_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
                                                                   "class": "fp-date"})
         self.fields['end_date'].widget = forms.DateInput(attrs={"placeholder": "Click to select a date..",
