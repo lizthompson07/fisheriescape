@@ -103,6 +103,10 @@ class AniDetailXref(BioModel):
                                             'grp_id'], name='Animal Detail Cross Reference Uniqueness ')
         ]
 
+    def __str__(self):
+        return "Ani X Ref for {}".format(self.evnt_id.__str__())
+
+
 class Collection(BioLookup):
     # coll tag
     pass
@@ -144,6 +148,9 @@ class ContainerXRef(BioModel):
                                     name='Container Cross Reference Uniqueness')
         ]
 
+    def __str__(self):
+        return "Container X Ref for {}".format(self.evnt_id.__str__())
+
 
 class Count(BioModel):
     # cnt tag
@@ -160,6 +167,9 @@ class Count(BioModel):
         constraints = [
             models.UniqueConstraint(fields=['loc_id', 'contx_id', 'cntc_id', 'spec_id'], name='Count Uniqueness')
         ]
+
+    def __str__(self):
+        return "{}-{}-{}".format(self.loc_id.__str__(), self.spec_id.__str__(), self.cntc_id.__str__())
 
 
 class CountCode(BioLookup):
@@ -179,6 +189,9 @@ class CountDet(BioDet):
             models.UniqueConstraint(fields=['cnt_id', 'anidc_id', 'adsc_id'], name='Count Detail Uniqueness')
         ]
 
+    def __str__(self):
+        return "{} - {}".format(self.cnt_id.__str__(), self.anidc_id.__str__())
+
 
 class Cup(BioLookup):
     # cup tag
@@ -194,6 +207,9 @@ class CupDet(BioContainerDet):
             models.UniqueConstraint(fields=['cup_id', 'contdc_id', 'cdsc_id', 'start_date'],
                                     name='Cup Detail Uniqueness')
         ]
+
+    def __str__(self):
+        return "{} - {}".format(self.cup_id.__str__(), self.contdc_id.__str__())
 
 
 class Drawer(BioLookup):
@@ -410,6 +426,9 @@ class GroupDet(BioDet):
             models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'], name='Group Detail Uniqueness')
         ]
 
+    def __str__(self):
+        return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
+
 
 class HeathUnit(BioLookup):
     # Heat tag
@@ -427,6 +446,9 @@ class HeathUnitDet(BioContainerDet):
             models.UniqueConstraint(fields=['heat_id', 'contdc_id', 'cdsc_id', 'start_date'],
                                     name='Heath Unit Detail Uniqueness')
         ]
+
+    def __str__(self):
+        return "{} - {}".format(self.heat_id.__str__(), self.contdc_id.__str__())
 
 
 def img_directory_path(instance, filename):
@@ -449,8 +471,6 @@ class Image(BioModel):
                                  verbose_name=_("Individual Detail"))
     spwnd_id = models.ForeignKey("SpawnDet", on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Spawn Detail"))
-    indvd_id = models.ForeignKey("IndividualDet", on_delete=models.DO_NOTHING, null=True, blank=True,
-                                 verbose_name=_("Individual Detail"))
     tankd_id = models.ForeignKey("TankDet", on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Tank Detail"))
     heatd_id = models.ForeignKey("HeathUnitDet", on_delete=models.DO_NOTHING, null=True, blank=True,
@@ -549,6 +569,9 @@ class IndividualDet(BioDet):
             models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'],
                                     name='Individual Detail Uniqueness')
         ]
+
+    def __str__(self):
+        return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
 
 
 class IndTreatCode(BioLookup):
@@ -833,6 +856,9 @@ class SampleDet(BioDet):
             models.UniqueConstraint(fields=['samp_id', 'anidc_id', 'adsc_id'], name='Sample Detail Uniqueness')
         ]
 
+    def __str__(self):
+        return "{} - {}".format(self.samp_id.__str__(), self.anidc_id.__str__())
+
 
 
 class Sire(BioModel):
@@ -875,6 +901,9 @@ class SpawnDet(BioDet):
         constraints = [
             models.UniqueConstraint(fields=['spwn_id', 'spwndc_id', 'spwnsc_id'], name='Spawning Detail Uniqueness')
         ]
+
+    def __str__(self):
+        return "{} - {}".format(self.spwn_id.__str__(), self.spwndc_id.__str__())
 
 
 class SpawnDetCode(BioLookup):
@@ -926,6 +955,8 @@ class TankDet(BioContainerDet):
             models.UniqueConstraint(fields=['tank_id', 'contdc_id', 'start_date'], name='Tank Detail Uniqueness')
         ]
 
+    def __str__(self):
+        return "{} - {}".format(self.tank_id.__str__(), self.contdc_id.__str__())
 
 
 class Team(BioModel):
@@ -953,6 +984,9 @@ class TrayDet(BioContainerDet):
             models.UniqueConstraint(fields=['tray_id', 'contdc_id', 'start_date'], name='Tray Detail  Uniqueness')
         ]
 
+    def __str__(self):
+        return "{} - {}".format(self.tray_id.__str__(), self.contdc_id.__str__())
+
 
 class Tributary(BioLookup):
     # trib tag
@@ -972,6 +1006,9 @@ class TroughDet(BioContainerDet):
         constraints = [
             models.UniqueConstraint(fields=['trof_id', 'contdc_id', 'start_date'], name='Trough Detail Uniqueness')
         ]
+
+    def __str__(self):
+        return "{} - {}".format(self.trof_id.__str__(), self.contdc_id.__str__())
 
 
 class UnitCode(BioLookup):
