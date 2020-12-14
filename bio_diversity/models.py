@@ -97,6 +97,11 @@ class AniDetailXref(BioModel):
                                 verbose_name=_("Spawning"))
     grp_id = models.ForeignKey("Group", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Group"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indvt_id', 'indv_id', 'spwn_id',
+                                            'grp_id'], name='Animal Detail Cross Reference Uniqueness ')
+        ]
 
 class Collection(BioLookup):
     # coll tag
@@ -116,6 +121,11 @@ class ContDetSubjCode(BioLookup):
     contdc_id = models.ForeignKey("ContainerDetCode", on_delete=models.DO_NOTHING,
                                   verbose_name=_("Container detail code"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'contdc_id'], name='CDSC Uniqueness')
+        ]
+
 
 class ContainerXRef(BioModel):
     # Contx tag
@@ -128,6 +138,12 @@ class ContainerXRef(BioModel):
     draw_id = models.ForeignKey("Drawer", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Drawer"))
     cup_id = models.ForeignKey("Cup", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Cup"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['evnt_id', 'tank_id', 'trof_id', 'tray_id', 'heat_id', 'draw_id', 'cup_id'],
+                                    name='Container Cross Reference Uniqueness')
+        ]
+
 
 class Count(BioModel):
     # cnt tag
@@ -139,6 +155,11 @@ class Count(BioModel):
     cnt = models.DecimalField(max_digits=6, decimal_places=0, verbose_name=_("Count"))
     est = models.BooleanField(verbose_name=_("Estimated?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['loc_id', 'contx_id', 'cntc_id', 'spec_id'], name='Count Uniqueness')
+        ]
 
 
 class CountCode(BioLookup):
@@ -153,6 +174,11 @@ class CountDet(BioDet):
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING,
                                 verbose_name=_("Animal Detail Subjective Code"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['cnt_id', 'anidc_id', 'adsc_id'], name='Count Detail Uniqueness')
+        ]
+
 
 class Cup(BioLookup):
     # cup tag
@@ -162,6 +188,12 @@ class Cup(BioLookup):
 class CupDet(BioContainerDet):
     # cupd tag
     cup_id = models.ForeignKey('Cup', on_delete=models.DO_NOTHING, verbose_name=_("Cup"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['cup_id', 'contdc_id', 'cdsc_id', 'start_date'],
+                                    name='Cup Detail Uniqueness')
+        ]
 
 
 class Drawer(BioLookup):
@@ -194,6 +226,11 @@ class EnvCondition(BioModel):
     qual_id = models.ForeignKey('QualCode', on_delete=models.DO_NOTHING, verbose_name=_("Quality of observation"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['contx_id', 'loc_id', 'inst_id'], name='Environment Condition Uniqueness')
+        ]
+
 
 class EnvSubjCode(BioLookup):
     # envsc tag
@@ -221,6 +258,11 @@ class EnvTreatment(BioModel):
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['contx_id', 'envtc_id'], name='Environment Treatment Uniqueness')
+        ]
+
 
 class Event(BioModel):
     # evnt tag
@@ -235,6 +277,12 @@ class Event(BioModel):
 
     def __str__(self):
         return "{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__())
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['facic_id', 'evntc_id', 'prog_id', 'evnt_start', 'evnt_end'],
+                                    name='Event Uniqueness')
+        ]
 
 
 class EventCode(BioLookup):
@@ -255,11 +303,16 @@ class Fecundity(BioTimeModel):
     alpha = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("A"))
     beta = models.DecimalField(max_digits=10, decimal_places=3, verbose_name=_("B"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date'], name='Fecundity Uniqueness')
+        ]
+
 
 class Feeding(BioModel):
     # feed tag
-    contx_id = models.ForeignKey('ContainerXRef', on_delete=models.DO_NOTHING,
-                                 verbose_name=_("Container Cross Reference"))
+    contx_id = models.OneToOneField('ContainerXRef', unique=True, on_delete=models.DO_NOTHING,
+                                    verbose_name=_("Container Cross Reference"))
     feedm_id = models.ForeignKey('FeedMethod', on_delete=models.DO_NOTHING, verbose_name=_("Feeding Method"))
     feedc_id = models.ForeignKey('FeedCode', on_delete=models.DO_NOTHING, verbose_name=_("Feeding Code"))
     lot_num = models.CharField(max_length=40, null=True, blank=True, verbose_name=_("Lot Number"))
@@ -284,7 +337,6 @@ class FeedMethod(BioLookup):
 
 class Group(BioModel):
     # grp tag
-
     frm_grp_id = models.ForeignKey('Group', on_delete=models.DO_NOTHING, null=True, blank=True,
                                    verbose_name=_("From Parent Group"))
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
@@ -306,6 +358,11 @@ class GroupDet(BioDet):
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Animal Detail Subjective Code"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'], name='Group Detail Uniqueness')
+        ]
+
 
 class HeathUnit(BioLookup):
     # Heat tag
@@ -317,6 +374,12 @@ class HeathUnit(BioLookup):
 class HeathUnitDet(BioContainerDet):
     # Heatd tag
     heat_id = models.ForeignKey('HeathUnit', on_delete=models.DO_NOTHING, verbose_name=_("Heath Unit"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['heat_id', 'contdc_id', 'cdsc_id', 'start_date'],
+                                    name='Heath Unit Detail Uniqueness')
+        ]
 
 
 def img_directory_path(instance, filename):
@@ -358,6 +421,13 @@ class Image(BioModel):
 
     def __str__(self):
         return "{}".format(self.img_png)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["imgc_id", "loc_id", "cntd_id", "grpd_id", "sampd_id", "indvd_id",
+                                            "spwnd_id", "tankd_id", "heatd_id", "draw_id", "trofd_id", "trayd_id",
+                                            "cupd_id"], name='Image Uniqueness')
+        ]
 
 
 @receiver(models.signals.post_delete, sender=Image)
@@ -405,8 +475,8 @@ class Individual(BioModel):
     coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Collection"))
     # ufid = unique FISH id
-    ufid = models.CharField(max_length=50, blank=True, null=True, verbose_name=("ABL Fish UFID"))
-    pit_tag = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("PIT tag ID"))
+    ufid = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=("ABL Fish UFID"))
+    pit_tag = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("PIT tag ID"))
     indv_valid = models.BooleanField(default="False", verbose_name=_("Entry still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
@@ -426,6 +496,12 @@ class IndividualDet(BioDet):
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Animal Detail Subjective Code"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'],
+                                    name='Individual Detail Uniqueness')
+        ]
 
 
 class IndTreatCode(BioLookup):
@@ -449,7 +525,7 @@ class IndTreatment(BioModel):
 class Instrument(BioModel):
     # inst tag
     instc = models.ForeignKey('InstrumentCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Code"))
-    serial_number = models.CharField(null=True, blank=True, max_length=250, verbose_name=_("Serial Number"))
+    serial_number = models.CharField(null=True, unique=True, blank=True, max_length=250, verbose_name=_("Serial Number"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
@@ -466,6 +542,11 @@ class InstrumentDet(BioTimeModel):
     inst = models.ForeignKey('Instrument', on_delete=models.DO_NOTHING, verbose_name=_("Instrument"))
     instdc = models.ForeignKey('InstDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Detail Code"))
     det_value = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Value"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['inst', 'instdc', 'start_date'], name='Instrument Detail Uniqueness')
+        ]
 
 
 class InstDetCode(BioLookup):
@@ -495,6 +576,12 @@ class Location(BioModel):
     def __str__(self):
         return "{} location".format(self.locc_id.__str__())
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat",
+                                            "loc_lon", "loc_date"] ,name='Location Uniqueness')
+        ]
+
 
 class LocCode(BioLookup):
     # Locc tag
@@ -512,7 +599,12 @@ class Pairing(BioTimeModel):
                                 limit_choices_to={'ufid__isnull':False})
 
     def __str__(self):
-       return "Pair: {}-{}".format(self.indv_id.__str__(), self.start_date)
+        return "Pair: {}-{}".format(self.indv_id.__str__(), self.start_date)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['indv_id', 'start_date'], name='Pairing Uniqueness')
+        ]
 
 
 class PersonnelCode(BioModel):
@@ -524,6 +616,12 @@ class PersonnelCode(BioModel):
     def __str__(self):
         return "{} {}".format(self.perc_first_name, self.perc_last_name)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['perc_first_name', 'perc_last_name'], name='Personnel Code Uniqueness')
+        ]
+
+
 
 class PriorityCode(BioLookup):
     # prio tag
@@ -532,7 +630,7 @@ class PriorityCode(BioLookup):
 
 class Program(BioTimeModel):
     # prog tag
-    prog_name = models.CharField(max_length=30, verbose_name=_("Program Name"))
+    prog_name = models.CharField(max_length=30, unique=True, verbose_name=_("Program Name"))
     prog_desc = models.CharField(max_length=4000, verbose_name=_("Program Description"))
     proga_id = models.ForeignKey('ProgAuthority', on_delete=models.DO_NOTHING, verbose_name=_("Program Authority"))
     orga_id = models.ForeignKey('Organization', on_delete=models.DO_NOTHING, verbose_name=_("Organization"))
@@ -549,6 +647,10 @@ class ProgAuthority(BioModel):
     def __str__(self):
         return "{} {}".format(self.proga_first_name, self.proga_last_name)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['proga_first_name', 'proga_last_name'], name='Program Authority Uniqueness')
+        ]
 
 class Protocol(BioTimeModel):
     # prot tag
@@ -560,6 +662,11 @@ class Protocol(BioTimeModel):
 
     def __str__(self):
         return "{}, {}".format(self.protc_id.__str__(), self.prog_id.__str__())
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['prog_id', 'protc_id', 'start_date'], name='Protocol Uniqueness')
+        ]
 
 
 class ProtoCode(BioLookup):
@@ -657,6 +764,11 @@ class Sample(BioModel):
     def __str__(self):
         return "{} - {}".format(self.sampc_id.__str__(), self.samp_num)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['loc_id', 'samp_num', 'spec_id', 'sampc_id'], name='Sample Uniqueness')
+        ]
+
 
 class SampleCode(BioLookup):
     # sampc tag
@@ -668,6 +780,12 @@ class SampleDet(BioDet):
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Animal Detail Subjective Code"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['samp_id', 'anidc_id', 'adsc_id'], name='Sample Detail Uniqueness')
+        ]
+
 
 
 class Sire(BioModel):
@@ -693,6 +811,11 @@ class Spawning(BioModel):
     def __str__(self):
         return "{}-{}".format(self.pair_id.indv_id.__str__(), self.spwn_date)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['pair_id', 'spwn_date'], name='Spawning Uniqueness')
+        ]
+
 
 class SpawnDet(BioDet):
     # spwnd tag
@@ -700,6 +823,11 @@ class SpawnDet(BioDet):
     spwndc_id = models.ForeignKey('SpawnDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Spawning Detail Code"))
     spwnsc_id = models.ForeignKey('SpawnDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                   verbose_name=_("Spawning Detail Subjective Code"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['spwn_id', 'spwndc_id', 'spwnsc_id'], name='Spawning Detail Uniqueness')
+        ]
 
 
 class SpawnDetCode(BioLookup):
@@ -746,11 +874,22 @@ class TankDet(BioContainerDet):
     # tankd tag
     tank_id = models.ForeignKey('Tank', on_delete=models.DO_NOTHING, verbose_name=_("Tank"))
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['tank_id', 'contdc_id', 'start_date'], name='Tank Detail Uniqueness')
+        ]
+
+
 
 class Team(BioModel):
     # team tag
     perc_id = models.ForeignKey("PersonnelCode", on_delete=models.DO_NOTHING, verbose_name=_("Team Member"))
     role_id = models.ForeignKey("RoleCode", on_delete=models.DO_NOTHING, verbose_name=_("Role Code"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['perc_id', 'role_id'], name='Team Uniqueness')
+        ]
 
 
 class Tray(BioLookup):
@@ -761,6 +900,11 @@ class Tray(BioLookup):
 class TrayDet(BioContainerDet):
     # trayd tag
     tray_id = models.ForeignKey('Tray', on_delete=models.DO_NOTHING, verbose_name=_("Tray"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['tray_id', 'contdc_id', 'start_date'], name='Tray Detail  Uniqueness')
+        ]
 
 
 class Tributary(BioLookup):
@@ -776,6 +920,11 @@ class Trough(BioLookup):
 class TroughDet(BioContainerDet):
     # trofd tag
     trof_id = models.ForeignKey('Trough', on_delete=models.DO_NOTHING, verbose_name=_("Trough"))
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['trof_id', 'contdc_id', 'start_date'], name='Trough Detail Uniqueness')
+        ]
 
 
 class UnitCode(BioLookup):
