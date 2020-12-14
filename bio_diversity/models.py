@@ -319,6 +319,11 @@ class HeathUnitDet(BioContainerDet):
     heat_id = models.ForeignKey('HeathUnit', on_delete=models.DO_NOTHING, verbose_name=_("Heath Unit"))
 
 
+class ImageCode(BioLookup):
+    # imgc tag
+    pass
+
+
 class Individual(BioModel):
     # indv tag
 

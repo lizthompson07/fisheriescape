@@ -168,6 +168,10 @@ class HeatdCreate(mixins.HeatdMixin, CommonCreate):
     pass
 
 
+class ImgcCreate(mixins.ImgcMixin, CommonCreate):
+    pass
+
+
 class IndvCreate(mixins.IndvMixin, CommonCreate):
     pass
 
@@ -506,6 +510,10 @@ class HeatdDetails(mixins.HeatdMixin, CommonDetails):
               "created_by", "created_date", ]
 
 
+class ImgcDetails(mixins.ImgcMixin, CommonDetails):
+    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+
+
 class IndvDetails(mixins.IndvMixin, CommonDetails):
     fields = ["grp_id", "spec_id", "stok_id", "coll_id", "ufid", "pit_tag", "indv_valid", "comments", "created_by",
               "created_date", ]
@@ -829,7 +837,7 @@ class CdscList(mixins.CdscMixin, CommonList):
 
 class CupList(mixins.CupMixin, CommonList):
     filterset_class = filters.CupFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class CupdList(mixins.CupdMixin, CommonList):
@@ -839,7 +847,7 @@ class CupdList(mixins.CupdMixin, CommonList):
 
 class DrawList(mixins.DrawMixin, CommonList):
     filterset_class = filters.DrawFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class EnvList(mixins.EnvMixin, CommonList):
@@ -854,7 +862,7 @@ class EnvcList(mixins.EnvcMixin, CommonList):
 
 class EnvscList(mixins.EnvscMixin, CommonList):
     filterset_class = filters.EnvscFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class EnvtList(mixins.EnvtMixin, CommonList):
@@ -874,12 +882,12 @@ class EvntList(mixins.EvntMixin, CommonList):
 
 class EvntcList(mixins.EvntcMixin, CommonList):
     filterset_class = filters.EvntcFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class FacicList(mixins.FacicMixin, CommonList):
     filterset_class = filters.FacicFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class FecuList(mixins.FecuMixin, CommonList):
@@ -894,12 +902,12 @@ class FeedList(mixins.FeedMixin, CommonList):
 
 class FeedcList(mixins.FeedcMixin, CommonList):
     filterset_class = filters.FeedcFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class FeedmList(mixins.FeedmMixin, CommonList):
     filterset_class = filters.FeedmFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class GrpList(mixins.GrpMixin, CommonList):
@@ -914,13 +922,18 @@ class GrpdList(mixins.GrpdMixin, CommonList):
 
 class HeatList(mixins.HeatMixin, CommonList):
     filterset_class = filters.HeatFilter
-    fields = ["name", "nom", "description_en", "description_fr", "manufacturer", "serial_number", "inservice_date",
+    fields = ["name", "nom",  "manufacturer", "serial_number", "inservice_date",
               "created_by", "created_date", ]
 
 
 class HeatdList(mixins.HeatdMixin, CommonList):
     filterset_class = filters.HeatdFilter
     fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+
+
+class ImgcList(mixins.ImgcMixin, CommonList):
+    filterset_class = filters.ImgcFilter
+    fields = ["name", "nom", "created_by", "created_date", ]
 
 
 class IndvList(mixins.IndvMixin, CommonList):
@@ -950,7 +963,7 @@ class InstList(mixins.InstMixin, CommonList):
 
 class InstcList(mixins.InstcMixin, CommonList):
     filterset_class = filters.InstcFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class InstdList(mixins.InstdMixin, CommonList):
@@ -960,7 +973,7 @@ class InstdList(mixins.InstdMixin, CommonList):
 
 class InstdcList(mixins.InstdcMixin, CommonList):
     filterset_class = filters.InstdcFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
     
 
 class LocList(mixins.LocMixin, CommonList):
@@ -970,12 +983,12 @@ class LocList(mixins.LocMixin, CommonList):
 
 class LoccList(mixins.LoccMixin, CommonList):
     filterset_class = filters.LoccFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class OrgaList(mixins.OrgaMixin, CommonList):
     filterset_class = filters.OrgaFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class PairList(mixins.PairMixin, CommonList):
@@ -1010,7 +1023,7 @@ class ProtList(mixins.ProtMixin, CommonList):
 
 class ProtcList(mixins.ProtcMixin, CommonList):
     filterset_class = filters.ProtcFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class ProtfList(mixins.ProtfMixin, CommonList):
@@ -1020,17 +1033,17 @@ class ProtfList(mixins.ProtfMixin, CommonList):
 
 class QualList(mixins.QualMixin, CommonList):
     filterset_class = filters.QualFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class RelcList(mixins.RelcMixin, CommonList):
     filterset_class = filters.RelcFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class RiveList(mixins.RiveMixin, CommonList):
     filterset_class = filters.RiveFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class RoleList(mixins.RoleMixin, CommonList):
@@ -1090,12 +1103,12 @@ class StokList(mixins.StokMixin, CommonList):
 
 class SubrList(mixins.SubrMixin, CommonList):
     filterset_class = filters.SubrFilter
-    fields = ["name", "nom", "rive_id", "trib_id", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom", "rive_id", "trib_id",  "created_by", "created_date", ]
 
 
 class TankList(mixins.TankMixin, CommonList):
     filterset_class = filters.TankFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class TankdList(mixins.TankdMixin, CommonList):
@@ -1110,7 +1123,7 @@ class TeamList(mixins.TeamMixin, CommonList):
 
 class TrayList(mixins.TrayMixin, CommonList):
     filterset_class = filters.TrayFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class TraydList(mixins.TraydMixin, CommonList):
@@ -1120,12 +1133,12 @@ class TraydList(mixins.TraydMixin, CommonList):
 
 class TribList(mixins.TribMixin, CommonList):
     filterset_class = filters.TribFilter
-    fields = ["name", "nom", "rive_id", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom", "rive_id",  "created_by", "created_date", ]
 
 
 class TrofList(mixins.TrofMixin, CommonList):
     filterset_class = filters.TrofFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class TrofdList(mixins.TrofdMixin, CommonList):
@@ -1135,7 +1148,7 @@ class TrofdList(mixins.TrofdMixin, CommonList):
 
 class UnitList(mixins.UnitMixin, CommonList):
     filterset_class = filters.UnitFilter
-    fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+    fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 # ---------------------------UPDATE VIEWS-----------------------------------
@@ -1296,6 +1309,10 @@ class HeatUpdate(mixins.HeatMixin, CommonUpdate):
 
 
 class HeatdUpdate(mixins.HeatdMixin, CommonUpdate):
+    pass
+
+
+class ImgcUpdate(mixins.ImgcMixin, CommonUpdate):
     pass
 
 

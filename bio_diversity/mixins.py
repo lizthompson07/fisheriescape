@@ -208,6 +208,13 @@ class HeatdMixin:
     title = "Heath Unit Detail"
 
 
+class ImgcMixin:
+    key = "imgc"
+    form_class = forms.ImgcForm
+    model = models.ImageCode
+    title = "Image Code"
+
+
 class IndvMixin:
     key = "indv"
     form_class = forms.IndvForm

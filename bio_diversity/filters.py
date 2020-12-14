@@ -210,6 +210,13 @@ class HeatdFilter(django_filters.FilterSet):
         fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class ImgcFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.ImageCode
+        fields = ["name", "nom", "created_by", "created_date", ]
+
+
 class IndvFilter(django_filters.FilterSet):
 
     class Meta:
@@ -249,7 +256,7 @@ class InstcFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.InstrumentCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class InstdFilter(django_filters.FilterSet):
@@ -263,7 +270,7 @@ class InstdcFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.InstDetCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class LocFilter(django_filters.FilterSet):
@@ -277,14 +284,14 @@ class LoccFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.LocCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class OrgaFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Organization
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class PairFilter(django_filters.FilterSet):
@@ -305,7 +312,7 @@ class PrioFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.PriorityCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class ProgFilter(django_filters.FilterSet):
@@ -333,7 +340,7 @@ class ProtcFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.ProtoCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class ProtfFilter(django_filters.FilterSet):
@@ -347,7 +354,7 @@ class QualFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.QualCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class RelcFilter(django_filters.FilterSet):
@@ -361,7 +368,7 @@ class RiveFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.RiverCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class RoleFilter(django_filters.FilterSet):
@@ -438,14 +445,14 @@ class StokFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.StockCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class SubrFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.SubRiverCode
-        fields = ["name", "nom", "rive_id", "trib_id", "description_en", "description_fr", "created_by",
+        fields = ["name", "nom", "rive_id", "trib_id",  "created_by",
                   "created_date", ]
 
 
@@ -453,7 +460,7 @@ class TankFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Tank
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class TankdFilter(django_filters.FilterSet):
@@ -474,7 +481,7 @@ class TrayFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Tray
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class TraydFilter(django_filters.FilterSet):
@@ -488,14 +495,14 @@ class TribFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Tributary
-        fields = ["name", "nom", "rive_id", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom", "rive_id",  "created_by", "created_date", ]
 
 
 class TrofFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Trough
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
 
 
 class TrofdFilter(django_filters.FilterSet):
@@ -509,4 +516,4 @@ class UnitFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.UnitCode
-        fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
+        fields = ["name", "nom",  "created_by", "created_date", ]
