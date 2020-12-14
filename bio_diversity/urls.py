@@ -152,6 +152,11 @@ urlpatterns = [
     path('list/heatd/', views.HeatdList.as_view(), name="list_heatd"),
     path('update/heatd/<int:pk>/', views.HeatdUpdate.as_view(), name="update_heatd"),
 
+    path('create/img/', views.ImgCreate.as_view(), name="create_img"),
+    path('details/img/<int:pk>/', views.ImgDetails.as_view(), name="details_img"),
+    path('list/img/', views.ImgList.as_view(), name="list_img"),
+    path('update/img/<int:pk>/', views.ImgUpdate.as_view(), name="update_img"),
+
     path('create/imgc/', views.ImgcCreate.as_view(), name="create_imgc"),
     path('details/imgc/<int:pk>/', views.ImgcDetails.as_view(), name="details_imgc"),
     path('list/imgc/', views.ImgcList.as_view(), name="list_imgc"),

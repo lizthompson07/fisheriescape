@@ -256,6 +256,12 @@ class HeatdForm(CreateTimePrams, forms.ModelForm):
         exclude = []
 
 
+class ImgForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.Image
+        exclude = []
+
+
 class ImgcForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.ImageCode

@@ -210,6 +210,13 @@ class HeatdFilter(django_filters.FilterSet):
         fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class ImgFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = models.Image
+        fields = ["imgc_id", "created_by", "created_date", ]
+
+
 class ImgcFilter(django_filters.FilterSet):
 
     class Meta:

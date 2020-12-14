@@ -1030,6 +1030,34 @@ class HeatdFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class ImgFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.Image
+    # only using one id for this test, can add more if necesary
+    imgc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ImgcFactory")
+    tankd_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TankdFactory")
+    img_png = factory.lazy_attribute(lambda o: faker.url())
+    comments = factory.lazy_attribute(lambda o: faker.text())
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        imgc = ImgcFactory()
+        tankd = TankdFactory()
+        obj = ImgFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'imgc_id': imgc.pk,
+            'tankd_id': tankd.pk,
+            'comments': obj.comments,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
+        }
+
+        return data
+
 
 class ImgcFactory(factory.django.DjangoModelFactory):
     class Meta:

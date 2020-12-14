@@ -168,6 +168,10 @@ class HeatdCreate(mixins.HeatdMixin, CommonCreate):
     pass
 
 
+class ImgCreate(mixins.ImgMixin, CommonCreate):
+    pass
+
+
 class ImgcCreate(mixins.ImgcMixin, CommonCreate):
     pass
 
@@ -508,6 +512,11 @@ class HeatDetails(mixins.HeatMixin, CommonDetails):
 class HeatdDetails(mixins.HeatdMixin, CommonDetails):
     fields = ["heat_id", "contdc_id", "det_value", "cdsc_id", "start_date", "end_date", "det_valid", "comments",
               "created_by", "created_date", ]
+
+
+class ImgDetails(mixins.ImgMixin, CommonDetails):
+    fields = ["imgc_id", "loc_id", "cntd_id", "grpd_id", "sampd_id", "indvd_id", "spwnd_id", "tankd_id", "heatd_id",
+              "draw_id", "trofd_id", "trayd_id", "cupd_id", "img_png", "comments", "created_by", "created_date", ]
 
 
 class ImgcDetails(mixins.ImgcMixin, CommonDetails):
@@ -931,6 +940,11 @@ class HeatdList(mixins.HeatdMixin, CommonList):
     fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
 
 
+class ImgList(mixins.ImgMixin, CommonList):
+    filterset_class = filters.ImgFilter
+    fields = ["imgc_id", "created_by", "created_date", ]
+
+
 class ImgcList(mixins.ImgcMixin, CommonList):
     filterset_class = filters.ImgcFilter
     fields = ["name", "nom", "created_by", "created_date", ]
@@ -1309,6 +1323,10 @@ class HeatUpdate(mixins.HeatMixin, CommonUpdate):
 
 
 class HeatdUpdate(mixins.HeatdMixin, CommonUpdate):
+    pass
+
+
+class ImgUpdate(mixins.ImgMixin, CommonUpdate):
     pass
 
 

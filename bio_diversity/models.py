@@ -319,6 +319,77 @@ class HeathUnitDet(BioContainerDet):
     heat_id = models.ForeignKey('HeathUnit', on_delete=models.DO_NOTHING, verbose_name=_("Heath Unit"))
 
 
+def img_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/bio_diversity/images/<filename>
+    return 'bio_diversity/images/{}'.format(filename)
+
+
+class Image(BioModel):
+    # img tag
+    imgc_id = models.ForeignKey("ImageCode", on_delete=models.DO_NOTHING, verbose_name=_("Image Code"))
+    loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, null=True, blank=True,
+                               verbose_name=_("Location"))
+    cntd_id = models.ForeignKey("CountDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Count Detail"))
+    grpd_id = models.ForeignKey("GroupDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Group Detail"))
+    sampd_id = models.ForeignKey("SampleDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Sample Detail"))
+    indvd_id = models.ForeignKey("IndividualDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Individual Detail"))
+    spwnd_id = models.ForeignKey("SpawnDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Spawn Detail"))
+    indvd_id = models.ForeignKey("IndividualDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Individual Detail"))
+    tankd_id = models.ForeignKey("TankDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Tank Detail"))
+    heatd_id = models.ForeignKey("HeathUnitDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Heath Unit Detail"))
+    draw_id = models.ForeignKey("Drawer", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Drawer"))
+    trofd_id = models.ForeignKey("TroughDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Trough Detail"))
+    trayd_id = models.ForeignKey("TrayDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 verbose_name=_("Tray Detail"))
+    cupd_id = models.ForeignKey("CupDet", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                verbose_name=_("Cup Detail"))
+    img_png = models.FileField(upload_to=img_directory_path,null=True, blank=True, verbose_name=_("Image File"))
+    comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    def __str__(self):
+        return "{}".format(self.img_png)
+
+
+@receiver(models.signals.post_delete, sender=Image)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.img_png:
+        if os.path.isfile(instance.img_png.path):
+            os.remove(instance.img_png.path)
+
+
+@receiver(models.signals.pre_save, sender=Image)
+def auto_delete_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+    try:
+        old_file = Image.objects.get(pk=instance.pk).img_png
+    except Image.DoesNotExist:
+        return False
+    new_file = instance.img_png
+    if old_file and not old_file == new_file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
+
+
 class ImageCode(BioLookup):
     # imgc tag
     pass
@@ -507,7 +578,6 @@ class Protofile(BioModel):
                                 verbose_name=_("Protocol"))
 
     protf_pdf = models.FileField(upload_to=protf_directory_path, blank=True, null=True, verbose_name=_("Protocol File"))
-    # protf_file = models.CharField(max_length=32, verbose_name=_("Protocol File Path"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
