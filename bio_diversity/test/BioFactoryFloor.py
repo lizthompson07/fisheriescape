@@ -11,6 +11,7 @@ faker = Factory.create()
 class AnidcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.AnimalDetCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -91,6 +92,7 @@ class AnixFactory(factory.django.DjangoModelFactory):
 class AdscFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.AniDetSubjCode
+        django_get_or_create = ('name',)
 
     anidc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.AnidcFactory")
     name = factory.lazy_attribute(lambda o: faker.word())
@@ -161,6 +163,7 @@ class CntFactory(factory.django.DjangoModelFactory):
 class CntcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.CountCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -227,6 +230,7 @@ class CntdFactory(factory.django.DjangoModelFactory):
 class CollFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Collection
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -255,6 +259,7 @@ class CollFactory(factory.django.DjangoModelFactory):
 class ContdcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ContainerDetCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -323,6 +328,7 @@ class ContxFactory(factory.django.DjangoModelFactory):
 class CdscFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ContDetSubjCode
+        django_get_or_create = ('name',)
 
     contdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ContdcFactory")
     name = factory.lazy_attribute(lambda o: faker.word())
@@ -354,6 +360,7 @@ class CdscFactory(factory.django.DjangoModelFactory):
 class CupFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Cup
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -423,6 +430,7 @@ class CupdFactory(factory.django.DjangoModelFactory):
 class DrawFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Drawer
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -502,6 +510,7 @@ class EnvFactory(factory.django.DjangoModelFactory):
 class EnvcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EnvCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -536,6 +545,7 @@ class EnvcFactory(factory.django.DjangoModelFactory):
 
         return data
 
+factory.LazyAttribute
 
 class EnvcfFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -562,9 +572,11 @@ class EnvcfFactory(factory.django.DjangoModelFactory):
 
         return data
 
+
 class EnvscFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EnvSubjCode
+        django_get_or_create = ('name',)
 
     envc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EnvcFactory")
     name = factory.lazy_attribute(lambda o: faker.word())
@@ -635,6 +647,7 @@ class EnvtFactory(factory.django.DjangoModelFactory):
 class EnvtcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EnvTreatCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -712,6 +725,7 @@ class EvntFactory(factory.django.DjangoModelFactory):
 class EvntcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.EventCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -740,6 +754,7 @@ class EvntcFactory(factory.django.DjangoModelFactory):
 class FacicFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.FacilityCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -850,6 +865,7 @@ class FeedFactory(factory.django.DjangoModelFactory):
 class FeedcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.FeedCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -880,6 +896,7 @@ class FeedcFactory(factory.django.DjangoModelFactory):
 class FeedmFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.FeedMethod
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -984,6 +1001,7 @@ class GrpdFactory(factory.django.DjangoModelFactory):
 class HeatFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.HeathUnit
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1087,6 +1105,7 @@ class ImgFactory(factory.django.DjangoModelFactory):
 class ImgcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ImageCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1234,6 +1253,7 @@ class IndvtFactory(factory.django.DjangoModelFactory):
 class IndvtcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.IndTreatCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1312,6 +1332,7 @@ class InstFactory(factory.django.DjangoModelFactory):
 class InstcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.InstrumentCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1393,6 +1414,7 @@ class InstdFactory(factory.django.DjangoModelFactory):
 class InstdcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.InstDetCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1468,6 +1490,7 @@ class LocFactory(factory.django.DjangoModelFactory):
 class LoccFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.LocCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1497,6 +1520,7 @@ class LoccFactory(factory.django.DjangoModelFactory):
 class OrgaFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Organization
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1587,6 +1611,7 @@ class PercFactory(factory.django.DjangoModelFactory):
 class PrioFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.PriorityCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1719,6 +1744,7 @@ class ProtFactory(factory.django.DjangoModelFactory):
 class ProtcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ProtoCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1775,6 +1801,7 @@ class ProtfFactory(factory.django.DjangoModelFactory):
 class QualFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.QualCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1804,6 +1831,7 @@ class QualFactory(factory.django.DjangoModelFactory):
 class RelcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ReleaseSiteCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1850,6 +1878,7 @@ class RelcFactory(factory.django.DjangoModelFactory):
 class RiveFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.RiverCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1879,6 +1908,7 @@ class RiveFactory(factory.django.DjangoModelFactory):
 class RoleFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.RoleCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -1943,6 +1973,7 @@ class SampFactory(factory.django.DjangoModelFactory):
 class SampcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SampleCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -2106,6 +2137,7 @@ class SpwndFactory(factory.django.DjangoModelFactory):
 class SpwndcFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SpawnDetCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -2143,6 +2175,7 @@ class SpwndcFactory(factory.django.DjangoModelFactory):
 class SpwnscFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SpawnDetSubjCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -2174,6 +2207,7 @@ class SpwnscFactory(factory.django.DjangoModelFactory):
 class SpecFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SpeciesCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     species = factory.lazy_attribute(lambda o: faker.word())
@@ -2201,6 +2235,7 @@ class SpecFactory(factory.django.DjangoModelFactory):
 class StokFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.StockCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -2229,6 +2264,7 @@ class StokFactory(factory.django.DjangoModelFactory):
 class SubrFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.SubRiverCode
+        django_get_or_create = ('name',)
 
     rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
     trib_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.TribFactory")
@@ -2264,6 +2300,7 @@ class SubrFactory(factory.django.DjangoModelFactory):
 class TankFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Tank
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -2359,6 +2396,7 @@ class TeamFactory(factory.django.DjangoModelFactory):
 class TrayFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Tray
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -2427,6 +2465,7 @@ class TraydFactory(factory.django.DjangoModelFactory):
 class TribFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Tributary
+        django_get_or_create = ('name',)
 
     rive_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.RiveFactory")
     name = factory.lazy_attribute(lambda o: faker.word())
@@ -2459,6 +2498,7 @@ class TribFactory(factory.django.DjangoModelFactory):
 class TrofFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Trough
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())
@@ -2527,6 +2567,7 @@ class TrofdFactory(factory.django.DjangoModelFactory):
 class UnitFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.UnitCode
+        django_get_or_create = ('name',)
 
     name = factory.lazy_attribute(lambda o: faker.word())
     nom = factory.lazy_attribute(lambda o: faker.word())

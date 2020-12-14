@@ -50,7 +50,6 @@ class TestCommonCreate(CommonTest):
         self.assertEqual(init['created_by'], user.username)
         self.assertEqual(init['created_by'], user.username)
         self.assertEqual(init['created_date'], date.today)
-        self.assertEqual(init['start_date'], date.today)
 
 
 @tag("Anidc")
@@ -4344,7 +4343,7 @@ class TestLocDetailView(CommonTest):
             "loc_lat",
             "loc_lon",
             "loc_date",
-            "comments"
+            "comments",
             "created_by",
             "created_date",
         ]

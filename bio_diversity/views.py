@@ -28,10 +28,8 @@ class CommonCreate(CommonAuthCreateView):
 
         init["created_by"] = self.request.user.username
         init["created_date"] = date.today
-        init["start_date"] = date.today
 
-        if "start_date" in init:
-            # this doesn't work?  doing it without the check doesn't break anything either?
+        if hasattr(self.model, "start_date"):
             init["start_date"] = date.today
 
         return init
