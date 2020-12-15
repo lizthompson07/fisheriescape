@@ -18,7 +18,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.templatetags.static import static
-from django.db.models import Count, TextField, F, Sum
+from django.db.models import Count, TextField, F, Sum, Value
 from django.db.models.functions import Concat, datetime
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
@@ -35,6 +35,7 @@ from . import filters
 from . import reports
 from .models import TransactionCategory, Location, Tag
 from django.contrib.auth.models import User as AuthUser
+from django.contrib.auth.models import User, Group
 
 
 class CloserTemplateView(TemplateView):
@@ -100,6 +101,62 @@ def index(request):
 @user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/')
 def admin_tools(request):
     return render(request, 'whalebrary/_admin.html')
+
+## ADMIN USER ACCESS CONTROL ##
+
+
+#TODO this has 2 test fails - ask David
+class UserListView(WhalebraryAdminAccessRequired, CommonFilterView):
+    template_name = "whalebrary/user_list.html"
+    filterset_class = filters.UserFilter
+    home_url_name = "index"
+    paginate_by = 25
+    h1 = "Whalebrary App User List"
+    field_list = [
+        {"name": 'first_name', "class": "", "width": ""},
+        {"name": 'last_name', "class": "", "width": ""},
+        {"name": 'email', "class": "", "width": ""},
+        {"name": 'last_login|{}'.format(gettext_lazy("Last login to DM Apps")), "class": "", "width": ""},
+    ]
+    new_object_url = reverse_lazy("shared_models:user_new")
+
+    def get_queryset(self):
+        queryset = User.objects.order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(""), 'last_name', Value(""), 'email', output_field=TextField())
+        )
+        if self.kwargs.get("whalebrary"):
+            queryset = queryset.filter(groups__name__icontains="whalebrary").distinct()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["whalebrary_admin"] = get_object_or_404(Group, name="whalebrary_admin")
+        context["whalebrary_edit"] = get_object_or_404(Group, name="whalebrary_edit")
+        return context
+
+
+@login_required(login_url='/accounts/login/')
+@user_passes_test(in_whalebrary_admin_group, login_url='/accounts/denied/')
+def toggle_user(request, pk, type):
+    my_user = User.objects.get(pk=pk)
+    whalebrary_admin = get_object_or_404(Group, name="whalebrary_admin")
+    whalebrary_edit = get_object_or_404(Group, name="whalebrary_edit")
+    if type == "admin":
+        # if the user is in the admin group, remove them
+        if whalebrary_admin in my_user.groups.all():
+            my_user.groups.remove(whalebrary_admin)
+        # otherwise add them
+        else:
+            my_user.groups.add(whalebrary_admin)
+    elif type == "edit":
+        # if the user is in the edit group, remove them
+        if whalebrary_edit in my_user.groups.all():
+            my_user.groups.remove(whalebrary_edit)
+        # otherwise add them
+        else:
+            my_user.groups.add(whalebrary_edit)
+    return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+
 
 ## ADMIN FORMSETS ##
 
