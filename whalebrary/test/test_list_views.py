@@ -3,6 +3,7 @@ from django.test import tag
 from django.views.generic import ListView
 from django_filters.views import FilterView
 
+from shared_models.test.SharedModelsFactoryFloor import GroupFactory
 from shared_models.views import CommonFilterView, CommonListView
 from .. import models
 from .. import views
@@ -14,6 +15,41 @@ from ..views import WhalebraryAccessRequired
 
 # Example how to run with keyword tags
 # python manage.py test whalebrary.test --tag transaction_new
+
+class TestUserListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('whalebrary:user_list')
+        self.test_url1 = reverse_lazy('whalebrary:user_list', args=[1])
+        self.expected_template = 'whalebrary/user_list.html'
+        self.user = self.get_and_login_user(in_group="whalebrary_admin")
+        GroupFactory(name="whalebrary_admin")
+        GroupFactory(name="whalebrary_edit")
+
+    @tag("User", "user_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.UserListView, CommonFilterView)
+        self.assert_inheritance(views.UserListView, views.WhalebraryAdminAccessRequired)
+
+    @tag("User", "user_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_good_response(self.test_url1)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.user)
+
+    @tag("User", "user_list", "context")
+    def test_context(self):
+        context_vars = [
+            "whalebrary_admin",
+            "whalebrary_edit",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("User", "user_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("whalebrary:user_list", f"/en/whalebrary/settings/users/")
 
 
 class TestItemListView(CommonTest):

@@ -26,6 +26,11 @@ urlpatterns = [
     path('settings/trainings/', views.TrainingFormsetView.as_view(), name="manage_trainings"),
     path('settings/training/<int:pk>/delete/', views.TrainingHardDeleteView.as_view(), name="delete_training"),
 
+    # ADMIN USERS #
+    path('settings/users/', views.UserListView.as_view(), name='user_list'),
+    path('settings/users/whalebrary/<int:whalebrary>/', views.UserListView.as_view(), name='user_list'),
+    path('settings/user/<int:pk>/toggle/<str:type>/', views.toggle_user, name='toggle_user'),
+
 
     # ITEMS #
 
