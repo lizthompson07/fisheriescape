@@ -6,10 +6,10 @@ import adal
 
 TENANT_ID = "1594fdae-a1d9-4405-915d-011467234338"
 # Azure CLI Client ID - fixed ID
-CLIENT_ID = "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
+CLIENT_ID = "b9b8533b-430c-4b7a-95b7-0c8d43179f68"
 AUTH_URI = "https://login.microsoftonline.com" + "/" + TENANT_ID
-SUBSCRIPTION_ID = "3eb57d27-b726-402d-8cfe-a9a846b99121"
-RG_NAME = "IMTS DEV/TEST"
+# SUBSCRIPTION_ID = "3eb57d27-b726-402d-8cfe-a9a846b99121"
+# RG_NAME = "IMTS DEV/TEST"
 
 
 AZURE_STORAGE_ACCOUNT_NAME = config("AZURE_STORAGE_ACCOUNT_NAME", cast=str, default="")
