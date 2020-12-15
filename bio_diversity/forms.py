@@ -1,6 +1,7 @@
 from datetime import date
 
 from django import forms
+from django.db import IntegrityError
 from django.utils.translation import gettext
 
 from bio_diversity import models
@@ -32,6 +33,13 @@ class CreateTimePrams:
 
     def clean(self):
         cleaned_data = super().clean()
+
+        try:
+            # if object fails to save, handle error
+            self.save(commit=False)
+        except IntegrityError:
+            # combo unique fields
+            self.add_error('start_date', 'This object already exists')
 
         # we have to make sure
         # 1) the end date is after the start date and
@@ -132,8 +140,9 @@ class EnvForm(CreatePrams, forms.ModelForm):
         model = models.EnvCondition
         exclude = []
         widgets = {
-            'env_start': forms.DateTimeInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
-            'env_end': forms.DateTimeInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
+            'env_start': forms.DateTimeInput(attrs={"placeholder": "Click to select a date...",
+                                                    "class": "fp-date-time"}),
+            'env_end': forms.DateTimeInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date-time"}),
         }
 
     def clean(self):
@@ -185,8 +194,10 @@ class EvntForm(CreatePrams, forms.ModelForm):
         model = models.Event
         exclude = []
         widgets = {
-            'evnt_start': forms.DateTimeInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
-            'evnt_end': forms.DateTimeInput(attrs={"placeholder": "Click to select a date..", "class": "fp-date-time"}),
+            'evnt_start': forms.DateTimeInput(attrs={"placeholder": "Click to select a date...",
+                                                     "class": "fp-date-time"}),
+            'evnt_end': forms.DateTimeInput(attrs={"placeholder": "Click to select a date...",
+                                                   "class": "fp-date-time"}),
         }
 
     def clean(self):
