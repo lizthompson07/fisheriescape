@@ -2,7 +2,7 @@
 python manage.py test -b shared_models.test --keepdb
 
 :: testing for projects app
-python manage.py test -b projects.test --keepdb
+python manage.py test -b projects2.test --keepdb
 
 :: testing for travel app
 python manage.py test -b travel.test --keepdb

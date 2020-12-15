@@ -6,369 +6,373 @@
 {% load i18n %}
 
 {% block subtitle %}
-    - {{ object.t_title }}
+  - {{ object.t_title }}
 {% endblock %}
 
 {% block content %}
-    <style media="screen">
-        body {
+  <style media="screen">
+  body {
 
-        }
+  }
 
-        #floating-panel {
-        {#position: absolute;#} left: 25%;
-            z-index: 5;
-        {#background-color: #ffffff;#} padding: 5px;
-        {#border: 1px solid #adadad;#} text-align: center;
-            font-family: 'Roboto', 'sans-serif';
-            line-height: 30px;
-            padding-left: 10px;
-        }
+  #floating-panel {
+  {#position: absolute;#} left: 25%;
+      z-index: 5;
+  {#background-color: #ffffff;#} padding: 5px;
+  {#border: 1px solid #adadad;#} text-align: center;
+      font-family: 'Roboto', 'sans-serif';
+      line-height: 30px;
+      padding-left: 10px;
+  }
 
-    </style>
-
-
-    {% url 'inventory:index' as home_url %}
+  </style>
 
 
+  {% url 'inventory:index' as home_url %}
 
-    <div class="container-fluid">
 
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ home_url }}">{% trans "Home" %}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ object.truncated_title }}</li>
-            </ol>
-        </nav>
 
-        <div class="text-center">
-            <h2>
-                {{ object.t_title }}
+  <div class="container-fluid">
 
-                {% if object.flagged_4_deletion %}
-                    <span class="bad"> - {% trans "Flagged for Deletion" %}</span>
-                {% endif %}
-                {% if object.flagged_4_publication %}
-                    <span class="good">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ home_url }}">{% trans "Home" %}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ object.truncated_title }}</li>
+      </ol>
+    </nav>
+
+    <div class="text-center">
+      <h2>
+        {{ object.t_title }}
+
+        {% if object.flagged_4_deletion %}
+          <span class="bad"> - {% trans "Flagged for Deletion" %}</span>
+        {% endif %}
+        {% if object.flagged_4_publication %}
+          <span class="good">
                     {% if object.fgp_publication_date %}
-                        {% trans "Flagged for Open Data Re-publication" %}
+                      {% trans "Flagged for Open Data Re-publication" %}
                     {% else %}
-                        {% trans "Flagged for Open Data Publication" %}
+                      {% trans "Flagged for Open Data Publication" %}
                     {% endif %}
                     </span>
-                {% endif %}
-            </h2>
-        </div>
-        <div id="floating-panel">
-            {% with "btn btn-sm btn-outline-dark" as my_btn %}
-
-                <a class="{{ my_btn }}" href="{% url 'inventory:resource_edit' object.id %}">
-                    Modify Record
-                </a>
-                <a class="{{ my_btn }}" href="{% url 'inventory:resource_full_detail' object.id %}">
-                    Review Full Record
-                </a>
-                <a class="{{ my_btn }}" href="{% url 'inventory:resource_certify' object.id %}" data-toggle="tooltip"
-                   title="Click here to add a certification event to this record.">
-                    Certify This Record
-                </a>
-
-                {% if object.flagged_4_deletion %}
-
-                    <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
-                       title="Unflag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
-                        Unflag for Deletion
-                    </a>
-                {% else %}
-                    <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
-                       title="Flag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
-                        Flag for Deletion
-                    </a>
-                {% endif %}
-
-
-                <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
-                    View Completeness Report
-                </a>
-
-                {% if object.flagged_4_publication %}
-                    <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
-                       title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
-                        Unflag for Publication
-                    </a>
-                {% else %}
-                    <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
-                       title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
-                        Flag for {% if object.fgp_publication_date %}Re-publication{% else %}Publication{% endif %}
-                    </a>
-                {% endif %}
-                <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap" title="export as HNAP xml">
-                    <img src="{% static 'img/icons/xml.svg' %}" alt="" width="20px">
-                </a>
-                <a class="{{ my_btn }}" href="{% url 'inventory:resource_pdf' object.id %}">
-                    <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
-                </a>
-                {% for group in user.groups.all %}
-                    {% if group.id == 13 %}
-                        <a class="btn btn-sm btn-outline-danger" href="{% url 'inventory:resource_delete' object.id %}">
-                            Delete
-                        </a>
-                    {% endif %}
-
-                {% endfor %}
-            {% endwith %}
-
-        </div>
-        {#<!-- HNAP MODAL -->#}
-        <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-             aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div class="modal-content">
-
-                    <div class="modal-body">
-                        {% if verified %}
-                            <h1>Are you going to publish this record to FGP?</h1>
-                            <br>
-                            <h3>If you click 'yes', the current date will be recorded in the corresponding field.</h3>
-                            <br>
-                        {% else %}
-                            <h1>Just a heads up: this record is not considered complete.</h1>
-                            <br>
-                            <h3>Here is what still needs to be addressed:</h3>
-                            {{ object.completedness_report|safe }}
-                        {% endif %}
-                    </div>
-                    <div class="modal-footer">
-                        {% if verified %}
-                            <a class="btn btn-lg btn-warning" onclick="$('#hnap').modal('hide')"
-                               href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
-                            <a class="btn btn-lg btn-primary " onclick="$('#hnap').modal('hide')"
-                               href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
-                            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Forget the Whole Thing</button>
-                        {% else %}
-                            <a class="btn btn-lg btn-warning" onclick="$('#hnap').modal('hide')"
-                               href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
-                            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Nevermind</button>
-                        {% endif %}
-
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        {#<!-- COMPLETEDNESS MODAL -->#}
-        <div class="modal fade" id="completedness" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
-             aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div class="modal-content">
-
-                    <div class="modal-body">
-                        {% if verified %}
-                            <div class="text-center">
-                                <img src="{% static 'img/inventory/good to go.jpg' %}" alt="">
-                            </div>
-                        {% else %}
-                            <h1> This record is <span class="blue-font">{{ object.completedness_rating|percentage:0 }}</span> complete.</h1>
-                            {% if object.translation_needed %}
-                                <br><h1>It seems as though there is a need for translation.</h1>
-                            {% endif %}
-                            <br><h1>Here is what still needs to be addressed:</h1>
-                            <span class="red-font">
-                                {{ object.completedness_report|safe }}
-                            </span>
-                        {% endif %}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <br>
-
-        <div class="row ">
-            <div class="col-4">
-                {# Basic details #}
-                <h4>Basic Details</h4>
-                {% include "inventory/_resource_detail_basic.html" %}
-            </div>
-
-            <div class="col-3">
-                {# <a href="{% url 'inventory:resource_full_detail' object.id %}"> #}
-                {# <h2>Review Full Record</h2> #}
-                {# </a> #}
-                {# <br> #}
-
-                <h4 class="neighbours">People</h4>
-                <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">
-                    Add a Person
-                </a>
-
-                {% include "inventory/_resource_detail_people.html" %}
-                <br>
-
-                <h4 class="neighbours">Storage Files</h4>
-                <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:file_create' object.id %}">
-                    Add a File
-                </a>
-                {% include "inventory/_resource_detail_files.html" %}
-
-                <h4 class="neighbours">Data Resources</h4>
-                <a class="btn btn-sm btn-outline-primary " href="{% url 'inventory:data_resource_create' object.id %}">
-                    Add a Data Resource
-                </a>
-                {% include "inventory/_resource_detail_data_resources.html" %}
-                <br>
-
-                <h4 class="neighbours">Web Services</h4>
-                <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:web_service_create' object.id %}">
-                    Add a Web Service
-                </a>
-                {% include "inventory/_resource_detail_web_services.html" %}
-                <br>
-
-            </div>
-
-            <div class="col-5">
-
-
-                <style>
-                    #map {
-                        height: 200px; /* The height is 400 pixels */
-                        width: 100%; /* The width is the width of the web page */
-                    }
-                </style>
-
-                {#  thumbnail #}
-                <div class="row mb-3">
-                    <div class="col">
-                        {% if object.thumbnail %}
-                            {% echo object.thumbnail|safe as img_url %}
-                        {% else %}
-                            {% static 'inventory/no_image.svg' as img_url %}
-                        {% endif %}
-
-                        <a href="{{ img_url }}" data-toggle="tooltip"
-                           title="{% trans "to add/change a thumbnail to this resource, add a new file with the word 'thumbnail' included in the caption" %}">
-                            <img src="{{ img_url }}" alt="{% trans "missing thumbnail" %}" height="200px">
-                        </a>
-
-                    </div>
-                    {% if object.bounds %}
-                        <div class="col">
-                            <div id="map"></div>
-                        </div>
-                    {% endif %}
-                </div>
-
-
-                <h4 class="neighbours">Keywords etc.</h4>
-                <div class="neighbours">
-                    <a class="btn btn-sm btn-outline-primary"
-                       href="{% url 'inventory:resource_keyword_edit' object.id %}">
-                        Add a Keyword
-                    </a>
-                </div>
-                {% include "inventory/_resource_detail_keywords.html" %}
-
-                <h4 class="neighbours">Citations</h4>
-                <a class="btn btn-sm btn-outline-primary"
-                   href="{% url 'inventory:resource_citation_filter' object.id %}">
-                    Add a Citation
-                </a>
-                {% include "inventory/_resource_detail_citations.html" %}
-
-                <h4>Related Records</h4>
-                {% include "inventory/_resource_detail_related.html" %}
-
-                <h4>Certification History</h4>
-                {% include "inventory/_resource_detail_certification_history.html" %}
-
-            </div>
-        </div>
+        {% endif %}
+      </h2>
     </div>
-    <div class="text-center">
-        <h5>
-            <a href="{% url 'inventory:resource_full_detail' object.id %}">
-                (click here to view the entire record)
-            </a>
-        </h5>
-    </div>
+    <div id="floating-panel">
+      {% with "btn btn-sm btn-outline-dark" as my_btn %}
 
+        <a class="{{ my_btn }}" href="{% url 'inventory:resource_edit' object.id %}">
+          Modify Record
+        </a>
+        <a class="{{ my_btn }}" href="{% url 'inventory:resource_full_detail' object.id %}">
+          Review Full Record
+        </a>
+        <a class="{{ my_btn }}" href="{% url 'inventory:resource_certify' object.id %}" data-toggle="tooltip"
+           title="Click here to add a certification event to this record.">
+          Certify This Record
+        </a>
 
-    <script type="text/javascript">
-        $(".collapse-btn").click(function () {
-            console.log($(this).text())
-            if ($(this).text() == "(Show all)") {
-                $(this).text("(Hide all)")
-            } else {
-                $(this).text("(Show all)")
-            }
-        })
-    </script>
+        {% if object.flagged_4_deletion %}
 
-
-    <script>
-        {% if object.bounds %}
-            function initialize() {
-
-                window.map = new google.maps.Map(document.getElementById('map'), {
-                    mapTypeId: google.maps.MapTypeId.SATELLITE,
-                    disableDefaultUI: true
-                });
-                var infowindow = new google.maps.InfoWindow();
-                var bounds = new google.maps.LatLngBounds();
-
-                // extend bounds var
-                {% for point in object.bounds%}
-                    bounds.extend(new google.maps.LatLng({{point|last}}, {{ point|first}}));
-                {% endfor %}
-
-                // Define the LatLng coordinates for the polygon's path.
-                var polygonCoords = [
-                    {% for point in object.bounds %}
-                        {lat: {{point|last}}, lng: {{point|first}}},
-                    {% endfor %}
-                ];
-
-                // Construct the stratum.
-                var color = '#ea4544';
-                var myPolygon = new google.maps.Polygon({
-                    path: polygonCoords,
-                    strokeColor: 'red',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 3,
-                    {#fillColor: color,#}
-                    {#fillOpacity: 0.35#}
-                });
-                myPolygon.setMap(map);
-                {#bounds.extend(myPolygon.getBounds());#}
-
-                map.fitBounds(bounds);
-                // add a click event on the polygon
-
-
-                myPolygon.setMap(map);
-                {#bounds.extend(myPolygon.getBounds());#}
-
-                map.fitBounds(bounds);
-
-                // add a click event on the polygon
-            }
-            function loadScript() {
-                var script = document.createElement('script');
-                script.type = 'text/javascript';
-                script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
-                document.body.appendChild(script);
-            }
-
-            window.onload = loadScript();
+          <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
+             title="Unflag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
+            Unflag for Deletion
+          </a>
+        {% else %}
+          <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
+             title="Flag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
+            Flag for Deletion
+          </a>
         {% endif %}
 
-    </script>
+
+        <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
+          View Completeness Report
+        </a>
+
+        {% if object.flagged_4_publication %}
+          <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
+             title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
+            Unflag for Publication
+          </a>
+        {% else %}
+          <a class="{{ my_btn }}" href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
+             title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
+            Flag for {% if object.fgp_publication_date %}Re-publication{% else %}Publication{% endif %}
+          </a>
+        {% endif %}
+        <a class="{{ my_btn }}" href="{% url 'inventory:resource_clone' object.id %}" data-toggle="tooltip"
+           title="{% trans "Start a new resource, using this one as a template." %}">
+          {% trans "Clone" %}
+        </a>
+        <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap" title="export as HNAP xml">
+          <img src="{% static 'img/icons/xml.svg' %}" alt="" width="20px">
+        </a>
+        <a class="{{ my_btn }}" href="{% url 'inventory:resource_pdf' object.id %}">
+          <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
+        </a>
+        {% for group in user.groups.all %}
+          {% if group.id == 13 %}
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'inventory:resource_delete' object.id %}">
+              Delete
+            </a>
+          {% endif %}
+
+        {% endfor %}
+      {% endwith %}
+
+    </div>
+    {#<!-- HNAP MODAL -->#}
+    <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+
+          <div class="modal-body">
+            {% if verified %}
+              <h1>Are you going to publish this record to FGP?</h1>
+              <br>
+              <h3>If you click 'yes', the current date will be recorded in the corresponding field.</h3>
+              <br>
+            {% else %}
+              <h1>Just a heads up: this record is not considered complete.</h1>
+              <br>
+              <h3>Here is what still needs to be addressed:</h3>
+              {{ object.completedness_report|safe }}
+            {% endif %}
+          </div>
+          <div class="modal-footer">
+            {% if verified %}
+              <a class="btn btn-lg btn-warning" onclick="$('#hnap').modal('hide')"
+                 href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
+              <a class="btn btn-lg btn-primary " onclick="$('#hnap').modal('hide')"
+                 href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
+              <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Forget the Whole Thing</button>
+            {% else %}
+              <a class="btn btn-lg btn-warning" onclick="$('#hnap').modal('hide')"
+                 href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
+              <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Nevermind</button>
+            {% endif %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    {#<!-- COMPLETEDNESS MODAL -->#}
+    <div class="modal fade" id="completedness" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+
+          <div class="modal-body">
+            {% if verified %}
+              <div class="text-center">
+                <img src="{% static 'img/inventory/good to go.jpg' %}" alt="">
+              </div>
+            {% else %}
+              <h1> This record is <span class="blue-font">{{ object.completedness_rating|percentage:0 }}</span> complete.</h1>
+              {% if object.translation_needed %}
+                <br><h1>It seems as though there is a need for translation.</h1>
+              {% endif %}
+              <br><h1>Here is what still needs to be addressed:</h1>
+              <span class="red-font">
+                                {{ object.completedness_report|safe }}
+                            </span>
+            {% endif %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <br>
+
+    <div class="row ">
+      <div class="col-4">
+        {# Basic details #}
+        <h4>Basic Details</h4>
+        {% include "inventory/_resource_detail_basic.html" %}
+      </div>
+
+      <div class="col-3">
+        {# <a href="{% url 'inventory:resource_full_detail' object.id %}"> #}
+        {# <h2>Review Full Record</h2> #}
+        {# </a> #}
+        {# <br> #}
+
+        <h4 class="neighbours">People</h4>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">
+          Add a Person
+        </a>
+
+        {% include "inventory/_resource_detail_people.html" %}
+        <br>
+
+        <h4 class="neighbours">Storage Files</h4>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:file_create' object.id %}">
+          Add a File
+        </a>
+        {% include "inventory/_resource_detail_files.html" %}
+
+        <h4 class="neighbours">Data Resources</h4>
+        <a class="btn btn-sm btn-outline-primary " href="{% url 'inventory:data_resource_create' object.id %}">
+          Add a Data Resource
+        </a>
+        {% include "inventory/_resource_detail_data_resources.html" %}
+        <br>
+
+        <h4 class="neighbours">Web Services</h4>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'inventory:web_service_create' object.id %}">
+          Add a Web Service
+        </a>
+        {% include "inventory/_resource_detail_web_services.html" %}
+        <br>
+
+      </div>
+
+      <div class="col-5">
+
+
+        <style>
+        #map {
+            height: 200px; /* The height is 400 pixels */
+            width: 100%; /* The width is the width of the web page */
+        }
+        </style>
+
+        {#  thumbnail #}
+        <div class="row mb-3">
+          <div class="col">
+            {% if object.thumbnail %}
+              {% echo object.thumbnail|safe as img_url %}
+            {% else %}
+              {% static 'inventory/no_image.svg' as img_url %}
+            {% endif %}
+
+            <a href="{{ img_url }}" data-toggle="tooltip"
+               title="{% trans "to add/change a thumbnail to this resource, add a new file with the word 'thumbnail' included in the caption" %}">
+              <img src="{{ img_url }}" alt="{% trans "missing thumbnail" %}" height="200px">
+            </a>
+
+          </div>
+          {% if object.bounds %}
+            <div class="col">
+              <div id="map"></div>
+            </div>
+          {% endif %}
+        </div>
+
+
+        <h4 class="neighbours">Keywords etc.</h4>
+        <div class="neighbours">
+          <a class="btn btn-sm btn-outline-primary"
+             href="{% url 'inventory:resource_keyword_edit' object.id %}">
+            Add a Keyword
+          </a>
+        </div>
+        {% include "inventory/_resource_detail_keywords.html" %}
+
+        <h4 class="neighbours">Citations</h4>
+        <a class="btn btn-sm btn-outline-primary"
+           href="{% url 'inventory:resource_citation_filter' object.id %}">
+          Add a Citation
+        </a>
+        {% include "inventory/_resource_detail_citations.html" %}
+
+        <h4>Related Records</h4>
+        {% include "inventory/_resource_detail_related.html" %}
+
+        <h4>Certification History</h4>
+        {% include "inventory/_resource_detail_certification_history.html" %}
+
+      </div>
+    </div>
+  </div>
+  <div class="text-center">
+    <h5>
+      <a href="{% url 'inventory:resource_full_detail' object.id %}">
+        (click here to view the entire record)
+      </a>
+    </h5>
+  </div>
+
+
+  <script type="text/javascript">
+  $(".collapse-btn").click(function () {
+    console.log($(this).text())
+    if ($(this).text() == "(Show all)") {
+      $(this).text("(Hide all)")
+    } else {
+      $(this).text("(Show all)")
+    }
+  })
+  </script>
+
+
+  <script>
+  {% if object.bounds %}
+    function initialize() {
+
+      window.map = new google.maps.Map(document.getElementById('map'), {
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
+        disableDefaultUI: true
+      });
+      var infowindow = new google.maps.InfoWindow();
+      var bounds = new google.maps.LatLngBounds();
+
+      // extend bounds var
+      {% for point in object.bounds%}
+        bounds.extend(new google.maps.LatLng({{point|last}}, {{ point|first}}));
+      {% endfor %}
+
+      // Define the LatLng coordinates for the polygon's path.
+      var polygonCoords = [
+        {% for point in object.bounds %}
+          {lat: {{point|last}}, lng: {{point|first}}},
+        {% endfor %}
+      ];
+
+      // Construct the stratum.
+      var color = '#ea4544';
+      var myPolygon = new google.maps.Polygon({
+        path: polygonCoords,
+        strokeColor: 'red',
+        strokeOpacity: 0.8,
+        strokeWeight: 3,
+        {#fillColor: color,#}
+        {#fillOpacity: 0.35#}
+      });
+      myPolygon.setMap(map);
+      {#bounds.extend(myPolygon.getBounds());#}
+
+      map.fitBounds(bounds);
+      // add a click event on the polygon
+
+
+      myPolygon.setMap(map);
+      {#bounds.extend(myPolygon.getBounds());#}
+
+      map.fitBounds(bounds);
+
+      // add a click event on the polygon
+    }
+    function loadScript() {
+      var script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = "https://maps.googleapis.com/maps/api/js?key={{google_api_key}}&callback=initialize";
+      document.body.appendChild(script);
+    }
+
+    window.onload = loadScript();
+  {% endif %}
+
+  </script>
 
 
 {% endblock content %}

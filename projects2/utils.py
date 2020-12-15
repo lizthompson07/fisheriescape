@@ -26,7 +26,7 @@ def is_management(user):
     """
         Will return True if user is in project_admin group, or if user is listed as a head of a section, division or branch
     """
-    if user.id:
+    if user and user.id:
         return shared_models.Section.objects.filter(head=user).exists() or \
                shared_models.Division.objects.filter(head=user).exists() or \
                shared_models.Branch.objects.filter(head=user).exists()
@@ -139,7 +139,7 @@ def is_admin_or_project_manager(user, project):
 
 def get_manageable_sections(user):
     if in_projects_admin_group(user):
-        return shared_models.Section.objects.filter(projects__isnull=False).distinct()
+        return shared_models.Section.objects.filter(projects2__isnull=False).distinct()
     return shared_models.Section.objects.filter(Q(head=user) | Q(division__head=user) | Q(division__branch__head=user))
 
 
@@ -269,35 +269,35 @@ def financial_project_year_summary_data(project_year):
 
 def financial_project_summary_data(project):
     my_list = []
+    if project.get_funding_sources():
+        for fs in project.get_funding_sources():
+            my_dict = dict()
+            my_dict["type"] = fs.get_funding_source_type_display()
+            my_dict["name"] = str(fs)
+            my_dict["salary"] = 0
+            my_dict["om"] = 0
+            my_dict["capital"] = 0
 
-    for fs in project.get_funding_sources():
-        my_dict = dict()
-        my_dict["type"] = fs.get_funding_source_type_display()
-        my_dict["name"] = str(fs)
-        my_dict["salary"] = 0
-        my_dict["om"] = 0
-        my_dict["capital"] = 0
+            # first calc for staff
+            for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
+                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+                if not staff.employee_type.exclude_from_rollup:
+                    if staff.employee_type.cost_type == 1:
+                        my_dict["salary"] += nz(staff.amount, 0)
+                    elif staff.employee_type.cost_type == 2:
+                        my_dict["om"] += nz(staff.amount, 0)
 
-        # first calc for staff
-        for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
-            # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
-            if not staff.employee_type.exclude_from_rollup:
-                if staff.employee_type.cost_type == 1:
-                    my_dict["salary"] += nz(staff.amount, 0)
-                elif staff.employee_type.cost_type == 2:
-                    my_dict["om"] += nz(staff.amount, 0)
+            # O&M costs
+            for cost in models.OMCost.objects.filter(funding_source=fs, project_year__project=project):
+                my_dict["om"] += nz(cost.amount, 0)
 
-        # O&M costs
-        for cost in models.OMCost.objects.filter(funding_source=fs, project_year__project=project):
-            my_dict["om"] += nz(cost.amount, 0)
+            # Capital costs
+            for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
+                my_dict["capital"] += nz(cost.amount, 0)
 
-        # Capital costs
-        for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
-            my_dict["capital"] += nz(cost.amount, 0)
+            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
-        my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
-
-        my_list.append(my_dict)
+            my_list.append(my_dict)
 
     return my_list
 
@@ -344,52 +344,6 @@ def multiple_financial_project_year_summary_data(project_years):
     return my_list
 
 
-def multiple_projects_financial_summary(project_list):
-    my_dict = {}
-
-    # first, get the list of funding sources
-    funding_sources = []
-    for project in project_list:
-        funding_sources.extend(project.get_funding_sources())
-    funding_sources = list(set(funding_sources))
-    funding_sources_order = ["{} {}".format(fs.funding_source_type, fs.tname) for fs in funding_sources]
-    for fs in [x for _, x in sorted(zip(funding_sources_order, funding_sources))]:
-        my_dict[fs] = {}
-        my_dict[fs]["salary"] = 0
-        my_dict[fs]["om"] = 0
-        my_dict[fs]["capital"] = 0
-        my_dict[fs]["total"] = 0
-        for project in project_list.all():
-            # first calc for staff
-            for staff in project.staff_members.filter(funding_source=fs):
-                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
-                if not staff.employee_type.exclude_from_rollup:
-                    if staff.employee_type.cost_type == 1:
-                        my_dict[fs]["salary"] += nz(staff.cost, 0)
-                    elif staff.employee_type.cost_type == 2:
-                        my_dict[fs]["om"] += nz(staff.cost, 0)
-            # O&M costs
-            for cost in project.om_costs.filter(funding_source=fs):
-                my_dict[fs]["om"] += nz(cost.budget_requested, 0)
-            # Capital costs
-            for cost in project.capital_costs.filter(funding_source=fs):
-                my_dict[fs]["capital"] += nz(cost.budget_requested, 0)
-
-    my_dict["total"] = {}
-    my_dict["total"]["salary"] = 0
-    my_dict["total"]["om"] = 0
-    my_dict["total"]["capital"] = 0
-    my_dict["total"]["total"] = 0
-    for fs in funding_sources:
-        my_dict[fs]["total"] = float(my_dict[fs]["capital"]) + float(my_dict[fs]["salary"]) + float(my_dict[fs]["om"])
-        my_dict["total"]["salary"] += my_dict[fs]["salary"]
-        my_dict["total"]["om"] += my_dict[fs]["om"]
-        my_dict["total"]["capital"] += my_dict[fs]["capital"]
-        my_dict["total"]["total"] += my_dict[fs]["total"]
-
-    return my_dict
-
-
 def get_project_field_list(project):
     is_acrdp = project.is_acrdp
 
@@ -397,13 +351,14 @@ def get_project_field_list(project):
         'id',
         'section',
         # 'title',
-        'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),  # do not call the html field directly or we loose the ability to get the model's verbose name
+        'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),
+        # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
         'functional_group',
         'default_funding_source',
         'start_date',
         'end_date',
-        'fiscal_years',
+        'fiscal_years|{}'.format(_("Project years")),
         'funding_sources',
         'lead_staff',
 

@@ -3,6 +3,7 @@ import os
 from copy import deepcopy
 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
@@ -77,7 +78,7 @@ class ExploreProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
         return context
 
 
-class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
+class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView):
     h1 = gettext_lazy("Projects")
     template_name = 'projects2/manage_projects/main.html'
     home_url_name = "projects2:index"
@@ -108,7 +109,6 @@ class ManageProjectsTemplateView(LoginRequiredMixin, CommonTemplateView):
 
 class MyProjectListView(LoginRequiredMixin, CommonListView):
     template_name = 'projects2/my_project_list.html'
-    # filterset_class = filters.MyProjectFilter
     h1 = gettext_lazy("My projects")
     home_url_name = "projects2:index"
     container_class = "container-fluid bg-light curvy"
@@ -120,69 +120,15 @@ class MyProjectListView(LoginRequiredMixin, CommonListView):
         {"name": 'title', "class": "", "width": ""},
         {"name": 'start_date', "class": "", "width": "150px"},
         {"name": 'lead_staff', "class": "", "width": ""},
-        {"name": 'fiscal_years', "class": "", "width": ""},
+        {"name": 'fiscal_years|{}'.format(_("fiscal years")), "class": "", "width": ""},
         {"name": 'has_unsubmitted_years|{}'.format("has unsubmitted years?"), "class": "", "width": ""},
         {"name": 'is_hidden|{}'.format(_("hidden?")), "class": "", "width": ""},
         {"name": 'updated_at', "class": "", "width": "150px"},
     ]
 
-    # x = [
-    #     "recommended_for_funding",
-    #     "approved",
-    #     "status_report|{}".format("Status reports"),
-    # ]
-
     def get_queryset(self):
         project_ids = [staff.project_year.project_id for staff in self.request.user.staff_instances2.all()]
         return models.Project.objects.filter(id__in=project_ids).order_by("-updated_at", "title")
-
-    # def get_filterset_kwargs(self, filterset_class):
-    #     kwargs = super().get_filterset_kwargs(filterset_class)
-    #     if kwargs["data"] is None:
-    #         kwargs["data"] = {"year": fiscal_year(next=True, sap_style=True)}
-    #     return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["my"] = True
-        # # Based on the default sorting order, we get the fiscal year from the first project instance
-        # object_list = context.get("object_list")  # grab the projects returned by the filter
-        # fy = object_list.first().year if object_list.count() > 0 else None
-        #
-        # staff_instances = self.request.user.staff_instances2.filter(project__year=fy)
-        #
-        # context['fte_approved_projects'] = staff_instances.filter(
-        #     project__recommended_for_funding=True, project__submitted=True
-        # ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
-        #
-        # context['fte_unapproved_projects'] = staff_instances.filter(
-        #     project__recommended_for_funding=False, project__submitted=True
-        # ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
-        #
-        # context['fte_unsubmitted_projects'] = staff_instances.filter(
-        #     project__submitted=False
-        # ).aggregate(dsum=Sum("duration_weeks"))["dsum"]
-        #
-        # context['fy'] = fy
-        #
-        # context["project_list"] = models.Project.objects.filter(
-        #     id__in=[s.project.id for s in self.request.user.staff_instances.all()]
-        # )
-        #
-        # context["project_field_list"] = [
-        #     "year",
-        #     "submitted|{}".format("Submitted"),
-        #     "recommended_for_funding",
-        #     "approved",
-        #     "allocated_budget",
-        #     "section|Section",
-        #     "project_title",
-        #     "is_hidden|is this a hidden project?",
-        #     "is_lead|{}?".format("Are you a project lead"),
-        #     "status_report|{}".format("Status reports"),
-        # ]
-
-        return context
 
 
 class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
@@ -335,10 +281,8 @@ class ProjectCloneView(ProjectUpdateView):
         context["cloning"] = True
         return context
 
-    def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:login_required'))
-        return super().dispatch(request, *args, **kwargs)
+    def test_func(self):
+        return self.request.user.is_authenticated
 
     def get_initial(self):
         obj = self.get_object()
@@ -365,7 +309,6 @@ class ProjectCloneView(ProjectUpdateView):
             new_year.project = new_obj
             new_year.pk = None
             new_year.submitted = None
-            new_year.allocated_budget = None
             new_year.status = 1
             new_year.notification_email_sent = None
             new_year.save()
@@ -522,10 +465,8 @@ class ProjectYearCloneView(ProjectYearUpdateView):
         context["cloning"] = True
         return context
 
-    def dispatch(self, request, *args, **kwargs):
-        if not self.request.user.is_authenticated:
-            return HttpResponseRedirect(reverse('accounts:login_required'))
-        return super().dispatch(request, *args, **kwargs)
+    def test_func(self):
+        return self.request.user.is_authenticated
 
     def get_initial(self):
         init = super().get_initial()
@@ -853,109 +794,6 @@ class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
     container_class = "container bg-light curvy"
 
 
-# RESPONSIBILITY CENTER
-########################
-
-class ResponsibilityCenterListView(AdminRequiredMixin, CommonFilterView):
-    template_name = "projects2/list.html"
-    filterset_class = filters.RCFilter
-    model = shared_models.ResponsibilityCenter
-    field_list = [
-        {"name": "name|{}".format(gettext_lazy("name")), "class": "", "width": ""},
-        {"name": "code", "class": "", "width": ""},
-        {"name": "manager", "class": "", "width": ""},
-    ]
-    new_object_url_name = "projects2:rc_new"
-    row_object_url_name = "projects2:rc_edit"
-    home_url_name = "projects2:index"
-    h1 = gettext_lazy("Responsibility Center")
-    container_class = "container bg-light curvy"
-
-
-class ResponsibilityCenterUpdateView(AdminRequiredMixin, CommonUpdateView):
-    model = shared_models.ResponsibilityCenter
-    form_class = forms.ResponsibilityCenterForm
-    home_url_name = "projects2:index"
-    parent_crumb = {"title": _("Responsibility Center"), "url": reverse_lazy("projects2:rc_list")}
-    template_name = "projects2/form.html"
-    is_multipart_form_data = True
-    container_class = "container bg-light curvy"
-
-    def get_delete_url(self):
-        return reverse("projects2:rc_delete", args=[self.get_object().id])
-
-
-class ResponsibilityCenterCreateView(AdminRequiredMixin, CommonCreateView):
-    model = shared_models.ResponsibilityCenter
-    form_class = forms.ResponsibilityCenterForm
-    home_url_name = "projects2:index"
-    parent_crumb = {"title": _("Responsibility Center"), "url": reverse_lazy("projects2:rc_list")}
-    template_name = "projects2/form.html"
-    container_class = "container bg-light curvy"
-
-
-class ResponsibilityCenterDeleteView(AdminRequiredMixin, CommonDeleteView):
-    model = shared_models.ResponsibilityCenter
-    success_url = reverse_lazy('projects2:rc_list')
-    home_url_name = "projects2:index"
-    parent_crumb = {"title": _("Responsibility Center"), "url": reverse_lazy("projects2:rc_list")}
-    template_name = "projects2/confirm_delete.html"
-    delete_protection = False
-    container_class = "container bg-light curvy"
-
-
-# PROJECT CODE
-##############
-
-class ProjectCodeListView(AdminRequiredMixin, CommonFilterView):
-    template_name = "projects2/list.html"
-    filterset_class = filters.RCFilter
-    model = shared_models.Project
-    field_list = [
-        {"name": "name|{}".format(gettext_lazy("name")), "class": "", "width": ""},
-        {"name": "code", "class": "", "width": ""},
-        {"name": "description", "class": "", "width": ""},
-        {"name": "project_lead", "class": "", "width": ""},
-    ]
-    new_object_url_name = "projects2:rc_new"
-    row_object_url_name = "projects2:rc_edit"
-    home_url_name = "projects2:index"
-    h1 = gettext_lazy("Project Codes")
-    container_class = "container bg-light curvy"
-
-
-class ProjectCodeUpdateView(AdminRequiredMixin, CommonUpdateView):
-    model = shared_models.Project
-    form_class = forms.ProjectCodeForm
-    home_url_name = "projects2:index"
-    parent_crumb = {"title": _("Project Codes"), "url": reverse_lazy("projects2:rc_list")}
-    template_name = "projects2/form.html"
-    is_multipart_form_data = True
-    container_class = "container bg-light curvy"
-
-    def get_delete_url(self):
-        return reverse("projects2:rc_delete", args=[self.get_object().id])
-
-
-class ProjectCodeCreateView(AdminRequiredMixin, CommonCreateView):
-    model = shared_models.Project
-    form_class = forms.ProjectCodeForm
-    home_url_name = "projects2:index"
-    parent_crumb = {"title": _("Project Codes"), "url": reverse_lazy("projects2:rc_list")}
-    template_name = "projects2/form.html"
-    container_class = "container bg-light curvy"
-
-
-class ProjectCodeDeleteView(AdminRequiredMixin, CommonDeleteView):
-    model = shared_models.Project
-    success_url = reverse_lazy('projects2:rc_list')
-    home_url_name = "projects2:index"
-    parent_crumb = {"title": _("Project Codes"), "url": reverse_lazy("projects2:rc_list")}
-    template_name = "projects2/confirm_delete.html"
-    delete_protection = False
-    container_class = "container bg-light curvy"
-
-
 # STATUS REPORT #
 #################
 
@@ -1016,9 +854,7 @@ class StatusReportDetailView(LoginRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_report = models.StatusReport.objects.get(pk=self.kwargs["pk"])
-        context["object"] = my_report
-        context["report_mode"] = True
+        my_report = self.get_object()
         context['files'] = my_report.files.all()
         context['file_form'] = forms.FileForm
         context["random_file"] = models.File.objects.first()
@@ -1085,6 +921,7 @@ class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
         return context
 
 
+@login_required()
 def export_acrdp_application(request, pk):
     project = get_object_or_404(models.Project, pk=pk)
 
@@ -1106,13 +943,14 @@ def export_acrdp_application(request, pk):
     raise Http404
 
 
+@login_required()
 def export_acrdp_budget(request, pk):
     project = get_object_or_404(models.Project, pk=pk)
 
     # check if the project lead's profile is up-to-date
-    if not project.lead_staff.first().user.profile.tposition:
+    if project.lead_staff.first() and not project.lead_staff.first().user.profile.tposition:
         messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (position title)"))
-    if not project.lead_staff.first().user.profile.phone:
+    if project.lead_staff.first() and not project.lead_staff.first().user.profile.phone:
         messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (phone number)"))
     file_url = reports.generate_acrdp_budget(project)
 

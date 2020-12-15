@@ -1,13 +1,19 @@
 <div class="btn-group">
-    {% if readonly %}
-        <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
-    {% else %}
-        <button type="submit" class="btn btn-primary">Submit</button>
-    {% endif %}
+  {% if readonly %}
+    <a class="btn btn-warning" href="{% url 'inventory:resource_edit' object.id %}">Edit</a>
+  {% else %}
+    <button type="submit" class="btn btn-primary">
+      {% if cloning %}
+        Clone
+      {% else %}
+        Submit
+      {% endif %}
+    </button>
+  {% endif %}
 
-    {% if object.id %}
-        <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% if readonly %}Back{% else %}Cancel{% endif %}</a>
-    {% else %}
-        <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">Cancel</a>
-    {% endif %}
+  {% if object.id %}
+    <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">{% if readonly %}Back{% else %}Cancel{% endif %}</a>
+  {% else %}
+    <a class="btn btn-secondary" href="{{ request.META.HTTP_REFERER }}">Cancel</a>
+  {% endif %}
 </div>

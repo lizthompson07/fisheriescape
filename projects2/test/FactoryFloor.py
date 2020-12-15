@@ -4,7 +4,7 @@ import factory
 from django.utils import timezone
 from faker import Factory
 
-from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFactory
+from shared_models.test.SharedModelsFactoryFloor import SectionFactory, UserFactory, RegionFactory
 from .. import models
 
 faker = Factory.create()
@@ -74,6 +74,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     functional_group = factory.SubFactory(FunctionalGroupFactory)
     default_funding_source = factory.SubFactory(FundingSourceFactory)
     title = factory.lazy_attribute(lambda o: faker.catch_phrase())
+    activity_type = factory.lazy_attribute(lambda o: models.ActivityType.objects.all()[faker.random_int(0, models.ActivityType.objects.count() - 1)])
 
     @staticmethod
     def get_valid_data():
@@ -82,6 +83,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
             'functional_group': FunctionalGroupFactory().id,
             'default_funding_source': FundingSourceFactory().id,
             'title': faker.catch_phrase(),
+            'activity_type': models.ActivityType.objects.all()[faker.random_int(0, models.ActivityType.objects.count() - 1)].id,
         }
 
 
@@ -91,13 +93,13 @@ class ProjectYearFactory(factory.django.DjangoModelFactory):
 
     project = factory.SubFactory(ProjectFactory)
     status = factory.lazy_attribute(lambda o: faker.pyint(1, 100))
-    start_date = factory.lazy_attribute(lambda o: datetime.datetime(year=faker.py_int(2000, 2030), month=4, day=1))
-    end_date = factory.lazy_attribute(lambda o: datetime.datetime(year=o.start_date.year + 1, month=3, day=31))
+    start_date = factory.lazy_attribute(lambda o: datetime.datetime(year=faker.pyint(2000, 2030), month=4, day=1, tzinfo=timezone.get_current_timezone()))
+    end_date = factory.lazy_attribute(lambda o: datetime.datetime(year=o.start_date.year + 1, month=3, day=31, tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
     def get_valid_data():
-        start_date = datetime.datetime(year=faker.py_int(2000, 2030), month=4, day=1)
-        end_date = datetime.datetime(year=start_date.year + 1, month=3, day=31)
+        start_date = datetime.datetime(year=faker.pyint(2000, 2030), month=4, day=1, tzinfo=timezone.get_current_timezone())
+        end_date = datetime.datetime(year=start_date.year + 1, month=3, day=31, tzinfo=timezone.get_current_timezone())
         return {
             'project': ProjectFactory().id,
             'status': faker.pyint(1, 100),
@@ -177,7 +179,7 @@ class CapitalCostFactory(factory.django.DjangoModelFactory):
     project_year = factory.SubFactory(ProjectYearFactory)
     funding_source = factory.SubFactory(FundingSourceFactory)
     amount = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
-    category = factory.lazy_attribute(lambda o: faker.py_int(1, 4))
+    category = factory.lazy_attribute(lambda o: faker.pyint(1, 4))
 
     @staticmethod
     def get_valid_data():
@@ -185,7 +187,7 @@ class CapitalCostFactory(factory.django.DjangoModelFactory):
             'project_year': ProjectYearFactory().id,
             'funding_source': FundingSourceFactory().id,
             'amount': faker.pyfloat(positive=True),
-            'category': faker.py_int(1, 4),
+            'category': faker.pyint(1, 4),
         }
 
 
@@ -271,6 +273,13 @@ class StatusReportFactory(factory.django.DjangoModelFactory):
             'status': faker.pyint(3, 6),
         }
 
+    @staticmethod
+    def get_valid_review_data():
+        return {
+            'section_head_comments': faker.text(),
+            'section_head_reviewed': faker.pybool(),
+        }
+
 
 class ReviewFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -300,7 +309,7 @@ class ActivityFactory(factory.django.DjangoModelFactory):
             'project_year': ProjectYearFactory().id,
             'type': faker.pyint(1, 2),
             'name': faker.catch_phrase(),
-            'target_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+            'target_date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()).strftime("%Y-%m-%d"),
         }
 
 
@@ -318,4 +327,39 @@ class ActivityUpdateFactory(factory.django.DjangoModelFactory):
             'activity': ActivityFactory().id,
             'status_report': StatusReportFactory().id,
             'status': faker.pyint(1, 100),
+        }
+
+
+class UpcomingDateFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.UpcomingDate
+
+    region = factory.SubFactory(RegionFactory)
+    description_en = factory.lazy_attribute(lambda o: faker.text())
+    date = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'region': RegionFactory().id,
+            'description_en': faker.text(),
+            'date': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+        }
+
+
+class ReferenceMaterialFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.ReferenceMaterial
+
+    region = factory.SubFactory(RegionFactory)
+    file_en = factory.lazy_attribute(lambda o: faker.url())
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'region': RegionFactory().id,
+            'file_en': faker.url(),
+            'name': faker.catch_phrase(),
+
         }

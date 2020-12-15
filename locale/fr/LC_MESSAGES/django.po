@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-01 12:56-0400\n"
+"POT-Creation-Date: 2020-12-09 11:52-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25,38 +25,38 @@ msgstr ""
 "Seulement les employés du MPO peuvent s'inscrire pour un compte. Veuillez "
 "entrer un courriel finissant par '@DFO-MPO.GC.CA'"
 
-#: .\accounts\models.py:19
+#: .\accounts\models.py:21
 msgid "position (English)"
 msgstr "titre du poste (anglais)"
 
-#: .\accounts\models.py:20
+#: .\accounts\models.py:22
 msgid "position (French)"
 msgstr "titre du poste (français)"
 
-#: .\accounts\models.py:21
+#: .\accounts\models.py:23
 msgid "phone (office)"
 msgstr "téléphone (bureau)"
 
-#: .\accounts\models.py:22 .\inventory\models.py:82
+#: .\accounts\models.py:24 .\inventory\models.py:82
 msgid "language preference"
 msgstr "préférence linguistique"
 
-#: .\accounts\models.py:23 .\inventory\filters.py:50 .\inventory\filters.py:62
+#: .\accounts\models.py:25 .\inventory\filters.py:50 .\inventory\filters.py:62
 #: .\inventory\templates\inventory\resource_list.html:94
 #: .\ios2\templates\ios2\instrument_list.html:77
 #: .\ios2\templates\ios2\mooring_list.html:77
 msgid "Section"
 msgstr "Section"
 
-#: .\accounts\models.py:29 .\accounts\models.py:30
+#: .\accounts\models.py:31 .\accounts\models.py:32
 msgid "position_eng"
 msgstr "position_fre"
 
-#: .\accounts\models.py:77 .\accounts\models.py:78
+#: .\accounts\models.py:79 .\accounts\models.py:80
 msgid "subject_en"
 msgstr "subject_fr"
 
-#: .\accounts\models.py:86 .\accounts\models.py:87
+#: .\accounts\models.py:88 .\accounts\models.py:89
 msgid "message_en"
 msgstr "message_fr"
 
@@ -238,7 +238,8 @@ msgstr "Nouveau"
 #: .\shared_models\models.py:393 .\shared_models\models.py:536
 #: .\shared_models\models.py:537 .\shared_models\models.py:543
 #: .\shared_models\models.py:645 .\shared_models\models.py:646
-#: .\shared_models\utils.py:11 .\shared_models\views.py:917
+#: .\shared_models\utils.py:11 .\shared_models\views.py:866
+#: .\shared_models\views.py:917 .\shared_models\views.py:1017
 #: .\shares\models.py:61 .\staff\views.py:34 .\staff\views.py:221
 #: .\staff\views.py:222 .\tickets\models.py:59 .\tickets\models.py:60
 msgid "name"
@@ -831,13 +832,23 @@ msgstr ""
 msgid "Flagged for Open Data Publication"
 msgstr ""
 
-#: .\inventory\templates\inventory\resource_detail.html:255
+#: .\inventory\templates\inventory\resource_detail.html:106
+msgid "Start a new resource, using this one as a template."
+msgstr ""
+
+#: .\inventory\templates\inventory\resource_detail.html:107
+#, fuzzy
+#| msgid "Close"
+msgid "Clone"
+msgstr "Fermer"
+
+#: .\inventory\templates\inventory\resource_detail.html:259
 msgid ""
 "to add/change a thumbnail to this resource, add a new file with the word "
 "'thumbnail' included in the caption"
 msgstr ""
 
-#: .\inventory\templates\inventory\resource_detail.html:256
+#: .\inventory\templates\inventory\resource_detail.html:260
 msgid "missing thumbnail"
 msgstr ""
 
@@ -907,7 +918,7 @@ msgstr "Sauvegarder"
 msgid "Back"
 msgstr "Retour"
 
-#: .\inventory\views.py:76
+#: .\inventory\views.py:73
 #, fuzzy
 msgid ""
 "Sorry, only custodians and system administrators have access to this view."
@@ -915,13 +926,13 @@ msgstr ""
 "Désolé, seulement les chefs de projet, les chefs de section et les "
 "administrateurs de site ont accès à cette page."
 
-#: .\inventory\views.py:236
+#: .\inventory\views.py:233
 msgid ""
 "As an application administrator, you have the necessary permissions to "
 "modify this record."
 msgstr ""
 
-#: .\inventory\views.py:1562 .\inventory\views.py:1630
+#: .\inventory\views.py:1634 .\inventory\views.py:1702
 msgid "Sorry, you do not have permissions to do this."
 msgstr ""
 
@@ -2363,6 +2374,23 @@ msgstr "Location"
 msgid "DFO Physical Locations"
 msgstr ""
 
+#: .\shared_models\templates\shared_models\org_index.html:38
+#, fuzzy
+msgid "Financial Coding"
+msgstr "Résumé financier:"
+
+#: .\shared_models\templates\shared_models\org_index.html:41
+#: .\shared_models\views.py:925 .\shared_models\views.py:933
+#: .\shared_models\views.py:946 .\shared_models\views.py:955
+#, fuzzy
+#| msgid "Project"
+msgid "Project Codes"
+msgstr "Projet"
+
+#: .\shared_models\templates\shared_models\org_index.html:44
+msgid "RC Codes"
+msgstr ""
+
 #: .\shared_models\templates\shared_models\shared_filter.html:85
 #, fuzzy
 msgid "Details"
@@ -2413,9 +2441,9 @@ msgstr "section"
 #: .\shared_models\views.py:710 .\shared_models\views.py:721
 #: .\shared_models\views.py:742 .\shared_models\views.py:758
 #: .\shared_models\views.py:774 .\shared_models\views.py:785
-#: .\shared_models\views.py:809 .\shared_models\views.py:825
-#: .\shared_models\views.py:841 .\shared_models\views.py:852
-#: .\shared_models\views.py:952 .\shared_models\views.py:964
+#: .\shared_models\views.py:807 .\shared_models\views.py:823
+#: .\shared_models\views.py:839 .\shared_models\views.py:850
+#: .\shared_models\views.py:1052 .\shared_models\views.py:1064
 #, fuzzy
 msgid "DFO Orgs"
 msgstr "Secteurs du MPO"
@@ -2424,30 +2452,35 @@ msgstr "Secteurs du MPO"
 msgid "division"
 msgstr "division"
 
-#: .\shared_models\views.py:802
+#: .\shared_models\views.py:800
 #, fuzzy
 msgid "Organizations - Sectors (NCR)"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:867
+#: .\shared_models\views.py:873 .\shared_models\views.py:881
+#: .\shared_models\views.py:894 .\shared_models\views.py:903
+msgid "Responsibility Center"
+msgstr ""
+
+#: .\shared_models\views.py:967
 msgid "Create a New DM Apps User"
 msgstr "Créer un nouveau utilisateur de DM Apps"
 
-#: .\shared_models\views.py:869
+#: .\shared_models\views.py:969
 msgid "Please use extreme vigilance with this form."
 msgstr ""
 
-#: .\shared_models\views.py:870
+#: .\shared_models\views.py:970
 msgid ""
 "After this form is submitted, the new user will receive a confirmation e-"
 "mail."
 msgstr ""
 
-#: .\shared_models\views.py:901
+#: .\shared_models\views.py:1001
 msgid "The user '{}' was created and an email was sent"
 msgstr ""
 
-#: .\shared_models\views.py:918 .\shiny\views.py:30
+#: .\shared_models\views.py:1018 .\shiny\views.py:30
 msgid "description"
 msgstr "description"
 
