@@ -188,6 +188,7 @@ class ObservationPlatform(models.Model):
     make_model = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Make and model"))
     name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Call name"))
     longname = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Long name"))
+
     @property
     def foldername(self):
         return  "{}_{}_{}".format(self.authority.abbrev_name, self.owner.abbrev_name, self.name)

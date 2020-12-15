@@ -1,4 +1,4 @@
-{% extends "vault/vault_base.html" %}
+{% extends "vault/base.html" %}
 {% load bootstrap4 %}
 {% load static %}
 {% block title %}vault db{% endblock title %}
@@ -11,6 +11,10 @@
         body{
             background-image: url({% static "/img/vault/whales.png" %});
             background-size: cover;
+        }
+
+        h1{
+            text-align: center;
         }
 
         .card {
@@ -70,7 +74,7 @@
     </style>
 
     <div class="container">
-        <div class="jumbotron">
+        <div class="jumbotron my-auto">
             <h1>Marine Megafauna Media Vault</h1>
         </div>
     </div>
@@ -80,4 +84,30 @@
         <p style="font-size: small">Photo by guille pozzi on Unsplash</p>
     </div>
 
-{% endblock content %}
+    <!--Card container-->
+
+<div class="container">
+
+<!--    Tables Card-->
+
+    <div class="row">
+        <div class="col-sm">
+            <div class="card border border-dark">
+                <div class="card-header">
+                    <h2>{% trans 'Tables' %}</h2>
+                </div>
+                <div class="card-img">
+                    <img class="mh-80" src="{% static 'img/vault/vault-icon.jpg' %}" alt="Card image" style="width: 80%; height: 120%">
+                </div>
+                <div class="card-body">
+                    <div class="btns">
+                        <a href="{% url 'vault:species_list' %}" class="btn my-btn btn btn-primary">Species List</a>
+                    </div>
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
