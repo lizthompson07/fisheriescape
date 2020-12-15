@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum, Q, Count
 from django.urls import reverse
@@ -198,6 +199,9 @@ class Location(models.Model):
         if self.bin_id:
             my_str += f' (bin # {self.bin_id})'
         return my_str
+
+    class Meta:
+        ordering = ["location", ]
 
     def get_absolute_url(self):
         return reverse("whalebrary:location_detail", kwargs={"pk": self.id})
@@ -460,7 +464,7 @@ class TransactionCategory(models.Model):
 
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
-    quantity = models.PositiveIntegerField(null=True, blank=True, verbose_name=_("quantity"))
+    quantity = models.FloatField(null=True, blank=True, verbose_name=_("quantity"), validators=[MinValueValidator(0)])
     category = models.ForeignKey(TransactionCategory, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("transaction category"))
     # can use for who lent to, etc
