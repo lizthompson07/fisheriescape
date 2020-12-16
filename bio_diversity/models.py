@@ -722,12 +722,11 @@ class ProgAuthority(BioModel):
             models.UniqueConstraint(fields=['proga_first_name', 'proga_last_name'], name='Program Authority Uniqueness')
         ]
 
+
 class Protocol(BioTimeModel):
     # prot tag
     prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"))
     protc_id = models.ForeignKey('ProtoCode', on_delete=models.DO_NOTHING, verbose_name=_("Protocol Code"))
-    protf_id = models.ForeignKey('Protofile', null=True, blank=True, on_delete=models.DO_NOTHING,
-                                 verbose_name=_("Protocol File"))
     prot_desc = models.CharField(max_length=4000, verbose_name=_("Protocol Description"))
 
     def __str__(self):
@@ -751,9 +750,8 @@ def protf_directory_path(instance, filename):
 
 class Protofile(BioModel):
     # protf tag
-    prot_id = models.ForeignKey('Protocol', on_delete=models.DO_NOTHING, related_name="protocol_files",
+    prot_id = models.ForeignKey('Protocol', on_delete=models.DO_NOTHING, related_name="protf_id",
                                 verbose_name=_("Protocol"))
-
     protf_pdf = models.FileField(upload_to=protf_directory_path, blank=True, null=True, verbose_name=_("Protocol File"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
@@ -858,7 +856,6 @@ class SampleDet(BioDet):
 
     def __str__(self):
         return "{} - {}".format(self.samp_id.__str__(), self.anidc_id.__str__())
-
 
 
 class Sire(BioModel):

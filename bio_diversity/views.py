@@ -614,8 +614,20 @@ class ProgaDetails(mixins.ProgaMixin, CommonDetails):
 
 
 class ProtDetails(mixins.ProtMixin, CommonDetails):
-    fields = ["prog_id", "protc_id", "prot_desc", "protf_id", "start_date", "end_date", "valid", "created_by",
+    template_name = "bio_diversity/details_prot.html"
+    fields = ["prog_id", "protc_id", "prot_desc", "start_date", "end_date", "valid", "created_by",
               "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        # use this to pass sire fields/sample object to template
+        context = super().get_context_data(**kwargs)
+        context["protf_object"] = models.Protofile.objects.first()
+        context["protf_field_list"] = [
+            "protf_pdf",
+            "created_date",
+        ]
+
+        return context
 
 
 class ProtcDetails(mixins.ProtcMixin, CommonDetails):

@@ -5198,7 +5198,6 @@ class TestProtDetailView(CommonTest):
             "prog_id",
             "protc_id",
             "prot_desc",
-            "protf_id",
             "start_date",
             "end_date",
             "valid",
