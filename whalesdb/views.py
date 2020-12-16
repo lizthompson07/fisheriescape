@@ -730,10 +730,18 @@ class CruList(mixins.CruMixin, CommonList):
         return super().dispatch(request, *args, **kwargs)
 
 
-class RecDeleteView(mixins.RecMixin, UserPassesTestMixin, DeleteView):
+class CommonDelete(UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy("shared_models:close_me")
+    template_name = 'whalesdb/delete_confirm.html'
     success_message = 'The dataset was successfully deleted!'
-    template_name = 'whalesdb/delete_recording_confirm.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title_msg'] = _("Are you sure you want to delete the following from the database?")
+        context['confirm_msg'] = _("You will not be able to recover this object.")
+
+        return context
 
     def test_func(self):
         return utils.whales_authorized(self.request.user)
@@ -743,7 +751,15 @@ class RecDeleteView(mixins.RecMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class CruDeleteView(mixins.CruMixin, UserPassesTestMixin, DeleteView):
+class RecDeleteView(mixins.RecMixin, CommonDelete):
+    pass
+
+
+class SteDelete(mixins.SteMixin, CommonDelete):
+    pass
+
+
+class CruDelete(mixins.CruMixin, UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy('whalesdb:list_cru')
     success_message = 'The cruise was successfully deleted!'
     template_name = 'whalesdb/delete_cruise_confirm.html'
