@@ -484,7 +484,6 @@ class DepDetails(mixins.DepMixin, CommonDetails):
     template_name = 'whalesdb/details_dep.html'
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
-
 class EcaDetails(mixins.EcaMixin, CommonDetails):
     template_name = 'whalesdb/details_eca.html'
     fields = ['eca_date', 'eca_attachment', 'eca_hydrophone', 'eca_notes']
@@ -751,7 +750,7 @@ class CommonDelete(UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-class RecDeleteView(mixins.RecMixin, CommonDelete):
+class RecDelete(mixins.RecMixin, CommonDelete):
     pass
 
 
