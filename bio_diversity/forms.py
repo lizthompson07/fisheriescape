@@ -33,14 +33,6 @@ class CreateTimePrams:
 
     def clean(self):
         cleaned_data = super().clean()
-
-        try:
-            # if object fails to save, handle error
-            self.save(commit=False)
-        except IntegrityError:
-            # combo unique fields
-            self.add_error('start_date', 'This object already exists')
-
         # we have to make sure
         # 1) the end date is after the start date and
         # 2) valid is false if today is after end_date

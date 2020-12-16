@@ -22,6 +22,7 @@ class CommonCreate(CommonAuthCreateView):
     nav_menu = 'bio_diversity/bio_diversity_nav.html'
     site_css = 'bio_diversity/bio_diversity.css'
     home_url_name = "bio_diversity:index"
+    template_name = "bio_diversity/bio_create.html"
 
     def get_initial(self):
         init = super().get_initial()
@@ -48,6 +49,11 @@ class CommonCreate(CommonAuthCreateView):
     # overrides the UserPassesTestMixin test to check that a user belongs to the bio_diversity_admin group
     def test_func(self):
         return utils.bio_diverisity_authorized(self.request.user)
+
+    # def form_invalid(self, form):
+    #     if form.errors:
+    #         form.add_error(, form.errors['__all__'][0])
+    #     return super().form_invalid(form)
 
 
 class AnidcCreate(mixins.AnidcMixin, CommonCreate):
