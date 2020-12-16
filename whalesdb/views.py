@@ -484,27 +484,6 @@ class DepDetails(mixins.DepMixin, CommonDetails):
     template_name = 'whalesdb/details_dep.html'
     fields = ['dep_name', 'dep_year', 'dep_month', 'stn', 'prj', 'mor']
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context['google_api_key'] = settings.GOOGLE_API_KEY
-
-        context['edit_attachments'] = self.model.objects.get(pk=self.kwargs['pk']).station_events.count()
-        if models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk']):
-            edas = models.EdaEquipmentAttachment.objects.filter(dep=self.kwargs['pk'])
-            for eda in edas:
-                if models.RecDataset.objects.filter(eda_id=eda.pk):
-                    if not hasattr(context, 'rec'):
-                        context['rec'] = []
-
-                    for rec in models.RecDataset.objects.filter(eda_id=eda.pk):
-                        context['rec'].append({
-                            'text': str(rec),
-                            'id': rec.pk,
-                        })
-
-        return context
-
 
 class EcaDetails(mixins.EcaMixin, CommonDetails):
     template_name = 'whalesdb/details_eca.html'
@@ -751,10 +730,23 @@ class CruList(mixins.CruMixin, CommonList):
         return super().dispatch(request, *args, **kwargs)
 
 
+class RecDeleteView(mixins.RecMixin, UserPassesTestMixin, DeleteView):
+    success_url = reverse_lazy("shared_models:close_me")
+    success_message = 'The dataset was successfully deleted!'
+    template_name = 'whalesdb/delete_recording_confirm.html'
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
 class CruDeleteView(mixins.CruMixin, UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy('whalesdb:list_cru')
     success_message = 'The cruise was successfully deleted!'
-    template_name = 'whalesdb/cruise_confirm_delete.html'
+    template_name = 'whalesdb/delete_cruise_confirm.html'
 
     def test_func(self):
         return utils.whales_authorized(self.request.user)

@@ -306,7 +306,7 @@ class StnStation(models.Model):
 
 
 class RciChannelInfo(models.Model):
-    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"),
+    rec_id = models.ForeignKey("RecDataset", on_delete=models.CASCADE, verbose_name=_("Dataset"),
                                related_name='channels')
     rci_name = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Name"))
     rci_size = models.IntegerField(blank=True, null=True, verbose_name=_("Size (GB)"))
@@ -337,7 +337,7 @@ class RecDataset(models.Model):
 
 
 class ReeRecordingEvent(models.Model):
-    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"),
+    rec_id = models.ForeignKey("RecDataset", on_delete=models.CASCADE, verbose_name=_("Dataset"),
                                related_name='events')
     ret_id = models.ForeignKey("RetRecordingEventType", on_delete=models.DO_NOTHING, verbose_name=_("Event Type"))
     rtt_id = models.ForeignKey("RttTimezoneCode", on_delete=models.DO_NOTHING, verbose_name=_("Timezone"))
