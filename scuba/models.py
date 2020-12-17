@@ -1,121 +1,37 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-
-class Province(models.Model):
-    province_eng = models.CharField(max_length=255, blank=True, null=True)
-    province_fre = models.CharField(max_length=255, blank=True, null=True)
-    abbrev = models.CharField(max_length=10, blank=True, null=True)
-    abbrev_fre = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        return "{} ({})".format(self.province_eng, self.abbrev)
+from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup
 
 
-class Site(models.Model):
-    site = models.CharField(max_length=255, blank=True, null=True)
-    code = models.CharField(max_length=10, blank=True, null=True)
-    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='campsites', blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
+class Region(UnilingualLookup):
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("description (EN)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("description (FR)"))
+    province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='scuba_regions', blank=True, null=True)
 
     def __str__(self):
+        mystr = self.name
         if self.province:
-            return "{} ({})".format(self.site, self.province.tabbrev)
-        else:
-            return "{}".format(self.site)
-
-    class Meta:
-        ordering = ['province', 'site']
-
-    def get_absolute_url(self):
-        return reverse("camp:site_detail", kwargs={"pk": self.id})
+            mystr += f" {self.tdescription}"
+        return mystr
 
 
-class Station(models.Model):
-    name = models.CharField(max_length=255)
-    site = models.ForeignKey('Site', on_delete=models.DO_NOTHING, related_name='stations', null=True)
+class Site(UnilingualLookup):
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='sites')
     latitude_n = models.FloatField(blank=True, null=True)
     longitude_w = models.FloatField(blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    station_number = models.IntegerField(blank=True, null=True)
-
-    def get_absolute_url(self):
-        return reverse("camp:station_detail", kwargs={"pk": self.id})
 
     def __str__(self):
-        if self.site:
-            return "{} ({})".format(self.name, self.site.site)
-        else:
-            return "{}".format(self.name)
+        return f"{self.tname} ({self.region})"
 
-    class Meta:
-        ordering = ['name', ]
-
-
-class Species(models.Model):
-    common_name_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="english name")
-    common_name_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="french name")
-    scientific_name = models.CharField(max_length=255, blank=True, null=True)
-    code = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    tsn = models.IntegerField(blank=True, null=True, verbose_name="ITIS TSN")
-    aphia_id = models.IntegerField(blank=True, null=True, verbose_name="AphiaID")
-    sav = models.BooleanField(default=False, verbose_name="Submerged aquatic vegetation (SAV)")
-    ais = models.BooleanField(default=False, verbose_name="Aquatic invasive species")
-    notes = models.TextField(max_length=255, null=True, blank=True)
-
-    def __str__(self):
-        return self.common_name_eng
-
-    class Meta:
-        ordering = ['common_name_eng']
-
-    def get_absolute_url(self):
-        return reverse("camp:species_detail", kwargs={"pk": self.id})
 
 
 class Sample(models.Model):
-    # Choices for turbidity
-    TURBID = 1
-    CLEAR = 2
-    TURBIDITY_CHOICES = (
-        (TURBID, "Turbid"),
-        (CLEAR, "Clear"),
-    )
-
-    # choice for tide_state
-    LOW = 'l'
-    MID = 'm'
-    HIGH = 'h'
-    TIDE_STATE_CHOICES = (
-        (HIGH, "High"),
-        (MID, "Mid"),
-        (LOW, "Low"),
-    )
-
-    # choice for tide_direction
-    INCOMING = 'in'
-    OUTGOING = 'out'
-    TIDE_DIR_CHOICES = (
-        (INCOMING, "Incoming"),
-        (OUTGOING, "Outgoing"),
-    )
-
-    # Choices for timezone
-    AST = 'AST'
-    ADT = 'ADT'
-    UTC = 'UTC'
-    TIMEZONE_CHOICES = (
-        (AST, 'AST'),
-        (ADT, 'ADT'),
-        (UTC, 'UTC'),
-    )
-
-    nutrient_sample_id = models.IntegerField(blank=True, null=True, verbose_name="nutrient sample ID", unique=True)
-    station = models.ForeignKey(Station, related_name='samples', on_delete=models.DO_NOTHING)
-    timezone = models.CharField(max_length=5, choices=TIMEZONE_CHOICES, blank=True, null=True)
+    site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING)
     start_date = models.DateTimeField(verbose_name="Start date / time (yyyy-mm-dd hh:mm)")
     end_date = models.DateTimeField(blank=True, null=True, verbose_name="End date / time (yyyy-mm-dd hh:mm)")
     weather_notes = models.CharField(max_length=1000, blank=True, null=True)
