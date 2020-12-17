@@ -264,14 +264,14 @@ def envcf_directory_path(instance, filename):
 
 class EnvCondFile(BioModel):
     # envcf tag
-    env_id = models.OneToOneField("EnvCondition", on_delete=models.DO_NOTHING, verbose_name=_("Environment Condition"))
-
+    env_id = models.OneToOneField("EnvCondition", on_delete=models.DO_NOTHING, verbose_name=_("Environment Condition"),
+                                  related_name="envcf_id")
     env_pdf = models.FileField(upload_to=envcf_directory_path, null=True, blank=True,
                                verbose_name=_("Environment Condition File"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}".format(self.img_png)
+        return "{}".format(self.env_pdf)
 
 
 @receiver(models.signals.post_delete, sender=EnvCondFile)
@@ -702,7 +702,6 @@ class PersonnelCode(BioModel):
         ]
 
 
-
 class PriorityCode(BioLookup):
     # prio tag
     pass
@@ -873,7 +872,7 @@ class Sire(BioModel):
     prio_id = models.ForeignKey('PriorityCode', on_delete=models.DO_NOTHING, verbose_name=_("Priority"))
     pair_id = models.ForeignKey('Pairing', on_delete=models.DO_NOTHING, verbose_name=_("Pairing"), related_name="sire")
     indv_id = models.ForeignKey('Individual', on_delete=models.DO_NOTHING, verbose_name=_("Sire UFID"),
-                                limit_choices_to={'ufid__isnull':False})
+                                limit_choices_to={'ufid__isnull':  False})
     choice = models.IntegerField(verbose_name=_("Choice"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 

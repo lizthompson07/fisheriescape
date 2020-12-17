@@ -450,8 +450,19 @@ class DrawDetails(mixins.DrawMixin, CommonDetails):
 
 
 class EnvDetails(mixins.EnvMixin, CommonDetails):
+    template_name = 'bio_diversity/details_env.html'
     fields = ["contx_id", "loc_id", "inst_id", "envc_id", "env_val", "envsc_id", "env_start",
               "env_end", "env_avg", "qual_id", "comments", "created_by", "created_date"]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["envcf_object"] = models.EnvCondFile.objects.first()
+        context["envcf_field_list"] = [
+            "env_pdf",
+            "created_date",
+        ]
+
+        return context
 
 
 class EnvcDetails(mixins.EnvcMixin, CommonDetails):
@@ -625,7 +636,6 @@ class ProtDetails(mixins.ProtMixin, CommonDetails):
               "created_date", ]
 
     def get_context_data(self, **kwargs):
-        # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
         context["protf_object"] = models.Protofile.objects.first()
         context["protf_field_list"] = [
@@ -887,7 +897,7 @@ class DrawList(mixins.DrawMixin, CommonList):
 
 class EnvList(mixins.EnvMixin, CommonList):
     filterset_class = filters.EnvFilter
-    fields = ["contx_id", "loc_id", "inst_id", "env_id", "created_by", "created_date", ]
+    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "created_by", "created_date", ]
 
 
 class EnvcList(mixins.EnvcMixin, CommonList):
