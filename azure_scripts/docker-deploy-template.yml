@@ -103,7 +103,7 @@ steps:
   - task: AzureRmWebAppDeployment@4
     displayName: 'Deploy Docker Image to ${{parameters.WEB_APP_NAME}}'
     inputs:
-      azureSubscription: '${{parameters.azureSubscription}}'
+      ConnectedServiceName: '${{parameters.azureSubscription}}'
       appType: webAppContainer
       WebAppName: '${{parameters.WEB_APP_NAME}}'
       DockerNamespace: ${{parameters.DockerNamespace}}
