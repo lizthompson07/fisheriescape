@@ -4,6 +4,7 @@ from django.test import tag
 from shared_models.views import CommonCreateView
 from whalebrary import views
 from whalebrary.test import FactoryFloor
+from whalebrary.test.FactoryFloor import ItemFactory
 from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
 
 # Example how to run with keyword tags
@@ -150,6 +151,7 @@ class TestSupplierCreateView(CommonTest):
         self.expected_template = 'whalebrary/form.html'
         self.expected_template2 = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="whalebrary_admin")
+        ItemFactory(item_name="test")
 
     @tag("Supplier", "supplier_new", "view")
     def test_view_class(self):

@@ -13,7 +13,8 @@ from django.views.generic import UpdateView, DeleteView, CreateView, DetailView,
 from django_filters.views import FilterView
 from django.contrib.auth.models import User, Group
 
-from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonUpdateView, CommonDeleteView
+from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonUpdateView, \
+    CommonDeleteView, CommonHardDeleteView, CommonFormsetView
 from . import models
 from . import forms
 from . import filters
@@ -142,8 +143,75 @@ def toggle_user(request, pk, type):
 
 ## ADMIN FORMSETS ##
 
-## XYZ ##
+## INSTRUMENT TYPE ##
 
+
+class InstrumentTypeHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.InstrumentType
+    success_url = reverse_lazy("vault:manage_instrument_type")
+
+
+class InstrumentTypeFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Instrument Type"
+    queryset = models.InstrumentType.objects.all()
+    formset_class = forms.InstrumentTypeFormset
+    success_url = reverse_lazy("vault:manage_instrument_type")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_instrument_type"
+
+## INSTRUMENT ##
+
+
+class InstrumentHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.Instrument
+    success_url = reverse_lazy("vault:manage_instrument")
+
+
+class InstrumentFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Instrument"
+    queryset = models.Instrument.objects.all()
+    formset_class = forms.InstrumentFormset
+    success_url = reverse_lazy("vault:manage_instrument")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_instrument"
+
+
+## ORGANISATION ##
+
+
+class OrganisationHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.Organisation
+    success_url = reverse_lazy("vault:manage_organisation")
+
+
+class OrganisationFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Organisation"
+    queryset = models.Organisation.objects.all()
+    formset_class = forms.OrganisationFormset
+    success_url = reverse_lazy("vault:manage_organisation")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_organisation"
+
+
+## PLATFORM TYPE ##
+
+
+class ObservationPlatformTypeHardDeleteView(VaultAdminAccessRequired, CommonHardDeleteView):
+    model = models.ObservationPlatformType
+    success_url = reverse_lazy("vault:manage_platform_type")
+
+
+class ObservationPlatformTypeFormsetView(VaultAdminAccessRequired, CommonFormsetView):
+    template_name = 'vault/formset.html'
+    h1 = "Manage Platform Type"
+    queryset = models.ObservationPlatformType.objects.all()
+    formset_class = forms.ObservationPlatformTypeFormset
+    success_url = reverse_lazy("vault:manage_platform_type")
+    home_url_name = "vault:index"
+    delete_url_name = "vault:delete_platform_type"
 
 # #
 # # # SPECIES #

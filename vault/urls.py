@@ -1,4 +1,3 @@
-
 from . import views
 
 from django.contrib import admin
@@ -12,8 +11,8 @@ urlpatterns = [
     path('close/', views.CloserTemplateView.as_view(), name="close_me"),
     path('', views.index, name="index"),
 
-#     # DASHBOARD 1 #
-#     ###########
+    #     # DASHBOARD 1 #
+    #     ###########
 
     # path('dashboard/', views.dashboard_with_pivot, name="dashboard_with_pivot"),
     # path('data/', views.pivot_data, name="pivot_data"),
@@ -22,6 +21,20 @@ urlpatterns = [
 
     path('admin_tools', views.admin_tools, name="admin_tools"),
 
+    # FORMSETS #
+
+    path('settings/instrument_type/', views.InstrumentTypeFormsetView.as_view(), name="manage_instrument_type"),
+    path('settings/instrument_type/<int:pk>/delete/', views.InstrumentTypeHardDeleteView.as_view(),
+         name="delete_instrument_type"),
+    path('settings/instrument/', views.InstrumentFormsetView.as_view(), name="manage_instrument"),
+    path('settings/instrument/<int:pk>/delete/', views.InstrumentHardDeleteView.as_view(),
+         name="delete_instrument"),
+    path('settings/organisation/', views.OrganisationFormsetView.as_view(), name="manage_organisation"),
+    path('settings/organisation/<int:pk>/delete/', views.OrganisationHardDeleteView.as_view(),
+         name="delete_organisation"),
+    path('settings/platform_type/', views.ObservationPlatformTypeFormsetView.as_view(), name="manage_platform_type"),
+    path('settings/platform_type/<int:pk>/delete/', views.ObservationPlatformTypeHardDeleteView.as_view(),
+         name="delete_platform_type"),
 
     # ADMIN USERS #
     path('settings/users/', views.UserListView.as_view(), name='user_list'),
@@ -36,8 +49,4 @@ urlpatterns = [
     path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
     path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
 
-
-
 ]
-
-
