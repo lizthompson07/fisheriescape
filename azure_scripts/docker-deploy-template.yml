@@ -73,7 +73,8 @@ parameters:
 
 steps:
   - script: |
-      az login --identity --allow-no-subscriptions
+      az account set --subscription="IMTS DEV/TEST"
+      az login --identity -u b9b8533b-430c-4b7a-95b7-0c8d43179f68
 
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
