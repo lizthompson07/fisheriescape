@@ -24,7 +24,7 @@ APP_DICT = {
     'camp': 'CAMP db',
     'meq': 'Marine environmental quality (MEQ)',
     'diets': 'Marine diets',
-    'projects': 'Science project planning',
+    # 'projects': 'Science project planning',
     'projects2': 'Science project planning v2.0',
     'ihub': 'iHub',  # dependency on masterlist
     'scifi': 'SciFi',
