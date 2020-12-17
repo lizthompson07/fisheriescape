@@ -594,12 +594,12 @@ class IndTreatment(BioModel):
 
 class Instrument(BioModel):
     # inst tag
-    instc = models.ForeignKey('InstrumentCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Code"))
+    instc_id = models.ForeignKey('InstrumentCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Code"))
     serial_number = models.CharField(null=True, unique=True, blank=True, max_length=250, verbose_name=_("Serial Number"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{} - {}".format(self.instc.__str__(), self.serial_number)
+        return "{} - {}".format(self.instc_id.__str__(), self.serial_number)
 
 
 class InstrumentCode(BioLookup):
@@ -609,13 +609,13 @@ class InstrumentCode(BioLookup):
 
 class InstrumentDet(BioTimeModel):
     # instd tag
-    inst = models.ForeignKey('Instrument', on_delete=models.DO_NOTHING, verbose_name=_("Instrument"))
-    instdc = models.ForeignKey('InstDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Detail Code"))
+    inst_id = models.ForeignKey('Instrument', on_delete=models.DO_NOTHING, verbose_name=_("Instrument"))
+    instdc_id = models.ForeignKey('InstDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Detail Code"))
     det_value = models.DecimalField(max_digits=11, decimal_places=5, verbose_name=_("Value"))
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['inst', 'instdc', 'start_date'], name='Instrument Detail Uniqueness')
+            models.UniqueConstraint(fields=['inst_id', 'instdc_id', 'start_date'], name='Instrument Detail Uniqueness')
         ]
 
 

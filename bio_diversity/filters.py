@@ -263,7 +263,7 @@ class InstFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.Instrument
-        fields = ["instc", "serial_number", "created_by", "created_date", ]
+        fields = ["instc_id", "serial_number", "created_by", "created_date", ]
 
 
 class InstcFilter(django_filters.FilterSet):
@@ -277,7 +277,7 @@ class InstdFilter(django_filters.FilterSet):
 
     class Meta:
         model = models.InstrumentDet
-        fields = ["inst", "instdc", "valid", "created_by", "created_date", ]
+        fields = ["inst_id", "instdc_id", "valid", "created_by", "created_date", ]
 
 
 class InstdcFilter(django_filters.FilterSet):

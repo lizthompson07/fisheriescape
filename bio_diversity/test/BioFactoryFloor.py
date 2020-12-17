@@ -1290,7 +1290,7 @@ class InstFactory(factory.django.DjangoModelFactory):
         model = models.Instrument
 
     # needs an instcode id
-    instc = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstcFactory")
+    instc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstcFactory")
     serial_number = factory.lazy_attribute(lambda o: faker.word())
     comments = factory.lazy_attribute(lambda o: faker.text())
     created_by = factory.lazy_attribute(lambda o: faker.name())
@@ -1319,7 +1319,7 @@ class InstFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'instc': instc.pk,
+            'instc_id': instc.pk,
             'serial_number': obj.serial_number,
             'comments': obj.comments,
             'created_by': obj.created_by,
@@ -1363,8 +1363,8 @@ class InstdFactory(factory.django.DjangoModelFactory):
         model = models.InstrumentDet
 
     # needs an inst id
-    inst = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstFactory")
-    instdc = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstdcFactory")
+    inst_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstFactory")
+    instdc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstdcFactory")
     det_value = factory.lazy_attribute(lambda o: faker.random_int(1, 1000))
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
@@ -1397,8 +1397,8 @@ class InstdFactory(factory.django.DjangoModelFactory):
 
         # Convert the data to a dictionary to be used in testing
         data = {
-            'inst': inst.pk,
-            'instdc': instdc.pk,
+            'inst_id': inst.pk,
+            'instdc_id': instdc.pk,
             'det_value': obj.det_value,
             'start_date': obj.start_date,
             'end_date': obj.end_date,

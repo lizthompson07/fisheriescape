@@ -557,7 +557,7 @@ class IndvtcDetails(mixins.IndvtcMixin, CommonDetails):
 
 
 class InstDetails(mixins.InstMixin, CommonDetails):
-    fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
+    fields = ["instc_id", "serial_number", "comments", "created_by", "created_date", ]
 
 
 class InstcDetails(mixins.InstcMixin, CommonDetails):
@@ -565,7 +565,7 @@ class InstcDetails(mixins.InstcMixin, CommonDetails):
 
 
 class InstdDetails(mixins.InstdMixin, CommonDetails):
-    fields = ["inst", "instdc", "det_value", "start_date", "end_date", "valid", "comments", "created_by", "created_date", ]
+    fields = ["inst_id", "instdc_id", "det_value", "start_date", "end_date", "valid", "comments", "created_by", "created_date", ]
 
 
 class InstdcDetails(mixins.InstdcMixin, CommonDetails):
@@ -1003,7 +1003,7 @@ class IndvtcList(mixins.IndvtcMixin, CommonList):
 
 class InstList(mixins.InstMixin, CommonList):
     filterset_class = filters.InstFilter
-    fields = ["instc", "serial_number", "comments", "created_by", "created_date", ]
+    fields = ["instc_id", "serial_number", "comments", "created_by", "created_date", ]
 
 
 class InstcList(mixins.InstcMixin, CommonList):
@@ -1013,7 +1013,7 @@ class InstcList(mixins.InstcMixin, CommonList):
 
 class InstdList(mixins.InstdMixin, CommonList):
     filterset_class = filters.InstdFilter
-    fields = ["inst", "instdc", "created_by", "created_date", ]
+    fields = ["inst_id", "instdc_id", "created_by", "created_date", ]
 
 
 class InstdcList(mixins.InstdcMixin, CommonList):

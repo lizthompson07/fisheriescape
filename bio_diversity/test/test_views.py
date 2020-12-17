@@ -3913,7 +3913,7 @@ class TestInstDetailView(CommonTest):
 
     def test_context(self):
         context_vars = [
-            "instc",
+            "instc_id",
             "serial_number",
             "comments",
             "created_by",
@@ -4120,8 +4120,8 @@ class TestInstdDetailView(CommonTest):
 
     def test_context(self):
         context_vars = [
-            "inst",
-            "instdc",
+            "inst_id",
+            "instdc_id",
             "det_value",
             "start_date",
             "end_date",
