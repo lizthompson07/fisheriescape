@@ -27,7 +27,54 @@ steps:
     displayName: 'Install Prerequisites and Run Local Migrations '
 
   - script: |
-      chmod 777 ./run_tests.sh
-      ./run_tests.sh
+      python3.8 manage.py test -b  shared_models.test
     condition: succeededOrFailed()
-    displayName: 'Run tests'
+    displayName: 'Tests for shared models'
+
+  - script: |
+      mkdir ./media
+      mkdir ./media/projects
+      mkdir ./media/projects/temp
+      python3.8 manage.py test -b projects2.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for projects (v2)'
+
+  - script: |
+      python3.8 manage.py test -b travel.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for travel'
+
+  - script: |
+      python3.8 manage.py test -b whalesdb.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for whalesdb'
+
+  - script: |
+      python3.8 manage.py test -b inventory.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for inventory'
+
+  - script: |
+      python3.8 manage.py test -b shiny.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for shiny'
+
+  - script: |
+      python3.8 manage.py test -b ihub.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for ihub'
+
+  - script: |
+      python3.8 manage.py test -b csas.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for csas'
+
+  - script: |
+      python3.8 manage.py test -b cruises.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for cruises'
+
+  - script: |
+      python3.8 manage.py test -b whalebrary.test
+    condition: succeededOrFailed()
+    displayName: 'Tests for whalebrary'
