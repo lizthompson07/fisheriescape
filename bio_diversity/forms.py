@@ -393,6 +393,12 @@ class ProgForm(CreateTimePrams, forms.ModelForm):
         model = models.Program
         exclude = []
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['proga_id'].create_url = 'bio_diversity:create_proga'
+        self.fields['orga_id'].create_url = 'bio_diversity:create_orga'
+
 
 class ProgaForm(CreatePrams, forms.ModelForm):
     class Meta:

@@ -218,6 +218,7 @@ urlpatterns = [
     path('update/locc/<int:pk>/', views.LoccUpdate.as_view(), name="update_locc"),
 
     path('create/orga/', views.OrgaCreate.as_view(), name="create_orga"),
+    path('create/orga/<str:pop>/', views.OrgaCreate.as_view(), name="create_orga"),
     path('details/orga/<int:pk>/', views.OrgaDetails.as_view(), name="details_orga"),
     path('list/orga/', views.OrgaList.as_view(), name="list_orga"),
     path('update/orga/<int:pk>/', views.OrgaUpdate.as_view(), name="update_orga"),
@@ -243,6 +244,7 @@ urlpatterns = [
     path('update/prog/<int:pk>/', views.ProgUpdate.as_view(), name="update_prog"),
 
     path('create/proga/', views.ProgaCreate.as_view(), name="create_proga"),
+    path('create/proga/<str:pop>/', views.ProgaCreate.as_view(), name="create_proga"),
     path('details/proga/<int:pk>/', views.ProgaDetails.as_view(), name="details_proga"),
     path('list/proga/', views.ProgaList.as_view(), name="list_proga"),
     path('update/proga/<int:pk>/', views.ProgaUpdate.as_view(), name="update_proga"),
