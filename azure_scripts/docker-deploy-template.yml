@@ -73,6 +73,8 @@ parameters:
 
 steps:
   - script: |
+      az login --identity --allow-no-subscriptions
+
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
@@ -95,7 +97,7 @@ steps:
 
       # remove the env file
       rm .env
-      az login --identity --allow-no-subscriptions
+
 
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Run Migrations and Staticfiles'
