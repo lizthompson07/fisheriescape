@@ -3,6 +3,7 @@
 # Create your models here.
 import os
 
+from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 
 from shared_models import models as shared_models
@@ -103,6 +104,10 @@ class AniDetailXref(BioModel):
                                             'grp_id'], name='Animal Detail Cross Reference Uniqueness ')
         ]
 
+    def clean(self):
+        if not (self.contx_id or self.loc_id or self.indvt_id or self.indv_id or self.spwn_id or self.grp_id):
+            raise ValidationError("You must specify at least one item to reference to the event")
+
     def __str__(self):
         return "Ani X Ref for {}".format(self.evnt_id.__str__())
 
@@ -150,6 +155,10 @@ class ContainerXRef(BioModel):
 
     def __str__(self):
         return "Container X Ref for {}".format(self.evnt_id.__str__())
+
+    def clean(self):
+        if not (self.tank_id or self.tray_id or self.trof_id or self.heat_id or self.draw_id or self.cup_id):
+            raise ValidationError("You must specify at least one container to reference to the event")
 
 
 class Count(BioModel):
@@ -595,7 +604,8 @@ class IndTreatment(BioModel):
 class Instrument(BioModel):
     # inst tag
     instc_id = models.ForeignKey('InstrumentCode', on_delete=models.DO_NOTHING, verbose_name=_("Instrument Code"))
-    serial_number = models.CharField(null=True, unique=True, blank=True, max_length=250, verbose_name=_("Serial Number"))
+    serial_number = models.CharField(null=True, unique=True, blank=True, max_length=250,
+                                     verbose_name=_("Serial Number"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
