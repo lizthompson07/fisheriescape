@@ -638,7 +638,7 @@ class ProgaDetails(mixins.ProgaMixin, CommonDetails):
 
 class ProtDetails(mixins.ProtMixin, CommonDetails):
     template_name = "bio_diversity/details_prot.html"
-    fields = ["prog_id", "protc_id", "prot_desc", "start_date", "end_date", "valid", "created_by",
+    fields = ["prog_id", "protc_id", "prot_desc", "evntc_id", "start_date", "end_date", "valid", "created_by",
               "created_date", ]
 
     def get_context_data(self, **kwargs):

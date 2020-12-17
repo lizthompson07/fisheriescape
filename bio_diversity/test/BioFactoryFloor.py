@@ -1707,6 +1707,7 @@ class ProtFactory(factory.django.DjangoModelFactory):
 
     prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
     protc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProtcFactory")
+    evntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntcFactory")
     prot_desc = factory.lazy_attribute(lambda o: faker.text())
     start_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='-30y', end_date='today'))
     end_date = factory.lazy_attribute(lambda o: faker.date_between(start_date='today', end_date='+30y'))
@@ -1719,12 +1720,14 @@ class ProtFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
         prog = ProgFactory()
         protc = ProtcFactory()
+        evntc = EvntcFactory()
         obj = ProtFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'prog_id': prog.pk,
             'protc_id': protc.pk,
+            'evntc_id': evntc.pk,
             'prot_desc': obj.prot_desc,
             'start_date': obj.start_date,
             'end_date': obj.end_date,

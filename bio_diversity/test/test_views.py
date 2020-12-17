@@ -5197,6 +5197,7 @@ class TestProtDetailView(CommonTest):
         context_vars = [
             "prog_id",
             "protc_id",
+            "evntc_id",
             "prot_desc",
             "start_date",
             "end_date",
