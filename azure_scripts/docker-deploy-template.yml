@@ -11,9 +11,6 @@ parameters:
   - name: AZURE_STORAGE_ACCOUNT_NAME
     type: string
 
-  - name: AZURE_STORAGE_SECRET_KEY
-    type: string
-
   - name: azureSubscription
     type: string
 
@@ -91,8 +88,6 @@ steps:
       --db-password "${{parameters.DB_PASSWORD_PIPELINE}}" \
       --deployment-stage "${{parameters.DEPLOYMENT_STAGE}}" \
       --azure-storage-account-name "${{parameters.AZURE_STORAGE_ACCOUNT_NAME}}"
-      #--azure-storage-secret-key "${{parameters.AZURE_STORAGE_SECRET_KEY}}" \
-      #--in-pipeline "True"
 
       # run migrations and collect static files
       python3.8 manage.py migrate
