@@ -133,7 +133,10 @@ class EnvtcCreate(mixins.EnvtcMixin, CommonCreate):
 
 
 class EvntCreate(mixins.EvntMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        init = super().get_initial()
+        init["evnt_start"] = date.today
+        return init
 
 
 class EvntcCreate(mixins.EvntcMixin, CommonCreate):
@@ -193,7 +196,10 @@ class IndvdCreate(mixins.IndvdMixin, CommonCreate):
 
 
 class IndvtCreate(mixins.IndvtMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        init = super().get_initial()
+        init["start_datetime"] = date.today
+        return init
 
 
 class IndvtcCreate(mixins.IndvtcMixin, CommonCreate):

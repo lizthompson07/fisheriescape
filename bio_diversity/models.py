@@ -327,8 +327,6 @@ class EnvTreatment(BioModel):
     unit_id = models.ForeignKey('UnitCode', on_delete=models.DO_NOTHING, verbose_name=_("Units"))
     duration = models.DecimalField(max_digits=5, decimal_places=0, verbose_name=_("Duration (minutes)"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
-    created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
-    created_date = models.DateField(verbose_name=_("Created Date"))
 
     class Meta:
         constraints = [
