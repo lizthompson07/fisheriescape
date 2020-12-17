@@ -95,6 +95,8 @@ steps:
 
       # remove the env file
       rm .env
+      az login --identity --allow-no-subscriptions
+
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Run Migrations and Staticfiles'
 
