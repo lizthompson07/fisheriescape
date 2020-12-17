@@ -136,11 +136,11 @@ class LeadStaffFactory(StaffFactory):
 
 
 class IndeterminateStaffFactory(StaffFactory):
-    employee_type = models.EmployeeType.objects.get(pk=1)
+    employee_type = factory.lazy_attribute(lambda o: models.EmployeeType.objects.get(pk=1))
 
 
 class StudentStaffFactory(StaffFactory):
-    employee_type = models.EmployeeType.objects.get(pk=4)
+    employee_type = factory.lazy_attribute(lambda o: models.EmployeeType.objects.get(pk=4))
 
 
 class OMCostFactory(factory.django.DjangoModelFactory):
