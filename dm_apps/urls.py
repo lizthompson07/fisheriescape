@@ -83,6 +83,11 @@ if settings.INSTALLED_APPS.count("camp"):
 else:
     print("not connecting camp app")
 
+if settings.INSTALLED_APPS.count("scuba"):
+    urlpatterns += i18n_patterns(path('scuba/', include('scuba.urls')), prefix_default_language=True)
+else:
+    print("not connecting camp app")
+
 if settings.INSTALLED_APPS.count("diets"):
     urlpatterns += i18n_patterns(path('diets/', include('diets.urls')), prefix_default_language=True)
 else:

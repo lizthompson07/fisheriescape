@@ -145,6 +145,20 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["scuba"] = {
+            "title": _("SCUBA"),
+            "description": _("Lobster SCUBA survey data entry and archiving tool."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('scuba:index'),
+            "icon_path": 'img/icons/diving-mask.png',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+
+    try:
         app_dict["scifi"] = {
             "title": _("SciFi"),
             "description": _("Gulf Science finance tracking and reporting tool."),
