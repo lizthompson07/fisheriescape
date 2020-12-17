@@ -19,6 +19,13 @@ class ObservationPlatformForm(forms.ModelForm):
         fields = "__all__"
 
 
+ObservationPlatformFormset = modelformset_factory(
+    model=models.ObservationPlatform,
+    form=ObservationPlatformForm,
+    extra=1,
+)
+
+
 class ObservationPlatformTypeForm(forms.ModelForm):
     class Meta:
         model = models.ObservationPlatformType
@@ -73,6 +80,13 @@ class PersonForm(forms.ModelForm):
         fields = "__all__"
 
 
+PersonFormset = modelformset_factory(
+    model=models.Person,
+    form=PersonForm,
+    extra=1,
+)
+
+
 class ObservationForm(forms.ModelForm):
     class Meta:
         model = models.Observation
@@ -88,5 +102,18 @@ class OrganisationForm(forms.ModelForm):
 OrganisationFormset = modelformset_factory(
     model=models.Organisation,
     form=OrganisationForm,
+    extra=1,
+)
+
+
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = models.Role
+        fields = "__all__"
+
+
+RoleFormset = modelformset_factory(
+    model=models.Role,
+    form=RoleForm,
     extra=1,
 )

@@ -35,6 +35,14 @@ urlpatterns = [
     path('settings/platform_type/', views.ObservationPlatformTypeFormsetView.as_view(), name="manage_platform_type"),
     path('settings/platform_type/<int:pk>/delete/', views.ObservationPlatformTypeHardDeleteView.as_view(),
          name="delete_platform_type"),
+    path('settings/platform/', views.ObservationPlatformFormsetView.as_view(), name="manage_platform"),
+    path('settings/platform/<int:pk>/delete/', views.ObservationPlatformHardDeleteView.as_view(),
+         name="delete_platform"),
+    path('settings/role/', views.RoleFormsetView.as_view(), name="manage_role"),
+    path('settings/role/<int:pk>/delete/', views.RoleHardDeleteView.as_view(), name="delete_role"),
+    path('settings/person/', views.PersonFormsetView.as_view(), name="manage_person"),
+    path('settings/person/<int:pk>/delete/', views.PersonHardDeleteView.as_view(), name="delete_person"),
+
 
     # ADMIN USERS #
     path('settings/users/', views.UserListView.as_view(), name='user_list'),
@@ -48,5 +56,13 @@ urlpatterns = [
     path('species/<int:pk>/view/', views.SpeciesDetailView.as_view(), name="species_detail"),
     path('species/<int:pk>/edit/', views.SpeciesUpdateView.as_view(), name="species_edit"),
     path('species/<int:pk>/delete/', views.SpeciesDeleteView.as_view(), name="species_delete"),
+
+    # OUTING #
+
+    path('outing-list/', views.OutingListView.as_view(), name="outing_list"),
+    path('outing/new/', views.OutingCreateView.as_view(), name="outing_new"),
+    path('outing/<int:pk>/view/', views.OutingDetailView.as_view(), name="outing_detail"),
+    path('outing/<int:pk>/edit/', views.OutingUpdateView.as_view(), name="outing_edit"),
+    path('outing/<int:pk>/delete/', views.OutingDeleteView.as_view(), name="outing_delete"),
 
 ]
