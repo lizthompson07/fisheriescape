@@ -145,7 +145,7 @@ class ContDetSubjCode(BioLookup):
 
 
 class ContainerXRef(BioModel):
-    # Contx tag
+    # contx tag
     evnt_id = models.ForeignKey("Event", on_delete=models.DO_NOTHING, verbose_name=_("Event"))
     tank_id = models.ForeignKey("Tank", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Tank"))
     trof_id = models.ForeignKey("Trough", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Trough"))
@@ -213,8 +213,8 @@ class CountDet(BioDet):
         if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
             raise ValidationError({
                 "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                self.anidc_id.max_val,
-                                                                                                self.anidc_id.min_val))
+                                                                                              self.anidc_id.max_val,
+                                                                                              self.anidc_id.min_val))
             })
 
 
@@ -283,9 +283,9 @@ class EnvCondition(BioModel):
     def clean(self):
         if self.env_val > self.envc_id.max_val or self.env_val < self.envc_id.min_val:
             raise ValidationError({
-                "env_val" : ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
-                                                                                               self.envc_id.max_val,
-                                                                                               self.envc_id.min_val))
+                "env_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
+                                                                                              self.envc_id.max_val,
+                                                                                              self.envc_id.min_val))
             })
 
 
@@ -353,7 +353,7 @@ class EnvTreatment(BioModel):
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.DO_NOTHING,
                                  verbose_name=_("Container Cross Reference"))
     envtc_id = models.ForeignKey('EnvTreatCode', on_delete=models.DO_NOTHING,
-                                  verbose_name=_("Environment Treatment Code"))
+                                 verbose_name=_("Environment Treatment Code"))
     lot_num = models.CharField(max_length=30, verbose_name=_("Lot Number"))
     amt = models.DecimalField(max_digits=7, decimal_places=3, verbose_name=_("Dose"))
     unit_id = models.ForeignKey('UnitCode', on_delete=models.DO_NOTHING, verbose_name=_("Units"))
@@ -452,7 +452,7 @@ class Group(BioModel):
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
     stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
     coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
-                               verbose_name=_("Collection"))
+                                verbose_name=_("Collection"))
     grp_valid = models.BooleanField(default="False", verbose_name=_("Group still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
@@ -480,8 +480,8 @@ class GroupDet(BioDet):
         if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
             raise ValidationError({
                 "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                self.anidc_id.max_val,
-                                                                                                self.anidc_id.min_val))
+                                                                                              self.anidc_id.max_val,
+                                                                                              self.anidc_id.min_val))
             })
 
 
@@ -531,14 +531,14 @@ class Image(BioModel):
     heatd_id = models.ForeignKey("HeathUnitDet", on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Heath Unit Detail"))
     draw_id = models.ForeignKey("Drawer", on_delete=models.DO_NOTHING, null=True, blank=True,
-                                 verbose_name=_("Drawer"))
+                                verbose_name=_("Drawer"))
     trofd_id = models.ForeignKey("TroughDet", on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Trough Detail"))
     trayd_id = models.ForeignKey("TrayDet", on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Tray Detail"))
     cupd_id = models.ForeignKey("CupDet", on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Cup Detail"))
-    img_png = models.FileField(upload_to=img_directory_path,null=True, blank=True, verbose_name=_("Image File"))
+    img_png = models.FileField(upload_to=img_directory_path, null=True, blank=True, verbose_name=_("Image File"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
@@ -597,7 +597,7 @@ class Individual(BioModel):
     coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Collection"))
     # ufid = unique FISH id
-    ufid = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=("ABL Fish UFID"))
+    ufid = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("ABL Fish UFID"))
     pit_tag = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("PIT tag ID"))
     indv_valid = models.BooleanField(default="False", verbose_name=_("Entry still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
@@ -632,8 +632,8 @@ class IndividualDet(BioDet):
         if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
             raise ValidationError({
                 "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                self.anidc_id.max_val,
-                                                                                                self.anidc_id.min_val))
+                                                                                              self.anidc_id.max_val,
+                                                                                              self.anidc_id.min_val))
             })
 
 
@@ -719,7 +719,7 @@ class Location(BioModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat",
-                                            "loc_lon", "loc_date"] ,name='Location Uniqueness')
+                                            "loc_lon", "loc_date"], name='Location Uniqueness')
         ]
 
 
@@ -797,7 +797,8 @@ class Protocol(BioTimeModel):
     prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"),
                                 limit_choices_to={'valid': True})
     protc_id = models.ForeignKey('ProtoCode', on_delete=models.DO_NOTHING, verbose_name=_("Protocol Code"))
-    evntc_id = models.ForeignKey('EventCode', blank=True, null=True, on_delete=models.DO_NOTHING, verbose_name=_("Event Code"))
+    evntc_id = models.ForeignKey('EventCode', blank=True, null=True, on_delete=models.DO_NOTHING,
+                                 verbose_name=_("Event Code"))
     prot_desc = models.CharField(max_length=4000, verbose_name=_("Protocol Description"))
 
     def __str__(self):
@@ -932,8 +933,8 @@ class SampleDet(BioDet):
         if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
             raise ValidationError({
                 "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
-                                                                                                self.anidc_id.max_val,
-                                                                                                self.anidc_id.min_val))
+                                                                                              self.anidc_id.max_val,
+                                                                                              self.anidc_id.min_val))
             })
 
 

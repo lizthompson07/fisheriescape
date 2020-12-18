@@ -2022,7 +2022,6 @@ class SampdFactory(factory.django.DjangoModelFactory):
         obj = SampdFactory.build(**kwargs)
         anidc = AnidcFactory(min_val=obj.det_val - 1, max_val=obj.det_val+1)
 
-
         # Convert the data to a dictionary to be used in testing
         data = {
             'samp_id': samp.pk,

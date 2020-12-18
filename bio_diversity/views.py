@@ -500,7 +500,7 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
     fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_end",
-               "comments", "created_by", "created_date", ]
+              "comments", "created_by", "created_date", ]
 
 
 class EvntcDetails(mixins.EvntcMixin, CommonDetails):
@@ -585,7 +585,8 @@ class InstcDetails(mixins.InstcMixin, CommonDetails):
 
 
 class InstdDetails(mixins.InstdMixin, CommonDetails):
-    fields = ["inst_id", "instdc_id", "det_value", "start_date", "end_date", "valid", "comments", "created_by", "created_date", ]
+    fields = ["inst_id", "instdc_id", "det_value", "start_date", "end_date", "valid", "comments", "created_by",
+              "created_date", ]
 
 
 class InstdcDetails(mixins.InstdcMixin, CommonDetails):
@@ -594,7 +595,7 @@ class InstdcDetails(mixins.InstdcMixin, CommonDetails):
 
 class LocDetails(mixins.LocMixin, CommonDetails):
     fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "loc_date",
-               "comments", "created_by", "created_date", ]
+              "comments", "created_by", "created_date", ]
 
 
 class LoccDetails(mixins.LoccMixin, CommonDetails):

@@ -465,4 +465,3 @@ class TestTrofdForm(CommonTest):
         test_contdc = BioFactoryFloor.ContdcFactory(min_val=(invalid_data['det_value'] + 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
-

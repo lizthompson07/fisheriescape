@@ -156,6 +156,7 @@ class AnidcUpdateView(CommonTest):
         self.assert_correct_url("bio_diversity:update_anidc", f"/en/bio_diversity/update/anidc/{self.instance.pk}/",
                                 [self.instance.pk])
 
+
 @tag("Anix")
 class TestAnixCreateView(CommonTest):
     def setUp(self):
@@ -2912,6 +2913,7 @@ class GrpUpdateView(CommonTest):
         self.assert_correct_url("bio_diversity:update_grp", f"/en/bio_diversity/update/grp/{self.instance.pk}/",
                                 [self.instance.pk])
 
+
 @tag("Grpd")
 class TestGrpdCreateView(CommonTest):
     def setUp(self):
@@ -5204,7 +5206,6 @@ class TestProtDetailView(CommonTest):
         ]
         self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
 
-
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("bio_diversity:details_prot", f"/en/bio_diversity/details/prot/{self.instance.pk}/",
@@ -5628,7 +5629,6 @@ class TestRelcDetailView(CommonTest):
             "created_date",
         ]
         self.assert_field_in_field_list(self.test_url, 'fields', context_vars, user=self.user)
-
 
     def test_correct_url(self):
         # use the 'en' locale prefix to url
@@ -6355,6 +6355,7 @@ class TestSpwnCreateView(CommonTest):
         # use the 'en' locale prefix to url
         self.assert_correct_url("bio_diversity:create_spwn", "/en/bio_diversity/create/spwn/")
 
+
 @tag("Spwn")
 class TestSpwnDetailView(CommonTest):
     def setUp(self):
@@ -6388,6 +6389,7 @@ class TestSpwnDetailView(CommonTest):
                                 f"/en/bio_diversity/details/spwn/{self.instance.pk}/",
                                 [self.instance.pk])
 
+
 @tag("Spwn")
 class TestSpwnListView(CommonTest):
     def setUp(self):
@@ -6406,6 +6408,7 @@ class TestSpwnListView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("bio_diversity:list_spwn", f"/en/bio_diversity/list/spwn/")
+
 
 @tag("Spwn")
 class SpwnUpdateView(CommonTest):
@@ -6458,6 +6461,7 @@ class TestSpwndCreateView(CommonTest):
         # use the 'en' locale prefix to url
         self.assert_correct_url("bio_diversity:create_spwnd", "/en/bio_diversity/create/spwnd/")
 
+
 @tag("Spwnd")
 class TestSpwndDetailView(CommonTest):
     def setUp(self):
@@ -6493,6 +6497,7 @@ class TestSpwndDetailView(CommonTest):
                                 f"/en/bio_diversity/details/spwnd/{self.instance.pk}/",
                                 [self.instance.pk])
 
+
 @tag("Spwnd")
 class TestSpwndListView(CommonTest):
     def setUp(self):
@@ -6511,6 +6516,7 @@ class TestSpwndListView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("bio_diversity:list_spwnd", f"/en/bio_diversity/list/spwnd/")
+
 
 @tag("Spwnd")
 class SpwndUpdateView(CommonTest):
