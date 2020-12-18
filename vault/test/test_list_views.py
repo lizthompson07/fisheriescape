@@ -8,13 +8,14 @@ from shared_models.views import CommonFilterView, CommonListView
 from .. import models
 from .. import views
 
-from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
-from whalebrary.test import FactoryFloor
-from ..views import WhalebraryAccessRequired
+from vault.test.common_tests import CommonVaultTest as CommonTest
+from vault.test import FactoryFloor
 
 
 # Example how to run with keyword tags
-# python manage.py test whalebrary.test --tag transaction_new
+# python manage.py test vault.test --tag species_list
+
+
 
 class TestUserListView(CommonTest):
     def setUp(self):

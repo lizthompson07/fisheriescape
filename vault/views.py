@@ -363,7 +363,7 @@ class SpeciesCreateView(VaultAdminAccessRequired, CommonCreateView):
         return super().form_valid(form)
 
 
-class SpeciesDeleteView(VaultAccessRequired, CommonDeleteView):
+class SpeciesDeleteView(VaultAdminAccessRequired, CommonDeleteView):
     model = models.Species
     permission_required = "__all__"
     success_url = reverse_lazy('vault:species_list')
@@ -470,7 +470,7 @@ class OutingCreateView(VaultAdminAccessRequired, CommonCreateView):
         return super().form_valid(form)
 
 
-class OutingDeleteView(VaultAccessRequired, CommonDeleteView):
+class OutingDeleteView(VaultAdminAccessRequired, CommonDeleteView):
     model = models.Outing
     permission_required = "__all__"
     success_url = reverse_lazy('vault:outing_list')
