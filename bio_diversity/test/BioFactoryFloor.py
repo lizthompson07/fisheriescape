@@ -481,11 +481,10 @@ class EnvFactory(factory.django.DjangoModelFactory):
         contx = ContxFactory()
         loc = LocFactory()
         inst = InstFactory()
-        envc = EnvcFactory()
         envsc = EnvscFactory()
         qual = QualFactory()
-
         obj = EnvFactory.build(**kwargs)
+        envc = EnvcFactory(min_val=obj.env_val-10, max_val=obj.env_val+10)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -1287,6 +1286,7 @@ class IndvtcFactory(factory.django.DjangoModelFactory):
 class InstFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Instrument
+        django_get_or_create = ('serial_number',)
 
     # needs an instcode id
     instc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.InstcFactory")

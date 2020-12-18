@@ -256,6 +256,15 @@ class EnvCondition(BioModel):
             models.UniqueConstraint(fields=['contx_id', 'loc_id', 'inst_id'], name='Environment Condition Uniqueness')
         ]
 
+    def clean(self):
+        if self.env_val > self.envc_id.max_val or self.env_val < self.envc_id.min_val:
+            raise ValidationError({
+                "env_val" : ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.env_val,
+                                                                                               self.envc_id.max_val,
+                                                                                               self.envc_id.min_val))
+            })
+
+
 
 def envcf_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/bio_diversity/env_conditions/<filename>
