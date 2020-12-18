@@ -405,10 +405,10 @@ class CupdFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
 
-        contdc = ContdcFactory()
         cup = CupFactory()
         cdsc = CdscFactory()
         obj = CupdFactory.build(**kwargs)
+        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -1049,10 +1049,10 @@ class HeatdFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
 
-        contdc = ContdcFactory()
         heat = HeatFactory()
         cdsc = CdscFactory()
         obj = HeatdFactory.build(**kwargs)
+        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -2345,10 +2345,10 @@ class TankdFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
-        contdc = ContdcFactory()
         tank = TankFactory()
         cdsc = CdscFactory()
         obj = TankdFactory.build(**kwargs)
+        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -2441,10 +2441,10 @@ class TraydFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
-        contdc = ContdcFactory()
         tray = TrayFactory()
         cdsc = CdscFactory()
         obj = TraydFactory.build(**kwargs)
+        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -2543,10 +2543,10 @@ class TrofdFactory(factory.django.DjangoModelFactory):
 
     @staticmethod
     def build_valid_data(**kwargs):
-        contdc = ContdcFactory()
         trof = TrofFactory()
         cdsc = CdscFactory()
         obj = TrofdFactory.build(**kwargs)
+        contdc = ContdcFactory(min_val=obj.det_value - 1, max_val=obj.det_value+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {

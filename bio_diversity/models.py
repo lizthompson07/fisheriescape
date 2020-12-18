@@ -27,6 +27,14 @@ class BioContainerDet(models.Model):
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
 
+    def clean(self):
+        if self.det_value > self.contdc_id.max_val or self.det_value < self.contdc_id.min_val:
+            raise ValidationError({
+                "det_value": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_value,
+                                                                                                self.contdc_id.max_val,
+                                                                                                self.contdc_id.min_val))
+            })
+
 
 class BioDet(models.Model):
     class Meta:
@@ -263,7 +271,6 @@ class EnvCondition(BioModel):
                                                                                                self.envc_id.max_val,
                                                                                                self.envc_id.min_val))
             })
-
 
 
 def envcf_directory_path(instance, filename):
