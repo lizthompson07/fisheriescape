@@ -68,9 +68,8 @@ class TestDepDetails(CommonDetailsTest, TestCase):
         self.assertEqual(response.context["object"], self.createDict()['dep_1'])
         super().assert_field_in_fields(response)
 
-        # Test that the context contains the proper fields
-
-        # If there is a Dataset associated with the deployment it should be passed as a context variable to the
+    # Test that the context contains the proper fields
+    # If there is a Dataset associated with the deployment it should be passed as a context variable to the
     # Deployment details page so it can be linked to.
     def test_context_fields_dep_w_rec(self):
         rec = Factory.RecFactory()

@@ -49,7 +49,7 @@ class URLTest(TestCase):
 
     @tag('cru', 'url', 'delete')
     def test_url_delete_cru_view(self):
-        self.basic_en_url_test('whalesdb:delete_cru', 'whalesdb/delete/cru/1/', views.CruDeleteView, [1])
+        self.basic_en_url_test('whalesdb:delete_cru', 'whalesdb/delete/cru/1/', views.CruDelete, [1])
 
     @tag('index', 'url')
     def test_root_url_index_view(self):
@@ -308,6 +308,11 @@ class URLTest(TestCase):
         # The Station Event object requires a Deployment and a station event type
         self.basic_en_url_test('whalesdb:create_ste', 'whalesdb/create/ste/1/2/pop/', views.SteCreate, [1, 2, 'pop'])
 
+    @tag('ste', 'url', 'delete', 'pop')
+    def test_url_delete_set_pop_ste_view(self):
+        # The Station Event object requires a Deployment and a station event type
+        self.basic_en_url_test('whalesdb:delete_ste', 'whalesdb/delete/ste/1/pop/', views.SteDelete, [1,'pop'])
+
     @tag('ste', 'url', 'update', 'pop')
     def test_url_update_set_pop_ste_view(self):
         self.basic_en_url_test('whalesdb:update_ste', 'whalesdb/update/ste/1/pop/', views.SteUpdate, [1, 'pop'])
@@ -355,6 +360,10 @@ class URLTest(TestCase):
     @tag('rec', 'url', 'update')
     def test_url_update_rec_view(self):
         self.basic_en_url_test('whalesdb:update_rec', 'whalesdb/update/rec/1/', views.RecUpdate, [1])
+
+    @tag('rec', 'url', 'delete')
+    def test_url_delete_rec_view(self):
+        self.basic_en_url_test('whalesdb:delete_rec', 'whalesdb/delete/rec/1/pop/', views.RecDelete, [1, 'pop'])
 
     @tag('ret', 'url', 'create')
     def test_url_create_ret_view(self):
