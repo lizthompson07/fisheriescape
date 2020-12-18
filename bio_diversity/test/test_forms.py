@@ -224,7 +224,7 @@ class TestPairForm(CommonTest):
 
         # cannot use individual code with null ufid
         invalid_data = self.data
-        non_valid_indv = BioFactoryFloor.IndvFactory(ufid=None)
+        non_valid_indv = BioFactoryFloor.IndvFactory(ufid="")
         invalid_data['indv_id'] = non_valid_indv.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
@@ -322,7 +322,7 @@ class TestSireForm(CommonTest):
 
         # cannot use individual code with null ufid
         invalid_data = self.data
-        non_valid_indv = BioFactoryFloor.IndvFactory(ufid=None)
+        non_valid_indv = BioFactoryFloor.IndvFactory(ufid="")
         invalid_data['indv_id'] = non_valid_indv.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 

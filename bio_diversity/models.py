@@ -272,6 +272,14 @@ class EnvCondition(BioModel):
             models.UniqueConstraint(fields=['contx_id', 'loc_id', 'inst_id'], name='Environment Condition Uniqueness')
         ]
 
+    def __str__(self):
+        if self.contx_id:
+            return "{}-{}".format(self.contx_id.__str__(), self.envc_id.__str__())
+        elif self.loc_id:
+            return "{}-{}".format(self.loc_id.__str__(), self.envc_id.__str__())
+        else:
+            return "{}-{}".format(self.envc_id.__str__(), self.env_start)
+
     def clean(self):
         if self.env_val > self.envc_id.max_val or self.env_val < self.envc_id.min_val:
             raise ValidationError({
@@ -352,6 +360,9 @@ class EnvTreatment(BioModel):
     duration = models.DecimalField(max_digits=5, decimal_places=0, verbose_name=_("Duration (minutes)"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
+    def __str__(self):
+        return "{}-{}".format(self.contx_id.__str__(), self.envtc_id.__str__())
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['contx_id', 'envtc_id'], name='Environment Treatment Uniqueness')
@@ -372,7 +383,7 @@ class Event(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__())
+        return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.evnt_start)
 
     class Meta:
         constraints = [
@@ -403,6 +414,9 @@ class Fecundity(BioTimeModel):
         constraints = [
             models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date'], name='Fecundity Uniqueness')
         ]
+
+    def __str__(self):
+        return "{}-{}-{}".format(self.stok_id.__str__(), self.alpha, self.beta)
 
 
 class Feeding(BioModel):
@@ -622,6 +636,7 @@ class IndividualDet(BioDet):
                                                                                                 self.anidc_id.min_val))
             })
 
+
 class IndTreatCode(BioLookup):
     # indvtc tag
     rec_dose = models.CharField(max_length=400, verbose_name=_("Recommended Dosage"))
@@ -638,6 +653,9 @@ class IndTreatment(BioModel):
     start_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("Start Date"))
     end_datetime = models.DateTimeField(null=True, blank=True, verbose_name=_("End Date"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
+
+    def __str__(self):
+        return "{}-{}".format(self.indvtc_id.__str__(), self.lot_num)
 
 
 class Instrument(BioModel):
@@ -666,6 +684,9 @@ class InstrumentDet(BioTimeModel):
         constraints = [
             models.UniqueConstraint(fields=['inst_id', 'instdc_id', 'start_date'], name='Instrument Detail Uniqueness')
         ]
+
+    def __str__(self):
+        return "{}-{}".format(self.instdc_id.__str__(), self.inst_id.__str__())
 
 
 class InstDetCode(BioLookup):
@@ -927,7 +948,7 @@ class Sire(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return self.indv_id.ufid
+        return "Sire {}".format(self.indv_id.__str__())
 
 
 class Spawning(BioModel):

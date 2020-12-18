@@ -1132,7 +1132,7 @@ class ImgcFactory(factory.django.DjangoModelFactory):
 class IndvFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Individual
-        django_get_or_create = ('ufid', 'pit_tag')
+        django_get_or_create = ('ufid', 'pit_tag',)
 
     grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
