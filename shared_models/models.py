@@ -69,7 +69,7 @@ class Lookup(SimpleLookup):
 
 
 
-class UnilingualLookup(SimpleLookup):
+class UnilingualLookup(UnilingualSimpleLookup):
     class Meta:
         abstract = True
 

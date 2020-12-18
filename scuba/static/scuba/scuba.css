@@ -5,6 +5,11 @@
     font-size: small;
 }
 
+.crumbs {
+    background-color: rgba(255, 255, 255, 0);
+
+}
+
 .curvy {
     border-radius: 10px;
 }

@@ -1,110 +1,119 @@
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext as _
 
-from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup
 
 
 class Region(UnilingualLookup):
-    description_en = models.TextField(blank=True, null=True, verbose_name=_("description (EN)"))
-    description_fr = models.TextField(blank=True, null=True, verbose_name=_("description (FR)"))
+    abbreviation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
     province = models.ForeignKey(shared_models.Province, on_delete=models.DO_NOTHING, related_name='scuba_regions', blank=True, null=True)
 
     def __str__(self):
         mystr = self.name
         if self.province:
-            mystr += f" {self.tdescription}"
+            mystr += f" ({self.province.tabbrev})"
         return mystr
+
+    @property
+    def samples(self):
+        return Sample.objects.filter(site__region=self).count()
 
 
 class Site(UnilingualLookup):
-    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='sites')
-    latitude_n = models.FloatField(blank=True, null=True)
-    longitude_w = models.FloatField(blank=True, null=True)
+    abbreviation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='sites', verbose_name=_("region"), editable=False)
+    latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude"))
+    longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude"))
 
     def __str__(self):
-        return f"{self.tname} ({self.region})"
+        return f"{self.name} ({self.region})"
 
+    @property
+    def transect_count(self):
+        return self.transects.count()
+
+
+class Transect(UnilingualLookup):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"))
+
+    class Meta:
+        unique_together = (("name", "site"),)
+
+
+class Diver(models.Model):
+    first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
+    last_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("last name"))
+
+    def __str__(self):
+        mystr = f"{self.last_name}"
+        if self.first_name:
+            mystr += f', {self.first_name}'
+        return mystr
+
+    class Meta:
+        ordering = ['last_name', 'first_name']
 
 
 class Sample(models.Model):
-    site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING)
-    start_date = models.DateTimeField(verbose_name="Start date / time (yyyy-mm-dd hh:mm)")
-    end_date = models.DateTimeField(blank=True, null=True, verbose_name="End date / time (yyyy-mm-dd hh:mm)")
-#     weather_notes = models.CharField(max_length=1000, blank=True, null=True)
-#     rain_past_24_hours = models.BooleanField(default=False, verbose_name="Has it rained in the past 24 h?")
-#     h2o_temperature_c = models.FloatField(null=True, blank=True, verbose_name="Water temperature (°C)")
-#     salinity = models.FloatField(null=True, blank=True, verbose_name="Salinity (ppt)")
-#     dissolved_o2 = models.FloatField(null=True, blank=True, verbose_name="dissolved oxygen (mg/L)")
-#     water_turbidity = models.IntegerField(choices=TURBIDITY_CHOICES, blank=True, null=True)
-#     tide_state = models.CharField(max_length=5, choices=TIDE_STATE_CHOICES, blank=True, null=True)
-#     tide_direction = models.CharField(max_length=5, choices=TIDE_DIR_CHOICES, blank=True, null=True)
-#     samplers = models.CharField(max_length=1000, blank=True, null=True)
-#
-#     percent_sand = models.FloatField(null=True, blank=True, verbose_name="Sand (%)")
-#     percent_gravel = models.FloatField(null=True, blank=True, verbose_name="Gravel (%)")
-#     percent_rock = models.FloatField(null=True, blank=True, verbose_name="Rock (%)")
-#     percent_mud = models.FloatField(null=True, blank=True, verbose_name="Mud (%)")
-#
-#     visual_sediment_obs = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Visual sediment observations")
-#     sav_survey_conducted = models.BooleanField(default=False, verbose_name="Was SAV survey conducted?")
-#     excessive_green_algae_water = models.BooleanField(default=False, verbose_name="Excessive green algae in water?")
-#     excessive_green_algae_shore = models.BooleanField(default=False, verbose_name="Excessive green algae on shore?")
-#     unsampled_vegetation_inside = models.CharField(max_length=1000, blank=True, null=True,
-#                                                    verbose_name="Vegetation present inside sample area (underwater) but outside of quadrat")
-#     unsampled_vegetation_outside = models.CharField(max_length=1000, blank=True, null=True,
-#                                                     verbose_name="Vegetation present outside of sample area (underwater)")
-#
-#     per_sediment_water_cont = models.FloatField(null=True, blank=True, verbose_name="sediment water content (%)")
-#     per_sediment_organic_cont = models.FloatField(null=True, blank=True, verbose_name="sediment organic content (%)")
-#     mean_sediment_grain_size = models.FloatField(null=True, blank=True,
-#                                                  verbose_name="Mean sediment grain size (??)")  # where 9999 means >2000
-#
-#     silicate = models.FloatField(null=True, blank=True, verbose_name="Silicate (µM)")
-#     phosphate = models.FloatField(null=True, blank=True, verbose_name="Phosphate (µM)")
-#     nitrates = models.FloatField(null=True, blank=True, verbose_name="NO3 + NO2(µM)")
-#     nitrite = models.FloatField(null=True, blank=True, verbose_name="Nitrite (µM)")
-#     ammonia = models.FloatField(null=True, blank=True, verbose_name="Ammonia (µM)")
-#     notes = models.TextField(blank=True, null=True)
-#
-#     year = models.IntegerField(null=True, blank=True)
-#     month = models.IntegerField(null=True, blank=True)
-#     last_modified = models.DateTimeField(blank=True, null=True)
-#     species = models.ManyToManyField(Species, through="SpeciesObservation")
-#
-#     def save(self, *args, **kwargs):
-#         self.year = self.start_date.year
-#         self.month = self.start_date.month
-#         self.last_modified = timezone.now()
-#
-#         super().save(*args, **kwargs)
-#
-#     class Meta:
-#         ordering = ['-start_date', 'station']
-#         unique_together = [["start_date", "station"], ]
-#
-#     def get_absolute_url(self):
-#         return reverse("camp:sample_detail", kwargs={"pk": self.id})
-#
-#     def __str__(self):
-#         return "Sample {}".format(self.id)
-#
-#
-# class SpeciesObservation(models.Model):
-#     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="sample_spp")
-#     sample = models.ForeignKey(Sample, on_delete=models.DO_NOTHING, related_name="sample_spp")
-#     adults = models.IntegerField(blank=True, null=True)
-#     yoy = models.IntegerField(blank=True, null=True, verbose_name="young of the year (YOY)")
-#     total_non_sav = models.IntegerField(null=True, blank=True)
-#     total_sav = models.FloatField(blank=True, null=True, verbose_name="SAV level")  # this is reserved only for SAV
-#
-#     def save(self, *args, **kwargs):
-#         self.total_non_sav = nz(self.adults, 0) + nz(self.yoy, 0)
-#         return super().save(*args, **kwargs)
-#
-#     class Meta:
-#         unique_together = [["sample", "species"], ]
-#         # ordering = ["-sample__year"] THIS IS WAY TOO SLOW!
+    site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("site"))
+    datetime = models.DateTimeField(verbose_name="date / time (yyyy-mm-dd hh:mm)")
+    weather_notes = models.CharField(max_length=1000, blank=True, null=True)
+    comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+
+
+class Dive(models.Model):
+    heading_choices = (
+        ('n', _("north")),
+        ('s', _("south")),
+        ('e', _("east")),
+        ('w', _("west")),
+    )
+    side_choices = (
+        ('l', _("left")),
+        ('r', _("right")),
+    )
+    sample = models.ForeignKey(Sample, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("sample"))
+    transect = models.ForeignKey(Transect, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("transect"))
+    diver = models.ForeignKey(Diver, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("diver"))
+    heading = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("heading"), choices=heading_choices)
+    side = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("side"), choices=side_choices)
+    width_m = models.FloatField(verbose_name=_("width (m)"))
+    comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+
+
+class Section(models.Model):
+    dive = models.ForeignKey(Dive, related_name='sections', on_delete=models.DO_NOTHING, verbose_name=_("dive"))
+    interval = models.IntegerField(verbose_name=_("5m interval (1-20)"), validators=(MinValueValidator(1), MaxValueValidator(20)))
+    depth_ft = models.FloatField(verbose_name=_("depth (ft)"), blank=True, null=True)
+    percent_sand = models.FloatField(default=0, verbose_name=_("% sand"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_mud = models.FloatField(default=0, verbose_name=_("% mud"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_solid = models.FloatField(default=0, verbose_name=_("% rock"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_algae = models.FloatField(default=0, verbose_name=_("% algae"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_gravel = models.FloatField(default=0, verbose_name=_("% gravel"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_cobble = models.FloatField(default=0, verbose_name=_("% cobble"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    percent_pebble = models.FloatField(default=0, verbose_name=_("% pebble"), validators=(MinValueValidator(0), MaxValueValidator(1)))
+    comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+
+
+class Observation(models.Model):
+    sex_choices = (
+        ('m', _("male")),
+        ('f', _("female")),
+        ('i', _("immature")),
+        ('u', _("unknown")),
+    )
+    egg_status_choices = (
+        (None, _("n/a")),
+        ("b", _("b (berried)")),
+        ("b1", _("b1 (berried with new eggs)")),
+        ("b2", _("b2 (berried with black eggs)")),
+        ("b3", _("b3 (berried with developed eggs)")),
+    )
+    section = models.ForeignKey(Section, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("section"))
+    sex = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("sex"), choices=sex_choices)
+    egg_status = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("eggs status"), choices=egg_status_choices)
+    carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)
+    comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))

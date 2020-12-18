@@ -259,6 +259,7 @@ class StaffForm(forms.ModelForm):
         exclude = ["project_year"]
         labels = {
             "user": _("DFO User"),
+            "amount": _("Approximate amount (CAD) (will only be visible to project leads and managers)"),
         }
 
     def __init__(self, *args, **kwargs):

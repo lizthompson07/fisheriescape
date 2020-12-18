@@ -117,7 +117,7 @@ def can_modify_project(user, project_id, return_as_dict=False):
             my_dict["can_modify"] = True
 
         # check to see if they are a project lead
-        elif not project.lead_staff.exists():
+        elif not models.Staff.objects.filter(project_year__project=project, is_lead=True).exists():
             my_dict["reason"] = "You can modify this record because there are currently no project leads"
             my_dict["can_modify"] = True
 
