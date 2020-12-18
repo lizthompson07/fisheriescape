@@ -924,6 +924,14 @@ class SpawnDet(BioDet):
     def __str__(self):
         return "{} - {}".format(self.spwn_id.__str__(), self.spwndc_id.__str__())
 
+    def clean(self):
+        if self.det_val > self.spwndc_id.max_val or self.det_val < self.spwndc_id.min_val:
+            raise ValidationError({
+                "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
+                                                                                              self.spwndc_id.max_val,
+                                                                                              self.spwndc_id.min_val))
+            })
+
 
 class SpawnDetCode(BioLookup):
     # spwndc tag

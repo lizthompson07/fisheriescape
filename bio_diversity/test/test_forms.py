@@ -98,7 +98,7 @@ class TestPairForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
         # cannot use individual code with null ufid
-        non_valid_indv = BioFactoryFloor.IndvFactory(ufid="")
+        non_valid_indv = BioFactoryFloor.IndvFactory(ufid=None)
         invalid_data['indv_id'] = non_valid_indv.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
@@ -192,6 +192,31 @@ class TestSpwnForm(CommonTest):
         invalid_data = self.data
         non_valid_pair = BioFactoryFloor.PairFactory(valid=False)
         invalid_data['pair_id'] = non_valid_pair.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+
+@tag("Spwnd", 'forms')
+class TestSpwndForm(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.Form = forms.SpwndForm
+        self.data = BioFactoryFloor.SpwndFactory.build_valid_data()
+
+    def test_valid_data(self):
+        # get valid data
+        self.assert_form_valid(self.Form, data=self.data)
+
+    def test_invalid_val(self):
+        # cannot use values outside of spwndc min-max range
+        invalid_data = self.data
+
+        test_spwndc = BioFactoryFloor.SpwndcFactory(max_val=(invalid_data['det_val'] - 1))
+        invalid_data['spwndc_id'] = test_spwndc.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+        test_spwndc = BioFactoryFloor.SpwndcFactory(min_val=(invalid_data['det_val'] + 1))
+        invalid_data['spwndc_id'] = test_spwndc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
 

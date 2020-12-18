@@ -1132,6 +1132,7 @@ class ImgcFactory(factory.django.DjangoModelFactory):
 class IndvFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Individual
+        django_get_or_create = ('ufid', 'pit_tag')
 
     grp_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.GrpFactory")
     spec_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.SpecFactory")
@@ -2114,10 +2115,10 @@ class SpwndFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
         spwn = SpwnFactory()
-        spwndc = SpwndcFactory()
         spwnsc = SpwnscFactory()
         qual = QualFactory()
         obj = SpwndFactory.build(**kwargs)
+        spwndc = SpwndcFactory(min_val=obj.det_val-1, max_val=obj.det_val+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
