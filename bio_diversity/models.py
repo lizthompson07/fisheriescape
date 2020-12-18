@@ -338,8 +338,10 @@ class Event(BioModel):
     # evnt tag
     facic_id = models.ForeignKey('FacilityCode', on_delete=models.DO_NOTHING, verbose_name=_("Facility Code"))
     evntc_id = models.ForeignKey('EventCode', on_delete=models.DO_NOTHING, verbose_name=_("Event Code"))
-    perc_id = models.ForeignKey('PersonnelCode', on_delete=models.DO_NOTHING, verbose_name=_("Personnel Code"))
-    prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"))
+    perc_id = models.ForeignKey('PersonnelCode', on_delete=models.DO_NOTHING, verbose_name=_("Personnel Code"),
+                                limit_choices_to={'perc_valid': True})
+    prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"),
+                                limit_choices_to={'valid': True})
     team_id = models.ForeignKey('Team', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Team"))
     evnt_start = models.DateTimeField(verbose_name=_("Event start date"))
     evnt_end = models.DateTimeField(verbose_name=_("Event end date"))
@@ -674,7 +676,7 @@ class Organization(BioLookup):
 class Pairing(BioTimeModel):
     # pair tag
     indv_id = models.ForeignKey('Individual',  on_delete=models.DO_NOTHING, verbose_name=_("Dam"),
-                                limit_choices_to={'ufid__isnull':False})
+                                limit_choices_to={'ufid__isnull': False, 'indv_valid': True})
 
     def __str__(self):
         return "Pair: {}-{}".format(self.indv_id.__str__(), self.start_date)
@@ -732,7 +734,8 @@ class ProgAuthority(BioModel):
 
 class Protocol(BioTimeModel):
     # prot tag
-    prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"))
+    prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"),
+                                limit_choices_to={'valid': True})
     protc_id = models.ForeignKey('ProtoCode', on_delete=models.DO_NOTHING, verbose_name=_("Protocol Code"))
     evntc_id = models.ForeignKey('EventCode', blank=True, null=True, on_delete=models.DO_NOTHING, verbose_name=_("Event Code"))
     prot_desc = models.CharField(max_length=4000, verbose_name=_("Protocol Description"))
@@ -759,7 +762,7 @@ def protf_directory_path(instance, filename):
 class Protofile(BioModel):
     # protf tag
     prot_id = models.ForeignKey('Protocol', on_delete=models.DO_NOTHING, related_name="protf_id",
-                                verbose_name=_("Protocol"))
+                                verbose_name=_("Protocol"), limit_choices_to={'valid': True})
     protf_pdf = models.FileField(upload_to=protf_directory_path, blank=True, null=True, verbose_name=_("Protocol File"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
@@ -869,9 +872,10 @@ class SampleDet(BioDet):
 class Sire(BioModel):
     # sire tag
     prio_id = models.ForeignKey('PriorityCode', on_delete=models.DO_NOTHING, verbose_name=_("Priority"))
-    pair_id = models.ForeignKey('Pairing', on_delete=models.DO_NOTHING, verbose_name=_("Pairing"), related_name="sire")
+    pair_id = models.ForeignKey('Pairing', on_delete=models.DO_NOTHING, verbose_name=_("Pairing"), related_name="sire",
+                                limit_choices_to={'valid': True})
     indv_id = models.ForeignKey('Individual', on_delete=models.DO_NOTHING, verbose_name=_("Sire UFID"),
-                                limit_choices_to={'ufid__isnull':  False})
+                                limit_choices_to={'ufid__isnull':  False, 'indv_valid': True})
     choice = models.IntegerField(verbose_name=_("Choice"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
@@ -881,7 +885,8 @@ class Sire(BioModel):
 
 class Spawning(BioModel):
     # spwn tag
-    pair_id = models.ForeignKey('Pairing', on_delete=models.DO_NOTHING, verbose_name=_("Pairing"))
+    pair_id = models.ForeignKey('Pairing', on_delete=models.DO_NOTHING, verbose_name=_("Pairing"),
+                                limit_choices_to={'valid': True})
     spwn_date = models.DateField(verbose_name=_("Date of spawning"))
     est_fecu = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("Estimated Fecundity"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
@@ -966,7 +971,8 @@ class TankDet(BioContainerDet):
 
 class Team(BioModel):
     # team tag
-    perc_id = models.ForeignKey("PersonnelCode", on_delete=models.DO_NOTHING, verbose_name=_("Team Member"))
+    perc_id = models.ForeignKey("PersonnelCode", on_delete=models.DO_NOTHING, verbose_name=_("Team Member"),
+                                limit_choices_to={'perc_valid': True})
     role_id = models.ForeignKey("RoleCode", on_delete=models.DO_NOTHING, verbose_name=_("Role Code"))
 
     class Meta:

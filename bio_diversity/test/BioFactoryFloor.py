@@ -701,7 +701,9 @@ class EvntFactory(factory.django.DjangoModelFactory):
         fabic = FacicFactory()
         evntc = EvntcFactory()
         perc = PercFactory()
+        perc.perc_valid = True
         prog = ProgFactory()
+        prog.valid = True
         team = TeamFactory()
         obj = EvntFactory.build(**kwargs)
 
@@ -1150,6 +1152,7 @@ class IndvFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         grp = GrpFactory()
+        grp.grp_valid = True
         spec = SpecFactory()
         stok = StokFactory()
         coll = CollFactory()
@@ -1564,7 +1567,7 @@ class PairFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         indv = IndvFactory()
-
+        indv.indv_valid = True
         obj = PairFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
@@ -1702,6 +1705,7 @@ class ProgaFactory(factory.django.DjangoModelFactory):
 
 
 class ProtFactory(factory.django.DjangoModelFactory):
+
     class Meta:
         model = models.Protocol
 
@@ -1719,6 +1723,7 @@ class ProtFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
         prog = ProgFactory()
+        prog.valid = True
         protc = ProtcFactory()
         evntc = EvntcFactory()
         obj = ProtFactory.build(**kwargs)
@@ -1784,6 +1789,7 @@ class ProtfFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         prot = ProtFactory()
+        prot.valid = True
         obj = ProtfFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
@@ -2052,7 +2058,9 @@ class SireFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
         prio = PrioFactory()
         pair = PairFactory()
+        pair.valid = True
         indv = IndvFactory()
+        indv.indv_valid = True
         obj = SireFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
@@ -2083,6 +2091,7 @@ class SpwnFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
         pair = PairFactory()
+        pair.valid = True
         obj = SpwnFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
@@ -2377,6 +2386,7 @@ class TeamFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
         perc = PercFactory()
+        perc.perc_valid = True
         role = RoleFactory()
 
         obj = TeamFactory.build(**kwargs)
