@@ -12,7 +12,7 @@ urlpatterns = [
     path('create/cru/', views.CruCreate.as_view(), name="create_cru"),
     path('details/cru/<int:pk>/', views.CruDetails.as_view(), name="details_cru"),
     path('update/cru/<int:pk>/', views.CruUpdate.as_view(), name="update_cru"),
-    path('delete/cru/<int:pk>/', views.CruDeleteView.as_view(), name="delete_cru"),
+    path('delete/cru/<int:pk>/', views.CruDelete.as_view(), name="delete_cru"),
 
     path('create/dep/', views.DepCreate.as_view(), name="create_dep"),
     path('create/dep/<str:pop>/', views.DepCreate.as_view(), name="create_dep"),
@@ -87,6 +87,7 @@ urlpatterns = [
     path('delete/rst/<int:pk>/', views.rst_delete, name="delete_rst"),
 
     path('create/ste/<int:dep_id>/<int:set_id>/<str:pop>/', views.SteCreate.as_view(), name="create_ste"),
+    path('delete/ste/<int:pk>/<str:pop>/', views.SteDelete.as_view(), name="delete_ste"),
     path('update/ste/<int:pk>/<str:pop>/', views.SteUpdate.as_view(), name="update_ste"),
 
     path('create/stn/', views.StnCreate.as_view(), name="create_stn"),
@@ -109,6 +110,8 @@ urlpatterns = [
     path('list/rec/', views.RecList.as_view(), name="list_rec"),
     path('details/rec/<int:pk>/', views.RecDetails.as_view(), name="details_rec"),
     path('update/rec/<int:pk>/', views.RecUpdate.as_view(), name="update_rec"),
+    path('update/rec/<int:pk>/<str:pop>/', views.RecUpdate.as_view(), name="update_rec"),
+    path('delete/rec/<int:pk>/<str:pop>/', views.RecDelete.as_view(), name="delete_rec"),
 
     path('create/ret/', views.RetCreate.as_view(), name="create_ret"),
     path('list/ret/', views.RetList.as_view(), name="list_ret"),

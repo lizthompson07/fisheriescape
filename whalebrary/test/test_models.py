@@ -131,8 +131,6 @@ class TestTransactionModel(CommonTest):
         fields_to_check = ['item',
                            "category",
                            "location",
-                           "created_at",
                            "created_by",
-                           "updated_at",
                            ]
         self.assert_mandatory_fields(models.Transaction, fields_to_check)

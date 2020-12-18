@@ -105,7 +105,6 @@ def admin_tools(request):
 ## ADMIN USER ACCESS CONTROL ##
 
 
-#TODO this has 2 test fails - ask David
 class UserListView(WhalebraryAdminAccessRequired, CommonFilterView):
     template_name = "whalebrary/user_list.html"
     filterset_class = filters.UserFilter

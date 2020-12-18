@@ -6,7 +6,8 @@ trigger:
 steps:
   - script: |
       # log into acr using msi
-      az login --identity
+      az account set --subscription="IMTS DEV/TEST"
+      az login --identity -u b9b8533b-430c-4b7a-95b7-0c8d43179f68
       az acr login --name dmappsdevtestacr
 
       # build the new docker image for the "latest" and the build number

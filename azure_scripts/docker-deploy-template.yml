@@ -73,6 +73,9 @@ parameters:
 
 steps:
   - script: |
+      az account set --subscription="IMTS DEV/TEST"
+      az login --identity -u b9b8533b-430c-4b7a-95b7-0c8d43179f68
+
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
@@ -95,13 +98,15 @@ steps:
 
       # remove the env file
       rm .env
+
+
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Run Migrations and Staticfiles'
 
   - task: AzureRmWebAppDeployment@4
     displayName: 'Deploy Docker Image to ${{parameters.WEB_APP_NAME}}'
     inputs:
-      azureSubscription: '${{parameters.azureSubscription}}'
+      ConnectedServiceName: '${{parameters.azureSubscription}}'
       appType: webAppContainer
       WebAppName: '${{parameters.WEB_APP_NAME}}'
       DockerNamespace: ${{parameters.DockerNamespace}}
