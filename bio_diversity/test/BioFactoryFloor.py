@@ -206,11 +206,11 @@ class CntdFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         cnt = CntFactory()
-        anidc = AnidcFactory()
         adsc = AdscFactory()
         qual = QualFactory()
 
         obj = CntdFactory.build(**kwargs)
+        anidc = AnidcFactory(min_val=obj.det_val - 1, max_val=obj.det_val+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -976,10 +976,10 @@ class GrpdFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         anix = AnixFactory()
-        anidc = AnidcFactory()
         adsc = AdscFactory()
         qual = QualFactory()
         obj = GrpdFactory.build(**kwargs)
+        anidc = AnidcFactory(min_val=obj.det_val - 1, max_val=obj.det_val+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -1189,10 +1189,10 @@ class IndvdFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         anix = AnixFactory()
-        anidc = AnidcFactory()
         adsc = AdscFactory()
         qual = QualFactory()
         obj = IndvdFactory.build(**kwargs)
+        anidc = AnidcFactory(min_val=obj.det_val - 1, max_val=obj.det_val+1)
 
         # Convert the data to a dictionary to be used in testing
         data = {
@@ -2017,10 +2017,11 @@ class SampdFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
 
         samp = SampFactory()
-        anidc = AnidcFactory()
         adsc = AdscFactory()
         qual = QualFactory()
         obj = SampdFactory.build(**kwargs)
+        anidc = AnidcFactory(min_val=obj.det_val - 1, max_val=obj.det_val+1)
+
 
         # Convert the data to a dictionary to be used in testing
         data = {

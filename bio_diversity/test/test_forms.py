@@ -6,6 +6,31 @@ from bio_diversity.test import BioFactoryFloor
 from shared_models.test.common_tests import CommonTest
 
 
+@tag("Cntd", 'forms')
+class TestCntdForm(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.Form = forms.CntdForm
+        self.data = BioFactoryFloor.CntdFactory.build_valid_data()
+
+    def test_valid_data(self):
+        # get valid data
+        self.assert_form_valid(self.Form, data=self.data)
+
+    def test_invalid_val(self):
+        # cannot use values outside of anidc min-max range
+        invalid_data = self.data
+        test_anidc = BioFactoryFloor.AnidcFactory(max_val=(invalid_data['det_val'] - 1))
+        invalid_data['anidc_id'] = test_anidc.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+        invalid_data = self.data
+        test_anidc = BioFactoryFloor.AnidcFactory(min_val=(invalid_data['det_val'] + 1))
+        invalid_data['anidc_id'] = test_anidc.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+
 @tag("Cupd", 'forms')
 class TestCupdForm(CommonTest):
 
@@ -21,11 +46,11 @@ class TestCupdForm(CommonTest):
     def test_invalid_val(self):
         # cannot use values outside of contdc min-max range
         invalid_data = self.data
-
         test_contdc = BioFactoryFloor.ContdcFactory(max_val=(invalid_data['det_value'] - 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+        invalid_data = self.data
         test_contdc = BioFactoryFloor.ContdcFactory(min_val=(invalid_data['det_value'] + 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -46,11 +71,11 @@ class TestEnvForm(CommonTest):
     def test_invalid_val(self):
         # cannot use values outside of envc min-max range
         invalid_data = self.data
-
         test_envc = BioFactoryFloor.EnvcFactory(max_val=(invalid_data['env_val'] - 1))
         invalid_data['envc_id'] = test_envc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+        invalid_data = self.data
         test_envc = BioFactoryFloor.EnvcFactory(min_val=(invalid_data['env_val'] + 1))
         invalid_data['envc_id'] = test_envc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -83,6 +108,31 @@ class TestEvntForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
 
+@tag("Grpd", 'forms')
+class TestGrpdForm(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.Form = forms.GrpdForm
+        self.data = BioFactoryFloor.GrpdFactory.build_valid_data()
+
+    def test_valid_data(self):
+        # get valid data
+        self.assert_form_valid(self.Form, data=self.data)
+
+    def test_invalid_val(self):
+        # cannot use values outside of anidc min-max range
+        invalid_data = self.data
+        test_anidc = BioFactoryFloor.AnidcFactory(max_val=(invalid_data['det_val'] - 1))
+        invalid_data['anidc_id'] = test_anidc.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+        invalid_data = self.data
+        test_anidc = BioFactoryFloor.AnidcFactory(min_val=(invalid_data['det_val'] + 1))
+        invalid_data['anidc_id'] = test_anidc.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+
 @tag("Heatd", 'forms')
 class TestHeatdForm(CommonTest):
 
@@ -98,11 +148,11 @@ class TestHeatdForm(CommonTest):
     def test_invalid_val(self):
         # cannot use values outside of contdc min-max range
         invalid_data = self.data
-
         test_contdc = BioFactoryFloor.ContdcFactory(max_val=(invalid_data['det_value'] - 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+        invalid_data = self.data
         test_contdc = BioFactoryFloor.ContdcFactory(min_val=(invalid_data['det_value'] + 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -128,6 +178,31 @@ class TestIndvForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
 
+@tag("Indvd", 'forms')
+class TestIndvdForm(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.Form = forms.IndvdForm
+        self.data = BioFactoryFloor.IndvdFactory.build_valid_data()
+
+    def test_valid_data(self):
+        # get valid data
+        self.assert_form_valid(self.Form, data=self.data)
+
+    def test_invalid_val(self):
+        # cannot use values outside of anidc min-max range
+        invalid_data = self.data
+        test_anidc = BioFactoryFloor.AnidcFactory(max_val=(invalid_data['det_val'] - 1))
+        invalid_data['anidc_id'] = test_anidc.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+        invalid_data = self.data
+        test_anidc = BioFactoryFloor.AnidcFactory(min_val=(invalid_data['det_val'] + 1))
+        invalid_data['anidc_id'] = test_anidc.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+
 @tag("Pair", 'forms')
 class TestPairForm(CommonTest):
 
@@ -148,6 +223,7 @@ class TestPairForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
         # cannot use individual code with null ufid
+        invalid_data = self.data
         non_valid_indv = BioFactoryFloor.IndvFactory(ufid=None)
         invalid_data['indv_id'] = non_valid_indv.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -193,6 +269,31 @@ class TestProtfForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
 
+@tag("Sampd", 'forms')
+class TestSampdForm(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.Form = forms.SampdForm
+        self.data = BioFactoryFloor.SampdFactory.build_valid_data()
+
+    def test_valid_data(self):
+        # get valid data
+        self.assert_form_valid(self.Form, data=self.data)
+
+    def test_invalid_val(self):
+        # cannot use values outside of anidc min-max range
+        invalid_data = self.data
+        test_anidc = BioFactoryFloor.AnidcFactory(max_val=(invalid_data['det_val'] - 1))
+        invalid_data['anidc_id'] = test_anidc.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+        invalid_data = self.data
+        test_anidc = BioFactoryFloor.AnidcFactory(min_val=(invalid_data['det_val'] + 1))
+        invalid_data['anidc_id'] = test_anidc.pk
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+
 @tag("Sire", 'forms')
 class TestSireForm(CommonTest):
 
@@ -220,7 +321,8 @@ class TestSireForm(CommonTest):
         self.assert_form_invalid(self.Form, data=invalid_data)
 
         # cannot use individual code with null ufid
-        non_valid_indv = BioFactoryFloor.IndvFactory(ufid="")
+        invalid_data = self.data
+        non_valid_indv = BioFactoryFloor.IndvFactory(ufid=None)
         invalid_data['indv_id'] = non_valid_indv.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
@@ -260,11 +362,11 @@ class TestSpwndForm(CommonTest):
     def test_invalid_val(self):
         # cannot use values outside of spwndc min-max range
         invalid_data = self.data
-
         test_spwndc = BioFactoryFloor.SpwndcFactory(max_val=(invalid_data['det_val'] - 1))
         invalid_data['spwndc_id'] = test_spwndc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+        invalid_data = self.data
         test_spwndc = BioFactoryFloor.SpwndcFactory(min_val=(invalid_data['det_val'] + 1))
         invalid_data['spwndc_id'] = test_spwndc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -285,11 +387,11 @@ class TestTankdForm(CommonTest):
     def test_invalid_val(self):
         # cannot use values outside of contdc min-max range
         invalid_data = self.data
-
         test_contdc = BioFactoryFloor.ContdcFactory(max_val=(invalid_data['det_value'] - 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+        invalid_data = self.data
         test_contdc = BioFactoryFloor.ContdcFactory(min_val=(invalid_data['det_value'] + 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -330,11 +432,11 @@ class TestTraydForm(CommonTest):
     def test_invalid_val(self):
         # cannot use values outside of contdc min-max range
         invalid_data = self.data
-
         test_contdc = BioFactoryFloor.ContdcFactory(max_val=(invalid_data['det_value'] - 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+        invalid_data = self.data
         test_contdc = BioFactoryFloor.ContdcFactory(min_val=(invalid_data['det_value'] + 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
@@ -355,11 +457,11 @@ class TestTrofdForm(CommonTest):
     def test_invalid_val(self):
         # cannot use values outside of contdc min-max range
         invalid_data = self.data
-
         test_contdc = BioFactoryFloor.ContdcFactory(max_val=(invalid_data['det_value'] - 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)
 
+        invalid_data = self.data
         test_contdc = BioFactoryFloor.ContdcFactory(min_val=(invalid_data['det_value'] + 1))
         invalid_data['contdc_id'] = test_contdc.pk
         self.assert_form_invalid(self.Form, data=invalid_data)

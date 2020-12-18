@@ -209,6 +209,14 @@ class CountDet(BioDet):
     def __str__(self):
         return "{} - {}".format(self.cnt_id.__str__(), self.anidc_id.__str__())
 
+    def clean(self):
+        if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
+            raise ValidationError({
+                "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
+                                                                                                self.anidc_id.max_val,
+                                                                                                self.anidc_id.min_val))
+            })
+
 
 class Cup(BioLookup):
     # cup tag
@@ -454,6 +462,14 @@ class GroupDet(BioDet):
     def __str__(self):
         return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
 
+    def clean(self):
+        if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
+            raise ValidationError({
+                "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
+                                                                                                self.anidc_id.max_val,
+                                                                                                self.anidc_id.min_val))
+            })
+
 
 class HeathUnit(BioLookup):
     # Heat tag
@@ -561,7 +577,7 @@ class Individual(BioModel):
     # indv tag
 
     grp_id = models.ForeignKey('Group', on_delete=models.DO_NOTHING, null=True, blank=True,
-                               verbose_name=_("From Parent Group"), limit_choices_to={'perc_valid': True})
+                               verbose_name=_("From Parent Group"), limit_choices_to={'grp_valid': True})
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
     stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
     coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
@@ -598,6 +614,13 @@ class IndividualDet(BioDet):
     def __str__(self):
         return "{} - {}".format(self.anix_id.__str__(), self.anidc_id.__str__())
 
+    def clean(self):
+        if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
+            raise ValidationError({
+                "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
+                                                                                                self.anidc_id.max_val,
+                                                                                                self.anidc_id.min_val))
+            })
 
 class IndTreatCode(BioLookup):
     # indvtc tag
@@ -883,6 +906,14 @@ class SampleDet(BioDet):
 
     def __str__(self):
         return "{} - {}".format(self.samp_id.__str__(), self.anidc_id.__str__())
+
+    def clean(self):
+        if self.det_val > self.anidc_id.max_val or self.det_val < self.anidc_id.min_val:
+            raise ValidationError({
+                "det_val": ValidationError("Value {} exceeds limits. Max: {}, Min: {}".format(self.det_val,
+                                                                                                self.anidc_id.max_val,
+                                                                                                self.anidc_id.min_val))
+            })
 
 
 class Sire(BioModel):
