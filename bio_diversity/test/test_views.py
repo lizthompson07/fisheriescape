@@ -4,11 +4,8 @@ from faker import Faker
 from datetime import date
 
 from bio_diversity.test import BioFactoryFloor
-# from cruises.test.common_tests import CommonCruisesTest as CommonTest
 from shared_models.test.common_tests import CommonTest
 
-# from bio_diversity.models import Cruise
-# from shared_models.test.SharedModelsFactoryFloor import CruiseFactory
 from bio_diversity.views import CommonCreate, CommonDetails, CommonList, CommonUpdate
 from .. import views
 

@@ -9,8 +9,8 @@ from bio_diversity import models
 
 class CreatePrams:
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.fields['created_date'].widget = forms.HiddenInput()
         self.fields['created_by'].widget = forms.HiddenInput()
@@ -20,8 +20,8 @@ class CreatePrams:
 
 class CreateTimePrams:
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.fields['created_date'].widget = forms.HiddenInput()
         self.fields['created_by'].widget = forms.HiddenInput()

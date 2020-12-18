@@ -545,7 +545,7 @@ class Individual(BioModel):
     # indv tag
 
     grp_id = models.ForeignKey('Group', on_delete=models.DO_NOTHING, null=True, blank=True,
-                               verbose_name=_("From Parent Group"))
+                               verbose_name=_("From Parent Group"), limit_choices_to={'perc_valid': True})
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
     stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
     coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
