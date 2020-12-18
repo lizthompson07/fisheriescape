@@ -109,7 +109,10 @@ class DrawCreate(mixins.DrawMixin, CommonCreate):
 
 
 class EnvCreate(mixins.EnvMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        init = super().get_initial()
+        init["env_start"] = date.today
+        return init
 
 
 class EnvcCreate(mixins.EnvcMixin, CommonCreate):
