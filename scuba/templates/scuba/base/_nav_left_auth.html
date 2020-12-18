@@ -18,9 +18,12 @@
         {% trans "Settings" %}
       </a>
       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-{#        <a class="dropdown-item" href="{% url 'scuba:manage_funding_sources' %}">#}
-{#          {% trans "Manage Funding Sources" %}#}
-{#        </a>#}
+        <a class="dropdown-item" href="{% url 'scuba:region_list' %}">
+          {% trans "Regions" %}
+        </a>
+        <a class="dropdown-item" href="{% url 'scuba:manage_divers' %}">
+          {% trans "Divers" %}
+        </a>
       </div>
     </li>
 
