@@ -28,6 +28,7 @@ class Species(models.Model):
     def get_absolute_url(self):
         return reverse("vault:species_detail", kwargs={"pk": self.id})
 
+
 class Role(models.Model):
     name = models.CharField(max_length=255)
     nom = models.CharField(max_length=255, blank=True, null=True)
@@ -43,6 +44,7 @@ class Role(models.Model):
 
     class Meta:
         ordering = ['name', ]
+
 
 class Organisation(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("English name"))
@@ -60,11 +62,11 @@ class Organisation(models.Model):
             return "{}".format(self.name)
 
 
-
 class Person(models.Model):
     first_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("First name"))
     last_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Last name"))
-    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people", verbose_name=_("Organisation"), null=True, blank=True)
+    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="people",
+                                     verbose_name=_("Organisation"), null=True, blank=True)
     email = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Email address"))
     phone = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Phone number"))
     roles = models.ManyToManyField(Role, verbose_name=_("Roles"))
@@ -90,6 +92,7 @@ class MetadataField(models.Model):
 
     def __str__(self):
         return self.name
+
 
 # used for defining metadata field categories, when applicable
 class MetadataFieldCategory(models.Model):
@@ -138,10 +141,11 @@ class InstrumentType(models.Model):
 
 class Instrument(models.Model):
     instrument_type = models.ForeignKey(InstrumentType, on_delete=models.DO_NOTHING, related_name="instruments",
-                                                  verbose_name=_("Type of instrument"))
+                                        verbose_name=_("Type of instrument"))
     name = models.CharField(max_length=255, verbose_name=_("English name"))
     nom = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("French name"))
-    #metadata = models.ManyToManyField("MetadataField", through="InstrumentMetadatum",  verbose_name=_("Metadata"))
+
+    # metadata = models.ManyToManyField("MetadataField", through="InstrumentMetadatum",  verbose_name=_("Metadata"))
 
     def __str__(self):
         # check to see if a french value is given
@@ -154,6 +158,7 @@ class Instrument(models.Model):
 
     def get_absolute_url(self):
         return reverse("vault:instrument_detail", kwargs={"pk": self.id})
+
 
 class InstrumentMetadatum(models.Model):
     instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="instrument_metadata",
@@ -181,23 +186,27 @@ class ObservationPlatformType(models.Model):
 
 
 class ObservationPlatform(models.Model):
-    observation_platform_type = models.ForeignKey(ObservationPlatformType, on_delete=models.DO_NOTHING, related_name="platforms",
+    observation_platform_type = models.ForeignKey(ObservationPlatformType, on_delete=models.DO_NOTHING,
+                                                  related_name="platforms",
                                                   verbose_name=_("Type of observation platform"))
-    authority = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_authorities", verbose_name=_("authority"), null=True, blank=True)
-    owner = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_owners", verbose_name=_("owner"), null=True, blank=True)
+    authority = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_authorities",
+                                  verbose_name=_("authority"), null=True, blank=True)
+    owner = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name="platform_owners",
+                              verbose_name=_("owner"), null=True, blank=True)
     make_model = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Make and model"))
     name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Call name"))
     longname = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("Long name"))
+
     @property
     def foldername(self):
-        return  "{}_{}_{}".format(self.authority.abbrev_name, self.owner.abbrev_name, self.name)
-
+        return "{}_{}_{}".format(self.authority.abbrev_name, self.owner.abbrev_name, self.name)
 
     def __str__(self):
         return "{}".format(self.longname)
 
     def get_absolute_url(self):
-        return reverse("vault:observationplatform_detail", kwargs={"pk":self.id})
+        return reverse("vault:observationplatform_detail", kwargs={"pk": self.id})
+
 
 class Outing(models.Model):
     observation_platform = models.ForeignKey(ObservationPlatform, on_delete=models.DO_NOTHING, related_name="outings",
@@ -207,7 +216,8 @@ class Outing(models.Model):
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date (YYYY-MM-DD)"))
     start_time = models.TimeField(null=True, blank=True, verbose_name=_("Start time (format)"))
     end_time = models.TimeField(null=True, blank=True, verbose_name=_("End time (format)"))
-    duration = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, verbose_name=_("Duration (hours)"))
+    duration = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True,
+                                   verbose_name=_("Duration (hours)"))
     identifier_string = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("Identifier String"))
 
     def __str__(self):
@@ -216,13 +226,17 @@ class Outing(models.Model):
     def get_absolute_url(self):
         return reverse("vault:outing_detail", kwargs={"pk": self.id})
 
+
 class Observation(models.Model):
     outing = models.ForeignKey(Outing, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Outing"))
-    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Instrument"))
-    datetime = models.DateTimeField(null=True, blank=True, help_text="Format YYYY-MM-DD 00:00:00", verbose_name=_("Date and Time"))
+    instrument = models.ForeignKey(Instrument, on_delete=models.DO_NOTHING, related_name="sightings",
+                                   verbose_name=_("Instrument"))
+    datetime = models.DateTimeField(null=True, blank=True, help_text="Format YYYY-MM-DD 00:00:00",
+                                    verbose_name=_("Date and Time"))
     longitude = models.FloatField(null=True, blank=True, verbose_name=_("Longitude"))
     latitude = models.FloatField(null=True, blank=True, verbose_name=_("Latitude"))
-    observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings", verbose_name=_("Observer"), null=True, blank=True)
+    observer = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="sightings",
+                                 verbose_name=_("Observer"), null=True, blank=True)
     metadata = models.ManyToManyField(MetadataField, through="ObservationMetadatum")
     opportunistic = models.BooleanField(default=False)
 
@@ -232,16 +246,21 @@ class Observation(models.Model):
     def get_absolute_url(self):
         return reverse("vault:observation_detail", kwargs={"pk": self.id})
 
+
 class ObservationMetadatum(models.Model):
-    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_metadata", verbose_name=_("Observation"))
-    metadata_field = models.ForeignKey(MetadataField, on_delete=models.CASCADE, related_name="observation_metadata", verbose_name=_("Metadata field"))
+    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_metadata",
+                                    verbose_name=_("Observation"))
+    metadata_field = models.ForeignKey(MetadataField, on_delete=models.CASCADE, related_name="observation_metadata",
+                                       verbose_name=_("Metadata field"))
     value = models.CharField(max_length=1000)
 
 
 class Certainty(models.Model):
     code = models.IntegerField(blank=True, null=True, verbose_name=_("code"))
-    english_certainty_description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
-    french_certainty_description = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("description"))
+    english_certainty_description = models.CharField(max_length=250, blank=True, null=True,
+                                                     verbose_name=_("description"))
+    french_certainty_description = models.CharField(max_length=250, blank=True, null=True,
+                                                    verbose_name=_("description"))
 
 
 class Sex(models.Model):
@@ -294,6 +313,7 @@ class HealthStatus(models.Model):
     class Meta:
         ordering = ['name', ]
 
+
 class IndividualIdentification(models.Model):
     id_number = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
@@ -310,29 +330,39 @@ class IndividualIdentification(models.Model):
     class Meta:
         ordering = ['name', ]
 
+
 class ObservationSighting(models.Model):
-    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_sightings", verbose_name=_("observation"))
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
-    certainty = models.ForeignKey(Certainty, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
-    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
-    life_stage = models.ForeignKey(LifeStage, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True, blank=True)
+    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="observation_sightings",
+                                    verbose_name=_("observation"))
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True,
+                                blank=True)
+    certainty = models.ForeignKey(Certainty, on_delete=models.DO_NOTHING, related_name="observation_sightings",
+                                  null=True, blank=True)
+    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observation_sightings", null=True,
+                            blank=True)
+    life_stage = models.ForeignKey(LifeStage, on_delete=models.DO_NOTHING, related_name="observation_sightings",
+                                   null=True, blank=True)
     health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="observation_sightings",
                                       null=True, blank=True)
     verified = models.BooleanField(default=False, verbose_name=_("verified"))
-    known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_("known individual"))
+    known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING,
+                                         related_name="individual", verbose_name=_("known individual"))
 
 
 class OriginalMediafile(models.Model):
     file_path = models.CharField(max_length=1000, blank=True, null=True)
     filename = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("filename"))
-    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="original_mediafiles", verbose_name=_("observation"))
+    observation = models.ForeignKey(Observation, on_delete=models.DO_NOTHING, related_name="original_mediafiles",
+                                    verbose_name=_("observation"))
     metadata = models.ManyToManyField(MetadataField, through="OriginalMediafileMetadatum")
 
 
 class OriginalMediafileMetadatum(models.Model):
-    original_mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING, related_name="original_mediafile_metadata",
+    original_mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING,
+                                           related_name="original_mediafile_metadata",
                                            verbose_name=_("original media file"))
-    metadata_field = models.ForeignKey(MetadataField, on_delete=models.CASCADE, related_name="original_mediafile_metadata")
+    metadata_field = models.ForeignKey(MetadataField, on_delete=models.CASCADE,
+                                       related_name="original_mediafile_metadata")
     value = models.CharField(max_length=1000)
 
 
@@ -342,22 +372,29 @@ class FieldName(models.Model):
 
 
 class MediafileSighting(models.Model):
-    original_mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING, related_name="mediafile_sightings",
+    original_mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING,
+                                           related_name="mediafile_sightings",
                                            verbose_name=_("original media file"))
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
-    certainty = models.ForeignKey(Certainty, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True,
+                                blank=True)
+    certainty = models.ForeignKey(Certainty, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True,
+                                  blank=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
-    life_stage = models.ForeignKey(LifeStage, on_delete=models.DO_NOTHING, related_name="mediafile_sightings", null=True, blank=True)
+    life_stage = models.ForeignKey(LifeStage, on_delete=models.DO_NOTHING, related_name="mediafile_sightings",
+                                   null=True, blank=True)
     health_status = models.ForeignKey(HealthStatus, on_delete=models.DO_NOTHING, related_name="mediafile_sightings",
                                       null=True, blank=True)
     verified = models.BooleanField(default=False, verbose_name=_("verified"))
-   # known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_("known individual"))
+
+
+# known_individual = models.ForeignKey(IndividualIdentification, on_delete=models.DO_NOTHING, related_name="individual", verbose_name=_("known individual"))
 
 
 class ProcessedMediafile(models.Model):
     file_path = models.CharField(max_length=1000, blank=True, null=True)
     filename = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("filename"))
-    original_mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING, related_name="processed_mediafiles",
+    original_mediafile = models.ForeignKey(OriginalMediafile, on_delete=models.DO_NOTHING,
+                                           related_name="processed_mediafiles",
                                            verbose_name=_("original mediafile"))
     species = models.ManyToManyField(Species, verbose_name=_("species"), blank=True)
     verified = models.BooleanField(default=False, verbose_name=_("verified"))

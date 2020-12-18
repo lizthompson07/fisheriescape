@@ -1,7 +1,6 @@
-{% extends "vault/vault_base.html" %}
+{% extends "vault/base.html" %}
 {% load bootstrap4 %}
 {% load static %}
-{% block title %}vault db{% endblock title %}
 {% load i18n %}
 
 {% block content %}
@@ -11,6 +10,11 @@
         body{
             background-image: url({% static "/img/vault/whales.png" %});
             background-size: cover;
+        }
+
+        h1{
+            text-align: center;
+            color: #0824de;
         }
 
         .card {
@@ -64,13 +68,23 @@
         }
 
         .jumbotron {
+            background-color: rgba(255, 255, 255, 1);
             padding-top: 10px;
             padding-bottom: 10px;
         }
+
+        .container {
+            border-radius: 25px;
+            margin-top: 15px;
+            padding: 15px;
+            {#background-color: transparent;#}
+            font-size: small;
+        }
+
     </style>
 
     <div class="container">
-        <div class="jumbotron">
+        <div class="jumbotron my-auto">
             <h1>Marine Megafauna Media Vault</h1>
         </div>
     </div>
@@ -80,4 +94,182 @@
         <p style="font-size: small">Photo by guille pozzi on Unsplash</p>
     </div>
 
-{% endblock content %}
+
+ <div class="container">
+
+  <div class="jumbotron py-3 mx-0">
+
+    {# Warnings #}
+    <div class="mb-3">
+      {% autoescape off %}
+        {% bootstrap_messages size='small' %}
+      {% endautoescape %}
+    </div>
+
+    <div class="mb-3 text" style="font-size: 16px;">
+      <p>
+        {% blocktrans %}
+          Welcome to the Marine Mammal Vault. You can access your Task Dashboard below.
+        {% endblocktrans %}
+      </p>
+    </div>
+
+
+    {% url 'vault:species_list' as species_list %}
+    {% url 'vault:outing_list' as outing_list %}
+
+    {% url 'vault:manage_instrument_type' as manage_instrument_type %}
+    {% url 'vault:manage_instrument' as manage_instrument %}
+    {% url 'vault:manage_organisation' as manage_organisation %}
+    {% url 'vault:manage_platform_type' as manage_platform_type %}
+    {% url 'vault:manage_platform' as manage_platform %}
+    {% url 'vault:manage_role' as manage_role %}
+    {% url 'vault:manage_person' as manage_person %}
+
+
+    <div class="row mb-4 justify-content-center">
+
+
+      <div class="container mt-3">
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#user">{% trans "User" %}</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#admin">{% trans "Admin" %}</a>
+            </li>
+
+        </ul>
+
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+
+          {# User Pane #}
+          <div id="user" class="container tab-pane fade active show"><br>
+
+            <div class="btns mb-3 center-col">
+
+              <a href="{{ species_list }}" class="btn btn-lg btn-outline-primary mx-3">
+                {% trans "Test Action Button" %}
+              </a>
+
+              {% if test_url > 0 %}
+                <a href="{{ species_list }}"
+                   class="btn btn-lg btn-outline-primary  mx-3">
+                  {% trans "View Your Test" %}
+                  ({{ species_list }})
+                </a>
+              {% endif %}
+
+              <a href="{% url 'vault:species_list' %}"
+                 class="btn btn-lg btn-outline-primary mx-3">
+                {% trans "Browse Test" %}
+              </a>
+
+            </div>
+
+            <div class="mb-5 mt-5">
+              <hr>
+            </div>
+          </div>
+
+
+          {# Admin Pane #}
+
+          <div id="admin" class="container tab-pane fade"><br>
+
+
+            <div class="btns mb-3 center-col">
+                <a href="{{ manage_instrument_type }}" class="btn btn-lg btn-outline-primary mx-3">
+                    {% trans "Manage Instrument Type" %}
+                </a>
+
+                 <a href="{{ manage_instrument }}" class="btn btn-lg btn-outline-primary mx-3">
+                    {% trans "Manage Instrument" %}
+                </a>
+
+                <a href="{{ manage_organisation}}" class="btn btn-lg btn-outline-primary mx-3">
+                    {% trans "Manage Organisation" %}
+                </a>
+                <br>
+                <br>
+                <a href="{{ manage_platform_type }}" class="btn btn-lg btn-outline-primary mx-3">
+                    {% trans "Manage Platform Type" %}
+                </a>
+
+                <a href="{{ manage_platform }}" class="btn btn-lg btn-outline-primary mx-3">
+                    {% trans "Manage Platform" %}
+                </a>
+
+                <a href="{{ manage_role }}" class="btn btn-lg btn-outline-primary mx-3">
+                    {% trans "Manage Roles" %}
+                </a>
+                <br>
+                <br>
+                <a href="{{ manage_person }}" class="btn btn-lg btn-outline-primary mx-3">
+                    {% trans "Manage Person" %}
+                </a>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+ </div>
+
+<!--User Task Board-->
+
+{#<div class="container">#}
+{#    <div class="row">#}
+{##}
+{#        <div class="col-sm">#}
+{#        Test 1 - To do items#}
+{#        </div>#}
+{##}
+{#        <div class="col-sm">#}
+{#        Test 2 - latest items#}
+{#        </div>#}
+{##}
+{##}
+{#        <div class="col-sm">#}
+{#        Test 3 - assigned tasks#}
+{#        </div>#}
+{##}
+{#    </div>#}
+{#</div>#}
+
+<!--Card container-->
+
+<div class="container">
+
+<!--    Tables Card-->
+
+    <div class="row">
+        <div class="col-sm">
+            <div class="card border border-dark">
+                <div class="card-header">
+                    <h2>{% trans 'Tables' %}</h2>
+                </div>
+                <div class="card-img">
+                    <img class="mh-80" src="{% static 'img/vault/vault-icon.jpg' %}" alt="Card image" style="width: 80%; height: 120%">
+                </div>
+                <div class="card-body">
+                    <div class="btns">
+                        <a href="{% url 'vault:species_list' %}" class="btn my-btn btn btn-primary">Species List</a>
+                        <a href="{% url 'vault:outing_list' %}" class="btn my-btn btn btn-primary">Outing List</a>
+                    </div>
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

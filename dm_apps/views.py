@@ -343,7 +343,7 @@ def get_app_dict(request):
         app_dict["whalebrary"] = {
             "title": _("Whalebrary / Baleinothèque"),
             "description": _("Tools for Marine Mammal Teams and Necropsy Organization"),
-            "status": "dev",
+            "status": "beta",
             "access": "permission-required",
             "url": reverse('whalebrary:index'),
             "icon_path": 'img/icons/whalebrary.svg',

@@ -22,6 +22,24 @@ class DepDeployment(models.Model):
     def __str__(self):
         return "{}".format(self.dep_name)
 
+    @property
+    def has_deployment_event(self):
+        if SteStationEvent.objects.filter(dep=self.pk):
+            for ste in SteStationEvent.objects.filter(dep=self.pk):
+                if ste.set_type_id == 1:
+                    return True
+
+        return False
+
+    @property
+    def has_recovery_event(self):
+        if SteStationEvent.objects.filter(dep=self.pk):
+            for ste in SteStationEvent.objects.filter(dep=self.pk):
+                if ste.set_type_id == 2:
+                    return True
+
+        return False
+
 
 class EcaCalibrationEvent(models.Model):
     eca_date = models.DateField(verbose_name=_("Calibration Date"))
@@ -306,7 +324,7 @@ class StnStation(models.Model):
 
 
 class RciChannelInfo(models.Model):
-    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"),
+    rec_id = models.ForeignKey("RecDataset", on_delete=models.CASCADE, verbose_name=_("Dataset"),
                                related_name='channels')
     rci_name = models.CharField(max_length=30, blank=True, null=True, verbose_name=_("Name"))
     rci_size = models.IntegerField(blank=True, null=True, verbose_name=_("Size (GB)"))
@@ -337,7 +355,7 @@ class RecDataset(models.Model):
 
 
 class ReeRecordingEvent(models.Model):
-    rec_id = models.ForeignKey("RecDataset", on_delete=models.DO_NOTHING, verbose_name=_("Dataset"),
+    rec_id = models.ForeignKey("RecDataset", on_delete=models.CASCADE, verbose_name=_("Dataset"),
                                related_name='events')
     ret_id = models.ForeignKey("RetRecordingEventType", on_delete=models.DO_NOTHING, verbose_name=_("Event Type"))
     rtt_id = models.ForeignKey("RttTimezoneCode", on_delete=models.DO_NOTHING, verbose_name=_("Timezone"))
