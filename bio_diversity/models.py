@@ -599,7 +599,7 @@ class Individual(BioModel):
     # ufid = unique FISH id
     ufid = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("ABL Fish UFID"))
     pit_tag = models.CharField(max_length=50, unique=True, blank=True, null=True, verbose_name=_("PIT tag ID"))
-    indv_valid = models.BooleanField(default="False", verbose_name=_("Entry still valid?"))
+    indv_valid = models.BooleanField(default="True", verbose_name=_("Entry still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):

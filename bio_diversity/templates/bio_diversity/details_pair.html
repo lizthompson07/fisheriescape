@@ -34,7 +34,11 @@
         </div>
         {% if object.sire.count > 0 %}
             <div class="card border border-dark my-1">
-                <h5 class="card-header">{% trans "Sires in this pairing" %}</h5>
+                <h5 class="card-header">{% trans "Sires in this pairing" %}
+                    <span class="px-1">
+                        <a class="btn btn-primary" href="#" onclick="return pop('{% url 'bio_diversity:create_sire' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Sire' %}</a>
+                    </span>
+                </h5>
                 <table class="table table-sm sortable table-hover">
                     <thead>
                         {% for field in sire_field_list %}

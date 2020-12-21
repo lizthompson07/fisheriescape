@@ -300,6 +300,7 @@ urlpatterns = [
     path('update/sampd/<int:pk>/', views.SampdUpdate.as_view(), name="update_sampd"),
 
     path('create/sire/', views.SireCreate.as_view(), name="create_sire"),
+    path('create/sire/<int:pair>/<str:pop>/', views.SireCreate.as_view(), name="create_sire"),
     path('details/sire/<int:pk>/', views.SireDetails.as_view(), name="details_sire"),
     path('list/sire/', views.SireList.as_view(), name="list_sire"),
     path('update/sire/<int:pk>/', views.SireUpdate.as_view(), name="update_sire"),

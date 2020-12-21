@@ -298,7 +298,11 @@ class SampdCreate(mixins.SampdMixin, CommonCreate):
 
 
 class SireCreate(mixins.SireMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'pair' in self.kwargs:
+            initial['pair_id'] = self.kwargs['pair']
+        return initial
 
 
 class SpwnCreate(mixins.SpwnMixin, CommonCreate):
