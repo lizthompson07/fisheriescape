@@ -38,7 +38,9 @@ test_password = "test1234"
 #     driver.add_cookie(cookie)
 #     driver.refresh()
 
+
 class CommonFunctionalTest(CommonTest, StaticLiveServerTestCase):
+
     def setUp(self):
 
         super().setUp()  # used to import fixtures
@@ -52,6 +54,7 @@ class CommonFunctionalTest(CommonTest, StaticLiveServerTestCase):
         user.groups.add(bio_group)
         user.first_name = user_data["first_name"]
         user.last_name = user_data["last_name"]
+        user.set_password(test_password)
         user.save()
         # force_login(user, self.browser, self.live_server_url)
         # self.browser.get('%s%s' % (self.live_server_url, '/en/accounts/login/'))

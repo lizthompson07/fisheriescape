@@ -93,7 +93,7 @@ class AniDetSubjCode(BioLookup):
 
 class AniDetailXref(BioModel):
     # anix tag
-    evnt_id = models.ForeignKey("Event", on_delete=models.DO_NOTHING, verbose_name=_("Event"))
+    evnt_id = models.ForeignKey("Event", on_delete=models.DO_NOTHING, verbose_name=_("Event"), related_name="animal_details")
     contx_id = models.ForeignKey("ContainerXRef", on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Container Cross Reference"))
     loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, null=True, blank=True,
@@ -146,7 +146,7 @@ class ContDetSubjCode(BioLookup):
 
 class ContainerXRef(BioModel):
     # contx tag
-    evnt_id = models.ForeignKey("Event", on_delete=models.DO_NOTHING, verbose_name=_("Event"))
+    evnt_id = models.ForeignKey("Event", on_delete=models.DO_NOTHING, verbose_name=_("Event"), related_name="containers")
     tank_id = models.ForeignKey("Tank", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Tank"))
     trof_id = models.ForeignKey("Trough", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Trough"))
     tray_id = models.ForeignKey("Tray", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Tray"))
@@ -696,7 +696,7 @@ class InstDetCode(BioLookup):
 
 class Location(BioModel):
     # Loc tag
-    evnt_id = models.ForeignKey('Event', on_delete=models.DO_NOTHING, verbose_name=_("Event"))
+    evnt_id = models.ForeignKey('Event', on_delete=models.DO_NOTHING, verbose_name=_("Event"), related_name="location")
     locc_id = models.ForeignKey('LocCode', on_delete=models.DO_NOTHING, verbose_name=_("Location Code"))
     rive_id = models.ForeignKey('RiverCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("River"))

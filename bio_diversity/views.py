@@ -61,7 +61,11 @@ class AnidcCreate(mixins.AnidcMixin, CommonCreate):
 
 
 class AnixCreate(mixins.AnixMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'evnt' in self.kwargs:
+            initial['evnt_id'] = self.kwargs['evnt']
+        return initial
 
 
 class AdscCreate(mixins.AdscMixin, CommonCreate):
@@ -89,7 +93,11 @@ class ContdcCreate(mixins.ContdcMixin, CommonCreate):
 
 
 class ContxCreate(mixins.ContxMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'evnt' in self.kwargs:
+            initial['evnt_id'] = self.kwargs['evnt']
+        return initial
 
 
 class CdscCreate(mixins.CdscMixin, CommonCreate):
@@ -226,7 +234,11 @@ class InstdcCreate(mixins.InstdcMixin, CommonCreate):
 
 
 class LocCreate(mixins.LocMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'evnt' in self.kwargs:
+            initial['evnt_id'] = self.kwargs['evnt']
+        return initial
 
 
 class LoccCreate(mixins.LoccMixin, CommonCreate):
@@ -503,9 +515,33 @@ class EnvtcDetails(mixins.EnvtcMixin, CommonDetails):
 
 
 class EvntDetails(mixins.EvntMixin, CommonDetails):
+    template_name = "bio_diversity/details_evnt.html"
     fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "evnt_start", "evnt_end",
               "comments", "created_by", "created_date", ]
 
+    def get_context_data(self, **kwargs):
+        # use this to pass sire fields/sample object to template
+        context = super().get_context_data(**kwargs)
+        context["location_object"] = models.Location.objects.first()
+        context["location_field_list"] = [
+            "locc_id",
+            "rive_id",
+            "subr_id",
+        ]
+        context["contx_object"] = models.ContainerXRef.objects.first()
+        context["contx_field_list"] = [
+            "tank_id",
+            "tray_id",
+            "cup_id",
+        ]
+        context["anix_object"] = models.AniDetailXref.objects.first()
+        context["anix_field_list"] = [
+            "indv_id",
+            "grp_id",
+        ]
+
+
+        return context
 
 class EvntcDetails(mixins.EvntcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]
