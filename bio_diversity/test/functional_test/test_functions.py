@@ -23,7 +23,7 @@ class CommonFunctionalTest(StaticLiveServerTestCase):
         # need to download the webdriver and stick it in the path/point to it here:
         # can be downloaded from: https://chromedriver.chromium.org/downloads
         self.browser = webdriver.Chrome('bio_diversity/test/functional_test/chromedriver.exe')
-        #self.browser.maximize_window()
+        self.browser.maximize_window()
         self.browser.implicitly_wait(3)
         # generate a user
         user_data = UserFactory.get_valid_data()
@@ -46,6 +46,14 @@ class CommonFunctionalTest(StaticLiveServerTestCase):
         # self.browser.quit()  # causes connection was forcibly closed errors due to chrome being out of date
         super().tearDown()
 
+
+def scroll_n_click(driver, element):
+    # scroll to bring element to bottom of screen, then scroll up once to move element off of banners
+    driver.execute_script("arguments[0].scrollIntoView(false);", element)
+    driver.execute_script("window.scrollBy(0,50)");
+    element.click()
+
+
 @tag("Functional", "Basic")
 class TestHomePageTitle(CommonFunctionalTest):
 
@@ -54,8 +62,7 @@ class TestHomePageTitle(CommonFunctionalTest):
         assert 'DM Apps' in self.browser.title
         self.browser.implicitly_wait(3)
         biod_btn = self.browser.find_element_by_xpath("//h4[contains(text(), 'Biodiversity')]")
-        self.actions.move_to_element(biod_btn).perform()
-        biod_btn.click()
+        scroll_n_click(self.browser, biod_btn)
         assert 'Biodiversity' in self.browser.title
 
 
@@ -68,8 +75,8 @@ class TestSimpleLookup(CommonFunctionalTest):
 
         # user clicks on a common lookup, ends up a list view
         instc_btn = self.browser.find_element_by_xpath("//a[@class='btn btn-secondary btn-lg' and contains(text(), 'Instrument Code')]")
-        self.actions.move_to_element(instc_btn).perform()
-        instc_btn.click()
+        scroll_n_click(self.browser, instc_btn)
+
         self.browser.implicitly_wait(3)
         assert 'Instrument Code' in self.browser.title
 
@@ -82,9 +89,8 @@ class TestSimpleLookup(CommonFunctionalTest):
         description_field.send_keys(instc["description_en"])
 
         submit_btn = self.browser.find_element_by_xpath("//button[@class='btn btn-success']")
-        self.browser.execute_script("arguments[0].scrollIntoView();", submit_btn)
-        self.browser.implicitly_wait(2)
-        submit_btn.click()
+        scroll_n_click(self.browser, submit_btn)
+
         sleep(3)
 
 
