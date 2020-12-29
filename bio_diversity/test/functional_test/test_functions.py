@@ -48,7 +48,7 @@ class CommonFunctionalTest(StaticLiveServerTestCase):
 
 
 def scroll_n_click(driver, element):
-    # scroll to bring element to bottom of screen, then scroll up once to move element off of banners
+    # scroll to bring element to bottom of screen, then scroll up once to move element off of banners and click on it
     driver.execute_script("arguments[0].scrollIntoView(false);", element)
     driver.execute_script("window.scrollBy(0,50)");
     element.click()
@@ -66,47 +66,47 @@ class TestHomePageTitle(CommonFunctionalTest):
 
 
 @tag("Functional", "Instc")
-class TestSimpleLookup(CommonFunctionalTest):
+class InstcTestSimpleLookup(CommonFunctionalTest):
 
-    def test_navigate_through_views(self):
+    lookup_verbose = 'Instrument Code'
+    lookup_data = BioFactoryFloor.InstcFactory.build_valid_data()
+
+    def test_full_interaction(self):
         # user starts on app homepage:
         self.browser.get("{}{}".format(self.live_server_url, "/en/bio_diversity/"))
 
         # user clicks on a common lookup, ends up a list view
-        instc_btn = self.browser.find_element_by_xpath("//a[@class='btn btn-secondary btn-lg' and contains(text(), 'Instrument Code')]")
-        scroll_n_click(self.browser, instc_btn)
-
-        self.assertIn('Instrument Code', self.browser.title, "not on correct page")
+        lookup_btn = self.browser.find_element_by_xpath("//a[@class='btn btn-secondary btn-lg' and contains(text(), "
+                                                        "'{}')]".format(self.lookup_verbose))
+        scroll_n_click(self.browser, lookup_btn)
+        self.assertIn(self.lookup_verbose, self.browser.title, "not on correct page")
 
         # user creates a new instance of the lookup
         self.browser.find_element_by_xpath("//a[@class='btn btn-primary' and contains(text(), '+')]").click()
-        instc = BioFactoryFloor.InstcFactory.build_valid_data()
         name_field = self.browser.find_element_by_xpath("//input[@name='name']")
         description_field = self.browser.find_element_by_xpath("//textarea[@name='description_en']")
-        name_field.send_keys(instc["name"])
-        description_field.send_keys(instc["description_en"])
+        name_field.send_keys(self.lookup_data["name"])
+        description_field.send_keys(self.lookup_data["description_en"])
         submit_btn = self.browser.find_element_by_xpath("//button[@class='btn btn-success']")
         scroll_n_click(self.browser, submit_btn)
+
         # user checks to make sure that the instance is created
         details_table = self.browser.find_element_by_xpath("//table[@id='details_table']/tbody")
-        rows = details_table.find_elements_by_tag_name("tr")  # get all of the rows in the table
+        rows = details_table.find_elements_by_tag_name("tr")
         new_object_row = False
         for row in rows:
-            # Get the columns (all the column 2)
-            name_cell = row.find_elements_by_tag_name("td")[0]  # note: index start from 0, 1 is col 2
-            if name_cell.text == instc["name"]:
+            name_cell = row.find_elements_by_tag_name("td")[0]
+            if name_cell.text == self.lookup_data["name"]:
                 new_object_row = row
         self.assertTrue(new_object_row, "New object not displayed")
 
         # user looks at details of newly created object:
-
         new_object_row.find_element_by_xpath("//a[@class='btn btn-primary btn-sm my-1' and contains(text(), "
                                              "'Details')]").click()
-
         description_detail_element = self.browser.find_element_by_xpath("//span[@class='font-weight-bold'and "
                                                                         "contains(text(), 'Description (en) : ')]"
                                                                         "/following-sibling::span")
-        self.assertEqual(description_detail_element.text, instc["description_en"].replace("\n", " "),
+        self.assertEqual(description_detail_element.text, self.lookup_data["description_en"].replace("\n", " "),
                          "Description does not match input")
 
         # user updates the instances details and goes on their way
@@ -124,7 +124,7 @@ class TestSimpleLookup(CommonFunctionalTest):
         for row in rows:
             # Get the columns (all the column 2)
             name_cell = row.find_elements_by_tag_name("td")[0]  # note: index start from 0, 1 is col 2
-            if name_cell.text == instc["name"]:
+            if name_cell.text == self.lookup_data["name"]:
                 old_object_row = row
             if name_cell.text == "updated name":
                 new_object_row = row
@@ -132,6 +132,68 @@ class TestSimpleLookup(CommonFunctionalTest):
         self.assertFalse(old_object_row, "old object still in details list")
 
 
-        self.browser.get('%s%s' % (self.live_server_url, '/en/bio_diversity/create/instc/'))
-        self.assertIn('Instrument Code', self.browser.title)
+@tag("Functional", "Instdc")
+class InstdcTestSimpleLookup(CommonFunctionalTest):
 
+    lookup_verbose = 'Instrument Detail Code'
+    lookup_data = BioFactoryFloor.InstdcFactory.build_valid_data()
+
+    def test_full_interaction(self):
+        # user starts on app homepage:
+        self.browser.get("{}{}".format(self.live_server_url, "/en/bio_diversity/"))
+
+        # user clicks on a common lookup, ends up a list view
+        lookup_btn = self.browser.find_element_by_xpath("//a[@class='btn btn-secondary btn-lg' and contains(text(), "
+                                                        "'{}')]".format(self.lookup_verbose))
+        scroll_n_click(self.browser, lookup_btn)
+        self.assertIn(self.lookup_verbose, self.browser.title, "not on correct page")
+
+        # user creates a new instance of the lookup
+        self.browser.find_element_by_xpath("//a[@class='btn btn-primary' and contains(text(), '+')]").click()
+        name_field = self.browser.find_element_by_xpath("//input[@name='name']")
+        description_field = self.browser.find_element_by_xpath("//textarea[@name='description_en']")
+        name_field.send_keys(self.lookup_data["name"])
+        description_field.send_keys(self.lookup_data["description_en"])
+        submit_btn = self.browser.find_element_by_xpath("//button[@class='btn btn-success']")
+        scroll_n_click(self.browser, submit_btn)
+
+        # user checks to make sure that the instance is created
+        details_table = self.browser.find_element_by_xpath("//table[@id='details_table']/tbody")
+        rows = details_table.find_elements_by_tag_name("tr")
+        new_object_row = False
+        for row in rows:
+            name_cell = row.find_elements_by_tag_name("td")[0]
+            if name_cell.text == self.lookup_data["name"]:
+                new_object_row = row
+        self.assertTrue(new_object_row, "New object not displayed")
+
+        # user looks at details of newly created object:
+        new_object_row.find_element_by_xpath("//a[@class='btn btn-primary btn-sm my-1' and contains(text(), "
+                                             "'Details')]").click()
+        description_detail_element = self.browser.find_element_by_xpath("//span[@class='font-weight-bold'and "
+                                                                        "contains(text(), 'Description (en) : ')]"
+                                                                        "/following-sibling::span")
+        self.assertEqual(description_detail_element.text, self.lookup_data["description_en"].replace("\n", " "),
+                         "Description does not match input")
+
+        # user updates the instances details and goes on their way
+        self.browser.find_element_by_xpath("//a[@class='btn btn-primary' and@title='Update']").click()
+        name_field = self.browser.find_element_by_xpath("//input[@name='name']")
+        name_field.clear()
+        name_field.send_keys("updated name")
+        submit_btn = self.browser.find_element_by_xpath("//button[@class='btn btn-success']")
+        scroll_n_click(self.browser, submit_btn)
+
+        details_table = self.browser.find_element_by_xpath("//table[@id='details_table']/tbody")
+        rows = details_table.find_elements_by_tag_name("tr")  # get all of the rows in the table
+        new_object_row = False
+        old_object_row = False
+        for row in rows:
+            # Get the columns (all the column 2)
+            name_cell = row.find_elements_by_tag_name("td")[0]  # note: index start from 0, 1 is col 2
+            if name_cell.text == self.lookup_data["name"]:
+                old_object_row = row
+            if name_cell.text == "updated name":
+                new_object_row = row
+        self.assertTrue(new_object_row, "updated object not in details list")
+        self.assertFalse(old_object_row, "old object still in details list")
