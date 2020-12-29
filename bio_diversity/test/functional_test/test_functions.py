@@ -24,10 +24,10 @@ class CommonFunctionalTest(StaticLiveServerTestCase):
         # can be downloaded from: https://chromedriver.chromium.org/downloads
         self.browser = webdriver.Chrome('bio_diversity/test/functional_test/chromedriver.exe')
         self.browser.maximize_window()
-        self.browser.implicitly_wait(3)
         # generate a user
         user_data = UserFactory.get_valid_data()
-        user = User.objects.create_superuser(username=user_data['username'], email=user_data['email1'], password=UserFactory.get_test_password())
+        user = User.objects.create_superuser(username=user_data['username'], email=user_data['email1'],
+                                             password=UserFactory.get_test_password())
         bio_group = GroupFactory(name='bio_diversity_admin')
         user.groups.add(bio_group)
         user.first_name = user_data["first_name"]
@@ -59,11 +59,10 @@ class TestHomePageTitle(CommonFunctionalTest):
 
     def test_home_page_title(self):
         self.browser.get(self.live_server_url)
-        assert 'DM Apps' in self.browser.title
-        self.browser.implicitly_wait(3)
+        self.assertIn('DM Apps', self.browser.title, "not on correct page")
         biod_btn = self.browser.find_element_by_xpath("//h4[contains(text(), 'Biodiversity')]")
         scroll_n_click(self.browser, biod_btn)
-        assert 'Biodiversity' in self.browser.title
+        self.assertIn('Biodiversity', self.browser.title, "not on correct page")
 
 
 @tag("Functional", "Instc")
@@ -77,8 +76,7 @@ class TestSimpleLookup(CommonFunctionalTest):
         instc_btn = self.browser.find_element_by_xpath("//a[@class='btn btn-secondary btn-lg' and contains(text(), 'Instrument Code')]")
         scroll_n_click(self.browser, instc_btn)
 
-        self.browser.implicitly_wait(3)
-        assert 'Instrument Code' in self.browser.title
+        self.assertIn('Instrument Code', self.browser.title, "not on correct page")
 
         # user creates a new instance of the lookup
         self.browser.find_element_by_xpath("//a[@class='btn btn-primary' and contains(text(), '+')]").click()
@@ -87,18 +85,53 @@ class TestSimpleLookup(CommonFunctionalTest):
         description_field = self.browser.find_element_by_xpath("//textarea[@name='description_en']")
         name_field.send_keys(instc["name"])
         description_field.send_keys(instc["description_en"])
+        submit_btn = self.browser.find_element_by_xpath("//button[@class='btn btn-success']")
+        scroll_n_click(self.browser, submit_btn)
+        # user checks to make sure that the instance is created
+        details_table = self.browser.find_element_by_xpath("//table[@id='details_table']/tbody")
+        rows = details_table.find_elements_by_tag_name("tr")  # get all of the rows in the table
+        new_object_row = False
+        for row in rows:
+            # Get the columns (all the column 2)
+            name_cell = row.find_elements_by_tag_name("td")[0]  # note: index start from 0, 1 is col 2
+            if name_cell.text == instc["name"]:
+                new_object_row = row
+        self.assertTrue(new_object_row, "New object not displayed")
 
+        # user looks at details of newly created object:
+
+        new_object_row.find_element_by_xpath("//a[@class='btn btn-primary btn-sm my-1' and contains(text(), "
+                                             "'Details')]").click()
+
+        description_detail_element = self.browser.find_element_by_xpath("//span[@class='font-weight-bold'and "
+                                                                        "contains(text(), 'Description (en) : ')]"
+                                                                        "/following-sibling::span")
+        self.assertEqual(description_detail_element.text, instc["description_en"].replace("\n", " "),
+                         "Description does not match input")
+
+        # user updates the instances details and goes on their way
+        self.browser.find_element_by_xpath("//a[@class='btn btn-primary' and@title='Update']").click()
+        name_field = self.browser.find_element_by_xpath("//input[@name='name']")
+        name_field.clear()
+        name_field.send_keys("updated name")
         submit_btn = self.browser.find_element_by_xpath("//button[@class='btn btn-success']")
         scroll_n_click(self.browser, submit_btn)
 
-        sleep(3)
-
-
-        # user checks to make sure that the instance is created and looks at its details
-
-        # user updates the instances details and goes on their way
+        details_table = self.browser.find_element_by_xpath("//table[@id='details_table']/tbody")
+        rows = details_table.find_elements_by_tag_name("tr")  # get all of the rows in the table
+        new_object_row = False
+        old_object_row = False
+        for row in rows:
+            # Get the columns (all the column 2)
+            name_cell = row.find_elements_by_tag_name("td")[0]  # note: index start from 0, 1 is col 2
+            if name_cell.text == instc["name"]:
+                old_object_row = row
+            if name_cell.text == "updated name":
+                new_object_row = row
+        self.assertTrue(new_object_row, "updated object not in details list")
+        self.assertFalse(old_object_row, "old object still in details list")
 
 
         self.browser.get('%s%s' % (self.live_server_url, '/en/bio_diversity/create/instc/'))
-        assert 'Instrument Code' in self.browser.title
+        self.assertIn('Instrument Code', self.browser.title)
 
