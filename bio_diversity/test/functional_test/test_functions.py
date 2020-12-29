@@ -6,6 +6,8 @@ from selenium import webdriver
 
 from django.test import tag
 from selenium.webdriver import ActionChains
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.select import Select
 
 from bio_diversity.test import BioFactoryFloor
 # from ..test.common_tests import CommonProjectTest as CommonTest
@@ -54,6 +56,30 @@ def scroll_n_click(driver, element):
     element.click()
 
 
+def pick_date(driver, date_element, datetime_input):
+    date_element.click()
+    input_year = datetime_input.year
+    input_month = datetime_input.month
+    input_day = datetime_input.day
+    sleep(1)
+    calender_element = driver.find_element_by_xpath("//div[@class='flatpickr-calendar hasTime animate open arrowBottom arrowLeft']")
+    sleep(1)
+    calender_element.find_element_by_xpath("//div[@aria-label='Year']").send_keys(str(input_year))
+    sleep(1)
+    month_dropdown = calender_element.find_element_by_xpath("//div[@aria-label='Month']")
+    sleep(1)
+    select = Select(month_dropdown)
+    select.select_by_value(str(input_month))
+
+    calender_element.find_element_by_xpath("//span[@ class='flatpickr-day ' and contains(text(), '{}}')]".format(str(input_day))).click()
+    sleep(1)
+    hour_element = calender_element.find_element_by_xpath("//input[@aria-label='Hour']")
+    sleep(1)
+    hour_element.send_keys("12")
+    sleep(1)
+    hour_element.send_keys(Keys.ENTER)
+
+
 @tag("Functional", "Basic")
 class TestHomePageTitle(CommonFunctionalTest):
 
@@ -65,11 +91,58 @@ class TestHomePageTitle(CommonFunctionalTest):
         self.assertIn('Biodiversity', self.browser.title, "not on correct page")
 
 
+
+@tag("Functional", "Evnt")
+class TestEvntFunctional(CommonFunctionalTest):
+    # put factories in here and not just in class to make factory boy use selenium database.
+    def setUp(self):
+        super().setUp()
+        self.object_verbose = 'Event'
+        self.object_data = BioFactoryFloor.EvntFactory.build_valid_data()
+
+    def test_create_interaction(self):
+        # user starts on app homepage:
+        self.browser.get("{}{}".format(self.live_server_url, "/en/bio_diversity/"))
+
+        # user clicks on a common lookup, ends up a list view
+        lookup_btn = self.browser.find_element_by_xpath("//a[@class='btn btn-secondary btn-lg' and contains(text(), "
+                                                        "'{}')]".format(self.object_verbose))
+        scroll_n_click(self.browser, lookup_btn)
+        self.assertIn(self.object_verbose, self.browser.title, "not on correct page")
+
+        # user creates a new instance of the lookup
+        self.browser.find_element_by_xpath("//a[@class='btn btn-primary' and contains(text(), '+')]").click()
+
+        for field_key in self.object_data.keys():
+            form_field = self.browser.find_element_by_xpath("//*[@name='{}']".format(field_key))
+            if field_key[-3:] == "_id":
+                select = Select(form_field)
+                select.select_by_value(str(self.object_data[field_key]))
+            elif field_key not in ["evnt_start", "evnt_end", "created_by", "created_date"]:
+                form_field.send_keys(self.object_data[field_key])
+            elif field_key == "evnt_end":
+                pick_date(self.browser, form_field, self.object_data[field_key])
+        submit_btn = self.browser.find_element_by_xpath("//button[@class='btn btn-success']")
+        scroll_n_click(self.browser, submit_btn)
+
+        # user checks to make sure that the instance is created
+        details_table = self.browser.find_element_by_xpath("//table[@id='details_table']/tbody")
+        rows = details_table.find_elements_by_tag_name("tr")
+        new_object_row = False
+        for row in rows:
+            name_cell = row.find_elements_by_tag_name("td")[0]
+            if name_cell.text == self.object_data["name"]:
+                new_object_row = row
+        self.assertTrue(new_object_row, "New object not displayed")
+
+
 @tag("Functional", "Instc")
 class InstcTestSimpleLookup(CommonFunctionalTest):
 
-    lookup_verbose = 'Instrument Code'
-    lookup_data = BioFactoryFloor.InstcFactory.build_valid_data()
+    def setUp(self):
+        super().setUp()
+        self.lookup_verbose = 'Instrument Code'
+        self.lookup_data = BioFactoryFloor.InstcFactory.build_valid_data()
 
     def test_full_interaction(self):
         # user starts on app homepage:
@@ -135,8 +208,10 @@ class InstcTestSimpleLookup(CommonFunctionalTest):
 @tag("Functional", "Instdc")
 class InstdcTestSimpleLookup(CommonFunctionalTest):
 
-    lookup_verbose = 'Instrument Detail Code'
-    lookup_data = BioFactoryFloor.InstdcFactory.build_valid_data()
+    def setUp(self):
+        super().setUp()
+        self.lookup_verbose = 'Instrument Detail Code'
+        self.lookup_data = BioFactoryFloor.InstdcFactory.build_valid_data()
 
     def test_full_interaction(self):
         # user starts on app homepage:

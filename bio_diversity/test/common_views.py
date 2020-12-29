@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.urls import reverse_lazy, resolve
 from django.utils.translation import activate
 from django.contrib.auth.models import User, Group
