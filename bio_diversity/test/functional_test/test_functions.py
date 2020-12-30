@@ -6,7 +6,7 @@ from selenium import webdriver
 from django.test import tag
 from selenium.webdriver.support.select import Select
 
-from bio_diversity.models import EventCode, Event, LocCode
+from bio_diversity.models import EventCode, Event, LocCode, Individual, Tank
 from bio_diversity.test import BioFactoryFloor
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 from django.contrib.auth.models import User
@@ -76,6 +76,21 @@ def fill_n_submit_form(browser, data, exclude=[]):
     scroll_n_click(browser, submit_btn)
 
 
+def open_n_fill_popup(self, button, data, parent_code):
+    # self should be a common functional test class
+    # button should be a clickable element that opens a pop up create form
+    button.click()
+    self.browser.switch_to.window(self.browser.window_handles[1])
+    # make sure pre fill field is filled:
+    form_field = self.browser.find_element_by_xpath("//*[@name='{}_id']".format(parent_code))
+    selected_element = form_field.find_element_by_xpath("//*[@selected]")
+    self.assertIn(self.evnt_data.__str__(), selected_element.text)
+
+    fill_n_submit_form(self.browser, data, ["evnt_id"])
+    self.browser.switch_to.window(self.browser.window_handles[0])
+    self.browser.refresh()
+
+
 @tag("Functional", "Basic")
 class TestHomePageTitle(CommonFunctionalTest):
 
@@ -133,25 +148,38 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         # user adds a location to the event
         location_data = BioFactoryFloor.LocFactory.build_valid_data()
         location_details = self.browser.find_element_by_xpath('//div[@name="evnt-location-details"]')
-        location_details.find_element_by_xpath('//a[@name="add-location-btn"]').click()
-        self.browser.switch_to.window(self.browser.window_handles[1])
-        # make sure pre fill field is filled:
-        evnt_form_field = self.browser.find_element_by_xpath("//*[@name='{}']".format("evnt_id"))
-        selected_element = evnt_form_field.find_element_by_xpath("//*[@selected]")
-        self.assertIn(self.evnt_data.__str__(), selected_element.text)
+        location_btn = location_details.find_element_by_xpath('//a[@name="add-location-btn"]')
 
-        fill_n_submit_form(self.browser, location_data, ["evnt_id"])
-        self.browser.switch_to.window(self.browser.window_handles[0])
-        self.browser.refresh()
-        location_details = self.browser.find_element_by_xpath('//div[@name="evnt-location-details"]')
-        details_table = location_details.find_element_by_xpath("//table/tbody")
+        open_n_fill_popup(self, location_btn, location_data, "evnt")
+        details_table = self.browser.find_element_by_xpath("//div[@name='evnt-location-details']//table/tbody")
         locc_used = LocCode.objects.filter(pk=location_data["locc_id"]).get().__str__()
         rows = details_table.find_elements_by_tag_name("tr")
+
         self.assertIn(locc_used, [get_col_val(row, 0) for row in rows])
+
         # user adds an animal cross reference to the event
+        anix_data = BioFactoryFloor.AnixFactory.build_valid_data()
+        anix_details = self.browser.find_element_by_xpath('//div[@name="evnt-anix-details"]')
+        anix_btn = anix_details.find_element_by_xpath('//a[@name="add-anix-btn"]')
+
+        open_n_fill_popup(self, anix_btn, anix_data, "evnt")
+        details_table = self.browser.find_element_by_xpath("//div[@name='evnt-anix-details']//table/tbody")
+        indv_used = Individual.objects.filter(pk=anix_data["indv_id"]).get().__str__()
+        rows = details_table.find_elements_by_tag_name("tr")
+
+        self.assertIn(indv_used, [get_col_val(row, 0) for row in rows])
 
         # user add a container cross reference to the event
+        contx_data = BioFactoryFloor.ContxFactory.build_valid_data()
+        contx_details = self.browser.find_element_by_xpath('//div[@name="evnt-contx-details"]')
+        contx_btn = contx_details.find_element_by_xpath('//a[@name="add-contx-btn"]')
 
+        open_n_fill_popup(self, contx_btn, contx_data, "evnt")
+        details_table = self.browser.find_element_by_xpath("//div[@name='evnt-contx-details']//table/tbody")
+        tank_used = Tank.objects.filter(pk=contx_data["tank_id"]).get().__str__()
+        rows = details_table.find_elements_by_tag_name("tr")
+
+        self.assertIn(tank_used, [get_col_val(row, 0) for row in rows])
 
 @tag("Functional", "Instc")
 class InstcTestSimpleLookup(CommonFunctionalTest):
