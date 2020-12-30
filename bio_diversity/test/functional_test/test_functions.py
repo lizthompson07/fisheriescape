@@ -9,6 +9,7 @@ from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.select import Select
 
+from bio_diversity.models import EventCode
 from bio_diversity.test import BioFactoryFloor
 # from ..test.common_tests import CommonProjectTest as CommonTest
 from django.conf import settings
@@ -56,30 +57,6 @@ def scroll_n_click(driver, element):
     element.click()
 
 
-def pick_date(driver, date_element, datetime_input):
-    date_element.click()
-    input_year = datetime_input.year
-    input_month = datetime_input.month
-    input_day = datetime_input.day
-    sleep(1)
-    calender_element = driver.find_element_by_xpath("//div[@class='flatpickr-calendar hasTime animate open arrowBottom arrowLeft']")
-    sleep(1)
-    calender_element.find_element_by_xpath("//div[@aria-label='Year']").send_keys(str(input_year))
-    sleep(1)
-    month_dropdown = calender_element.find_element_by_xpath("//div[@aria-label='Month']")
-    sleep(1)
-    select = Select(month_dropdown)
-    select.select_by_value(str(input_month))
-
-    calender_element.find_element_by_xpath("//span[@ class='flatpickr-day ' and contains(text(), '{}}')]".format(str(input_day))).click()
-    sleep(1)
-    hour_element = calender_element.find_element_by_xpath("//input[@aria-label='Hour']")
-    sleep(1)
-    hour_element.send_keys("12")
-    sleep(1)
-    hour_element.send_keys(Keys.ENTER)
-
-
 @tag("Functional", "Basic")
 class TestHomePageTitle(CommonFunctionalTest):
 
@@ -119,9 +96,12 @@ class TestEvntFunctional(CommonFunctionalTest):
                 select = Select(form_field)
                 select.select_by_value(str(self.object_data[field_key]))
             elif field_key not in ["evnt_start", "evnt_end", "created_by", "created_date"]:
-                form_field.send_keys(self.object_data[field_key])
+                form_field.send_keys(self.object_data[field_key].replace("\n", " "))
             elif field_key == "evnt_end":
-                pick_date(self.browser, form_field, self.object_data[field_key])
+                self.browser.execute_script('document.getElementsByName("{}")[0].removeAttribute("readonly")'.format(field_key))
+                form_field.send_keys(str(self.object_data[field_key]))
+                # pick_date(self.browser, form_field, self.object_data[field_key])
+
         submit_btn = self.browser.find_element_by_xpath("//button[@class='btn btn-success']")
         scroll_n_click(self.browser, submit_btn)
 
@@ -130,10 +110,11 @@ class TestEvntFunctional(CommonFunctionalTest):
         rows = details_table.find_elements_by_tag_name("tr")
         new_object_row = False
         for row in rows:
-            name_cell = row.find_elements_by_tag_name("td")[0]
-            if name_cell.text == self.object_data["name"]:
+            evntc_cell = row.find_elements_by_tag_name("td")[1]
+            evntc_used = EventCode.objects.filter(pk=self.object_data["evntc_id"]).get().__str__()
+            if evntc_cell.text == evntc_used:
                 new_object_row = row
-        self.assertTrue(new_object_row, "New object not displayed")
+        self.assertTrue(new_object_row, "New object not displayed, {} not equal {}".format(evntc_cell.text, evntc_used))
 
 
 @tag("Functional", "Instc")
