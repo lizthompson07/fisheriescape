@@ -312,12 +312,22 @@ class ContxFactory(factory.django.DjangoModelFactory):
     def build_valid_data(**kwargs):
         evnt = EvntFactory()
         tank = TankFactory()
+        trof = TrofFactory()
+        tray = TrayFactory()
+        heat = HeatFactory()
+        draw = DrawFactory()
+        cup = CupFactory()
         obj = ContxFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
         data = {
             'evnt_id': evnt.pk,
             'tank_id': tank.pk,
+            'trof_id': trof.pk,
+            'tray_id': tray.pk,
+            'heat_id': heat.pk,
+            'draw_id': draw.pk,
+            'cup_id': cup.pk,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
