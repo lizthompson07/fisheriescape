@@ -86,7 +86,7 @@ def open_n_fill_popup(self, button, data, parent_code):
     selected_element = form_field.find_element_by_xpath("//*[@selected]")
     self.assertIn(self.evnt_data.__str__(), selected_element.text)
 
-    fill_n_submit_form(self.browser, data, ["evnt_id"])
+    fill_n_submit_form(self.browser, data, ["{}_id".format(parent_code)])
     self.browser.switch_to.window(self.browser.window_handles[0])
     self.browser.refresh()
 
@@ -141,6 +141,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
     def test_details_interaction(self):
         # user navigates to a details view for an event
         self.browser.get("{}{}{}".format(self.live_server_url, "/en/bio_diversity/details/evnt/", self.evnt_data.id))
+
         self.assertIn('Event', self.browser.title, "not on correct page")
 
         # user makes sure details are correct
@@ -165,6 +166,18 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         open_n_fill_popup(self, anix_btn, anix_data, "evnt")
         details_table = self.browser.find_element_by_xpath("//div[@name='evnt-anix-details']//table/tbody")
         indv_used = Individual.objects.filter(pk=anix_data["indv_id"]).get().__str__()
+        rows = details_table.find_elements_by_tag_name("tr")
+
+        self.assertIn(indv_used, [get_col_val(row, 0) for row in rows])
+
+        # user adds an individual to the event
+        indv_data = BioFactoryFloor.IndvFactory.build_valid_data()
+        indv_details = self.browser.find_element_by_xpath('//div[@name="evnt-indv-details"]')
+        indv_btn = indv_details.find_element_by_xpath('//a[@name="add-new-indv-btn"]')
+
+        open_n_fill_popup(self, indv_btn, indv_data, "evnt")
+        details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
+        indv_used = Individual.objects.filter(pk=indv_data["indv_id"]).get().__str__()
         rows = details_table.find_elements_by_tag_name("tr")
 
         self.assertIn(indv_used, [get_col_val(row, 0) for row in rows])

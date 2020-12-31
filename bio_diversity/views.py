@@ -539,8 +539,13 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "indv_id",
             "grp_id",
         ]
-
-
+        context["indv_list"] = models.Individual.objects.filter(pk=(self.object.animal_details.filter(indv_id__isnull=False).values_list('indv_id', flat=True)))
+        context["indv_object"] = models.Individual.objects.first()
+        context["indv_field_list"] = [
+            "ufid",
+            "pit_tag",
+            "grp_id",
+        ]
         return context
 
 class EvntcDetails(mixins.EvntcMixin, CommonDetails):
