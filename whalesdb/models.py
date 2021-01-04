@@ -409,3 +409,21 @@ class TeaTeamMember(models.Model):
 
     def __str__(self):
         return "{}, {} ({})".format(self.tea_last_name, self.tea_first_name, self.tea_abb)
+
+
+# This is a special table used to house application help text
+class HelpText(models.Model):
+    field_name = models.CharField(max_length=255)
+    eng_text = models.TextField(verbose_name=_("English text"))
+    fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("eng_text"))):
+            return "{}".format(getattr(self, str(_("eng_text"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.eng_text)
+
+    class Meta:
+        ordering = ['field_name', ]

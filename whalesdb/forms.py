@@ -1,5 +1,6 @@
 from django import forms
 from whalesdb import models
+from django.forms import modelformset_factory
 
 import shared_models.models as shared_models
 
@@ -294,3 +295,20 @@ class TeaForm(forms.ModelForm):
         exclude = []
         widgets = {
         }
+
+
+class HelpTextForm(forms.ModelForm):
+    class Meta:
+        model = models.HelpText
+        fields = "__all__"
+        widgets = {
+            'eng_text': forms.Textarea(attrs={"rows": 2}),
+            'fra_text': forms.Textarea(attrs={"rows": 2}),
+        }
+
+
+HelpTextFormset = modelformset_factory(
+    model=models.HelpText,
+    form=HelpTextForm,
+    extra=1,
+)
