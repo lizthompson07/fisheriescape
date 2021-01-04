@@ -28,7 +28,7 @@ class Site(UnilingualLookup):
     longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude"))
 
     def __str__(self):
-        return f"{self.name} ({self.region})"
+        return f"Site {self.name}"
 
     @property
     def transect_count(self):
@@ -36,11 +36,14 @@ class Site(UnilingualLookup):
 
 
 class Transect(UnilingualLookup):
-    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
-    site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"))
+    name = models.CharField(max_length=255, verbose_name=_("name"))
+    site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False)
 
     class Meta:
         unique_together = (("name", "site"),)
+
+    def __str__(self):
+        return f"Transect {self.name}"
 
 
 class Diver(models.Model):

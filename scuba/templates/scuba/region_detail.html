@@ -34,18 +34,21 @@
               {% get_verbose_label object.sites.first field %}
             </th>
           {% endfor %}
+          <th>{% trans "No. of transects" %}</th>
+          <th>{% trans "No. of samples" %}</th>
         </tr>
         </thead>
         <tbody>
         {% for site in object.sites.all %}
-          <tr>
+          <tr href="{% url 'scuba:site_detail' site.id %}">
             {% for field in site_field_list %}
               <td>
                 {% get_field_value site field %}
               </td>
             {% endfor %}
-            <td><span class="mdi mdi-pencil"></span></td>
-            <td><span class="mdi mdi-delete"></span></td>
+            <td> {{ site.transects.count }} </td>
+            <td> {{ site.samples.count }} </td>
+
           </tr>
         {% endfor %}
         </tbody>
