@@ -4,6 +4,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 
 from django.test import tag
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.select import Select
 
 from bio_diversity.models import EventCode, Event, LocCode, Individual, Tank
@@ -76,17 +77,20 @@ def fill_n_submit_form(browser, data, exclude=[]):
     scroll_n_click(browser, submit_btn)
 
 
-def open_n_fill_popup(self, button, data, parent_code):
+def open_n_fill_popup(self, button, data, parent_code=""):
     # self should be a common functional test class
     # button should be a clickable element that opens a pop up create form
-    button.click()
+    scroll_n_click(self.browser, button)
     self.browser.switch_to.window(self.browser.window_handles[1])
-    # make sure pre fill field is filled:
-    form_field = self.browser.find_element_by_xpath("//*[@name='{}_id']".format(parent_code))
-    selected_element = form_field.find_element_by_xpath("//*[@selected]")
-    self.assertIn(self.evnt_data.__str__(), selected_element.text)
 
-    fill_n_submit_form(self.browser, data, ["{}_id".format(parent_code)])
+    # make sure pre fill field is filled, if present:
+    if parent_code:
+        form_field = self.browser.find_element_by_xpath("//*[@name='{}_id']".format(parent_code))
+        selected_element = form_field.find_element_by_xpath("//*[@selected]")
+        self.assertIn(self.evnt_data.__str__(), selected_element.text)
+        fill_n_submit_form(self.browser, data, ["{}_id".format(parent_code)])
+    else:
+        fill_n_submit_form(self.browser, data)
     self.browser.switch_to.window(self.browser.window_handles[0])
     self.browser.refresh()
 
@@ -152,7 +156,10 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         location_btn = location_details.find_element_by_xpath('//a[@name="add-location-btn"]')
 
         open_n_fill_popup(self, location_btn, location_data, "evnt")
-        details_table = self.browser.find_element_by_xpath("//div[@name='evnt-location-details']//table/tbody")
+        try:
+            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-location-details']//table/tbody")
+        except NoSuchElementException:
+            return self.fail("No  locations in details table")
         locc_used = LocCode.objects.filter(pk=location_data["locc_id"]).get().__str__()
         rows = details_table.find_elements_by_tag_name("tr")
 
@@ -164,7 +171,10 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         anix_btn = anix_details.find_element_by_xpath('//a[@name="add-anix-btn"]')
 
         open_n_fill_popup(self, anix_btn, anix_data, "evnt")
-        details_table = self.browser.find_element_by_xpath("//div[@name='evnt-anix-details']//table/tbody")
+        try:
+            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-anix-details']//table/tbody")
+        except NoSuchElementException:
+            return self.fail("No individual XRef in details table")
         indv_used = Individual.objects.filter(pk=anix_data["indv_id"]).get().__str__()
         rows = details_table.find_elements_by_tag_name("tr")
 
@@ -175,12 +185,15 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         indv_details = self.browser.find_element_by_xpath('//div[@name="evnt-indv-details"]')
         indv_btn = indv_details.find_element_by_xpath('//a[@name="add-new-indv-btn"]')
 
-        open_n_fill_popup(self, indv_btn, indv_data, "evnt")
-        details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
-        indv_used = Individual.objects.filter(pk=indv_data["indv_id"]).get().__str__()
+        open_n_fill_popup(self, indv_btn, indv_data)
+        try:
+            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
+        except NoSuchElementException:
+            return self.fail("No individuals in details table")
+        ufid_used = indv_data["ufid"]
         rows = details_table.find_elements_by_tag_name("tr")
 
-        self.assertIn(indv_used, [get_col_val(row, 0) for row in rows])
+        self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
         # user add a container cross reference to the event
         contx_data = BioFactoryFloor.ContxFactory.build_valid_data()
@@ -188,7 +201,10 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         contx_btn = contx_details.find_element_by_xpath('//a[@name="add-contx-btn"]')
 
         open_n_fill_popup(self, contx_btn, contx_data, "evnt")
-        details_table = self.browser.find_element_by_xpath("//div[@name='evnt-contx-details']//table/tbody")
+        try:
+            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-contx-details']//table/tbody")
+        except NoSuchElementException:
+            return self.fail("No individuals in details table")
         tank_used = Tank.objects.filter(pk=contx_data["tank_id"]).get().__str__()
         rows = details_table.find_elements_by_tag_name("tr")
 

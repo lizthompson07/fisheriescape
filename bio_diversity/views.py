@@ -5,6 +5,8 @@ from django.urls import reverse_lazy
 from . import mixins, filters, utils, models
 from datetime import date
 
+from .models import AniDetailXref, Event
+
 
 class IndexTemplateView(TemplateView):
     nav_menu = 'bio_diversity/bio_diversity_nav_menu.html'
@@ -199,7 +201,15 @@ class ImgcCreate(mixins.ImgcMixin, CommonCreate):
 
 
 class IndvCreate(mixins.IndvMixin, CommonCreate):
-    pass
+
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            anix_link = AniDetailXref(evnt_id=Event.objects.filter(pk=self.kwargs['evnt']).get(), indv_id=self.object,
+                                      created_by=self.object.created_by, created_date=self.object.created_date)
+            anix_link.save()
+        return super().form_valid(form)
 
 
 class IndvdCreate(mixins.IndvdMixin, CommonCreate):
@@ -539,7 +549,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "indv_id",
             "grp_id",
         ]
-        context["indv_list"] = models.Individual.objects.filter(pk=(self.object.animal_details.filter(indv_id__isnull=False).values_list('indv_id', flat=True)))
+        anix_set = self.object.animal_details.filter(indv_id__isnull=False)
+        context["indv_list"] = [anix.indv_id for anix in anix_set]
         context["indv_object"] = models.Individual.objects.first()
         context["indv_field_list"] = [
             "ufid",
@@ -547,6 +558,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "grp_id",
         ]
         return context
+
 
 class EvntcDetails(mixins.EvntcMixin, CommonDetails):
     fields = ["name", "nom", "description_en", "description_fr", "created_by", "created_date", ]

@@ -92,7 +92,7 @@
                     <a class="btn btn-primary" name="add-new-indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_indv' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Individual' %}</a>
                 </span>
             </h5>
-            {% if indv_list.count > 0 %}
+            {% if indv_list %}
                 <table class="table table-sm sortable table-hover">
                     <thead>
                         {% for field in indv_field_list %}

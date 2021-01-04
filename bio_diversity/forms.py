@@ -139,7 +139,6 @@ class EnvForm(CreatePrams, forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
         # we have to make sure
         # 1) the end date is after the start date and
         end_date = cleaned_data.get("env_end")
