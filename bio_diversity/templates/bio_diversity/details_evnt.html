@@ -59,6 +59,7 @@
                 </table>
             {% endif %}
         </div>
+        <!--
         <div class="card border border-dark my-1" name="evnt-anix-details">
             <h5 class="card-header">{% trans "Event Animal Details" %}
                 <span class="px-1">
@@ -86,10 +87,14 @@
                 </table>
             {% endif %}
         </div>
+        -->
         <div class="card border border-dark my-1" name="evnt-indv-details">
             <h5 class="card-header">{% trans "Event Individuals" %}
                 <span class="px-1">
                     <a class="btn btn-primary" name="add-new-indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_indv' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Individual' %}</a>
+                </span>
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-existing_indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'indv_id' 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Individual' %}</a>
                 </span>
             </h5>
             {% if indv_list %}

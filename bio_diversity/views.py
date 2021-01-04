@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView, DetailView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView
 from django.urls import reverse_lazy
-
+from django import forms
 from . import mixins, filters, utils, models
 from datetime import date
 
@@ -66,6 +66,12 @@ class AnixCreate(mixins.AnixMixin, CommonCreate):
         initial = super().get_initial()
         if 'evnt' in self.kwargs:
             initial['evnt_id'] = self.kwargs['evnt']
+
+        for field in self.get_form_class().base_fields:
+            if field in self.kwargs['visible']:
+                pass
+            else:
+                self.get_form_class().base_fields[field].widget = forms.HiddenInput()
         return initial
 
 

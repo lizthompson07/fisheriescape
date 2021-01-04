@@ -165,22 +165,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         self.assertIn(locc_used, [get_col_val(row, 0) for row in rows])
 
-        # user adds an animal cross reference to the event
-        anix_data = BioFactoryFloor.AnixFactory.build_valid_data()
-        anix_details = self.browser.find_element_by_xpath('//div[@name="evnt-anix-details"]')
-        anix_btn = anix_details.find_element_by_xpath('//a[@name="add-anix-btn"]')
-
-        open_n_fill_popup(self, anix_btn, anix_data, "evnt")
-        try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-anix-details']//table/tbody")
-        except NoSuchElementException:
-            return self.fail("No individual XRef in details table")
-        indv_used = Individual.objects.filter(pk=anix_data["indv_id"]).get().__str__()
-        rows = details_table.find_elements_by_tag_name("tr")
-
-        self.assertIn(indv_used, [get_col_val(row, 0) for row in rows])
-
-        # user adds an individual to the event
+        # user adds a new individual to the event
         indv_data = BioFactoryFloor.IndvFactory.build_valid_data()
         indv_details = self.browser.find_element_by_xpath('//div[@name="evnt-indv-details"]')
         indv_btn = indv_details.find_element_by_xpath('//a[@name="add-new-indv-btn"]')
@@ -192,7 +177,20 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
             return self.fail("No individuals in details table")
         ufid_used = indv_data["ufid"]
         rows = details_table.find_elements_by_tag_name("tr")
+        self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
+        # user adds an existing individual to the event:
+        indv = BioFactoryFloor.IndvFactory()
+        indv_details = self.browser.find_element_by_xpath('//div[@name="evnt-indv-details"]')
+        indv_btn = indv_details.find_element_by_xpath('//a[@name="add-existing_indv-btn"]')
+        indv_data = {"indv_id": indv.pk}
+        open_n_fill_popup(self, indv_btn, indv_data)
+        try:
+            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
+        except NoSuchElementException:
+            return self.fail("No individuals in details table")
+        ufid_used = indv.ufid
+        rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
         # user add a container cross reference to the event
