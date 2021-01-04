@@ -161,7 +161,7 @@ def get_app_dict(request):
     try:
         app_dict["scifi"] = {
             "title": _("SciFi"),
-            "description": _("Gulf Science finance tracking and reporting tool."),
+            "description": _("Science finance tracking and reporting tool."),
             "status": "production",
             "access": "permission-required",
             "url": reverse('scifi:index'),
