@@ -423,7 +423,12 @@ class CommonDetails(DetailView):
         if self.fields:
             context['fields'] = self.fields
 
-        context['list_url'] = self.list_url if self.list_url else "bio_diversity:list_{}".format(self.key)
+        if "back" in self.kwargs:
+            context['list_url'] = "bio_diversity:details_{}".format(self.kwargs["back"])
+            context['back'] = True
+            context['back_id'] = self.kwargs["back_id"]
+        else:
+            context['list_url'] = self.list_url if self.list_url else "bio_diversity:list_{}".format(self.key)
         context['update_url'] = self.update_url if self.update_url else "bio_diversity:update_{}".format(self.key)
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized

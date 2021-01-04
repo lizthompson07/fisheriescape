@@ -47,7 +47,7 @@
                     </thead>
                     <tbody>
                         {% for obj in object.location.all %}
-                            <tr href="{% url 'bio_diversity:details_loc' obj.id %}">
+                            <tr href="{% url 'bio_diversity:details_loc' 'evnt' object.id obj.id %}">
                             {% for field in location_field_list %}
                                 <td>
                                     {% get_field_value obj field %}
@@ -59,35 +59,7 @@
                 </table>
             {% endif %}
         </div>
-        <!--
-        <div class="card border border-dark my-1" name="evnt-anix-details">
-            <h5 class="card-header">{% trans "Event Animal Details" %}
-                <span class="px-1">
-                    <a class="btn btn-primary" name="add-anix-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Animal Detail' %}</a>
-                </span>
-            </h5>
-            {% if object.animal_details.count > 0 %}
-                <table class="table table-sm sortable table-hover">
-                    <thead>
-                        {% for field in anix_field_list %}
-                            <th>{% get_verbose_label anix_object field %}</th>
-                        {% endfor %}
-                    </thead>
-                    <tbody>
-                        {% for obj in object.animal_details.all %}
-                            <tr href="{% url 'bio_diversity:details_anix' obj.id %}">
-                            {% for field in anix_field_list %}
-                                <td>
-                                    {% get_field_value obj field %}
-                                </td>
-                            {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-        -->
+
         <div class="card border border-dark my-1" name="evnt-indv-details">
             <h5 class="card-header">{% trans "Event Individuals" %}
                 <span class="px-1">
@@ -106,7 +78,7 @@
                     </thead>
                     <tbody>
                         {% for obj in indv_list %}
-                            <tr href="{% url 'bio_diversity:details_indv' obj.id %}">
+                            <tr href="{% url 'bio_diversity:details_indv' 'evnt' object.id obj.id %}">
                             {% for field in indv_field_list %}
                                 <td>
                                     {% get_field_value obj field %}
@@ -133,7 +105,7 @@
                         </thead>
                         <tbody>
                             {% for obj in object.containers.all %}
-                                <tr href="{% url 'bio_diversity:details_contx' obj.id %}">
+                                <tr href="{% url 'bio_diversity:details_contx' 'evnt' object.id obj.id %}">
                                 {% for field in contx_field_list %}
                                     <td>
                                         {% get_field_value obj field %}

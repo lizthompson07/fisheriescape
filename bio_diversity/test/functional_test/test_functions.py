@@ -148,8 +148,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         self.assertIn('Event', self.browser.title, "not on correct page")
 
-        # user makes sure details are correct
-
         # user adds a location to the event
         location_data = BioFactoryFloor.LocFactory.build_valid_data()
         location_details = self.browser.find_element_by_xpath('//div[@name="evnt-location-details"]')
@@ -193,6 +191,22 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
+        # User clicks on first individual reviews its details and returns to the event details
+        first_ufid = rows[0].find_element_by_tag_name("td").text
+        scroll_n_click(self.browser, rows[0])
+        description_ufid = self.browser.find_element_by_xpath("//span[@class='font-weight-bold' and contains(text(), "
+                                                              "'ABL Fish UFID :')]/following-sibling::span")
+        self.assertEqual(first_ufid, description_ufid.text)
+
+        self.browser.find_element_by_name("back-btn").click()
+        try:
+            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
+        except NoSuchElementException:
+            return self.fail("Back page link failed")
+        rows = details_table.find_element_by_tag_name("tr")
+
+        self.assertIn(first_ufid, [get_col_val(row, 0) for row in rows])
+
         # user add a container cross reference to the event
         contx_data = BioFactoryFloor.ContxFactory.build_valid_data()
         contx_details = self.browser.find_element_by_xpath('//div[@name="evnt-contx-details"]')
@@ -207,6 +221,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         rows = details_table.find_elements_by_tag_name("tr")
 
         self.assertIn(tank_used, [get_col_val(row, 0) for row in rows])
+
 
 @tag("Functional", "Instc")
 class InstcTestSimpleLookup(CommonFunctionalTest):

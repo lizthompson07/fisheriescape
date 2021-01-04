@@ -52,6 +52,7 @@ urlpatterns = [
     path('create/contx/', views.ContxCreate.as_view(), name="create_contx"),
     path('create/contx/<int:evnt>/<str:pop>/', views.ContxCreate.as_view(), name="create_contx"),
     path('details/contx/<int:pk>/', views.ContxDetails.as_view(), name="details_contx"),
+    path('details/contx/<str:back>/<int:back_id>/<int:pk>/', views.ContxDetails.as_view(), name="details_contx"),
     path('list/contx/', views.ContxList.as_view(), name="list_contx"),
     path('update/contx/<int:pk>/', views.ContxUpdate.as_view(), name="update_contx"),
 
@@ -173,6 +174,7 @@ urlpatterns = [
     path('create/indv/', views.IndvCreate.as_view(), name="create_indv"),
     path('create/indv/<int:evnt>/<str:pop>/', views.IndvCreate.as_view(), name="create_indv"),
     path('details/indv/<int:pk>/', views.IndvDetails.as_view(), name="details_indv"),
+    path('details/indv/<str:back>/<int:back_id>/<int:pk>/', views.IndvDetails.as_view(), name="details_indv"),
     path('list/indv/', views.IndvList.as_view(), name="list_indv"),
     path('update/indv/<int:pk>/', views.IndvUpdate.as_view(), name="update_indv"),
 
@@ -214,6 +216,7 @@ urlpatterns = [
     path('create/loc/', views.LocCreate.as_view(), name="create_loc"),
     path('create/loc/<int:evnt>/<str:pop>/', views.LocCreate.as_view(), name="create_loc"),
     path('details/loc/<int:pk>/', views.LocDetails.as_view(), name="details_loc"),
+    path('details/loc/<str:back>/<int:back_id>/<int:pk>/', views.LocDetails.as_view(), name="details_loc"),
     path('list/loc/', views.LocList.as_view(), name="list_loc"),
     path('update/loc/<int:pk>/', views.LocUpdate.as_view(), name="update_loc"),
 
