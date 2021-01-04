@@ -676,3 +676,4 @@ class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
         if self.request.data.get("email_update"):
             my_review.send_approval_email(self.request)
+
