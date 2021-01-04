@@ -8,10 +8,12 @@ from django.utils.translation import gettext_lazy as _
 
 from whalesdb import forms, models, filters, utils
 from django.contrib.auth.mixins import UserPassesTestMixin
-from shared_models.views import CommonTemplateView, CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView
+from shared_models.views import CommonTemplateView, CommonAuthCreateView, CommonAuthUpdateView, CommonAuthFilterView, \
+    CommonHardDeleteView, CommonFormsetView
 
 import json
 import shared_models.models as shared_models
+
 
 from . import mixins
 
@@ -47,7 +49,7 @@ def rst_delete(request, pk):
 
 
 class IndexView(CommonTemplateView):
-    nav_menu = 'whalesdb/whale_nav_menu.html'
+    nav_menu = 'whalesdb/whales_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
     title = _("Whale Equipment Metadata Database")
     template_name = 'whalesdb/index.html'
@@ -66,7 +68,7 @@ class IndexView(CommonTemplateView):
 # has the correct privileges to interact with Creation Views
 class CommonCreate(CommonAuthCreateView):
 
-    nav_menu = 'whalesdb/whale_nav_menu.html'
+    nav_menu = 'whalesdb/whales_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
     home_url_name = "whalesdb:index"
 
@@ -97,6 +99,7 @@ class CommonCreate(CommonAuthCreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['editable'] = context['auth']
+        context['help_text_dict'] = utils.get_help_text_dict()
         return context
 
 
@@ -292,7 +295,7 @@ class TeaCreate(mixins.TeaMixin, CommonCreate):
 
 class CommonUpdate(CommonAuthUpdateView):
 
-    nav_menu = 'whalesdb/whale_nav_menu.html'
+    nav_menu = 'whalesdb/whales_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
     home_url_name = "whalesdb:index"
 
@@ -558,7 +561,7 @@ class StnDetails(mixins.StnMixin, CommonDetails):
 
 class CommonList(CommonAuthFilterView):
 
-    nav_menu = 'whalesdb/whale_nav_menu.html'
+    nav_menu = 'whalesdb/whales_nav_menu.html'
     site_css = 'whalesdb/whales_css.css'
     home_url_name = "whalesdb:index"
 
@@ -771,3 +774,23 @@ class CruDelete(mixins.CruMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+class HelpTextFormsetView(UserPassesTestMixin, CommonFormsetView):
+    template_name = 'whalesdb/formset.html'
+    title = _("Whales Help Text")
+    h1 = _("Manage Help Texts")
+    queryset = models.HelpText.objects.all()
+    formset_class = forms.HelpTextFormset
+    success_url_name = "whalesdb:manage_help_texts"
+    home_url_name = "whalesdb:index"
+    delete_url_name = "whalesdb:delete_help_text"
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)
+
+
+class HelpTextHardDeleteView(UserPassesTestMixin, CommonHardDeleteView):
+    model = models.HelpText
+    success_url = reverse_lazy("whalesdb:manage_help_texts")
+
+    def test_func(self):
+        return utils.whales_authorized(self.request.user)
