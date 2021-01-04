@@ -16,7 +16,6 @@ from django.contrib.auth.models import User
 class CommonFunctionalTest(StaticLiveServerTestCase):
 
     def setUp(self):
-
         super().setUp()  # used to import fixtures
         # need to download the webdriver and stick it in the path/point to it here:
         # can be downloaded from: https://chromedriver.chromium.org/downloads
@@ -24,16 +23,16 @@ class CommonFunctionalTest(StaticLiveServerTestCase):
         self.browser.maximize_window()
         # generate a user
         user_data = UserFactory.get_valid_data()
-        user = User.objects.create_superuser(username=user_data['username'], email=user_data['email1'],
+        self.user = User.objects.create_superuser(username=user_data['username'], email=user_data['email1'],
                                              password=UserFactory.get_test_password())
         bio_group = GroupFactory(name='bio_diversity_admin')
-        user.groups.add(bio_group)
-        user.first_name = user_data["first_name"]
-        user.last_name = user_data["last_name"]
-        user.save()
+        self.user.groups.add(bio_group)
+        self.user.first_name = user_data["first_name"]
+        self.user.last_name = user_data["last_name"]
+        self.user.save()
 
         self.browser.get(self.live_server_url + '/en/')
-        self.client.force_login(user)  # Native django test client
+        self.client.force_login(self.user)  # Native django test client
         cookie = self.client.cookies['sessionid']  # grab the login cookie
         self.browser.add_cookie({'name': 'sessionid', 'value': cookie.value, 'secure': False, 'path': '/'})
         self.browser.refresh()  # selenium will set cookie domain based on current page domain
@@ -142,11 +141,13 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         super().setUp()
         self.evnt_data = BioFactoryFloor.EvntFactory()
 
-    def test_details_interaction(self):
+    def nav_to_details_view(self):
         # user navigates to a details view for an event
         self.browser.get("{}{}{}".format(self.live_server_url, "/en/bio_diversity/details/evnt/", self.evnt_data.id))
-
         self.assertIn('Event', self.browser.title, "not on correct page")
+
+    def test_add_locations(self):
+        self.nav_to_details_view()
 
         # user adds a location to the event
         location_data = BioFactoryFloor.LocFactory.build_valid_data()
@@ -163,6 +164,9 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         self.assertIn(locc_used, [get_col_val(row, 0) for row in rows])
 
+    def test_add_individual(self):
+        self.nav_to_details_view()
+
         # user adds a new individual to the event
         indv_data = BioFactoryFloor.IndvFactory.build_valid_data()
         indv_details = self.browser.find_element_by_xpath('//div[@name="evnt-indv-details"]')
@@ -176,6 +180,9 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         ufid_used = indv_data["ufid"]
         rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
+
+    def test_add_existing_individual_nav_back_btn(self):
+        self.nav_to_details_view()
 
         # user adds an existing individual to the event:
         indv = BioFactoryFloor.IndvFactory()
@@ -192,21 +199,27 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
         # User clicks on first individual reviews its details and returns to the event details
+        try:
+            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
+        except NoSuchElementException:
+            return self.fail("No individuals in details table")
+        rows = details_table.find_elements_by_tag_name("tr")
         first_ufid = rows[0].find_element_by_tag_name("td").text
         scroll_n_click(self.browser, rows[0])
         description_ufid = self.browser.find_element_by_xpath("//span[@class='font-weight-bold' and contains(text(), "
                                                               "'ABL Fish UFID :')]/following-sibling::span")
         self.assertEqual(first_ufid, description_ufid.text)
-
         self.browser.find_element_by_name("back-btn").click()
         try:
             details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
         except NoSuchElementException:
-            return self.fail("Back page link failed")
-        rows = details_table.find_element_by_tag_name("tr")
-
+            return self.fail("No individuals in details table")
+        ufid_used = indv.ufid
+        rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(first_ufid, [get_col_val(row, 0) for row in rows])
 
+    def test_add_contx(self):
+        self.nav_to_details_view()
         # user add a container cross reference to the event
         contx_data = BioFactoryFloor.ContxFactory.build_valid_data()
         contx_details = self.browser.find_element_by_xpath('//div[@name="evnt-contx-details"]')
