@@ -291,6 +291,7 @@ class ReportSearchForm(forms.Form):
         (None, ""),
         (None, "----- BIOFOULING ------"),
         (1, "Biofouling: Species observations by sample"),
+        (9, "Biofouling: AIS presence / absence"),
         (None, ""),
         (None, "----- GREEN CRAB ------"),
         (8, "Green Crab: Site descriptions (xlsx)"),
