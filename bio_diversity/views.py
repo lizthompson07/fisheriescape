@@ -909,378 +909,378 @@ class CommonList(CommonAuthFilterView):
 
 class AnidcList(mixins.AnidcMixin, CommonList):
     filterset_class = filters.AnidcFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class AnixList(mixins.AnixMixin, CommonList):
     filterset_class = filters.AnixFilter
-    fields = ["evnt_id", "created_by", "created_date", ]
+    fields = ["evnt_id", ]
 
 
 class AdscList(mixins.AdscMixin, CommonList):
     filterset_class = filters.AdscFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class CntList(mixins.CntMixin, CommonList):
     filterset_class = filters.CntFilter
-    fields = ["loc_id", "contx_id", "spec_id", "created_by", "created_date", ]
+    fields = ["loc_id", "contx_id", "spec_id", ]
 
 
 class CntcList(mixins.CntcMixin, CommonList):
     filterset_class = filters.CntcFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class CntdList(mixins.CntdMixin, CommonList):
     filterset_class = filters.CntdFilter
-    fields = ["cnt_id", "anidc_id", "qual_id", "created_by", "created_date", ]
+    fields = ["cnt_id", "anidc_id", "qual_id", ]
 
 
 class CollList(mixins.CollMixin, CommonList):
     filterset_class = filters.CollFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class ContdcList(mixins.ContdcMixin, CommonList):
     filterset_class = filters.ContdcFilter
-    fields = ["name", "nom", "min_val", "max_val", "created_by", "created_date", ]
+    fields = ["name", "nom", "min_val", "max_val", ]
 
 
 class ContxList(mixins.ContxMixin, CommonList):
     filterset_class = filters.ContxFilter
-    fields = ["evnt_id", "created_by", "created_date", ]
+    fields = ["evnt_id", ]
 
 
 class CdscList(mixins.CdscMixin, CommonList):
     filterset_class = filters.CdscFilter
-    fields = ["contdc_id", "name", "nom", "created_by", "created_date", ]
+    fields = ["contdc_id", "name", "nom", ]
 
 
 class CupList(mixins.CupMixin, CommonList):
     filterset_class = filters.CupFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class CupdList(mixins.CupdMixin, CommonList):
     filterset_class = filters.CupdFilter
-    fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+    fields = ["cup_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
 class DrawList(mixins.DrawMixin, CommonList):
     filterset_class = filters.DrawFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class EnvList(mixins.EnvMixin, CommonList):
     filterset_class = filters.EnvFilter
-    fields = ["contx_id", "loc_id", "inst_id", "envc_id", "created_by", "created_date", ]
+    fields = ["contx_id", "loc_id", "inst_id", "envc_id", ]
 
 
 class EnvcList(mixins.EnvcMixin, CommonList):
     filterset_class = filters.EnvcFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class EnvcfList(mixins.EnvcfMixin, CommonList):
     filterset_class = filters.EnvcfFilter
-    fields = ["env_id", "created_by", "created_date", ]
+    fields = ["env_id", ]
 
 
 class EnvscList(mixins.EnvscMixin, CommonList):
     filterset_class = filters.EnvscFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class EnvtList(mixins.EnvtMixin, CommonList):
     filterset_class = filters.EnvtFilter
-    fields = ["contx_id", "envtc_id", "lot_num", "created_by", "created_date", ]
+    fields = ["contx_id", "envtc_id", "lot_num", ]
 
 
 class EnvtcList(mixins.EnvtcMixin, CommonList):
     filterset_class = filters.EnvtcFilter
-    fields = ["name", "nom", "rec_dose", "manufacturer", "created_by", "created_date", ]
+    fields = ["name", "nom", "rec_dose", "manufacturer", ]
 
 
 class EvntList(mixins.EvntMixin, CommonList):
     filterset_class = filters.EvntFilter
-    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", "created_by", "created_date", ]
+    fields = ["facic_id", "evntc_id", "perc_id", "prog_id", "team_id", ]
 
 
 class EvntcList(mixins.EvntcMixin, CommonList):
     filterset_class = filters.EvntcFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class FacicList(mixins.FacicMixin, CommonList):
     filterset_class = filters.FacicFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class FecuList(mixins.FecuMixin, CommonList):
     filterset_class = filters.FecuFilter
-    fields = ["stok_id", "coll_id", "alpha", "beta", "created_by", "created_date", ]
+    fields = ["stok_id", "coll_id", "alpha", "beta", ]
 
 
 class FeedList(mixins.FeedMixin, CommonList):
     filterset_class = filters.FeedFilter
-    fields = ["contx_id", "feedm_id", "feedc_id", "created_by", "created_date", ]
+    fields = ["contx_id", "feedm_id", "feedc_id", ]
 
 
 class FeedcList(mixins.FeedcMixin, CommonList):
     filterset_class = filters.FeedcFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class FeedmList(mixins.FeedmMixin, CommonList):
     filterset_class = filters.FeedmFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class GrpList(mixins.GrpMixin, CommonList):
     filterset_class = filters.GrpFilter
-    fields = ["spec_id", "stok_id", "created_by", "created_date", ]
+    fields = ["spec_id", "stok_id", ]
 
 
 class GrpdList(mixins.GrpdMixin, CommonList):
     filterset_class = filters.GrpdFilter
-    fields = ["anix_id", "anidc_id", "created_by", "created_date", ]
+    fields = ["anix_id", "anidc_id", ]
 
 
 class HeatList(mixins.HeatMixin, CommonList):
     filterset_class = filters.HeatFilter
     fields = ["name", "nom",  "manufacturer", "serial_number", "inservice_date",
-              "created_by", "created_date", ]
+              ]
 
 
 class HeatdList(mixins.HeatdMixin, CommonList):
     filterset_class = filters.HeatdFilter
-    fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+    fields = ["heat_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
 class ImgList(mixins.ImgMixin, CommonList):
     filterset_class = filters.ImgFilter
-    fields = ["imgc_id", "created_by", "created_date", ]
+    fields = ["imgc_id", ]
 
 
 class ImgcList(mixins.ImgcMixin, CommonList):
     filterset_class = filters.ImgcFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class IndvList(mixins.IndvMixin, CommonList):
     filterset_class = filters.IndvFilter
-    fields = ["ufid", "spec_id", "stok_id", "created_by", "created_date", ]
+    fields = ["ufid", "spec_id", "stok_id", ]
 
 
 class IndvdList(mixins.IndvdMixin, CommonList):
     filterset_class = filters.IndvdFilter
-    fields = ["anix_id", "anidc_id", "created_by", "created_date", ]
+    fields = ["anix_id", "anidc_id", ]
 
 
 class IndvtList(mixins.IndvtMixin, CommonList):
     filterset_class = filters.IndvtFilter
-    fields = ["indvtc_id", "lot_num", "created_by", "created_date", ]
+    fields = ["indvtc_id", "lot_num", ]
 
 
 class IndvtcList(mixins.IndvtcMixin, CommonList):
     filterset_class = filters.IndvtcFilter
-    fields = ["name", "nom", "rec_dose", "manufacturer", "created_by", "created_date", ]
+    fields = ["name", "nom", "rec_dose", "manufacturer", ]
 
 
 class InstList(mixins.InstMixin, CommonList):
     filterset_class = filters.InstFilter
-    fields = ["instc_id", "serial_number", "comments", "created_by", "created_date", ]
+    fields = ["instc_id", "serial_number", "comments", ]
 
 
 class InstcList(mixins.InstcMixin, CommonList):
     filterset_class = filters.InstcFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class InstdList(mixins.InstdMixin, CommonList):
     filterset_class = filters.InstdFilter
-    fields = ["inst_id", "instdc_id", "created_by", "created_date", ]
+    fields = ["inst_id", "instdc_id", ]
 
 
 class InstdcList(mixins.InstdcMixin, CommonList):
     filterset_class = filters.InstdcFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
     
 
 class LocList(mixins.LocMixin, CommonList):
     filterset_class = filters.LocFilter
-    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "loc_date", "created_by", "created_date", ]
+    fields = ["evnt_id", "rive_id", "trib_id", "relc_id", "loc_date", ]
 
 
 class LoccList(mixins.LoccMixin, CommonList):
     filterset_class = filters.LoccFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class OrgaList(mixins.OrgaMixin, CommonList):
     filterset_class = filters.OrgaFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class PairList(mixins.PairMixin, CommonList):
     filterset_class = filters.PairFilter
-    fields = ["indv_id", "created_by", "created_date", ]
+    fields = ["indv_id", ]
 
 
 class PercList(mixins.PercMixin, CommonList):
     filterset_class = filters.PercFilter
-    fields = ["perc_first_name", "perc_last_name", "perc_valid", "created_by", "created_date", ]
+    fields = ["perc_first_name", "perc_last_name", "perc_valid", ]
 
 
 class PrioList(mixins.PrioMixin, CommonList):
     filterset_class = filters.PrioFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class ProgList(mixins.ProgMixin, CommonList):
     filterset_class = filters.ProgFilter
-    fields = ["prog_name", "proga_id", "orga_id", "created_by", "created_date", ]
+    fields = ["prog_name", "proga_id", "orga_id", ]
 
 
 class ProgaList(mixins.ProgaMixin, CommonList):
     filterset_class = filters.ProgaFilter
-    fields = ["proga_last_name", "proga_first_name", "created_by", "created_date", ]
+    fields = ["proga_last_name", "proga_first_name", ]
 
 
 class ProtList(mixins.ProtMixin, CommonList):
     filterset_class = filters.ProtFilter
-    fields = ["prog_id", "protc_id", "created_by", "created_date", ]
+    fields = ["prog_id", "protc_id", ]
 
 
 class ProtcList(mixins.ProtcMixin, CommonList):
     filterset_class = filters.ProtcFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class ProtfList(mixins.ProtfMixin, CommonList):
     filterset_class = filters.ProtfFilter
-    fields = ["prot_id", "comments", "created_by", "created_date", ]
+    fields = ["prot_id", "comments", ]
 
 
 class QualList(mixins.QualMixin, CommonList):
     filterset_class = filters.QualFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class RelcList(mixins.RelcMixin, CommonList):
     filterset_class = filters.RelcFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class RiveList(mixins.RiveMixin, CommonList):
     filterset_class = filters.RiveFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class RoleList(mixins.RoleMixin, CommonList):
     filterset_class = filters.RoleFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class SampList(mixins.SampMixin, CommonList):
     filterset_class = filters.SampFilter
-    fields = ["loc_id", "samp_num", "spec_id", "created_by", "created_date", ]
+    fields = ["loc_id", "samp_num", "spec_id", ]
 
 
 class SampcList(mixins.SampcMixin, CommonList):
     filterset_class = filters.SampcFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class SampdList(mixins.SampdMixin, CommonList):
     filterset_class = filters.SampdFilter
-    fields = ["samp_id", "anidc_id", "created_by", "created_date", ]
+    fields = ["samp_id", "anidc_id", ]
 
 
 class SireList(mixins.SireMixin, CommonList):
     filterset_class = filters.SireFilter
-    fields = ["prio_id", "pair_id", "created_by", "created_date", ]
+    fields = ["prio_id", "pair_id", ]
 
 
 class SpwnList(mixins.SpwnMixin, CommonList):
     filterset_class = filters.SpwnFilter
-    fields = ["pair_id", "spwn_date", "created_by", "created_date", ]
+    fields = ["pair_id", "spwn_date", ]
 
 
 class SpwndList(mixins.SpwndMixin, CommonList):
     filterset_class = filters.SpwndFilter
-    fields = ["spwn_id", "spwndc_id", "created_by", "created_date", ]
+    fields = ["spwn_id", "spwndc_id", ]
 
 
 class SpwndcList(mixins.SpwndcMixin, CommonList):
     filterset_class = filters.SpwndcFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class SpwnscList(mixins.SpwnscMixin, CommonList):
     filterset_class = filters.SpwnscFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class SpecList(mixins.SpecMixin, CommonList):
     filterset_class = filters.SpecFilter
-    fields = ["name", "species", "com_name", "created_by", "created_date", ]
+    fields = ["name", "species", "com_name", ]
 
 
 class StokList(mixins.StokMixin, CommonList):
     filterset_class = filters.StokFilter
-    fields = ["name", "nom", "created_by", "created_date", ]
+    fields = ["name", "nom", ]
 
 
 class SubrList(mixins.SubrMixin, CommonList):
     filterset_class = filters.SubrFilter
-    fields = ["name", "nom", "rive_id", "trib_id",  "created_by", "created_date", ]
+    fields = ["name", "nom", "rive_id", "trib_id",  ]
 
 
 class TankList(mixins.TankMixin, CommonList):
     filterset_class = filters.TankFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class TankdList(mixins.TankdMixin, CommonList):
     filterset_class = filters.TankdFilter
-    fields = ["tank_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+    fields = ["tank_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
 class TeamList(mixins.TeamMixin, CommonList):
     filterset_class = filters.TeamFilter
-    fields = ["perc_id", "role_id", "created_by", "created_date", ]
+    fields = ["perc_id", "role_id", ]
 
 
 class TrayList(mixins.TrayMixin, CommonList):
     filterset_class = filters.TrayFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class TraydList(mixins.TraydMixin, CommonList):
     filterset_class = filters.TraydFilter
-    fields = ["tray_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+    fields = ["tray_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
 class TribList(mixins.TribMixin, CommonList):
     filterset_class = filters.TribFilter
-    fields = ["name", "nom", "rive_id",  "created_by", "created_date", ]
+    fields = ["name", "nom", "rive_id",  ]
 
 
 class TrofList(mixins.TrofMixin, CommonList):
     filterset_class = filters.TrofFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 class TrofdList(mixins.TrofdMixin, CommonList):
     filterset_class = filters.TrofdFilter
-    fields = ["trof_id", "contdc_id", "cdsc_id", "start_date", "end_date", "created_by", "created_date", ]
+    fields = ["trof_id", "contdc_id", "cdsc_id", "start_date", "end_date", ]
 
 
 class UnitList(mixins.UnitMixin, CommonList):
     filterset_class = filters.UnitFilter
-    fields = ["name", "nom",  "created_by", "created_date", ]
+    fields = ["name", "nom",  ]
 
 
 # ---------------------------UPDATE VIEWS-----------------------------------
