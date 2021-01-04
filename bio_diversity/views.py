@@ -24,7 +24,6 @@ class CommonCreate(CommonAuthCreateView):
     nav_menu = 'bio_diversity/bio_diversity_nav.html'
     site_css = 'bio_diversity/bio_diversity.css'
     home_url_name = "bio_diversity:index"
-    template_name = "bio_diversity/bio_create.html"
 
     def get_initial(self):
         init = super().get_initial()
