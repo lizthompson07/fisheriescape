@@ -11,11 +11,7 @@
 
 {% block body %}
 <div class="container mt-1">
-    {% if back %}
-            <a class="btn btn-primary" name="back-btn" href="{% url ''|add:list_url back_id %}" title="{% trans 'Back to Details' %}">{% trans 'Back to Details' %}</a>
-    {% else %}
-        <a class="btn btn-primary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
-    {% endif %}
+    <a class="btn btn-primary" href="{% url ''|add:list_url %}">{% trans 'Back to list' %}</a>
     {% if editable and update_url%}
         {# if the update url contains /pop/ then open the url in a popup window #}
         {% if '/pop/' in update_url %}
@@ -36,19 +32,26 @@
             {% endfor %}
             </div>
         </div>
-        {% if object.protf_id.count > 0 %}
-            <div class="card border border-dark my-1">
-                <h5 class="card-header">{% trans "Protocol Files" %}</h5>
+        <div class="card border border-dark my-1" name="prog-prot-details">
+            <h5 class="card-header">{% trans "Program Protocols" %}
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-new-prot-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_prot' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Protocol' %}</a>
+                </span>
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-existing_prot-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_prot' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Protocol (lie)' %}</a>
+                </span>
+            </h5>
+            {% if object.protocols.count > 0 %}
                 <table class="table table-sm sortable table-hover">
                     <thead>
-                        {% for field in protf_field_list %}
-                            <th>{% get_verbose_label protf_object field %}</th>
+                        {% for field in prot_field_list %}
+                            <th>{% get_verbose_label prot_object field %}</th>
                         {% endfor %}
                     </thead>
                     <tbody>
-                        {% for obj in object.protf_id.all %}
-                            <tr href="{% url 'bio_diversity:details_protf' obj.id %}">
-                            {% for field in protf_field_list %}
+                        {% for obj in object.protocols.all %}
+                            <tr href="{% url 'bio_diversity:details_prot' 'prog' object.id obj.id %}">
+                            {% for field in prot_field_list %}
                                 <td>
                                     {% get_field_value obj field %}
                                 </td>
@@ -57,9 +60,10 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
             {% endif %}
-    {% endblock field_override %}
+        </div>
+
+        {% endblock field_override %}
   </div>
 {% endblock %}
 

@@ -258,7 +258,9 @@ urlpatterns = [
     path('update/proga/<int:pk>/', views.ProgaUpdate.as_view(), name="update_proga"),
 
     path('create/prot/', views.ProtCreate.as_view(), name="create_prot"),
+    path('create/prot/<int:prog>/<str:pop>', views.ProtCreate.as_view(), name="create_prot"),
     path('details/prot/<int:pk>/', views.ProtDetails.as_view(), name="details_prot"),
+    path('details/prot/<str:back>/<int:back_id>/<int:pk>/', views.ProtDetails.as_view(), name="details_prot"),
     path('list/prot/', views.ProtList.as_view(), name="list_prot"),
     path('update/prot/<int:pk>/', views.ProtUpdate.as_view(), name="update_prot"),
 

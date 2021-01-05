@@ -795,7 +795,7 @@ class ProgAuthority(BioModel):
 class Protocol(BioTimeModel):
     # prot tag
     prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"),
-                                limit_choices_to={'valid': True})
+                                limit_choices_to={'valid': True}, related_name="protocols")
     protc_id = models.ForeignKey('ProtoCode', on_delete=models.DO_NOTHING, verbose_name=_("Protocol Code"))
     evntc_id = models.ForeignKey('EventCode', blank=True, null=True, on_delete=models.DO_NOTHING,
                                  verbose_name=_("Event Code"))

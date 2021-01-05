@@ -67,11 +67,13 @@ class AnixCreate(mixins.AnixMixin, CommonCreate):
         if 'evnt' in self.kwargs:
             initial['evnt_id'] = self.kwargs['evnt']
 
-        for field in self.get_form_class().base_fields:
-            if field in self.kwargs['visible']:
-                pass
-            else:
-                self.get_form_class().base_fields[field].widget = forms.HiddenInput()
+        if 'visible' in self.kwargs:
+            for field in self.get_form_class().base_fields:
+                if field in self.kwargs['visible']:
+                    pass
+                else:
+                    self.get_form_class().base_fields[field].widget = forms.HiddenInput()
+
         return initial
 
 
@@ -285,7 +287,11 @@ class ProgaCreate(mixins.ProgaMixin, CommonCreate):
 
 
 class ProtCreate(mixins.ProtMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'prog' in self.kwargs:
+            initial['prog_id'] = self.kwargs['prog']
+        return initial
 
 
 class ProtcCreate(mixins.ProtcMixin, CommonCreate):
@@ -699,8 +705,19 @@ class PrioDetails(mixins.PrioMixin, CommonDetails):
 
 
 class ProgDetails(mixins.ProgMixin, CommonDetails):
+    template_name = "bio_diversity/details_prog.html"
     fields = ["prog_name", "prog_desc", "proga_id", "orga_id", "start_date", "end_date", "valid", "comments",
               "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["prot_object"] = models.Protocol.objects.first()
+        context["prot_field_list"] = [
+            "protc_id",
+            "start_date",
+        ]
+
+        return context
 
 
 class ProgaDetails(mixins.ProgaMixin, CommonDetails):

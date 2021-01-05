@@ -91,33 +91,33 @@
             {% endif %}
         </div>
         <div class="card border border-dark my-1" name="evnt-contx-details">
-                <h5 class="card-header">{% trans "Event Container Details" %}
-                    <span class="px-1">
-                        <a class="btn btn-primary" name="add-contx-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_contx' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Container Detail' %}</a>
-                    </span>
-                </h5>
-                {% if object.containers.count > 0 %}
-                    <table class="table table-sm sortable table-hover">
-                        <thead>
+            <h5 class="card-header">{% trans "Event Container Details" %}
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-contx-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_contx' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Container Detail' %}</a>
+                </span>
+            </h5>
+            {% if object.containers.count > 0 %}
+                <table class="table table-sm sortable table-hover">
+                    <thead>
+                        {% for field in contx_field_list %}
+                            <th>{% get_verbose_label contx_object field %}</th>
+                        {% endfor %}
+                    </thead>
+                    <tbody>
+                        {% for obj in object.containers.all %}
+                            <tr href="{% url 'bio_diversity:details_contx' 'evnt' object.id obj.id %}">
                             {% for field in contx_field_list %}
-                                <th>{% get_verbose_label contx_object field %}</th>
+                                <td>
+                                    {% get_field_value obj field %}
+                                </td>
                             {% endfor %}
-                        </thead>
-                        <tbody>
-                            {% for obj in object.containers.all %}
-                                <tr href="{% url 'bio_diversity:details_contx' 'evnt' object.id obj.id %}">
-                                {% for field in contx_field_list %}
-                                    <td>
-                                        {% get_field_value obj field %}
-                                    </td>
-                                {% endfor %}
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endif %}
-            </div>
-        {% endblock field_override %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    {% endblock field_override %}
   </div>
 {% endblock %}
 
