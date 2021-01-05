@@ -201,11 +201,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
         # User clicks on first individual reviews its details and returns to the event details
-        try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='indv-details']//table/tbody")
-        except NoSuchElementException:
-            return self.fail("No individuals in details table")
-        rows = details_table.find_elements_by_tag_name("tr")
         first_ufid = rows[0].find_element_by_tag_name("td").text
         scroll_n_click(self.browser, rows[0])
         description_ufid = self.browser.find_element_by_xpath("//span[@class='font-weight-bold' and contains(text(), "
@@ -227,7 +222,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         tank_used = Tank.objects.filter(pk=contx_data["tank_id"]).get().__str__()
         self.assertIn(tank_used, [get_col_val(row, 0) for row in rows])
 
-    @tag("Custom")
     def test_add_spawning(self):
         self.nav_to_details_view()
 
@@ -236,6 +230,40 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         rows = add_feature(self, spwn_data, "spwn", "", self.evnt_data.__str__())
         pair_used = Pairing.objects.filter(pk=spwn_data["pair_id"]).get().__str__()
         self.assertIn(pair_used, [get_col_val(row, 0) for row in rows])
+
+    @tag("Custom")
+    def test_add_existing_spawning_nav_back_btn(self):
+        self.nav_to_details_view()
+
+        # user adds an existing individual to the event:
+        spwn = BioFactoryFloor.SpwnFactory()
+        spwn_details = self.browser.find_element_by_xpath('//div[@name="spwn-details"]')
+        spwn_btn = spwn_details.find_element_by_xpath('//a[@name="add-existing_spwn-btn"]')
+        spwn_data = {"spwn_id": spwn.pk}
+        open_n_fill_popup(self, spwn_btn, spwn_data)
+        try:
+            details_table = self.browser.find_element_by_xpath("//div[@name='spwn-details']//table/tbody")
+        except NoSuchElementException:
+            return self.fail("No spanwings in details table")
+        pair_used = Pairing.objects.filter(pk=spwn_data["spwn_id"]).get().__str__()
+        rows = details_table.find_elements_by_tag_name("tr")
+        self.assertIn(pair_used, [get_col_val(row, 0) for row in rows])
+
+        # User clicks on first individual reviews its details and returns to the event details
+        rows = details_table.find_elements_by_tag_name("tr")
+        first_pair = rows[0].find_element_by_tag_name("td").text
+        scroll_n_click(self.browser, rows[0])
+        description_pair = self.browser.find_element_by_xpath("//span[@class='font-weight-bold' and contains(text(), "
+                                                              "'Pairing :')]/following-sibling::span")
+        self.assertEqual(first_pair, description_pair.text)
+        self.browser.find_element_by_name("back-btn").click()
+        try:
+            details_table = self.browser.find_element_by_xpath("//div[@name='spwn-details']//table/tbody")
+        except NoSuchElementException:
+            return self.fail("No spawnings in details table")
+        rows = details_table.find_elements_by_tag_name("tr")
+        self.assertIn(first_pair, [get_col_val(row, 0) for row in rows])
+    
 
 
 
