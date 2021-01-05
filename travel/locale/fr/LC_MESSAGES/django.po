@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-05 08:42-0400\n"
+"POT-Creation-Date: 2021-01-05 09:33-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1258,8 +1258,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'objet suivant %(object)"
-"s en tant qu'examinateur par défaut \n"
+"                Êtes-vous sûr de vouloir supprimer l'objet suivant "
+"%(object)s en tant qu'examinateur par défaut \n"
 "            "
 
 #: .\travel\templates\travel\default_reviewer_form.html:22
@@ -1688,8 +1688,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"            This trip will be eligible for review by the ADM office in %"
-"(time)s.\n"
+"            This trip will be eligible for review by the ADM office in "
+"%(time)s.\n"
 "          "
 msgstr ""
 "\n"
@@ -1858,12 +1858,7 @@ msgid "Are you certain you wish to proceed?"
 msgstr "Êtes-vous certain de vouloir procéder ?"
 
 #: .\travel\templates\travel\trip_verification_form.html:32
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "                Are you sure you want to delete %(object)s as a default "
-#| "reviewer\n"
-#| "            "
+#, python-format
 msgid ""
 "\n"
 "                Are there any other %(fy)s trips that have similar sounding "
@@ -1871,8 +1866,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'objet suivant %(object)"
-"s en tant qu'examinateur par défaut \n"
+"                Y a-t-il d'autres voyages %(fy)s qui ont des NOMS "
+"similaires? \n"
 "            "
 
 #: .\travel\templates\travel\trip_verification_form.html:38
@@ -1904,7 +1899,14 @@ msgid ""
 "on the same day?\n"
 "            "
 msgstr ""
+"\n"
+"                Y a-t-il d'autres voyages %(fy)s qui commencent ou se "
+"terminent le même jour ?\n"
+"            "
 
+# HI David, I think for this one we should change the source text to :
+# Are there other %(fy)s trips that are happening at similar LOCATIONS?
+# i.e. take out: sounding
 #: .\travel\templates\travel\trip_verification_form.html:110
 #, python-format
 msgid ""
@@ -1913,22 +1915,26 @@ msgid ""
 "similar sounding LOCATIONS?\n"
 "            "
 msgstr ""
+"\n"
+"                Y a-t-il d'autres voyages %(fy)s qui ont lieu dans des LIEUX "
+"similaires ?\n"
+"            "
 
 #: .\travel\templates\travel\trip_verification_form.html:149
 msgid ""
-"What do you think of the trip purpose? It is really important that this was "
-"selected correctly."
+"What do you think of the TRIP PURPOSE? Please ensure that the proper "
+"selection was made."
 msgstr ""
+"Que pensez-vous du BUT DU VOYAGE ? Veuillez vous assurer que la sélection a "
+"été faite correctement."
 
 #: .\travel\templates\travel\trip_verification_form.html:156
-msgid "Current selection"
-msgstr ""
+msgid "Trip purpose (current selection)"
+msgstr "But du voyage (selection actuelle)"
 
 #: .\travel\templates\travel\trip_verification_form.html:157
-#, fuzzy
-#| msgid "Other Trips"
 msgid "Other options"
-msgstr "Autres voyages"
+msgstr "Autres options"
 
 #: .\travel\templates\travel\trip_verification_form.html:166
 msgid ""
@@ -1938,14 +1944,19 @@ msgid ""
 "                            trip purpose!\n"
 "                        "
 msgstr ""
+"\n"
+"                            There is no trip purpose. You will not be "
+"allowed to submit this form without selecting a\n"
+"                            trip purpose!\n"
+"                        "
 
 #: .\travel\templates\travel\trip_verification_form.html:205
-msgid "You can edit this here"
-msgstr ""
+msgid "Click HERE to edit the trip purpose"
+msgstr "Cliquez ICI pour modifier le but du voyage"
 
 #: .\travel\templates\travel\trip_verification_form.html:214
 msgid "Do the trip details look complete?"
-msgstr ""
+msgstr "Les détails du voyage ont-ils l'air complets ?"
 
 #: .\travel\templates\travel\trip_verification_form.html:228
 msgid "Connected Travel Requests:"
@@ -1953,7 +1964,7 @@ msgstr "Demandes de voyage liées :"
 
 #: .\travel\templates\travel\trip_verification_form.html:237
 msgid "STATUS"
-msgstr ""
+msgstr "STATUT"
 
 #: .\travel\templates\travel\trip_verification_form.html:243
 msgid "There are no requests connected to this trip."
@@ -1964,8 +1975,6 @@ msgid "Yes, looks good!"
 msgstr "Oui, ça a l'air bien !"
 
 #: .\travel\templates\travel\trip_verification_form.html:281
-#, fuzzy
-#| msgid "Make changes yourself"
 msgid "Make some changes"
 msgstr "Apportez vous-même des changements"
 
@@ -2027,24 +2036,24 @@ msgstr ""
 
 #: .\travel\views.py:236
 msgid ""
-"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip"
-"{pluralization} requiring attention!!"
+"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified "
+"trip{pluralization} requiring attention!!"
 msgstr ""
 "<b>AVERTISSEMENT ADMINISTRATIF :</b> {region} La région a {unverified_trips} "
 "voyage non vérifié{pluralization} nécessitant une intervention!!"
 
 #: .\travel\views.py:250
 msgid "ADM Office"
-msgstr ""
+msgstr "Bureau du SMA"
 
 #. Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
 #: .\travel\views.py:260
 msgid ""
-"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
-"{pluralization} requiring attention!!"
+"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
+"trip{pluralization} requiring attention!!"
 msgstr ""
-"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
-"{pluralization} requiring attention!!"
+"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
+"trip{pluralization} requiring attention!!"
 
 #: .\travel\views.py:291
 msgid "Traveller name"
@@ -2369,10 +2378,8 @@ msgid "Do you wish to start a review on this trip?"
 msgstr "Souhaitez-vous commencer un examen sur ce voyage?"
 
 #: .\travel\views.py:1761
-#, fuzzy
-#| msgid "Do you wish to start a review on this trip?"
 msgid "Do you wish to re-examine this trip?"
-msgstr "Souhaitez-vous commencer un examen sur ce voyage?"
+msgstr "Souhaitez-vous réexaminer ce voyage ?"
 
 #: .\travel\views.py:1763
 msgid "Do you wish to end the review of this trip?"
@@ -2511,10 +2518,20 @@ msgstr "Le coût a été supprimé avec succès."
 msgid "All empty costs have been cleared."
 msgstr "Tous les frais vides ont été supprimés."
 
+#~ msgid ""
+#~ "What do you think of the trip purpose? It is really important that this "
+#~ "was selected correctly."
+#~ msgstr ""
+#~ "Que pensez-vous de du BUT DU VOYAGE ? Il est vraiment important que celui-"
+#~ "ci ait été choisi correctement."
+
+#~ msgid "You can edit this here"
+#~ msgstr "Cliquez ici pour modifier le but du voyage"
+
 #~ msgid "Trips Awaiting Verfication"
 #~ msgstr "Voyages en attente de vérification"
 
-# Do you wish to re-examine this trip? 
+# Do you wish to re-examine this trip?
 # please chance the source text to the above.
 #~ msgid "you wish to re-open the review of this trip?"
 #~ msgstr "souhaitez-vous réexaminer ce voyage ?"
