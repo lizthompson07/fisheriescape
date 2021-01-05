@@ -1,0 +1,69 @@
+{% extends 'scuba/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+  <style>
+  .my-btn{
+      font-size: small;
+  }
+  </style>
+  <div class="btns mb-3">
+    <a href="{% url 'scuba:sample_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'scuba:sample_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+  </div>
+
+  <div class="mb-3">
+    <table class="table table-sm" style="width: 50%">
+      {% for field in field_list %}
+        {% verbose_td_display object field %}
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="mb-3">
+    <div class="float-right">
+      <a href="{% url 'scuba:dive_new' object.id %}" class="btn btn-sm btn-success"> {% trans "New Dive" %}</a>
+    </div>
+    <h3>{% trans "Dives" %}</h3>
+
+    {% if object.dives.exists %}
+
+      <table class="table table-hover table-sm">
+        <thead>
+        <tr>
+          {% for field in dive_field_list %}
+            {% if field == "comment" %}
+              <th style="width: 25%">
+                {% get_verbose_label object.dives.first field %}
+              </th>
+            {% else %}
+              <th>
+                {% get_verbose_label object.dives.first field %}
+              </th>
+            {% endif %}
+          {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for dive in object.dives.all %}
+          <tr href="{% url 'scuba:dive_detail' dive.id %}">
+            {% for field in dive_field_list %}
+              <td>
+                {% get_field_value dive field %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+    {% else %}
+
+      <em>{% trans "This sample has no dives." %}</em>
+
+    {% endif %}
+  </div>
+
+
+{% endblock %}

@@ -274,3 +274,163 @@ class TransectDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
 
     def get_grandparent_crumb(self):
         return {"title": self.get_object().site.region, "url": reverse("scuba:region_detail", args=[self.get_object().site.region.id])}
+
+
+# SAMPLES #
+###########
+
+class SampleListView(ScubaAdminRequiredMixin, CommonFilterView):
+    model = models.Sample
+    template_name = 'scuba/list.html'
+    filterset_class = filters.SampleFilter
+    home_url_name = "scuba:index"
+    new_object_url = reverse_lazy("scuba:sample_new")
+    row_object_url_name = row_ = "scuba:sample_detail"
+    container_class = "container-fluid bg-light curvy"
+
+    field_list = [
+        {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
+        {"name": 'site.region|{}'.format("region"), "class": "", "width": ""},
+        {"name": 'site', "class": "", "width": ""},
+    ]
+
+
+class SampleUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
+    model = models.Sample
+    form_class = forms.SampleForm
+    template_name = 'scuba/form.html'
+    home_url_name = "scuba:index"
+    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    container_class = "container bg-light curvy"
+
+
+class SampleCreateView(ScubaAdminRequiredMixin, CommonCreateView):
+    model = models.Sample
+    form_class = forms.SampleForm
+    success_url = reverse_lazy('scuba:sample_list')
+    template_name = 'scuba/form.html'
+    home_url_name = "scuba:index"
+    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    container_class = "container bg-light curvy"
+
+
+class SampleDetailView(ScubaAdminRequiredMixin, CommonDetailView):
+    model = models.Sample
+    template_name = 'scuba/sample_detail.html'
+    home_url_name = "scuba:index"
+    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    container_class = "container bg-light curvy"
+    field_list = [
+        'site_region|{}'.format(gettext_lazy("site")),
+        'datetime',
+        'weather_notes',
+        'comment',
+    ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dive_field_list = [
+            'transect',
+            'diver',
+            'heading',
+            'side',
+            'width_m',
+            'comment',
+        ]
+        context["dive_field_list"] = dive_field_list
+        return context
+
+
+class SampleDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
+    model = models.Sample
+    success_url = reverse_lazy('scuba:sample_list')
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'scuba/confirm_delete.html'
+    container_class = "container bg-light curvy"
+
+
+# DIVES #
+#########
+
+
+class DiveCreateView(ScubaAdminRequiredMixin, CommonCreateView):
+    model = models.Dive
+    form_class = forms.DiveForm
+    template_name = 'scuba/form.html'
+    home_url_name = "scuba:index"
+    container_class = "container bg-light curvy"
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+
+    def get_initial(self):
+        return {"sample":self.kwargs.get("sample")}
+
+    def get_sample(self):
+        return get_object_or_404(models.Region, pk=self.kwargs.get("sample"))
+
+    def get_parent_crumb(self):
+        return {"title": self.get_sample(), "url": reverse("scuba:sample_detail", args=[self.get_sample().id])}
+
+    def get_success_url(self):
+        return self.get_parent_crumb()["url"]
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.sample = self.get_sample()
+        return super().form_valid(form)
+
+
+class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
+    model = models.Dive
+    template_name = 'scuba/dive_detail.html'
+    home_url_name = "scuba:index"
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    container_class = "container bg-light curvy"
+    field_list = [
+        'transect',
+        'diver',
+        'heading',
+        'side',
+        'width_m',
+        'comment',
+    ]
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        transect_field_list = [
+            'name',
+        ]
+        context["transect_field_list"] = transect_field_list
+        return context
+
+
+class DiveUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
+    model = models.Dive
+    form_class = forms.DiveForm
+    template_name = 'scuba/form.html'
+    home_url_name = "scuba:index"
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    container_class = "container bg-light curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("scuba:dive_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
+
+
+class DiveDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
+    model = models.Dive
+    success_message = 'The functional group was successfully deleted!'
+    template_name = 'scuba/confirm_delete.html'
+    container_class = "container bg-light curvy"
+    home_url_name = "scuba:index"
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("scuba:dive_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}

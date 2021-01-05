@@ -2,26 +2,30 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-12-09 11:52-0400\n"
+"POT-Creation-Date: 2021-01-05 07:36-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: POEditor.com\n"
 "Language: en\n"
 
+#: .\vault\filters.py:38
+msgid "Name contains"
+msgstr ""
+
 #: .\vault\models.py:10
 #, fuzzy
 msgid "Internal code"
 msgstr "observations générales"
 
-#: .\vault\models.py:11 .\vault\models.py:48 .\vault\models.py:126
-#: .\vault\models.py:142
+#: .\vault\models.py:11 .\vault\models.py:50 .\vault\models.py:129
+#: .\vault\models.py:145
 #, fuzzy
 msgid "English name"
 msgstr "nom anglais"
 
-#: .\vault\models.py:12 .\vault\models.py:50 .\vault\models.py:127
-#: .\vault\models.py:143
+#: .\vault\models.py:12 .\vault\models.py:52 .\vault\models.py:130
+#: .\vault\models.py:146
 #, fuzzy
 msgid "French name"
 msgstr "nom anglais"
@@ -54,296 +58,391 @@ msgstr ""
 msgid "english_name"
 msgstr "nom anglais"
 
-#: .\vault\models.py:37 .\vault\models.py:39 .\vault\models.py:55
-#: .\vault\models.py:57 .\vault\models.py:131 .\vault\models.py:133
-#: .\vault\models.py:148 .\vault\models.py:150 .\vault\models.py:172
-#: .\vault\models.py:174 .\vault\models.py:253 .\vault\models.py:255
-#: .\vault\models.py:270 .\vault\models.py:272 .\vault\models.py:287
-#: .\vault\models.py:289 .\vault\models.py:303 .\vault\models.py:305
-#: .\vault\models.py:340
+#: .\vault\models.py:38 .\vault\models.py:40 .\vault\models.py:57
+#: .\vault\models.py:59 .\vault\models.py:134 .\vault\models.py:136
+#: .\vault\models.py:152 .\vault\models.py:154 .\vault\models.py:177
+#: .\vault\models.py:179 .\vault\models.py:272 .\vault\models.py:274
+#: .\vault\models.py:289 .\vault\models.py:291 .\vault\models.py:306
+#: .\vault\models.py:308 .\vault\models.py:323 .\vault\models.py:325
+#: .\vault\models.py:370
 msgid "name"
 msgstr "nom"
 
-#: .\vault\models.py:49
+#: .\vault\models.py:51
 #, fuzzy
 msgid "English abbreviated name"
 msgstr "nom anglais"
 
-#: .\vault\models.py:51
+#: .\vault\models.py:53
 msgid "French abbreviated name"
 msgstr ""
 
-#: .\vault\models.py:65
+#: .\vault\models.py:66
 msgid "First name"
 msgstr "Prénom"
 
-#: .\vault\models.py:66
+#: .\vault\models.py:67
 msgid "Last name"
 msgstr "Nom de famille"
 
-#: .\vault\models.py:67
+#: .\vault\models.py:69
 #, fuzzy
 msgid "Organisation"
 msgstr "Organisation"
 
-#: .\vault\models.py:68
+#: .\vault\models.py:70
 msgid "Email address"
 msgstr "Courriel"
 
-#: .\vault\models.py:69
+#: .\vault\models.py:71
 #, fuzzy
 msgid "Phone number"
 msgstr "numéro d'événement"
 
-#: .\vault\models.py:70
+#: .\vault\models.py:72
 msgid "Roles"
 msgstr "Rôles"
 
-#: .\vault\models.py:81
+#: .\vault\models.py:83
 msgid "integer/categorical"
 msgstr ""
 
-#: .\vault\models.py:82
+#: .\vault\models.py:84
 msgid "float"
 msgstr ""
 
-#: .\vault\models.py:83
+#: .\vault\models.py:85
 msgid "string"
 msgstr ""
 
-#: .\vault\models.py:85
+#: .\vault\models.py:87
 msgid "Name"
 msgstr "Nom"
 
-#: .\vault\models.py:86
+#: .\vault\models.py:88
 #, fuzzy
 msgid "Nom"
 msgstr "Non"
 
-#: .\vault\models.py:87 .\vault\models.py:98
+#: .\vault\models.py:89 .\vault\models.py:101
 #, fuzzy
 msgid "English description"
 msgstr "description anglaise"
 
-#: .\vault\models.py:88 .\vault\models.py:99
+#: .\vault\models.py:90 .\vault\models.py:102
 #, fuzzy
 msgid "French description"
 msgstr "description française"
 
-#: .\vault\models.py:89
+#: .\vault\models.py:91
 #, fuzzy
 msgid "data type"
 msgstr "nom de famille"
 
-#: .\vault\models.py:104 .\vault\models.py:105 .\vault\models.py:112
-#: .\vault\models.py:113
+#: .\vault\models.py:107 .\vault\models.py:108 .\vault\models.py:115
+#: .\vault\models.py:116
 #, fuzzy
 msgid "description_eng"
 msgstr "description (ang)"
 
-#: .\vault\models.py:124
+#: .\vault\models.py:127
 #, fuzzy
 msgid "Mode"
 msgstr "enregistrement"
 
-#: .\vault\models.py:125
+#: .\vault\models.py:128
 #, fuzzy
 msgid "Mode type"
 msgstr "type d'enregistrement"
 
-#: .\vault\models.py:141
+#: .\vault\models.py:144
 #, fuzzy
 msgid "Type of instrument"
 msgstr "Nouveau personne"
 
-#: .\vault\models.py:160
+#: .\vault\models.py:165
 #, fuzzy
 msgid "instrument"
 msgstr "Nouveau personne"
 
-#: .\vault\models.py:185
+#: .\vault\models.py:191
 msgid "Type of observation platform"
 msgstr ""
 
-#: .\vault\models.py:186
+#: .\vault\models.py:193
 #, fuzzy
 msgid "authority"
 msgstr "auteur"
 
-#: .\vault\models.py:187
+#: .\vault\models.py:195
 msgid "owner"
 msgstr ""
 
-#: .\vault\models.py:188
+#: .\vault\models.py:196
 msgid "Make and model"
 msgstr ""
 
-#: .\vault\models.py:189
+#: .\vault\models.py:197
 #, fuzzy
 msgid "Call name"
 msgstr "nom de famille"
 
-#: .\vault\models.py:190
+#: .\vault\models.py:198
 #, fuzzy
 msgid "Long name"
 msgstr "Nom commun"
 
-#: .\vault\models.py:204
+#: .\vault\models.py:213
 msgid "observation platform"
 msgstr ""
 
-#: .\vault\models.py:205
+#: .\vault\models.py:214
 msgid "Region"
 msgstr "Région"
 
-#: .\vault\models.py:206
+#: .\vault\models.py:215
 msgid "Purpose"
 msgstr ""
 
-#: .\vault\models.py:207
+#: .\vault\models.py:216
 msgid "Start date (YYYY-MM-DD)"
 msgstr ""
 
-#: .\vault\models.py:208
+#: .\vault\models.py:217
 #, fuzzy
 msgid "Start time (format)"
 msgstr "Date de début du projet"
 
-#: .\vault\models.py:209
+#: .\vault\models.py:218
 #, fuzzy
 msgid "End time (format)"
 msgstr "nom (fra)"
 
-#: .\vault\models.py:210
+#: .\vault\models.py:220
 #, fuzzy
 msgid "Duration (hours)"
 msgstr "Durée en semaines"
 
-#: .\vault\models.py:211
+#: .\vault\models.py:221
 msgid "Identifier String"
 msgstr ""
 
-#: .\vault\models.py:220
+#: .\vault\models.py:231
 #, fuzzy
 msgid "Outing"
 msgstr "Nouveau ou existant"
 
-#: .\vault\models.py:221
+#: .\vault\models.py:233
 msgid "Instrument"
 msgstr ""
 
-#: .\vault\models.py:222
+#: .\vault\models.py:235
 #, fuzzy
 msgid "Date and Time"
 msgstr "Dernière modification"
 
-#: .\vault\models.py:223
+#: .\vault\models.py:236
 msgid "Longitude"
 msgstr ""
 
-#: .\vault\models.py:224
+#: .\vault\models.py:237
 msgid "Latitude"
 msgstr ""
 
-#: .\vault\models.py:225
+#: .\vault\models.py:239
 msgid "Observer"
 msgstr ""
 
-#: .\vault\models.py:236
+#: .\vault\models.py:252
 #, fuzzy
 msgid "Observation"
 msgstr "Organisation"
 
-#: .\vault\models.py:237
+#: .\vault\models.py:254
 #, fuzzy
 msgid "Metadata field"
 msgstr "Mes métadonnées"
 
-#: .\vault\models.py:242
+#: .\vault\models.py:259
 #, fuzzy
 msgid "code"
 msgstr "enregistrement"
 
-#: .\vault\models.py:243 .\vault\models.py:244
+#: .\vault\models.py:261 .\vault\models.py:263
 #, fuzzy
 msgid "description"
 msgstr "description (ang)"
 
-#: .\vault\models.py:314 .\vault\models.py:328
+#: .\vault\models.py:336 .\vault\models.py:356
 #, fuzzy
 msgid "observation"
 msgstr "Organisation"
 
-#: .\vault\models.py:321 .\vault\models.py:353 .\vault\models.py:363
+#: .\vault\models.py:347 .\vault\models.py:387 .\vault\models.py:400
 msgid "verified"
 msgstr ""
 
-#: .\vault\models.py:322
+#: .\vault\models.py:349
 msgid "known individual"
 msgstr ""
 
-#: .\vault\models.py:327 .\vault\models.py:359
+#: .\vault\models.py:354 .\vault\models.py:395
 #, fuzzy
 #| msgid "name"
 msgid "filename"
 msgstr "nom"
 
-#: .\vault\models.py:334 .\vault\models.py:346
+#: .\vault\models.py:363 .\vault\models.py:377
 msgid "original media file"
 msgstr ""
 
-#: .\vault\models.py:341
+#: .\vault\models.py:371
 msgid "used for"
 msgstr ""
 
-#: .\vault\models.py:361
+#: .\vault\models.py:398
 msgid "original mediafile"
 msgstr ""
 
-#: .\vault\models.py:362
+#: .\vault\models.py:399
 msgid "species"
 msgstr ""
 
-#: .\vault\templates\vault\instrument_list.html:50
-#: .\vault\templates\vault\observation_list.html:50
-#: .\vault\templates\vault\observationplatform_list.html:50
-#: .\vault\templates\vault\outing_list.html:50
-#: .\vault\templates\vault\person_list.html:50
-#: .\vault\templates\vault\snippets\predator_filter.html:44
-#: .\vault\templates\vault\species_list.html:50
-msgid "(click on a header to sort table)"
-msgstr "(cliquez sur un en-tête pour trier le tableau)"
-
-#: .\vault\templates\vault\snippets\predator_filter.html:48
-msgid "displaying"
-msgstr "afficher"
-
-#: .\vault\templates\vault\snippets\predator_filter.html:48
-msgid "of"
-msgstr "de"
-
-#: .\vault\views.py:94
-msgid "Species record successfully updated for : {}"
+#: .\vault\templates\vault\base\_app_title.html:2
+msgid "Vault"
 msgstr ""
 
-#: .\vault\views.py:103
-msgid "Species record successfully created for : {}"
+#: .\vault\templates\vault\index.html:111
+msgid ""
+"\n"
+"          Welcome to the Marine Mammal Vault. You can access your Task "
+"Dashboard below.\n"
+"        "
 msgstr ""
 
-#: .\vault\views.py:167
-msgid "ObservationPlatform record successfully updated for : {}"
+#: .\vault\templates\vault\index.html:138
+msgid "User"
 msgstr ""
 
-#: .\vault\views.py:176
-msgid "ObservationPlatform record successfully created for : {}"
+#: .\vault\templates\vault\index.html:142
+msgid "Admin"
 msgstr ""
 
-#: .\vault\views.py:236
+#: .\vault\templates\vault\index.html:157
+msgid "Test Action Button"
+msgstr ""
+
+#: .\vault\templates\vault\index.html:163
+msgid "View Your Test"
+msgstr ""
+
+#: .\vault\templates\vault\index.html:170
+msgid "Browse Test"
+msgstr ""
+
+#: .\vault\templates\vault\index.html:188
+msgid "Manage Instrument Type"
+msgstr ""
+
+#: .\vault\templates\vault\index.html:192
 #, fuzzy
-msgid "Instrument record successfully updated for : {}"
+msgid "Manage Instrument"
+msgstr "Nouveau personne"
+
+#: .\vault\templates\vault\index.html:196
+#, fuzzy
+msgid "Manage Organisation"
+msgstr "Organisation"
+
+#: .\vault\templates\vault\index.html:201
+msgid "Manage Platform Type"
+msgstr ""
+
+#: .\vault\templates\vault\index.html:205
+msgid "Manage Platform"
+msgstr ""
+
+#: .\vault\templates\vault\index.html:209
+msgid "Manage Roles"
+msgstr ""
+
+#: .\vault\templates\vault\index.html:214
+msgid "Manage Person"
+msgstr ""
+
+#: .\vault\templates\vault\index.html:258
+msgid "Tables"
+msgstr ""
+
+#: .\vault\templates\vault\user_list.html:23
+msgid "New"
+msgstr ""
+
+#: .\vault\templates\vault\user_list.html:25
+msgid "New DM Apps User"
+msgstr ""
+
+#: .\vault\templates\vault\user_list.html:40
+msgid "Vault App Administrators"
+msgstr ""
+
+#: .\vault\templates\vault\user_list.html:43
+msgid "Vault App Editors"
+msgstr ""
+
+#: .\vault\views.py:102
+msgid "Last login to DM Apps"
+msgstr ""
+
+#: .\vault\views.py:320 .\vault\views.py:349 .\vault\views.py:358
+#: .\vault\views.py:372
+msgid "Species List"
+msgstr ""
+
+#: .\vault\views.py:327 .\vault\views.py:434
+msgid "Cancel"
+msgstr ""
+
+#: .\vault\views.py:332
+#, fuzzy
+msgid "Species record successfully updated for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
 
-#: .\vault\views.py:245
+#: .\vault\views.py:357
+msgid "Add New Species"
+msgstr ""
+
+#: .\vault\views.py:362
 #, fuzzy
-msgid "Instrument record successfully created for : {}"
+msgid "Species record successfully created for : {my_object}"
 msgstr "L'entrée a été supprimé avec succès!"
+
+#: .\vault\views.py:427 .\vault\views.py:456 .\vault\views.py:465
+#: .\vault\views.py:479
+#, fuzzy
+msgid "Outing List"
+msgstr "Nouveau ou existant"
+
+#: .\vault\views.py:439
+#, fuzzy
+msgid "Outing record successfully updated for : {my_object}"
+msgstr "L'entrée a été supprimé avec succès!"
+
+#: .\vault\views.py:464
+#, fuzzy
+msgid "Add New Outing"
+msgstr "Nouveau ou existant"
+
+#: .\vault\views.py:469
+#, fuzzy
+msgid "Outing record successfully created for : {my_object}"
+msgstr "L'entrée a été supprimé avec succès!"
+
+#~ msgid "(click on a header to sort table)"
+#~ msgstr "(cliquez sur un en-tête pour trier le tableau)"
+
+#~ msgid "displaying"
+#~ msgstr "afficher"
+
+#~ msgid "of"
+#~ msgstr "de"

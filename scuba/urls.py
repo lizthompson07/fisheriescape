@@ -26,6 +26,18 @@ urlpatterns = [
     path('transects/<int:pk>/edit/', views.TransectUpdateView.as_view(), name="transect_edit"),
     path('transects/<int:pk>/delete/', views.TransectDeleteView.as_view(), name="transect_delete"),
 
+    # samples
+    path('samples/', views.SampleListView.as_view(), name="sample_list"),
+    path('samples/new/', views.SampleCreateView.as_view(), name="sample_new"),
+    path('samples/<int:pk>/edit/', views.SampleUpdateView.as_view(), name="sample_edit"),
+    path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),
+    path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),
+
+    # dives
+    path('samples/<int:sample>/new-dive/', views.DiveCreateView.as_view(), name="dive_new"),
+    path('dives/<int:pk>/edit/', views.DiveUpdateView.as_view(), name="dive_edit"),
+    path('dives/<int:pk>/delete/', views.DiveDeleteView.as_view(), name="dive_delete"),
+    path('dives/<int:pk>/view/', views.DiveDetailView.as_view(), name="dive_detail"),
 
 ]
 

@@ -1,0 +1,56 @@
+{% extends 'scuba/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+
+  <div class="btns mb-3">
+    <a href="{% url 'scuba:dive_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'scuba:dive_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+  </div>
+
+  <div class="mb-3">
+    <table class="table table-sm" style="width: 50%">
+      {% for field in field_list %}
+        {% verbose_td_display object field %}
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="mb-3">
+    <h3>{% trans "Observations" %}</h3>
+
+    {% if object.sections.exists %}
+
+      <table class="table table-sm">
+        <thead>
+        <tr>
+          {% for field in section_field_list %}
+            <th>
+              {% get_verbose_label object.sections.first field %}
+            </th>
+          {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for section in object.sections.all %}
+          <tr>
+            {% for field in section_field_list %}
+              <td>
+                {% get_field_value section field %}
+              </td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+    {% else %}
+
+      <em>{% trans "This dive has no observations." %}</em>
+
+    {% endif %}
+  </div>
+
+
+{% endblock %}

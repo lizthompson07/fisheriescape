@@ -32,6 +32,7 @@ class RegionForm(forms.ModelForm):
 
 class SiteForm(forms.ModelForm):
     field_order = ["name"]
+
     class Meta:
         model = models.Site
         fields = "__all__"
@@ -39,6 +40,27 @@ class SiteForm(forms.ModelForm):
 
 class TransectForm(forms.ModelForm):
     field_order = ["name"]
+
     class Meta:
         model = models.Transect
         fields = "__all__"
+
+
+class SampleForm(forms.ModelForm):
+    class Meta:
+        model = models.Sample
+        fields = "__all__"
+
+
+class DiveForm(forms.ModelForm):
+    # field_order = ["name"]
+    class Meta:
+        model = models.Dive
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if kwargs.get("instance"):
+            self.fields["transect"].queryset = kwargs.get("instance").sample.site.transects.all()
+        elif kwargs.get("initial"):
+            self.fields["transect"].queryset = models.Sample.objects.get(pk=kwargs.get("initial").get("sample")).site.transects.all()

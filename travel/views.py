@@ -247,7 +247,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
             tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + unverified_trips
 
         # Now for NCR
-        admo_name = "ADM Office"
+        admo_name = _("ADM Office")
         tab_dict[admo_name] = dict()
 
         # unverified trips
@@ -1758,7 +1758,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
         if self.get_object().status_id in [30, 41]:
             return _("Do you wish to start a review on this trip?")
         elif self.get_object().status_id in [32]:
-            return _("you wish to re-open the review of this trip?")
+            return _("Do you wish to re-examine this trip?")
         else:
             return _("Do you wish to end the review of this trip?")
 

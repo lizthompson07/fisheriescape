@@ -1,8 +1,8 @@
 import django_filters
-from django.utils.translation import gettext_lazy as _
+from django import forms
+from django.utils.translation import gettext_lazy as _, gettext
 
 from . import models
-from django import forms
 
 
 # class SampleFilter(django_filters.FilterSet):
@@ -24,3 +24,18 @@ from django import forms
 class RegionFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label=_("Search term"), lookup_expr='icontains',
                                             widget=forms.TextInput())
+
+
+class SampleFilter(django_filters.FilterSet):
+    SampleDate = django_filters.NumberFilter(field_name='datetime', label="Year", lookup_expr='startswith', widget=forms.NumberInput())
+
+    class Meta:
+        model = models.Sample
+        fields = {
+            'site__region': ['exact'],
+            'site': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters.get("site__region").label = gettext("Region")

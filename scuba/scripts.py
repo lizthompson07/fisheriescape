@@ -90,7 +90,7 @@ def digest_data():
 
             # DIVE
             heading_txt = row['Heading'].lower()
-            side_txt = row['Side']
+            side_txt = row['Side'].lower()
             heading = heading_txt[0] if not heading_txt[0] == "u" else None
             side = side_txt[0] if not side_txt[0] == "u" else None
 
