@@ -97,10 +97,10 @@
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown" style="right: 0; left: auto;">
                                 {% if not AZURE_AD %}
-                                    <a class="dropdown-item" href="{% url 'accounts:account' user.id %}" data-toggle="tooltip" title="">
+                                    <a class="dropdown-item" href="{% url 'accounts:account' user.id %}" data-toggle="tooltip" title="" target="_blank">
                                         {% trans 'Account' %}
                                     </a>
-                                    <a class="dropdown-item" href="{% url 'accounts:profile' user.id %}" data-toggle="tooltip" title="">
+                                    <a class="dropdown-item" href="{% url 'accounts:profile' user.id %}" data-toggle="tooltip" title="" target="_blank">
                                         {% trans 'Profile' %}
                                     </a>
                                     <div class="dropdown-divider"></div>

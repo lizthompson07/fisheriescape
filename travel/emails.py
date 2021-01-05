@@ -80,7 +80,11 @@ class AdminApprovalAwaitingEmail:
 class ReviewAwaitingEmail:
     def __init__(self, trip_request_object, reviewer_object, request):
         self.request = request
-        self.subject = 'A trip request is awaiting your review - un voyage attend votre avis'
+        if trip_request_object.is_late_request:
+            self.subject = 'A LATE trip request is awaiting your review - Une demande de voyage TARDIVE attend votre examen'
+        else:
+            self.subject = 'A trip request is awaiting your review - Une demande de voyage attend votre examen'
+
         self.message = self.load_html_template(trip_request_object, reviewer_object)
         self.from_email = from_email
         self.to_list = [reviewer_object.user.email, ]

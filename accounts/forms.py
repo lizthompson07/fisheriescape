@@ -1,20 +1,21 @@
 from django import forms
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, SetPasswordForm, AuthenticationForm, PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.template import loader
-from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from dm_apps.utils import custom_send_mail
 from . import models
+chosen_js = {"class": "chosen-select-contains"}
 
 try:
     from dm_apps import my_conf as local_conf
 except (ModuleNotFoundError, ImportError):
     from dm_apps import default_conf as local_conf
+
 
 # from django.contrib.auth.forms import UserCreationForm
 
@@ -23,6 +24,17 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = models.Profile
         fields = ('position_eng', 'position_fre', 'phone', 'language', 'section')
+
+    def __init__(self, *args, **kwargs):
+        from shared_models import models as shared_models
+        super().__init__(*args, **kwargs)
+        section_choices = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch",
+                                                                        "division", "name")]
+        section_choices.insert(0, tuple((None, "---")))
+
+        self.fields["section"].choices = section_choices
+        self.fields["section"].widget.attrs = chosen_js
 
 
 class UserAccountForm(forms.ModelForm):
@@ -87,6 +99,7 @@ class RequestAccessForm(forms.Form):
     user_id = forms.CharField(widget=forms.HiddenInput())
     application = forms.ChoiceField(label='Requesting access to which app', choices=APPLICATION_CHOICES)
     optional_comment = forms.CharField(required=False, label="Details")
+
 
 # class SetUserPasswordForm(SetPasswordForm):
 

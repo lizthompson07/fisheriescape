@@ -27,12 +27,12 @@
             <div id="fields">
                 {% for field in form %}
                     {% if field.name == "cost" %}
-                        <h3>Please select a cost:</h3>
+                        <h3>{% trans "Please select a cost:" %}</h3>
                         {% bootstrap_field field placeholder="" size="small" show_label=False %}
-                        <h3>Do you want to enter cost by rate or total amount?</h3>
+                        <h3>{% trans "Do you want to enter cost by rate or total amount?" %}</h3>
                         <div class="mb-3">
-                            <button class="btn btn-lg btn-outline-primary special" id="by-amount">By Total Amount</button>
-                            <button class="btn btn-lg btn-outline-primary special" id="by-rate">By Rates</button>
+                            <button class="btn btn-lg btn-outline-primary special" id="by-amount">{% trans "By Total Amount" %}</button>
+                            <button class="btn btn-lg btn-outline-primary special" id="by-rate">{% trans "By Rates" %}</button>
                         </div>
                     {% elif "by-rate" in field.field.widget.attrs.class %}
                         <div class="by-rate">

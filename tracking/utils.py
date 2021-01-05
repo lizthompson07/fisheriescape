@@ -34,14 +34,26 @@ def chunk_pageviews():
     # capture all lines of page view table in 2 summary tables
     for view in Pageview.objects.filter(summarized=False):
         # what app were they using?
-        url_list = view.url.split("/")
-        app_name = url_list[2] if len(url_list) > 2 else None
+        url_parts = view.url.split("/")
+        # get the app name:
+        app_ignore_list = ["", "accounts", "login_required", "denied", "reset", "password-reset", "auth", "login",
+                       "setlang", "shared", "tracking", 'a',]
+        part_ignore_list = ['', 'en', 'fr']
+
+        app_name = None
+        for part in url_parts:
+            if part.lower() not in part_ignore_list:
+                app_name = part.lower()
+                break
 
         # who is the user?
         my_user = view.visitor.user
 
-        if my_user and app_name and app_name not in ["", "accounts", "login_required", "denied", "reset", "password-reset", "auth", "login",
-                                                     "setlang", "shared", "tracking"]:
+        if my_user and app_name and app_name not in app_ignore_list:
+            # here are special operations...
+            if app_name == "projects":
+                app_name = "project-planning"
+
             # what is the date?
             my_date = timezone.datetime(view.view_time.year, view.view_time.month, view.view_time.day)
 

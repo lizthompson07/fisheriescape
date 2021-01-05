@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum, Q, Count
 from django.urls import reverse
@@ -199,6 +200,9 @@ class Location(models.Model):
             my_str += f' (bin # {self.bin_id})'
         return my_str
 
+    class Meta:
+        ordering = ["location", ]
+
     def get_absolute_url(self):
         return reverse("whalebrary:location_detail", kwargs={"pk": self.id})
 
@@ -290,8 +294,8 @@ class Experience(models.Model):
         ('Intermediate', _("3-5 Necropsies")),
         ('Advanced', _("More than 5 Necropsies")),
     )
-    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
-    nom = models.CharField(max_length=250, blank=True, null=True, verbose_name=_(""))
+    name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("name"))
+    nom = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("nom"))
     description_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("english description"))
     description_fra = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("french description"))
     experience = models.CharField(max_length=255, choices=EXPERIENCE_LEVEL_CHOICES, default='None',
@@ -460,7 +464,7 @@ class TransactionCategory(models.Model):
 
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
-    quantity = models.PositiveIntegerField(null=True, blank=True, verbose_name=_("quantity"))
+    quantity = models.FloatField(null=True, blank=True, verbose_name=_("quantity"), validators=[MinValueValidator(0)])
     category = models.ForeignKey(TransactionCategory, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("transaction category"))
     # can use for who lent to, etc

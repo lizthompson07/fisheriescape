@@ -1,13 +1,17 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
-from django.template.defaultfilters import date
+from django.template.defaultfilters import date, slugify
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
 
-from lib.functions.custom_functions import fiscal_year, listrify
+from dm_apps.utils import custom_send_mail
+from lib.functions.custom_functions import fiscal_year, listrify, nz
+from lib.templatetags.custom_filters import percentage
+from projects2 import emails
+from projects2.utils import get_risk_rating
 from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup, Lookup, HelpTextLookup
@@ -72,6 +76,10 @@ class FundingSource(SimpleLookup):
     def __str__(self):
         return f"{self.tname} ({self.get_funding_source_type_display()})"
 
+    @property
+    def display2(self):
+        return f"{self.get_funding_source_type_display()} - {self.tname}"
+
     class Meta:
         ordering = ['funding_source_type', 'name', ]
         unique_together = [('funding_source_type', 'name'), ]
@@ -87,8 +95,7 @@ class HelpText(HelpTextLookup):
 
 class Project(models.Model):
     # basic
-    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects2",
-                                verbose_name=_("section"))
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, related_name="projects2", verbose_name=_("section"))
     title = models.TextField(verbose_name=_("Project title"))
     activity_type = models.ForeignKey(ActivityType, on_delete=models.DO_NOTHING, blank=False, null=True, verbose_name=_("activity type"))
     functional_group = models.ForeignKey(FunctionalGroup, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="projects",
@@ -102,10 +109,17 @@ class Project(models.Model):
 
     is_hidden = models.BooleanField(default=False, verbose_name=_("Should the project be hidden from other users?"))
 
+    # ACRDP fields
+    organization = models.ForeignKey(shared_models.Organization, on_delete=models.DO_NOTHING, related_name="projects",
+                                     verbose_name=_("physical location (ACRDP)"), blank=True, null=True)
+    species_involved = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("species involved (ACRDP)"))
+    team_description = models.TextField(blank=True, null=True, verbose_name=_("description of team and required qualifications (ACRDP)"))
+    rationale = models.TextField(blank=True, null=True, verbose_name=_("project problem / rationale (ACRDP)"))
+    experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
+
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
     end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"), editable=False)
-    fiscal_years = models.ManyToManyField(shared_models.FiscalYear, editable=False, verbose_name=_("fiscal years"))
     funding_sources = models.ManyToManyField(FundingSource, editable=False, verbose_name=_("complete list of funding sources"))
     staff_search_field = models.CharField(editable=False, max_length=1000, blank=True, null=True)
     lead_staff = models.ManyToManyField("Staff", editable=False, verbose_name=_("project leads"))
@@ -126,7 +140,6 @@ class Project(models.Model):
 
             # reset some calculated fields
             self.staff_search_field = ""
-            self.fiscal_years.clear()
             self.funding_sources.clear()
             self.lead_staff.clear()
 
@@ -138,8 +151,6 @@ class Project(models.Model):
                         self.staff_search_field += s.smart_name + " "
                     if s.is_lead and not self.lead_staff.filter(user=s.user).exists():
                         self.lead_staff.add(s)
-                # add the fiscal year
-                self.fiscal_years.add(y.fiscal_year)
 
                 # cycle through all costs and pull out funding sources
                 for c in y.costs:
@@ -198,26 +209,38 @@ class Project(models.Model):
                     my_list.append(item.funding_source)
             return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
 
+    @property
+    def is_acrdp(self):
+        if self.default_funding_source and "acrdp" in self.default_funding_source.name.lower():
+            return True
+
+    @property
+    def fiscal_years(self):
+        if self.years.exists():
+
+            return listrify([str(y) for y in self.years.all()])
+        else:
+            return "<em>{}</em>".format(_("This project has no fiscal years added yet."))
 
 class ProjectYear(models.Model):
     status_choices = [
         (1, "Draft"),
         (2, "Submitted"),
-        (3, "Recommended"),
+        (3, "Reviewed"),
         (4, "Approved"),
-        (5, "Denied"),
+        (5, "Not Approved"),
         (9, "Cancelled"),
     ]
     status = models.IntegerField(default=1, editable=False, choices=status_choices)
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="years", verbose_name=_("project"))
-    start_date = models.DateTimeField(default=timezone.now, verbose_name=_("Start date of project"))
-    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date of project"))
+    start_date = models.DateTimeField(default=timezone.now, verbose_name=_("Start date for this year of the project"))
+    end_date = models.DateTimeField(blank=True, null=True, verbose_name=_("End date for this year of the project"))
 
     # HTML field
-    deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"))
-    # HTML field
     priorities = models.TextField(blank=True, null=True, verbose_name=_("year-specific priorities"))
+    # HTML field
+    deliverables = models.TextField(blank=True, null=True, verbose_name=_("deliverables / activities"), editable=False)
 
     # SPECIALIZED EQUIPMENT
     ########################
@@ -283,8 +306,6 @@ class ProjectYear(models.Model):
 
     # admin
     submitted = models.DateTimeField(editable=False, blank=True, null=True)
-    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
-    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     administrative_notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     # metadata
@@ -401,7 +422,7 @@ class ProjectYear(models.Model):
     @property
     def formatted_status(self):
         return mark_safe(
-            f"<span class='{self.get_status_display().lower()} px-1 py-1'>{self.get_status_display()}</span>"
+            f"<span class='{slugify(self.get_status_display())} px-1 py-1'>{self.get_status_display()}</span>"
         )
 
     def submit(self):
@@ -411,10 +432,25 @@ class ProjectYear(models.Model):
             self.save()
 
     def unsubmit(self):
-        if self.status in [2,3,9]:
+        if self.status in [2, 3, 9]:
             self.submitted = None
             self.status = 1
             self.save()
+
+    @property
+    def allocated_budget(self):
+        return self.review.allocated_budget if hasattr(self, "review") else None
+
+    @property
+    def review_score_percentage(self):
+        if hasattr(self, "review"):
+            return percentage(self.review.score_as_percent, 0)
+
+    @property
+    def review_score_fraction(self):
+        if hasattr(self, "review"):
+            return f'{nz(self.review.total_score, 0)} / {3 * 5}'
+
 
 class GenericCost(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, verbose_name=_("project year"))
@@ -617,23 +653,23 @@ class StatusReport(models.Model):
         (5, _("Encountering issues")),
         (6, _("Aborted / cancelled")),
     )
-    project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE)
-    status = models.IntegerField(default=1, editable=False, choices=status_choices)
+    project_year = models.ForeignKey(ProjectYear, related_name="reports", on_delete=models.CASCADE, editable=False)
+    status = models.IntegerField(default=1, editable=True, choices=status_choices)
     major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_(
-        "major accomplishments (this can be left blank if reported at the milestone level)"))
+        "major accomplishments"))
     major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
     target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
     rationale_for_modified_completion_date = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for a modified completion date"))
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     section_head_comment = models.TextField(blank=True, null=True, verbose_name=_("section head comment"))
-    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"))
+    section_head_reviewed = models.BooleanField(default=False, verbose_name=_("reviewed by section head"), choices=YES_NO_CHOICES)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     updated_at = models.DateTimeField(auto_now=True, editable=False)
     modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_status_report", blank=True,
-                                    null=True)
+                                    null=True, editable=False)
 
     @property
     def metadata(self):
@@ -647,7 +683,7 @@ class StatusReport(models.Model):
 
     @property
     def report_number(self):
-        return [report for report in self.project_year.reports.order_by("created_at")].index(self) + 1
+        return [report for report in self.project_year.reports.all().order_by("created_at")].index(self) + 1
 
     def __str__(self):
         # what is the number of this report?
@@ -656,15 +692,147 @@ class StatusReport(models.Model):
             self.report_number,
         )
 
+    @property
+    def major_accomplishments_html(self):
+        if self.major_accomplishments:
+            return mark_safe(markdown(self.major_accomplishments))
 
-class Milestone(models.Model):
-    project_year = models.ForeignKey(ProjectYear, related_name="milestones", on_delete=models.CASCADE)
-    name = models.CharField(max_length=500, verbose_name=_("name"))
-    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
-    target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
+    @property
+    def major_issues_html(self):
+        if self.major_issues:
+            return mark_safe(markdown(self.major_issues))
+
+
+class Review(models.Model):
+    approval_status_choices = (
+        (1, _("approved")),
+        (0, _("not approved")),
+        (9, _("cancelled")),
+    )
+    score_choices = (
+        (3, _("high")),
+        (2, _("medium")),
+        (1, _("low")),
+    )
+    project_year = models.OneToOneField(ProjectYear, related_name="review", on_delete=models.CASCADE)
+
+    collaboration_score = models.IntegerField(blank=True, null=True, verbose_name=_("External Pressures"),
+                                              choices=score_choices)
+    collaboration_comment = models.TextField(blank=True, null=True, verbose_name=_("External Pressures comments"))
+
+    strategic_score = models.IntegerField(blank=True, null=True, verbose_name=_("Strategic Direction"), choices=score_choices)
+    strategic_comment = models.TextField(blank=True, null=True, verbose_name=_("Strategic Direction comments"))
+
+    operational_score = models.IntegerField(blank=True, null=True, verbose_name=_("Operational Considerations"), choices=score_choices)
+    operational_comment = models.TextField(blank=True, null=True, verbose_name=_("Operational Considerations comments"))
+
+    ecological_score = models.IntegerField(blank=True, null=True, verbose_name=_("Ecological Impact"), choices=score_choices)
+    ecological_comment = models.TextField(blank=True, null=True, verbose_name=_("Ecological Impact comments"))
+
+    scale_score = models.IntegerField(blank=True, null=True, verbose_name=_("scale"), choices=score_choices)
+    scale_comment = models.TextField(blank=True, null=True, verbose_name=_("scale comments"))
+
+    general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
+    approval_status = models.IntegerField(choices=approval_status_choices, blank=True, null=True, verbose_name=_("Approval status"))
+
+    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
+    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
+    approver_comment = models.TextField(blank=True, null=True, verbose_name=_("Approver comments (shared with project leads)"))
+
+    # metadata
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_projects_review", blank=True,
+                                         null=True, editable=False)
+    modified_by = models.ManyToManyField(User, editable=False)
+
+    # calculated field
+    total_score = models.IntegerField(blank=True, null=True, verbose_name=_("total score"), editable=False)
+
+    @property
+    def metadata(self):
+        my_str = get_metadata_string(self.created_at, None, self.updated_at, self.last_modified_by)
+        if self.modified_by.exists():
+            my_str += f"<br><u>Reviewed by:</u> {listrify(self.modified_by.all())}"
+        return my_str
+
+    def save(self, *args, **kwargs):
+        self.total_score = nz(self.collaboration_score, 0) + nz(self.strategic_score, 0) + nz(self.operational_score, 0) + nz(
+            self.ecological_score, 0) + nz(self.scale_score, 0)
+        super().save(*args, **kwargs)
+        if self.last_modified_by:
+            self.modified_by.add(self.last_modified_by)
 
     class Meta:
-        ordering = ['project_year', 'name']
+        ordering = ['created_at']
+
+    @property
+    def general_comment_html(self):
+        if self.general_comment:
+            return mark_safe(markdown(self.general_comment))
+
+    @property
+    def score_as_percent(self):
+        return nz(self.total_score, 0) / (5 * 3)
+
+    def send_approval_email(self, request):
+        email = emails.ProjectApprovalEmail(self, request)
+        # send the email object
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
+        self.notification_email_sent = timezone.now()
+        self.save()
+
+
+class Activity(models.Model):
+    type_choices = (
+        (1, _("Milestone")),
+        (2, _("Deliverable")),
+    )
+    likelihood_choices = (
+        (1, _("1-Very unlikely")),
+        (2, _("2-Unlikely")),
+        (3, _("3-Low")),
+        (4, _("4-Likely")),
+        (5, _("5-Almost certain")),
+    )
+    impact_choices = (
+        (1, _("1-Negligible")),
+        (2, _("2-Low")),
+        (3, _("3-Medium")),
+        (4, _("4-High")),
+        (5, _("5-Extreme")),
+    )
+    risk_rating_choices = (
+        (None, "n/a"),
+        (1, _("Low")),
+        (2, _("Medium")),
+        (3, _("High")),
+    )
+
+    project_year = models.ForeignKey(ProjectYear, related_name="activities", on_delete=models.CASCADE)
+    type = models.IntegerField(choices=type_choices)
+    name = models.CharField(max_length=500, verbose_name=_("name"))
+    target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+    responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party"), blank=True, null=True)
+    risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences (ACRDP)"))
+    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what will be the impact if the risks occurs (ACRDP)"))
+    likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True, verbose_name=_("what is the likelihood of the risks occurring (ACRDP)"))
+    risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)
+    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks (ACRDP)"))
+
+    def save(self, *args, **kwargs):
+        if self.impact and self.likelihood:
+            self.risk_rating = get_risk_rating(self.impact, self.likelihood)
+        super().save(*args, **kwargs)
+
+    class Meta:
+        ordering = ['project_year', 'target_date', 'name']
 
     def __str__(self):
         return self.name
@@ -674,27 +842,32 @@ class Milestone(models.Model):
         return self.updates.first()
 
 
-class MilestoneUpdate(models.Model):
+class ActivityUpdate(models.Model):
     status_choices = (
         (7, _("In progress")),
         (8, _("Completed")),
         (9, _("Aborted / cancelled")),
     )
-    milestone = models.ForeignKey(Milestone, related_name="updates", on_delete=models.CASCADE)
+    activity = models.ForeignKey(Activity, related_name="updates", on_delete=models.CASCADE)
     status_report = models.ForeignKey(StatusReport, related_name="updates", on_delete=models.CASCADE)
-    status = models.IntegerField(default=1, editable=False, choices=status_choices)
+    status = models.IntegerField(default=7, choices=status_choices)
     notes = models.TextField(blank=True, null=True, verbose_name=_("Notes"))
 
     class Meta:
         ordering = ['-status_report', 'status']
-        unique_together = [('milestone', 'status_report'), ]
+        unique_together = [('activity', 'status_report'), ]
 
     def __str__(self):
         # what is the number of this report?
         return "{} {}".format(
             gettext("Update on "),
-            self.milestone,
+            self.activity,
         )
+
+    @property
+    def notes_html(self):
+        if self.notes:
+            return mark_safe(markdown(self.notes))
 
 
 #
@@ -726,7 +899,8 @@ def ref_mat_directory_path(instance, filename):
 
 
 class ReferenceMaterial(SimpleLookup):
-    file = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment"))
+    file_en = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (English)"))
+    file_fr = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING, related_name="reference_materials2",
                                verbose_name=_("region"), blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -737,11 +911,18 @@ class ReferenceMaterial(SimpleLookup):
         return get_metadata_string(self.created_at, None, self.updated_at)
 
     @property
-    def file_display(self):
-        if self.file:
+    def file_display_en(self):
+        if self.file_en:
             return mark_safe(
-                f"<a href='{self.file.url}'> <span class='mdi mdi-file'></span></a>"
+                f"<a href='{self.file_en.url}'> <span class='mdi mdi-file'></span></a>"
+            )
+
+    @property
+    def file_display_fr(self):
+        if self.file_fr:
+            return mark_safe(
+                f"<a href='{self.file_fr.url}'> <span class='mdi mdi-file'></span></a>"
             )
 
     class Meta:
-        ordering = ["region", "file"]
+        ordering = ["region", "-updated_at"]

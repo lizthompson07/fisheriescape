@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.timezone import make_aware
 from textile import textile
 
+from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from . import models
 
@@ -15,25 +16,11 @@ def export_fixtures():
     """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
     fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures')
     models_to_export = [
-        models.Theme,
         models.ActivityType,
-        models.FundingSourceType,
-        models.Status,
-        models.HelpText,
         models.EmployeeType,
         models.Level,
         models.OMCategory,
         shared_models.FiscalYear,
-        # shared_models.ResponsibilityCenter,
-        # shared_models.AllotmentCode,
-        # shared_models.AllotmentCategory,
-        # shared_models.BusinessLine,
-        # shared_models.LineObject,
-        # shared_models.Project,
-        # models.FunctionalGroup,
-        # models.FundingSource,
-
-        # models.Project,
     ]
     for model in models_to_export:
         data = serializers.serialize("json", model.objects.all())
@@ -54,6 +41,11 @@ def export_fixtures():
 def resave_all(projects=models.Project.objects.all()):
     for p in models.Project.objects.all():
         p.save()
+
+
+def resave_all_reviews(projects=models.Project.objects.all()):
+    for obj in models.Review.objects.all():
+        obj.save()
 
 
 def compare_html():
@@ -325,7 +317,7 @@ def fetch_project_data():
         # MILESTONE
         qry = omodels.Milestone.objects.filter(project=old_p)
         for obj in qry:
-            new_obj, created = models.Milestone.objects.get_or_create(
+            new_obj, created = models.Activity.objects.get_or_create(
                 id=obj.id,
                 project_year=new_py,
                 name=obj.name,
@@ -355,7 +347,7 @@ def fetch_project_data():
         # MILESTONE
         qry = omodels.Milestone.objects.filter(project=old_p)
         for obj in qry:
-            new_obj, created = models.Milestone.objects.get_or_create(
+            new_obj, created = models.Activity.objects.get_or_create(
                 id=obj.id,
                 project_year=new_py,
                 name=obj.name,
@@ -365,7 +357,7 @@ def fetch_project_data():
             # MILESTONE UPDATE
             qry1 = omodels.MilestoneUpdate.objects.filter(milestone=obj)
             for obj1 in qry1:
-                new_obj1, created1 = models.MilestoneUpdate.objects.get_or_create(
+                new_obj1, created1 = models.ActivityUpdate.objects.get_or_create(
                     id=obj1.id,
                     milestone_id=new_obj.id,
                     status_report_id=obj1.status_report_id,
@@ -435,7 +427,6 @@ def fetch_project_approval_data():
             print("no project year for ", old_p)
 
 
-
 def fix_project_formatting():
     from projects import models as omodels
     import html2markdown
@@ -452,3 +443,82 @@ def fix_project_formatting():
         if old_p.description:
             new_p.overview = html2markdown.convert(old_p.description)
             new_p.save()
+
+
+def from_project_to_reviewer():
+    from projects import models as omodels
+    projects = omodels.Project.objects.all()
+
+    for old_p in projects:
+        qs = models.ProjectYear.objects.filter(project_id=old_p.id)
+        if qs.exists():
+            if qs.count() > 1:
+                print("problem, more than one project year of this project exists: ", old_p.project_title, " (", old_p.id,
+                      ") Going to choose this one: ",
+                      qs.first(), " of ", listrify(qs))
+
+            new_py = qs.first()
+            review, created = models.Review.objects.get_or_create(
+                project_year=new_py,
+            )
+            review.allocated_budget = new_py.allocated_budget
+            review.approval_status = old_p.approved  # will be 1, 0 , None
+            review.notification_email_sent = old_p.notification_email_sent
+            review.general_comment = old_p.meeting_notes
+            review.approver_comment = old_p.meeting_notes
+            review.save()
+        else:
+            print("cannot find matching project:", old_p.id, old_p.project_title)
+
+
+def transform_deliverables():
+    project_years = models.ProjectYear.objects.filter(deliverables__isnull=False)
+    for py in project_years:
+        models.Activity.objects.get_or_create(
+            project_year=py,
+            name="MISSING NAME",
+            description=py.deliverables,
+            type=2,
+        )
+
+
+
+def copy_orgs():
+    from inventory.models import Organization, Location
+    inventory_locs = Location.objects.filter(location_eng__isnull=False)
+    for loc in inventory_locs:
+        new_loc, created = shared_models.Location.objects.get_or_create(
+            id=loc.id,
+            location_en=loc.location_eng,
+            location_fr=loc.location_fre,
+            country=loc.country,
+            abbrev_en=loc.abbrev_eng,
+            abbrev_fr=loc.abbrev_fre,
+            uuid_gcmd=loc.uuid_gcmd,
+
+        )
+
+    inventory_orgs = Organization.objects.filter(name_eng__isnull=False)
+    i=0
+    for org in inventory_orgs:
+        new_org, created = shared_models.Organization.objects.get_or_create(
+            id=org.id,
+        )
+        new_org.name = org.name_eng
+        new_org.nom = org.name_fre
+        new_org.abbrev = org.abbrev
+        new_org.address = org.address
+        new_org.city = org.city
+        new_org.postal_code = org.postal_code
+        new_org.location_id = org.location_id
+
+        try:
+            new_org.save()
+        except Exception as e:
+            print(e, new_org.name)
+            new_org.name += f" ({i})"
+            new_org.save()
+
+        i += 1
+
+

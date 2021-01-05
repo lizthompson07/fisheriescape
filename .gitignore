@@ -10,6 +10,9 @@
 *.cpython*
 *.accdb
 *.xlsx
+!acrdp_template.xlsx
+
+*.mo
 
 # Packages #
 ############
@@ -58,7 +61,6 @@ my_dev.cnf
 ####################
 /access_files/*
 
-
 # PyCharm settings and maps #
 #############################
 /.IDEA/*
@@ -67,7 +69,6 @@ my_dev.cnf
 # prod.cnf file should not be in the repo since it has the credentials + connection strings for the production db #
 ###################################################################################################################
 prod.cnf
-
 
 # Ignore all files dealing with enviornment variables except the sample file
 .env*
@@ -83,8 +84,6 @@ temp/
 
 # Shell scripts #
 #################
-
-
 
 # AZURE AD #
 ############

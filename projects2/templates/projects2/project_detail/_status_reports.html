@@ -1,0 +1,84 @@
+{% load i18n %}
+{% load project_tags %}
+{% load verbose_names %}
+{% load static %}
+{% load bootstrap4 %}
+
+<div class="mb-5">
+  <div class="mb-2 neighbours">
+    <h2>{% trans "Status Reports" %}</h2>
+  </div>
+  <div v-if="!agreement_loading" class="mb-3 neighbours">
+    <button @click="openStatusReportModal()" class="{{ btn_class_1 }} no-print" v-if="canModify">
+      <span class="mdi mdi-plus"></span> {% trans "Add Status Report" %}
+    </button>
+  </div>
+
+  <div v-if="status_report_loading">
+    <button class="btn btn-primary" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      <span class="sr-only">Loading...</span>
+    </button>
+  </div>
+
+
+  <div v-else>
+
+    <div
+      v-if="!status_reports.length"
+      class="font-italic"
+    >
+      {% trans "No status reports have been added to this year of the project" %}
+    </div>
+
+    <table
+      v-else
+      class="table table-sm"
+      style="width: auto"
+    >
+      <thead>
+      {% get_status_report_field_list as status_report_field_list %}
+      {% for field in status_report_field_list %}
+        {% if not "issues" in field and not "accomplishments" in field and not "section_head_comment" in field %}
+          <th>
+            {% get_verbose_label random_status_report field %}
+          </th>
+        {% endif %}
+      {% endfor %}
+      </thead>
+      <tbody>
+      <tr v-for="(item, index) in status_reports">
+        {% for field in status_report_field_list %}
+          {% if not "issues" in field and not "accomplishments" in field and not "section_head_comment" in field %}
+            {% if "target" in field %}
+              <td class="w150">${item.target_completion_date_display | nz }</td>
+            {% elif "status" in field %}
+              <td class="w100">${item.status_display | nz }</td>
+            {% elif "number" in field %}
+              <td>${item.report_number | nz }</td>
+            {% elif "reviewed" in field %}
+              <td class="w100">${item.section_head_reviewed | yesNo }</td>
+            {% elif "supporting" in field %}
+              <td class="w100">${item.supporting_resources | yesNo }</td>
+            {% else %}
+              <td>${ item.{{ field }} | nz}</td>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        <td class="to-the-right" >
+          <button @click="goStatusReportDetail(item.id, 'print')" class="no-print">
+            <span class="mdi mdi-printer"></span>
+          </button>
+          <button v-if="canModify" @click="goStatusReportDetail(item.id)" class="no-print">
+            <span class="mdi mdi-arrow-top-right"></span>
+            {% trans "open" %}
+          </button>
+        </td>
+
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>

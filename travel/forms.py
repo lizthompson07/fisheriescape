@@ -1,27 +1,27 @@
 from django import forms
+from django.contrib.auth.models import User as AuthUser, User
 from django.forms import modelformset_factory
 from django.utils import timezone
-from django.utils.translation import gettext as _
-from django.contrib.auth.models import User as AuthUser, User
+from django.utils.translation import gettext as _, gettext_lazy
+
 from shared_models import models as shared_models
 from travel.filters import get_region_choices
-
 from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
-attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
+attr_fp_date = {"class": "fp-date", "placeholder": gettext_lazy("Click to select a date..")}
 attr_phone = {"class": "input-phone"}
 attr_row3 = {"rows": 3}
 attr_row4 = {"rows": 4}
 
 YES_NO_CHOICES = (
-    (True, _("Yes")),
-    (False, _("No")),
+    (True, gettext_lazy("Yes")),
+    (False, gettext_lazy("No")),
 )
 INT_YES_NO_CHOICES = (
     (None, "-----"),
-    (1, _("Yes")),
-    (0, _("No")),
+    (1, gettext_lazy("Yes")),
+    (0, gettext_lazy("No")),
 )
 
 
@@ -100,7 +100,7 @@ class TripTimestampUpdateForm(forms.ModelForm):
 class TripRequestForm(forms.ModelForm):
     stay_on_page = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     reset_reviewers = forms.BooleanField(widget=forms.Select(choices=YES_NO_CHOICES),
-                                         label=_("Do you want to reset the reviewer list?"), required=False)
+                                         label=gettext_lazy("Do you want to reset the reviewer list?"), required=False)
 
     class Meta:
         model = models.TripRequest
@@ -115,7 +115,7 @@ class TripRequestForm(forms.ModelForm):
             "created_by",
         ]
         labels = {
-            'bta_attendees': _("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
+            'bta_attendees': gettext_lazy("Other attendees covered under BTA (i.e., they will not need to have a travel plan)"),
         }
 
         widgets = {
@@ -145,14 +145,14 @@ class TripRequestForm(forms.ModelForm):
             'company_name': forms.TextInput(attrs={"class": "not-a-group-field disappear-if-user hide-if-public-servant"}),
             'is_research_scientist': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}, choices=YES_NO_CHOICES),
 
-            'start_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
-            'end_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+            'start_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": _("Click to select a date..")}),
+            'end_date': forms.DateInput(attrs={"class": "not-a-group-field fp-date", "placeholder": _("Click to select a date..")}),
             'departure_location': forms.TextInput(attrs={"class": "not-a-group-field"}),
             # 'reason': forms.Select(attrs={"class": "not-a-group-field"}),
             'role': forms.Select(attrs={"class": "not-a-group-field"}),
             'region': forms.Select(attrs={"class": "not-a-group-field hide-if-not-public-servant"}),
             'role_of_participant': forms.Textarea(attrs={"class": "not-a-group-field", "rows": 3}),
-            'multiple_conferences_rationale': forms.Textarea(attrs={"class": "not-a-group-field", "rows": 3}),
+            'learning_plan': forms.Select(attrs={"class": "not-a-group-field"}, choices=YES_NO_CHOICES),
             'non_dfo_costs': forms.NumberInput(attrs={"class": "not-a-group-field"}),
             'non_dfo_org': forms.TextInput(attrs={"class": "not-a-group-field"}),
         }
@@ -163,9 +163,9 @@ class TripRequestForm(forms.ModelForm):
         user_choices.insert(0, tuple((None, "---")))
 
         section_choices = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.filter(division__branch_id__in=[1, 3, 9, ]).order_by("division__branch__region",
-                                                                                                              "division__branch",
-                                                                                                              "division", "name")]
+                           shared_models.Section.objects.all().order_by("division__branch__region",
+                                                                        "division__branch",
+                                                                        "division", "name")]
         section_choices.insert(0, tuple((None, "---")))
 
         trip_choices = [(t.id, f'{t} ({t.status})') for t in models.Conference.objects.filter(start_date__gte=timezone.now())]
@@ -176,11 +176,14 @@ class TripRequestForm(forms.ModelForm):
         self.fields['user'].choices = user_choices
         self.fields['bta_attendees'].choices = user_choices
         self.fields['section'].choices = section_choices
+        self.fields['start_date'].widget.format = '%Y-%m-%d'
+        self.fields['end_date'].widget.format = '%Y-%m-%d'
 
         # general trip infomation
         field_list = [
             'is_group_request',
             'trip',
+            'late_justification',
             'departure_location',
             'destination',
             'start_date',
@@ -214,10 +217,9 @@ class TripRequestForm(forms.ModelForm):
             # 'reason',
             'role',
             'role_of_participant',
+            'learning_plan',
             'objective_of_event',
             'benefit_to_dfo',
-            'multiple_conferences_rationale',
-            'late_justification',
             'funding_source',
             'notes',
         ]
@@ -257,14 +259,15 @@ class TripRequestForm(forms.ModelForm):
         trip_start_date = trip.start_date
         trip_end_date = trip.end_date
 
-        if trip.status_id not in [30, 41] and self.instance not in trip.trip_requests.all():
-            if trip.status_id == 31:
-                message = _("This trip is currently under review from NCR and is closed to additional requests.")
-            elif trip.status_id == 32:
-                message = _("This trip has already been reviewed by NCR and is closed to additional requests.")
-            else:
-                message = _("This trip is closed to additional requests.")
-            self.add_error('trip', message)
+        # this only applies to trips requiring adm approval
+        if trip and trip.is_adm_approval_required:
+            is_late_request = trip.date_eligible_for_adm_review and timezone.now() > trip.date_eligible_for_adm_review
+        else:
+            is_late_request = False
+
+        if is_late_request and not cleaned_data.get("late_justification"):
+            message = _("In order to submit this request, you will need to provide a justification for the late submission.")
+            self.add_error('late_justification', message)
             # raise forms.ValidationError(message)
 
         # first, let's look at the request date and make sure it makes sense, i.e. start date is before end date and
@@ -285,8 +288,10 @@ class TripRequestForm(forms.ModelForm):
                 delta = abs(request_start_date - trip_start_date)
                 if delta.days > 10:
                     msg = _(
-                        f'The start date of this request ({request_start_date.strftime("%Y-%m-%d")}) has to be within 10 days of the'
-                        f' start date of the selected trip ({trip_start_date.strftime("%Y-%m-%d")})!')
+                        "The start date of this request ({request_start_date}) has to be within 10 days of the start date of the selected trip ({trip_start_date})!").format(
+                        request_start_date=request_start_date.strftime("%Y-%m-%d"),
+                        trip_start_date=trip_start_date.strftime("%Y-%m-%d"),
+                    )
                     self.add_error('start_date', msg)
                     # self.add_error('trip', msg)
                     raise forms.ValidationError(msg)
@@ -296,8 +301,11 @@ class TripRequestForm(forms.ModelForm):
                 delta = abs(request_end_date - trip_end_date)
                 if delta.days > 10:
                     msg = _(
-                        f'The end date of this request ({request_end_date.strftime("%Y-%m-%d")}) must be within 10 days'
-                        f' of the end date of the selected trip ({trip_end_date.strftime("%Y-%m-%d")})!')
+                        "The end date of this request ({request_end_date}) must be within 10 days of the end date of the selected trip ({trip_end_date})!").format(
+                        request_end_date=request_end_date.strftime("%Y-%m-%d"),
+                        trip_end_date=trip_end_date.strftime("%Y-%m-%d"),
+                    )
+
                     self.add_error('end_date', msg)
                     # self.add_error('trip', msg)
                     raise forms.ValidationError(msg)
@@ -347,9 +355,9 @@ class ChildTripRequestForm(forms.ModelForm):
             # 'reason',
             'role',
             'role_of_participant',
+            'learning_plan',
             'exclude_from_travel_plan',
             'parent_request',
-            'multiple_conferences_rationale',
         ]
         widgets = {
             'user': forms.Select(attrs=chosen_js),
@@ -357,7 +365,7 @@ class ChildTripRequestForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs=attr_fp_date),
             'end_date': forms.DateInput(attrs=attr_fp_date),
             'role_of_participant': forms.Textarea(attrs=attr_row3),
-            'multiple_conferences_rationale': forms.Textarea(attrs=attr_row3),
+            'learning_plan': forms.Select(choices=YES_NO_CHOICES),
             'phone': forms.TextInput(attrs={"class": "disappear-if-user input-phone"}),
             'first_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
             'last_name': forms.TextInput(attrs={"class": "disappear-if-user"}),
@@ -379,6 +387,8 @@ class ChildTripRequestForm(forms.ModelForm):
         user_choices.insert(0, tuple((None, "---")))
         super().__init__(*args, **kwargs)
         self.fields['user'].choices = user_choices
+        self.fields['start_date'].widget.format = '%Y-%m-%d'
+        self.fields['end_date'].widget.format = '%Y-%m-%d'
 
         # general trip infomation
         field_list = [
@@ -413,7 +423,7 @@ class ChildTripRequestForm(forms.ModelForm):
             # 'reason',
             'role',
             'role_of_participant',
-            'multiple_conferences_rationale',
+            'learning_plan',
         ]
         for field in field_list:
             self.fields[field].group = 3
@@ -449,7 +459,7 @@ class ChildTripRequestForm(forms.ModelForm):
         # the length of the trip is not too long
         if request_start_date and request_end_date:
             if request_end_date < request_start_date:
-                msg = _('The start date of the trip must occur after the end date.')
+                msg = _('The start date of the trip must occur before the end date.')
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)
             if abs((request_start_date - request_end_date).days) > 100:
@@ -461,8 +471,10 @@ class ChildTripRequestForm(forms.ModelForm):
                 delta = abs(request_start_date - trip_start_date)
                 if delta.days > 10:
                     msg = _(
-                        f'The start date of this request ({request_start_date.strftime("%Y-%m-%d")}) has to be within 10 days of the'
-                        f' start date of the selected trip ({trip_start_date.strftime("%Y-%m-%d")})!')
+                        "The start date of this request ({request_start_date}) has to be within 10 days of the start date of the selected trip ({trip_start_date})!").format(
+                        request_start_date=request_start_date.strftime("%Y-%m-%d"),
+                        trip_start_date=trip_start_date.strftime("%Y-%m-%d"),
+                    )
                     self.add_error('start_date', msg)
                     # self.add_error('trip', msg)
 
@@ -471,8 +483,10 @@ class ChildTripRequestForm(forms.ModelForm):
                 delta = abs(request_end_date - trip_end_date)
                 if delta.days > 10:
                     msg = _(
-                        f'The end date of this request ({request_end_date.strftime("%Y-%m-%d")}) must be within 10 days'
-                        f' of the end date of the selected trip ({trip_end_date.strftime("%Y-%m-%d")})!')
+                        "The end date of this request ({request_end_date}) must be within 10 days of the end date of the selected trip ({trip_end_date})!").format(
+                        request_end_date=request_end_date.strftime("%Y-%m-%d"),
+                        trip_end_date=trip_end_date.strftime("%Y-%m-%d"),
+                    )
                     self.add_error('end_date', msg)
                     # self.add_error('trip', msg)
 
@@ -491,6 +505,11 @@ class TripForm(forms.ModelForm):
             # 'trip_subcategory': forms.RadioSelect(),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['start_date'].widget.format = '%Y-%m-%d'
+        self.fields['end_date'].widget.format = '%Y-%m-%d'
+
     def clean(self):
         cleaned_data = super().clean()
         start_date = cleaned_data.get("start_date")
@@ -500,10 +519,10 @@ class TripForm(forms.ModelForm):
 
         if start_date and end_date:
             if end_date < start_date:
-                msg = _('The start date of the trip must occur after the end date.')
+                msg = _('The start date of the trip must occur before the end date.')
                 self.add_error('start_date', msg)
                 self.add_error('end_date', msg)
-                raise forms.ValidationError(_('The start date of the trip must occur after the end date.'))
+                raise forms.ValidationError(_('The start date of the trip must occur before the end date.'))
             if abs((start_date - end_date).days) > 100:
                 msg = _('The length of this trip is unrealistic.')
                 self.add_error('start_date', msg)
@@ -511,12 +530,12 @@ class TripForm(forms.ModelForm):
                 raise forms.ValidationError(msg)
 
         if abstract_deadline and abstract_deadline >= start_date:
-            msg = _('The abstract deadline of the trip (if present) must occur before the start date.')
+            msg = _('The abstract submission deadline (if present) must occur before the start date of the trip.')
             self.add_error('abstract_deadline', msg)
             raise forms.ValidationError(msg)
 
         if registration_deadline and registration_deadline > start_date:
-            msg = _('The registration deadline of the trip (if present) must occur before or on the start date.')
+            msg = _('The registration deadline (if present) must occur before or on the start date of the trip.')
             self.add_error('registration_deadline', msg)
             raise forms.ValidationError(msg)
 
@@ -766,9 +785,23 @@ class ProcessStepForm(forms.ModelForm):
         model = models.ProcessStep
         fields = "__all__"
 
+
 ProcessStepFormset = modelformset_factory(
     model=models.ProcessStep,
     form=ProcessStepForm,
+    extra=1,
+)
+
+
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = models.Role
+        fields = "__all__"
+
+
+RoleFormset = modelformset_factory(
+    model=models.Role,
+    form=RoleForm,
     extra=1,
 )
 

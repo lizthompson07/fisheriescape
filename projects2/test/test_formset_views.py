@@ -3,8 +3,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import activate
 
-from projects.test import FactoryFloor
-from projects.test.common_tests import CommonProjectTest as CommonTest
+from ..test import FactoryFloor
+from ..test.common_tests import CommonProjectTest as CommonTest
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from .. import views
 from .. import models
@@ -21,7 +21,6 @@ class TestAllFormsets(CommonTest):
             "manage_activity_types",
             "manage_om_cats",
             "manage_employee_types",
-            "manage_statuses",
             "manage_tags",
             "manage_help_text",
             "manage_levels",
@@ -35,14 +34,13 @@ class TestAllFormsets(CommonTest):
             views.ActivityTypeFormsetView,
             views.OMCategoryFormsetView,
             views.EmployeeTypeFormsetView,
-            views.StatusFormsetView,
             views.TagFormsetView,
             views.HelpTextFormsetView,
             views.LevelFormsetView,
             views.ThemeFormsetView,
             views.UpcomingDateFormsetView,
         ]
-        self.expected_template = 'projects/formset.html'
+        self.expected_template = 'projects2/formset.html'
         self.user = self.get_and_login_user(in_group="projects_admin")
 
     @tag('formsets', "view")
@@ -54,7 +52,7 @@ class TestAllFormsets(CommonTest):
     @tag('formsets', "access")
     def test_view(self):
         for url in self.test_urls:
-            self.assert_not_broken(url)
+            self.assert_good_response(url)
             self.assert_non_public_view(test_url=url, expected_template=self.expected_template, user=self.user)
 
     @tag('formsets', "submit")
@@ -72,7 +70,6 @@ class TestAllHardDeleteViews(CommonTest):
             {"model": models.ActivityType, "url_name": "delete_activity_type", "view": views.ActivityTypeHardDeleteView},
             {"model": models.OMCategory, "url_name": "delete_om_cat", "view": views.OMCategoryHardDeleteView},
             {"model": models.EmployeeType, "url_name": "delete_employee_type", "view": views.EmployeeTypeHardDeleteView},
-            {"model": models.Status, "url_name": "delete_status", "view": views.StatusHardDeleteView},
             {"model": models.Tag, "url_name": "delete_tag", "view": views.TagHardDeleteView},
             {"model": models.HelpText, "url_name": "delete_help_text", "view": views.HelpTextHardDeleteView},
             {"model": models.Level, "url_name": "delete_level", "view": views.LevelHardDeleteView},
@@ -91,8 +88,6 @@ class TestAllHardDeleteViews(CommonTest):
                 obj = m.objects.create(name=faker.word(), group=1)
             elif m == models.EmployeeType:
                 obj = m.objects.create(name=faker.word(), cost_type=1)
-            elif m == models.Status:
-                obj = m.objects.create(name=faker.word(), used_for=1)
             elif m == models.HelpText:
                 obj = m.objects.create(field_name=faker.word(), eng_text=faker.word())
             elif m == models.UpcomingDate:
@@ -112,7 +107,7 @@ class TestAllHardDeleteViews(CommonTest):
     @tag('hard_delete', "access")
     def test_view(self):
         for d in self.test_dicts:
-            self.assert_not_broken(d["url"])
+            self.assert_good_response(d["url"])
             # only have one chance to test this url
             self.assert_non_public_view(test_url=d["url"], user=self.user, expected_code=302, locales=["en"])
 

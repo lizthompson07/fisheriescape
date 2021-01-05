@@ -4,6 +4,7 @@ from django.test import tag
 from shared_models.views import CommonCreateView
 from whalebrary import views
 from whalebrary.test import FactoryFloor
+from whalebrary.test.FactoryFloor import ItemFactory
 from whalebrary.test.common_tests import CommonWhalebraryTest as CommonTest
 
 # Example how to run with keyword tags
@@ -25,7 +26,7 @@ class TestItemCreateView(CommonTest):
 
     @tag("Item", "item_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Item", "item_new", "submit")
@@ -49,7 +50,7 @@ class TestLocationCreateView(CommonTest):
 
     @tag("Location", "location_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Location", "location_new", "submit")
@@ -75,8 +76,8 @@ class TestTransactionCreateView(CommonTest):
 
     @tag("Transaction", "transaction_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_not_broken(self.test_url2)
+        self.assert_good_response(self.test_url)
+        self.assert_good_response(self.test_url2)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
         self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template2, user=self.user)
 
@@ -104,8 +105,8 @@ class TestOrderCreateView(CommonTest):
 
     @tag("Order", "order_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_not_broken(self.test_url2)
+        self.assert_good_response(self.test_url)
+        self.assert_good_response(self.test_url2)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
         self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template2, user=self.user)
 
@@ -131,7 +132,7 @@ class TestPersonnelCreateView(CommonTest):
 
     @tag("Personnel", "personnel_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Personnel", "personnel_new", "submit")
@@ -150,6 +151,7 @@ class TestSupplierCreateView(CommonTest):
         self.expected_template = 'whalebrary/form.html'
         self.expected_template2 = 'shared_models/generic_popout_form.html'
         self.user = self.get_and_login_user(in_group="whalebrary_admin")
+        ItemFactory(item_name="test")
 
     @tag("Supplier", "supplier_new", "view")
     def test_view_class(self):
@@ -158,8 +160,8 @@ class TestSupplierCreateView(CommonTest):
 
     @tag("Supplier", "supplier_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
-        self.assert_not_broken(self.test_url2)
+        self.assert_good_response(self.test_url)
+        self.assert_good_response(self.test_url2)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
         self.assert_non_public_view(test_url=self.test_url2, expected_template=self.expected_template2, user=self.user)
 
@@ -185,7 +187,7 @@ class TestFileCreateView(CommonTest):
 
     @tag("File", "file_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("File", "file_new", "submit")
@@ -209,7 +211,7 @@ class TestIncidentCreateView(CommonTest):
 
     @tag("Incident", "incident_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Incident", "incident_new", "submit")
@@ -233,7 +235,7 @@ class TestImageCreateView(CommonTest):
 
     @tag("Image", "image_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Image", "image_new", "submit")

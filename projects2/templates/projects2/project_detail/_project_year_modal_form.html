@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load bootstrap4 %}
 {% load custom_filters %}
+{% load project_filters %}
 {% load static %}
 <!-- template for the modal component -->
 <script type="text/x-template" id="modal-template">
@@ -29,9 +30,9 @@
               <span v-if="!my_gc_cost">{% trans "New G&C Cost" %}</span>
               <span v-else>{% trans "Edit G&C Cost" %}</span>
             </h3>
-            <h3 v-else-if="mtype === 'milestone'">
-              <span v-if="!my_milestone">{% trans "New Milestone" %}</span>
-              <span v-else>{% trans "Edit Milestone" %}</span>
+            <h3 v-else-if="mtype === 'activity'">
+              <span v-if="!my_activity">{% trans "New Activity" %}</span>
+              <span v-else>{% trans "Edit Activity" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'collaborator'">
               <span v-if="!my_collaborator">{% trans "New External Collaborator" %}</span>
@@ -40,6 +41,10 @@
             <h3 v-else-if="mtype === 'agreement'">
               <span v-if="!my_agreement">{% trans "New Collaborative Agreement" %}</span>
               <span v-else>{% trans "Edit Collaborative Agreement" %}</span>
+            </h3>
+            <h3 v-else-if="mtype === 'status_report'">
+              <span v-if="!my_status_report">{% trans "New Status Report (Still under development)" %}</span>
+              <span v-else>{% trans "Edit Status Report (Still under development)" %}</span>
             </h3>
             <h3 v-else-if="mtype === 'file'">
               <span v-if="!my_file">{% trans "New Supporting Resource" %}</span>
@@ -82,34 +87,34 @@
                     {% bootstrap_field staff_form.employee_type size='small' %}
                   </div>
                   <div class="col">
-                    {% bootstrap_field staff_form.is_lead size='small'%}
+                    {% bootstrap_field staff_form.is_lead size='small' %}
                   </div>
                   <div class="col">
-                    {% bootstrap_field staff_form.funding_source size='small'%}
+                    {% bootstrap_field staff_form.funding_source size='small' %}
                   </div>
                   <div class="col-3">
-                    {% bootstrap_field staff_form.amount placeholder="" size='small'%}
+                    {% bootstrap_field staff_form.amount placeholder="" size='small' %}
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col">
-                    {% bootstrap_field staff_form.level size='small'%}
+                    {% bootstrap_field staff_form.level size='small' %}
                   </div>
                   <div class="col">
-                    {% bootstrap_field staff_form.student_program size='small'%}
+                    {% bootstrap_field staff_form.student_program size='small' %}
                   </div>
                   <div class="col">
-                    {% bootstrap_field staff_form.duration_weeks placeholder="" size='small'%}
+                    {% bootstrap_field staff_form.duration_weeks placeholder="" size='small' %}
                   </div>
                 </div>
 
                 <div class="row">
                   <div class="col-2">
-                    {% bootstrap_field staff_form.overtime_hours size='small'%}
+                    {% bootstrap_field staff_form.overtime_hours size='small' %}
                   </div>
                   <div class="col-6">
-                    {% bootstrap_field staff_form.overtime_description placeholder="" size='small'%}
+                    {% bootstrap_field staff_form.overtime_description placeholder="" size='small' %}
                   </div>
                   <div class="col">
                     <p style="text-align: center;" class="">
@@ -126,41 +131,74 @@
 
               {# OM COST FORM             #}
               <div v-else-if="mtype=='om_cost'">
-                {% bootstrap_form om_cost_form size='small'%}
+                {% bootstrap_form om_cost_form size='small' %}
               </div>
 
               {# CAPITAL COST FORM             #}
               <div v-else-if="mtype=='capital_cost'">
-                {% bootstrap_form capital_cost_form size='small'%}
+                {% bootstrap_form capital_cost_form size='small' %}
               </div>
               {# CAPITAL COST FORM             #}
               <div v-else-if="mtype=='gc_cost'">
                 {% bootstrap_form gc_cost_form size='small' %}
               </div>
 
-              {# MILESTONE FORM             #}
-              <div v-else-if="mtype=='milestone'">
-                {% bootstrap_form milestone_form size='small'%}
+              {# ACTIVITY FORM             #}
+              <div v-else-if="mtype=='activity'">
+                {% for field in activity_form %}
+                  {% bootstrap_field field size='small' placeholder="" %}
+                  {% if field.name == "likelihood" %}
+                    {% include "projects2/project_detail/_risk_rating_diagram.html" %}
+                  {% elif field.name == "target_date" %}
+                    <div class="mb-3">
+                      {% trans "Shortcuts" %}: {% trans "End of " %} &rarr;
+                      <button type="button" @click="populateTargetDate('q1')">Q1</button>
+                      <button type="button" @click="populateTargetDate('q2')">Q2</button>
+                      <button type="button" @click="populateTargetDate('q3')">Q3</button>
+                      <button type="button" @click="populateTargetDate('q4')">Q4</button>
+                    </div>
+
+
+                  {% endif %}
+                {% endfor %}
               </div>
               {# COLLABORATOR FORM             #}
               <div v-else-if="mtype=='collaborator'">
-                {% bootstrap_form collaborator_form size='small'%}
+                {% bootstrap_form collaborator_form size='small' %}
               </div>
               {# AGREEEMENT FORM             #}
               <div v-else-if="mtype=='agreement'">
-                {% bootstrap_form agreement_form size='small'%}
+                {% bootstrap_form agreement_form size='small' %}
+              </div>
+              {# STATUS REPORT FORM             #}
+              <div v-else-if="mtype=='status_report'">
+                {% for field in status_report_form %}
+                  {% if field.name|is_markdown_field %}
+
+                    <label for="id_priorities">{{ field.label }}</label>
+                    <a href="https://daringfireball.net/projects/markdown/syntax" data-toggle="tooltip" target="_blank" tabindex="-1"
+                       title="{% trans "Markdown syntax is supported in this field" %}">
+                      <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
+                    </a>
+                    {% bootstrap_field field placeholder="" show_label=False size='small' %}
+
+                  {% else %}
+                    {% bootstrap_field field placeholder="" size='small' %}
+                  {% endif %}
+                {% endfor %}
+
+
               </div>
               {# FILE FORM             #}
               <div v-else-if="mtype=='file'">
-                {% bootstrap_form file_form size='small'%}
+                {% bootstrap_form file_form size='small' %}
               </div>
             </slot>
           </div>
 
           <div class="modal-footer">
             <slot name="footer">
-              <button v-if="my_staff" class="modal-default-button" id="closeBtn">{% trans "Update" %}</button>
-              <button v-else class="modal-default-button" id="closeBtn">{% trans "Add" %}</button>
+              <button class="modal-default-button" id="closeBtn">{% trans "Save" %}</button>
               <button class="modal-default-button" @click="$emit('close')" id="closeBtn" type="button">
                 {% trans "Close" %}
               </button>

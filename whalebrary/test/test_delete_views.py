@@ -28,7 +28,7 @@ class TestItemDeleteView(CommonTest):
 
     @tag("Item", "item_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Item", "item_delete", "submit")
@@ -55,7 +55,7 @@ class TestLocationDeleteView(CommonTest):
 
     @tag("Location", "location_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Location", "location_delete", "submit")
@@ -82,7 +82,7 @@ class TestTransactionDeleteView(CommonTest):
 
     @tag("Transaction", "transaction_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Transaction", "transaction_delete", "submit")
@@ -109,7 +109,7 @@ class TestTransactionDeletePopoutView(CommonTest):
 
     @tag("TransactionDelete", "transaction_delete_pop", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("TransactionDelete", "transaction_delete_pop", "submit")
@@ -136,7 +136,7 @@ class TestBulkTransactionDeleteView(CommonTest):
 
     @tag("BulkTransaction", "bulk_transaction_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("BulkTransaction", "bulk_transaction_delete", "submit")
@@ -163,7 +163,7 @@ class TestOrderDeleteView(CommonTest):
 
     @tag("Order", "order_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Order", "order_delete", "submit")
@@ -190,7 +190,7 @@ class TestOrderDeletePopoutView(CommonTest):
 
     @tag("OrderDelete", "order_delete_pop", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("OrderDelete", "order_delete_pop", "submit")
@@ -217,7 +217,7 @@ class TestPersonnelDeleteView(CommonTest):
 
     @tag("Personnel", "personnel_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Personnel", "personnel_delete", "submit")
@@ -244,7 +244,7 @@ class TestSupplierDeleteView(CommonTest):
 
     @tag("Supplier", "supplier_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Supplier", "supplier_delete", "submit")
@@ -271,7 +271,7 @@ class TestSupplierDeletePopoutView(CommonTest):
 
     @tag("SupplierDelete", "supplier_delete_pop", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("SupplierDelete", "supplier_delete_pop", "submit")
@@ -298,7 +298,7 @@ class TestFileDeleteView(CommonTest):
 
     @tag("File", "file_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("File", "file_delete", "submit")
@@ -325,7 +325,7 @@ class TestIncidentDeleteView(CommonTest):
 
     @tag("Incident", "incident_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Incident", "incident_delete", "submit")
@@ -352,7 +352,7 @@ class TestImageDeleteView(CommonTest):
 
     @tag("Image", "image_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Image", "image_delete", "submit")

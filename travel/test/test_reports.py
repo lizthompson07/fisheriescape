@@ -29,7 +29,7 @@ class TestReportSearchFormView(CommonTest):
 
     @tag("travel", 'report', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.admin_user)
 
     # @tag("travel", 'report', "submit")
@@ -65,7 +65,7 @@ class TestCFTSReport(CommonTest):
     def test_view(self):
         self.assert_non_public_view(test_url=self.test_urls[0])
         for url in self.test_urls:
-            self.assert_not_broken(url)
+            self.assert_good_response(url)
 
 
 class TestTripListReport(CommonTest):
@@ -94,7 +94,7 @@ class TestTripListReport(CommonTest):
     def test_view(self):
         self.assert_non_public_view(test_url=self.test_urls[0])
         for url in self.test_urls:
-            self.assert_not_broken(url)
+            self.assert_good_response(url)
 
 
 class TestTravelPlanPDFDetailView(CommonTest):
@@ -110,7 +110,7 @@ class TestTravelPlanPDFDetailView(CommonTest):
 
     @tag("travel", 'report', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, user=self.instance.user)
 
     @tag("travel", 'report', "context")

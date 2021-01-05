@@ -30,7 +30,7 @@ class TestItemUpdateView(CommonTest):
 
     @tag("Item", "item_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Item", "item_edit", "submit")
@@ -54,7 +54,7 @@ class TestLocationUpdateView(CommonTest):
 
     @tag("Location", "location_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Location", "location_edit", "submit")
@@ -78,7 +78,7 @@ class TestTransactionUpdateView(CommonTest):
 
     @tag("Transaction", "transaction_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Transaction", "transaction_edit", "submit")
@@ -104,7 +104,7 @@ class TestOrderReceivedTransactionUpdateView(CommonTest):
 
     @tag("OrderReceivedTransaction", "transaction_order_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("OrderReceivedTransaction", "transaction_order_edit", "submit")
@@ -128,7 +128,7 @@ class TestOrderUpdateView(CommonTest):
 
     @tag("Order", "order_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Order", "order_edit", "submit")
@@ -152,7 +152,7 @@ class TestOrderUpdatePopoutView(CommonTest):
 
     @tag("OrderUpdate", "order_edit_pop", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
 
     @tag("OrderUpdate", "order_edit_pop", "submit")
     def test_submit(self):
@@ -175,7 +175,7 @@ class TestPersonnelUpdateView(CommonTest):
 
     @tag("Personnel", "personnel_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Personnel", "personnel_edit", "submit")
@@ -199,7 +199,7 @@ class TestSupplierUpdateView(CommonTest):
 
     @tag("Supplier", "supplier_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Supplier", "supplier_edit", "submit")
@@ -223,7 +223,7 @@ class TestSupplierUpdatePopoutView(CommonTest):
 
     @tag("SupplierUpdate", "supplier_edit_pop", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("SupplierUpdate", "supplier_edit_pop", "submit")
@@ -247,7 +247,7 @@ class TestFileUpdateView(CommonTest):
 
     @tag("File", "file_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("File", "file_edit", "submit")
@@ -271,7 +271,7 @@ class TestIncidentUpdateView(CommonTest):
 
     @tag("Incident", "incident_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Incident", "incident_edit", "submit")
@@ -295,7 +295,7 @@ class TestImageUpdateView(CommonTest):
 
     @tag("Image", "image_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Image", "image_edit", "submit")

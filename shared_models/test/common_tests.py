@@ -1,5 +1,6 @@
 import os
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import resolve, reverse
 from django.utils.translation import activate
@@ -35,7 +36,7 @@ class CommonTest(TestCase):
         this function is a handy way to log in a user to the testing client.
         :param user: optional user to be logged in
         :param in_group: optional group to have the user assigned to
-        :is_superuser: is the user a superuser?
+        :param is_superuser: is the user a superuser?
         """
         if not user:
             user = UserFactory()
@@ -49,7 +50,8 @@ class CommonTest(TestCase):
             user.save()
         return user
 
-    def assert_not_accessible_by_user(self, test_url, user, locales=('en', 'fr'), expected_code=302, login_search_term=None):
+    def assert_user_access_denied(self, test_url, user, locales=('en', 'fr'), expected_code=302,
+                                  login_search_term=None):
         """
         this test will ensure that a specified user does not have access to a given url
        :param test_url: the url to test
@@ -73,13 +75,12 @@ class CommonTest(TestCase):
             self.assertIn(f"{login_url}", response.url)
             self.client.logout()
 
-    def assert_non_public_view(self, test_url, locales=('en', 'fr'), expected_template=None, user=None, expected_code=200,
-                               login_search_term=None):
+    def assert_non_public_view(self, test_url, locales=('en', 'fr'), expected_template=None, user=None,
+                               expected_code=200, login_search_term=None):
         """
-        This test will ensure a view requires a user to be logged in in order to access it. Part 1, will test to see what happens when
-        an anonymous user tries accessing the url. Part 2 attempt the same this with a logged in user. If the `user` arg is provided, it
-        will be used for Part 2.
-
+        This test will ensure a view requires a user to be logged in in order to access it. Part 1, will test to see
+        what happens when an anonymous user tries accessing the url. Part 2 attempt the same this with a logged in user.
+        If the `user` arg is provided, it will be used for Part 2.
         :param test_url: the url to test
         :param locales: the locales to test
         :param expected_template: the expected template file
@@ -110,8 +111,9 @@ class CommonTest(TestCase):
             # must get a new response, but don't know which.
             response = self.client.get(test_url)
             self.assertEquals(expected_code, response.status_code)
-            # there is a problem here. If the expected response is a 302, it will be hard to differentiate between this and the login
-            # redirect. So we will make sure that the redirect url (if present) does not contain the `accounts/login ...`
+            # there is a problem here. If the expected response is a 302, it will be hard to differentiate between this
+            # and the login redirect. So we will make sure that the redirect url (if present) does not contain the
+            # `accounts/login ...`
             if hasattr(response, "url"):
                 self.assertNotIn(f"{login_url}", response.url)
 
@@ -120,7 +122,8 @@ class CommonTest(TestCase):
                 self.assertIn(expected_template, response.template_name)
             self.client.logout()
 
-    def assert_public_view(self, test_url, locales=('en', 'fr'), expected_template=None, expected_code=200, login_search_term=None):
+    def assert_public_view(self, test_url, locales=('en', 'fr'), expected_template=None, expected_code=200,
+                           login_search_term=None):
         """
         ensure a view is a public view, ie. it is accessible to an Anonymous user with a
         :param test_url: the url to test
@@ -146,7 +149,7 @@ class CommonTest(TestCase):
                 self.assertIn(expected_template, response.template_name)
             self.client.logout()
 
-    def assert_not_broken(self, test_url, locales=('en', 'fr'), anonymous=True):
+    def assert_good_response(self, test_url, locales=('en', 'fr'), anonymous=True):
         """
         This will test check to see if the test url returns something bad like a 404 or a 500 response
         :param test_url: the url to test
@@ -173,7 +176,8 @@ class CommonTest(TestCase):
 
     def assert_field_in_field_list(self, test_url, name_of_field_list, fields_to_test, user=None):
         """
-        this test looks for a field list in the context variable and checks to see if there is a specific field name in there
+        this test looks for a field list in the context variable and checks to see if there is a specific field name in
+        there
         :param test_url:
         :param name_of_field_list: the name of the field list (e.g. `field_list`)
         :param fields_to_test: list of fields to check for
@@ -233,6 +237,13 @@ class CommonTest(TestCase):
         my_path = reverse(test_url_name, args=test_url_args)
         self.assertEqual(my_path, f'{expected_url_path}')
 
+    # Tests for API views
+    #################
+    def assert_dict_has_keys(self, my_dict, keys):
+        # arbitrarily activate the english locale
+        for key in keys:
+            self.assertIn(key, my_dict)
+
     # Tests for forms (create, update, delete and form views)
     #################
 
@@ -249,11 +260,15 @@ class CommonTest(TestCase):
                            use_anonymous_user=False, file_field_name=None):
         """
         test that upon a successful form the view redirects to the expected success url
+        :param test_url: URL being tested
         :param data: optional data to use when submitting the form
         :param user: an optional user that can be used to generate the response
         :param expected_url_name: the name of the url to which a successful submission should be redirected
         :param expected_success_url: the url to which a successful submission should be redirected
-        :param use_anonymous_user: should this function be run without logging in a uer? if so, set this optional arg to true
+        :param use_anonymous_user: should this function be run without logging in a uer? if so, set this optional arg
+        to true
+        :param file_field_name: For the occasion a file is created for a model this is the name of the column the file
+        data will be stored in
         """
         # arbitrarily activate the english locale
         activate('en')
@@ -263,7 +278,7 @@ class CommonTest(TestCase):
             self.get_and_login_user(user)
 
         if data and file_field_name:
-            with open('README.md') as fp:
+            with open(os.path.join(settings.BASE_DIR, "static", "img", "inventory", "good to go.jpg"), mode='rb') as fp:
                 data[file_field_name] = fp
                 response = self.client.post(test_url, data=data, )
         else:
@@ -272,7 +287,8 @@ class CommonTest(TestCase):
         if response.context and 'form' in response.context:
             # If the data in this test is invaild the response will be invalid
             self.assertTrue(response.context_data['form'].is_valid(),
-                            msg=f"Test data was likely invalid. /nHere's the error log from the form: {response.context_data['form'].errors}/n"
+                            msg=f"Test data was likely invalid. /nHere's the error log from the form:"
+                                f" {response.context_data['form'].errors}/n"
                                 f"Here's the data from the form:{response.context_data['form'].data}")
 
         # should always result in a redirect response
@@ -285,20 +301,23 @@ class CommonTest(TestCase):
         if expected_success_url:
             self.assertRedirects(response=response, expected_url=expected_success_url)
 
-    def assert_form_valid(self, Form, data, instance=None):
+    def assert_form_valid(self, form_class, data, instance=None, initial=None):
         """
         assert that upon submission a form is valid.
         :param Form: the form instance to test
         :param data: the data to use when testing the form
         :param instance: an instance of some model to use when testing the form. applicable to ModelForms only
+        :param initial: initial kwargs to pass into the form upon initialization
         """
         if instance:
-            form = Form(data=data, instance=instance)
+            form = form_class(data=data, instance=instance, initial=initial)
         else:
-            form = Form(data=data)
-        self.assertTrue(form.is_valid())
+            form = form_class(data=data, initial=initial)
+        self.assertTrue(form.is_valid(),
+                        msg=f"Test data was likely invalid. /nHere's the error log from the form: {form.errors}/n"
+                            f"Here's the data from the form:{form.data}")
 
-    def assert_form_invalid(self, Form, data, instance=None):
+    def assert_form_invalid(self, form_class, data, instance=None, initial=None):
         """
         assert that upon submission a form is invalid.
         :param Form: the form instance to test
@@ -306,12 +325,12 @@ class CommonTest(TestCase):
         :param instance: an instance of some model to use when testing the form. applicable to ModelForms only
         """
         if instance:
-            form = Form(data, instance=instance)
+            form = form_class(data, instance=instance, initial=initial)
         else:
-            form = Form(data)
+            form = form_class(data, initial=initial)
         self.assertFalse(form.is_valid())
 
-    def assert_field_in_form(self, Form, field_name, instance=None):
+    def assert_field_in_form(self, Form, field_name, instance=None, initial=None):
         """
         assert that a form contains a specific field
         :param Form: the form instance to test
@@ -320,12 +339,12 @@ class CommonTest(TestCase):
         """
 
         if instance:
-            form = Form(instance=instance)
+            form = Form(instance=instance, initial=initial)
         else:
-            form = Form()
+            form = Form(initial=initial)
         self.assertIn(field_name, form.fields)
 
-    def assert_field_not_in_form(self, Form, field_name, instance=None):
+    def assert_field_not_in_form(self, Form, field_name, instance=None, initial=None):
         """
         assert that a form does not contains a specific field
         :param Form: the form instance to test
@@ -333,9 +352,9 @@ class CommonTest(TestCase):
         :param instance: an instance of some model to use when testing the form. applicable to ModelForms only
         """
         if instance:
-            form = Form(instance=instance)
+            form = Form(instance=instance, initial=initial)
         else:
-            form = Form()
+            form = Form(initial=initial)
         self.assertNotIn(field_name, form.fields)
 
     # Tests for models
@@ -376,7 +395,7 @@ class CommonTest(TestCase):
         """
         assert that a model has specified field names
         :param model: the model class to test
-        :param field_names: list of  field names to check
+        :param fields: list of  field names to check
         """
         model_field_list = [field.name for field in model._meta.fields]
         for field in fields:
@@ -386,7 +405,7 @@ class CommonTest(TestCase):
         """
         assert that a model has specified props
         :param model: the model class to test
-        :param field_names: list of  field names to check
+        :param props: list of  field names to check
         """
         for prop in props:
             self.assertTrue(hasattr(model, prop))

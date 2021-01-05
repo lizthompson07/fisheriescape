@@ -9,13 +9,13 @@
     <h2>{% trans "External Collaborators" %}</h2>
   </div>
   <div v-if="!collaborator_loading" class="mb-2 neighbours">
-    <button @click="openCollaboratorModal()"class="{{ btn_class_1 }}" v-if="canModify">
+    <button @click="openCollaboratorModal()"class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Collaborator" %}
     </button>
   </div>
 
   <div v-if="collaborator_loading">
-    <button class="btn btn-primary" type="button" disabled>
+    <button class="btn btn-primary no-print" type="button" disabled>
       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
       <span class="sr-only">Loading...</span>
     </button>
@@ -33,7 +33,7 @@
 
     <table
       v-else
-      class="table table-sm sortable"
+      class="table table-sm"
       style="width: auto"
     >
       <thead>
@@ -54,8 +54,8 @@
           {% endif %}
         {% endfor %}
         <td class="to-the-right" v-if="canModify">
-          <button @click="openCollaboratorModal(item)"><span class="mdi mdi-pencil"></span></button>
-          <button @click="deleteCollaborator(item)"><span class="mdi mdi-delete"></span></button>
+          <button @click="openCollaboratorModal(item)" class="no-print"><span class="mdi mdi-pencil"></span></button>
+          <button @click="deleteCollaborator(item)" class="no-print"><span class="mdi mdi-delete"></span></button>
         </td>
       </tr>
       </tbody>

@@ -1,25 +1,24 @@
+import datetime
 import logging
 import os
-
 from datetime import timedelta
 from shutil import rmtree
 
 from bokeh import palettes
 from bokeh.io import output_file, save
-from bokeh.models import Title, HoverTool, ColumnDataSource, Legend
+from bokeh.models import HoverTool, ColumnDataSource, Legend
 from bokeh.plotting import figure
 from django import forms
+from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.shortcuts import render
-from django.contrib.auth.decorators import permission_required
 from django.utils import timezone
 from django.utils.timezone import now
 
 from tracking.models import Visitor, Pageview, VisitSummary
 from tracking.settings import TRACK_PAGEVIEWS
 from . import utils
-import numpy as np
 
 log = logging.getLogger(__file__)
 
@@ -123,14 +122,12 @@ def user_history(request, user):
 
 @permission_required('tracking.visitor_log')
 def app_history(request, app):
-    print(app)
     page_visits = Pageview.objects.filter(url__icontains=app).order_by("-view_time")
     context = {
         'my_app': app,
         'page_visits': page_visits,
     }
     context = summarize_data(context, None, app)
-    print(context)
     base_dir = os.path.dirname(os.path.abspath(__file__))
     target_dir = os.path.join(base_dir, 'templates', 'tracking', 'temp')
     for root, dirs, files in os.walk(target_dir):
@@ -144,7 +141,6 @@ def app_history(request, app):
 
 
 def summarize_data(context, user=None, app=None):
-
     # start by chucking all the unsummarized data
     utils.chunk_pageviews()
 
@@ -208,7 +204,11 @@ def summarize_data(context, user=None, app=None):
             # create a new file containing data
             result = VisitSummary.objects.filter(user=my_user).values('user').order_by(
                 "user").distinct().annotate(dsum=Sum('page_visits'))
-            user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
+            if User.objects.filter(pk=my_user).exists():
+                user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
+            else:
+                User.objects.create(pk=my_user, username="test" + str(timezone.now()))
+                user_dict[User.objects.get(pk=my_user)] = result[0]["dsum"]
 
         for key, value in sorted(user_dict.items(), key=lambda item: item[1], reverse=True):
             final_user_dict[key] = value
@@ -282,25 +282,35 @@ def generate_page_visit_report(app_list, user=None, app=None):
         toolbar_location="above",
     )
 
-    # p.add_layout(Title(text=title_eng, text_font_size="16pt"), 'above')
-
     # generate color palette
     if len(app_list) <= 2:
         colors = palettes.Set1[3][:len(app_list)]
     elif len(app_list) <= 9:
         colors = palettes.Set1[len(app_list)]
-    elif len(app_list) <= 20:
-        colors = palettes.Category20[len(app_list)]
     else:
-        colors = palettes.viridis(len(app_list))
+        # if the app list is too big, let's just take the apps of interest...
+        app_list = [
+            "project-planning",
+            "whalesdb",
+            "csas",
+            "grais",
+            "hermorrhage",
+            "diets",
+            "inventory",
+            # "cruises",
+            "travel",
+            "ihub",
+        ]
+        colors = palettes.Set1[len(app_list)]
 
     # get a list of days
     if not user and not app:
-        date_list = [date["date"] for date in VisitSummary.objects.all().values("date").order_by("date").distinct()]
+        date_list = [datetime.datetime(date["date"].year, date["date"].month, date["date"].day, 0, 0) for date in VisitSummary.objects.all().values("date").order_by("date").distinct()]
     elif user:
-        date_list = [date["date"] for date in VisitSummary.objects.filter(user=user).values("date").order_by("date").distinct()]
+        date_list = [datetime.datetime(date["date"].year, date["date"].month, date["date"].day, 0, 0) for date in VisitSummary.objects.filter(user=user).values("date").order_by("date").distinct()]
     elif app:
-        date_list = [date["date"] for date in VisitSummary.objects.filter(application_name=app).values("date").order_by("date").distinct()]
+        date_list = [datetime.datetime(date["date"].year, date["date"].month, date["date"].day, 0, 0) for date in
+                     VisitSummary.objects.filter(application_name=app).values("date").order_by("date").distinct()]
     # prime counter variable
     i = 0
     LEGEND = []
@@ -312,7 +322,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
         else:
             qs = VisitSummary.objects.filter(application_name=app, user=user).values('date').order_by("date").distinct().annotate(
                 dsum=Sum('page_visits'))
-        dates = [i["date"] for i in qs]
+        dates = [datetime.datetime(i["date"].year, i["date"].month, i["date"].day, 0, 0) for i in qs]
         counts = [i["dsum"] for i in qs]
         source = ColumnDataSource(data=dict(dates=dates, counts=counts, apps=[app for i in range(0, len(dates))]))
         r0 = p.line('dates', 'counts', line_color=colors[i], line_width=2, source=source)
@@ -330,7 +340,7 @@ def generate_page_visit_report(app_list, user=None, app=None):
     p.add_tools(HoverTool(
         tooltips=TOOLTIPS,
         formatters={
-            'dates': 'datetime',  # use 'datetime' formatter for 'date' field
+            '@dates': 'datetime',  # use 'datetime' formatter for 'date' field
         },
     ))
 
@@ -345,8 +355,8 @@ def generate_page_visit_report(app_list, user=None, app=None):
                     dsum=Sum('page_visits'))
             total_count.append(result[0]["dsum"])
 
-        p.line(date_list, total_count, legend="total", line_color='black', line_width=3, line_dash=[6, 3])
-        p.circle(date_list, total_count, legend="total", fill_color='black', line_color="black", size=5)
+        p.line(date_list, total_count, legend_label="total", line_color='black', line_width=1, line_dash=[6, 3])
+        p.circle(date_list, total_count, legend_label="total", fill_color='black', line_color="black", size=1)
         p.legend.location = "top_left"
 
     save(p)

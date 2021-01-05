@@ -15,6 +15,7 @@ urlpatterns = [
     path('<int:pk>/pdf/', views.ResourceDetailPDFView.as_view(), name="resource_pdf"),
     path('<int:pk>/full-view/', views.ResourceFullDetailView.as_view(), name="resource_full_detail"),
     path('<int:pk>/edit/', views.ResourceUpdateView.as_view(), name="resource_edit"),
+    path('<int:pk>/clone/', views.ResourceCloneUpdateView.as_view(), name="resource_clone"),
     path('<int:pk>/delete/', views.ResourceDeleteView.as_view(), name="resource_delete"),
     path('new/', views.ResourceCreateView.as_view(), name="resource_new"),
     path('<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name="resource_flag_delete"),

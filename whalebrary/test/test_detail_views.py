@@ -27,7 +27,7 @@ class TestItemDetailView(CommonTest):
 
     @tag("Item", "item_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Item", "item_detail", "context")
@@ -64,7 +64,7 @@ class TestLocationDetailView(CommonTest):
 
     @tag("Location", "location_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Location", "location_detail", "context")
@@ -89,7 +89,7 @@ class TestTransactionDetailView(CommonTest):
 
     @tag("Transaction", "transaction_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Transaction", "transaction_detail", "context")
@@ -115,7 +115,7 @@ class TestOrderDetailView(CommonTest):
 
     @tag("Order", "order_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Order", "order_detail", "context")
@@ -141,7 +141,7 @@ class TestPersonnelDetailView(CommonTest):
 
     @tag("Personnel", "personnel_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Personnel", "personnel_detail", "context")
@@ -167,7 +167,7 @@ class TestSupplierDetailView(CommonTest):
 
     @tag("Supplier", "supplier_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Supplier", "supplier_detail", "context")
@@ -193,7 +193,7 @@ class TestIncidentDetailView(CommonTest):
 
     @tag("Incident", "incident_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Incident", "incident_detail", "context")

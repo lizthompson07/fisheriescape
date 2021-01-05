@@ -3,18 +3,18 @@
 {% load i18n %}
 
 <div v-if="canModify" class="float-right">
-  <button class=""
-     @click="goProjectYearEdit(projectYear.id)">
+  <button class="no-print"
+          @click="goProjectYearEdit(projectYear.id)">
     <span class="mdi mdi-pencil"></span>
     {% trans "Edit" %}
   </button>
-  <button class=""
-     @click="goProjectYearDelete(projectYear.id)">
+  <button class="no-print"
+          @click="goProjectYearDelete(projectYear.id)">
     <span class="mdi mdi-delete"></span>
     {% trans "Delete" %}
   </button>
-  <button class=""
-     @click="goProjectYearClone(projectYear.id)">
+  <button class="no-print"
+          @click="goProjectYearClone(projectYear.id)">
     <span class="mdi mdi-content-copy"></span>
     {% trans "Clone" %}
   </button>
@@ -61,21 +61,20 @@
     {% endfor %}
 
 
-
-
   </table>
 </div>
 
 
-    {% include "projects2/project_detail/_milestones.html" %}
-    {% include "projects2/project_detail/_staff.html" %}
-    {% include "projects2/project_detail/_om_costs.html" %}
-    {% include "projects2/project_detail/_capital_costs.html" %}
-    {% include "projects2/project_detail/_gc_costs.html" %}
-    {% include "projects2/project_detail/_collaborators.html" %}
-    {% include "projects2/project_detail/_agreements.html" %}
-    {% include "projects2/project_detail/_files.html" %}
-    {% include "projects2/project_detail/_financials.html" %}
+{% include "projects2/project_detail/_activities.html" %}
+{% include "projects2/project_detail/_staff.html" %}
+{% include "projects2/project_detail/_om_costs.html" %}
+{% include "projects2/project_detail/_capital_costs.html" %}
+{% include "projects2/project_detail/_gc_costs.html" %}
+{% include "projects2/project_detail/_collaborators.html" %}
+{% include "projects2/project_detail/_agreements.html" %}
+{% include "projects2/project_detail/_files.html" %}
+{% include "projects2/project_detail/_status_reports.html" %}
+{% include "projects2/project_detail/_financials.html" %}
 
 
 {##}
@@ -97,7 +96,7 @@
 {#      <td></td>#}
 {#    </tr>#}
 {#    <tr>#}
-{#      <th class="narrow-col">{% trans "Project Milestones" %}</th>#}
+{#      <th class="narrow-col">{% trans "Project Activities" %}</th>#}
 {#      <td></td>#}
 {#    </tr>#}
 {#    <tr>#}

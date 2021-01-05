@@ -40,11 +40,11 @@
                         <th>
                             {% trans "Caption" %}
                         </th>
-                        <th class="center-col">
-                            {% trans "File Attachment" %}
-                        </th>
                         <th>
                             {% trans "Date Created" %}
+                        </th>
+                        <th class="center-col">
+                            {% trans "File Attachment" %}
                         </th>
 
                     </tr>
@@ -52,13 +52,13 @@
                     {% for obj in triprequest.files.all %}
                         <tr data-toggle="tooltip" title="Edit" href="{% url 'travel:file_detail' obj.id %}" pop>
                             <td>{{ obj.name }}</td>
+                            <td>{{ obj.date_created }}</td>
                             <td class="center-col">
                                 <a href="{% url 'travel:get_file' obj.id %}" data-toggle="tooltip" title="{% trans "Open the file" %}"
                                    class="stop-blank">
-                                    <img src="{% static 'img/paperclip-1332775_1920.png' %}" alt="" width="20px">
+                                 <span class="h5 mdi mdi-attachment text-primary"></span>
                                 </a>
                             </td>
-                            <td>{{ obj.date_created }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

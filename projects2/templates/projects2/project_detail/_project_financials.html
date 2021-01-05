@@ -18,6 +18,8 @@
 
   <div v-else>
     <table class="table table-sm" style="width: auto">
+      <thead>
+
       <tr>
         <th class="w150">
           {% trans "Type" %}
@@ -38,6 +40,8 @@
           {% trans "Total" %}
         </th>
       </tr>
+      </thead>
+
       <tbody>
       <tr v-for="(fs, index) in project_financials" :class="fs.type.toLowerCase()">
         <td>${fs.type}</td>

@@ -92,9 +92,12 @@ class ProfileUpdateView(UpdateView):
         except models.Profile.DoesNotExist:
             print("Profile does not exist, creating Profile")
             profile = models.Profile(user=user)
-
+        
         return profile
-
+    
+    def form_valid(self, form):
+        messages.success(self.request, _("Successfully updated!"))
+        return super().form_valid(form)
 
 class UserLoginView(LoginView):
     template_name = "registration/login.html"

@@ -1,0 +1,719 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: test\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-12-01 12:56-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: POEditor.com\n"
+"Language: en\n"
+
+#: .\ihub\filters.py:13
+msgid "Search organizations (name, province, etc...)"
+msgstr ""
+
+#: .\ihub\filters.py:34
+msgid "Any part of name, or title"
+msgstr ""
+
+#: .\ihub\filters.py:55
+msgid "Name contains"
+msgstr ""
+
+#: .\ihub\forms.py:84
+msgid "Capacity Report (Excel Spreadsheet)"
+msgstr ""
+
+#: .\ihub\forms.py:85
+msgid "Organizational Report / Cue Card (PDF)"
+msgstr ""
+
+#: .\ihub\forms.py:86
+msgid "iHub Summary Report"
+msgstr ""
+
+#: .\ihub\forms.py:87
+msgid "Engagement Update Log"
+msgstr ""
+
+#: .\ihub\forms.py:88
+msgid "Consultation Instructions (PDF)"
+msgstr ""
+
+#: .\ihub\forms.py:89
+msgid "Consultation Instructions - Mail Merge (xlsx)"
+msgstr ""
+
+#: .\ihub\forms.py:199
+msgid "DFO employee"
+msgstr "employé du MPO"
+
+#: .\ihub\models.py:25
+msgid "---------"
+msgstr ""
+
+#: .\ihub\models.py:26
+msgid "Yes"
+msgstr "Oui"
+
+#: .\ihub\models.py:27
+msgid "No"
+msgstr "Non"
+
+#: .\ihub\models.py:44 .\ihub\models.py:45
+msgid "abbreviation (French)"
+msgstr ""
+
+#: .\ihub\models.py:58
+msgid "title"
+msgstr "titre"
+
+#: .\ihub\models.py:59
+msgid "location"
+msgstr "location"
+
+#: .\ihub\models.py:60
+#, fuzzy
+msgid "proponent"
+msgstr "Contacts du MPO"
+
+#: .\ihub\models.py:63
+msgid "initial activity date"
+msgstr "date d'activité initiale"
+
+#: .\ihub\models.py:64
+msgid "anticipated end date"
+msgstr ""
+
+#: .\ihub\models.py:65 .\ihub\models.py:190 .\ihub\reports.py:192
+#: .\ihub\reports.py:434
+msgid "status"
+msgstr "statut"
+
+#: .\ihub\models.py:67
+msgid "DFO sectors"
+msgstr "Secteurs"
+
+#: .\ihub\models.py:69 .\ihub\reports.py:202 .\ihub\reports.py:444
+msgid "Entry Type"
+msgstr "Type d'entrée"
+
+#: .\ihub\models.py:74
+msgid "funding program"
+msgstr "programme de financement"
+
+#: .\ihub\models.py:76
+msgid "fiscal year/multiyear"
+msgstr "année fiscale/multi-annuelle"
+
+#: .\ihub\models.py:77
+msgid "is funding needed?"
+msgstr "un financement est-il nécessaire ?"
+
+#: .\ihub\models.py:79
+msgid "funding purpose"
+msgstr "but du financement"
+
+#: .\ihub\models.py:80
+msgid "funding requested"
+msgstr "financement demandé"
+
+#: .\ihub\models.py:81
+msgid "funding approved"
+msgstr "financement approuvé"
+
+#: .\ihub\models.py:82
+msgid "amount transferred"
+msgstr "montant transféré"
+
+#: .\ihub\models.py:83
+msgid "amount lapsed"
+msgstr ""
+
+#: .\ihub\models.py:85
+msgid "does any funding need to be recovered?"
+msgstr "les fonds doivent-ils être récupérés ?"
+
+#: .\ihub\models.py:88
+msgid "date last modified"
+msgstr "date de dernière modification"
+
+#: .\ihub\models.py:89
+msgid "date created"
+msgstr "date de création"
+
+#: .\ihub\models.py:90
+msgid "last modified by"
+msgstr "dernièrement modifié par"
+
+#: .\ihub\models.py:91
+msgid "created by"
+msgstr "créé par"
+
+#: .\ihub\models.py:141
+msgid "User"
+msgstr "Utilisateur"
+
+#: .\ihub\models.py:142
+msgid "name"
+msgstr "nom"
+
+#: .\ihub\models.py:144
+msgid "role"
+msgstr "rôle"
+
+#: .\ihub\models.py:188
+msgid "author"
+msgstr "auteur"
+
+#: .\ihub\models.py:214
+msgid "caption"
+msgstr "légende"
+
+#: .\ihub\models.py:216
+msgid "file"
+msgstr ""
+
+#: .\ihub\models.py:217
+msgid "date uploaded"
+msgstr ""
+
+#: .\ihub\reports.py:93 .\ihub\reports.py:301
+msgid "Amount outstanding"
+msgstr ""
+
+#: .\ihub\reports.py:180 .\ihub\reports.py:422
+msgid "GRAND TOTAL:"
+msgstr ""
+
+#: .\ihub\reports.py:188 .\ihub\reports.py:430
+msgid "Funding requested"
+msgstr "Financement demandé"
+
+#: .\ihub\reports.py:292
+msgid "DFO Contacts"
+msgstr "Contacts du MPO"
+
+#: .\ihub\reports.py:293 .\ihub\templates\ihub\_instructions.html:122
+#: .\ihub\templates\ihub\_members.html:32
+msgid "Notes"
+msgstr "Remarques"
+
+#: .\ihub\templates\ihub\_entries.html:7
+msgid "iHub Entries:"
+msgstr ""
+
+#: .\ihub\templates\ihub\_entries.html:17
+msgid "There are no iHub entries for this organization."
+msgstr ""
+
+#: .\ihub\templates\ihub\_file.html:7
+msgid "Files:"
+msgstr ""
+
+#: .\ihub\templates\ihub\_file.html:14
+msgid "No files have been attached to this entry"
+msgstr ""
+
+#: .\ihub\templates\ihub\_file.html:21
+msgid "Link"
+msgstr ""
+
+#: .\ihub\templates\ihub\_file.html:24
+msgid "Caption"
+msgstr "Légende"
+
+#: .\ihub\templates\ihub\_file.html:27
+msgid "Date Uploaded"
+msgstr "Date ajoutée"
+
+#: .\ihub\templates\ihub\_file.html:66
+msgid "(Add file)"
+msgstr "(Ajouter un fichier)"
+
+#: .\ihub\templates\ihub\_instructions.html:6
+#: .\ihub\templates\ihub\report_consultation_instructions.html:66
+msgid "<b class='highlight'>MISSING EMAIL</b>"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:7
+#: .\ihub\templates\ihub\report_consultation_instructions.html:67
+msgid "<b class='highlight'>MISSING ROLE</b>"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:11
+msgid "Consultation Instructions:"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:18
+msgid "There are no consultation instructions available for this organization"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:22
+msgid "Create Instructions"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:27
+msgid "Edit Instructions"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:33
+msgid "Address Letter To"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:41
+msgid "Cc (on Bottom of Letter)"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:49
+msgid "Paper Copy"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:58
+msgid "Email \"To\" Recipients"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:80
+msgid "Email \"Cc\" Recipients"
+msgstr ""
+
+#: .\ihub\templates\ihub\_instructions.html:101
+msgid "Email \"Cc\" Recipients (Commercial Only)"
+msgstr ""
+
+#: .\ihub\templates\ihub\_members.html:8
+msgid "Organization Members:"
+msgstr ""
+
+#: .\ihub\templates\ihub\_members.html:13
+msgid "(Add members)"
+msgstr ""
+
+#: .\ihub\templates\ihub\_members.html:18
+msgid "No members have been added to this organization"
+msgstr ""
+
+#: .\ihub\templates\ihub\_members.html:26
+#: .\ihub\templates\ihub\_people.html:20
+msgid "Name"
+msgstr "Nom"
+
+#: .\ihub\templates\ihub\_members.html:29
+#: .\ihub\templates\ihub\_people.html:26
+msgid "Role"
+msgstr "Rôle"
+
+#: .\ihub\templates\ihub\_members.html:35 .\ihub\templates\ihub\_notes.html:43
+msgid "Last modified"
+msgstr "Dernière modification"
+
+#: .\ihub\templates\ihub\_notes.html:10
+msgid "Actions, Next Steps or Comments:"
+msgstr ""
+
+#: .\ihub\templates\ihub\_notes.html:19
+msgid "No Actions, next steps or comments have been added to this entry..."
+msgstr ""
+
+#: .\ihub\templates\ihub\_notes.html:28
+msgid "Type"
+msgstr "Type"
+
+#: .\ihub\templates\ihub\_notes.html:31
+#, fuzzy
+msgid "Creation date"
+msgstr "Organisation"
+
+#: .\ihub\templates\ihub\_notes.html:34
+msgid "Author"
+msgstr "Auteur"
+
+#: .\ihub\templates\ihub\_notes.html:37
+msgid "Note"
+msgstr "Remarque"
+
+#: .\ihub\templates\ihub\_notes.html:40
+msgid "Status"
+msgstr "Statut"
+
+#: .\ihub\templates\ihub\_notes.html:71
+msgid "(Add note)"
+msgstr ""
+
+#: .\ihub\templates\ihub\_people.html:7
+msgid "Contacts:"
+msgstr ""
+
+#: .\ihub\templates\ihub\_people.html:13
+msgid "No people have been added to this entry"
+msgstr ""
+
+#: .\ihub\templates\ihub\_people.html:23
+msgid "Organization"
+msgstr "Organisation"
+
+#: .\ihub\templates\ihub\_people.html:29
+msgid "Connected user?"
+msgstr ""
+
+#: .\ihub\templates\ihub\_people.html:65
+msgid "(Add person)"
+msgstr ""
+
+#: .\ihub\templates\ihub\base\_app_title.html:2
+msgid "iHub"
+msgstr "iHub"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:3
+#: .\ihub\templates\ihub\user_list.html:13
+msgid "Home"
+msgstr "Accueil"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:8 .\ihub\views.py:358
+#: .\ihub\views.py:365 .\ihub\views.py:403 .\ihub\views.py:417
+#: .\ihub\views.py:449
+msgid "Entries"
+msgstr ""
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:11 .\ihub\views.py:112
+#: .\ihub\views.py:133 .\ihub\views.py:141 .\ihub\views.py:167
+#: .\ihub\views.py:190
+#, fuzzy
+msgid "Contacts"
+msgstr "Contacts du MPO"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:14 .\ihub\views.py:261
+#: .\ihub\views.py:270 .\ihub\views.py:282 .\ihub\views.py:295
+msgid "Organizations"
+msgstr "Organisations"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:18
+msgid "Reports"
+msgstr "Rapports"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:27
+msgid "Settings"
+msgstr "Paramètres"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:31
+msgid "Manage Sectors"
+msgstr ""
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:34
+msgid "Manage Organizations"
+msgstr ""
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:37
+msgid "Manage Statuses"
+msgstr "Gérer les statuts"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:40
+msgid "Manage Entry Types"
+msgstr ""
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:43
+msgid "Manage Funding Purposes"
+msgstr ""
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:46
+#, fuzzy
+msgid "Manage Reserves"
+msgstr "Ressources humaines"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:49
+#, fuzzy
+msgid "Manage Nations"
+msgstr "Transactions"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:52
+#, fuzzy
+msgid "Manage Funding Programs"
+msgstr "Gérer les source de financement"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:55
+#, fuzzy
+msgid "Manage Relationship Ratings"
+msgstr "Transactions"
+
+#: .\ihub\templates\ihub\base\_nav_left_auth.html:58
+#, fuzzy
+msgid "Manage User Permissions"
+msgstr "Ressources humaines"
+
+#: .\ihub\templates\ihub\entry_detail.html:15
+#: .\ihub\templates\ihub\organization_detail.html:12
+#: .\ihub\templates\ihub\person_detail.html:15
+msgid "Edit"
+msgstr "Modifier"
+
+#: .\ihub\templates\ihub\entry_detail.html:18
+#: .\ihub\templates\ihub\instruction_form.html:5
+#: .\ihub\templates\ihub\member_form_popout.html:98
+#: .\ihub\templates\ihub\organization_detail.html:15
+#: .\ihub\templates\ihub\person_detail.html:18
+msgid "Delete"
+msgstr "Supprimer"
+
+#: .\ihub\templates\ihub\entry_detail.html:25
+msgid "Entry Detail:"
+msgstr "Détails de l'entrée:"
+
+#: .\ihub\templates\ihub\entry_detail.html:51
+msgid "Funding Detail:"
+msgstr ""
+
+#: .\ihub\templates\ihub\entry_detail.html:91
+msgid "Are you sure you want to delete this note?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
+
+#: .\ihub\templates\ihub\entry_detail.html:103
+#: .\ihub\templates\ihub\organization_detail.html:87
+msgid "Are you sure you want to delete this person from the entry?"
+msgstr ""
+
+#: .\ihub\templates\ihub\entry_detail.html:117
+msgid "Are you sure you want to delete this file from the entry?"
+msgstr ""
+
+#: .\ihub\templates\ihub\entry_person_form_popout.html:16
+msgid "OR"
+msgstr "OU"
+
+#: .\ihub\templates\ihub\index.html:11
+msgid "Welcome to the iHub"
+msgstr ""
+
+#: .\ihub\templates\ihub\index.html:29
+#, fuzzy, python-format
+msgid ""
+"\n"
+"                        Click\n"
+"                        <a href=\"%(new_entry_url)s\">HERE</a> to create a "
+"new iHub entry.\n"
+"                        <br><br>\n"
+"                        Or you can click\n"
+"                        <a href=\"%(entry_list_url)s\">HERE</a> to view a "
+"full list.\n"
+"                        <br><br>\n"
+"                    "
+msgstr ""
+"\n"
+"                        Cliquez \n"
+"                        <a href=\"%(new_entry_url)s\">ICI</a> pour créer une "
+"nouvelle entrée de l'iHub.\n"
+"                        <br><br>\n"
+"                        Ou vous pouvez cliquer\n"
+"                        <a href=\"%(entry_list_url)s\">ICI</a> pour voir une "
+"liste complète.\n"
+"                        <br><br>\n"
+"                    "
+
+#: .\ihub\templates\ihub\member_form_popout.html:24
+#, fuzzy
+msgid "Edit Contact Information"
+msgstr "Ajouter / Modifier les détails du projet"
+
+#: .\ihub\templates\ihub\member_form_popout.html:42
+#, fuzzy
+msgid "add a new contact"
+msgstr "Ajouter un nouveau coût"
+
+#: .\ihub\templates\ihub\member_form_popout.html:95
+#, fuzzy
+msgid "Add Consultation Role"
+msgstr "Section"
+
+#: .\ihub\templates\ihub\member_form_popout.html:109
+#, fuzzy
+msgid "Last modified on"
+msgstr "Dernière modification"
+
+#: .\ihub\templates\ihub\member_form_popout.html:109
+msgid "by"
+msgstr "par"
+
+#: .\ihub\templates\ihub\organization_detail.html:18
+msgid "Cue Card"
+msgstr ""
+
+#: .\ihub\templates\ihub\organization_detail.html:38
+msgid "Organization Detail:"
+msgstr ""
+
+#: .\ihub\templates\ihub\organization_formset.html:10
+msgid "Save"
+msgstr "Sauvegarder"
+
+#: .\ihub\templates\ihub\organization_formset.html:11
+#: .\ihub\templates\ihub\user_form.html:34
+msgid "Back"
+msgstr "Retour"
+
+#: .\ihub\templates\ihub\person_detail.html:26
+msgid "Person Detail:"
+msgstr "Détails de la personne:"
+
+#: .\ihub\templates\ihub\person_detail.html:38
+msgid "Membership:"
+msgstr ""
+
+#: .\ihub\templates\ihub\person_detail.html:53
+msgid "(Will open in Master List in separate tab)"
+msgstr ""
+
+#: .\ihub\templates\ihub\person_detail.html:58
+msgid "person is not part of any organizations"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_consultation_instructions.html:174
+#, python-format
+msgid ""
+"\n"
+"      This report was generated by iHub on %(now)s\n"
+"    "
+msgstr ""
+
+#: .\ihub\templates\ihub\report_cue_card.html:39
+msgid "Organization Information"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_cue_card.html:70
+msgid "List of Contacts"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_cue_card.html:99
+msgid "iHub Entries"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_cue_card.html:104
+msgid "There are no entries to display for this organization"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_cue_card.html:137
+msgid "Amount outstanding:"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_cue_card.html:151
+#, python-format
+msgid ""
+"\n"
+"            This report was generated by iHub on %(now)s\n"
+"        "
+msgstr ""
+
+#: .\ihub\templates\ihub\report_pdf_summary.html:68
+msgid "List of iHub Entries by Organization"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_pdf_summary.html:84
+msgid "TOTAL COUNT OF UNIQUE ENTRIES"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_pdf_summary.html:97
+msgid "People:"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_pdf_summary.html:104
+msgid "No people have been assigned to this entry."
+msgstr ""
+
+#: .\ihub\templates\ihub\report_pdf_summary.html:110
+msgid "Notes:"
+msgstr "Remarques:"
+
+#: .\ihub\templates\ihub\report_pdf_summary.html:119
+msgid "Created by"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_pdf_summary.html:126
+msgid "No notes have been added to this entry."
+msgstr ""
+
+#: .\ihub\templates\ihub\report_pdf_summary.html:132
+msgid "Funding Details:"
+msgstr "Détails de financement:"
+
+#: .\ihub\templates\ihub\report_search.html:7
+msgid "iHub reports"
+msgstr ""
+
+#: .\ihub\templates\ihub\report_search.html:32
+msgid "Please enter the Report Details:"
+msgstr ""
+
+#: .\ihub\templates\ihub\user_form.html:27
+msgid "Change Password"
+msgstr ""
+
+#: .\ihub\templates\ihub\user_form.html:28
+msgid "Edit User Profile"
+msgstr ""
+
+#: .\ihub\templates\ihub\user_form.html:29
+msgid "Edit User in Site Admin Menu"
+msgstr ""
+
+#: .\ihub\templates\ihub\user_list.html:17
+#, fuzzy
+msgid "All Users"
+msgstr "Utilisateur"
+
+#: .\ihub\templates\ihub\user_list.html:23
+#, fuzzy
+msgid "User List"
+msgstr "Utilisateur"
+
+#: .\ihub\templates\ihub\user_list.html:46
+msgid "Filter"
+msgstr "Filter"
+
+#: .\ihub\templates\ihub\user_list.html:48
+msgid "Clear"
+msgstr "Effacer"
+
+#: .\ihub\templates\ihub\user_list.html:76
+msgid "iHub Administrator"
+msgstr ""
+
+#: .\ihub\templates\ihub\user_list.html:79
+msgid "Read / write permissions"
+msgstr ""
+
+#: .\ihub\views.py:87
+msgid "home"
+msgstr "accueil"
+
+#: .\ihub\views.py:90
+msgid ""
+"Please note that only <b>unclassified information</b> may be entered into "
+"this application."
+msgstr ""
+"Veuillez noter que seules <b>les informations non classifiées</b> peuvent "
+"être entrées dans cette application."
+
+#: .\ihub\views.py:219
+msgid "Full address"
+msgstr ""
+
+#: .\ihub\views.py:435
+msgid ""
+"The entry has been submitted and an email has been sent to the Indigenous "
+"Hub Coordinator!"
+msgstr ""
+
+#: .\ihub\views.py:486
+msgid "The note has been successfully deleted from the entry."
+msgstr "La note a été supprimé avec succès."
+
+#: .\ihub\views.py:516
+msgid "The person has been successfully deleted from the entry."
+msgstr ""
+
+#: .\ihub\views.py:546
+msgid "The file has been successfully deleted from the entry."
+msgstr ""
+
+#: .\ihub\views.py:627
+msgid "Engagement Update Log – Government of Canada"
+msgstr ""

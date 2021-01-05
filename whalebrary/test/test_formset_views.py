@@ -38,7 +38,7 @@ class TestAllFormsets(CommonTest):
     @tag('formsets', "access")
     def test_view(self):
         for url in self.test_urls:
-            self.assert_not_broken(url)
+            self.assert_good_response(url)
             self.assert_non_public_view(test_url=url, expected_template=self.expected_template, user=self.user)
 
     @tag('formsets', "submit")
@@ -80,7 +80,7 @@ class TestAllHardDeleteViews(CommonTest):
     @tag('hard_delete', "access")
     def test_view(self):
         for d in self.test_dicts:
-            self.assert_not_broken(d["url"])
+            self.assert_good_response(d["url"])
             # only have one chance to test this url
             self.assert_non_public_view(test_url=d["url"], user=self.user, expected_code=302, locales=["en"])
 
@@ -136,7 +136,7 @@ class TestAllHardDeleteViews(CommonTest):
 #     @tag('formsets', "access")
 #     def test_view(self):
 #         for url in self.test_urls:
-#             self.assert_not_broken(url)
+#             self.assert_good_response(url)
 #             self.assert_non_public_view(test_url=url, expected_template=self.expected_template, user=self.user)
 #
 #     @tag('formsets', "submit")
@@ -185,7 +185,7 @@ class TestAllHardDeleteViews(CommonTest):
 #     @tag('hard_delete', "access")
 #     def test_view(self):
 #         for d in self.test_dicts:
-#             self.assert_not_broken(d["url"])
+#             self.assert_good_response(d["url"])
 #             # only have one chance to test this url
 #             self.assert_non_public_view(test_url=d["url"], user=self.user, expected_code=302, locales=["en"])
 #

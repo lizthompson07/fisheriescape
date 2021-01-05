@@ -1,0 +1,7328 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: test\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-12-01 12:56-0400\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: POEditor.com\n"
+"Language: en\n"
+
+#: .\projects\filters.py:18
+#, fuzzy
+msgid "Tags / Keywords"
+msgstr "Mots clés"
+
+#: .\projects\filters.py:20 .\projects\filters.py:37 .\projects\filters.py:72
+#: .\projects\filters.py:81 .\projects\filters.py:106
+#: .\projects\filters.py:134 .\projects\forms.py:31 .\projects\forms.py:656
+msgid "Region"
+msgstr "Région"
+
+#: .\projects\filters.py:21 .\projects\filters.py:39 .\projects\filters.py:49
+#: .\projects\forms.py:657 .\projects\templates\projects\iw_group_list.html:72
+#: .\projects\templates\projects\iw_project_list.html:104
+msgid "Division"
+msgstr "Division"
+
+#: .\projects\filters.py:22 .\projects\filters.py:35 .\projects\filters.py:54
+#: .\projects\filters.py:63 .\projects\forms.py:658
+#: .\projects\templates\projects\_section_staff.html:41
+#: .\projects\templates\projects\admin_staff_list.html:75
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:77
+#: .\projects\templates\projects\iw_group_list.html:73
+#: .\projects\templates\projects\iw_project_list.html:105
+msgid "Section"
+msgstr "Section"
+
+#: .\projects\filters.py:34 .\projects\forms.py:655
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:74
+#: .\projects\templates\projects\my_project_list.html:49
+msgid "Fiscal year"
+msgstr "Exercice fiscal"
+
+#: .\projects\filters.py:192 .\projects\filters.py:207
+msgid "Please select a fiscal year:"
+msgstr ""
+
+#: .\projects\filters.py:221 .\projects\models.py:440
+#: .\projects\templates\projects\_collaborators.html:32
+#: .\projects\templates\projects\_milestones.html:33
+#: .\projects\templates\projects\_staff.html:34
+msgid "Name"
+msgstr "Nom"
+
+#: .\projects\forms.py:20 .\projects\forms.py:25 .\projects\models.py:30
+#: .\projects\models.py:36
+#: .\projects\templates\projects\my_project_list.html:113
+msgid "Yes"
+msgstr "Oui"
+
+#: .\projects\forms.py:21 .\projects\forms.py:26 .\projects\models.py:31
+#: .\projects\models.py:37
+#: .\projects\templates\projects\my_project_list.html:115
+msgid "No"
+msgstr "Non"
+
+#: .\projects\forms.py:24
+msgid "----"
+msgstr ""
+
+#: .\projects\forms.py:223 .\projects\forms.py:237
+msgid "DFO User"
+msgstr "Utilisateur du MPO"
+
+#: .\projects\forms.py:339
+msgid "Section head comments (visible to section head only)"
+msgstr ""
+"Commentaires de chef de section (visibles uniquement par la chef de section)"
+
+#: .\projects\forms.py:340
+msgid "Section review complete (visible to section head only)?"
+msgstr ""
+"Examen de la section terminé (visible par le chef de section uniquement)?"
+
+#: .\projects\forms.py:374
+msgid "Data management summary"
+msgstr "Résumé de la gestion des données"
+
+#: .\projects\forms.py:375
+msgid "COVID Assessment"
+msgstr ""
+
+#: .\projects\forms.py:379
+#, fuzzy
+msgid "Funding (PDF)"
+msgstr "Financement"
+
+#: .\projects\forms.py:380
+#, fuzzy
+msgid "Funding (MS Excel)"
+msgstr "Source de financement"
+
+#: .\projects\forms.py:381
+msgid "Summary Report by O&M Category (MS Excel)"
+msgstr ""
+
+#: .\projects\forms.py:385
+msgid "Weeks Worked by Employees (PDF)"
+msgstr "Semaines travaillées par les employés (PDF)"
+
+#: .\projects\forms.py:386
+msgid "Total Overtime Hours Requested (PDF)"
+msgstr "Total des heures supplémentaires demandées (PDF)"
+
+#: .\projects\forms.py:387
+msgid "Cost Summary by Section (PDF)"
+msgstr "Résumé des coûts par section (PDF)"
+
+#: .\projects\forms.py:388
+msgid "List of Collaborators (PDF)"
+msgstr "Liste des collaborateurs (PDF)"
+
+#: .\projects\forms.py:389
+msgid "List of Collaborative Agreements (PDF)"
+msgstr "Liste des accords de collaboration (PDF)"
+
+#: .\projects\forms.py:390
+msgid "Doug's Report (MS Excel)"
+msgstr "Rapport de Doug (MS Excel)"
+
+#: .\projects\forms.py:400
+#: .\projects\templates\projects\_capital_costs.html:39
+#: .\projects\templates\projects\_om_costs.html:49
+#: .\projects\templates\projects\_staff.html:55
+msgid "Funding Source"
+msgstr "Source de financement"
+
+#: .\projects\forms.py:429
+msgid "First name"
+msgstr "Prénom"
+
+#: .\projects\forms.py:430
+msgid "Last name"
+msgstr "Nom de famille"
+
+#: .\projects\forms.py:431
+msgid "Email"
+msgstr "Courriel"
+
+#: .\projects\forms.py:432
+msgid "Confirm email address"
+msgstr "Courriel"
+
+#: .\projects\forms.py:441
+msgid "The email address provided must be a DFO email address."
+msgstr ""
+"Le courriel électronique fournie doit être une adresse électronique du MPO."
+
+#: .\projects\forms.py:457
+msgid "Please make sure the two email addresses provided match."
+msgstr "Assurez-vous que les deux adresses e-mail fournies correspondent."
+
+#: .\projects\mixins.py:41 .\projects\mixins.py:54
+msgid ""
+"Sorry, you need to be a manager of this project in order to access this page."
+msgstr ""
+"Désolé, vous devez être un gestionnaire de ce projet afin d'accéder à cette "
+"page."
+
+#: .\projects\models.py:35
+msgid "---------"
+msgstr ""
+
+#: .\projects\models.py:43 .\projects\models.py:47 .\projects\models.py:49
+#: .\projects\models.py:503 .\projects\models.py:623 .\projects\utils.py:117
+#: .\projects\views.py:542 .\projects\views.py:543 .\projects\views.py:1470
+#: .\projects\views.py:1722
+msgid "name"
+msgstr "nom"
+
+#: .\projects\models.py:64 .\projects\models.py:721
+msgid "region"
+msgstr ""
+
+#: .\projects\models.py:65
+#, fuzzy
+msgid "description (en)"
+msgstr "description (ang)"
+
+#: .\projects\models.py:66
+#, fuzzy
+msgid "description (fr)"
+msgstr "description (fra)"
+
+#: .\projects\models.py:76 .\projects\models.py:77
+msgid "description_en"
+msgstr "description_fr"
+
+#: .\projects\models.py:137
+msgid "English text"
+msgstr "Texte en anglais"
+
+#: .\projects\models.py:138
+msgid "French text"
+msgstr "Texte en français"
+
+#: .\projects\models.py:142 .\projects\models.py:143
+msgid "eng_text"
+msgstr "fra_text"
+
+#: .\projects\models.py:155
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: .\projects\models.py:156
+msgid "National"
+msgstr "National"
+
+#: .\projects\models.py:157
+msgid "Regional"
+msgstr "Régional"
+
+#: .\projects\models.py:161
+msgid "fiscal year"
+msgstr "exercice fiscal"
+
+#: .\projects\models.py:164
+msgid "section"
+msgstr "section"
+
+#: .\projects\models.py:165
+#: .\projects\templates\projects\report_pdf_funding.html:80
+msgid "Project title"
+msgstr "Titre du projet"
+
+#: .\projects\models.py:166
+#, fuzzy
+msgid "activity type"
+msgstr "date d'activité initiale"
+
+#: .\projects\models.py:168
+msgid "Functional group"
+msgstr ""
+
+#: .\projects\models.py:170
+#, fuzzy
+msgid "primary funding source"
+msgstr "source de financement"
+
+#: .\projects\models.py:171
+msgid "Tags / keywords (used for searching)"
+msgstr ""
+
+#: .\projects\models.py:174
+msgid "National or regional?"
+msgstr "National ou régional?"
+
+#: .\projects\models.py:177
+msgid "project status"
+msgstr "l'état du projet"
+
+#: .\projects\models.py:181
+msgid "Is the funding competitive?"
+msgstr "Le financement est-il concurrentiel?"
+
+#: .\projects\models.py:184
+msgid "Has this project already been approved"
+msgstr "Ce projet a-t-il déjà été approuvé"
+
+#: .\projects\models.py:186
+msgid "Start date of project"
+msgstr "Date de début du projet"
+
+#: .\projects\models.py:187
+msgid "End date of project"
+msgstr "Date de fin du projet"
+
+#: .\projects\models.py:190
+msgid "Project objective & description"
+msgstr "Objectif du projet et description"
+
+#: .\projects\models.py:194
+msgid "Project-specific priorities"
+msgstr "Priorités spécifiques au projet"
+
+#: .\projects\models.py:196
+#, fuzzy
+msgid "Project deliverables / activities"
+msgstr "Livrables du projet"
+
+#: .\projects\models.py:201
+msgid ""
+"Will the project require the purchase, design or fabrication of specialized "
+"laboratory or field equipment?"
+msgstr ""
+
+#: .\projects\models.py:202
+msgid "What technical services are being requested?"
+msgstr ""
+
+#: .\projects\models.py:204
+msgid ""
+"Do you anticipate needing assistance with mobilization/demobilization of "
+"this equipment?"
+msgstr ""
+
+#: .\projects\models.py:208
+msgid "Does this project involved a field component?"
+msgstr ""
+
+#: .\projects\models.py:210
+msgid ""
+"Describe need for vehicle (type of vehicle, number of weeks, time-frame)"
+msgstr ""
+"Décrivez le besoin de véhicule (type de véhicule, nombre de semaines, "
+"calendrier)"
+
+#: .\projects\models.py:211
+msgid "Ship (Coast Guard, charter vessel) Requirements"
+msgstr "Navires (garde côtière, charter)"
+
+#: .\projects\models.py:213
+msgid ""
+"If this project links to a ship time request in COIP, please include the "
+"COIP application number here."
+msgstr ""
+
+#: .\projects\models.py:215
+msgid "What field instrumentation will be deployed during this project?"
+msgstr ""
+
+#: .\projects\models.py:217
+msgid "Who is the owner/curator of this instrumentation, if known?"
+msgstr ""
+
+#: .\projects\models.py:219
+msgid "Do you require field support staff?"
+msgstr ""
+
+#: .\projects\models.py:221
+msgid ""
+"If so, please include some additional detail, e.g., how many people are "
+"likely to be required and when"
+msgstr ""
+
+#: .\projects\models.py:225
+msgid "Will new data be collected or generated?"
+msgstr ""
+
+#: .\projects\models.py:226
+msgid "What type of data will be collected"
+msgstr "Quel type de données sera collecté"
+
+#: .\projects\models.py:227
+msgid "What data products will be generated (e.g. models, indices)?"
+msgstr ""
+
+#: .\projects\models.py:229
+#, fuzzy
+msgid ""
+"Are these data / data products eligible to be placed on the Open Data "
+"Platform?"
+msgstr ""
+"Lesquels de ces données / produits de données seront placés sur la plate-"
+"forme Open Data cette année?"
+
+#: .\projects\models.py:230
+msgid "Data storage / archiving Plan"
+msgstr "Plan de stockage / archivage des données"
+
+#: .\projects\models.py:232
+msgid "Describe what data management support is required, if any."
+msgstr ""
+
+#: .\projects\models.py:236
+msgid "Does this project involve laboratory work?"
+msgstr ""
+
+#: .\projects\models.py:239
+msgid ""
+"Does this project require the services of Aquatic Biotechnology Lab (ABL)?"
+msgstr ""
+
+#: .\projects\models.py:240
+msgid "Is laboratory space required?"
+msgstr ""
+
+#: .\projects\models.py:242
+msgid ""
+"Does this project require other specialized laboratory support or services "
+"(provide details below)?"
+msgstr ""
+
+#: .\projects\models.py:244
+msgid ""
+"Describe other laboratory requirements relevant for project planning "
+"purposes."
+msgstr ""
+
+#: .\projects\models.py:246
+#, fuzzy
+msgid "Special IT requirements (software, licenses, hardware)"
+msgstr "Configuration informatique requise (logiciels, licences, matériel)"
+
+#: .\projects\models.py:247
+msgid "additional notes"
+msgstr "notes supplémentaires"
+
+#: .\projects\models.py:252
+msgid "responsibility center (if known)"
+msgstr "centre de responsabilité (s'il est connu)"
+
+#: .\projects\models.py:254
+msgid "allotment code (if known)"
+msgstr "code d'allotissement (s'il est connu)"
+
+#: .\projects\models.py:255
+msgid "existing project codes (if known)"
+msgstr "codes de projet existants (s'ils sont connus)"
+
+#: .\projects\models.py:258
+msgid "Submit project for review"
+msgstr "Soumettre le projet"
+
+#: .\projects\models.py:260
+msgid "recommended"
+msgstr ""
+
+#: .\projects\models.py:261
+#, fuzzy
+msgid "approved"
+msgstr "Non approuvé"
+
+#: .\projects\models.py:262
+msgid "Allocated budget"
+msgstr ""
+
+#: .\projects\models.py:263
+msgid "Notification Email Sent"
+msgstr ""
+
+#: .\projects\models.py:264
+#, fuzzy
+msgid "administrative notes"
+msgstr "Notes complémentaires"
+
+#: .\projects\models.py:267
+msgid "Should the project be hidden from other users?"
+msgstr "Le projet doit-il être caché des autres utilisateurs?"
+
+#: .\projects\models.py:269
+msgid "date last modified"
+msgstr "date de dernière modification"
+
+#: .\projects\models.py:270
+msgid "last modified by"
+msgstr "dernièrement modifié par"
+
+#: .\projects\models.py:389
+msgid "Salary"
+msgstr "Salaire"
+
+#: .\projects\models.py:390 .\projects\views.py:924
+msgid "O&M"
+msgstr "F & E"
+
+#: .\projects\models.py:409 .\projects\models.py:439 .\projects\models.py:460
+#: .\projects\models.py:507 .\projects\models.py:535 .\projects\models.py:550
+msgid "project"
+msgstr "projet"
+
+#: .\projects\models.py:410
+msgid "employee type"
+msgstr "type d'employé"
+
+#: .\projects\models.py:411 .\projects\models.py:463 .\projects\models.py:552
+msgid "project lead"
+msgstr "chef de projet"
+
+#: .\projects\models.py:411
+msgid "yes"
+msgstr "oui"
+
+#: .\projects\models.py:411
+msgid "no"
+msgstr "non"
+
+#: .\projects\models.py:413 .\projects\models.py:510 .\projects\models.py:538
+msgid "funding source"
+msgstr "source de financement"
+
+#: .\projects\models.py:414
+msgid "User"
+msgstr "Utilisateur"
+
+#: .\projects\models.py:416
+msgid "Person name (leave blank if user is selected)"
+msgstr "Nom de la personne (laisser vide si l'utilisateur est sélectionné)"
+
+#: .\projects\models.py:418
+msgid "level"
+msgstr "niveau"
+
+#: .\projects\models.py:420
+msgid "student program"
+msgstr "programme pour étudiants"
+
+#: .\projects\models.py:421
+msgid "duration in weeks"
+msgstr "durée en semaines"
+
+#: .\projects\models.py:422
+msgid "overtime in hours"
+msgstr "heures supplémentaires"
+
+#: .\projects\models.py:423
+msgid "overtime description"
+msgstr "description d'heures supplémentaires"
+
+#: .\projects\models.py:424
+msgid "cost"
+msgstr "coût"
+
+#: .\projects\models.py:441
+msgid "Critical to project delivery"
+msgstr "Critique à la livraison du projet"
+
+#: .\projects\models.py:442 .\projects\models.py:466
+#: .\projects\templates\projects\iw_project_list.html:240
+msgid "notes"
+msgstr "remarques"
+
+#: .\projects\models.py:456
+#: .\projects\templates\projects\functionalgroup_list.html:45
+#: .\projects\templates\projects\generic_list.html:69
+msgid "New"
+msgstr "Nouveau"
+
+#: .\projects\models.py:457
+msgid "Existing"
+msgstr "Existant"
+
+#: .\projects\models.py:462
+msgid "collaborating organization"
+msgstr "organisation collaboratrice"
+
+#: .\projects\models.py:464
+msgid "Title of the agreement"
+msgstr "Titre de l'accord"
+
+#: .\projects\models.py:465
+msgid "new or existing"
+msgstr "nouveau ou existant"
+
+#: .\projects\models.py:484
+msgid "Travel"
+msgstr "Voyage"
+
+#: .\projects\models.py:485
+msgid "Equipment Purchase"
+msgstr "Achat d'équipement"
+
+#: .\projects\models.py:486
+msgid "Material and Supplies"
+msgstr "Matériel et fournitures"
+
+#: .\projects\models.py:487
+msgid "Human Resources"
+msgstr "Ressources humaines"
+
+#: .\projects\models.py:488
+msgid "Contracts, Leases, Services"
+msgstr "Contrats, baux, services"
+
+#: .\projects\models.py:489 .\projects\models.py:531
+msgid "Other"
+msgstr "Autre"
+
+#: .\projects\models.py:508 .\projects\models.py:536
+msgid "category"
+msgstr "catégorie"
+
+#: .\projects\models.py:511 .\projects\models.py:539 .\projects\models.py:624
+msgid "description"
+msgstr "description"
+
+#: .\projects\models.py:512 .\projects\models.py:540 .\projects\models.py:556
+msgid "budget requested"
+msgstr "budget demandé"
+
+#: .\projects\models.py:528
+msgid "IM / IT - computers, hardware"
+msgstr "GI / TI - ordinateurs, matériel"
+
+#: .\projects\models.py:529
+msgid "Lab Equipment"
+msgstr "Équipement de laboratoire"
+
+#: .\projects\models.py:530
+msgid "Field Equipment"
+msgstr "Équipement de terrain"
+
+#: .\projects\models.py:551
+msgid "Recipient organization"
+msgstr "Organisation destinataire"
+
+#: .\projects\models.py:554
+msgid "Proposed title of agreement"
+msgstr "Titre de l'accord proposé"
+
+#: .\projects\models.py:555
+msgid "Name of G&C program"
+msgstr "Nom du programme de S & C"
+
+#: .\projects\models.py:572
+msgid "resource name"
+msgstr "nom de la ressource"
+
+#: .\projects\models.py:573 .\projects\models.py:719
+msgid "file attachment"
+msgstr "pièce jointe"
+
+#: .\projects\models.py:574
+msgid "external URL"
+msgstr "URL externe"
+
+#: .\projects\models.py:643
+msgid ""
+"major accomplishments (this can be left blank if reported at the milestone "
+"level)"
+msgstr ""
+"réalisations majeures (ceci peut être laissé en blanc si signalé au niveau "
+"de l'étape)"
+
+#: .\projects\models.py:644
+msgid "major issues encountered"
+msgstr "problèmes majeurs rencontrés"
+
+#: .\projects\models.py:645
+msgid "target completion date"
+msgstr "date d'achèvement prévue"
+
+#: .\projects\models.py:647
+msgid "rationale for a modified completion date"
+msgstr "justification d'une date d'achèvement modifiée"
+
+#: .\projects\models.py:648
+msgid "general comments"
+msgstr "observations générales"
+
+#: .\projects\models.py:649
+msgid "section head comment"
+msgstr "commentaire de chefde section"
+
+#: .\projects\models.py:650
+msgid "reviewed by section head"
+msgstr "examiné par le chef de section"
+
+#: .\projects\models.py:652
+msgid "date created"
+msgstr "date de création"
+
+#: .\projects\models.py:653
+msgid "created by"
+msgstr "créé par"
+
+#: .\projects\models.py:668
+msgid "Status Report #"
+msgstr "No. de rapport d'état"
+
+#: .\projects\models.py:677 .\projects\templates\projects\_agreements.html:44
+#: .\projects\templates\projects\_collaborators.html:38
+#: .\projects\templates\projects\_milestone_updates.html:35
+msgid "Notes"
+msgstr "Remarques"
+
+#: .\projects\models.py:686
+msgid "Update on "
+msgstr "Mise à jour sur"
+
+#: .\projects\models.py:696
+#, fuzzy
+msgid "executive summary"
+msgstr "Résumé des commentaires"
+
+#: .\projects\models.py:697
+msgid "pressures"
+msgstr ""
+
+#: .\projects\templates\projects\DELETE_project_overview.html:16
+#: .\projects\templates\projects\base\_nav_left_auth.html:4
+#: .\projects\templates\projects\iw_project_list.html:14
+#: .\projects\templates\projects\manage_settings_small.html:27
+#: .\projects\views.py:43
+msgid "Home"
+msgstr "Accueil"
+
+#: .\projects\templates\projects\DELETE_project_overview.html:35
+#: .\projects\templates\projects\project_overview_pop.html:12
+msgid "PROJECT OVERVIEW"
+msgstr ""
+
+#: .\projects\templates\projects\DELETE_project_overview.html:50
+#: .\projects\templates\projects\project_detail.html:23
+#: .\projects\templates\projects\project_overview_pop.html:29
+msgid "Unsubmit"
+msgstr "Annuler la soumission"
+
+#: .\projects\templates\projects\DELETE_project_overview.html:50
+#: .\projects\templates\projects\project_detail.html:23
+#: .\projects\templates\projects\project_overview_pop.html:29
+#: .\projects\views.py:399 .\projects\views.py:408
+msgid "Submit"
+msgstr "Soumettre"
+
+#: .\projects\templates\projects\DELETE_project_overview.html:57
+#: .\projects\templates\projects\project_overview_pop.html:36
+#, fuzzy
+msgid "Unapprove"
+msgstr "Non approuvé"
+
+#: .\projects\templates\projects\DELETE_project_overview.html:57
+#: .\projects\templates\projects\project_overview_pop.html:36
+msgid "Approve"
+msgstr "Approuver"
+
+#: .\projects\templates\projects\DELETE_project_overview.html:63
+#: .\projects\templates\projects\project_detail.html:32
+#: .\projects\templates\projects\project_overview_pop.html:42
+msgid "Use this project as a template for a new project"
+msgstr "Utilisez ce projet comme modèle pour un nouveau projet"
+
+#: .\projects\templates\projects\DELETE_project_overview.html:64
+#: .\projects\templates\projects\project_detail.html:33
+#: .\projects\templates\projects\project_overview_pop.html:43
+msgid "Clone"
+msgstr "Clone"
+
+#: .\projects\templates\projects\DELETE_project_overview.html:75
+#: .\projects\templates\projects\project_detail.html:39
+#: .\projects\templates\projects\project_overview_pop.html:54
+msgid "Create a new status report for this project"
+msgstr "Créer un nouveau rapport de statut pour ce projet"
+
+#: .\projects\templates\projects\DELETE_project_overview.html:76
+#: .\projects\templates\projects\project_detail.html:40
+#: .\projects\templates\projects\project_overview_pop.html:55
+msgid "New Status Report"
+msgstr "Nouveau rapport de statut"
+
+#: .\projects\templates\projects\_agreements.html:6
+#, fuzzy
+msgid "Collaborative Agreements"
+msgstr "Ententes de collaboration"
+
+#: .\projects\templates\projects\_agreements.html:13
+msgid "Add Agreement"
+msgstr "Ajouter un accord"
+
+#: .\projects\templates\projects\_agreements.html:21
+msgid "No Collaborative Agreements"
+msgstr "Aucun accord de collaboration"
+
+#: .\projects\templates\projects\_agreements.html:32
+msgid "Partner Organization"
+msgstr "Organisation partenaire"
+
+#: .\projects\templates\projects\_agreements.html:35
+#: .\projects\templates\projects\_gc_costs.html:39
+#: .\projects\templates\projects\_staff.html:37
+#: .\projects\templates\projects\report_pdf_project_summary.html:344
+msgid "Project Lead"
+msgstr "Chef de projet"
+
+#: .\projects\templates\projects\_agreements.html:38
+msgid "Agreement Title"
+msgstr "Titre de l'accord"
+
+#: .\projects\templates\projects\_agreements.html:41
+msgid "New or Existing"
+msgstr "Nouveau ou existant"
+
+#: .\projects\templates\projects\_capital_costs.html:7
+#, fuzzy
+msgid "Capital Costs"
+msgstr "Coûts en capital:"
+
+#: .\projects\templates\projects\_capital_costs.html:13
+msgid "Add Capital"
+msgstr "Ajouter du capital"
+
+#: .\projects\templates\projects\_capital_costs.html:21
+msgid "No Capital Costs"
+msgstr "Aucune coûts en capital"
+
+#: .\projects\templates\projects\_capital_costs.html:33
+#: .\projects\templates\projects\_om_costs.html:43
+msgid "Category"
+msgstr "Catégorie"
+
+#: .\projects\templates\projects\_capital_costs.html:36
+#: .\projects\templates\projects\_milestones.html:36
+#: .\projects\templates\projects\_om_costs.html:46
+msgid "Description"
+msgstr "Description"
+
+#: .\projects\templates\projects\_capital_costs.html:42
+#: .\projects\templates\projects\_om_costs.html:52
+msgid "Budget Amount"
+msgstr "Montant budgétaire"
+
+#: .\projects\templates\projects\_collaborators.html:6
+#, fuzzy
+msgid "External Collaborators"
+msgstr "Collaborateurs externes:"
+
+#: .\projects\templates\projects\_collaborators.html:13
+msgid "Add Collaborator"
+msgstr "Ajout d'un collaborateur"
+
+#: .\projects\templates\projects\_collaborators.html:21
+msgid "No Collaborators"
+msgstr "Pas de collaborateurs"
+
+#: .\projects\templates\projects\_collaborators.html:35
+msgid "Critical to project?"
+msgstr "Critique au projet?"
+
+#: .\projects\templates\projects\_files.html:7
+#: .\projects\templates\projects\_status_reports.html:51
+msgid "Supporting Resources"
+msgstr "Ressources de support"
+
+#: .\projects\templates\projects\_files.html:13
+msgid "Once you save this report, you will be able to add supporting resources"
+msgstr ""
+"Une fois que vous aurez sauvegardé ce rapport, vous pourrez ajouter des "
+"ressources de soutien"
+
+#: .\projects\templates\projects\_files.html:26
+msgid "Add Resource"
+msgstr "Ajouter une ressource"
+
+#: .\projects\templates\projects\_files.html:33
+msgid "No Files"
+msgstr "Aucun fichier"
+
+#: .\projects\templates\projects\_files.html:41
+msgid "Resource Name"
+msgstr "Nom de la ressource"
+
+#: .\projects\templates\projects\_files.html:44
+msgid "Reference"
+msgstr "Référence"
+
+#: .\projects\templates\projects\_files.html:47
+msgid "External URL"
+msgstr "URL externe"
+
+#: .\projects\templates\projects\_files.html:50
+msgid "File Attachment"
+msgstr "Pièce jointe"
+
+#: .\projects\templates\projects\_files.html:54
+msgid "Date Created"
+msgstr "Date de création"
+
+#: .\projects\templates\projects\_files.html:68
+msgid "open the external URL in a new window"
+msgstr "ouvrir l'URL externe dans une nouvelle fenêtre"
+
+#: .\projects\templates\projects\_files.html:77
+msgid "Open the file"
+msgstr "Ouvrir le fichier"
+
+#: .\projects\templates\projects\_financial.html:9
+msgid "Financial Summary:"
+msgstr "Résumé financier:"
+
+#: .\projects\templates\projects\_financial.html:16
+#: .\projects\templates\projects\_section_financials.html:15
+#: .\projects\templates\projects\iw_project_list.html:144
+msgid "Type"
+msgstr "Type"
+
+#: .\projects\templates\projects\_financial.html:19
+#: .\projects\templates\projects\_section_financials.html:18
+#: .\projects\templates\projects\iw_project_list.html:147
+#, fuzzy
+msgid "Funding source"
+msgstr "source de financement"
+
+#: .\projects\templates\projects\_financial.html:22
+#: .\projects\templates\projects\_section_financials.html:21
+#: .\projects\templates\projects\iw_project_list.html:150
+#, fuzzy
+msgid "Salary (excluding FTE)"
+msgstr "Salaire (excluant les employés à temps plein)"
+
+#: .\projects\templates\projects\_financial.html:25
+#: .\projects\templates\projects\_section_financials.html:24
+#: .\projects\templates\projects\iw_project_list.html:153
+msgid "O & M"
+msgstr "F & E"
+
+#: .\projects\templates\projects\_financial.html:28
+#: .\projects\templates\projects\_section_financials.html:27
+#: .\projects\templates\projects\iw_project_list.html:156
+msgid "Captial"
+msgstr ""
+
+#: .\projects\templates\projects\_financial.html:31
+#: .\projects\templates\projects\_financial.html:39
+#: .\projects\templates\projects\_section_financials.html:30
+#: .\projects\templates\projects\_section_financials.html:38
+#: .\projects\templates\projects\iw_project_list.html:159
+#: .\projects\templates\projects\iw_project_list.html:167
+msgid "Total"
+msgstr "Total"
+
+#: .\projects\templates\projects\_gc_costs.html:8
+#, fuzzy
+msgid "Grant & Contributions"
+msgstr "Subventions et contributions:"
+
+#: .\projects\templates\projects\_gc_costs.html:15
+msgid "Add G&C"
+msgstr "Ajouter S & C"
+
+#: .\projects\templates\projects\_gc_costs.html:23
+msgid "No G&Cs"
+msgstr "Aucune de S et C"
+
+#: .\projects\templates\projects\_gc_costs.html:36
+#: .\projects\templates\projects\report_pdf_project_summary.html:341
+msgid "Recipient Organization"
+msgstr "Organisation destinataire"
+
+#: .\projects\templates\projects\_gc_costs.html:42
+#: .\projects\templates\projects\report_pdf_project_summary.html:347
+msgid "Proposed Title"
+msgstr "Titre proposé"
+
+#: .\projects\templates\projects\_gc_costs.html:45
+#: .\projects\templates\projects\report_pdf_project_summary.html:350
+msgid "G&C Program"
+msgstr "Programme de S & C"
+
+#: .\projects\templates\projects\_gc_costs.html:48
+msgid "Funding Amount"
+msgstr "Montant du financement"
+
+#: .\projects\templates\projects\_milestone_updates.html:13
+msgid "Progress on Project Milestones:"
+msgstr "Progression des étapes du projet :"
+
+#: .\projects\templates\projects\_milestone_updates.html:17
+msgid ""
+"Once you save this report, you will be able to update progress on milestones"
+msgstr ""
+"Une fois que vous aurez sauvegardé ce rapport, vous pourrez mettre à jour "
+"les progrès réalisés par rapport aux étapes"
+
+#: .\projects\templates\projects\_milestone_updates.html:22
+msgid "No milestones have been added to this project"
+msgstr "Aucun jalon n'a été ajouté à ce projet"
+
+#: .\projects\templates\projects\_milestone_updates.html:29
+msgid "Milestone"
+msgstr "Jalons"
+
+#: .\projects\templates\projects\_milestone_updates.html:32
+#: .\projects\templates\projects\_status_reports.html:36
+msgid "Status"
+msgstr "Statut"
+
+#: .\projects\templates\projects\_milestones.html:8
+#, fuzzy
+msgid "Project Milestones"
+msgstr "Jalons du projet:"
+
+#: .\projects\templates\projects\_milestones.html:14
+msgid "Add Milestone"
+msgstr "Ajouter un jalon"
+
+#: .\projects\templates\projects\_milestones.html:22
+msgid "No milestones"
+msgstr "Aucune jalon"
+
+#: .\projects\templates\projects\_milestones.html:40
+msgid "Latest status"
+msgstr "Dernier statut"
+
+#: .\projects\templates\projects\_milestones.html:60
+msgid "No status reports on file.."
+msgstr "Aucun rapport d'état au dossier."
+
+#: .\projects\templates\projects\_om_costs.html:8
+#, fuzzy
+msgid "O&M Costs"
+msgstr "F et E:"
+
+#: .\projects\templates\projects\_om_costs.html:14
+msgid "Add O&M"
+msgstr "Ajouter F & E"
+
+#: .\projects\templates\projects\_om_costs.html:17
+msgid "Add all categories"
+msgstr "Ajouter toutes les catégories"
+
+#: .\projects\templates\projects\_om_costs.html:21
+msgid "Clear empty lines"
+msgstr "Effacer les lignes vides"
+
+#: .\projects\templates\projects\_om_costs.html:29
+msgid "No O&M Costs"
+msgstr "Aucune de F et E"
+
+#: .\projects\templates\projects\_om_costs.html:40
+msgid "Category Type"
+msgstr "Type de catégorie"
+
+#: .\projects\templates\projects\_project_content.html:48
+msgid "Are you sure you want to delete this staff member from the project?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce membre du personnel du projet?"
+
+#: .\projects\templates\projects\_project_content.html:50
+msgid "WARNING: YOU ARE ABOUT TO DELETE YOURSELF FROM THIS PROJECT!!!"
+msgstr "ATTENTION: VOUS ALLEZ VOUS SUPPRIMER DE CE PROJET !!!"
+
+#: .\projects\templates\projects\_project_content.html:64
+msgid "Are you sure you want to delete this collaborator from the project?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce collaborateur du projet?"
+
+#: .\projects\templates\projects\_project_content.html:75
+msgid "Are you sure you want to delete this agreement from the project?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
+
+#: .\projects\templates\projects\_project_content.html:86
+msgid "Are you sure you want to delete this o&m request from the project?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette demande de F & E du projet?"
+
+#: .\projects\templates\projects\_project_content.html:97
+msgid "Are you sure you want to delete this capital request from the project?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette demande de capital du projet?"
+
+#: .\projects\templates\projects\_project_content.html:108
+msgid "Are you sure you want to delete this G&C request from the project?"
+msgstr "Êtes-vous sûr de vouloir supprimer cette demande de S & C du projet?"
+
+#: .\projects\templates\projects\_project_content.html:119
+#: .\projects\templates\projects\status_report_form_popout.html:116
+msgid ""
+"Are you sure you want to delete this milestone request from the project?"
+msgstr "Êtes-vous sûr de vouloir supprimer ce jalon du projet?"
+
+#: .\projects\templates\projects\_project_details.html:7
+#, fuzzy
+msgid "Project Details"
+msgstr "Détails du projet:"
+
+#: .\projects\templates\projects\_project_details.html:13
+#, fuzzy
+msgid "Edit Project Details"
+msgstr "Ajouter / Modifier les détails du projet"
+
+#: .\projects\templates\projects\_project_details.html:30
+msgid "MISSING PROGRAM INFORMATION"
+msgstr ""
+
+#: .\projects\templates\projects\_section_activity_types.html:7
+msgid "By Activity Type"
+msgstr ""
+
+#: .\projects\templates\projects\_section_activity_types.html:8
+#: .\projects\templates\projects\_section_functional_groups.html:16
+#: .\projects\templates\projects\_section_funding_sources.html:7
+#, fuzzy
+msgid "Recommended projects"
+msgstr "Examen des projets de base."
+
+#: .\projects\templates\projects\_section_activity_types.html:35
+#: .\projects\templates\projects\_section_functional_groups.html:67
+#: .\projects\templates\projects\_section_funding_sources.html:34
+#: .\projects\templates\projects\_section_projects.html:47
+#: .\projects\templates\projects\_section_projects.html:96
+#: .\projects\templates\projects\_section_projects.html:143
+#: .\projects\templates\projects\_section_staff.html:86
+msgid "None"
+msgstr ""
+
+#: .\projects\templates\projects\_section_financials.html:7
+#, fuzzy
+msgid "Financial Summary"
+msgstr "Résumé financier:"
+
+#: .\projects\templates\projects\_section_functional_groups.html:15
+msgid "By Functional Groups"
+msgstr ""
+
+#: .\projects\templates\projects\_section_functional_groups.html:36
+#, fuzzy
+msgid "Executive summary"
+msgstr "Résumé des commentaires"
+
+#: .\projects\templates\projects\_section_functional_groups.html:40
+msgid "Pressures"
+msgstr ""
+
+#: .\projects\templates\projects\_section_funding_sources.html:6
+#, fuzzy
+msgid "By Primary Funding Source"
+msgstr "Source de financement"
+
+#: .\projects\templates\projects\_section_projects.html:13
+msgid "By Recommendation Status"
+msgstr ""
+
+#: .\projects\templates\projects\_section_projects.html:22
+#, fuzzy
+msgid "Recommended"
+msgstr "enregistrement"
+
+#: .\projects\templates\projects\_section_projects.html:41
+msgid "un-recommend"
+msgstr ""
+
+#: .\projects\templates\projects\_section_projects.html:65
+msgid "Not Recommended"
+msgstr ""
+
+#: .\projects\templates\projects\_section_projects.html:85
+msgid "un-submit"
+msgstr "annuler la soumission"
+
+#: .\projects\templates\projects\_section_projects.html:90
+#, fuzzy
+msgid "recommend"
+msgstr "enregistrement"
+
+#: .\projects\templates\projects\_section_projects.html:112
+#, fuzzy
+msgid "Unsubmitted"
+msgstr "Annuler la soumission"
+
+#: .\projects\templates\projects\_section_projects.html:133
+#, fuzzy
+msgid "submit"
+msgstr "Annuler la soumission"
+
+#: .\projects\templates\projects\_section_projects.html:137
+#, fuzzy
+msgid "delete"
+msgstr "Supprimer"
+
+#: .\projects\templates\projects\_section_staff.html:12
+#, fuzzy
+msgid "By Staff"
+msgstr "Ajouté personnel"
+
+#: .\projects\templates\projects\_section_staff.html:13
+#, fuzzy
+msgid "Connected Users"
+msgstr "Type d'entrée"
+
+#: .\projects\templates\projects\_section_staff.html:34
+msgid "Submitted?"
+msgstr "Soumis?"
+
+#: .\projects\templates\projects\_section_staff.html:37
+#, fuzzy
+msgid "Recommended?"
+msgstr "enregistrement"
+
+#: .\projects\templates\projects\_section_staff.html:44
+msgid "Project Title"
+msgstr "Titre du projet"
+
+#: .\projects\templates\projects\_section_staff.html:47
+#: .\projects\templates\projects\admin_staff_list.html:84
+msgid "Lead?"
+msgstr "Chef de projet?"
+
+#: .\projects\templates\projects\_section_staff.html:50
+#: .\projects\views.py:284
+#, fuzzy
+msgid "Project Leads"
+msgstr "Chef de projet"
+
+#: .\projects\templates\projects\_section_staff.html:53
+#, fuzzy
+msgid "FTE weeks"
+msgstr "No. de semaines"
+
+#: .\projects\templates\projects\_section_status_reports.html:7
+msgid "Status Reports"
+msgstr "Rapports d'état"
+
+#: .\projects\templates\projects\_staff.html:8
+#, fuzzy
+msgid "Project Staff"
+msgstr "Personnel du projet:"
+
+#: .\projects\templates\projects\_staff.html:14
+msgid "Add Staff"
+msgstr "Ajouté personnel"
+
+#: .\projects\templates\projects\_staff.html:23
+msgid "No Staff Members"
+msgstr "Aucune demande de personnel"
+
+#: .\projects\templates\projects\_staff.html:40
+#: .\projects\templates\projects\admin_staff_list.html:87
+msgid "Employee type"
+msgstr "Type d'employé"
+
+#: .\projects\templates\projects\_staff.html:43
+msgid "Level"
+msgstr "Niveau"
+
+#: .\projects\templates\projects\_staff.html:46
+msgid "Duration (weeks)"
+msgstr "Durée en semaines"
+
+#: .\projects\templates\projects\_staff.html:49
+#: .\projects\templates\projects\overtime_calculator_popout.html:68
+msgid "Overtime hours"
+msgstr "Heures supplémentaires"
+
+#: .\projects\templates\projects\_staff.html:52
+msgid "Cost Category"
+msgstr "Catégorie de coût"
+
+#: .\projects\templates\projects\_staff.html:58
+msgid "Cost"
+msgstr "Coût"
+
+#: .\projects\templates\projects\_staff.html:104
+msgid "n/a"
+msgstr "n / a"
+
+#: .\projects\templates\projects\_status_reports.html:7
+msgid "Status Reports:"
+msgstr "Rapports d'état:"
+
+#: .\projects\templates\projects\_status_reports.html:13
+msgid "Add Report"
+msgstr "Ajouter un rapport"
+
+#: .\projects\templates\projects\_status_reports.html:21
+msgid "No Reports"
+msgstr "Aucun rapport"
+
+#: .\projects\templates\projects\_status_reports.html:30
+msgid "Number"
+msgstr "Numéro"
+
+#: .\projects\templates\projects\_status_reports.html:33
+msgid "Created By"
+msgstr "Créé par"
+
+#: .\projects\templates\projects\_status_reports.html:39
+msgid "Major Accomplishments"
+msgstr "Principales réalisations"
+
+#: .\projects\templates\projects\_status_reports.html:42
+msgid "Major Issues Encountered"
+msgstr "Problèmes majeurs rencontrés"
+
+#: .\projects\templates\projects\_status_reports.html:45
+msgid "Target Completion Date"
+msgstr "Date d'achèvement prévue"
+
+#: .\projects\templates\projects\_status_reports.html:48
+msgid "General Comments"
+msgstr "Observations générales"
+
+#: .\projects\templates\projects\_status_reports.html:54
+msgid "Reviewed by Section Head"
+msgstr "Examiné par le chef de section"
+
+#: .\projects\templates\projects\_status_reports.html:73
+msgid "Open the the report as a PDF"
+msgstr "Ouvrez le rapport en PDF"
+
+#: .\projects\templates\projects\_upcoming_dates.html:16
+#, fuzzy
+msgid "Upcoming Dates"
+msgstr "Liste des enregistrements"
+
+#: .\projects\templates\projects\_upcoming_dates.html:55
+#, fuzzy
+msgid "There are no upcoming dates in the system"
+msgstr "Il n'y a pas de frais associés à cette demande"
+
+#: .\projects\templates\projects\_upcoming_dates.html:57
+#, fuzzy
+msgid "View past dates"
+msgstr "statut de révision"
+
+#: .\projects\templates\projects\_upcoming_dates.html:65
+#, fuzzy
+msgid "Past Dates"
+msgstr "Date de début"
+
+#: .\projects\templates\projects\_upcoming_dates.html:104
+#: .\projects\templates\projects\agreement_form_popout.html:48
+#: .\projects\templates\projects\collaborator_form_popout.html:48
+#: .\projects\templates\projects\cost_form_popout.html:51
+#: .\projects\templates\projects\generic_popout_form.html:53
+#: .\projects\templates\projects\milestone_form_popout.html:37
+#: .\projects\templates\projects\note_form_popout.html:44
+#: .\projects\templates\projects\project_form_popout.html:32
+#: .\projects\templates\projects\project_form_popout.html:88
+#: .\projects\templates\projects\staff_form_popout.html:162
+#: .\projects\templates\projects\status_report_form_popout.html:90
+msgid "Close"
+msgstr "Fermer"
+
+#: .\projects\templates\projects\_upcoming_dates.html:114
+#, fuzzy
+msgid "Reference Materials:"
+msgstr "Référence"
+
+#: .\projects\templates\projects\admin_staff_list.html:62
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:65
+#: .\projects\templates\projects\functionalgroup_list.html:40
+#: .\projects\templates\projects\generic_list.html:51
+#: .\projects\templates\projects\my_project_list.html:81
+msgid "(click on a header to sort table)"
+msgstr "(cliquez sur un en-tête pour trier le tableau)"
+
+#: .\projects\templates\projects\admin_staff_list.html:66
+#: .\projects\templates\projects\generic_list.html:59
+#: .\projects\templates\projects\generic_list.html:61
+#: .\projects\templates\projects\generic_list.html:64
+#: .\projects\templates\projects\my_project_list.html:85
+msgid "displaying"
+msgstr "afficher"
+
+#: .\projects\templates\projects\admin_staff_list.html:66
+#: .\projects\templates\projects\generic_list.html:59
+#: .\projects\templates\projects\generic_list.html:61
+msgid "of"
+msgstr "de"
+
+#: .\projects\templates\projects\admin_staff_list.html:72
+msgid "Fiscal Year"
+msgstr "Exercice fiscal"
+
+#: .\projects\templates\projects\admin_staff_list.html:78
+msgid "Title"
+msgstr "Titre"
+
+#: .\projects\templates\projects\admin_staff_list.html:81
+msgid "Staff name"
+msgstr "Nom du personnel"
+
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:80
+#, fuzzy
+msgid "Section head"
+msgstr "chef de section"
+
+#: .\projects\templates\projects\admin_submitted_unapproved_list.html:89
+#, fuzzy
+msgid "Projects List"
+msgstr "titre du projet"
+
+#: .\projects\templates\projects\agreement_form_popout.html:28
+#: .\projects\templates\projects\collaborator_form_popout.html:28
+msgid "Editing:"
+msgstr "Modification:"
+
+#: .\projects\templates\projects\agreement_form_popout.html:31
+msgid "Adding Collaborative Agreement"
+msgstr "Ajout d'un accord de collaboration"
+
+#: .\projects\templates\projects\agreement_form_popout.html:45
+#: .\projects\templates\projects\collaborator_form_popout.html:45
+#: .\projects\templates\projects\cost_form_popout.html:48
+#: .\projects\templates\projects\generic_popout_form.html:49
+#: .\projects\templates\projects\milestone_form_popout.html:34
+#: .\projects\templates\projects\note_form_popout.html:41
+#: .\projects\templates\projects\staff_form_popout.html:159
+#: .\projects\templates\projects\status_report_form_popout.html:81
+#: .\projects\templates\projects\temp_formset.html:70 .\projects\views.py:483
+msgid "Save"
+msgstr "Sauvegarder"
+
+#: .\projects\templates\projects\base\_app_title.html:2
+#: .\projects\templates\projects\iw_project_list.html:185
+#: .\projects\views.py:275
+msgid "Projects"
+msgstr "Projets"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:8
+msgid "Reports"
+msgstr "Rapports"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:18
+msgid "Settings"
+msgstr "Paramètres"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:22
+msgid "Manage Funding Sources"
+msgstr "Gérer les source de financement"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:25
+msgid "Manage O & M Categories"
+msgstr "Gérer les catégories F et E"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:29
+msgid "Manage Employee Types"
+msgstr "Gérer les types d'employés"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:32
+msgid "Manage Tags"
+msgstr "Gérer les étiquettes"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:35
+msgid "Manage Statuses"
+msgstr "Gérer les statuts"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:38
+msgid "Manage Help Text"
+msgstr "Gérer les textes d'aides"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:41
+msgid "Manage Staff Levels"
+msgstr "Gérer les niveaux ressources humaines"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:44
+#, fuzzy
+msgid "Manage Activity Types"
+msgstr "Gérer les types d'employés"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:47
+#, fuzzy
+msgid "Manage Themes"
+msgstr "Gérer les étiquettes"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:50
+#, fuzzy
+msgid "Manage Upcoming Dates"
+msgstr "Gérer les tarifs NJC"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:53
+#, fuzzy
+msgid "Manage Reference Materials"
+msgstr "Référence"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:59
+#, fuzzy
+msgid "Manage Functional Groups"
+msgstr "Gérer les source de financement"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:63
+msgid "ADMIN: Manage DFO Organizations"
+msgstr "ADMIN : Gérer les organisations du MPO"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:66
+msgid "ADMIN: Non-registered Staff List"
+msgstr ""
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:69
+#, fuzzy
+msgid "ADMIN: Submitted + Unapproved Projects"
+msgstr "Projets soumis"
+
+#: .\projects\templates\projects\base\_nav_left_auth.html:72
+msgid "ADMIN: Project Approvals"
+msgstr ""
+
+#: .\projects\templates\projects\collaborator_form_popout.html:31
+msgid "Adding an External Collaborator"
+msgstr "Ajout d'un collaborateur externe"
+
+#: .\projects\templates\projects\cost_form_popout.html:28
+#, python-format
+msgid ""
+"\n"
+"                    Editing %(ct)s Request: %(o)s\n"
+"                "
+msgstr ""
+"\n"
+"                    Modification de demande %(ct)s : %(o)s\n"
+"                "
+
+#: .\projects\templates\projects\cost_form_popout.html:32
+#, python-format
+msgid ""
+"\n"
+"                    Adding %(ct)s Request\n"
+"                "
+msgstr ""
+"\n"
+"                    Ajouter une demande %(ct)s\n"
+"                "
+
+#: .\projects\templates\projects\functionalgroup_detail.html:28
+#: .\projects\templates\projects\project_detail.html:28
+#: .\projects\templates\projects\status_report_form_popout.html:85
+msgid "Delete"
+msgstr "Supprimer"
+
+#: .\projects\templates\projects\functionalgroup_detail.html:31
+msgid "Edit"
+msgstr "Modifier"
+
+#: .\projects\templates\projects\functionalgroup_list.html:32
+#: .\projects\templates\projects\generic_list.html:26
+#: .\projects\templates\projects\iw_group_list.html:95
+msgid "Filter"
+msgstr "Filter"
+
+#: .\projects\templates\projects\generic_list.html:64
+#, fuzzy
+msgid "records."
+msgstr "enregistrement"
+
+#: .\projects\templates\projects\index.html:16 .\projects\views.py:42
+#, fuzzy
+msgid "DFO Science Project Planning"
+msgstr "Planification de projets (Science)"
+
+#: .\projects\templates\projects\index.html:26
+#: .\projects\templates\projects\my_project_list.html:89
+#: .\projects\templates\projects\my_project_list.html:147
+msgid "New Project"
+msgstr "Nouveau projet"
+
+#: .\projects\templates\projects\index.html:31
+#, fuzzy
+msgid "Your Projects"
+msgstr "Projets"
+
+#: .\projects\templates\projects\index.html:36
+#, fuzzy
+msgid "Explore Projects"
+msgstr "Cloner le projet"
+
+#: .\projects\templates\projects\index.html:45
+#, fuzzy
+msgid "Regional Views"
+msgstr "Régional"
+
+#: .\projects\templates\projects\index.html:51
+#: .\projects\templates\projects\index.html:63
+#: .\projects\templates\projects\index.html:76
+#, fuzzy
+msgid "by Section"
+msgstr "Ma section"
+
+#: .\projects\templates\projects\index.html:54
+#: .\projects\templates\projects\index.html:66
+#: .\projects\templates\projects\index.html:79
+msgid "by Theme"
+msgstr ""
+
+#: .\projects\templates\projects\index.html:57
+#: .\projects\templates\projects\index.html:69
+#: .\projects\templates\projects\index.html:82
+#, fuzzy
+msgid "by Funding source"
+msgstr "source de financement"
+
+#: .\projects\templates\projects\index.html:94
+#, fuzzy
+msgid "Your Sections"
+msgstr "Section"
+
+#: .\projects\templates\projects\index.html:111
+msgid "Other Sections Opened to You"
+msgstr ""
+
+#: .\projects\templates\projects\iw_group_list.html:13
+msgid "Summary of Functional Groups by "
+msgstr ""
+
+#: .\projects\templates\projects\iw_group_list.html:17
+#, fuzzy
+msgid "Recommended Projects"
+msgstr "type d'enregistrement"
+
+#: .\projects\templates\projects\iw_group_list.html:67
+#: .\projects\templates\projects\iw_project_list.html:99
+msgid "Theme"
+msgstr ""
+
+#: .\projects\templates\projects\iw_group_list.html:69
+#, fuzzy
+msgid "Funding Type"
+msgstr "Financement"
+
+#: .\projects\templates\projects\iw_group_list.html:70
+#: .\projects\templates\projects\iw_project_list.html:102
+#, fuzzy
+msgid "Source"
+msgstr "source"
+
+#: .\projects\templates\projects\iw_group_list.html:106
+msgid "Functional Group"
+msgstr ""
+
+#: .\projects\templates\projects\iw_group_list.html:107
+#, fuzzy
+msgid "Number of projects"
+msgstr "Projets soumis"
+
+#: .\projects\templates\projects\iw_group_list.html:108
+#: .\projects\views.py:2645 .\projects\views.py:2745
+#, fuzzy
+msgid "Project leads"
+msgstr "Chef de projet"
+
+#: .\projects\templates\projects\iw_group_list.html:153
+msgid "<em class='red-font'>No functional group assigned</em>"
+msgstr ""
+
+#: .\projects\templates\projects\iw_group_list.html:176
+msgid "THE FOLLOWING PROJECTS HAVE NO HOME IN THE ABOVE WORKPLAN"
+msgstr ""
+
+#: .\projects\templates\projects\iw_project_list.html:19
+#: .\projects\views.py:2488
+#, fuzzy
+msgid "Functional Group Summary"
+msgstr "Résumé financier:"
+
+#: .\projects\templates\projects\iw_project_list.html:36
+#, fuzzy, python-format
+msgid ""
+"\n"
+"                Showing only projects from %(section)s section (%(region)s)\n"
+"            "
+msgstr ""
+"\n"
+"                    Modification de demande %(ct)s : %(o)s\n"
+"                "
+
+#: .\projects\templates\projects\iw_project_list.html:40
+#, fuzzy, python-format
+msgid ""
+"\n"
+"                Showing only projects from %(division)s division (%(region)"
+"s)\n"
+"            "
+msgstr ""
+"\n"
+"                    Modification de demande %(ct)s : %(o)s\n"
+"                "
+
+#: .\projects\templates\projects\iw_project_list.html:101
+#, fuzzy
+msgid "Funding type"
+msgstr "Financement"
+
+#: .\projects\templates\projects\iw_project_list.html:138
+#, fuzzy
+msgid "Financial summary"
+msgstr "Résumé financier:"
+
+#: .\projects\templates\projects\milestone_form_popout.html:16
+#, python-format
+msgid ""
+"\n"
+"                    %(o)s\n"
+"                "
+msgstr ""
+"\n"
+"                    %(o)s\n"
+"                "
+
+#: .\projects\templates\projects\milestone_form_popout.html:20
+msgid "Adding New Milestone"
+msgstr "Ajout d'un nouveau jalon"
+
+#: .\projects\templates\projects\my_project_list.html:13
+#, fuzzy, python-format
+msgid ""
+"\n"
+"                %(name)s's Project List\n"
+"            "
+msgstr ""
+"\n"
+"                Liste de projets de %(name)s:\n"
+"            "
+
+#: .\projects\templates\projects\my_project_list.html:44
+msgid "Here's a breakdown of your time allocation:"
+msgstr "Voici une ventilation de votre allocation de temps:"
+
+#: .\projects\templates\projects\my_project_list.html:50
+msgid "Time in weeks"
+msgstr "Durée en semaines"
+
+#: .\projects\templates\projects\my_project_list.html:53
+msgid "Submitted projects"
+msgstr "Projets soumis"
+
+#: .\projects\templates\projects\my_project_list.html:55
+msgid "Un-submitted projects"
+msgstr "Projets non soumis"
+
+#: .\projects\templates\projects\my_project_list.html:58
+msgid "Approved"
+msgstr "Approuvé"
+
+#: .\projects\templates\projects\my_project_list.html:59
+msgid "Unapproved"
+msgstr "Non approuvé"
+
+#: .\projects\templates\projects\my_project_list.html:85
+msgid "record"
+msgstr "enregistrement"
+
+#: .\projects\templates\projects\my_project_list.html:144
+msgid "You have no projects for fiscal year"
+msgstr ""
+
+#: .\projects\templates\projects\note_form_popout.html:27
+#, fuzzy
+msgid "Editing note for group:"
+msgstr "Modification à la note:"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:29
+msgid "Overtime Calculator"
+msgstr "Calculatrice d'heures supplémentaires"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:37
+#, python-format
+msgid ""
+"\n"
+"                    Enter overtime hours worked for each day in the %(year)s "
+"fiscal year\n"
+"                "
+msgstr ""
+"\n"
+"                    Entrez les heures supplémentaires travaillées pour "
+"chaque jour de l'exercice %(year)s\n"
+"                "
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:42
+msgid "Use <b>tab</b> and <b>shift+tab</b> to navigate the boxes"
+msgstr ""
+"Utilisez <b> tab </b> et <b> shift + tab </b> pour naviguer les champs."
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:45
+msgid ""
+"For Monday to Friday, insert hours to be worked <b>beyond 7.5 hours standard "
+"working day</b>"
+msgstr ""
+"Du lundi au vendredi, insérez les heures à travailler <b> au-delà de 7,5 "
+"heures par jour ouvrable standard </b>"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:49
+msgid ""
+"For Saturday, Sunday, and Statutory Holidays (red box), enter all hours to "
+"be worked"
+msgstr ""
+"Pour le samedi, le dimanche et les jours fériés (zone rouge), entrez toutes "
+"les heures à travailler"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:52
+msgid "When you are done, submit the form"
+msgstr "Lorsque vous avez terminé, envoyez le formulaire"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:62
+msgid "Date"
+msgstr "Date"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:65
+msgid "Weekday"
+msgstr "Jour de la semaine"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:93
+msgid "hours"
+msgstr "heures"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:110
+msgid "Extra Hours to be Worked:"
+msgstr "Heures supplémentaires à travailler:"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:118
+msgid "OT Description:"
+msgstr "Description d'heures supplémentaires:"
+
+#: .\projects\templates\projects\overtime_calculator_popout.html:126
+msgid "Calculated Overtime Hours:"
+msgstr "Heures supplémentaires calculées:"
+
+#: .\projects\templates\projects\project_action_form_popout.html:26
+#: .\projects\templates\projects\project_submit_form.html:38
+msgid "Cancel"
+msgstr "Annuler"
+
+#: .\projects\templates\projects\project_detail.html:16
+#: .\projects\templates\projects\project_overview_pop.html:21
+msgid "Export PDF"
+msgstr "Exporter le PDF"
+
+#: .\projects\templates\projects\project_form_popout.html:29
+#: .\projects\templates\projects\project_form_popout.html:85
+msgid "Update"
+msgstr "Mettre à jour"
+
+#: .\projects\templates\projects\project_submit_form.html:35
+msgid "OK"
+msgstr "D'accord"
+
+#: .\projects\templates\projects\report_pdf_funding.html:76
+#, fuzzy
+msgid "Project ID"
+msgstr "Projet"
+
+#: .\projects\templates\projects\report_pdf_funding.html:85
+#, fuzzy
+msgid "Salary Cost"
+msgstr "Salaire"
+
+#: .\projects\templates\projects\report_pdf_funding.html:89
+#, fuzzy
+msgid "O&M Cost"
+msgstr "F et E:"
+
+#: .\projects\templates\projects\report_pdf_funding.html:93
+#, fuzzy
+msgid "Capital Cost"
+msgstr "Coûts en capital:"
+
+#: .\projects\templates\projects\report_pdf_funding.html:97
+#, fuzzy
+msgid "Total Estimated Cost"
+msgstr "Coût total"
+
+#: .\projects\templates\projects\report_pdf_funding.html:102
+#, fuzzy
+msgid "Project lead"
+msgstr "Chef de projet"
+
+#: .\projects\templates\projects\report_pdf_funding.html:106
+msgid "Species and SARA justification"
+msgstr ""
+
+#: .\projects\templates\projects\report_pdf_funding.html:111
+#, fuzzy
+msgid "Brief project description"
+msgstr "description"
+
+#: .\projects\templates\projects\report_pdf_funding.html:113
+#, fuzzy
+msgid "Project Objectives & Description"
+msgstr "Objectif du projet et description"
+
+#: .\projects\templates\projects\report_pdf_funding.html:116
+#, fuzzy
+msgid "Project Deliverables / Activities"
+msgstr "Livrables du projet"
+
+#: .\projects\templates\projects\report_pdf_funding.html:119
+#, fuzzy
+msgid "Milestones"
+msgstr "Jalons"
+
+#: .\projects\templates\projects\report_pdf_funding.html:134
+#, fuzzy
+msgid "End Date of Project"
+msgstr "Date de fin du projet"
+
+#: .\projects\templates\projects\report_pdf_funding.html:140
+msgid "Quarterly Reporting Mechanisms"
+msgstr ""
+
+#: .\projects\templates\projects\report_pdf_funding.html:141
+msgid "Description of Future Funding Needs"
+msgstr ""
+
+#: .\projects\templates\projects\report_pdf_funding.html:142
+#, fuzzy
+msgid "Other Relevant Information"
+msgstr "Ajouter / Modifier les détails du projet"
+
+#: .\projects\templates\projects\report_pdf_project_summary.html:353
+msgid "Amount"
+msgstr "Montant"
+
+#: .\projects\templates\projects\report_pdf_project_summary.html:356
+msgid "DFO Project"
+msgstr "Projet du MPO"
+
+#: .\projects\templates\projects\staff_form_popout.html:29
+msgid "Editing Staff Member:"
+msgstr "Modification au personnel:"
+
+#: .\projects\templates\projects\staff_form_popout.html:32
+msgid "Adding Staff Member"
+msgstr "Ajouter de personnel"
+
+#: .\projects\templates\projects\staff_form_popout.html:112
+msgid "OT Calculator"
+msgstr "Calculatrice d'heures supplémentaires"
+
+#: .\projects\templates\projects\staff_form_popout.html:113
+msgid "(Open OT Calculator)"
+msgstr "(Ouvrir la calculatrice d'heures supplémentaires)"
+
+#: .\projects\templates\projects\staff_form_popout.html:135
+msgid "OR"
+msgstr "OU"
+
+#: .\projects\templates\projects\staff_form_popout.html:198
+msgid ""
+"WARNING! If you remove yourself as project lead you will loose the ability "
+"to further modify this project."
+msgstr ""
+"ATTENTION! Si vous vous retirez en tant que responsable de projet, vous ne "
+"pourrez plus modifier ce projet."
+
+#: .\projects\templates\projects\status_report_form_popout.html:18
+msgid "Editing "
+msgstr "Modification de "
+
+#: .\projects\templates\projects\status_report_form_popout.html:20
+msgid "New Status Report for: "
+msgstr "Nouveau rapport pour : "
+
+#: .\projects\templates\projects\status_report_pdf.html:40
+msgid "Report Details:"
+msgstr "Détails du rapport:"
+
+#: .\projects\templates\projects\temp_formset.html:18
+#, python-format
+msgid ""
+"\n"
+"                Managing Categories for %(ot)s\n"
+"            "
+msgstr ""
+"\n"
+"                Gestion des catégories pour %(ot)s\n"
+"            "
+
+#: .\projects\templates\projects\temp_formset.html:73 .\projects\views.py:1415
+msgid "Back"
+msgstr "Retour"
+
+#: .\projects\utils.py:372 .\projects\views.py:175
+#, fuzzy
+msgid "Complete list of funding sources"
+msgstr "source de financement"
+
+#: .\projects\views.py:90
+#, fuzzy
+msgid "My projects"
+msgstr "Mes projets"
+
+#: .\projects\views.py:178
+#, fuzzy
+msgid "Status reports"
+msgstr "Rapport de situation"
+
+#: .\projects\views.py:294
+msgid "My Projects"
+msgstr "Mes projets"
+
+#: .\projects\views.py:302
+msgid "UNSUBMITTED"
+msgstr "NON SOUMIS"
+
+#: .\projects\views.py:368
+#, fuzzy
+msgid "Edit project details"
+msgstr "Ajouter / Modifier les détails du projet"
+
+#: .\projects\views.py:406
+msgid "Un-submit"
+msgstr "Annuler la soumission"
+
+#: .\projects\views.py:412
+msgid "Are you sure you want to unsubmit the this project?"
+msgstr "Êtes-vous sûr de vouloir annuler la soumission de ce projet?"
+
+#: .\projects\views.py:414
+msgid "Are you sure you want to submit the following project?"
+msgstr "Êtes-vous sûr de vouloir soumettre le projet?"
+
+#: .\projects\views.py:438
+#, fuzzy
+msgid "Un-submit Project"
+msgstr "Annuler la soumission"
+
+#: .\projects\views.py:438
+msgid "Submit Project"
+msgstr "Soumettre le project"
+
+#: .\projects\views.py:472
+msgid ""
+"The project was submitted and an email has been sent to notify the section "
+"head!"
+msgstr ""
+"Le projet a été soumis et un courrier électronique a été envoyé pour en "
+"informer le chef de section!"
+
+#: .\projects\views.py:508
+msgid "Un-recommend"
+msgstr ""
+
+#: .\projects\views.py:508
+#, fuzzy
+msgid "Recommend"
+msgstr "observations générales"
+
+#: .\projects\views.py:597
+msgid "Please enter the new project details..."
+msgstr "Veuillez saisir les nouveaux détails du projet ..."
+
+#: .\projects\views.py:755
+msgid "The staff member has been successfully deleted from project."
+msgstr "Le membre du personnel a été supprimé du projet avec succès."
+
+#: .\projects\views.py:835
+msgid "The collaborator has been successfully deleted from project."
+msgstr "Le collaborateur a été supprimé du projet avec succès."
+
+#: .\projects\views.py:880
+msgid "The agreement has been successfully deleted."
+msgstr "L'accord a été supprimé avec succès."
+
+#: .\projects\views.py:932 .\projects\views.py:1013 .\projects\views.py:1064
+msgid "The cost has been successfully deleted."
+msgstr "Le coût a été supprimé avec succès."
+
+#: .\projects\views.py:947
+msgid "All empty O&M lines have been cleared."
+msgstr "Toutes les lignes de F et E vides ont été effacées."
+
+#: .\projects\views.py:961
+msgid "All O&M categories have been added to this project."
+msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet."
+
+#: .\projects\views.py:1167
+msgid "The user was created and an email was sent"
+msgstr ""
+
+#: .\projects\views.py:1413 .\projects\views.py:1427
+#, fuzzy
+msgid "Find Projects to Approve"
+msgstr ""
+"Le projet a été soumis et un courrier électronique a été envoyé pour en "
+"informer le chef de section!"
+
+#: .\projects\views.py:1472
+#, fuzzy
+msgid "File attachment"
+msgstr "pièce jointe"
+
+#: .\projects\views.py:1479 .\projects\views.py:1486 .\projects\views.py:1495
+#: .\projects\views.py:1504
+#, fuzzy
+msgid "Reference Materials"
+msgstr "Référence"
+
+#: .\projects\views.py:1679
+msgid "The milestone has been successfully deleted."
+msgstr "Le jalon a été supprimé avec succès."
+
+#: .\projects\views.py:2641 .\projects\views.py:2738
+#, fuzzy
+msgid "Project Id"
+msgstr "Projet"
+
+#: .\projects\views.py:2746
+#, fuzzy
+msgid "Total FTE"
+msgstr "Total"
+
+#: .\projects\views.py:2747
+#, fuzzy
+msgid "Total O&M"
+msgstr "Total"
+
+#: .\projects\views.py:2748
+#, fuzzy
+msgid "Total salary"
+msgstr "Coût total"
+
+#~ msgid ""
+#~ "Required - a verification email will be sent to you once this form is "
+#~ "submitted"
+#~ msgstr ""
+#~ "Obligatoire - un courriel de vérification vous sera envoyé une fois que "
+#~ "ce formulaire aura été soumis"
+
+#~ msgid ""
+#~ "Only DFO employees can register for an account. Please enter an email "
+#~ "ending with '@DFO-MPO.GC.CA'"
+#~ msgstr ""
+#~ "Seulement les employés du MPO peuvent s'inscrire pour un compte. Veuillez "
+#~ "entrer un courriel finissant par '@DFO-MPO.GC.CA'"
+
+#~ msgid "position (English)"
+#~ msgstr "titre du poste (anglais)"
+
+#~ msgid "position (French)"
+#~ msgstr "titre du poste (français)"
+
+#~ msgid "phone (office)"
+#~ msgstr "téléphone (bureau)"
+
+#~ msgid "language preference"
+#~ msgstr "préférence linguistique"
+
+#~ msgid "subject_en"
+#~ msgstr "subject_fr"
+
+#~ msgid "message_en"
+#~ msgstr "message_fr"
+
+#~ msgid "New Access Request:"
+#~ msgstr "Nouvelle demande d'accès:"
+
+#~ msgid "Sign In"
+#~ msgstr "Se connecter"
+
+#~ msgid ""
+#~ "\n"
+#~ "                        If you do not have an account, you can create one "
+#~ "<a href=\"%(sign_up_url)s\">here</a>.\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                            Si vous n'avez pas de compte, vous pouvez en "
+#~ "créer <a href=\"%(sign_up_url)s\">ici</a>.\n"
+#~ "                        "
+
+#~ msgid "Email address"
+#~ msgstr "Courriel"
+
+#~ msgid "forgot password?"
+#~ msgstr "mot de passe oublié?"
+
+#~ msgid "Shortcut"
+#~ msgstr "raccourci"
+
+#~ msgid ""
+#~ "press the <code>Tab</code> key after entering the first part of your "
+#~ "email address to use the autocomplete feautre (e.g., bart.simpson)"
+#~ msgstr ""
+#~ "appuyez sur la touche <code> onglet </ code> après avoir entré la "
+#~ "première partie de votre adresse e-mail pour utiliser la fonction de "
+#~ "saisie semi-automatique (par exemple, bart.simpson)"
+
+#~ msgid "Sign up"
+#~ msgstr "S'inscrire"
+
+#~ msgid "Sign Up"
+#~ msgstr "S'inscrire"
+
+#~ msgid "Request access"
+#~ msgstr "Demande d'accès"
+
+#~ msgid "Sorry, you are not authorized to view this page."
+#~ msgstr "Désolé, vous n'êtes pas autorisé à consulter cette page."
+
+#~ msgid "Samples with observations cannot be deleted."
+#~ msgstr ""
+#~ "Les échantillons comportant des observations ne peuvent pas être "
+#~ "supprimés."
+
+#~ msgid "component type"
+#~ msgstr "type de composant"
+
+#~ msgid "model number"
+#~ msgstr "numéro de modèle"
+
+#~ msgid "serial number"
+#~ msgstr "numéro de série"
+
+#~ msgid "Cruises"
+#~ msgstr "Croisières"
+
+#~ msgid "Institutes"
+#~ msgstr "Instituts"
+
+#~ msgid "Vessels"
+#~ msgstr "Navires"
+
+#~ msgid "Instrument Component Types"
+#~ msgstr "Types de composantes des instruments"
+
+#~ msgid "Help Text"
+#~ msgstr "Texte d'aide"
+
+#~ msgid "Welcome to DFO Cruises!"
+#~ msgstr "Bienvenue aux croisières du MPO!"
+
+#~ msgid "New Component"
+#~ msgstr "Nouveau composant"
+
+#~ msgid "Components on this Instrument"
+#~ msgstr "Composantes de cet instrument"
+
+#~ msgid "No components have been added to this instrument."
+#~ msgstr "Aucun élément n'a été ajouté à cet instrument."
+
+#~ msgid "time period"
+#~ msgstr "période de temps"
+
+#~ msgid "Instruments"
+#~ msgstr "Instruments"
+
+#~ msgid "English"
+#~ msgstr "Anglais"
+
+#~ msgid "French"
+#~ msgstr "Français"
+
+#~ msgid "Metadata Inventory"
+#~ msgstr "Inventaire de métadonnées"
+
+#~ msgid "Tool for organizing and managing regional data resources."
+#~ msgstr "Outil pour organiser et gérer les ressources de données régionales."
+
+#, fuzzy
+#~ msgid "DM Apps Tickets"
+#~ msgstr "Utilisateur de DM Apps"
+
+#~ msgid "Submit and track data management service requests."
+#~ msgstr "Soumettez et suivez les demandes de service de gestion de données."
+
+#, fuzzy
+#~ msgid "Conference and Travel Management System"
+#~ msgstr "Système de gestion de voyage de Science du MPO"
+
+#~ msgid ""
+#~ "Management tool to facilitate regional and national travel pre-approvals."
+#~ msgstr ""
+#~ "Outil de gestion pour faciliter les pré-approbations régionales et "
+#~ "nationales des voyages."
+
+#, fuzzy
+#~ msgid "Project Planning (Version 2)"
+#~ msgstr "Planification de projets"
+
+#~ msgid ""
+#~ "Tool for the tracking, development and coordination of science project "
+#~ "workplans."
+#~ msgstr ""
+#~ "Outil de suivi, de développement et de coordination de plans de travail "
+#~ "de projets scientifiques."
+
+#~ msgid "Gulf Region Aquatic Invasive Species data entry and archiving tool."
+#~ msgstr ""
+#~ "Outil de saisie et d'archivage de données sur les espèces aquatiques "
+#~ "envahissantes de la région du Golfe."
+
+#~ msgid "The herring sampling and ageing application."
+#~ msgstr "L'application d'échantillonnage et de vieillissement du hareng."
+
+#~ msgid "iHub"
+#~ msgstr "iHub"
+
+#~ msgid "Indigenous Hub entry management and reporting tool."
+#~ msgstr ""
+#~ "Outil de gestion et de création de rapports sur les entrées de Carrefours "
+#~ "Autochtones."
+
+#~ msgid ""
+#~ "Community Aquatic Monitoring Program (CAMP) data entry and archiving tool."
+#~ msgstr ""
+#~ "Outil de saisie et d'archivage des données du Programme de surveillance "
+#~ "aquatique communautaire (PSAC)."
+
+#~ msgid "Gulf Science finance tracking and reporting tool."
+#~ msgstr "Outil de suivi et de reporting financier de Science."
+
+#, fuzzy
+#~ msgid "Collection of regional cruise metadata and oceanographic data."
+#~ msgstr ""
+#~ "Collecte, traitement et stockage des données océanographiques régionales."
+
+#~ msgid "Stomach contents analysis database / application."
+#~ msgstr "Base de données / application d'analyse du contenu de l'estomac."
+
+#~ msgid "Project Inventory"
+#~ msgstr "Inventaire du projet"
+
+#~ msgid "Tools for viewing information on completed projects"
+#~ msgstr "Outils pour visualiser les informations sur les projets terminés"
+
+#~ msgid "Species at Risk Search Tool."
+#~ msgstr "Outil de recherche sur les espèces en peril."
+
+#~ msgid "Administrative tool for managing gulf region shares."
+#~ msgstr "Outil administratif de gestion des parts de la région du golfe."
+
+#~ msgid "Grants & Contributions"
+#~ msgstr "Subventions et contributions"
+
+#~ msgid "Gulf Region application for the tracking of Gs & Cs."
+#~ msgstr "Application de la région du Golfe pour le suivi des contributions."
+
+#, fuzzy
+#~ msgid "Project Planning (ARCHIVE ONLY)"
+#~ msgstr "Planification de projets"
+
+#, fuzzy
+#~ msgid "common name (English)"
+#~ msgstr "nom (anglais)"
+
+#, fuzzy
+#~ msgid "common name (French)"
+#~ msgstr "nom (français)"
+
+#, fuzzy
+#~ msgid "common_name"
+#~ msgstr "common_name_fre"
+
+#, fuzzy
+#~ msgid "(click to sort)"
+#~ msgstr "(cliquez sur un en-tête pour trier le tableau)"
+
+#~ msgid "Search term"
+#~ msgstr "Terme de recherche"
+
+#~ msgid "Person"
+#~ msgstr "Personne"
+
+#, fuzzy
+#~ msgid "Published to FGP?"
+#~ msgstr "Publié?"
+
+#, fuzzy
+#~ msgid "Published to Open Portal?"
+#~ msgstr "Publié sur Open Data?"
+
+#, fuzzy
+#~ msgid "Open Data Inventory?"
+#~ msgstr "Inventaire des données"
+
+#~ msgid "Parent Resource Id (click on field to find a parent resource)"
+#~ msgstr ""
+#~ "Identifiant de la ressource parent (cliquez sur le champ pour trouver une "
+#~ "ressource parent)"
+
+#~ msgid "This is a mandatory field in the Federal Geospatial Platform (FGP)"
+#~ msgstr ""
+#~ "Il s'agit d'un champ facultatif de la plate-forme géospatiale fédérale "
+#~ "(PGF), mais s'il est présent, il doit être saisi en anglais et en français"
+
+#~ msgid ""
+#~ "This is an optional internal field (DFO only) and does not get published "
+#~ "to the Federal Geospatial Platform (FGP)"
+#~ msgstr ""
+#~ "Il s'agit d'un champ interne facultatif (MPO uniquement) qui n'est pas "
+#~ "publié sur la plateforme géospatiale fédérale (PGF)"
+
+#~ msgid "This is an optional field"
+#~ msgstr "Ce champ n'est pas obligatoire"
+
+#~ msgid "completedness report"
+#~ msgstr "rapport d'achèvement"
+
+#~ msgid "completedness rating"
+#~ msgstr "note de complétude"
+
+#~ msgid "translation needed"
+#~ msgstr "traduction nécessaire"
+
+#, fuzzy
+#~ msgid "FY of latest publication"
+#~ msgstr "Nouvelle organisation"
+
+#~ msgid "title_eng"
+#~ msgstr "title_fre"
+
+#~ msgid "Data Inventory"
+#~ msgstr "Inventaire des données"
+
+#~ msgid "Data Manager Admin"
+#~ msgstr "Admin GD"
+
+#, fuzzy
+#~ msgid "DFO Science Metadata Inventory"
+#~ msgstr "Inventaire de métadonnées"
+
+#, fuzzy
+#~ msgid "Your Resources"
+#~ msgstr "Ressources humaines"
+
+#, fuzzy
+#~ msgid "New Resource"
+#~ msgstr "Ajouter une ressource"
+
+#, fuzzy
+#~ msgid "Open Data Resources"
+#~ msgstr "Ressources humaines"
+
+#, fuzzy
+#~ msgid "Report Builder"
+#~ msgstr "enregistrement"
+
+#, fuzzy
+#~ msgid "Edit resource"
+#~ msgstr "enregistrement"
+
+#, fuzzy
+#~ msgid "Resources"
+#~ msgstr "source"
+
+#~ msgid "Previous time certified"
+#~ msgstr "Dernière certification"
+
+#, fuzzy
+#~ msgid "Completeness Rating"
+#~ msgstr "Note de complétude"
+
+#~ msgid "Translation Needed"
+#~ msgstr "Traduction nécessaire"
+
+#, fuzzy
+#~ msgid "Open Data Inventory ID"
+#~ msgstr "Inventaire des données"
+
+#~ msgid "External Links"
+#~ msgstr "Liens externes"
+
+#, fuzzy
+#~ msgid ""
+#~ "Sorry, only custodians and system administrators have access to this view."
+#~ msgstr ""
+#~ "Désolé, seulement les chefs de projet, les chefs de section et les "
+#~ "administrateurs de site ont accès à cette page."
+
+#, fuzzy
+#~ msgid "Instrument Type"
+#~ msgstr "Type d'entrée"
+
+#, fuzzy
+#~ msgid "Connector Type"
+#~ msgstr "Type d'entrée"
+
+#~ msgid "Location"
+#~ msgstr "Location"
+
+#, fuzzy
+#~ msgid "Submit moorings for review"
+#~ msgstr "Soumettre le projet"
+
+#, fuzzy
+#~ msgid "Orientation"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "Calibration"
+#~ msgstr "Organisation"
+
+#~ msgid "SUBMITTED"
+#~ msgstr "SOUMIS"
+
+#~ msgid "DRAFT VERSION"
+#~ msgstr "ÉBAUCHE"
+
+#, fuzzy
+#~ msgid "Add Instrument"
+#~ msgstr "Ajouter un accord"
+
+#, fuzzy
+#~ msgid "Deploy Time"
+#~ msgstr "employé MPO"
+
+#~ msgid "Comments"
+#~ msgstr "Commentaires"
+
+#, fuzzy
+#~ msgid "Mooring Detail"
+#~ msgstr "Détails de financement:"
+
+#~ msgid "Delete Project"
+#~ msgstr "Supprimer le projet"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                Are you sure you want to delete the mooring: <em>%(o)s</"
+#~ "em> from the database?\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "                Êtes-vous sûr de vouloir supprimer l'entrée suivante : "
+#~ "<em>%(o)s</em>\n"
+#~ "            "
+
+#, fuzzy
+#~ msgid "All Instruments"
+#~ msgstr "Toutes les entrées"
+
+#, fuzzy
+#~ msgid "All Moorings"
+#~ msgstr "Toutes les entrées"
+
+#, fuzzy
+#~ msgid "Instrument Detail"
+#~ msgstr "Détails de l'entrée"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                Are you sure you want to delete the instrument: <em>%(o)"
+#~ "s</em> from the database?\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "                Êtes-vous sûr de vouloir supprimer l'entrée suivante : "
+#~ "<em>%(o)s</em>\n"
+#~ "            "
+
+#, fuzzy
+#~ msgid "Unsubmit Instrument"
+#~ msgstr "Annuler la soumission"
+
+#, fuzzy
+#~ msgid "Submit Instrument"
+#~ msgstr "Soumettre le project"
+
+#, fuzzy
+#~ msgid ""
+#~ "Cannot submit/unsumbit instruments that do not belong to you or your "
+#~ "section."
+#~ msgstr ""
+#~ "Impossible de soumettre / unsumbit des projets qui ne vous appartiennent "
+#~ "pas ou qui appartiennent à votre section"
+
+#~ msgid "Cannot delete projects that do not belong to you or your section."
+#~ msgstr ""
+#~ "Impossible de supprimer des projets qui ne vous appartiennent pas, ni "
+#~ "votre section."
+
+#, fuzzy
+#~ msgid "Instrument Summary:"
+#~ msgstr "Résumé du projet:"
+
+#, fuzzy
+#~ msgid "Add/Edit Instrument Details"
+#~ msgstr "Ajouter / Modifier les détails du projet"
+
+#, fuzzy
+#~ msgid "Last Service Type"
+#~ msgstr "Type de catégorie"
+
+#, fuzzy
+#~ msgid ""
+#~ "Are you sure you want to delete this mooring from the instrument history?"
+#~ msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
+
+#, fuzzy
+#~ msgid ""
+#~ "Are you sure you want to delete this service record from the service "
+#~ "history?"
+#~ msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
+
+#, fuzzy
+#~ msgid "New Instrument"
+#~ msgstr "Nouveau personne"
+
+#~ msgid "Add"
+#~ msgstr "Ajouter"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                    Editing instrument: %(object)s\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Modification de demande %(ct)s : %(o)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                  %(object)s  Adding %(ct)s to %(instrument)s %(object."
+#~ "instruments)s\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Modification de demande %(ct)s : %(o)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid "All instruments"
+#~ msgstr "Toutes les entrées"
+
+#, fuzzy
+#~ msgid "All Instruments:"
+#~ msgstr "Toutes les entrées"
+
+#~ msgid "displaying all records"
+#~ msgstr "afficher tous les enregistrements"
+
+#~ msgid "yes,no"
+#~ msgstr "oui,non"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                    Editing %(instrument)s on %(mooring)s\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Modification de demande %(ct)s : %(o)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                  Adding %(adding)s for %(adding_to)s %(name)s\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Ajouter une demande %(ct)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid "Unsubmit Mooring"
+#~ msgstr "Annuler la soumission"
+
+#, fuzzy
+#~ msgid "Submit Mooring"
+#~ msgstr "Soumettre"
+
+#, fuzzy
+#~ msgid "Mooring Summary:"
+#~ msgstr "Résumé financier:"
+
+#, fuzzy
+#~ msgid "Add/Edit Mooring Details"
+#~ msgstr "Ajouter / Modifier les détails du projet"
+
+#, fuzzy
+#~ msgid "Are you sure you want to delete this instrument from the mooring?"
+#~ msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
+
+#, fuzzy
+#~ msgid "New Mooring"
+#~ msgstr "Nouveau ou existant"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                    Editing mooring: %(object)s\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Modification de demande %(ct)s : %(o)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid "All moorings"
+#~ msgstr "Toutes les entrées"
+
+#, fuzzy
+#~ msgid "Deploy time"
+#~ msgstr "Type d'employé"
+
+#~ msgid "Submitted"
+#~ msgstr "Soumis"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                    %(object)s  Adding %(ct)s to %(instrument)s %(object."
+#~ "instruments)s\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Modification de demande %(ct)s : %(o)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid "The instrument was successfully deleted!"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "The mooring was successfully deleted!"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "The service record has been successfully deleted!!!"
+#~ msgstr "Le coût a été supprimé avec succès."
+
+#, fuzzy
+#~ msgid "The mooring has been successfully deleted!!!"
+#~ msgstr "Le coût a été supprimé avec succès."
+
+#, fuzzy
+#~ msgid "The instrument has been successfully deleted!!!"
+#~ msgstr "L'accord a été supprimé avec succès."
+
+#~ msgid "Project"
+#~ msgstr "Projet"
+
+#~ msgid "Date last modified"
+#~ msgstr "Date de la dernière modification"
+
+#, fuzzy
+#~ msgid "Organization(s)"
+#~ msgstr "Organisations"
+
+#, fuzzy
+#~ msgid "Division(s)"
+#~ msgstr "Division"
+
+#, fuzzy
+#~ msgid "Project Publications Inventory"
+#~ msgstr "Planification de projets (Science)"
+
+#~ msgid "Project Detail"
+#~ msgstr "Détails du projet"
+
+#~ msgid ""
+#~ "\n"
+#~ "                Are you sure you want to delete the project entitled: <em>"
+#~ "%(o)s</em> from the database?\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "                Êtes-vous sûr de vouloir supprimer le projet suivant : "
+#~ "<em>%(o)s</em>\n"
+#~ "            "
+
+#~ msgid "All Projects"
+#~ msgstr "Tous les projets"
+
+#~ msgid ""
+#~ "Cannot submit/unsumbit projects that do not belong to you or your section."
+#~ msgstr ""
+#~ "Impossible de soumettre ou d'annuler des projets qui ne vous "
+#~ "appartiennent pas ou qui n'appartiennent pas à votre section."
+
+#~ msgid "Add/Edit Project Details"
+#~ msgstr "Ajouter / Modifier les détails du projet"
+
+#, fuzzy
+#~ msgid "Delete this project"
+#~ msgstr "Supprimer le projet"
+
+#, fuzzy
+#~ msgid "Are you sure you want to delete the list item?"
+#~ msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
+
+#, fuzzy
+#~ msgid "New Publication"
+#~ msgstr "Nouvelle organisation"
+
+#~ msgid "All Projects:"
+#~ msgstr "Tous les projets:"
+
+#~ msgid "DFO Contacts"
+#~ msgstr "Contacts du MPO"
+
+#~ msgid "The project was successfully deleted!"
+#~ msgstr "Le projet a été supprimé avec succès!"
+
+#~ msgid "english name"
+#~ msgstr "nom anglais"
+
+#~ msgid "french name"
+#~ msgstr "nom anglais"
+
+#~ msgid "english description"
+#~ msgstr "description anglaise"
+
+#~ msgid "french description"
+#~ msgstr "description française"
+
+#~ msgid "record type"
+#~ msgstr "type d'enregistrement"
+
+#, fuzzy
+#~ msgid "COSEWIC status"
+#~ msgstr "statut"
+
+#, fuzzy
+#~ msgid "SARA status"
+#~ msgstr "statut"
+
+#~ msgid "NS status"
+#~ msgstr "statut N.-É."
+
+#~ msgid "NB status"
+#~ msgstr "statut N.-B."
+
+#~ msgid "IUCN Red Flag status"
+#~ msgstr "Statut de drapeau rouge de l'UICN"
+
+#~ msgid "responsible authority"
+#~ msgstr "autorité responsable"
+
+#~ msgid "notes (English)"
+#~ msgstr "notes (anglais)"
+
+#~ msgid "notes (French)"
+#~ msgstr "notes (français)"
+
+#~ msgid "population_eng"
+#~ msgstr "population_fre"
+
+#~ msgid "common_name_eng"
+#~ msgstr "common_name_fre"
+
+#~ msgid "notes_eng"
+#~ msgstr "notes_fra"
+
+#~ msgid "record name"
+#~ msgstr "nom d'enregistrement"
+
+#~ msgid "source"
+#~ msgstr "source"
+
+#, fuzzy
+#~ msgid "source year"
+#~ msgstr "source"
+
+#~ msgid "site name"
+#~ msgstr "nom de site"
+
+#~ msgid "All Species "
+#~ msgstr "Toutes les espèces "
+
+#~ msgid "Add New Record"
+#~ msgstr "Ajouter un enregistrement"
+
+#~ msgid "Import Records from CSV"
+#~ msgstr "Importer des enregistrements de CSV"
+
+#~ msgid "Record List"
+#~ msgstr "Liste des enregistrements"
+
+#~ msgid "Common name"
+#~ msgstr "Nom commun"
+
+#~ msgid "Population"
+#~ msgstr "Population"
+
+#~ msgid "Transactions"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "Section - Team (NCR)"
+#~ msgstr "chef de section"
+
+#, fuzzy
+#~ msgid "This email address already exists in the database."
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "name (en)"
+#~ msgstr "nom (fra)"
+
+#, fuzzy
+#~ msgid "name (fr)"
+#~ msgstr "nom (fra)"
+
+#, fuzzy
+#~ msgid "Description (en)"
+#~ msgstr "description (ang)"
+
+#, fuzzy
+#~ msgid "Description (fr)"
+#~ msgstr "description (fra)"
+
+#, fuzzy
+#~ msgid "abbrev_eng"
+#~ msgstr "abbrev_fre"
+
+#~ msgid "branch"
+#~ msgstr "direction"
+
+#, fuzzy
+#~ msgid "division manager / NCR director"
+#~ msgstr "chef de division"
+
+#, fuzzy
+#~ msgid "section head  / NCR team lead"
+#~ msgstr "approuvé par le chef de section"
+
+#, fuzzy
+#~ msgid "Mission Number"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Mission Name"
+#~ msgstr "Organisation"
+
+#~ msgid "Start Date"
+#~ msgstr "Date de début"
+
+#~ msgid "End Date"
+#~ msgstr "Date de fin"
+
+#, fuzzy
+#~ msgid "Number of Profiles"
+#~ msgstr "Projets soumis"
+
+#, fuzzy
+#~ msgid "funding agency name"
+#~ msgstr "programme de financement"
+
+#, fuzzy
+#~ msgid "funding project title"
+#~ msgstr "titre du projet"
+
+#, fuzzy
+#~ msgid "funding project ID"
+#~ msgstr "but du financement"
+
+#, fuzzy
+#~ msgid "references"
+#~ msgstr "Référence"
+
+#~ msgid "NS"
+#~ msgstr "N.-É."
+
+#~ msgid "NB"
+#~ msgstr "N.-B."
+
+#~ msgid "QC"
+#~ msgstr "Qc"
+
+#, fuzzy
+#~ msgid "NL"
+#~ msgstr "T.-N.-L."
+
+#, fuzzy
+#~ msgid "code"
+#~ msgstr "enregistrement"
+
+#, fuzzy
+#~ msgid "script"
+#~ msgstr "description"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                        This %(model_name)s is related to the following "
+#~ "items:\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Ajouter une demande %(ct)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                                There are no %(title)s linked to this "
+#~ "item.\n"
+#~ "                            "
+#~ msgstr ""
+#~ "\n"
+#~ "                                Calendrier %(y)s \n"
+#~ "                            "
+
+#~ msgid "Clear"
+#~ msgstr "Effacer"
+
+#, fuzzy
+#~ msgid "new record"
+#~ msgstr "enregistrement"
+
+#, fuzzy
+#~ msgid "Add a new DM Apps User"
+#~ msgstr "Utilisateur de DM Apps"
+
+#, fuzzy
+#~ msgid "Details"
+#~ msgstr "Détails de la personne:"
+
+#, fuzzy
+#~ msgid "New {}"
+#~ msgstr "Nouveau"
+
+#, fuzzy
+#~ msgid ""
+#~ "Are you sure you want to delete the following {}? <br>  <span class='red-"
+#~ "font'>{}</span>"
+#~ msgstr "Êtes-vous sûr de vouloir soumettre le projet"
+
+#, fuzzy
+#~ msgid "Delete Confirmation"
+#~ msgstr "Informations concernant le voyageur"
+
+#, fuzzy
+#~ msgid "DFO Orgs"
+#~ msgstr "Secteurs du MPO"
+
+#~ msgid "division"
+#~ msgstr "division"
+
+#~ msgid "Create a New DM Apps User"
+#~ msgstr "Créer un nouveau utilisateur de DM Apps"
+
+#~ msgid "status"
+#~ msgstr "statut"
+
+#, fuzzy
+#~ msgid "title (EN)"
+#~ msgstr "titre"
+
+#, fuzzy
+#~ msgid "title (FR)"
+#~ msgstr "titre"
+
+#, fuzzy
+#~ msgid "description (EN)"
+#~ msgstr "description (ang)"
+
+#, fuzzy
+#~ msgid "description (FR)"
+#~ msgstr "description (ang)"
+
+#~ msgid "last modified"
+#~ msgstr "dernière modification"
+
+#~ msgid "title_en"
+#~ msgstr "title_fr"
+
+#~ msgid "title"
+#~ msgstr "titre"
+
+#, fuzzy
+#~ msgid "scientific name"
+#~ msgstr "Nom du personnel"
+
+#, fuzzy
+#~ msgid "route description (EN)"
+#~ msgstr "description du rôle"
+
+#, fuzzy
+#~ msgid "route description (FR)"
+#~ msgstr "description du rôle"
+
+#, fuzzy
+#~ msgid "estimated time needed (hours)"
+#~ msgstr "Heures supplémentaires"
+
+#, fuzzy
+#~ msgid "date of outing"
+#~ msgstr "Date de la dernière modification:"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                    %(object)s\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    %(o)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid "Outing report form"
+#~ msgstr "programme de financement"
+
+#, fuzzy
+#~ msgid "No birds have been observed on this route..."
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "New Plan"
+#~ msgstr "Nouveau personne"
+
+#, fuzzy
+#~ msgid "Financial Coding:"
+#~ msgstr "Résumé financier:"
+
+#, fuzzy
+#~ msgid "Add Staff Funding"
+#~ msgstr "Ajouté personnel"
+
+#, fuzzy
+#~ msgid "Coding"
+#~ msgstr "Financement"
+
+#, fuzzy
+#~ msgid "Are you sure you want to delete this financial coding from the plan?"
+#~ msgstr ""
+#~ "Êtes-vous sûr de vouloir supprimer cette demande de capital du projet?"
+
+#, fuzzy
+#~ msgid "Funding for Staff Plan:"
+#~ msgstr "Détails de financement:"
+
+#, fuzzy
+#~ msgid "The coding has been successfully deleted."
+#~ msgstr "Le coût a été supprimé avec succès."
+
+#~ msgid "Data Management Home"
+#~ msgstr "Gestion de données"
+
+#~ msgid "Feedback / Bugs"
+#~ msgstr "Commentaires / Bugs"
+
+#, fuzzy
+#~ msgid "Account"
+#~ msgstr "Mon compte"
+
+#, fuzzy
+#~ msgid "Profile"
+#~ msgstr "Mon profil"
+
+#~ msgid "Logout"
+#~ msgstr "Déconnecter"
+
+#~ msgid "DM Apps"
+#~ msgstr "Applications GD"
+
+#, fuzzy
+#~ msgid "close"
+#~ msgstr "Fermer"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                      Please <a href=\"%(sign_in_url)s\">sign in</a> or "
+#~ "select an application below. <br>If you do not\n"
+#~ "                      have an account, you can register for one\n"
+#~ "                      <a href=\"%(sign_up_url)s\">here.</a>\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Veuillez vous <a href=\"%(sign_in_url)s"
+#~ "\">connecter</a> ou sélectionner une application ci-dessous. Si vous "
+#~ "n'avez pas de\n"
+#~ "                        compte, vous pouvez en créer un\n"
+#~ "                        <a href=\"%(sign_up_url)s\">ici.</a>\n"
+#~ "                    "
+
+#~ msgid "Select"
+#~ msgstr "Sélectionner"
+
+#~ msgid "access to this app requires special permissions"
+#~ msgstr "l'accès à cette application nécessite des autorisations spéciales"
+
+#~ msgid "access to this app requires you to be logged in"
+#~ msgstr "l'accès à cette application nécessite que vous soyez connecté"
+
+#~ msgid "this app is opened to all users"
+#~ msgstr "cette application est ouverte à tous les utilisateurs"
+
+#~ msgid "beta"
+#~ msgstr "bêta"
+
+#~ msgid "Data Management Website for DFO Science"
+#~ msgstr "Site Web de gestion des données pour la science du MPO"
+
+#~ msgid ""
+#~ "\n"
+#~ "                        Welcome back, %(name)s! Please select an "
+#~ "application below.\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Bienvenue, %(name)s! Veuillez sélectionner une "
+#~ "application ci-dessous.\n"
+#~ "                    "
+
+#~ msgid ""
+#~ "\n"
+#~ "                        Welcome! Please <a href=\"%(sign_in_url)s\">sign "
+#~ "in</a> or select an application below. If you do not have an\n"
+#~ "                        account, you can register for one\n"
+#~ "                        <a href=\"%(sign_up_url)s\">here.</a>\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Bienvenue!! Veuillez vous <a href=\"%(sign_in_url)"
+#~ "s\">connecter</a> ou sélectionner une application ci-dessous. Si vous "
+#~ "n'avez pas de\n"
+#~ "                        compte, vous pouvez en créer un\n"
+#~ "                        <a href=\"%(sign_up_url)s\">ici.</a>\n"
+#~ "                    "
+
+#, fuzzy
+#~ msgid "General Data Management Applications"
+#~ msgstr "Système de billetterie de gestion de données"
+
+#~ msgid "development"
+#~ msgstr "développement"
+
+#~ msgid "Application name (if applicable)"
+#~ msgstr "Nom de l'application (le cas échéant)"
+
+#~ msgid "Subject"
+#~ msgstr "Sujet"
+
+#~ msgid "name (English)"
+#~ msgstr "nom (anglais)"
+
+#~ msgid "Name (French)"
+#~ msgstr "Nom (français)"
+
+#~ msgid "application name"
+#~ msgstr "nom de l'application"
+
+#~ msgid "Feedback / Bug Form"
+#~ msgstr "Commentaires / Bugs"
+
+#, fuzzy
+#~ msgid "Deployment"
+#~ msgstr "employé MPO"
+
+#, fuzzy
+#~ msgid "Calibration Event"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "Calibration Values"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "Equipment Channel Properties"
+#~ msgstr "Numéro"
+
+#, fuzzy
+#~ msgid "Equipment Attachment"
+#~ msgstr "Achat d'équipement"
+
+#, fuzzy
+#~ msgid "Equipment Owner"
+#~ msgstr "Équipement de laboratoire"
+
+#, fuzzy
+#~ msgid "Equipment"
+#~ msgstr "Équipement de laboratoire"
+
+#, fuzzy
+#~ msgid "Recorder Properties"
+#~ msgstr "type d'enregistrement"
+
+#, fuzzy
+#~ msgid "Mooring Setup"
+#~ msgstr "Détails de financement:"
+
+#, fuzzy
+#~ msgid "Channel Information"
+#~ msgstr "Information de voyageur"
+
+#, fuzzy
+#~ msgid "Recording Events"
+#~ msgstr "Liste des enregistrements"
+
+#, fuzzy
+#~ msgid "Recording Event Type"
+#~ msgstr "type d'enregistrement"
+
+#, fuzzy
+#~ msgid "Recording Stage"
+#~ msgstr "Liste des enregistrements"
+
+#, fuzzy
+#~ msgid "Time Zone"
+#~ msgstr "Durée en semaines"
+
+#, fuzzy
+#~ msgid "Station Event"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Station"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Team Member"
+#~ msgstr "Supprimer"
+
+#, fuzzy
+#~ msgid "Calibration Date"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "Equipment Type"
+#~ msgstr "Achat d'équipement"
+
+#, fuzzy
+#~ msgid "Depth Rating"
+#~ msgstr "Paramètres"
+
+#, fuzzy
+#~ msgid "Recorder"
+#~ msgstr "enregistrement"
+
+#, fuzzy
+#~ msgid "Channel Number"
+#~ msgstr "Numéro"
+
+#, fuzzy
+#~ msgid "Channel"
+#~ msgstr "Ajouter du capital"
+
+#, fuzzy
+#~ msgid "Attachment Date"
+#~ msgstr "Pièce jointe"
+
+#, fuzzy
+#~ msgid "Parameter"
+#~ msgstr "(Ajouter un membre)"
+
+#, fuzzy
+#~ msgid "Recorder Type"
+#~ msgstr "type d'enregistrement"
+
+#, fuzzy
+#~ msgid "ADC Bit Name"
+#~ msgstr "Prénom"
+
+#, fuzzy
+#~ msgid "Institute"
+#~ msgstr "Nom de famille"
+
+#, fuzzy
+#~ msgid "Date Purchased"
+#~ msgstr "Achat d'équipement"
+
+#, fuzzy
+#~ msgid "Deployed?"
+#~ msgstr "employé MPO"
+
+#, fuzzy
+#~ msgid "Repaired By"
+#~ msgstr "Créé par"
+
+#, fuzzy
+#~ msgid "Deployment(s) Affected"
+#~ msgstr "employé MPO"
+
+#, fuzzy
+#~ msgid "Parameter Code"
+#~ msgstr "Nom de famille"
+
+#, fuzzy
+#~ msgid "Event Type"
+#~ msgstr "Type d'entrée"
+
+#, fuzzy
+#~ msgid "Time"
+#~ msgstr "Durée en semaines"
+
+#, fuzzy
+#~ msgid "Timezone"
+#~ msgstr "Durée en semaines"
+
+#, fuzzy
+#~ msgid "Instrument Condition"
+#~ msgstr "Détails de l'entrée"
+
+#, fuzzy
+#~ msgid "Weather Conditions"
+#~ msgstr "Organisation partenaire"
+
+#, fuzzy
+#~ msgid "Log Location"
+#~ msgstr "Section"
+
+#~ msgid "Revision"
+#~ msgstr "Révision"
+
+#, fuzzy
+#~ msgid "Equipment Deployment"
+#~ msgstr "Achat d'équipement"
+
+#, fuzzy
+#~ msgid "In Water Start Date"
+#~ msgstr "Date de début"
+
+#, fuzzy
+#~ msgid "In Water End Date"
+#~ msgstr "Date de fin"
+
+#, fuzzy
+#~ msgid "Duration"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Abbreviation"
+#~ msgstr "Organisation"
+
+#~ msgid "Last Name"
+#~ msgstr "Nom de famille"
+
+#~ msgid "First Name"
+#~ msgstr "Prénom"
+
+#, fuzzy
+#~ msgid "Attachments"
+#~ msgstr "Pièce jointe"
+
+#, fuzzy
+#~ msgid "Add Attachment"
+#~ msgstr "Pièce jointe"
+
+#, fuzzy
+#~ msgid "Station Events"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Deployment Event"
+#~ msgstr "employé MPO"
+
+#, fuzzy
+#~ msgid "Channel Properties"
+#~ msgstr "Numéro"
+
+#, fuzzy
+#~ msgid "Channel No."
+#~ msgstr "Ajouter du capital"
+
+#, fuzzy
+#~ msgid "View Deployment Details"
+#~ msgstr "Détails du projet"
+
+#, fuzzy
+#~ msgid "Add Channel Information"
+#~ msgstr "Information de voyageur"
+
+#, fuzzy
+#~ msgid "Volts"
+#~ msgstr "Remarques"
+
+#, fuzzy
+#~ msgid "Add Recording Event"
+#~ msgstr "Liste des enregistrements"
+
+#, fuzzy
+#~ msgid "Back to list"
+#~ msgstr "Commentaires / Bugs"
+
+#, fuzzy
+#~ msgid "Whale DB Home"
+#~ msgstr "Accueil GD"
+
+#, fuzzy
+#~ msgid "Deployments"
+#~ msgstr "employé MPO"
+
+#, fuzzy
+#~ msgid "New Deployment"
+#~ msgstr "employé MPO"
+
+#, fuzzy
+#~ msgid "Stations"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Mooring Setups"
+#~ msgstr "Détails de financement:"
+
+#, fuzzy
+#~ msgid "New Equipment"
+#~ msgstr "Équipement de laboratoire"
+
+#, fuzzy
+#~ msgid "Recording Datasets"
+#~ msgstr "Liste des enregistrements"
+
+#, fuzzy
+#~ msgid "New Dataset"
+#~ msgstr "Nouveau rapport de statut"
+
+#, fuzzy
+#~ msgid "Team Members"
+#~ msgstr "Supprimer"
+
+#, fuzzy
+#~ msgid "New Team Member"
+#~ msgstr "Supprimer"
+
+#, fuzzy
+#~ msgid "Deployment List"
+#~ msgstr "employé MPO"
+
+#, fuzzy
+#~ msgid "Equipment List"
+#~ msgstr "Équipement de laboratoire"
+
+#, fuzzy
+#~ msgid "Dataset List"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "Recording Schedule List"
+#~ msgstr "Détails de financement:"
+
+#, fuzzy
+#~ msgid "Team Member List"
+#~ msgstr "Supprimer"
+
+#, fuzzy
+#~ msgid "Cruise List"
+#~ msgstr "Utilisateur"
+
+#, fuzzy
+#~ msgid "The value curve has been successfully deleted."
+#~ msgstr "Le coût a été supprimé avec succès."
+
+#, fuzzy
+#~ msgid "The attachment has been successfully removed."
+#~ msgstr "L'accord a été supprimé avec succès."
+
+#, fuzzy
+#~ msgid "The recording stage has been successfully deleted."
+#~ msgstr "Le coût a été supprimé avec succès."
+
+#~ msgid "Honorific"
+#~ msgstr "Honorifique"
+
+#~ msgid "Affiliation"
+#~ msgstr "Affiliation"
+
+#~ msgid "Sector"
+#~ msgstr "Secteur"
+
+#~ msgid ""
+#~ "Indicates permissions i.e. regional coordinator, regional science "
+#~ "adviser, regional admin, director, etc."
+#~ msgstr ""
+#~ "Indique les autorisations, c'est-à-dire le coordinateur régional, le "
+#~ "conseiller scientifique régional, l'administrateur régional, le "
+#~ "directeur, etc."
+
+#~ msgid "Role"
+#~ msgstr "Rôle"
+
+#~ msgid "Job Title"
+#~ msgstr "Titre du poste"
+
+#~ msgid "Language"
+#~ msgstr "Langue"
+
+#~ msgid "Contact Type"
+#~ msgstr "Type de contact"
+
+#~ msgid "Communication Preference"
+#~ msgstr "Préférence de communication"
+
+#~ msgid "Phone"
+#~ msgstr "Téléphone"
+
+#~ msgid "E-mail"
+#~ msgstr "Courriel"
+
+#~ msgid "Expertise"
+#~ msgstr "Expertise"
+
+#~ msgid "Meeting Title (English)"
+#~ msgstr "Titre de la réunion (anglais)"
+
+#~ msgid "Meeting Title (French)"
+#~ msgstr "Titre de la réunion (français)"
+
+#~ msgid "Meeting Status"
+#~ msgstr "Statut de la réunion"
+
+#, fuzzy
+#~ msgid "Status Notes"
+#~ msgstr "Rapports d'état"
+
+#~ msgid "Meeting Quarter"
+#~ msgstr "Trimestre de réunion"
+
+#~ msgid "Meeting Month"
+#~ msgstr "Mois de la réunion"
+
+#~ msgid "Format: YYYY-MM-DD"
+#~ msgstr "Format : AAAA-MM-JJ"
+
+#~ msgid "Meeting Date Range (English)"
+#~ msgstr "Période de réunion (anglais)"
+
+#~ msgid "Meeting Date Range (French)"
+#~ msgstr "Période de réunion (français)"
+
+#~ msgid "Meeting Location Province"
+#~ msgstr "Lieu de la réunion Province"
+
+#~ msgid "Meeting Location City"
+#~ msgstr "Lieu de la réunion Ville"
+
+#~ msgid "Scope"
+#~ msgstr "Champ d'application"
+
+#~ msgid "Type of Advisory Process"
+#~ msgstr "Type de processus consultatif"
+
+#~ msgid "Lead Region"
+#~ msgstr "Région responsable"
+
+#~ msgid "Other Regions"
+#~ msgstr "Autres régions"
+
+#~ msgid "Expected Publication(s)"
+#~ msgstr "Publication(s) attendue(s)"
+
+#~ msgid "Chair(s)"
+#~ msgstr "Président(s)"
+
+#~ msgid "CSAS Contact(s)"
+#~ msgstr "Contact(s) du SCCS"
+
+#~ msgid "Program Contact(s)"
+#~ msgstr "Contact(s) du programme"
+
+#~ msgid "Chair Comments"
+#~ msgstr "Commentaires du président"
+
+#, fuzzy
+#~ msgid "Meeting"
+#~ msgstr "Nouveau ou existant"
+
+#, fuzzy
+#~ msgid "Publication Type"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Date Submitted"
+#~ msgstr "date de soumission"
+
+#, fuzzy
+#~ msgid "Posted Date"
+#~ msgstr "Titre proposé"
+
+#, fuzzy
+#~ msgid "Time (Weeks)"
+#~ msgstr "Durée en semaines"
+
+#, fuzzy
+#~ msgid "Total Salary Amount"
+#~ msgstr "Coût total"
+
+#, fuzzy
+#~ msgid "Invited"
+#~ msgstr "Nom de famille"
+
+#, fuzzy
+#~ msgid "Total O&M Amount"
+#~ msgstr "Total"
+
+#, fuzzy
+#~ msgid "Date Postted"
+#~ msgstr "Achat d'équipement"
+
+#, fuzzy
+#~ msgid "Title (English)"
+#~ msgstr "titre du voyage (anglais)"
+
+#, fuzzy
+#~ msgid "Title (French)"
+#~ msgstr "titre du voyage (français)"
+
+#, fuzzy
+#~ msgid "Title (Inuktitut)"
+#~ msgstr "titre du voyage (anglais)"
+
+#, fuzzy
+#~ msgid "Publication Year"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Lead Author"
+#~ msgstr "auteur"
+
+#, fuzzy
+#~ msgid "Other Author(s)"
+#~ msgstr "auteur"
+
+#, fuzzy
+#~ msgid "Publication Number"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Keywords"
+#~ msgstr "Mots clés"
+
+#, fuzzy
+#~ msgid "Citation"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Client(s)"
+#~ msgstr "Détails du projet"
+
+#, fuzzy
+#~ msgid "Publication"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Date Due"
+#~ msgstr "Date"
+
+#, fuzzy
+#~ msgid "Status Comments"
+#~ msgstr "Rapports d'état"
+
+#, fuzzy
+#~ msgid "Date Submitted by Author"
+#~ msgstr "date de soumission"
+
+#, fuzzy
+#~ msgid "Submitted By"
+#~ msgstr "Soumis"
+
+#, fuzzy
+#~ msgid "Date Approved by Chair"
+#~ msgstr "Approuvé par vous"
+
+#, fuzzy
+#~ msgid "Approved By (Chair)"
+#~ msgstr "Approuvé par vous"
+
+#, fuzzy
+#~ msgid "Date Approved by CSAS"
+#~ msgstr "Approuvé par vous"
+
+#, fuzzy
+#~ msgid "Approved By (CSAS Contact)"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "Date Approved by Director"
+#~ msgstr "Approuvé par vous"
+
+#, fuzzy
+#~ msgid "Approved By Director"
+#~ msgstr "Approuvé par vous"
+
+#, fuzzy
+#~ msgid "Date Number Requested"
+#~ msgstr "Créer une nouvelle demande"
+
+#, fuzzy
+#~ msgid "Date Document Submitted to CSAS"
+#~ msgstr "date de soumission"
+
+#, fuzzy
+#~ msgid "Approved by (PDF Proof)"
+#~ msgstr "Approuvé par vous"
+
+#, fuzzy
+#~ msgid "Date Posted"
+#~ msgstr "Achat d'équipement"
+
+#, fuzzy
+#~ msgid "Date Modified"
+#~ msgstr "Dernière modification"
+
+#, fuzzy
+#~ msgid "Translation Status"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "Date Sent to Translation"
+#~ msgstr "Organisation destinataire"
+
+#, fuzzy
+#~ msgid "Target Language"
+#~ msgstr "Chef de projet"
+
+#, fuzzy
+#~ msgid "Urgent Request"
+#~ msgstr "Nouvelle demande"
+
+#, fuzzy
+#~ msgid "Invoice Number"
+#~ msgstr "Numéro"
+
+#, fuzzy
+#~ msgid "Attachment(s)"
+#~ msgstr "Pièce jointe"
+
+#, fuzzy
+#~ msgid "Translation Notes"
+#~ msgstr "Traduction nécessaire"
+
+#, fuzzy
+#~ msgid "Attachment (English) File"
+#~ msgstr "nom (anglais)"
+
+#, fuzzy
+#~ msgid "Attachment (English) Size"
+#~ msgstr "nom (anglais)"
+
+#, fuzzy
+#~ msgid "Attachment (French) File"
+#~ msgstr "nom (français)"
+
+#, fuzzy
+#~ msgid "Attachment (French) Size"
+#~ msgstr "nom (français)"
+
+#, fuzzy
+#~ msgid "URL (English)"
+#~ msgstr "nom (anglais)"
+
+#, fuzzy
+#~ msgid "URL (English) Size"
+#~ msgstr "nom (anglais)"
+
+#, fuzzy
+#~ msgid "URL (French)"
+#~ msgstr "nom (français)"
+
+#, fuzzy
+#~ msgid "URL (French) Size"
+#~ msgstr "nom (français)"
+
+#, fuzzy
+#~ msgid "Dev Link (English)"
+#~ msgstr "nom (anglais)"
+
+#, fuzzy
+#~ msgid "Dev Link (French)"
+#~ msgstr "nom (français)"
+
+#, fuzzy
+#~ msgid "EKME# GCDocs (English)"
+#~ msgstr "notes (anglais)"
+
+#, fuzzy
+#~ msgid "EKME# GCDocs (French)"
+#~ msgstr "notes (français)"
+
+#, fuzzy
+#~ msgid "Library Catalogue # (English)"
+#~ msgstr "titre du voyage (anglais)"
+
+#, fuzzy
+#~ msgid "Library Catalogue # (French)"
+#~ msgstr "titre du voyage (français)"
+
+#, fuzzy
+#~ msgid "Library Link (English)"
+#~ msgstr "notes (anglais)"
+
+#, fuzzy
+#~ msgid "Library Link (French)"
+#~ msgstr "notes (français)"
+
+#, fuzzy
+#~ msgid "Publication Category"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Translation Funding Source (e.g. sector)"
+#~ msgstr "Gérer les source de financement"
+
+#, fuzzy
+#~ msgid "Translation Coding"
+#~ msgstr "Traduction nécessaire"
+
+#, fuzzy
+#~ msgid "Translation Estimate"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "Translation Total Cost"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "Size"
+#~ msgstr "Remarques:"
+
+#, fuzzy
+#~ msgid "Attachment"
+#~ msgstr "Pièce jointe"
+
+#, fuzzy
+#~ msgid "In-Year Request"
+#~ msgstr "Annuler la demande"
+
+#, fuzzy
+#~ msgid "Client Sector"
+#~ msgstr "Secteurs du MPO"
+
+#, fuzzy
+#~ msgid "Client Name"
+#~ msgstr "Prénom"
+
+#, fuzzy
+#~ msgid "Client Title"
+#~ msgstr "Titre de l'accord"
+
+#~ msgid "Rationale for Request"
+#~ msgstr "Justification de la demande"
+
+#, fuzzy
+#~ msgid "Proposed Timing"
+#~ msgstr "Titre proposé"
+
+#, fuzzy
+#~ msgid "Rationale for Timing"
+#~ msgstr "National ou régional?"
+
+#, fuzzy
+#~ msgid "Do you have funds to cover extra costs associated with this request?"
+#~ msgstr "Il n'y a pas de frais associés à cette demande"
+
+#, fuzzy
+#~ msgid "Funding Notes"
+#~ msgstr "Financement"
+
+#, fuzzy
+#~ msgid "Client Adviser Submission Date"
+#~ msgstr "date de soumission initiale"
+
+#, fuzzy
+#~ msgid "Client RD Submission Date"
+#~ msgstr "date de soumission initiale"
+
+#, fuzzy
+#~ msgid "Decision Date"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "Translated Title"
+#~ msgstr "Titre proposé"
+
+#, fuzzy
+#~ msgid "Decision"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "Decision Explanation"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "New Publication Entry"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Publication List"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "New Meeting Entry"
+#~ msgstr "Nouvelle entrée"
+
+#, fuzzy
+#~ msgid "Meeting List"
+#~ msgstr "URL externe"
+
+#, fuzzy
+#~ msgid "Request List"
+#~ msgstr "Statut de la demande"
+
+#, fuzzy
+#~ msgid "Contact List"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "Meeting O&M Cost"
+#~ msgstr "URL externe"
+
+#, fuzzy
+#~ msgid "Meeting Media"
+#~ msgstr "URL externe"
+
+#, fuzzy
+#~ msgid "Publication Status"
+#~ msgstr "Détails de la personne:"
+
+#, fuzzy
+#~ msgid "Translation Information"
+#~ msgstr "Information de voyageur"
+
+#, fuzzy
+#~ msgid "Documentation Location"
+#~ msgstr "Description"
+
+#, fuzzy
+#~ msgid "Publication O&M Cost"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "DFO participants"
+#~ msgstr "Coût total"
+
+#, fuzzy
+#~ msgid "Translation Info"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "Doc Location"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Com Results"
+#~ msgstr "Commentaires"
+
+#, fuzzy
+#~ msgid "Status Update"
+#~ msgstr "date du statut"
+
+#, fuzzy
+#~ msgid "Publications"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Contacts"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "Lookup"
+#~ msgstr "Déconnecter"
+
+#, fuzzy
+#~ msgid "Advisory Process Type"
+#~ msgstr "ordre de traitement"
+
+#~ msgid "Maritimes"
+#~ msgstr "Maritimes"
+
+#~ msgid "Gulf"
+#~ msgstr "Golfe"
+
+#~ msgid "Quebec"
+#~ msgstr "Québec"
+
+#~ msgid "Pacific"
+#~ msgstr "Pacifique"
+
+#~ msgid "All"
+#~ msgstr "Tous les projets"
+
+#, fuzzy
+#~ msgid "New Request"
+#~ msgstr "Nouvelle demande"
+
+#, fuzzy
+#~ msgid "New Meeting"
+#~ msgstr "Nouveau ou existant"
+
+#, fuzzy
+#~ msgid "New Contact"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "Controlled Lists"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "<h3>New Meeting Details</h3>"
+#~ msgstr "Détails de financement:"
+
+#, fuzzy
+#~ msgid "<h3>New Publication Details</h3>"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "<h3>New Publication Status</h3>"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "<h3>New Publication Translation Information</h3>"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "<h3>New Publication Documentation Location</h3>"
+#~ msgstr "Description"
+
+#, fuzzy
+#~ msgid "<h3>New Publication O&M Costs</h3>"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "<h3>New Publication Communication of Results</h3>"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Meeting Location"
+#~ msgstr "URL externe"
+
+#, fuzzy
+#~ msgid "New Request Entry"
+#~ msgstr "Nouvelle demande"
+
+#, fuzzy
+#~ msgid "New Request CSAS Entry"
+#~ msgstr "Nouvelle demande"
+
+#, fuzzy
+#~ msgid "Update Request"
+#~ msgstr "Équipement de laboratoire"
+
+#, fuzzy
+#~ msgid "Update Request CSAS"
+#~ msgstr "Équipement de laboratoire"
+
+#, fuzzy
+#~ msgid "Gulf Region Request List"
+#~ msgstr "Statut de la demande"
+
+#, fuzzy
+#~ msgid "Quebec Region Request List"
+#~ msgstr "Statut de la demande"
+
+#, fuzzy
+#~ msgid "Arctic Region Request List"
+#~ msgstr "Statut de la demande"
+
+#, fuzzy
+#~ msgid "Pacific Region Request List"
+#~ msgstr "Statut de la demande"
+
+#, fuzzy
+#~ msgid "Request Details"
+#~ msgstr "Demande de renseignements"
+
+#~ msgid "Request Status Details"
+#~ msgstr "Détails sur l'état de la demande"
+
+#, fuzzy
+#~ msgid "New Contact Entry"
+#~ msgstr "Nouvelle entrée"
+
+#, fuzzy
+#~ msgid "Update Contact"
+#~ msgstr "Mis à jour sur"
+
+#, fuzzy
+#~ msgid "Gulf Region Contact List"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "Quebec Region Contact List"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "Arctic Region Contact List"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "Pacific Region Contact List"
+#~ msgstr "Contacts du MPO"
+
+#, fuzzy
+#~ msgid "Contact Details"
+#~ msgstr "Détails du projet"
+
+#, fuzzy
+#~ msgid "New Meeting Details Entry"
+#~ msgstr "Nouvelle entrée"
+
+#, fuzzy
+#~ msgid "New Meeting Documentation Entry"
+#~ msgstr "Nouvelle entrée"
+
+#, fuzzy
+#~ msgid "New Meeting DFO Participants Entry"
+#~ msgstr "Nouvelle entrée"
+
+#, fuzzy
+#~ msgid "New Meeting Other Participants Entry"
+#~ msgstr "Nouvelle entrée"
+
+#, fuzzy
+#~ msgid "New Meeting O&M Costs Entry"
+#~ msgstr "Nouvelle entrée"
+
+#, fuzzy
+#~ msgid "New Meeting Media Entry"
+#~ msgstr "Nouvelle entrée"
+
+#, fuzzy
+#~ msgid "Update Meeting"
+#~ msgstr "Mis à jour sur"
+
+#, fuzzy
+#~ msgid "Update Meeting Documentation"
+#~ msgstr "Mis à jour sur"
+
+#, fuzzy
+#~ msgid "Update Meeting DFO Participants"
+#~ msgstr "Mis à jour sur"
+
+#, fuzzy
+#~ msgid "Update Meeting O&M Costs"
+#~ msgstr "Mis à jour sur"
+
+#, fuzzy
+#~ msgid "Update Meeting Media"
+#~ msgstr "Mis à jour sur"
+
+#, fuzzy
+#~ msgid "Gulf Region Meeting List"
+#~ msgstr "URL externe"
+
+#, fuzzy
+#~ msgid "Quebec Region Meeting List"
+#~ msgstr "URL externe"
+
+#, fuzzy
+#~ msgid "Arctic Region Meeting List"
+#~ msgstr "URL externe"
+
+#, fuzzy
+#~ msgid "Pacific Region Meeting List"
+#~ msgstr "URL externe"
+
+#, fuzzy
+#~ msgid "Meeting Details"
+#~ msgstr "Détails de financement:"
+
+#, fuzzy
+#~ msgid "Meeting Documentation"
+#~ msgstr "Détails de financement:"
+
+#, fuzzy
+#~ msgid "Meeting DFO Participants"
+#~ msgstr "Détails de financement:"
+
+#, fuzzy
+#~ msgid "Meeting O&M Costs"
+#~ msgstr "F et E:"
+
+#, fuzzy
+#~ msgid "New Publication Details Entry"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "New Publication Status Entry"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "New Publication Translation Information Entry"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "New Publication Documentation Location Entry"
+#~ msgstr "Description"
+
+#, fuzzy
+#~ msgid "New Publication O&M Costs Entry"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "New Publication Communication of Results Entry"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Update Publication"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Update Publication Status"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Update Publication Translation Information"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Update Publication Documentation Location"
+#~ msgstr "Description"
+
+#, fuzzy
+#~ msgid "Update Publication O&M Costs"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Maritimes Region Publication List"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Gulf Region Publication List"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Quebec Region Publication List"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Arctic Region Publication List"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Pacific Region Publication List"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Publication Details"
+#~ msgstr "Détails de la personne:"
+
+#, fuzzy
+#~ msgid "Publication Translation Info."
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Publication Doc. Location"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Publication O&M Costs"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Publication Com. of Results"
+#~ msgstr "Détails de la personne:"
+
+#~ msgid "Indigenous?"
+#~ msgstr "Autochtone?"
+
+#~ msgid "DFO Sectors - Leave blank for all"
+#~ msgstr "Secteurs du MPO - Laisser vide pour tous"
+
+#~ msgid "indigenous?"
+#~ msgstr "autochtone?"
+
+#, fuzzy
+#~ msgid "legal name"
+#~ msgstr "nom de famille"
+
+#~ msgid "indigenous Name"
+#~ msgstr "nom autochtone"
+
+#, fuzzy
+#~ msgid "mailing address"
+#~ msgstr "Courriel"
+
+#~ msgid "phone"
+#~ msgstr "téléphone"
+
+#, fuzzy
+#~ msgid "DFO contacts"
+#~ msgstr "Contacts du MPO"
+
+#~ msgid "DFO sector"
+#~ msgstr "Secteurs"
+
+#, fuzzy
+#~ msgid "Associated organizations"
+#~ msgstr "Organisation partenaire"
+
+#, fuzzy
+#~ msgid "Nation"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "former name"
+#~ msgstr "prénom"
+
+#, fuzzy
+#~ msgid "next election"
+#~ msgstr "Ma section"
+
+#, fuzzy
+#~ msgid "election term"
+#~ msgstr "chef de section"
+
+#~ msgid "first name"
+#~ msgstr "prénom"
+
+#~ msgid "last name"
+#~ msgstr "nom de famille"
+
+#, fuzzy
+#~ msgid "work email"
+#~ msgstr "courriel"
+
+#, fuzzy
+#~ msgid "work email 2"
+#~ msgstr "courriel 2"
+
+#, fuzzy
+#~ msgid "email block"
+#~ msgstr "courriel 1"
+
+#~ msgid "E-mail 1"
+#~ msgstr "Courriel 1"
+
+#~ msgid "E-mail 2"
+#~ msgstr "Courriel 2"
+
+#~ msgid "role"
+#~ msgstr "rôle"
+
+#~ msgid "Group"
+#~ msgstr "Groupe"
+
+#~ msgid "Email 1"
+#~ msgstr "Courriel 1"
+
+#~ msgid "Email 2"
+#~ msgstr "Courriel 2"
+
+#~ msgid "City"
+#~ msgstr "Ville"
+
+#~ msgid "DFO Sector"
+#~ msgstr "Secteurs"
+
+#~ msgid "Last Modified"
+#~ msgstr "Dernière modification"
+
+#~ msgid "Organization"
+#~ msgstr "Organisation"
+
+#~ msgid ""
+#~ "\n"
+#~ "                            You must be <a href=\"%(sign_in_url)s?next=%"
+#~ "(next_url)s\">signed in</a> to use this\n"
+#~ "                            application.\n"
+#~ "                        "
+#~ msgstr ""
+#~ "\n"
+#~ "                            vous devez être <a href=\"%(sign_in_url)s?"
+#~ "next=%(next_url)s\">connecté</a> pour utiliser cette\n"
+#~ "                            application.\n"
+#~ "                        "
+
+#~ msgid ""
+#~ "\n"
+#~ "                            If you do not have an account, you can create "
+#~ "one <a href=\"%(sign_up_url)s\">here</a>.\n"
+#~ "                        "
+#~ msgstr ""
+#~ "\n"
+#~ "                            Si vous n'avez pas de compte, vous pouvez en "
+#~ "créer<a href=\"%(sign_up_url)s\">ici</a>.\n"
+#~ "                        "
+
+#~ msgid "Organizations"
+#~ msgstr "Organisations"
+
+#~ msgid "Editing Member"
+#~ msgstr "Membre éditeur"
+
+#~ msgid "New Person"
+#~ msgstr "Nouveau personne"
+
+#~ msgid "name (French)"
+#~ msgstr "nom (français)"
+
+#~ msgid "funding program"
+#~ msgstr "programme de financement"
+
+#, fuzzy
+#~ msgid "category/type (English)"
+#~ msgstr "nom (anglais)"
+
+#, fuzzy
+#~ msgid "category/type (French)"
+#~ msgstr "nom (français)"
+
+#~ msgid "category_eng"
+#~ msgstr "catégorie"
+
+#, fuzzy
+#~ msgid "DFO regions"
+#~ msgstr "Secteurs du MPO"
+
+#, fuzzy
+#~ msgid "project language"
+#~ msgstr "Chef de projet"
+
+#, fuzzy
+#~ msgid "type of initiation"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "project overview"
+#~ msgstr "titre du projet"
+
+#, fuzzy
+#~ msgid "project rank"
+#~ msgstr "Chef de projet"
+
+#, fuzzy
+#~ msgid "project notes"
+#~ msgstr "L'état du projet"
+
+#, fuzzy
+#~ msgid "date received"
+#~ msgstr "Date de création"
+
+#, fuzzy
+#~ msgid "coordinator was notified"
+#~ msgstr "Date de dernière modification"
+
+#, fuzzy
+#~ msgid "is the project eligible?"
+#~ msgstr "Critique à la livraison du projet"
+
+#, fuzzy
+#~ msgid "Feedback to client"
+#~ msgstr "Commentaires / Bugs"
+
+#, fuzzy
+#~ msgid "site type"
+#~ msgstr "nom de famille"
+
+#~ msgid "uploaded"
+#~ msgstr "ajoutée"
+
+#, fuzzy
+#~ msgid "uploaded by"
+#~ msgstr "ajoutée"
+
+#, fuzzy
+#~ msgid "No files have been added to this project"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#~ msgid "Caption"
+#~ msgstr "Légende"
+
+#, fuzzy
+#~ msgid "(Add a file)"
+#~ msgstr "(Ajouter un membre)"
+
+#~ msgid "(Add a member)"
+#~ msgstr "(Ajouter un membre)"
+
+#~ msgid "Last modified"
+#~ msgstr "Dernière modification"
+
+#, fuzzy
+#~ msgid "No project years have been created"
+#~ msgstr "Toutes les lignes de F et E vides ont été effacées."
+
+#~ msgid "Funding"
+#~ msgstr "Financement"
+
+#, fuzzy
+#~ msgid "Projects:"
+#~ msgstr "Tous les projets:"
+
+#, fuzzy
+#~ msgid "Start year"
+#~ msgstr "Date de début"
+
+#, fuzzy
+#~ msgid "Program"
+#~ msgstr "Programme"
+
+#, fuzzy
+#~ msgid "Sites:"
+#~ msgstr "Remarques:"
+
+#, fuzzy
+#~ msgid "No sites have been added to this project"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "Site Type"
+#~ msgstr "Type de catégorie"
+
+#, fuzzy
+#~ msgid "(Add a site)"
+#~ msgstr "(Ajouter un membre)"
+
+#, fuzzy
+#~ msgid "Editing File"
+#~ msgstr "Modification:"
+
+#, fuzzy
+#~ msgid "Member Details"
+#~ msgstr "Détails de la personne:"
+
+#, fuzzy
+#~ msgid "Delete Member"
+#~ msgstr "Supprimer"
+
+#, fuzzy
+#~ msgid "Payment Details"
+#~ msgstr "Détails du projet"
+
+#, fuzzy
+#~ msgid "New Payment"
+#~ msgstr "Nouveau personne"
+
+#, fuzzy
+#~ msgid "Edit Project Information"
+#~ msgstr "Ajouter / Modifier les détails du projet"
+
+#, fuzzy
+#~ msgid "Initiation"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "Project Review"
+#~ msgstr "titre du projet"
+
+#, fuzzy
+#~ msgid "Negotiations"
+#~ msgstr "Nouvelle organisation"
+
+#, fuzzy
+#~ msgid "Project Contact Details"
+#~ msgstr "Détails du projet"
+
+#, fuzzy
+#~ msgid "MY Update"
+#~ msgstr "Mettre à jour"
+
+#, fuzzy
+#~ msgid "Site Details"
+#~ msgstr "Détails de la personne:"
+
+#, fuzzy
+#~ msgid "EOI file uploaded?"
+#~ msgstr "ajoutée"
+
+#, fuzzy
+#~ msgid "Application file uploaded?"
+#~ msgstr "Nom de l'application"
+
+#, fuzzy
+#~ msgid "Project evaluation file uploaded?"
+#~ msgstr "Nom de l'application"
+
+#, fuzzy
+#~ msgid "EOI evaluation file uploaded?"
+#~ msgstr "ajoutée"
+
+#, fuzzy
+#~ msgid "Draft CA file uploaded?"
+#~ msgstr "Date ajoutée"
+
+#, fuzzy
+#~ msgid "Internal code"
+#~ msgstr "observations générales"
+
+#, fuzzy
+#~ msgid "English name"
+#~ msgstr "nom anglais"
+
+#, fuzzy
+#~ msgid "French name"
+#~ msgstr "nom anglais"
+
+#, fuzzy
+#~ msgid "Scientific name"
+#~ msgstr "Nom du personnel"
+
+#, fuzzy
+#~ msgid "Quebec code"
+#~ msgstr "Code budgétaire"
+
+#, fuzzy
+#~ msgid "Maritimes code"
+#~ msgstr "Maritimes"
+
+#, fuzzy
+#~ msgid "english_name"
+#~ msgstr "nom anglais"
+
+#, fuzzy
+#~ msgid "English abbreviated name"
+#~ msgstr "nom anglais"
+
+#, fuzzy
+#~ msgid "Organisation"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "Phone number"
+#~ msgstr "numéro d'événement"
+
+#~ msgid "Roles"
+#~ msgstr "Rôles"
+
+#, fuzzy
+#~ msgid "Nom"
+#~ msgstr "Non"
+
+#, fuzzy
+#~ msgid "English description"
+#~ msgstr "description anglaise"
+
+#, fuzzy
+#~ msgid "French description"
+#~ msgstr "description française"
+
+#, fuzzy
+#~ msgid "data type"
+#~ msgstr "nom de famille"
+
+#, fuzzy
+#~ msgid "description_eng"
+#~ msgstr "description (ang)"
+
+#, fuzzy
+#~ msgid "Mode"
+#~ msgstr "enregistrement"
+
+#, fuzzy
+#~ msgid "Mode type"
+#~ msgstr "type d'enregistrement"
+
+#, fuzzy
+#~ msgid "Type of instrument"
+#~ msgstr "Nouveau personne"
+
+#, fuzzy
+#~ msgid "authority"
+#~ msgstr "auteur"
+
+#, fuzzy
+#~ msgid "Call name"
+#~ msgstr "nom de famille"
+
+#, fuzzy
+#~ msgid "Long name"
+#~ msgstr "Nom commun"
+
+#, fuzzy
+#~ msgid "Start time (format)"
+#~ msgstr "Date de début du projet"
+
+#, fuzzy
+#~ msgid "End time (format)"
+#~ msgstr "nom (fra)"
+
+#, fuzzy
+#~ msgid "Duration (hours)"
+#~ msgstr "Durée en semaines"
+
+#, fuzzy
+#~ msgid "Outing"
+#~ msgstr "Nouveau ou existant"
+
+#, fuzzy
+#~ msgid "Date and Time"
+#~ msgstr "Dernière modification"
+
+#, fuzzy
+#~ msgid "Observation"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "Metadata field"
+#~ msgstr "Mes métadonnées"
+
+#, fuzzy
+#~ msgid "Instrument record successfully updated for : {}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Instrument record successfully created for : {}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "size"
+#~ msgstr "Remarques:"
+
+#, fuzzy
+#~ msgid "taille"
+#~ msgstr "titre"
+
+#, fuzzy
+#~ msgid "contact number"
+#~ msgstr "numéro d'événement"
+
+#~ msgid "email"
+#~ msgstr "courriel"
+
+#, fuzzy
+#~ msgid "comments/details"
+#~ msgstr "Détails du projet"
+
+#, fuzzy
+#~ msgid "supplier_name"
+#~ msgstr "nom de site"
+
+#, fuzzy
+#~ msgid "name of item"
+#~ msgstr "la date de fin du voyage"
+
+#, fuzzy
+#~ msgid "note"
+#~ msgstr "remarques"
+
+#, fuzzy
+#~ msgid "owner of equipment"
+#~ msgstr "Équipement de laboratoire"
+
+#, fuzzy
+#~ msgid "size (if applicable)"
+#~ msgstr "Nom de l'application (le cas échéant)"
+
+#, fuzzy
+#~ msgid "category of equipment"
+#~ msgstr "Équipement de laboratoire"
+
+#, fuzzy
+#~ msgid "type of equipment"
+#~ msgstr "Nouveau personne"
+
+#, fuzzy
+#~ msgid "item_name"
+#~ msgstr "nom de site"
+
+#~ msgid "location"
+#~ msgstr "location"
+
+#~ msgid "address"
+#~ msgstr "adresse"
+
+#, fuzzy
+#~ msgid "container Space Available (if applicable)"
+#~ msgstr "Nom de l'application (le cas échéant)"
+
+#~ msgid "caption"
+#~ msgstr "légende"
+
+#, fuzzy
+#~ msgid "item"
+#~ msgstr "Titre"
+
+#, fuzzy
+#~ msgid "english abbreviated name"
+#~ msgstr "nom anglais"
+
+#, fuzzy
+#~ msgid "french abbreviated name"
+#~ msgstr "nom anglais"
+
+#, fuzzy
+#~ msgid "organisation"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "email address"
+#~ msgstr "Courriel"
+
+#, fuzzy
+#~ msgid "phone number"
+#~ msgstr "numéro d'événement"
+
+#, fuzzy
+#~ msgid "first_name"
+#~ msgstr "prénom"
+
+#, fuzzy
+#~ msgid "incident name"
+#~ msgstr "Nom du personnel"
+
+#, fuzzy
+#~ msgid "species count"
+#~ msgstr "commentaire de chefde section"
+
+#, fuzzy
+#~ msgid "latitude (DD)"
+#~ msgstr "titre"
+
+#, fuzzy
+#~ msgid "type of Incident"
+#~ msgstr "Organisation"
+
+#, fuzzy
+#~ msgid "gear description"
+#~ msgstr "description"
+
+#, fuzzy
+#~ msgid "examination conducted?"
+#~ msgstr "traduction nécessaire"
+
+#, fuzzy
+#~ msgid "results"
+#~ msgstr "Commentaires"
+
+#, fuzzy
+#~ msgid "data folder"
+#~ msgstr "nom de famille"
+
+#, fuzzy
+#~ msgid "image"
+#~ msgstr "Durée en semaines"
+
+#, fuzzy
+#~ msgid "last audited on"
+#~ msgstr "Dernière modification"
+
+#, fuzzy
+#~ msgid "last audited by"
+#~ msgstr "Dernière modification par"
+
+#, fuzzy
+#~ msgid "date"
+#~ msgstr "Mettre à jour"
+
+#~ msgid "type"
+#~ msgstr "type"
+
+#, fuzzy
+#~ msgid "transaction category"
+#~ msgstr "Catégorie de coût"
+
+#, fuzzy
+#~ msgid "audits"
+#~ msgstr "Modifier"
+
+#, fuzzy
+#~ msgid "location stored"
+#~ msgstr "location"
+
+#, fuzzy
+#~ msgid "tags"
+#~ msgstr "Mots clés"
+
+#, fuzzy
+#~ msgid "order cost"
+#~ msgstr "Ajouter un nouveau coût"
+
+#, fuzzy
+#~ msgid "order date"
+#~ msgstr "prénom"
+
+#, fuzzy
+#~ msgid "received date"
+#~ msgstr "Dates de voyage"
+
+#, fuzzy
+#~ msgid "transaction"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "No files have been added to this entry"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "(Add File)"
+#~ msgstr "(Ajouter un fichier)"
+
+#, fuzzy
+#~ msgid "No images have been added to this entry"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "Lending Agreements:"
+#~ msgstr "Ajouter un accord"
+
+#, fuzzy
+#~ msgid "Create New Order"
+#~ msgstr "Créer une nouvelle demande"
+
+#, fuzzy
+#~ msgid "Received?"
+#~ msgstr "enregistrement"
+
+#, fuzzy
+#~ msgid "No transactions have been added to this entry"
+#~ msgstr "Aucun jalon n'a été ajouté à ce projet."
+
+#, fuzzy
+#~ msgid "(Add/Remove Inventory)"
+#~ msgstr "Inventaire du projet"
+
+#, fuzzy
+#~ msgid "No suppliers have been added to this entry"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "Whalebrary"
+#~ msgstr "Salaire"
+
+#, fuzzy
+#~ msgid "Editing File:"
+#~ msgstr "Modification:"
+
+#, fuzzy
+#~ msgid "Editing Image:"
+#~ msgstr "Modification:"
+
+#, fuzzy
+#~ msgid "Adding New Image"
+#~ msgstr "Ajouter un membre"
+
+#~ msgid "Inventory"
+#~ msgstr "Inventaire"
+
+#~ msgid "TBD"
+#~ msgstr "À déterminer"
+
+#, fuzzy
+#~ msgid "Item Detail:"
+#~ msgstr "Détails de la personne:"
+
+#, fuzzy
+#~ msgid "Item name (size)"
+#~ msgstr "nom (fra)"
+
+#, fuzzy
+#~ msgid "Item List"
+#~ msgstr "Utilisateur"
+
+#, fuzzy
+#~ msgid "Detailed Transactions for "
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "Item record successfully updated for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Add New Item"
+#~ msgstr "Ajouter un enregistrement"
+
+#, fuzzy
+#~ msgid "Item record successfully created for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Location List"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Location record successfully updated for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Add New Location"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Location record successfully created for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Transaction List"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "Transaction record successfully updated for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Transaction record successfully created for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Order List"
+#~ msgstr "Utilisateur"
+
+#, fuzzy
+#~ msgid "Order record successfully updated for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Order record successfully created for : Order # {str(my_object)}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Personnel List"
+#~ msgstr "titre du projet"
+
+#, fuzzy
+#~ msgid "Personnel record successfully updated for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Add New Personnel"
+#~ msgstr "Nouveau personne"
+
+#, fuzzy
+#~ msgid "Personnel record successfully created for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Please select a supplier to add to item"
+#~ msgstr "Veuillez sélectionner le rapport"
+
+#, fuzzy
+#~ msgid "Supplier List"
+#~ msgstr "Utilisateur"
+
+#, fuzzy
+#~ msgid "Supplier record successfully updated for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Supplier record successfully created for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "File successfully added for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "File record successfully updated for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Incident List"
+#~ msgstr "Équipement de laboratoire"
+
+#, fuzzy
+#~ msgid "Incident record successfully updated for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Add New Incident"
+#~ msgstr "Ajouter un enregistrement"
+
+#, fuzzy
+#~ msgid "Incident record successfully created for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Image successfully added for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Image record successfully updated for : {my_object}"
+#~ msgstr "L'entrée a été supprimé avec succès!"
+
+#, fuzzy
+#~ msgid "Report Generator"
+#~ msgstr "enregistrement"
+
+#, fuzzy
+#~ msgid "For search term "
+#~ msgstr "Terme de recherche"
+
+#~ msgid "DFO employee"
+#~ msgstr "employé du MPO"
+
+#, fuzzy
+#~ msgid "proponent"
+#~ msgstr "Contacts du MPO"
+
+#~ msgid "initial activity date"
+#~ msgstr "date d'activité initiale"
+
+#~ msgid "DFO sectors"
+#~ msgstr "Secteurs"
+
+#~ msgid "Entry Type"
+#~ msgstr "Type d'entrée"
+
+#~ msgid "fiscal year/multiyear"
+#~ msgstr "année fiscale/multi-annuelle"
+
+#~ msgid "is funding needed?"
+#~ msgstr "un financement est-il nécessaire ?"
+
+#~ msgid "funding purpose"
+#~ msgstr "but du financement"
+
+#~ msgid "funding requested"
+#~ msgstr "financement demandé"
+
+#~ msgid "funding approved"
+#~ msgstr "financement approuvé"
+
+#~ msgid "amount transferred"
+#~ msgstr "montant transféré"
+
+#~ msgid "does any funding need to be recovered?"
+#~ msgstr "les fonds doivent-ils être récupérés ?"
+
+#~ msgid "author"
+#~ msgstr "auteur"
+
+#~ msgid "Funding requested"
+#~ msgstr "Financement demandé"
+
+#~ msgid "Date Uploaded"
+#~ msgstr "Date ajoutée"
+
+#~ msgid "(Add file)"
+#~ msgstr "(Ajouter un fichier)"
+
+#, fuzzy
+#~ msgid "Creation date"
+#~ msgstr "Organisation"
+
+#~ msgid "Author"
+#~ msgstr "Auteur"
+
+#~ msgid "Note"
+#~ msgstr "Remarque"
+
+#, fuzzy
+#~ msgid "Manage Reserves"
+#~ msgstr "Ressources humaines"
+
+#, fuzzy
+#~ msgid "Manage Nations"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "Manage Funding Programs"
+#~ msgstr "Gérer les source de financement"
+
+#, fuzzy
+#~ msgid "Manage Relationship Ratings"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "Manage User Permissions"
+#~ msgstr "Ressources humaines"
+
+#~ msgid "Entry Detail:"
+#~ msgstr "Détails de l'entrée:"
+
+#~ msgid "Are you sure you want to delete this note?"
+#~ msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                        Click\n"
+#~ "                        <a href=\"%(new_entry_url)s\">HERE</a> to create "
+#~ "a new iHub entry.\n"
+#~ "                        <br><br>\n"
+#~ "                        Or you can click\n"
+#~ "                        <a href=\"%(entry_list_url)s\">HERE</a> to view a "
+#~ "full list.\n"
+#~ "                        <br><br>\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Cliquez \n"
+#~ "                        <a href=\"%(new_entry_url)s\">ICI</a> pour créer "
+#~ "une nouvelle entrée de l'iHub.\n"
+#~ "                        <br><br>\n"
+#~ "                        Ou vous pouvez cliquer\n"
+#~ "                        <a href=\"%(entry_list_url)s\">ICI</a> pour voir "
+#~ "une liste complète.\n"
+#~ "                        <br><br>\n"
+#~ "                    "
+
+#, fuzzy
+#~ msgid "Edit Contact Information"
+#~ msgstr "Ajouter / Modifier les détails du projet"
+
+#, fuzzy
+#~ msgid "add a new contact"
+#~ msgstr "Ajouter un nouveau coût"
+
+#, fuzzy
+#~ msgid "Add Consultation Role"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Last modified on"
+#~ msgstr "Dernière modification"
+
+#~ msgid "by"
+#~ msgstr "par"
+
+#~ msgid "Person Detail:"
+#~ msgstr "Détails de la personne:"
+
+#~ msgid "Notes:"
+#~ msgstr "Remarques:"
+
+#~ msgid "Funding Details:"
+#~ msgstr "Détails de financement:"
+
+#, fuzzy
+#~ msgid "All Users"
+#~ msgstr "Utilisateur"
+
+#, fuzzy
+#~ msgid "User List"
+#~ msgstr "Utilisateur"
+
+#~ msgid "home"
+#~ msgstr "accueil"
+
+#~ msgid ""
+#~ "Please note that only <b>unclassified information</b> may be entered into "
+#~ "this application."
+#~ msgstr ""
+#~ "Veuillez noter que seules <b>les informations non classifiées</b> peuvent "
+#~ "être entrées dans cette application."
+
+#~ msgid "The note has been successfully deleted from the entry."
+#~ msgstr "La note a été supprimé avec succès."
+
+#, fuzzy
+#~ msgid "Tag / Keyword"
+#~ msgstr "Mots clés"
+
+#, fuzzy
+#~ msgid "The end date must be after the start date!"
+#~ msgstr "La date de début du voyage doit survenir après la date de fin."
+
+#, fuzzy
+#~| msgid "End date of project"
+#~ msgid "send an email update to project leads"
+#~ msgstr "Date de fin du projet"
+
+#, fuzzy
+#~ msgid "Tags / keywords"
+#~ msgstr "Mots clés"
+
+#, fuzzy
+#~ msgid "Project overview"
+#~ msgstr "titre du projet"
+
+#, fuzzy
+#~ msgid "fiscal years"
+#~ msgstr "exercice fiscal"
+
+#, fuzzy
+#~ msgid "complete list of funding sources"
+#~ msgstr "source de financement"
+
+#, fuzzy
+#~ msgid "project leads"
+#~ msgstr "Chef de projet"
+
+#, fuzzy
+#~ msgid "deliverables / activities"
+#~ msgstr "Livrables du projet"
+
+#, fuzzy
+#~ msgid "year-specific priorities"
+#~ msgstr "Priorités spécifiques au projet"
+
+#, fuzzy
+#~ msgid "Data storage / archiving plan"
+#~ msgstr "Plan de stockage / archivage des données"
+
+#, fuzzy
+#~ msgid "financial coding"
+#~ msgstr "Résumé financier:"
+
+#, fuzzy
+#~ msgid "project year"
+#~ msgstr "Chef de projet"
+
+#~ msgid "amount (CAD)"
+#~ msgstr "montant (CAD)"
+
+#, fuzzy
+#~ msgid "duration (weeks)"
+#~ msgstr "Durée en semaines"
+
+#, fuzzy
+#~ msgid "overtime (hours)"
+#~ msgstr "Heures supplémentaires"
+
+#, fuzzy
+#~ msgid "Complete"
+#~ msgstr "Commentaires"
+
+#, fuzzy
+#~| msgid "Unapproved"
+#~ msgid "not approved"
+#~ msgstr "Non approuvé"
+
+#, fuzzy
+#~| msgid "Cancel"
+#~ msgid "cancelled"
+#~ msgstr "Annuler"
+
+#, fuzzy
+#~ msgid "externals / partnerships / collaborations"
+#~ msgstr "Collaborateurs externes:"
+
+#, fuzzy
+#~| msgid "Save comments"
+#~ msgid "strategic comments"
+#~ msgstr "Enregistrer les commentaires"
+
+#, fuzzy
+#~| msgid "National"
+#~ msgid "operational"
+#~ msgstr "National"
+
+#, fuzzy
+#~| msgid "general comments"
+#~ msgid "operational comments"
+#~ msgstr "observations générales"
+
+#, fuzzy
+#~| msgid "general comments"
+#~ msgid "ecological comments"
+#~ msgstr "observations générales"
+
+#, fuzzy
+#~| msgid "Fiscal Year"
+#~ msgid "scale"
+#~ msgstr "Exercice fiscal"
+
+#, fuzzy
+#~| msgid "Save comments"
+#~ msgid "scale comments"
+#~ msgstr "Enregistrer les commentaires"
+
+#, fuzzy
+#~| msgid "project status"
+#~ msgid "Approval status"
+#~ msgstr "l'état du projet"
+
+#, fuzzy
+#~ msgid "Target date (optional)"
+#~ msgstr "Date d'achèvement prévue"
+
+#, fuzzy
+#~ msgid "In progress"
+#~ msgstr "j'approuve"
+
+#, fuzzy
+#~ msgid "Filters"
+#~ msgstr "Filter"
+
+#, fuzzy
+#~ msgid "Staff"
+#~ msgstr "Ajouté personnel"
+
+#, fuzzy
+#~ msgid "all"
+#~ msgstr "Tous les projets"
+
+#, fuzzy
+#~ msgid "Tag"
+#~ msgstr "Mots clés"
+
+#, fuzzy
+#~ msgid "Project Status"
+#~ msgstr "L'état du projet"
+
+#, fuzzy
+#~ msgid "Clear filters"
+#~ msgstr "Effacer les lignes vides"
+
+#, fuzzy
+#~ msgid "Explore Science Projects"
+#~ msgstr "Cloner le projet"
+
+#, fuzzy
+#~ msgid "Start a New Project"
+#~ msgstr "Date de début du projet"
+
+#, fuzzy
+#~ msgid "Manager Menu"
+#~ msgstr "Gérer les étiquettes"
+
+#, fuzzy
+#~ msgid "Manage Projects"
+#~ msgstr "Mes projets"
+
+#~ msgid "TOTAL"
+#~ msgstr "TOTAL"
+
+#, fuzzy
+#~| msgid "location"
+#~ msgid "Allocation"
+#~ msgstr "location"
+
+#, fuzzy
+#~ msgid "Edit review"
+#~ msgstr "Gérer les réviseurs"
+
+#, fuzzy
+#~ msgid "Start review"
+#~ msgstr "Date de début"
+
+#, fuzzy
+#~| msgid "Approve"
+#~ msgid "Approvals"
+#~ msgstr "Approuver"
+
+#, fuzzy
+#~ msgid "Edit Review"
+#~ msgstr "Gérer les réviseurs"
+
+#~ msgid "Start a Review"
+#~ msgstr "Commencer un examen"
+
+#, fuzzy
+#~ msgid "Title:"
+#~ msgstr "Titre"
+
+#, fuzzy
+#~ msgid "Review History:"
+#~ msgstr "Examinateur"
+
+#, fuzzy
+#~| msgid "Approve"
+#~ msgid "Approval Form"
+#~ msgstr "Approuver"
+
+#, fuzzy
+#~| msgid "Success! An email has been sent to the trip request owner."
+#~ msgid "NOTE: An email has already been send to the project leads on "
+#~ msgstr ""
+#~ "Succès ! Un courriel a été envoyé au responsable de la demande de voyage."
+
+#, fuzzy
+#~ msgid "FTE (weeks)"
+#~ msgstr "No. de semaines"
+
+#, fuzzy
+#~ msgid "Draft"
+#~ msgstr "Date"
+
+#, fuzzy
+#~ msgid "Submitted, Unapproved"
+#~ msgstr "Projets soumis"
+
+#, fuzzy
+#~ msgid "Management Console"
+#~ msgstr "Gestion de données"
+
+#, fuzzy
+#~ msgid "Project List"
+#~ msgstr "titre du projet"
+
+#, fuzzy
+#~ msgid "Staff List"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Are certain you want to submit the following year of the project?"
+#~ msgstr "Êtes-vous sûr de vouloir soumettre le projet"
+
+#, fuzzy
+#~ msgid ""
+#~ "Are certain you want to delete the review on this project?\\n\\nThis "
+#~ "action is not reversible."
+#~ msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
+
+#, fuzzy
+#~ msgid "Submitted (unapproved)"
+#~ msgstr "Projets soumis"
+
+#, fuzzy
+#~ msgid "No agreements have been added to this year of the project"
+#~ msgstr "Aucun jalon n'a été ajouté à ce projet."
+
+#, fuzzy
+#~ msgid "Add Capital Cost"
+#~ msgstr "Coûts en capital:"
+
+#, fuzzy
+#~ msgid "No capital costs have been added to this year of the project"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "No collaborators have been added to this year of the project"
+#~ msgstr "Aucun jalon n'a été ajouté à ce projet."
+
+#, fuzzy
+#~ msgid "Add Supporting Resource"
+#~ msgstr "Ressources de support"
+
+#, fuzzy
+#~ msgid "No supporting resources have been added to this year of the project"
+#~ msgstr "Aucun jalon n'a été ajouté à ce projet."
+
+#, fuzzy
+#~ msgid "Add G&C Cost"
+#~ msgstr "Ajouter S & C"
+
+#, fuzzy
+#~ msgid "No G&C costs have been added to this year of the project"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "No milestones have been added to this year of the project"
+#~ msgstr "Aucun jalon n'a été ajouté à ce projet."
+
+#, fuzzy
+#~ msgid "Add O&M Cost"
+#~ msgstr "F et E:"
+
+#, fuzzy
+#~ msgid "Add All Categories"
+#~ msgstr "Ajouter toutes les catégories"
+
+#, fuzzy
+#~ msgid "Clear Empty Lines"
+#~ msgstr "Effacer les lignes vides"
+
+#, fuzzy
+#~ msgid "No O&M costs have been added to this year of the project"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "Actions"
+#~ msgstr "Section"
+
+#, fuzzy
+#~ msgid "Edit Overview"
+#~ msgstr "Gérer les réviseurs"
+
+#, fuzzy
+#~ msgid "Project Years"
+#~ msgstr "Chef de projet"
+
+#, fuzzy
+#~ msgid "Overview"
+#~ msgstr "Gérer les réviseurs"
+
+#, fuzzy
+#~ msgid "draft"
+#~ msgstr "Mettre à jour"
+
+#, fuzzy
+#~ msgid "Add a new year to this project"
+#~ msgstr "Créer un nouveau rapport de statut pour ce projet"
+
+#, fuzzy
+#~ msgid "Add New Year"
+#~ msgstr "Ajouter un enregistrement"
+
+#, fuzzy
+#~ msgid "Financial Summary (All Years)"
+#~ msgstr "Résumé financier:"
+
+#, fuzzy
+#~ msgid "New Staff Form"
+#~ msgstr "Nouveau rapport de statut"
+
+#, fuzzy
+#~ msgid "Edit Staff"
+#~ msgstr "Ajouté personnel"
+
+#, fuzzy
+#~ msgid "New O&M Cost"
+#~ msgstr "Aucune de F et E"
+
+#, fuzzy
+#~ msgid "Edit O&M Cost"
+#~ msgstr "F et E:"
+
+#, fuzzy
+#~ msgid "New Capital Cost"
+#~ msgstr "Aucune coûts en capital"
+
+#, fuzzy
+#~ msgid "Edit Capital Cost"
+#~ msgstr "Coûts en capital:"
+
+#, fuzzy
+#~ msgid "New G&C Cost"
+#~ msgstr "Aucune de F et E"
+
+#, fuzzy
+#~ msgid "New Milestone"
+#~ msgstr "Jalons"
+
+#, fuzzy
+#~ msgid "Edit Milestone"
+#~ msgstr "Ajouter un jalon"
+
+#, fuzzy
+#~ msgid "New External Collaborator"
+#~ msgstr "Collaborateurs externes:"
+
+#, fuzzy
+#~ msgid "Edit External Collaborator"
+#~ msgstr "Collaborateurs externes:"
+
+#, fuzzy
+#~ msgid "New Collaborative Agreement"
+#~ msgstr "Aucun accord de collaboration"
+
+#, fuzzy
+#~ msgid "Edit Collaborative Agreement"
+#~ msgstr "Ajout d'un accord de collaboration"
+
+#, fuzzy
+#~ msgid "New Supporting Resource"
+#~ msgstr "Ressources de support"
+
+#, fuzzy
+#~ msgid "Edit Supporting Resource"
+#~ msgstr "Ressources de support"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                  Enter overtime hours worked for each day in the %(year)"
+#~ "s fiscal year\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Entrez les heures supplémentaires travaillées pour "
+#~ "chaque jour de l'exercice %(year)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid "Overtime Description:"
+#~ msgstr "description d'heures supplémentaires"
+
+#, fuzzy
+#~ msgid "No staff have been added to this year of the project"
+#~ msgstr "Toutes les catégories de F et E ont été ajoutées à ce projet"
+
+#, fuzzy
+#~ msgid "Submission Status of Project Years"
+#~ msgstr "Date limite de soumission des projets supplémentaires."
+
+#, fuzzy
+#~ msgid "Submit / Unsubmit"
+#~ msgstr "Soumettre le project"
+
+#, fuzzy
+#~ msgid "Cannot unsubmit approved projects"
+#~ msgstr "Projets non soumis"
+
+#, fuzzy
+#~ msgid "Project Overview"
+#~ msgstr "titre du projet"
+
+#, fuzzy
+#~ msgid "Project years"
+#~ msgstr "Chef de projet"
+
+#, fuzzy
+#~ msgid "Please select among the following:"
+#~ msgstr "Veuillez sélectionner le rapport"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                  Clone from %(year)s\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    %(o)s\n"
+#~ "                "
+
+#, fuzzy
+#~ msgid "Are you sure you want to delete this item: "
+#~ msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
+
+#, fuzzy
+#~ msgid "Are you sure you want to remove yourself?"
+#~ msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
+
+#, fuzzy
+#~ msgid ""
+#~ "WARNING: This action might result in you loosing the ability to modify "
+#~ "this project."
+#~ msgstr ""
+#~ "ATTENTION! Si vous vous retirez en tant que responsable de projet, vous "
+#~ "ne pourrez plus modifier ce projet."
+
+#, fuzzy
+#~ msgid "Add External Collaborator"
+#~ msgstr "Collaborateurs externes:"
+
+#, fuzzy
+#~ msgid "metadata"
+#~ msgstr "Mes métadonnées"
+
+#, fuzzy
+#~ msgid "category type"
+#~ msgstr "Type de catégorie"
+
+#, fuzzy
+#~ msgid "latest status"
+#~ msgstr "Dernier statut"
+
+#, fuzzy
+#~ msgid "Cloning: "
+#~ msgstr "Financement"
+
+#, fuzzy
+#~ msgid "Edit "
+#~ msgstr "Modifier"
+
+#, fuzzy
+#~ msgid "Functional Groups"
+#~ msgstr "Gérer les source de financement"
+
+#~ msgid "Trip title"
+#~ msgstr "Titre du voyage"
+
+#~ msgid "Trip Title"
+#~ msgstr "Titre du voyage"
+
+#~ msgid "Regional lead"
+#~ msgstr "Responsable régional"
+
+#~ msgid "ADM approval required?"
+#~ msgstr "Approbation du SMA requis?"
+
+#~ msgid "Please provide your comments here..."
+#~ msgstr "Veuillez fournir vos commentaires ici..."
+
+#~ msgid "If so, please provide the rationale here..."
+#~ msgstr "Si oui, veuillez en donner la raison ici..."
+
+#~ msgid "Do you want to reset the reviewer list?"
+#~ msgstr "Voulez-vous réinitialiser la liste des examinateurs?"
+
+#~ msgid ""
+#~ "Other attendees covered under BTA (i.e., they will not need to have a "
+#~ "travel plan)"
+#~ msgstr ""
+#~ "Autres participants couverts par la AGV (c'est-à-dire qu'ils n'auront pas "
+#~ "besoin d'avoir un plan de voyage)"
+
+#~ msgid ""
+#~ "This trip is currently under review from NCR and is closed to additional "
+#~ "requests."
+#~ msgstr ""
+#~ "Ce voyage fait actuellement l'objet d'un examen de la part de la RCN et "
+#~ "est fermé aux demandes supplémentaires."
+
+#~ msgid ""
+#~ "This trip has already been reviewed by NCR and is closed to additional "
+#~ "requests."
+#~ msgstr ""
+#~ "Ce voyage a déjà été examiné par la RCN et est fermé aux demandes "
+#~ "supplémentaires."
+
+#~ msgid "This trip is closed to additional requests."
+#~ msgstr "Ce voyage est fermé aux demandes supplémentaires."
+
+#~ msgid "The start date of the trip must occur before the end date."
+#~ msgstr "La date de début du voyage doit être antérieure à la date de fin."
+
+#~ msgid "The length of this trip is unrealistic."
+#~ msgstr "La durée de ce voyage est irréaliste."
+
+#, fuzzy
+#~ msgid ""
+#~ "The start date of this request ({request_start_date}) has to be within 10 "
+#~ "days of the start date of the selected trip ({trip_start_date})!"
+#~ msgstr ""
+#~ "La date de fin de cette demande ({request_start_date}) doit se situer "
+#~ "dans les 10 jours ({request_start_date})!"
+
+#, fuzzy
+#~ msgid ""
+#~ "The end date of this request ({request_end_date}) must be within 10 days "
+#~ "of the end date of the selected trip ({trip_end_date})!"
+#~ msgstr ""
+#~ "La date de fin de cette demande ({request_start_date}) doit se situer "
+#~ "dans les 10 jours ({request_start_date})!"
+
+#~ msgid ""
+#~ "There is already a trip request in the system for this user and this trip."
+#~ msgstr ""
+#~ "Il existe déjà une demande de voyage dans le système pour cet utilisateur "
+#~ "et ce voyage."
+
+#~ msgid ""
+#~ "The abstract deadline of the trip (if present) must occur before the "
+#~ "start date."
+#~ msgstr ""
+#~ "La date limite pour le résumé (s'il est présent) doit être antérieure à "
+#~ "la date de début."
+
+#~ msgid ""
+#~ "The registration deadline of the trip (if present) must occur before or "
+#~ "on the start date."
+#~ msgstr ""
+#~ "La date limite d'inscription du voyage (si présent) doit avoir lieu avant "
+#~ "ou à la date de début."
+
+#~ msgid "Traveller"
+#~ msgstr "Voyageur"
+
+#~ msgid "Trip"
+#~ msgstr "Voyage"
+
+#~ msgid "ADM approval required"
+#~ msgstr "Approbation du SMA requis"
+
+#~ msgid ""
+#~ "Sorry, the role of a reviewer whose status is set to {my_object.status} "
+#~ "cannot be changed"
+#~ msgstr ""
+#~ "Désolé, le rôle d'un examinateur dont le statut est fixé à {mon_objet."
+#~ "status} ne peut être modifié"
+
+#~ msgid ""
+#~ "Sorry, you cannot change the associated DM Apps user of a reviewer whose "
+#~ "status is set to {my_object.status}"
+#~ msgstr ""
+#~ "Désolé, vous ne pouvez pas changer l'utilisateur DM Apps associé à un "
+#~ "examinateur dont le statut est défini sur {mon_objet.status}"
+
+#~ msgid ""
+#~ "Sorry, the order of a reviewer whose status is set to {my_object.status} "
+#~ "cannot be changed"
+#~ msgstr ""
+#~ "Désolé, l'ordre d'un examinateur dont le statut est fixé à {mon_objet."
+#~ "status} ne peut être modifié"
+
+#~ msgid "DM Apps user"
+#~ msgstr "Utilisateur de DM Apps"
+
+#~ msgid "reviewer belongs to which DFO section(s)"
+#~ msgstr "l'examinateur appartient à quelle(s) section(s) du MPO"
+
+#~ msgid "reviewer belongs to which DFO branch(es)"
+#~ msgstr "l'examinateur appartient à quelle(s) direction(s) du MPO"
+
+#~ msgid "Do they have any special roles?"
+#~ msgstr "Ont-ils un rôle particulier ?"
+
+#~ msgid "Travel request process outline"
+#~ msgstr "Aperçu de la procédure de demande de voyage"
+
+#~ msgid "Review process outline"
+#~ msgstr "Aperçu du processus de révision"
+
+#~ msgid "Number of days before earliest date that is eligible for review"
+#~ msgstr "Nombre de jours avant la première date admissible à l'examen"
+
+#~ msgid "trip title (English)"
+#~ msgstr "titre du voyage (anglais)"
+
+#~ msgid "trip title (French)"
+#~ msgstr "titre du voyage (français)"
+
+#~ msgid "trip purpose"
+#~ msgstr "but du voyage"
+
+#~ msgid "does attendance to this require ADM approval?"
+#~ msgstr ""
+#~ "la participation à cette activité nécessite-t-elle l'approbation de la "
+#~ "SMA?"
+
+#~ msgid "location (city, province, country)"
+#~ msgstr "lieu (ville, province, pays)"
+
+#~ msgid "Which region is the lead on this trip?"
+#~ msgstr "Quelle région est en tête de ce voyage ?"
+
+#~ msgid ""
+#~ "Is there an event template being completed for this conference or meeting?"
+#~ msgstr ""
+#~ "Y a-t-il un plan d'événement en cours de réalisation pour cette "
+#~ "conférence ou réunion ?"
+
+#~ msgid "event number"
+#~ msgstr "numéro d'événement"
+
+#~ msgid "start date of event"
+#~ msgstr "date de début de l'événement"
+
+#~ msgid "end date of event"
+#~ msgstr "ddate de fin de l'événement"
+
+#~ msgid "meeting URL"
+#~ msgstr "URL de la réunion"
+
+#~ msgid "abstract submission deadline"
+#~ msgstr "date limite de soumission des résumés"
+
+#~ msgid "registration deadline"
+#~ msgstr "date limite d'inscription"
+
+#~ msgid "general notes"
+#~ msgstr "notes générales"
+
+#~ msgid "verified?"
+#~ msgstr "vérifié?"
+
+#~ msgid "verified by"
+#~ msgstr "vérifié par"
+
+#~ msgid "trip status"
+#~ msgstr "statut du voyage"
+
+#~ msgid "Administrative notes"
+#~ msgstr "Notes administratives"
+
+#~ msgid "start date of the ADM review"
+#~ msgstr "date de début de la révision de la SMA"
+
+#~ msgid "last_modified_by"
+#~ msgstr "dernière modification par"
+
+#~ msgid "ADM Office review deadline"
+#~ msgstr "Date limite d'examen du bureau de la SMA"
+
+#~ msgid "Date when eligible for ADM Office review"
+#~ msgstr "Date d'admissibilité à l'examen du bureau des SMA"
+
+#~ msgid "to"
+#~ msgstr "à"
+
+#~ msgid "not a DM Apps user"
+#~ msgstr "pas un utilisateur de DM Apps"
+
+#~ msgid "Is the traveller a public servant?"
+#~ msgstr "Le voyageur est-il un fonctionnaire ?"
+
+#~ msgid "Traveller belongs to which DFO region"
+#~ msgstr "Voyageur appartient à quelle région du MPO"
+
+#~ msgid "under which section is this request being made"
+#~ msgstr "sous quelle section du MPO cette demande est faite"
+
+#~ msgid "Is the traveller a research scientist (RES)?"
+#~ msgstr "Le voyageur est-il un chercheur(se) scientifique (RES) ?"
+
+#~ msgid "company name"
+#~ msgstr "nom de l'entreprise"
+
+#~ msgid "Is this a group request (i.e., a request for multiple individuals)?"
+#~ msgstr ""
+#~ "S'agit-il d'une demande de groupe (c'est-à-dire une demande pour "
+#~ "plusieurs personnes) ?"
+
+#~ msgid "trip"
+#~ msgstr "voyage"
+
+#~ msgid "departure location (city, province, country)"
+#~ msgstr "le lieu de départ (ville, province, pays)"
+
+#~ msgid "destination location (city, province, country)"
+#~ msgstr "le lieu de destination (ville, province, pays)"
+
+#~ msgid "start date of travel"
+#~ msgstr "date de début du voyage"
+
+#~ msgid "end date of travel"
+#~ msgstr "la date de fin du voyage"
+
+#~ msgid "role of traveller"
+#~ msgstr "rôle du voyageur"
+
+#~ msgid "role description"
+#~ msgstr "description du rôle"
+
+#~ msgid "objective of this meeting or conference"
+#~ msgstr "objectif de cette réunion ou conférence"
+
+#~ msgid "benefit to DFO"
+#~ msgstr "Les avantages pour le MPO"
+
+#~ msgid ""
+#~ "rationale for Attending multiple conferences and/or international "
+#~ "meetings (if applicable)"
+#~ msgstr ""
+#~ "justification de la participation à plusieurs conférences et/ou réunions "
+#~ "internationales (le cas échéant)"
+
+#~ msgid "Other attendees covered under BTA"
+#~ msgstr "Autres participants couverts par un AGV"
+
+#~ msgid "Justification for late submissions"
+#~ msgstr "Justification des soumissions tardives"
+
+#~ msgid "optional notes"
+#~ msgstr "notes optionnelles"
+
+#~ msgid "Amount of non-DFO funding (CAD)"
+#~ msgstr "Montant du financement non-MPO (CAD)"
+
+#~ msgid "full name(s) of organization providing non-DFO funding"
+#~ msgstr ""
+#~ "le(s) nom(s) complet(s) de l'organisation qui fournit un financement "
+#~ "autre que celui du MPO"
+
+#~ msgid "date submitted"
+#~ msgstr "date de soumission"
+
+#~ msgid "original submission date"
+#~ msgstr "date de soumission initiale"
+
+#~ msgid "trip request status"
+#~ msgstr "statut de la demande"
+
+#~ msgid "Exclude this traveller from the travel plan?"
+#~ msgstr "Exclure ce voyageur du plan de voyage ?"
+
+#~ msgid "Group Request"
+#~ msgstr "Demande de groupe"
+
+#~ msgid ""
+#~ "NOTE: This trip request contains non-DFO funding sources from {}. Total "
+#~ "DFO funding: ${:,.2f} | Total non-DFO funding: ${:,.2f}"
+#~ msgstr ""
+#~ "REMARQUE : Cette demande de voyage contient des sources de financement "
+#~ "autres que le MPO de {}. Total du financement du MPO : ${ :,.2f} | Total "
+#~ "des financements hors MPO : ${ :,.2f}"
+
+#~ msgid "Cost category"
+#~ msgstr "Catégorie de coût"
+
+#~ msgid "Amount (CAD)"
+#~ msgstr "Montant (CAD)"
+
+#~ msgid "day"
+#~ msgstr "jour"
+
+#~ msgid "Company: "
+#~ msgstr "nom de l'entreprise "
+
+#~ msgid "Address: "
+#~ msgstr "adresse:"
+
+#, fuzzy
+#~ msgid "Phone: "
+#~ msgstr "téléphone"
+
+#~ msgid "Email: "
+#~ msgstr "Courriel: "
+
+#~ msgid "trip request"
+#~ msgstr "demande de voyage"
+
+#~ msgid "daily rate (CAD/day)"
+#~ msgstr "taux journalier (CAD/jour)"
+
+#~ msgid "number of days"
+#~ msgstr "nombre de jours"
+
+#~ msgid "process order"
+#~ msgstr "ordre de traitement"
+
+#~ msgid "review status"
+#~ msgstr "statut de révision"
+
+#~ msgid "status date"
+#~ msgstr "date du statut"
+
+#~ msgid "Reviewer"
+#~ msgstr "Examinateur"
+
+#~ msgid "on"
+#~ msgstr "sur"
+
+#~ msgid "Request Detail"
+#~ msgstr "Demande de renseignements"
+
+#~ msgid "Trip Request Details"
+#~ msgstr "Détails de la demande de voyage"
+
+#~ msgid "Total travellers (excluding BTA)"
+#~ msgstr "Nombre total de voyageurs (excluant les AGV)"
+
+#~ msgid "Costs"
+#~ msgstr "Coûts"
+
+#~ msgid "Trip Request Costs"
+#~ msgstr "Frais de demande de voyage"
+
+#~ msgid "Add new cost"
+#~ msgstr "Ajouter un nouveau coût"
+
+#~ msgid "Add all costs"
+#~ msgstr "Ajouter tous les coûts"
+
+#~ msgid ""
+#~ "\n"
+#~ "            Per diem rates for breakfast, lunch, supper and incidentals "
+#~ "should follow the\n"
+#~ "            <a href=\"https://www.njc-cnm.gc.ca/\">National Joint "
+#~ "Council</a> Travel Directive.\n"
+#~ "            For travel within Canada and\n"
+#~ "            USA, please refer to <a href=\"https://www.njc-cnm.gc.ca/"
+#~ "directive/d10/v238/s659/en\">Appendix C</a>\n"
+#~ "            and for all other travel please refer to\n"
+#~ "            <a href=\"https://www.njc-cnm.gc.ca/directive/app_d.php?"
+#~ "lang=en\">Appendix D</a>.\n"
+#~ "            <span class=\"red-font\">Please note that all expenses for "
+#~ "this request should be entered in Canadian dollars.</span>\n"
+#~ "          "
+#~ msgstr ""
+#~ "\n"
+#~ "Les taux journaliers pour le petit déjeuner, le dîner, le souper et les "
+#~ "frais accessoires doivent suivre la\n"
+#~ "<a href=\"https://www.njc-cnm.gc.ca/\" target=\"_blank\">Directive sur "
+#~ "les voyages du Conseil national mixte</a>.\n"
+#~ "Pour les voyages au Canada et\n"
+#~ " aux États-Unis, veuillez vous référer à\n"
+#~ "<a href=\"https://www.njc-cnm.gc.ca/directive/d10/v238/s659/fr\" target="
+#~ "\"_blank\">l'annexe C</a>\n"
+#~ "et pour tous les autres voyages, veuillez vous référer à\n"
+#~ "<a href=\"https://www.njc-cnm.gc.ca/directive/app_d.php?lang=fr\" target="
+#~ "\"_blank\">l'annexe D</a>.\n"
+#~ "<span class=\"red-font\">Veuillez noter que toutes les dépenses pour "
+#~ "cette demande doivent être saisies en dollars canadiens.</span>\n"
+#~ "                                    "
+
+#~ msgid "There are no costs associated with this request"
+#~ msgstr "Il n'y a pas de frais associés à cette demande"
+
+#~ msgid "File Attachments"
+#~ msgstr "Pièces jointes"
+
+#~ msgid "Add a File"
+#~ msgstr "Ajouter un fichier"
+
+#~ msgid "Group Travellers Associated with this Request"
+#~ msgstr "Groupe de voyageurs associé à cette demande"
+
+#~ msgid "Group Traveller Information"
+#~ msgstr "Informations pour les voyageurs en groupe"
+
+#, fuzzy
+#~ msgid "Add Traveller"
+#~ msgstr "Ajouter un voyageur"
+
+#~ msgid "Departure location"
+#~ msgstr "Lieu de départ"
+
+#~ msgid "Click on a row to edit traveller informations."
+#~ msgstr ""
+#~ "Cliquez sur une ligne pour modifier les informations relatives au "
+#~ "voyageur."
+
+#~ msgid "DENIED"
+#~ msgstr "REFUSÉE"
+
+#, fuzzy
+#~ msgid "Show costs"
+#~ msgstr "Coût total"
+
+#~ msgid "TOTAL COST:"
+#~ msgstr "COÛT TOTAL:"
+
+#~ msgid "TOTAL DFO FUNDING:"
+#~ msgstr "FINANCEMENT TOTAL DU MPO:"
+
+#~ msgid "TOTAL NON-DFO FUNDING:"
+#~ msgstr "FINANCEMENT TOTAL NON-MPO:"
+
+#~ msgid "An Overview of the Travel App"
+#~ msgstr "Un aperçu de l'application de voyage"
+
+#~ msgid "Submission Deadlines"
+#~ msgstr "Dates limites de soumission"
+
+#~ msgid ""
+#~ "\n"
+#~ "                        Travel requests can be submitted up to <b>180 "
+#~ "days in advance of any potential trip</b>, regardless of the purpose\n"
+#~ "                        and across fiscal years.\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Les demandes de voyage peuvent être soumises "
+#~ "jusqu'à <b>180 jours avant tout voyage potentiel</b>, quel qu'en soit le "
+#~ "but\n"
+#~ "                        et d'une année fiscale à l'autre.\n"
+#~ "                    "
+
+#~ msgid ""
+#~ "\n"
+#~ "                        Requests to participate in <b>conferences</b> "
+#~ "must be submitted at least <b>90 days before</b> the registration or\n"
+#~ "                        abstract deadline (whichever is earlier). No "
+#~ "requests will be accepted after the review process has started.\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Les demandes de participation aux <b>conférences</"
+#~ "b> doivent être soumises au moins <b>60 jours civil avant</b> la date "
+#~ "limite de dépôt des résumés ou d'inscription\n"
+#~ "                        (selon la première éventualité). Si aucune date "
+#~ "limite de dépôt de résumé ou d’inscription n’est précisée, la demande "
+#~ "doit être soumise 60 jours civils avant la date de début de la "
+#~ "conférence. Les demandes tardives ne seront prise en considération que "
+#~ "dans des cas très exceptionnels.\n"
+#~ "                    "
+
+#~ msgid ""
+#~ "\n"
+#~ "                        Requests for <b> all other types </b> of travel "
+#~ "(i.e. not related to a conference) must be submitted at least\n"
+#~ "                        <b>60 days prior </b> to the date of travel. Late "
+#~ "requests will only be considered in very exceptional\n"
+#~ "                        circumstances.\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                        Les demandes de <b> tous les autres types </b> de "
+#~ "voyage (c'est-à-dire non liés à une conférence) doivent être soumises au "
+#~ "moins\n"
+#~ "                        <b>60 jours avant </b> la date du voyage. Les "
+#~ "demandes tardives ne seront prises en considération que dans des cas très "
+#~ "exceptionnels.\n"
+#~ "                    "
+
+#~ msgid "Service Standards"
+#~ msgstr "Normes de service"
+
+#~ msgid ""
+#~ "\n"
+#~ "                    All decisions regarding travel will be communicated "
+#~ "at least 14 days before:\n"
+#~ "                    The trip start date (for training, field work, or "
+#~ "operational trips)\n"
+#~ "                    <b>OR</b>\n"
+#~ "                    The conference abstract or registration deadline – "
+#~ "whichever is earliest\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Toutes les décisions concernant le voyage seront "
+#~ "communiquées au moins 14 jours avant :\n"
+#~ "                    La date de début du voyage (pour les voyages de "
+#~ "formation, de travail sur le terrain ou d'opérations).\n"
+#~ "                    <b>OU</b>\n"
+#~ "                    La date de début du voyage, la date limite "
+#~ "d’inscription à la conférence ou la date limite de soumission des résumés "
+#~ "(selon la première éventualité).\n"
+#~ "                "
+
+#~ msgid "Reviewers, Recommenders and Approvers"
+#~ msgstr "Examinateurs, recommandeurs et approbateurs"
+
+#~ msgid "Trip Request Reviewers"
+#~ msgstr "Examinateurs des demandes de voyage"
+
+#~ msgid "You cannot reset the reviewers while a request is submitted."
+#~ msgstr ""
+#~ "Vous ne pouvez pas réinitialiser les examinateurs pendant qu'une demande "
+#~ "est soumise."
+
+#~ msgid "Reset"
+#~ msgstr "Réinitialiser"
+
+#~ msgid "Modify"
+#~ msgstr "Modifier"
+
+#~ msgid "Skip"
+#~ msgstr "Sauter"
+
+#, fuzzy
+#~ msgid ""
+#~ "No reviewers, recommenders or approvers have been added to this request."
+#~ msgstr ""
+#~ "Aucun critique, recommandateur ou approbateur n'a été ajouté à ce projet."
+
+#~ msgid "Trip Detail"
+#~ msgstr "Détail du voyage"
+
+#~ msgid "Trip Summary"
+#~ msgstr "Résumé du voyage"
+
+#~ msgid "CFTS Report for Trip"
+#~ msgstr "Rapport du SCVE pour le voyage"
+
+#~ msgid "Unsure"
+#~ msgstr "Incertain"
+
+#~ msgid "Connected requests"
+#~ msgstr "Demandes liées"
+
+#~ msgid "CURRENT TRIP REQUEST"
+#~ msgstr "DEMANDE DE VOYAGE EN COURS"
+
+#~ msgid "Complete list of travellers"
+#~ msgstr "Liste complète des voyageurs"
+
+#~ msgid "(across all submitted requests; includes BTA travellers)"
+#~ msgstr ""
+#~ "(pour toutes les demandes soumises ; inclut les voyageurs de la BTA)"
+
+#~ msgid "Comparision of costs"
+#~ msgstr "Comparaison des coûts"
+
+#~ msgid "(across all submitted requests)"
+#~ msgstr "(pour toutes les demandes soumises)"
+
+#~ msgid "ADM - Approve / Deny Traveller Requests"
+#~ msgstr "SMA - Approuver / Refuser les demandes des voyageurs"
+
+#~ msgid "Request type"
+#~ msgstr "Type de demande"
+
+#~ msgid "Trip request status"
+#~ msgstr "Statut de la demande de voyage"
+
+#~ msgid "ADM decision for traveller"
+#~ msgstr "Décision de la SMA pour le voyageur"
+
+#~ msgid "Regional recommendation notes"
+#~ msgstr "Notes de recommandation régionales"
+
+#~ msgid "Approve / Deny"
+#~ msgstr "Approuver / Refuser"
+
+#~ msgid "Individual"
+#~ msgstr "Individuel"
+
+#~ msgid "Decision made"
+#~ msgstr "Décision prise"
+
+#~ msgid "Deny"
+#~ msgstr "Refuser"
+
+#~ msgid "Not at ADM Level"
+#~ msgstr "Pas au niveau de la SMA"
+
+#~ msgid "ADMINISTRATIVE NOTES"
+#~ msgstr "NOTES ADMINISTRATIVES"
+
+#~ msgid ""
+#~ "Are you sure you want to reset the reviewers? This will undo any changes "
+#~ "that you have made to the reviewer list and process order."
+#~ msgstr ""
+#~ "Êtes-vous sûr de vouloir réinitialiser les examinateurs ? Cela annulera "
+#~ "les modifications que vous avez apportées à la liste des examinateurs et "
+#~ "à l'ordre de traitement"
+
+#~ msgid ""
+#~ "(Once this form is submitted, you will be able to add group travellers to "
+#~ "the request. You will be automatically added as a traveller.)"
+#~ msgstr ""
+#~ "(Une fois ce formulaire soumis, vous pourrez ajouter les voyageurs en "
+#~ "groupe à la demande. Vous serez automatiquement ajouté en tant que "
+#~ "voyageur)."
+
+#~ msgid "Use a Predefined Address:"
+#~ msgstr "Utilisez une adresse prédéfinie :"
+
+#~ msgid "Gulf Fisheries Centre"
+#~ msgstr "Centre des pêches du Golfe"
+
+#~ msgid "Bedford Institute of Oceanography"
+#~ msgstr "Institut océanographique de Bedford"
+
+#~ msgid "St. Andrews Biological Station"
+#~ msgstr "Station biologique de St. Andrews"
+
+#~ msgid "Maurice Lamontagne Institute"
+#~ msgstr "Institut Maurice-Lamontagne"
+
+#~ msgid "Institute of Ocean Sciences"
+#~ msgstr "Institut des sciences de la mer"
+
+#~ msgid "Pacific Biological Station"
+#~ msgstr "Station biologique du Pacifique"
+
+#~ msgid "Cultus Lake Salmon Research Laboratory"
+#~ msgstr "Laboratoire de recherche sur le saumon du lac Cultus"
+
+#~ msgid "C&A (Sarnia)"
+#~ msgstr "C et A (Sarnia)"
+
+#~ msgid "C&A (Burlington) - (Canada Centre for Inland Waters)"
+#~ msgstr "C et A (Burlington) - (Centre Canadien des Eaux Intérieures)"
+
+#~ msgid "C&A (Winnipeg) - Freshwater Institute"
+#~ msgstr "C et A (Winnipeg) - Institut de l'eau douce"
+
+#~ msgid "Reviewer Comments"
+#~ msgstr "Commentaires des examinateurs"
+
+#~ msgid "You cannot reset the reviewers while a trip is under review."
+#~ msgstr ""
+#~ "Vous ne pouvez pas réinitialiser les examinateurs pendant qu'un voyage "
+#~ "est en cours d'examen."
+
+#~ msgid ""
+#~ "You cannot reset the reviewers on a trip that has already been reviewed."
+#~ msgstr ""
+#~ "Vous ne pouvez pas réinitialiser les examinateurs lors d'un voyage qui a "
+#~ "déjà été examiné."
+
+#, fuzzy
+#~ msgid ""
+#~ "No reviewers, recommenders or approvers have been added to this trip."
+#~ msgstr ""
+#~ "Aucun critique, recommandateur ou approbateur n'a été ajouté à ce projet."
+
+#~ msgid "Costs (CAD)"
+#~ msgstr "Coûts (CAD)"
+
+#~ msgid "(BTA)"
+#~ msgstr "  (AGV)"
+
+#~ msgid "Associated trip request"
+#~ msgstr "Demande de voyage associée"
+
+#~ msgid "History of trips requiring the approval of ADM"
+#~ msgstr "Historique des voyages nécessitant l'approbation de la SMA"
+
+#~ msgid "CURRENT REQUEST"
+#~ msgstr "DEMANDE ACTUELLE"
+
+#~ msgid "CURRENT TRIP"
+#~ msgstr "VOYAGE EN COURS"
+
+#~ msgid "Travel App"
+#~ msgstr "Application de voyage"
+
+#~ msgid "All Trips"
+#~ msgstr "Tous les voyages"
+
+#~ msgid "All Requests"
+#~ msgstr "Toutes les demandes"
+
+#~ msgid "Manage NJC Rates"
+#~ msgstr "Gérer les tarifs du CNM"
+
+#~ msgid "Manage Cost Categories"
+#~ msgstr "Gérer les catégories des couts"
+
+#~ msgid "Manage Costs"
+#~ msgstr "Gérer les coûts"
+
+#~ msgid "Manage Trip Categories"
+#~ msgstr "Gérer les catégories de voyage"
+
+#~ msgid "Manage Trip Subcategories"
+#~ msgstr "Gérer les sous-catégories de voyages"
+
+#~ msgid "Set Default Reviewers"
+#~ msgstr "Définir les examinateurs par défaut"
+
+#~ msgid "Manage DFO Organizations"
+#~ msgstr "Gérer les organisations du MPO"
+
+#~ msgid "Manage Travel App User Permissions"
+#~ msgstr "Gérer les autorisations des utilisateurs de l'application de voyage"
+
+#~ msgid "Manage Process Steps"
+#~ msgstr "Gérer les étapes du processus"
+
+#~ msgid " as a default reviewer"
+#~ msgstr " en tant qu'examinateur par défaut"
+
+#~ msgid ""
+#~ "\n"
+#~ "                Are you sure you want to delete %(object)s as a default "
+#~ "reviewer\n"
+#~ "            "
+#~ msgstr ""
+#~ "\n"
+#~ "                Êtes-vous sûr de vouloir supprimer l'objet suivant %"
+#~ "(object)s en tant qu'examinateur par défaut \n"
+#~ "            "
+
+#, fuzzy
+#~ msgid "New Default Reviewer"
+#~ msgstr "Réviseurs de demandes de voyage"
+
+#~ msgid "EOS Conference and Travel Management System"
+#~ msgstr "Système de gestion de voyage de Science du SEO"
+
+#~ msgid "\"Get Your Pre-approval to Travel Today!!\""
+#~ msgstr "\"Obtenez votre pré-autorisation pour voyager aujourd'hui !!\""
+
+#~ msgid ""
+#~ "\n"
+#~ "                    This application process supersedes existing "
+#~ "mechanisms for requesting travel requiring RDG or EOS ADM approval.\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Ce processus de demande remplace les mécanismes "
+#~ "existants de demande de voyage nécessitant l'approbation du DGR ou du SMA "
+#~ "SEO.\n"
+#~ "                "
+
+#~ msgid ""
+#~ "\n"
+#~ "                    A travel request can have multiple travellers from "
+#~ "various sectors (e.g., public, academic, private), however, only a\n"
+#~ "                    Fisheries and Oceans employee with a valid Government "
+#~ "of Canada email address can initiate and submit a travel request.\n"
+#~ "                    In\n"
+#~ "                    addition, the travel request should already have "
+#~ "confirmed or anticipated funding available to support the travel.\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Une demande de voyage peut avoir plusieurs voyageurs "
+#~ "de divers secteurs (par exemple, public, universitaire, privé), mais "
+#~ "seulement\n"
+#~ "                    un employé de Pêches et Océans disposant d'une "
+#~ "adresse électronique valide du Gouvernement du Canada peut initier et "
+#~ "soumettre une demande de voyage.\n"
+#~ "                    En outre, la demande de voyage doit déjà avoir "
+#~ "confirmé ou anticipé les fonds disponibles pour financer le voyage.\n"
+#~ "                "
+
+#~ msgid ""
+#~ "\n"
+#~ "                    Please ensure your travel request is properly "
+#~ "completed and submitted on time to allow for efficient and appropriate\n"
+#~ "                    review. Incomplete applications will not be "
+#~ "evaluated. You can check the status of your travel request by going to "
+#~ "the\n"
+#~ "                    home page\n"
+#~ "                    and selecting “view your request”.\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Veuillez vous assurer que votre demande de voyage est "
+#~ "correctement remplie et soumise à temps pour permettre un traitement "
+#~ "efficace et approprié\n"
+#~ "                    de l'examen. Les demandes incomplètes ne seront pas "
+#~ "évaluées. Vous pouvez vérifier le statut de votre demande de voyage en "
+#~ "vous rendant sur le site\n"
+#~ "                    à la page d'accueil\n"
+#~ "                    et en sélectionnant \"Voir votre demande\".\n"
+#~ "                "
+
+#~ msgid "Create a New Request"
+#~ msgstr "Créer une nouvelle demande"
+
+#~ msgid "View Your Requests"
+#~ msgstr "Voir vos demandes"
+
+#~ msgid "Browse Upcoming Trips"
+#~ msgstr "Parcourir les voyages à venir"
+
+#~ msgid "There are trip requests requiring your attention!"
+#~ msgstr "Il y a des demandes de voyage qui requièrent votre attention !"
+
+#~ msgid "Your Reviews"
+#~ msgstr "Vos évaluations"
+
+#, fuzzy
+#~ msgid ""
+#~ "View and manage trips and/or trip requests for which you are a reviewer"
+#~ msgstr ""
+#~ "Affichez et gérez les demandes de voyage pour lesquelles vous êtes des "
+#~ "réviseurs"
+
+#~ msgid "Trips Awaiting Review"
+#~ msgstr "Voyages en attente d'un examen"
+
+#~ msgid "Requests Awaiting Review"
+#~ msgstr "Demandes en cours de traitement"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "                                                %(r)s Region - Admin\n"
+#~ "                                            "
+#~ msgstr ""
+#~ "\n"
+#~ "                                Calendrier %(y)s \n"
+#~ "                            "
+
+#~ msgid "Perform tasks reserved for travel app administrators"
+#~ msgstr ""
+#~ "Effectuer des tâches réservées aux administrateurs d'applications de "
+#~ "voyage"
+
+#~ msgid "Requests Awaiting ADM"
+#~ msgstr "Demandes en cours de traitement par la SMA"
+
+#~ msgid "Requests Awaiting RDG"
+#~ msgstr "Demandes en cours de traitement par le DGR"
+
+#~ msgid "Trip Verifications"
+#~ msgstr "Vérifications de voyage"
+
+#~ msgid "Please select the report"
+#~ msgstr "Veuillez sélectionner le rapport"
+
+#~ msgid "Print Travel Request and Approval Form (TRAF)"
+#~ msgstr "Imprimer la demande de voyage et formulaire d'approbation (DVFA)"
+
+#~ msgid "CFTS Report"
+#~ msgstr "Rapport du SCVE"
+
+#~ msgid "I approve"
+#~ msgstr "J'approuve"
+
+#~ msgid "I do not approve"
+#~ msgstr "Je n'approuve pas"
+
+#~ msgid "Request changes"
+#~ msgstr "Demander des changements"
+
+#~ msgid "Make changes yourself"
+#~ msgstr "Apportez vous-même des changements"
+
+#~ msgid "Manage Reviewers"
+#~ msgstr "Gérer les examinateurs"
+
+#~ msgid "Managing Reviewers:"
+#~ msgstr "Gérer les examinateurs :"
+
+#~ msgid "Are you certain you wish to skip"
+#~ msgstr "Êtes-vous certain de vouloir passer ?"
+
+#~ msgid ""
+#~ "\n"
+#~ "                        Editing %(o)s\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Rédaction %(o)s\n"
+#~ "                "
+
+#~ msgid ""
+#~ "\n"
+#~ "                        Adding New Cost\n"
+#~ "                    "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Ajouter un nouveau coût\n"
+#~ "                "
+
+#~ msgid ""
+#~ "\n"
+#~ "                                        Per diem rates for breakfast, "
+#~ "lunch, supper and incidentals should follow the\n"
+#~ "                                        <a href=\"https://www.njc-cnm.gc."
+#~ "ca/\" target=\"_blank\">National Joint Council</a> Travel Directive.\n"
+#~ "                                        For travel within Canada and\n"
+#~ "                                        USA, please refer to\n"
+#~ "                                        <a href=\"https://www.njc-cnm.gc."
+#~ "ca/directive/d10/v238/s659/en\" target=\"_blank\">Appendix C</a>\n"
+#~ "                                        and for all other travel please "
+#~ "refer to\n"
+#~ "                                        <a href=\"https://www.njc-cnm.gc."
+#~ "ca/directive/app_d.php?lang=en\" target=\"_blank\">Appendix D</a>.\n"
+#~ "                                        <span class=\"red-font\">Please "
+#~ "note that all expenses for this request should be entered in Canadian "
+#~ "dollars.</span>\n"
+#~ "                                    "
+#~ msgstr ""
+#~ "\n"
+#~ "Les taux journaliers pour le petit déjeuner, le déjeuner, le souper et "
+#~ "les faux frais devraient suivre la\n"
+#~ "<a href=\"https://www.njc-cnm.gc.ca/\" target=\"_blank\">Directive sur "
+#~ "les voyages du Conseil national mixte</a>.\n"
+#~ "Pour les voyages au Canada et\n"
+#~ " aux États-Unis, veuillez vous référer à\n"
+#~ "<a href=\"https://www.njc-cnm.gc.ca/directive/d10/v238/s659/fr\" target="
+#~ "\"_blank\">l'annexe C</a>\n"
+#~ "et pour tous les autres voyages, veuillez vous référer à\n"
+#~ "<a href=\"https://www.njc-cnm.gc.ca/directive/app_d.php?lang=fr\" target="
+#~ "\"_blank\">l'annexe D</a>.\n"
+#~ "<span class=\"red-font\">Veuillez noter que toutes les dépenses pour "
+#~ "cette demande doivent être saisies en dollars canadiens.</span>\n"
+#~ "                                    "
+
+#~ msgid "WARNING"
+#~ msgstr "ATTENTION"
+
+#~ msgid "This trip and all associated requests have been cancelled."
+#~ msgstr "Ce voyage et toutes les demandes associées ont été annulés."
+
+#~ msgid "This trip must be verified before a review can be started."
+#~ msgstr "Ce voyage doit être vérifié avant qu'un examen puisse être entamé."
+
+#~ msgid "Verify the Trip Now"
+#~ msgstr "Vérifiez le voyage maintenant"
+
+#~ msgid "Administrative Notes"
+#~ msgstr "Notes administratives"
+
+#~ msgid "Start a Review for this trip"
+#~ msgstr "Commencer un examen pour ce voyage"
+
+#~ msgid "Cancel this Trip"
+#~ msgstr "Annuler ce voyage"
+
+#~ msgid "You cannot delete a trip that is currently tagged on a trip request."
+#~ msgstr ""
+#~ "Vous ne pouvez pas supprimer un voyage qui est actuellement marqué sur "
+#~ "une demande de voyage."
+
+#~ msgid "Important:"
+#~ msgstr "Important:"
+
+#~ msgid "Add a New Trip"
+#~ msgstr "Ajouter un nouveau voyage"
+
+#~ msgid "Original Trip"
+#~ msgstr "Voyage original"
+
+#~ msgid "Re-assigned Trip"
+#~ msgstr "Voyage réaffecté"
+
+#~ msgid ""
+#~ "Yes, I want to re-assign all linked trip requests from the original trip "
+#~ "to the re-assigned trip!!"
+#~ msgstr ""
+#~ "Oui, je veux réassigner toutes les demandes de voyage liées du voyage "
+#~ "original au voyage réassigné !"
+
+#~ msgid ""
+#~ "WARNING: you cannot make this re-assignment because there is an overlap "
+#~ "of travellers and/or request owners: "
+#~ msgstr ""
+#~ "ATTENTION : vous ne pouvez pas effectuer cette réaffectation car il y a "
+#~ "un chevauchement des voyageurs et/ou des propriétaires de la demande : "
+
+#~ msgid "The trip associated with this trip request has been cancelled."
+#~ msgstr "Le voyage associé à cette demande de voyage a été annulé."
+
+#~ msgid "You will not be able to submit this request."
+#~ msgstr "Vous ne pourrez pas soumettre cette demande."
+
+#~ msgid ""
+#~ "\n"
+#~ "            This trip was eligible for review by the ADM office %(time)"
+#~ "s.\n"
+#~ "          "
+#~ msgstr ""
+#~ "\n"
+#~ "                    Ce voyage était éligible pour une révision par le "
+#~ "bureau du SMA %(time)s.\n"
+#~ "                "
+
+#~ msgid ""
+#~ "\n"
+#~ "            This trip will be eligible for review by the ADM office in %"
+#~ "(time)s.\n"
+#~ "          "
+#~ msgstr ""
+#~ "\n"
+#~ "                                Ce voyage pourra être examiné par le "
+#~ "bureau du SMA en %(time)s.\n"
+#~ "                            "
+
+#~ msgid "Once under review, it will be closed to additional requests."
+#~ msgstr ""
+#~ "Une fois en cours d'examen, il sera fermé aux demandes supplémentaires."
+
+#~ msgid "You are able to edit this record because you are "
+#~ msgstr "Vous pouvez modifier cet enregistrement car vous êtes "
+
+#~ msgid "an application administrator."
+#~ msgstr "un administrateur de l'application."
+
+#~ msgid "the current reviewer."
+#~ msgstr "l'examinateur actuel."
+
+#~ msgid "Back to Approver Panel"
+#~ msgstr "Retour au panneau d'approbation"
+
+#~ msgid "Cancel Request"
+#~ msgstr "Annuler la demande"
+
+#~ msgid "This is only an option to you as a system admin"
+#~ msgstr ""
+#~ "Ceci n'est qu'une option pour vous en tant qu'administrateur du système"
+
+#~ msgid "Approved or cancelled requests cannot by unsubmitted."
+#~ msgstr "Les demandes approuvées ou annulées ne peuvent pas être retirées."
+
+#~ msgid "You do not have permissions to submit / un-submit this request"
+#~ msgstr ""
+#~ "Vous n'avez pas l'autorisation de soumettre ou d'annuler cette demande"
+
+#~ msgid "This trip is closed to further requests."
+#~ msgstr "Ce voyage est fermé à toute autre demande."
+
+#~ msgid "Re-submit"
+#~ msgstr "Soumettre à nouveau"
+
+#~ msgid ""
+#~ "Only application administrators and reviewers can modify a submitted "
+#~ "request"
+#~ msgstr ""
+#~ "Seuls les administrateurs et les examinateurs des demandes peuvent "
+#~ "modifier une demande soumise"
+
+#~ msgid "Submitted trip requests cannot be deleted."
+#~ msgstr "Les demandes de voyage soumises ne peuvent pas être supprimées."
+
+#~ msgid "Clone Me"
+#~ msgstr "Clonez-moi"
+
+#, fuzzy
+#~ msgid "Travel Request and Approval Form (TRAF)"
+#~ msgstr "Demande de voyage et formulaire d'approbation (DVFA)"
+
+#~ msgid "General Trip Information"
+#~ msgstr "Informations générales sur le voyage"
+
+#~ msgid "Trip Justification"
+#~ msgstr "Justificaiton du voyage"
+
+#~ msgid "Select NEXT to enter trip costs"
+#~ msgstr "Sélectionnez SUIVANT pour ajouter les frais de voyage"
+
+#~ msgid "Next"
+#~ msgstr "Suivant"
+
+#~ msgid "Traveller Information"
+#~ msgstr "Information du voyageur"
+
+#~ msgid "Requester Information"
+#~ msgstr "Informations sur le requérant"
+
+#~ msgid "CLONING:"
+#~ msgstr "CLONAGE :"
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "          %(o)s\n"
+#~ "        "
+#~ msgstr ""
+#~ "\n"
+#~ "                    %(o)s\n"
+#~ "                "
+
+#~ msgid "Add a Traveller"
+#~ msgstr "Ajouter un voyageur"
+
+#~ msgid "Way to go! You're all done here"
+#~ msgstr "Bravo ! Vous avez terminé"
+
+#~ msgid "Go to Trip Page"
+#~ msgstr "Aller à la page du voyage"
+
+#~ msgid ""
+#~ "You cannot complete the trip review until all trip requests have been "
+#~ "either approved or denied"
+#~ msgstr ""
+#~ "Vous ne pouvez pas effectuer la révision du voyage tant que toutes les "
+#~ "demandes de voyage n'ont pas été approuvées ou refusées"
+
+#~ msgid ""
+#~ "You cannot reinitialize the review process since you are the first "
+#~ "reviewer."
+#~ msgstr ""
+#~ "Vous ne pouvez pas réinitialiser le processus d'examen puisque vous êtes "
+#~ "le premier examinateur."
+
+#~ msgid "Modifications Required"
+#~ msgstr "Modifications requises"
+
+#~ msgid ""
+#~ "By proceeding, you will be returning this review to the first reviewer in "
+#~ "the queue: "
+#~ msgstr ""
+#~ "En procédant ainsi, vous renverrez cet examen au premier examinateur de "
+#~ "la liste:"
+
+#~ msgid "Are you certain you wish to proceed?"
+#~ msgstr "Êtes-vous certain de vouloir procéder ?"
+
+#~ msgid "View details"
+#~ msgstr "Voir les détails"
+
+#~ msgid "My Trip"
+#~ msgstr "Mon voyage"
+
+#~ msgid "Other Trips"
+#~ msgstr "Autres voyages"
+
+#~ msgid "Connected Travel Requests:"
+#~ msgstr "Demandes de voyage liées :"
+
+#~ msgid "There are no requests connected to this trip."
+#~ msgstr "Aucune demande n'est liée à ce voyage."
+
+#~ msgid "Yes, looks good!"
+#~ msgstr "Oui, ça a l'air bien !"
+
+#~ msgid "Cannot delete a trip that has requests attached to it."
+#~ msgstr "Ne peut pas supprimer un voyage auquel sont attachées des demandes."
+
+#~ msgid "This trip is no good and I want to re-assign the requests."
+#~ msgstr "Ce voyage n'est pas bon et je veux réassigner les demandes."
+
+#, fuzzy
+#~ msgid "New DM Apps User"
+#~ msgstr "Utilisateur de DM Apps"
+
+#~ msgid "Travel App Administrator"
+#~ msgstr "Administrateur de l'application de voyage"
+
+#~ msgid "Travel App ADM Administrator"
+#~ msgstr "Application de voyage - Administrateur de la SMA"
+
+#~ msgid ""
+#~ "NJC rates for breakfast missing from database. Please let your system "
+#~ "administrator know."
+#~ msgstr ""
+#~ "Tarifs du CNM pour le petit déjeuner manquant dans la base de données. "
+#~ "Veuillez en informer votre administrateur système."
+
+#~ msgid ""
+#~ "NJC rates for lunch missing from database. Please let your system "
+#~ "administrator know."
+#~ msgstr ""
+#~ "Les tarifs du CNM pour le dîner manquant dans la base de données. "
+#~ "Veuillez en informer votre administrateur système."
+
+#~ msgid ""
+#~ "NJC rates for supper missing from database. Please let your system "
+#~ "administrator know."
+#~ msgstr ""
+#~ "Taux du CNM pour le souper manquant dans la base de données. Veuillez en "
+#~ "informer votre administrateur système."
+
+#~ msgid ""
+#~ "NJC rates for incidentals missing from database. Please let your system "
+#~ "administrator know."
+#~ msgstr ""
+#~ "Taux du CNM pour les frais accessoires manquants dans la base de données. "
+#~ "Veuillez en informer votre administrateur système."
+
+#~ msgid "Traveller name"
+#~ msgstr "Nom du voyageur"
+
+#~ msgid "Traveller information"
+#~ msgstr "Information du voyageur"
+
+#~ msgid "Request status"
+#~ msgstr "Statut de la demande"
+
+#~ msgid "Departure location / Destination"
+#~ msgstr "Lieu de départ / Destination"
+
+#~ msgid "Travel dates"
+#~ msgstr "Dates de voyage"
+
+#~ msgid "Role of participant"
+#~ msgstr "Rôle du participant"
+
+#~ msgid "Total amount of DFO funding (CAD)"
+#~ msgstr "Montant total des financements du MPO (CAD)"
+
+#~ msgid "Total amount of non-DFO funding (CAD)"
+#~ msgstr "Montant du financement non-MPO (CAD)"
+
+#~ msgid "Non-DFO funding sources"
+#~ msgstr "Source de financement non-MPO"
+
+#, fuzzy
+#~ msgid "Total costs"
+#~ msgstr "Coût total"
+
+#~ msgid "Processing time"
+#~ msgstr "Temps de traitement"
+
+#~ msgid "RES?"
+#~ msgstr "RES?"
+
+#~ msgid "organizer name"
+#~ msgstr "nom de l'organisateur"
+
+#~ msgid "request status"
+#~ msgstr "statut de la demande"
+
+#~ msgid "Total cost"
+#~ msgstr "Coût total"
+
+#~ msgid "non-DFO funding"
+#~ msgstr "financement non-MPO"
+
+#~ msgid "Trip Requests"
+#~ msgstr "Demandes de voyage"
+
+#~ msgid "Requester name"
+#~ msgstr "Nom du requérant"
+
+#~ msgid "Destination"
+#~ msgstr "Destination"
+
+#, fuzzy
+#~ msgid "Edit Trip Request"
+#~ msgstr "Demande de modification"
+
+#~ msgid ""
+#~ "{} has been added as a traveller to this request. Please add any costs "
+#~ "associated with this traveller."
+#~ msgstr ""
+#~ "{} a été ajouté comme voyageur à cette demande. Veuillez ajouter tous les "
+#~ "coûts associés à ce voyageur."
+
+#, fuzzy
+#~ msgid "Clone a Trip Request"
+#~ msgstr "Nouvelle demande de voyage"
+
+#~ msgid "Please update the request details"
+#~ msgstr "Veuillez mettre à jour les détails de la demande"
+
+#~ msgid ""
+#~ "sorry, cannot clone this trip because there is another trip request with "
+#~ "the same user in the system"
+#~ msgstr ""
+#~ "désolé, ne peut pas reproduire ce voyage parce qu'il y a une autre "
+#~ "demande de voyage avec le même utilisateur dans le système"
+
+#~ msgid "Proceed"
+#~ msgstr "Poursuivre"
+
+#~ msgid "Un-submit request"
+#~ msgstr "Annuler la soumission"
+
+#~ msgid "Re-submit request"
+#~ msgstr "Soumettre à nouveau la demande"
+
+#, fuzzy
+#~ msgid "Submit request"
+#~ msgstr "Soumettre la demande"
+
+#~ msgid "Do you wish to un-submit the following request?"
+#~ msgstr "Souhaitez-vous annuler la demande suivante ?"
+
+#~ msgid "Do you wish to re-submit the following request?"
+#~ msgstr "Souhaitez-vous soumettre à nouveau la demande suivante ?"
+
+#~ msgid "Do you wish to submit the following request?"
+#~ msgstr "Souhaitez-vous soumettre la demande suivante ?"
+
+#~ msgid "Do you wish to cancel the following trip request?"
+#~ msgstr "Souhaitez-vous annuler la demande de voyage suivante ?"
+
+#~ msgid "Cancel request"
+#~ msgstr "Annuler la demande"
+
+#~ msgid "Please note that this action cannot be undone!!"
+#~ msgstr "Veuillez noter que cette action ne peut être annulée !"
+
+#~ msgid ""
+#~ "Sorry, it is currently not possible to cancel your cancellation request"
+#~ msgstr ""
+#~ "désolé, il n'est actuellement pas possible d'annuler votre demande "
+#~ "d'annulation"
+
+#~ msgid "Administrative Notes (Public)"
+#~ msgstr "Notes administratives (publiques)"
+
+#~ msgid "Total cost (DFO)"
+#~ msgstr "Coût total (MPO)"
+
+#~ msgid "Requests Awaiting Your Review"
+#~ msgstr "Demandes en attente de votre examen"
+
+#~ msgid "Requests Assigned to You for Review"
+#~ msgstr "Demandes qui vous sont assignées pour révision"
+
+#~ msgid "Admin Request Approval List"
+#~ msgstr "Liste d'approbation des demandes de l'administration"
+
+#~ msgid "Do you wish to approve the following request for {}"
+#~ msgstr "Souhaitez-vous approuver la demande suivante pour {}"
+
+#~ msgid "Do you wish to deny the following request for {}"
+#~ msgstr "Souhaitez-vous refuser la demande suivante pour {}"
+
+#~ msgid "These comments will be visible to the traveller"
+#~ msgstr "Ces commentaires seront visibles par le voyageur"
+
+#~ msgid "Do you wish to approve on behalf of {user} ({role})"
+#~ msgstr "Souhaitez-vous approuver au nom de {user} ({role})"
+
+#~ msgid "Do you wish to approve the following group request?"
+#~ msgstr "Souhaitez-vous approuver la demande de groupe suivante ?"
+
+#~ msgid "Do you wish to approve the following request?"
+#~ msgstr "Souhaitez-vous approuver la demande suivante ?"
+
+#~ msgid "Are you certain you wish to skip the following user?"
+#~ msgstr "Êtes-vous certain de vouloir passer l'utilisateur suivant ?"
+
+#~ msgid ""
+#~ "This function can only be used when the trip request is still a draft"
+#~ msgstr ""
+#~ "Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
+#~ "encore à l'état de brouillon."
+
+#~ msgid "You do not have the permissions to reset the reviewer list"
+#~ msgstr ""
+#~ "Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste "
+#~ "des examinateurs"
+
+#, fuzzy
+#~ msgid "This function can only be used with an unreviewed trip."
+#~ msgstr ""
+#~ "Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
+#~ "encore à l'état de brouillon."
+
+#~ msgid ""
+#~ "Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"
+#~ msgstr ""
+#~ "Désolé, vous ne pouvez pas supprimer un examinateur dont le statut est "
+#~ "fixé à {mon_obj.status}"
+
+#~ msgid "The reviewer list has been successfully updated"
+#~ msgstr "La liste des examinateurs a été mise à jour avec succès"
+
+#~ msgid "You do not have the permissions to modify the reviewer list"
+#~ msgstr ""
+#~ "Vous n'avez pas les autorisations nécessaires pour modifier la liste des "
+#~ "examinateurs"
+
+#~ msgid ""
+#~ "Sorry, you cannot modify the reviewers on a trip that is under review."
+#~ msgstr ""
+#~ "Désolé, vous ne pouvez pas modifier les examinateurs lorsqu'un voyage est "
+#~ "en cours de révision."
+
+#~ msgid "Trips"
+#~ msgstr "Voyages"
+
+#~ msgid "abstract deadline"
+#~ msgstr "date limite de soumission des résumés"
+
+#~ msgid "trip dates"
+#~ msgstr "les dates de voyages"
+
+#~ msgid "ADM decision deadline"
+#~ msgstr "Date limite de décision de la SMA"
+
+#~ msgid "Trips Eligible for ADM Review"
+#~ msgstr "Voyages éligibles à l'examen de la SMA"
+
+#~ msgid "All Trips Requiring ADM Approval"
+#~ msgstr "Tous les voyages nécessitant l'approbation du SMA"
+
+#~ msgid "Upcoming Trips"
+#~ msgstr "Voyages à venir"
+
+#~ msgid "i.e., Trips which are fair game for ADMO review to begin"
+#~ msgstr ""
+#~ "c'est-à-dire des voyages qui sont équitables pour que l'examen du SMA "
+#~ "commence"
+
+#~ msgid "The trip has been added to the database!"
+#~ msgstr "Le voyage a été ajouté à la base de données !"
+
+#~ msgid "Do you wish to start a review on the following trip?"
+#~ msgstr "Souhaitez-vous commencer un examen sur le voyage suivant ?"
+
+#~ msgid "Do you wish to end the review on the following trip?"
+#~ msgstr "Souhaitez-vous terminer l'examen du voyage suivant ?"
+
+#~ msgid "End a Review"
+#~ msgstr "Terminer un examen"
+
+#, fuzzy
+#~ msgid "Trips Awaiting Verification"
+#~ msgstr "Voyages en attente de vérification"
+
+#~ msgid "dates"
+#~ msgstr "dates"
+
+#, fuzzy
+#~ msgid "length (days)"
+#~ msgstr "Détails du projet"
+
+#~ msgid "Verify Trip"
+#~ msgstr "Vérification du voyage"
+
+#~ msgid "Trips Awaiting Verfication"
+#~ msgstr "Voyages en attente de vérification"
+
+#~ msgid ""
+#~ "Sorry, only ADMO administrators can verify trips that require ADM "
+#~ "approval."
+#~ msgstr ""
+#~ "Désolé, seuls les administrateurs du bureau de la SMA peuvent vérifier "
+#~ "les voyages qui nécessitent l'approbation de la SMA."
+
+#~ msgid "Please select a trip to re-assign:"
+#~ msgstr "Veuillez sélectionner un voyage à réassigner :"
+
+#~ msgid ""
+#~ "(You will have a chance to review this action before it is carried out.)"
+#~ msgstr ""
+#~ "(Vous aurez la possibilité d'examiner cette action avant qu'elle ne soit "
+#~ "réalisée.)"
+
+#~ msgid "Please confirm the following:"
+#~ msgstr "Veuillez confirmer ce qui suit :"
+
+#~ msgid "Confirm"
+#~ msgstr "Confirmer"
+
+#~ msgid "Total travellers"
+#~ msgstr "Nombre total de voyageurs"
+
+#~ msgid "Trips Awaiting Your Review"
+#~ msgstr "Voyages en attente de votre examen"
+
+#~ msgid "Tagged Trips"
+#~ msgstr ""
+#~ "Demandes de voyage pour lesquelles vous avez été inscrit comme examinateur"
+
+#~ msgid "{}'s Trip Review"
+#~ msgstr "Revue de voyage pour {}"
+
+#~ msgid "ADM Level Review"
+#~ msgstr "Examen au niveau de la SMA"
+
+#~ msgid "Complete the review"
+#~ msgstr "Terminer l'examen"
+
+#~ msgid "Submit your review"
+#~ msgstr "Soumettre votre évaluation"
+
+#~ msgid "Cancel the trip"
+#~ msgstr "Annuler le voyage"
+
+#~ msgid ""
+#~ "Do you wish to undo your cancellation request for the following trip?"
+#~ msgstr ""
+#~ "Vous souhaitez annuler votre demande d'annulation pour le voyage "
+#~ "suivant ? "
+
+#~ msgid ""
+#~ "Cancelling this trip will result in all linked requests to be "
+#~ "'cancelled'. The list of associated trip requests can be viewed below in "
+#~ "the trip detail."
+#~ msgstr ""
+#~ "L'annulation de ce voyage entraînera l'annulation de toutes les demandes "
+#~ "liées. La liste de demandes de voyage associées peut être consultée ci-"
+#~ "dessous dans le détail du voyage."
+
+#~ msgid "This action cannot be undone."
+#~ msgstr "Cette action ne peut être annulée."
+
+#~ msgid "Cancel Trip"
+#~ msgstr "Annuler le voyage"
+
+#~ msgid "Default Reviewers"
+#~ msgstr "Examinateurs par défaut"
+
+#~ msgid ""
+#~ "Use this module to set the default reviewers that get added to a trip "
+#~ "request."
+#~ msgstr ""
+#~ "Utilisez ce module pour définir les examinateurs par défaut qui sont "
+#~ "ajoutés à une demande de voyage."
+
+#~ msgid "Last login to DM Apps"
+#~ msgstr "Dernière connexion à DM Apps"
+
+#~ msgid "All empty costs have been cleared."
+#~ msgstr "Tous les frais vides ont été supprimés."

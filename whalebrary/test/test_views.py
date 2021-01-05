@@ -14,6 +14,6 @@ class TestIndexView(CommonTest):
 
     @tag("whalebrary", 'index', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url)
 

@@ -2,50 +2,84 @@ from django.contrib.auth.models import User
 from pandas import date_range
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404
+from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView, \
+    RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from dm_apps.utils import custom_send_mail
 from shared_models import models as shared_models
-from . import permissions
+from . import permissions, pagination
 from . import serializers
-from .. import models, stat_holidays
-from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project
+from .. import models, stat_holidays, emails
+from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
+    get_manageable_sections, multiple_financial_project_year_summary_data, is_section_head
+from ..utils import is_management_or_admin
 
 
 # USER
 #######
 class CurrentUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         data = serializer.data
         if request.query_params.get("project"):
             data.update(can_modify_project(request.user, request.query_params.get("project"), True))
+
+        if request.query_params.get("status_report"):
+            status_report = get_object_or_404(models.StatusReport, pk=request.query_params.get("status_report"))
+            data.update(can_modify_project(request.user, status_report.project_year.project_id, True))
+            data.update(dict(is_section_head=is_section_head(request.user, status_report.project_year.project)))
         return Response(data)
 
 
 class FTEBreakdownAPIView(APIView):
-    def get(self, request):
-        # if no user is specified, we will assume it is the request user
-        if not request.query_params.get("user"):
-            my_user = request.user
-        else:
-            my_user = get_object_or_404(User, pk=request.query_params.get("user"))
+    permission_classes = [IsAuthenticated]
 
-        # if there is no fiscal year specified, let's get all years
-        if not request.query_params.get("year"):
-            # need a list of fiscal years
-            fy_qs = shared_models.FiscalYear.objects.filter(projectyear__staff__user=my_user).distinct()
-            data = list()
-            for fy in fy_qs:
-                data.append(get_user_fte_breakdown(my_user, fiscal_year_id=fy.id))
+    def get(self, request):
+        # if there are no project year ids, do this
+        if not request.query_params.get("ids"):
+            # if no user is specified, we will assume it is the request user
+            if not request.query_params.get("user"):
+                my_user = request.user
+            else:
+                my_user = get_object_or_404(User, pk=request.query_params.get("user"))
+
+            # if there is no fiscal year specified, let's get all years
+            if not request.query_params.get("year"):
+                # need a list of fiscal years
+                fy_qs = shared_models.FiscalYear.objects.filter(projectyear__staff__user=my_user).distinct()
+                data = list()
+                for fy in fy_qs:
+                    data.append(get_user_fte_breakdown(my_user, fiscal_year_id=fy.id))
+            else:
+                data = get_user_fte_breakdown(my_user, fiscal_year_id=request.query_params.get("year"))
+            return Response(data, status.HTTP_200_OK)
         else:
-            data = get_user_fte_breakdown(my_user, fiscal_year_id=request.query_params.get("year"))
-        return Response(data, status.HTTP_200_OK)
+            if not request.query_params.get("year"):
+                return Response({"error": "must supply a fiscal year"}, status.HTTP_400_BAD_REQUEST)
+
+            data = list()
+            ids = request.query_params.get("ids").split(",")
+            year = request.query_params.get("year")
+            # now we need a user list for any users in the above list
+            users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name")
+
+            for u in users:
+                my_dict = get_user_fte_breakdown(u, fiscal_year_id=year)
+                staff_instances = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct()
+                my_dict["staff_instances"] = serializers.StaffSerializer(staff_instances, many=True).data
+                data.append(my_dict)
+
+            return Response(data, status.HTTP_200_OK)
 
 
 class GetDatesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request):
         fiscal_year = self.request.query_params.get("year")  # to be formatted as follows: YYYY; SAP style
         if fiscal_year:
@@ -86,6 +120,91 @@ class ProjectRetrieveAPIView(RetrieveAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
+class ProjectListAPIView(ListAPIView):
+    pagination_class = pagination.StandardResultsSetPagination
+    serializer_class = serializers.ProjectSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.Project.objects.order_by("id")
+        if not is_management_or_admin(self.request.user):
+            qs = qs.filter(is_hidden=False)
+        return qs
+
+
+# PROJECT YEAR
+##############
+
+class ProjectYearListAPIView(ListAPIView):
+    pagination_class = pagination.StandardResultsSetPagination
+    serializer_class = serializers.ProjectYearSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.ProjectYear.objects.order_by("start_date")
+        qp = self.request.query_params
+
+        filter_list = [
+            "user",
+            "is_hidden",
+            "title",
+            "id",
+            'staff',
+            'fiscal_year',
+            'tag',
+            'theme',
+            'functional_group',
+            'funding_source',
+            'region',
+            'division',
+            'section',
+            'status',
+        ]
+        for filter in filter_list:
+            input = qp.get(filter)
+            if input == "true":
+                input = True
+            elif input == "false":
+                input = False
+            elif input == "null" or input == "":
+                input = None
+
+            if input:
+                if filter == "user":
+                    qs = qs.filter(project__section__in=get_manageable_sections(self.request.user)).order_by("fiscal_year", "project_id")
+                elif filter == "is_hidden":
+                    qs = qs.filter(project__is_hidden=True)
+                elif filter == "status":
+                    qs = qs.filter(status=input)
+                elif filter == "title":
+                    qs = qs.filter(project__title__icontains=input)
+                elif filter == "id":
+                    qs = qs.filter(project__id=input)
+                elif filter == "staff":
+                    qs = qs.filter(project__staff_search_field__icontains=input)
+                elif filter == "fiscal_year":
+                    qs = qs.filter(fiscal_year_id=input)
+                elif filter == "tag":
+                    qs = qs.filter(project__tags=input)
+                elif filter == "theme":
+                    qs = qs.filter(project__functional_group__theme_id=input)
+                elif filter == "functional_group":
+                    qs = qs.filter(project__functional_group_id=input)
+                elif filter == "funding_source":
+                    qs = qs.filter(project__default_funding_source_id=input)
+                elif filter == "region":
+                    qs = qs.filter(project__section__division__branch__region_id=input)
+                elif filter == "division":
+                    qs = qs.filter(project__section__division_id=input)
+                elif filter == "section":
+                    qs = qs.filter(project__section_id=input)
+
+        # if a regular user is making the request, show only approved projects (and not hidden projects)
+        if not is_management_or_admin(self.request.user):
+            qs = qs.filter(project__is_hidden=False, status=4)
+        return qs.distinct()
+
+
 class ProjectYearRetrieveAPIView(RetrieveAPIView):
     queryset = models.ProjectYear.objects.all().order_by("-created_at")
     serializer_class = serializers.ProjectYearSerializer
@@ -97,10 +216,21 @@ class ProjectYearSubmitAPIView(APIView):
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
-    def post(self, request, pk):
-        project_year = get_object_or_404(models.ProjectYear, pk=pk)
+    def post(self, request, project_year):
+        project_year = get_object_or_404(models.ProjectYear, pk=project_year)
         project_year.submit()
-        return Response(serializers.ProjectYearSerializerLITE(project_year).data, status.HTTP_200_OK)
+
+        # create a new email object
+        email = emails.ProjectYearSubmissionEmail(project_year, request)
+        # send the email object
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
+
+        return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
 
 
 class ProjectYearUnsubmitAPIView(APIView):
@@ -108,10 +238,10 @@ class ProjectYearUnsubmitAPIView(APIView):
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
-    def post(self, request, pk):
-        project_year = get_object_or_404(models.ProjectYear, pk=pk)
+    def post(self, request, project_year):
+        project_year = get_object_or_404(models.ProjectYear, pk=project_year)
         project_year.unsubmit()
-        return Response(serializers.ProjectYearSerializerLITE(project_year).data, status.HTTP_200_OK)
+        return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
 
 
 # STAFF
@@ -227,22 +357,22 @@ class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
 # MILESTONE
 ###########
-class MilestoneListCreateAPIView(ListCreateAPIView):
-    queryset = models.Milestone.objects.all()
-    serializer_class = serializers.MilestoneSerializer
+class ActivityListCreateAPIView(ListCreateAPIView):
+    queryset = models.Activity.objects.all()
+    serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.milestones.all()
+        return year.activities.all()
 
     def perform_create(self, serializer):
         serializer.save(project_year_id=self.kwargs.get("project_year"))
 
 
-class MilestoneRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = models.Milestone.objects.all()
-    serializer_class = serializers.MilestoneSerializer
+class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Activity.objects.all()
+    serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
@@ -288,6 +418,50 @@ class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
+# STATUS REPORTS
+##############
+
+class StatusReportListCreateAPIView(ListCreateAPIView):
+    queryset = models.StatusReport.objects.all()
+    serializer_class = serializers.StatusReportSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        return year.reports.all()
+
+    def perform_create(self, serializer):
+        serializer.save(project_year_id=self.kwargs.get("project_year"))
+
+
+class StatusReportRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.StatusReport.objects.all()
+    serializer_class = serializers.StatusReportSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def perform_update(self, serializer):
+        serializer.save(modified_by=self.request.user)
+
+
+# Activity Updates
+
+
+class ActivityUpdateListAPIView(ListAPIView):
+    queryset = models.StatusReport.objects.all()
+    serializer_class = serializers.ActivityUpdateSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        status_report = get_object_or_404(models.StatusReport, pk=self.kwargs.get("status_report"))
+        return status_report.updates.all()
+
+
+class ActivityUpdateRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = models.ActivityUpdate.objects.all()
+    serializer_class = serializers.ActivityUpdateSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+
 # FILES / Supporting Resources
 ##############
 class FileListCreateAPIView(ListCreateAPIView):
@@ -297,14 +471,21 @@ class FileListCreateAPIView(ListCreateAPIView):
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.files.all()
+        qs = year.files.all()
+
+        qp = self.request.query_params
+        if qp.get("status_report"):
+            qs = qs.filter(status_report=qp.get("status_report"))
+
+        return qs
 
     def perform_create(self, serializer):
-        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        serializer.save(project=year.project, project_year=year)
-
-        if self.request.FILES:
-            print(self.request.FILES)
+        year = get_object_or_404(models.ProjectYear, pk=self.kwargs.get("project_year"))
+        kwargs = dict(project=year.project, project_year=year)
+        qp = self.request.query_params
+        if qp.get("status_report"):
+            kwargs["status_report_id"] = qp.get("status_report")
+        serializer.save(**kwargs)
 
 
 class FileRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -322,7 +503,18 @@ class FinancialsAPIView(APIView):
 
     def get(self, request, project_year=None, project=None):
         if not project_year and not project:
-            return Response(None, status.HTTP_400_BAD_REQUEST)
+            # the we will be needing ids and year query_params
+            qp = request.query_params
+            if not qp.get("ids"):
+                return Response(None, status.HTTP_400_BAD_REQUEST)
+            else:
+
+                ids = request.query_params.get("ids").split(",")
+
+                # get project year list
+                project_years = models.ProjectYear.objects.filter(id__in=ids)
+                data = multiple_financial_project_year_summary_data(project_years)
+                return Response(data, status.HTTP_200_OK)
 
         if project_year:
             obj = get_object_or_404(models.ProjectYear, pk=project_year)
@@ -333,3 +525,154 @@ class FinancialsAPIView(APIView):
             data = financial_project_summary_data(obj)
 
         return Response(data, status.HTTP_200_OK)
+
+
+# LOOKUPS
+##########
+
+
+class FiscalYearListAPIView(ListAPIView):
+    serializer_class = serializers.FiscalYearSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = shared_models.FiscalYear.objects.filter(projectyear__isnull=False)
+
+        if self.request.query_params.get("user") == 'true':
+            qs = qs.filter(projectyear__project__section__in=get_manageable_sections(self.request.user))
+
+        return qs.distinct()
+
+
+class TagListAPIView(ListAPIView):
+    serializer_class = serializers.TagSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.Tag.objects.filter(projects2__isnull=False)
+
+        if self.request.query_params.get("user") == 'true':
+            qs = qs.filter(projects__section__in=get_manageable_sections(self.request.user))
+
+        return qs.distinct()
+
+
+class ThemeListAPIView(ListAPIView):
+    serializer_class = serializers.ThemeSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.Theme.objects.all()
+        if self.request.query_params.get("user") == 'true':
+            qs = qs.filter(functional_groups__projects__section__in=get_manageable_sections(self.request.user))
+        return qs.distinct()
+
+
+class FunctionalGroupListAPIView(ListAPIView):
+    serializer_class = serializers.FunctionalGroupSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.FunctionalGroup.objects.all()
+
+        if self.request.query_params.get("section"):
+            qs = qs.filter(sections=self.request.query_params.get("section"))
+        elif self.request.query_params.get("user") == 'true':
+            qs = qs.filter(sections__in=get_manageable_sections(self.request.user))
+        elif self.request.query_params.get("division"):
+            qs = qs.filter(sections__division=self.request.query_params.get("division"))
+        elif self.request.query_params.get("region"):
+            qs = qs.filter(sections__division__branch__region=self.request.query_params.get("region"))
+        return qs.distinct()
+
+
+class FundingSourceListAPIView(ListAPIView):
+    serializer_class = serializers.FundingSourceSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = models.FundingSource.objects.all()
+        if self.request.query_params.get("user") == 'true':
+            qs = qs.filter(projects__section__in=get_manageable_sections(self.request.user))
+        return qs.distinct()
+
+
+class RegionListAPIView(ListAPIView):
+    serializer_class = serializers.RegionSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = shared_models.Region.objects.filter(branches__divisions__sections__projects2__isnull=False)
+
+        # if there is a user param, further filter qs to what user can access
+        if self.request.query_params.get("user"):
+            qs = qs.filter(branches__divisions__sections__in=get_manageable_sections(self.request.user))
+        return qs.distinct()
+
+
+class DivisionListAPIView(ListAPIView):
+    serializer_class = serializers.DivisionSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = shared_models.Division.objects.filter(sections__projects2__isnull=False).distinct()
+        # if there is a user param, further filter qs to what user can access
+        if self.request.query_params.get("user"):
+            qs = qs.filter(sections__in=get_manageable_sections(self.request.user))
+
+        if self.request.query_params.get("region"):
+            qs = qs.filter(branch__region_id=self.request.query_params.get("region"))
+
+        return qs.distinct()
+
+
+class SectionListAPIView(ListAPIView):
+    serializer_class = serializers.SectionSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        qs = shared_models.Section.objects.filter(projects2__isnull=False).distinct()
+        if self.request.query_params.get("division"):
+            qs = qs.filter(division_id=self.request.query_params.get("division"))
+        elif self.request.query_params.get("region"):
+            qs = qs.filter(division__branch__region_id=self.request.query_params.get("region"))
+
+        # if there is a user param, further filter qs to what user can access
+        if self.request.query_params.get("user"):
+            qs = qs.filter(id__in=[s.id for s in get_manageable_sections(self.request.user)])
+        return qs
+
+
+# Reviews
+##############
+class ReviewListCreateAPIView(ListCreateAPIView):
+    queryset = models.Review.objects.all()
+    serializer_class = serializers.ReviewSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+        return year.agreements.all()
+
+    def perform_create(self, serializer):
+        my_review = serializer.save(
+            project_year_id=self.kwargs.get("project_year"),
+            last_modified_by=self.request.user
+        )
+
+        if self.request.data.get("email_update"):
+            my_review.send_approval_email(self.request)
+
+
+class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Review.objects.all()
+    serializer_class = serializers.ReviewSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def perform_update(self, serializer):
+        my_review = serializer.save(
+            last_modified_by=self.request.user
+        )
+
+        if self.request.data.get("email_update"):
+            my_review.send_approval_email(self.request)

@@ -22,7 +22,7 @@ printf "\n"
 mkdir ./media
 mkdir ./media/projects
 mkdir ./media/projects/temp
-python3.8 manage.py test -b projects.test
+python3.8 manage.py test -b projects2.test
 echo "FINISHED RUNNING TESTS FOR: projects app"
 
 printf "\n"

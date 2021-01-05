@@ -26,7 +26,7 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
-    my_milestone: {
+    my_activity: {
       type: Object,
       required: false,
     },
@@ -38,6 +38,10 @@ Vue.component("modal", {
       type: Object,
       required: false,
     },
+    my_status_report: {
+      type: Object,
+      required: false,
+    },
     my_file: {
       type: Object,
       required: false,
@@ -46,6 +50,7 @@ Vue.component("modal", {
   data() {
     return {
       currentUser: null,
+      isACRDP: false,
       staff: {
         name: null,
         user: null,
@@ -100,8 +105,8 @@ Vue.component("modal", {
         amount: 0,
       },
 
-      // milestones
-      milestone: {
+      // activities
+      activity: {
         name: "",
         description: "",
         target_date: null,
@@ -121,6 +126,18 @@ Vue.component("modal", {
         agreement_title: null,
         new_or_existing: null,
         notes: null,
+      },
+
+      // status reports
+      status_report: {
+        status: null,
+        major_accomplishments: null,
+        major_issues: null,
+        target_completion_date: null,
+        rationale_for_modified_completion_date: null,
+        general_comment: null,
+        section_head_comment: null,
+        section_head_reviewed: null,
       },
 
       // files
@@ -259,12 +276,12 @@ Vue.component("modal", {
         }
       }
 
-      // milestone
-      else if (this.mtype === "milestone") {
-        if (this.milestone.target_date === "") this.milestone.target_date = null
-        if (this.my_milestone) {
-          let endpoint = `/api/project-planning/milestones/${this.my_milestone.id}/`;
-          apiService(endpoint, "PATCH", this.milestone).then(response => {
+      // activity
+      else if (this.mtype === "activity") {
+        if (this.activity.target_date === "") this.activity.target_date = null
+        if (this.my_activity) {
+          let endpoint = `/api/project-planning/activities/${this.my_activity.id}/`;
+          apiService(endpoint, "PATCH", this.activity).then(response => {
             if (response.id) this.$emit('close')
             else {
               var myString = "";
@@ -276,8 +293,8 @@ Vue.component("modal", {
             }
           })
         } else {
-          let endpoint = `/api/project-planning/project-years/${this.year.id}/milestones/`;
-          apiService(endpoint, "POST", this.milestone).then(response => {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/activities/`;
+          apiService(endpoint, "POST", this.activity).then(response => {
             if (response.id) this.$emit('close')
             else {
               var myString = "";
@@ -293,7 +310,6 @@ Vue.component("modal", {
 
       // collaborator
       else if (this.mtype === "collaborator") {
-        if (this.collaborator.target_date === "") this.collaborator.target_date = null
         if (this.my_collaborator) {
           let endpoint = `/api/project-planning/collaborators/${this.my_collaborator.id}/`;
           apiService(endpoint, "PATCH", this.collaborator).then(response => {
@@ -353,6 +369,42 @@ Vue.component("modal", {
           })
         }
       }
+
+      // status report
+      else if (this.mtype === "status_report") {
+        if (this.status_report.target_completion_date === "") this.status_report.target_completion_date = null
+        if (this.status_report.section_head_reviewed == null) this.status_report.section_head_reviewed = "False"
+        console.log(this.status_report.target_completion_date)
+
+        if (this.my_status_report) {
+          let endpoint = `/api/project-planning/status-reports/${this.my_status_report.id}/`;
+          apiService(endpoint, "PATCH", this.status_report).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        } else {
+          let endpoint = `/api/project-planning/project-years/${this.year.id}/status-reports/`;
+          apiService(endpoint, "POST", this.status_report).then(response => {
+            if (response.id) this.$emit('close')
+            else {
+              var myString = "";
+              for (var i = 0; i < Object.keys(response).length; i++) {
+                key = Object.keys(response)[i]
+                myString += String(key) + ": " + response[key] + "<br>"
+              }
+              this.errors = myString
+            }
+          })
+        }
+      }
+
 
       // file
       else if (this.mtype === "file") {
@@ -417,11 +469,11 @@ Vue.component("modal", {
       if (this.staff.employee_type == 1 || (this.staff.employee_type == 6 && this.staff.funding_source == 1)) {
         this.staff.amount = null;
         this.disableAmountField = true;
-        this.staff.level = null;
-        this.disableLevelField = true;
+        // this.staff.level = null;
+        // this.disableLevelField = true;
       } else {
         this.disableAmountField = false;
-        this.disableLevelField = false;
+        // this.disableLevelField = false;
       }
 
 
@@ -435,7 +487,7 @@ Vue.component("modal", {
 
       // if the current user is changing themselves away from project lead, give them a warning
       // only do this if we are editing an existing user
-      if(this.my_staff) {
+      if (this.my_staff) {
         if (this.currentUser && this.currentUser.id == this.my_staff.user && !this.projectLeadWarningIssued && this.staff.is_lead === "False") {
           alert(warningMsg);
           this.projectLeadWarningIssued = true
@@ -503,11 +555,28 @@ Vue.component("modal", {
             this.currentUser = response;
           })
     },
+    populateTargetDate(quarter){
+      sap_year = this.year.fiscal_year
+      if(quarter === "q1") {
+        this.activity.target_date = `${sap_year-1}-06-30`
+      } else if(quarter === "q2") {
+        this.activity.target_date = `${sap_year-1}-09-30`
+      } else if(quarter === "q3") {
+        this.activity.target_date = `${sap_year-1}-12-31`
+      } else if(quarter === "q4") {
+        this.activity.target_date = `${sap_year}-03-31`
+      }
+
+    },
   },
   computed: {},
   created() {
 
     this.getCurrentUser();
+
+    if (this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
+      this.isACRDP = true;
+    }
 
     this.$nextTick(() => {
       if (this.mtype === "staff") {
@@ -538,13 +607,13 @@ Vue.component("modal", {
         }
       }
 
-      // milestones
-      else if (this.mtype === "milestone") {
-        if (this.my_milestone && this.my_milestone.id) {
-          this.milestone = this.my_milestone
+      // activities
+      else if (this.mtype === "activity") {
+        if (this.my_activity && this.my_activity.id) {
+          this.activity = this.my_activity
           // there is an annoying thing that has to happen to convert the html to js to pytonese...
-          if (this.milestone.target_date) this.milestone.target_date = this.milestone.target_date.slice(0, 10)
-          else this.milestone.target_date = null
+          if (this.activity.target_date) this.activity.target_date = this.activity.target_date.slice(0, 10)
+          else this.activity.target_date = null
         }
       }
       // collaborators
@@ -563,6 +632,19 @@ Vue.component("modal", {
           // there is an annoying thing that has to happen to convert the html to js to pytonese...
           if (this.agreement.critical) this.agreement.critical = "True"
           else this.agreement.critical = "False"
+        }
+      }
+
+      // status reports
+      else if (this.mtype === "status_report") {
+        if (this.my_status_report && this.my_status_report.id) {
+          this.status_report = this.my_status_report
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.status_report.section_head_reviewed) this.status_report.section_head_reviewed = "True"
+          else this.status_report.section_head_reviewed = "False"
+          // there is an annoying thing that has to happen to convert the html to js to pytonese...
+          if (this.status_report.target_completion_date) this.status_report.target_completion_date = this.status_report.target_completion_date.slice(0, 10)
+          else this.status_report.target_completion_date = null
         }
       }
 

@@ -28,7 +28,7 @@ class TestReportSearchFormView(CommonTest):
 
     @tag("inventory", 'report', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         my_user = self.get_and_login_user(in_group="inventory_dm")
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=my_user)
 
@@ -45,7 +45,7 @@ class TestODIReport(CommonTest):
     def test_view(self):
         self.assert_non_public_view(test_url=self.test_urls[0])
         for url in self.test_urls:
-            self.assert_not_broken(url)
+            self.assert_good_response(url)
 
 
 
@@ -61,4 +61,4 @@ class TestPhysicalSamplesReport(CommonTest):
     def test_view(self):
         self.assert_non_public_view(test_url=self.test_urls[0])
         for url in self.test_urls:
-            self.assert_not_broken(url)
+            self.assert_good_response(url)

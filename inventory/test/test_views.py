@@ -21,7 +21,7 @@ class TestIndexTemplateView(CommonTest):
 
     @tag("inventory", 'index', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
 
@@ -37,7 +37,7 @@ class TestMyResourceListView(CommonTest):
 
     @tag("inventory", 'list', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
@@ -62,7 +62,7 @@ class TestOpenDataDashboardTemplateView(CommonTest):
 
     @tag("inventory", 'open_data', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     @tag("inventory", 'open_data', "context")
@@ -87,7 +87,7 @@ class TestResourceCreateView(CommonTest):
 
     @tag("inventory", 'create', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
@@ -105,6 +105,8 @@ class TestResourceCreateView(CommonTest):
         # get the instance just created and ensure there is a uuid
         my_instance = models.Resource.objects.get(**data)
         self.assertIsNotNone(my_instance.uuid)
+
+
 class TestResourceDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -119,10 +121,10 @@ class TestResourceDeleteView(CommonTest):
 
     @tag("inventory", 'delete', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
         test_user = self.get_and_login_user()
-        self.assert_not_accessible_by_user(test_url=self.test_url, user=test_user, login_search_term="accounts/denied")
+        self.assert_user_access_denied(test_url=self.test_url, user=test_user, login_search_term="accounts/denied")
 
     @tag("inventory", 'delete', "submit")
     def test_submit(self):
@@ -144,7 +146,7 @@ class TestResourceDetailPDFView(CommonTest):
 
     @tag("resource_pdf", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url)
 
     @tag("resource_pdf", "context")
@@ -170,7 +172,7 @@ class TestResourceDetailView(CommonTest):
 
     @tag("inventory", 'detail', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
@@ -202,7 +204,7 @@ class TestResourceFullDetailView(CommonTest):
 
     @tag("inventory", 'detail', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
@@ -227,7 +229,7 @@ class TestResourceListView(CommonTest):
 
     @tag("inventory", 'list', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         # create an admin user (who should always be able to delete) and check to see there is a 200 response
         self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
@@ -254,7 +256,7 @@ class TestResourceUpdateView(CommonTest):
 
     @tag("inventory", 'update', "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         # the user must be a custodian...
         user = FactoryFloor.CustodianResourcePersonFactory(resource=self.instance)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.resource_person.person.user)
@@ -273,6 +275,41 @@ class TestResourceUpdateView(CommonTest):
         self.assert_success_url(self.test_url, data=data, user=self.resource_person.person.user)
 
 
+class TestResourceCloneUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ResourceFactory()
+        self.test_url = reverse_lazy('inventory:resource_clone', args=[self.instance.pk, ])
+        self.expected_template = 'inventory/resource_form.html'
+        self.user = self.get_and_login_user()
+
+    @tag("Resource", "resource_clone", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ResourceCloneUpdateView, views.ResourceUpdateView)
+
+    @tag("Resource", "resource_clone", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("Resource", "resource_clone", "context")
+    def test_context(self):
+        context_vars = [
+            "cloning",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("Resource", "resource_clone", "submit")
+    def test_submit(self):
+        data = FactoryFloor.ResourceFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("Resource", "resource_clone", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("inventory:resource_clone", f"/en/inventory/{self.instance.pk}/clone/", [self.instance.pk])
+
+
 class TestResourceXMLExport(CommonTest):
     def setUp(self):
         super().setUp()
@@ -288,7 +325,7 @@ class TestResourceXMLExport(CommonTest):
         self.assertIsNone(self.instance.fgp_publication_date)
         self.assertIsNone(self.instance.last_revision_date)
 
-        self.assert_not_broken(self.test_url1)
+        self.assert_good_response(self.test_url1)
         self.assert_public_view(test_url=self.test_url1)
 
         # update the instance to check to see if fields were updated. they should not be
@@ -308,5 +345,3 @@ class TestResourceXMLExport(CommonTest):
         self.instance = models.Resource.objects.get(pk=self.instance.pk)
         self.assertIsNotNone(self.instance.fgp_publication_date)
         self.assertIsNotNone(self.instance.last_revision_date)
-
-

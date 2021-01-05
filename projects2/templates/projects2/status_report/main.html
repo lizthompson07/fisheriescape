@@ -1,0 +1,75 @@
+{% extends "projects2/base.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load i18n %}
+{% load project_tags %}
+
+
+
+{% block subcontent %}
+  <div
+    id="app"
+  >
+
+    <div class="btns mb-5">
+      <a v-if="canModify" href="{% url 'projects2:report_edit' object.id %}" class="btn btn-warning ">{% trans "Edit Report" %}</a>
+      <a v-if="canModify" href="{% url 'projects2:report_delete' object.id %}" class="btn btn-danger ">{% trans "Delete" %}</a>
+      {#      <a v-if="canModify" href="#" class="btn btn-primary">{% trans "Add a Supporting Resource" %}</a>#}
+      <a v-if="isSectionHead || isAdmin" href="{% url 'projects2:report_review' object.id %}" class="btn btn-dark ">{% trans "Review the Report" %}</a>
+      <a href="{% url 'projects2:report_pdf' object.id %}" class="btn btn-secondary " target="_blank">{% trans "Print" %}</a>
+    </div>
+
+    <div class="mb-5">
+      <h4>
+        {% trans "Detail:" %}
+      </h4>
+      <table class="table table-sm">
+        {% for field in field_list %}
+          <tr>
+            {% verbose_td_display object field %}
+          </tr>
+
+        {% endfor %}
+
+
+      </table>
+    </div>
+
+
+    {% include "projects2/status_report/_updates.html" %}
+    {% include "projects2/status_report/_files.html" %}
+    {% include "projects2/status_report/_modal_form.html" %}
+
+
+    <modal v-if="showNewFileModal" @close="closeModals()" :mtype="file"></modal>
+    <modal v-if="showOldFileModal" @close="closeModals()" :my_file="fileToEdit" :mtype="'file'"></modal>
+
+    <modal v-if="showOldUpdateModal" @close="closeModals()" :my_update="updateToEdit" :mtype="'update'"></modal>
+
+
+    <br><br>
+  </div>
+
+
+
+{% endblock %}
+
+
+
+{% block body_js %}
+  {{ block.super }}
+  <script type="application/javascript">
+  let statusReportId = '{{ object.id }}';
+  let projectId = '{{ object.project_year.project.id }}';
+  let projectYearId = '{{ object.project_year.id }}';
+  let deleteMsg = "{% trans "Are you sure you want to delete this item: " %} \n\n";
+
+  </script>
+
+  <script src="{% static '/projects2/mainStatusReport.js' %}?version=1.2" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainStatusReportModal.js' %}?version=1.1" type="application/javascript"></script>
+
+
+{% endblock %}

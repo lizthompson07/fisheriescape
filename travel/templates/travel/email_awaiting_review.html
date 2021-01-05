@@ -1,4 +1,5 @@
 {% load verbose_names %}
+{% load i18n %}
 
 <style media="screen">
     table, td, th, tr {
@@ -16,7 +17,7 @@
 <p>
     Hello {{ reviewer.user }},
     <br><br>
-    A trip request is awaiting your review as the role of {{ reviewer.role.name|upper }} in the DM Apps - Travel Management System.
+    A  {% if triprequest.is_late_request %} <b><u>LATE</u></b>{% endif %} trip request is awaiting your review as the role of {{ reviewer.role.name|upper }} in the DM Apps - Travel Management System.
     Please click <a href="{{SITE_FULL_URL}}{% url 'travel:request_review_list' 'awaiting' %}">HERE</a> to review the request. Here are the trip request details:
 </p>
 
@@ -33,17 +34,18 @@
 <p>
     {{ reviewer.user }} :
     <br><br>
-    Une demande de voyage attend votre examen en tant que rôle de {{ reviewer.role.nom|upper }} dans l'application DM Apps - Système de gestion de voyage.
+    Une demande de voyage {% if triprequest.is_late_request %} <b><u>TARDIVE</u></b>{% endif %} attend votre examen en tant que rôle de {{ reviewer.role.nom|upper }} dans l'application DM Apps - Système de gestion de voyage de Science du SEO.
     Veuillez cliquer <a href="{{SITE_FULL_URL}}{% url 'travel:request_review_list' 'awaiting' %}">ICI</a> pour examiner la demande.
     Voici les détails du voyage:
 </p>
 
+{% language 'fr' %}
 <table>
     {% for field in field_list %}
         {% verbose_td_display triprequest field %}
     {% endfor %}
 </table>
-
+{% endlanguage %}
 
 
 

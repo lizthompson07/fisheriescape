@@ -24,7 +24,7 @@ class TestConsultationInstructionCreateView(CommonTest):
 
     @tag("ConsultationInstruction", "instruction_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ConsultationInstruction", "instruction_new", "submit")
@@ -47,7 +47,7 @@ class TestConsultationInstructionDeleteView(CommonTest):
 
     @tag("ConsultationInstruction", "instruction_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ConsultationInstruction", "instruction_delete", "submit")
@@ -73,7 +73,7 @@ class TestConsultationInstructionUpdateView(CommonTest):
 
     @tag("ConsultationInstruction", "instruction_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ConsultationInstruction", "instruction_edit", "submit")
@@ -97,7 +97,7 @@ class TestConsultationRoleCreateView(CommonTest):
 
     @tag("ConsultationRole", "consultee_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ConsultationRole", "consultee_new", "submit")
@@ -120,7 +120,7 @@ class TestConsultationRoleDeleteView(CommonTest):
 
     @tag("ConsultationRole", "consultee_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ConsultationRole", "consultee_delete", "submit")
@@ -146,7 +146,7 @@ class TestConsultationRoleUpdateView(CommonTest):
 
     @tag("ConsultationRole", "consultee_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("ConsultationRole", "consultee_edit", "submit")
@@ -168,7 +168,7 @@ class TestEntryCreateView(CommonTest):
 
     @tag("Entry", "entry_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Entry", "entry_new", "submit")
@@ -197,7 +197,7 @@ class TestEntryDeleteView(CommonTest):
 
     @tag("Entry", "entry_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Entry", "entry_delete", "submit")
@@ -223,7 +223,7 @@ class TestEntryDetailView(CommonTest):
 
     @tag("Entry", "entry_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Entry", "entry_detail", "context")
@@ -248,7 +248,7 @@ class TestEntryListView(CommonTest):
 
     @tag("Entry", "entry_list", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Entry", "entry_list", "context")
@@ -273,7 +273,7 @@ class TestEntryNoteCreateView(CommonTest):
 
     @tag("EntryNote", "note_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("EntryNote", "note_new", "submit")
@@ -296,7 +296,7 @@ class TestEntryNoteUpdateView(CommonTest):
 
     @tag("EntryNote", "note_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("EntryNote", "note_edit", "submit")
@@ -319,7 +319,7 @@ class TestEntryPersonCreateView(CommonTest):
 
     @tag("EntryPerson", "ep_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("EntryPerson", "ep_new", "submit")
@@ -337,7 +337,7 @@ class TestEntryPersonDeleteView(CommonTest):
 
     @tag("EntryPerson", "ep_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
 
     @tag("EntryPerson", "ep_delete", "access")
     def test_view2(self):
@@ -358,7 +358,7 @@ class TestEntryPersonUpdateView(CommonTest):
 
     @tag("EntryPerson", "ep_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("EntryPerson", "ep_edit", "submit")
@@ -382,7 +382,7 @@ class TestEntryUpdateView(CommonTest):
 
     @tag("Entry", "entry_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Entry", "entry_edit", "submit")
@@ -410,7 +410,7 @@ class TestIndexTemplateView(CommonTest):
 
     @tag("Index", "index", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
 
@@ -427,7 +427,7 @@ class TestOrganizationCreateView(CommonTest):
 
     @tag("Organization", "org_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Organization", "org_new", "submit")
@@ -450,7 +450,7 @@ class TestOrganizationDeleteView(CommonTest):
 
     @tag("Organization", "org_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Organization", "org_delete", "submit")
@@ -476,7 +476,7 @@ class TestOrganizationDetailView(CommonTest):
 
     @tag("Organization", "org_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Organization", "org_detail", "context")
@@ -500,7 +500,7 @@ class TestOrganizationListView(CommonTest):
 
     @tag("Organization", "org_list", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Organization", "org_list", "context")
@@ -525,7 +525,7 @@ class TestOrganizationMemberCreateView(CommonTest):
 
     @tag("OrganizationMember", "member_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("OrganizationMember", "member_new", "submit")
@@ -548,7 +548,7 @@ class TestOrganizationMemberDeleteView(CommonTest):
 
     @tag("OrganizationMember", "member_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("OrganizationMember", "member_delete", "submit")
@@ -574,7 +574,7 @@ class TestOrganizationMemberUpdateView(CommonTest):
 
     @tag("OrganizationMember", "member_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("OrganizationMember", "member_edit", "submit")
@@ -598,7 +598,7 @@ class TestOrganizationUpdateView(CommonTest):
 
     @tag("Organization", "org_edit", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Organization", "org_edit", "submit")
@@ -625,9 +625,9 @@ class TestPersonCreateView(CommonTest):
 
     @tag("Person", "person_new", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-        self.assert_not_broken(self.test_url1)
+        self.assert_good_response(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.user)
 
     @tag("Person", "person_new", "submit")
@@ -652,7 +652,7 @@ class TestPersonDeleteView(CommonTest):
 
     @tag("Person", "person_delete", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Person", "person_delete", "submit")
@@ -678,7 +678,7 @@ class TestPersonDetailView(CommonTest):
 
     @tag("Person", "person_detail", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Person", "person_detail", "context")
@@ -703,7 +703,7 @@ class TestPersonListView(CommonTest):
 
     @tag("Person", "person_list", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
 
     @tag("Person", "person_list", "context")
@@ -731,9 +731,9 @@ class TestPersonUpdateView(CommonTest):
 
     @tag("Person", "person_form", "access")
     def test_view(self):
-        self.assert_not_broken(self.test_url)
+        self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-        self.assert_not_broken(self.test_url1)
+        self.assert_good_response(self.test_url1)
         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template1, user=self.user)
 
     @tag("Person", "person_form", "submit")

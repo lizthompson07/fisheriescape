@@ -22,7 +22,7 @@ YES_NO_CHOICES = (
 )
 
 NULL_YES_NO_CHOICES = (
-    (None, _("---------")),
+    (None, "---------"),
     (1, _("Yes")),
     (0, _("No")),
 )
@@ -31,10 +31,10 @@ NULL_YES_NO_CHOICES = (
 class DefaultReviewer(models.Model):
     user = models.OneToOneField(AuthUser, on_delete=models.DO_NOTHING, related_name="travel_default_reviewers",
                                 verbose_name=_("DM Apps user"))
-    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer on which DFO section(s)"),
+    sections = models.ManyToManyField(shared_models.Section, verbose_name=_("reviewer belongs to which DFO section(s)"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
-    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer on which DFO branch(es)"),
+    branches = models.ManyToManyField(shared_models.Branch, verbose_name=_("reviewer belongs to which DFO branch(es)"),
                                       blank=True,
                                       related_name="travel_default_reviewers")
     reviewer_roles = models.ManyToManyField("ReviewerRole", verbose_name=_("Do they have any special roles?"),
@@ -64,8 +64,8 @@ class NJCRates(SimpleLookup):
 
 class ProcessStep(Lookup):
     stage_choices = (
-        (1, _("Travel request process outline")),
-        (2, _("Review process outline")),
+        (1, _("Travel Request Process Outline")),
+        (2, _("Review Process Outline")),
     )
     stage = models.IntegerField(blank=True, null=True, choices=stage_choices)
 
@@ -91,7 +91,7 @@ class Role(SimpleLookup):
 
 class TripCategory(SimpleLookup):
     days_when_eligible_for_review = models.IntegerField(verbose_name=_(
-        "Number days before earliest date that is eligible for review"))  # overflowing this since we DO NOT want it to be unique=True
+        "Number of days before earliest date that is eligible for review"))  # overflowing this since we DO NOT want it to be unique=True
 
 
 class TripSubcategory(Lookup):
@@ -201,7 +201,7 @@ class Conference(models.Model):
         if self.is_adm_approval_required and self.trip_subcategory:
             # trips must be reviewed by ADMO before two weeks to the closest date
             self.adm_review_deadline = self.closest_date - datetime.timedelta(
-                days=21)  # 14 business days -- > 21 calendar days?
+                days=14)  # 14 days
 
             # This is a business rule: if trip category == conference, the admo can start review 90 days in advance of closest date
             # else they can start the review closer to the date: eight business weeks (60 days)
@@ -275,8 +275,9 @@ class Conference(models.Model):
 
     class Meta:
         ordering = ['start_date', ]
-        verbose_name = "trip"
-        verbose_name_plural = "trips"
+        verbose_name = _("trip")
+        # Translators: This is for a header
+        verbose_name_plural = _("trips")
 
     # def get_absolute_url(self):
     #     return reverse('travel:trip_detail', kwargs={'pk': self.id, "type":""})
@@ -509,11 +510,11 @@ class TripRequest(models.Model):
     is_public_servant = models.BooleanField(default=True, choices=YES_NO_CHOICES,
                                             verbose_name=_("Is the traveller a public servant?"))
     region = models.ForeignKey(shared_models.Region, on_delete=models.DO_NOTHING,
-                               verbose_name=_("Traveller belongs to which DFO region"),
+                               verbose_name=_("Traveller belongs to which DFO region?"),
                                related_name="trip_requests",
                                null=True, blank=True)
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True,
-                                verbose_name=_("under which DFO section is this request being made"),
+                                verbose_name=_("under which section is this request being made?"),
                                 related_name="trip_requests")
     is_research_scientist = models.BooleanField(default=False, choices=YES_NO_CHOICES,
                                                 verbose_name=_("Is the traveller a research scientist (RES)?"))
@@ -546,21 +547,20 @@ class TripRequest(models.Model):
 
     # purpose
     role_of_participant = models.TextField(blank=True, null=True, verbose_name=_("role description"))
-    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("objective of the trip"))
-    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("benefit to DFO"))
-    multiple_conferences_rationale = models.TextField(blank=True, null=True,
-                                                      verbose_name=_(
-                                                          "rationale for individual attending multiple conferences"))
-    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("Other attendees covered under BTA"))
+    learning_plan = models.BooleanField(default=False, verbose_name=_("is this request included on your learning plan?"))
+    objective_of_event = models.TextField(blank=True, null=True, verbose_name=_("what is the objective of this meeting or conference?"))
+    benefit_to_dfo = models.TextField(blank=True, null=True, verbose_name=_("what are the benefits to DFO?"))
+    bta_attendees = models.ManyToManyField(AuthUser, blank=True, verbose_name=_("other attendees covered under BTA"))
     # multiple_attendee_rationale = models.TextField(blank=True, null=True, verbose_name=_(
     #     "rationale for multiple travelers"))
-    late_justification = models.TextField(blank=True, null=True, verbose_name=_("Justification for late submissions"))
-    funding_source = models.TextField(blank=True, null=True, verbose_name=_("funding source"))
-    notes = models.TextField(blank=True, null=True, verbose_name=_("optional notes"))
+    late_justification = models.TextField(blank=True, null=True, verbose_name=_("justification for late submissions"))
+    funding_source = models.TextField(blank=True, null=True, verbose_name=_("what is the funding source?"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes (optional)"))
     # total_cost = models.FloatField(blank=True, null=True, verbose_name=_("total cost (DFO)"))
-    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("Amount of non-DFO funding (CAD)"))
+    non_dfo_costs = models.FloatField(blank=True, null=True, verbose_name=_("amount of non-DFO funding (CAD)"))
     non_dfo_org = models.CharField(max_length=1000,
-                                   verbose_name=_("full name(s) of organization providing non-DFO funding"), blank=True,
+                                   verbose_name=_("give the full name(s) of the of the organization(s) providing non-DFO funding"),
+                                   blank=True,
                                    null=True)
 
     submitted = models.DateTimeField(verbose_name=_("date submitted"), blank=True, null=True)
@@ -621,6 +621,7 @@ class TripRequest(models.Model):
     class Meta:
         ordering = ["-start_date", "last_name"]
         unique_together = [("user", "parent_request"), ("user", "trip"), ]
+        verbose_name = _("trip request")
 
     # def get_absolute_url(self):
     #     return reverse('travel:request_detail', kwargs={'pk': self.id})
@@ -825,9 +826,6 @@ class TripRequest(models.Model):
             my_str += "<br><em>Objective of Event:</em> {}".format(self.objective_of_event)
         if self.benefit_to_dfo:
             my_str += "<br><em>Benefit to DFO:</em> {}".format(self.benefit_to_dfo)
-        if self.multiple_conferences_rationale:
-            my_str += "<br><em>Rationale for attending multiple conferences:</em> {}".format(
-                self.multiple_conferences_rationale)
         if self.funding_source:
             my_str += "<br><em>Funding source:</em> {}".format(self.funding_source)
 
@@ -843,9 +841,6 @@ class TripRequest(models.Model):
         my_str += "\n\n{}: {}".format("OBJECTIVE OF EVENT", nz(self.objective_of_event, "n/a"))
 
         my_str += "\n\n{}: {}".format("BENEFIT TO DFO", nz(self.benefit_to_dfo, "n/a"))
-
-        my_str += "\n\n{}: {}".format(
-            "Rationale for attending multiple conferences".upper(), nz(self.multiple_conferences_rationale, "n/a"))
 
         return my_str
 
@@ -907,12 +902,11 @@ class TripRequest(models.Model):
     def requester_info(self):
         mystr = ""
         if not self.is_public_servant:
-            mystr += _("Company: ") + nz(self.company_name,
-                                         "<span class='red-font'>missing company name</span>") + "<br>"
-        mystr += _("Address: ") + nz(self.address, "<span class='red-font'>missing address</span>") + "<br>"
-        mystr += _("Phone: ") + nz(self.phone, "<span class='red-font'>missing phone</span>") + "<br>"
+            mystr += _("Company: ") + nz(self.company_name, "<span class='red-font'>{}</span><br>".format(_('missing company name')))
+        mystr += _("Address: ") + nz(self.address, "<span class='red-font'>{}</span><br>".format(_('missing address')))
+        mystr += _("Phone: ") + nz(self.phone, "<span class='red-font'>{}</span><br>".format(_('missing phone number')))
         mystr += _("Email: ") + nz(f'<a href="mailto:{self.email}?subject=travel request {self.id}">{self.email}</a>',
-                                   "<span class='red-font'>missing email address</span>") + "<br>"
+                               "<span class='red-font'>{}</span><br>".format(_('missing email address')))
         return mark_safe(mystr)
 
     @property
@@ -956,6 +950,17 @@ class TripRequest(models.Model):
                 my_str += f'<u>{r.user}</u>: {r.comments}<br>'
         return mark_safe(my_str)
 
+    @property
+    def is_late_request(self):
+        # this only applies to trips requiring adm approval
+        if self.trip and self.trip.is_adm_approval_required:
+            # if not submitted, we compare against current datetime
+            if not self.submitted:
+                return self.trip.date_eligible_for_adm_review and timezone.now() > self.trip.date_eligible_for_adm_review
+            # otherwise we compare against submission datetime
+            else:
+                return self.trip.date_eligible_for_adm_review and self.submitted > self.trip.date_eligible_for_adm_review
+
 
 class TripRequestCost(models.Model):
     trip_request = models.ForeignKey(TripRequest, on_delete=models.CASCADE, related_name="trip_request_costs",
@@ -971,6 +976,7 @@ class TripRequestCost(models.Model):
 
     class Meta:
         unique_together = (("trip_request", "cost"),)
+        verbose_name = _("cost")
 
     def save(self, *args, **kwargs):
         # if a user is providing a rate and number of days, we use this to calc the total amount.
@@ -1005,6 +1011,7 @@ class Reviewer(models.Model):
     class Meta:
         unique_together = ['trip_request', 'user', 'role', ]
         ordering = ['trip_request', 'order', ]
+        verbose_name = _("reviewer")
 
     @property
     def comments_html(self):
@@ -1056,6 +1063,7 @@ class TripReviewer(models.Model):
     class Meta:
         unique_together = ['trip', 'user', 'role', ]
         ordering = ['trip', 'order', ]
+        verbose_name = _("trip reviewer")
 
     @property
     def comments_html(self):
@@ -1106,6 +1114,8 @@ class File(models.Model):
 
     class Meta:
         ordering = ['trip_request', 'date_created']
+        # Translators: This is a 'file' as in something you attach to an email
+        verbose_name = _("file")
 
     def __str__(self):
         return self.name

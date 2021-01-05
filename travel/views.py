@@ -234,7 +234,11 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
 
             if unverified_trips > 0 and in_travel_admin_group(self.request.user):
                 messages.error(self.request, mark_safe(
-                    f"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
+                    # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                    _(
+                        "<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip{pluralization} requiring attention!!").format(
+                        region=region, unverified_trips=unverified_trips, pluralization=pluralize(unverified_trips)
+                    )))
 
             tab_dict[region]["rdg_number_waiting"] = rdg_number_waiting
             tab_dict[region]["rdg_approval_list_url"] = rdg_approval_list_url
@@ -255,7 +259,10 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
 
         if unverified_trips > 0 and in_adm_admin_group(self.request.user):
             messages.error(self.request, mark_safe(
-                f"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralize(unverified_trips)} requiring attention!!"))
+                # Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
+                _("<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip{pluralization} requiring attention!!".format(
+                    unverified_trips=unverified_trips, pluralization=pluralize(unverified_trips)
+                ))))
 
         adm_ready_trips = utils.get_adm_eligible_trips().count()
 
@@ -284,57 +291,57 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
 request_field_list = [
     'fiscal_year',
     'trip',
-    'requester_name|{}'.format(_("Traveller name")),
-    'requester_info|{}'.format(_("Traveller information")),
+    'requester_name|{}'.format(gettext_lazy("Traveller name")),
+    'requester_info|{}'.format(gettext_lazy("Traveller information")),
     'is_public_servant',
-    'status_string|{}'.format(_("Request status")),
+    'status_string|{}'.format(gettext_lazy("Request status")),
     'section',
     'region',
-    'to_from|{}'.format(_("Departure location / Destination")),
-    'dates|{}'.format(_("Travel dates")),
+    'to_from|{}'.format(gettext_lazy("Departure location / Destination")),
+    'dates|{}'.format(gettext_lazy("Travel dates")),
     'objective_of_event',
     'benefit_to_dfo',
     # 'reason',
-    'long_role|{}'.format(_("Role of participant")),
-    'multiple_conferences_rationale',
+    'long_role|{}'.format(gettext_lazy("Role of participant")),
+    'learning_plan',
     'late_justification',
     'bta_attendees',
-    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
+    'total_dfo_funding|{}'.format(gettext_lazy("Total amount of DFO funding (CAD)")),
     'funding_source',
-    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
-    'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
-    'total_request_cost|{}'.format(_("Total costs")),
+    'total_non_dfo_funding|{}'.format(gettext_lazy("Total amount of non-DFO funding (CAD)")),
+    'total_non_dfo_funding_sources|{}'.format(gettext_lazy("Non-DFO funding sources")),
+    'total_request_cost|{}'.format(gettext_lazy("Total costs")),
     'original_submission_date',
-    'processing_time|{}'.format(_("Processing time")),
+    'processing_time|{}'.format(gettext_lazy("Processing time")),
     'created_by',
     'notes',
 ]
 
 traveller_field_list = [
-    'requester_info|{}'.format(_("Traveller information")),
+    'requester_info|{}'.format(gettext_lazy("Traveller information")),
     'is_public_servant',
     'region',
-    'is_research_scientist|{}'.format(_("RES?")),
+    'is_research_scientist|{}'.format(gettext_lazy("RES?")),
     'objective_of_event',
     'benefit_to_dfo',
     'start_date',
     'end_date',
     'departure_location',
     # 'reason',
-    'long_role|{}'.format("Role of participant"),
-    'multiple_conferences_rationale',
+    'long_role|{}'.format(gettext_lazy("Role of participant")),
+    'learning_plan',
     'funding_source',
-    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
-    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
-    'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
-    'total_request_cost|{}'.format(_("Total costs")),
+    'total_dfo_funding|{}'.format(gettext_lazy("Total amount of DFO funding (CAD)")),
+    'total_non_dfo_funding|{}'.format(gettext_lazy("Total amount of non-DFO funding (CAD)")),
+    'total_non_dfo_funding_sources|{}'.format(gettext_lazy("Non-DFO funding sources")),
+    'total_request_cost|{}'.format(gettext_lazy("Total costs")),
 ]
 
 request_group_field_list = [
     'fiscal_year',
     'trip',
-    'requester_name|{}'.format(_("organizer name")),
-    'status_string|{}'.format(_("request status")),
+    'requester_name|{}'.format(gettext_lazy("organizer name")),
+    'status_string|{}'.format(gettext_lazy("request status")),
     'section',
     'destination',
 
@@ -343,26 +350,26 @@ request_group_field_list = [
     'bta_attendees',
     'late_justification',
     'funding_source',
-    'total_dfo_funding|{}'.format(_("Total amount of DFO funding")),
-    'total_non_dfo_funding_sources|{}'.format(_("Non-DFO funding sources")),
-    'total_non_dfo_funding|{}'.format(_("Total amount of non-DFO funding")),
-    'total_request_cost|{}'.format(_("Total cost")),
+    'total_dfo_funding|{}'.format(gettext_lazy("Total amount of DFO funding (CAD)")),
+    'total_non_dfo_funding_sources|{}'.format(gettext_lazy("Non-DFO funding sources")),
+    'total_non_dfo_funding|{}'.format(gettext_lazy("Total amount of non-DFO funding (CAD)")),
+    'total_request_cost|{}'.format(gettext_lazy("Total cost")),
     'original_submission_date',
-    'processing_time|{}'.format(_("Processing time")),
+    'processing_time|{}'.format(gettext_lazy("Processing time")),
     'notes',
 ]
 
 request_child_field_list = [
-    'requester_name|{}'.format(_("Name")),
+    'requester_name|{}'.format(gettext_lazy("Name")),
     # 'is_public_servant',
-    'is_research_scientist|{}'.format(_("RES?")),
-    'dates|{}'.format(_("Travel dates")),
+    'is_research_scientist|{}'.format(gettext_lazy("RES?")),  # Translators: as in "Research Scientist?"
+    'dates|{}'.format(gettext_lazy("Travel dates")),
     'departure_location',
     # 'reason',
     'role',
     # 'role_of_participant',
-    'total_cost|{}'.format(_("Total cost")),
-    'non_dfo_costs|{}'.format(_("non-DFO funding")),
+    'total_cost|{}'.format(gettext_lazy("Total cost")),
+    'non_dfo_costs|{}'.format(gettext_lazy("non-DFO funding")),
 ]
 
 reviewer_field_list = [
@@ -371,11 +378,11 @@ reviewer_field_list = [
     'role',
     'status',
     'status_date',
-    'comments_html|Comments',
+    'comments_html|{}'.format(gettext_lazy("Comments")),
 ]
 
 conf_field_list = [
-    'tname|{}'.format(_("Name")),
+    'tname|{}'.format(gettext_lazy("Name")),
     'location',
     'trip_subcategory',
     'lead',
@@ -391,8 +398,8 @@ conf_field_list = [
     'status_string|{}'.format("status"),
     'date_eligible_for_adm_review',
     'adm_review_deadline',
-    'total_cost|{}'.format("Total DFO cost (excluding BTA)"),
-    'non_res_total_cost|{}'.format("Total DFO cost from non-RES travellers (excluding BTA)"),
+    'total_cost|{}'.format(gettext_lazy("Total DFO cost (excluding BTA)")),
+    'non_res_total_cost|{}'.format(gettext_lazy("Total DFO cost from non-RES travellers (excluding BTA)")),
 ]
 
 cost_field_list = [
@@ -432,7 +439,7 @@ class TripRequestListView(TravelAccessRequiredMixin, CommonFilterView):
         {"name": 'fiscal_year', "width": "75px"},
         {"name": 'is_group_request|Type', },
         {"name": 'status', "width": "150px"},
-        {"name": 'section|{}'.format(gettext_lazy("DFO section")), },
+        {"name": 'section|{}'.format(gettext_lazy("section")), },
         {"name": 'requester_name|{}'.format(gettext_lazy("Requester name")), },
         {"name": 'trip.tname', "width": "400px"},
         {"name": 'destination|{}'.format(gettext_lazy("Destination")), },
@@ -541,7 +548,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
             if form.cleaned_data.get("stay_on_page"):
                 return HttpResponseRedirect(reverse_lazy("travel:request_edit", kwargs=self.kwargs))
             else:
-                return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs) + "#costs")
+                return HttpResponseRedirect(reverse_lazy("travel:request_detail", kwargs=self.kwargs))
         else:
             return HttpResponseRedirect(reverse("shared_models:close_me"))
 
@@ -566,6 +573,10 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
             conf_dict[conf.id]['location'] = conf.location
             conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
             conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
+            if conf.date_eligible_for_adm_review and timezone.now() > conf.date_eligible_for_adm_review:
+                conf_dict[conf.id]['eligible'] = False
+            else:
+                conf_dict[conf.id]['eligible'] = True
 
         conf_json = json.dumps(conf_dict)
         # send JSON file to template so that it can be used by js script
@@ -577,6 +588,7 @@ class TripRequestUpdateView(CanModifyMixin, CommonUpdateView):
 class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
     model = models.TripRequest
     home_url_name = "travel:index"
+    h1 = gettext_lazy("New Trip Request")
 
     def get_template_names(self):
         if self.kwargs.get("parent_request"):
@@ -635,8 +647,9 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
                 return HttpResponseRedirect(
                     reverse_lazy("travel:request_edit", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}))
             else:
+                where2 = "#group-travellers" if my_object.is_group_request else "#costs"
                 return HttpResponseRedirect(
-                    reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}) + "#costs")
+                    reverse_lazy("travel:request_detail", kwargs={"pk": my_object.id, "type": self.kwargs.get("type")}) + where2)
         # if this is a child record
         else:
             if form.cleaned_data.get("stay_on_page"):
@@ -667,6 +680,10 @@ class TripRequestCreateView(TravelAccessRequiredMixin, CommonCreateView):
             conf_dict[conf.id]['location'] = conf.location
             conf_dict[conf.id]['start_date'] = conf.start_date.strftime("%Y-%m-%d")
             conf_dict[conf.id]['end_date'] = conf.end_date.strftime("%Y-%m-%d")
+            if conf.date_eligible_for_adm_review and timezone.now() > conf.date_eligible_for_adm_review:
+                conf_dict[conf.id]['eligible'] = False
+            else:
+                conf_dict[conf.id]['eligible'] = True
 
         conf_json = json.dumps(conf_dict)
         # send JSON file to template so that it can be used by js script
@@ -713,7 +730,7 @@ class TripRequestDeleteView(CanModifyMixin, CommonDeleteView):
 
 
 class TripRequestCloneUpdateView(TripRequestUpdateView):
-    h1 = gettext_lazy("Create a Clone Trip Request")
+    h1 = gettext_lazy("Clone a Trip Request")
     h2 = gettext_lazy("Please update the request details")
 
     def test_func(self):
@@ -815,6 +832,14 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
     submit_text = gettext_lazy("Proceed")
     home_url_name = "travel:index"
 
+    def get_submit_text(self):
+        my_object = self.get_object()
+
+        if my_object.submitted or not my_object.is_late_request:
+            return _("Proceed")
+        else:
+            return _("Proceed with late submission")
+
     def get_active_page_name_crumb(self):
         my_object = self.get_object()
         if my_object.submitted:
@@ -824,11 +849,16 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
 
     def get_h1(self):
         my_object = self.get_object()
+
         if my_object.submitted:
             return _("Do you wish to un-submit the following request?")
         else:
-            return _("Do you wish to re-submit the following request?") if my_object.status_id == 16 else _(
-                "Do you wish to submit the following request?")
+            if not my_object.is_late_request:
+                return _("Do you wish to re-submit the following request?") if my_object.status_id == 16 else _(
+                    "Do you wish to submit the following request?")
+            else:
+                return _("Do you wish to re-submit the following late request?") if my_object.status_id == 16 else _(
+                    "Do you wish to submit the following late request?")
 
     def get_h2(self):
         my_object = self.get_object()
@@ -878,25 +908,35 @@ class TripRequestSubmitUpdateView(CanModifyMixin, CommonUpdateView):
                 # reset all the reviewer statuses
                 utils.end_review_process(my_object)
             else:
-                messages.error(self.request, "sorry, only admins or owners can unsubmit requests")
+                messages.error(self.request, "sorry, only admins or owners can un-submit requests")
         else:
-            if my_object.trip.status_id != 30 and my_object.trip.status_id != 41 and my_object.status_id != 16:
-                messages.error(self.request, "sorry, the trip you are requesting to attend is not accepting additional requests.")
-            else:
+            if my_object.is_late_request:
+                # if the user is submitting a late request, we have to tag NCR Travel Coordinator as the first reviewer
+                ## get the NCR travel coordinator; reviewer_role = 3
+                ncr_coord = models.DefaultReviewer.objects.filter(reviewer_roles=3).distinct().order_by("order").first()
+                ## in the case that there is not an ncr travel coordinator, we cannot do this!
+                if ncr_coord:
+                    reviewer, created = models.Reviewer.objects.get_or_create(
+                        trip_request=my_object,
+                        user=ncr_coord.user,
+                        role_id=3,
+                    )
+                    reviewer.order = 0
+                    reviewer.save()
 
-                #  SUBMIT REQUEST
-                my_object.submitted = timezone.now()
-                # if there is not an original submission date, add one
-                if not my_object.original_submission_date:
-                    my_object.original_submission_date = timezone.now()
-                # if the request is being resubmitted, this is a special case...
-                if my_object.status_id == 16:
-                    my_object.status_id = 8  # it doesn't really matter what we set the status to. The approval_seeker func will handle this
-                    my_object.save()
-                else:
-                    # set all the reviewer statuses to 'queued'
-                    utils.start_review_process(my_object)
-                    # go and get approvals!!
+            #  SUBMIT REQUEST
+            my_object.submitted = timezone.now()
+            # if there is not an original submission date, add one
+            if not my_object.original_submission_date:
+                my_object.original_submission_date = timezone.now()
+            # if the request is being resubmitted, this is a special case...
+            if my_object.status_id == 16:
+                my_object.status_id = 8  # it doesn't really matter what we set the status to. The approval_seeker func will handle this
+                my_object.save()
+            else:
+                # set all the reviewer statuses to 'queued'
+                utils.start_review_process(my_object)
+                # go and get approvals!!
 
         # No matter what business was done, we will call this function to sort through reviewer and request statuses
         utils.approval_seeker(my_object, False, self.request)
@@ -956,7 +996,7 @@ class TripRequestCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
         is_cancelled = True if my_trip_request.status.id == 22 else False
 
         if is_cancelled:
-            messages.warning(self.request, _("sorry, un-cancelling a trip is currently not an option"))
+            messages.warning(self.request, _("Sorry, it is currently not possible to cancel your cancellation request"))
             return HttpResponseRedirect(reverse("travel:request_detail", kwargs=self.kwargs))
 
             # UN-CANCEL THE REQUEST
@@ -1355,7 +1395,7 @@ def reset_reviewers(request, type, triprequest=None, trip=None):
                 # next, re-add the defaults...
                 utils.get_trip_reviewers(my_obj)
             else:
-                messages.error(request, _("This function can only with an unreviewed trip."))
+                messages.error(request, _("This function can only be used with an unreviewed trip."))
             return HttpResponseRedirect(reverse("travel:trip_detail", args=(trip, type)))
 
 
@@ -1715,21 +1755,26 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
 
     def test_func(self):
         # make sure that this page can only be accessed for active trips (exclude those already reviewed and those canceled)
-        return in_adm_admin_group(self.request.user) and not self.get_object().status_id in [32, 43]
+        return in_adm_admin_group(self.request.user) and not self.get_object().status_id in [43]
 
     def get_h1(self):
         if self.get_object().status_id in [30, 41]:
-            return _("Do you wish to start a review on the following trip?")
+            return _("Do you wish to start a review on this trip?")
+        elif self.get_object().status_id in [32]:
+            return _("you wish to re-open the review of this trip?")
         else:
-            return _("Do you wish to end a review on the following trip?")
+            return _("Do you wish to end the review of this trip?")
 
     def get_h2(self):
         if self.get_object().status_id in [30, 41]:
-            return '<span class="blue-font">WARNING: starting a review on this trip will prevent any additional' \
-                   ' travellers from adding themselves to it.</span>'
+            return None
+        elif self.get_object().status_id in [32]:
+            return '<span class="blue-font">Re-opening the review on this trip reset the reviewer statuses but ' \
+                   'will keep any existing reviewer comments. <br><br> This process will NOT undo any trip request approvals that ' \
+                   'have already been issued in the original review process.</span>'
         else:
-            return '<span class="red-font">WARNING: stopping the review on this trip will reset the' \
-                   ' status of any exisitng recommendations and/or approvals.</span>'
+            return '<span class="red-font">WARNING: <br><br> stopping the review on this trip will reset the' \
+                   ' status of any existing recommendations and/or approvals.</span>'
 
     def get_subtitle(self):
         return _("Start a Review") if self.get_object().status_id in [30, 41] else _("End a Review")
@@ -1749,10 +1794,16 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
     def form_valid(self, form):
         my_trip = form.save()
         # figure out the current state of the request
-        is_under_review = False if my_trip.status_id in [30, 41] else True
+        if my_trip.status_id in [30, 41]:
+            is_under_review = False
+        else:
+            is_under_review = True
 
         if is_under_review:
-            utils.end_trip_review_process(my_trip)
+            if my_trip.status_id == 32:
+                utils.end_trip_review_process(my_trip, reset=True)
+            else:
+                utils.end_trip_review_process(my_trip, reset=False)
         else:
             utils.start_trip_review_process(my_trip)
             # go and get approvals!!
@@ -2168,10 +2219,10 @@ class TripCancelUpdateView(TravelAdminRequiredMixin, CommonUpdateView):
     form_class = forms.TripAdminNotesForm
     template_name = 'travel/trip_cancel_form.html'
     submit_text = _("Cancel the trip")
-    h1 = _("Do you wish to un-cancel the following trip?")
+    h1 = _("Do you wish to undo your cancellation request for the following trip?")
     h2 = "<span class='red-font'>" + \
          _("Cancelling this trip will result in all linked requests to be 'cancelled'. "
-           "This list of associated trip requests can be viewed below in the trip detail.") + \
+           "The list of associated trip requests can be viewed below in the trip detail.") + \
          "</span><br><br>" + \
          "<span class='red-font blink-me'>" + \
          _("This action cannot be undone.") + \
@@ -2506,6 +2557,21 @@ class ProcessStepFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
 class ProcessStepHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
     model = models.ProcessStep
     success_url = reverse_lazy("travel:manage_process_steps")
+
+
+class RoleFormsetView(TravelAdminRequiredMixin, CommonFormsetView):
+    template_name = 'travel/formset.html'
+    h1 = "Manage Roles"
+    queryset = models.Role.objects.all()
+    formset_class = forms.RoleFormset
+    success_url_name = "travel:manage_roles"
+    home_url_name = "travel:index"
+    delete_url_name = "travel:delete_role"
+
+
+class RoleHardDeleteView(TravelAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Role
+    success_url = reverse_lazy("travel:manage_roles")
 
 
 # Default Reviewer Settings

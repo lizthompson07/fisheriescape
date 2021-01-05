@@ -1,0 +1,139 @@
+{% load verbose_names %}
+{% load custom_filters %}
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+{% if object.approval_status == 1 %}
+  <p>
+    Congratulations,
+  </p>
+  <p>
+    Your project in the DM Apps Project Planning Application entitled
+    <a
+      href="
+        {{ SITE_FULL_URL }}{% url 'projects2:project_detail' object.project_year.project.id %}?project_year={{ object.project_year.id }}">
+      {{ object.project_year.project.title }} ({{ object.project_year }})
+    </a>
+    has been approved by the Science Management team!
+  </p>
+
+  {% if object.allocated_budget %}
+    <p>
+      The amount of budget allocated to this project year is ${{ object.allocated_budget|currency }}.
+    </p>
+  {% endif %}
+
+{% elif object.approval_status == 0 %}
+
+  <p>Hello,</p>
+
+  <p>
+    The Science Management team has determined that your project entitled
+    <a href="
+      {{ SITE_FULL_URL }}{% url 'projects2:project_detail' object.project_year.project.id %}?project_year={{ object.project_year.id }}">
+      {{ object.project_year.project.title }} ({{ object.project_year }})
+    </a>
+    in the DM Apps Project Planning Application is not approved at this time.
+    Should this decision change at a later date, you will be notified.
+  </p>
+
+{% else %}
+
+  <p>Hello,</p>
+
+  <p>
+    The Science Management team has updated the status of your project entitled
+    <a href="
+      {{ SITE_FULL_URL }}{% url 'projects2:project_detail' object.project_year.project.id %}?project_year={{ object.project_year.id }}">
+      {{ object.project_year.project.title }} ({{ object.project_year }})
+    </a>.
+
+  </p>
+
+{% endif %}
+
+{% if object.approver_comment %}
+  The following administrative notes were provided:
+  <ul>
+    <li>
+      {{ object.approver_comment }}
+    </li>
+  </ul>
+{% endif %}
+
+<p>
+  If you have any questions, please don't hesitate to ask your manager.
+</p>
+
+
+<p>
+  ********************************************************************
+</p>
+
+
+
+{% if object.approval_status == 1 %}
+  <p>
+    Félicitations,
+  </p>
+  <p>
+    Votre projet dans l'application de planification de projet (DM Apps) intitulée
+    <a href="
+      {{ SITE_FULL_URL }}{% url 'projects2:project_detail' object.project_year.project.id %}?project_year={{ object.project_year.id }}">
+      {{ object.project_year.project.title }} ({{ object.project_year }})
+    </a>
+    a été approuvé par l'équipe de gestion des sciences!
+  </p>
+
+  {% if object.allocated_budget %}
+    <p>
+      Le montant du budget alloué à cette année du projet est de {{ object.allocated_budget|currency:True }}.
+    </p>
+  {% endif %}
+
+{% elif object.approval_status == 0 %}
+
+  <p>Bonjour,</p>
+
+  <p>
+    L'équipe de gestion des sciences a déterminé que votre projet intitulé
+    <a href="
+      {{ SITE_FULL_URL }}{% url 'projects2:project_detail' object.project_year.project.id %}?project_year={{ object.project_year.id }}">
+      {{ object.project_year.project.title }} ({{ object.project_year }})
+    </a>
+    dans l'application de planification de projet (DM Apps)
+    n'est pas approuvé pour le moment.
+
+    Si cette décision devait changer à une date ultérieure, vous en serez informé.
+  </p>
+
+{% else %}
+
+  <p>Bonjour,</p>
+
+  <p>
+    L'équipe de gestion des sciences a mis à jour votre projet entitulé:
+    <a href="
+      {{ SITE_FULL_URL }}{% url 'projects2:project_detail' object.project_year.project.id %}?project_year={{ object.project_year.id }}">
+      {{ object.project_year.project.title }} ({{ object.project_year }})
+    </a>.
+  </p>
+
+{% endif %}
+
+{% if object.approver_comment %}
+  Les notes administratives suivantes ont été fournies:
+  <ul>
+    <li>
+      {{ object.approver_comment }}
+    </li>
+  </ul>
+{% endif %}
+
+<p>
+  Si vous avez des questions, n'hésitez pas à demander à votre gestionnaire.
+</p>
+

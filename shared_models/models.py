@@ -184,27 +184,42 @@ class Section(SimpleLookupWithUUID):
 
     # calculated fields (for quick acquisition)
     shortish_name = models.CharField(max_length=1000, blank=True, null=True)
-    full_name = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_ver1 = models.CharField(max_length=1000, blank=True, null=True)
+    full_name_en = models.CharField(max_length=1000, blank=True, null=True)
+    full_name_en_ver1 = models.CharField(max_length=1000, blank=True, null=True)
+    full_name_fr = models.CharField(max_length=1000, blank=True, null=True)
+    full_name_fr_ver1 = models.CharField(max_length=1000, blank=True, null=True)
 
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
         verbose_name = _("Section - Team (NCR)")
         verbose_name_plural = _("Sections - Teams (NCR)")
 
-    def get_full_name(self):
+    def get_full_name_en(self):
         try:
-            my_str = f"{self.division.branch.region.tname} - {self.division.branch.tname} - {self.division.tname} - {self.tname}"
+            my_str = f"{self.division.branch.region.name} - {self.division.branch.name} - {self.division.name} - {self.name}"
         except AttributeError:
-            my_str = self.tname
+            my_str = self.name
         return my_str
 
-    def get_full_name_ver1(self):
+    def get_full_name_en_ver1(self):
         try:
-            my_str = f"{self.tname} ({self.division.branch.region.tname}/{self.division.tname})"
+            my_str = f"{self.name} ({self.division.branch.region.name}/{self.division.name})"
         except AttributeError:
-            my_str = self.tname
+            my_str = self.name
         return my_str
+
+    def get_full_name_fr(self):
+        r = self.division.branch.region.nom if self.division.branch.region.nom else self.division.branch.region.name
+        b = self.division.branch.nom if self.division.branch.nom else self.division.branch.name
+        d = self.division.nom if self.division.nom else self.division.name
+        s = self.nom if self.nom else self.name
+        return f"{r} - {b} - {d} - {s}"
+
+    def get_full_name_fr_ver1(self):
+        r = self.division.branch.region.nom if self.division.branch.region.nom else self.division.branch.region.name
+        d = self.division.nom if self.division.nom else self.division.name
+        s = self.nom if self.nom else self.name
+        return f"{s} ({r}/{d})"
 
     def get_shortish_name(self):
         try:
@@ -215,9 +230,27 @@ class Section(SimpleLookupWithUUID):
 
     def save(self, *args, **kwargs):
         self.shortish_name = self.get_shortish_name()
-        self.full_name = self.get_full_name()
-        self.full_name_ver1 = self.get_full_name_ver1()
+        self.full_name_en = self.get_full_name_en()
+        self.full_name_en_ver1 = self.get_full_name_en_ver1()
+        self.full_name_fr = self.get_full_name_fr()
+        self.full_name_fr_ver1 = self.get_full_name_fr_ver1()
         super().save(*args, **kwargs)
+
+    @property
+    def full_name(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("full_name_en"))):
+            return str(getattr(self, str(_("full_name_en"))))
+        # if there is no translated term, just pull from the english field
+        return self.full_name_en
+
+    @property
+    def full_name_ver1(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("full_name_en_ver1"))):
+            return str(getattr(self, str(_("full_name_en_ver1"))))
+        # if there is no translated term, just pull from the english field
+        return self.full_name_en_ver1
 
 
 class AllotmentCategory(models.Model):
@@ -631,3 +664,84 @@ class Script(Lookup):
     @property
     def metadata(self):
         return get_metadata_string(self.created_at, None, self.updated_at, self.modified_by)
+
+
+class Location(models.Model):
+    # Choices for surface_type
+    CAN = 'Canada'
+    US = 'United States'
+    COUNTRY_CHOICES = (
+        (CAN, 'Canada'),
+        (US, 'United States'),
+    )
+    location_en = models.CharField(max_length=1000)
+    location_fr = models.CharField(max_length=1000, blank=True, null=True)
+    country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
+    abbrev_en = models.CharField(max_length=25, blank=True, null=True)
+    abbrev_fr = models.CharField(max_length=25, blank=True, null=True)
+    uuid_gcmd = models.CharField(max_length=255, blank=True, null=True)
+
+
+    @property
+    def tname(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("location_en"))):
+            my_str = "{}".format(getattr(self, str(_("location_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.location_en
+        return my_str
+
+
+    def __str__(self):
+        return f"{self.location_en}, {self.get_country_display()}"
+
+    class Meta:
+        ordering = ["country", "location_en"]
+
+
+class Organization(SimpleLookup):
+    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
+    abbrev = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
+    address = models.TextField(blank=True, null=True, verbose_name=_("address"))
+    city = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("city"))
+    postal_code = models.CharField(max_length=7, blank=True, null=True, verbose_name=_("postal code"))
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    def __str__(self):
+        return self.full_name_and_address
+
+    @property
+    def full_name_and_address(self):
+        mystr = self.tname
+        if self.abbrev:
+            mystr += f", ({self.abbrev})"
+        mystr += f" - {self.full_address}"
+        return mystr
+
+    @property
+    def full_address(self):
+        # initial my_str with either address or None
+        if self.address:
+            my_str = self.address
+        else:
+            my_str = ""
+
+        # add city
+        if self.city:
+            if my_str:
+                my_str += ", "
+            my_str += self.city
+
+        # add province abbrev.
+        if self.location:
+            if my_str:
+                my_str += ", "
+            my_str += str(self.location)
+
+        # add postal code
+        if self.postal_code:
+            if my_str:
+                my_str += ", "
+            my_str += self.postal_code
+        return my_str
