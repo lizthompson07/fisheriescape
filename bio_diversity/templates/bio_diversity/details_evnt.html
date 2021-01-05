@@ -32,23 +32,23 @@
             {% endfor %}
             </div>
         </div>
-        <div class="card border border-dark my-1" name="evnt-location-details">
+        <div class="card border border-dark my-1" name="loc-details">
             <h5 class="card-header">{% trans "Event Locations" %}
                 <span class="px-1">
-                    <a class="btn btn-primary" name="add-location-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_loc' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Location' %}</a>
+                    <a class="btn btn-primary" name="add-new-loc-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_loc' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Location' %}</a>
                 </span>
             </h5>
             {% if object.location.count > 0 %}
                 <table class="table table-sm sortable table-hover">
                     <thead>
-                        {% for field in location_field_list %}
-                            <th>{% get_verbose_label location_object field %}</th>
+                        {% for field in loc_field_list %}
+                            <th>{% get_verbose_label loc_object field %}</th>
                         {% endfor %}
                     </thead>
                     <tbody>
                         {% for obj in object.location.all %}
                             <tr href="{% url 'bio_diversity:details_loc' 'evnt' object.id obj.id %}">
-                            {% for field in location_field_list %}
+                            {% for field in loc_field_list %}
                                 <td>
                                     {% get_field_value obj field %}
                                 </td>
@@ -60,7 +60,7 @@
             {% endif %}
         </div>
 
-        <div class="card border border-dark my-1" name="evnt-indv-details">
+        <div class="card border border-dark my-1" name="indv-details">
             <h5 class="card-header">{% trans "Event Individuals" %}
                 <span class="px-1">
                     <a class="btn btn-primary" name="add-new-indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_indv' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Individual' %}</a>
@@ -90,10 +90,10 @@
                 </table>
             {% endif %}
         </div>
-        <div class="card border border-dark my-1" name="evnt-contx-details">
+        <div class="card border border-dark my-1" name="contx-details">
             <h5 class="card-header">{% trans "Event Container Details" %}
                 <span class="px-1">
-                    <a class="btn btn-primary" name="add-contx-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_contx' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Container Detail' %}</a>
+                    <a class="btn btn-primary" name="add-new-contx-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_contx' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Container Detail' %}</a>
                 </span>
             </h5>
             {% if object.containers.count > 0 %}

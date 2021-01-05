@@ -77,7 +77,7 @@ def fill_n_submit_form(browser, data, exclude=[]):
     scroll_n_click(browser, submit_btn)
 
 
-def open_n_fill_popup(self, button, data, parent_data=[], parent_code=""):
+def open_n_fill_popup(self, button, data, parent_name="", parent_code=""):
     # self should be a common functional test class
     # button should be a clickable element that opens a pop up create form
     scroll_n_click(self.browser, button)
@@ -88,12 +88,30 @@ def open_n_fill_popup(self, button, data, parent_data=[], parent_code=""):
         self.browser.implicitly_wait(10)
         form_field = self.browser.find_element_by_xpath("//*[@name='{}_id']".format(parent_code))
         selected_element = form_field.find_element_by_xpath("//*[@selected]")
-        self.assertIn(parent_data.__str__(), selected_element.text)
+        self.assertIn(parent_name, selected_element.text)
         fill_n_submit_form(self.browser, data, ["{}_id".format(parent_code)])
     else:
         fill_n_submit_form(self.browser, data)
     self.browser.switch_to.window(self.browser.window_handles[0])
     self.browser.refresh()
+
+
+def add_feature(self, feature_data, feature_tag, object_tag="", object_name=""):
+    # browser must be on details view with the feature.
+    # feature data should be output from factory.build_valid_data()
+    # returns rows in details table to be compared with input feature data
+
+    # user adds a feature to the object from the object's detail page
+    feature_details = self.browser.find_element_by_xpath('//div[@name="{}-details"]'.format(feature_tag))
+    feature_btn = feature_details.find_element_by_xpath('//a[@name="add-new-{}-btn"]'.format(feature_tag))
+    open_n_fill_popup(self, feature_btn, feature_data, object_name, object_tag)
+    try:
+        details_table = self.browser.find_element_by_xpath("//div[@name='{}-details']//table/tbody".format(feature_tag))
+    except NoSuchElementException:
+        return self.fail("No {} features in details table".format(feature_tag))
+    rows = details_table.find_elements_by_tag_name("tr")
+    return rows
+
 
 
 @tag("Functional", "Basic")
@@ -150,20 +168,10 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
     def test_add_locations(self):
         self.nav_to_details_view()
-
         # user adds a location to the event
         location_data = BioFactoryFloor.LocFactory.build_valid_data()
-        location_details = self.browser.find_element_by_xpath('//div[@name="evnt-location-details"]')
-        location_btn = location_details.find_element_by_xpath('//a[@name="add-location-btn"]')
-
-        open_n_fill_popup(self, location_btn, location_data, self.evnt_data, "evnt")
-        try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-location-details']//table/tbody")
-        except NoSuchElementException:
-            return self.fail("No  locations in details table")
+        rows = add_feature(self, location_data, "loc", "evnt", self.evnt_data.__str__())
         locc_used = LocCode.objects.filter(pk=location_data["locc_id"]).get().__str__()
-        rows = details_table.find_elements_by_tag_name("tr")
-
         self.assertIn(locc_used, [get_col_val(row, 0) for row in rows])
 
     def test_add_individual(self):
@@ -171,16 +179,8 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         # user adds a new individual to the event
         indv_data = BioFactoryFloor.IndvFactory.build_valid_data()
-        indv_details = self.browser.find_element_by_xpath('//div[@name="evnt-indv-details"]')
-        indv_btn = indv_details.find_element_by_xpath('//a[@name="add-new-indv-btn"]')
-
-        open_n_fill_popup(self, indv_btn, indv_data, self.evnt_data, "evnt")
-        try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
-        except NoSuchElementException:
-            return self.fail("No individuals in details table")
+        rows = add_feature(self, indv_data, "indv", "", self.evnt_data.__str__())
         ufid_used = indv_data["ufid"]
-        rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
     def test_add_existing_individual_nav_back_btn(self):
@@ -188,12 +188,12 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         # user adds an existing individual to the event:
         indv = BioFactoryFloor.IndvFactory()
-        indv_details = self.browser.find_element_by_xpath('//div[@name="evnt-indv-details"]')
+        indv_details = self.browser.find_element_by_xpath('//div[@name="indv-details"]')
         indv_btn = indv_details.find_element_by_xpath('//a[@name="add-existing_indv-btn"]')
         indv_data = {"indv_id": indv.pk}
         open_n_fill_popup(self, indv_btn, indv_data)
         try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
+            details_table = self.browser.find_element_by_xpath("//div[@name='indv-details']//table/tbody")
         except NoSuchElementException:
             return self.fail("No individuals in details table")
         ufid_used = indv.ufid
@@ -202,7 +202,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         # User clicks on first individual reviews its details and returns to the event details
         try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
+            details_table = self.browser.find_element_by_xpath("//div[@name='indv-details']//table/tbody")
         except NoSuchElementException:
             return self.fail("No individuals in details table")
         rows = details_table.find_elements_by_tag_name("tr")
@@ -213,7 +213,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         self.assertEqual(first_ufid, description_ufid.text)
         self.browser.find_element_by_name("back-btn").click()
         try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-indv-details']//table/tbody")
+            details_table = self.browser.find_element_by_xpath("//div[@name='indv-details']//table/tbody")
         except NoSuchElementException:
             return self.fail("No individuals in details table")
         rows = details_table.find_elements_by_tag_name("tr")
@@ -223,17 +223,8 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         self.nav_to_details_view()
         # user add a container cross reference to the event
         contx_data = BioFactoryFloor.ContxFactory.build_valid_data()
-        contx_details = self.browser.find_element_by_xpath('//div[@name="evnt-contx-details"]')
-        contx_btn = contx_details.find_element_by_xpath('//a[@name="add-contx-btn"]')
-
-        open_n_fill_popup(self, contx_btn, contx_data, self.evnt_data, "evnt")
-        try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='evnt-contx-details']//table/tbody")
-        except NoSuchElementException:
-            return self.fail("No individuals in details table")
+        rows = add_feature(self, contx_data, "contx", "evnt", self.evnt_data.__str__())
         tank_used = Tank.objects.filter(pk=contx_data["tank_id"]).get().__str__()
-        rows = details_table.find_elements_by_tag_name("tr")
-
         self.assertIn(tank_used, [get_col_val(row, 0) for row in rows])
 
 
@@ -355,7 +346,7 @@ class TestProgDetailsFunctional(CommonFunctionalTest):
     # put factories in setUp and not in class to make factory boy use selenium database.
     def setUp(self):
         super().setUp()
-        self.prog_data = BioFactoryFloor.ProgFactory()
+        self.prog_data = BioFactoryFloor.ProgFactory(valid=True)
 
     def nav_to_details_view(self):
         # user navigates to a details view for an event
@@ -367,48 +358,40 @@ class TestProgDetailsFunctional(CommonFunctionalTest):
 
         # user adds a new protocol to the event
         prot_data = BioFactoryFloor.ProtFactory.build_valid_data()
-        prot_details = self.browser.find_element_by_xpath('//div[@name="prog-prot-details"]')
-        prot_btn = prot_details.find_element_by_xpath('//a[@name="add-new-prot-btn"]')
-
-        open_n_fill_popup(self, prot_btn, prot_data, self.prog_data, "prog")
-        try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='prog-prot-details']//table/tbody")
-        except NoSuchElementException:
-            return self.fail("No individuals in details table")
+        rows = add_feature(self, prot_data, "prot", "prog", self.prog_data.__str__())
         protc_used = ProtoCode.objects.filter(pk=prot_data["protc_id"]).get().__str__()
-        rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(protc_used, [get_col_val(row, 0) for row in rows])
 
         # User clicks on first protocol reviews its details and returns to the event details
         try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='prog-prot-details']//table/tbody")
+            details_table = self.browser.find_element_by_xpath("//div[@name='prot-details']//table/tbody")
         except NoSuchElementException:
             return self.fail("No protocols in details table")
         rows = details_table.find_elements_by_tag_name("tr")
-        first_prtoc = rows[0].find_element_by_tag_name("td").text
+        first_protc = rows[0].find_element_by_tag_name("td").text
         scroll_n_click(self.browser, rows[0])
         description_ufid = self.browser.find_element_by_xpath("//span[@class='font-weight-bold' and contains(text(), "
                                                               "'Protocol Code :')]/following-sibling::span")
-        self.assertEqual(first_prtoc, description_ufid.text)
+        self.assertEqual(first_protc, description_ufid.text)
         self.browser.find_element_by_name("back-btn").click()
         try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='prog-prot-details']//table/tbody")
+            details_table = self.browser.find_element_by_xpath("//div[@name='prot-details']//table/tbody")
         except NoSuchElementException:
             return self.fail("No protocols in details table")
         rows = details_table.find_elements_by_tag_name("tr")
-        self.assertIn(first_prtoc, [get_col_val(row, 0) for row in rows])
+        self.assertIn(first_protc, [get_col_val(row, 0) for row in rows])
 
     def no_test_add_existing_individual(self):
         self.nav_to_details_view()
 
         # user adds an existing protocol to the event:
         prot = BioFactoryFloor.ProtFactory()
-        prot_details = self.browser.find_element_by_xpath('//div[@name="prog-prot-details"]')
+        prot_details = self.browser.find_element_by_xpath('//div[@name="prot-details"]')
         prot_btn = prot_details.find_element_by_xpath('//a[@name="add-new-prot-btn"]')
         prot_data = {"prot_id": prot.pk}
         open_n_fill_popup(self, prot_btn, prot_data)
         try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='prog-prot-details']//table/tbody")
+            details_table = self.browser.find_element_by_xpath("//div[@name='prot-details']//table/tbody")
         except NoSuchElementException:
             return self.fail("No protocols in details table")
         protc_used = ProtoCode.objects.filter(pk=prot_data.protc_id).get().__str__()

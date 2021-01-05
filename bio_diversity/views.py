@@ -552,8 +552,8 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass sire fields/sample object to template
         context = super().get_context_data(**kwargs)
-        context["location_object"] = models.Location.objects.first()
-        context["location_field_list"] = [
+        context["loc_object"] = models.Location.objects.first()
+        context["loc_field_list"] = [
             "locc_id",
             "rive_id",
             "subr_id",

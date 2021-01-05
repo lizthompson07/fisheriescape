@@ -9,7 +9,7 @@ from django.dispatch import receiver
 from shared_models import models as shared_models
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
+from datetime import datetime
 
 class BioContainerDet(models.Model):
     class Meta:
@@ -383,7 +383,7 @@ class Event(BioModel):
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
-        return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.evnt_start)
+        return "{}-{}-{}".format(self.prog_id.__str__(), self.evntc_id.__str__(), self.evnt_start.date())
 
     class Meta:
         constraints = [
