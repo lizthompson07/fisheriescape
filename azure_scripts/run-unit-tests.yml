@@ -22,7 +22,7 @@ steps:
       mkdir media/ihub
       mkdir media/ihub/temp
       python3.8 manage.py collectstatic --no-input
-      python3.8 manage.py migrate
+      # python3.8 manage.py migrate
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Install Prerequisites and Run Local Migrations '
 

@@ -28,7 +28,7 @@ class Site(UnilingualLookup):
     longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude"))
 
     def __str__(self):
-        return f"{self.name} ({self.region})"
+        return f"Site {self.name}"
 
     @property
     def transect_count(self):
@@ -36,8 +36,8 @@ class Site(UnilingualLookup):
 
 
 class Transect(UnilingualLookup):
-    name = models.CharField(max_length=255, verbose_name=_("name (en)"))
-    site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"))
+    name = models.CharField(max_length=255, verbose_name=_("name"))
+    site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False)
 
     class Meta:
         unique_together = (("name", "site"),)
@@ -63,19 +63,26 @@ class Sample(models.Model):
     weather_notes = models.CharField(max_length=1000, blank=True, null=True)
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
+    @property
+    def site_region(self):
+        return f"{self.site}, {self.site.region}"
+
+    def __str__(self):
+        return f"Sample #{self.id} - {self.site}, {self.site.region}"
+
 
 class Dive(models.Model):
     heading_choices = (
-        ('n', _("north")),
-        ('s', _("south")),
-        ('e', _("east")),
-        ('w', _("west")),
+        ('n', _("North")),
+        ('s', _("South")),
+        ('e', _("East")),
+        ('w', _("West")),
     )
     side_choices = (
-        ('l', _("left")),
-        ('r', _("right")),
+        ('l', _("Left")),
+        ('r', _("Right")),
     )
-    sample = models.ForeignKey(Sample, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("sample"))
+    sample = models.ForeignKey(Sample, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("sample"), editable=False)
     transect = models.ForeignKey(Transect, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("transect"))
     diver = models.ForeignKey(Diver, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("diver"))
     heading = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("heading"), choices=heading_choices)
@@ -83,6 +90,8 @@ class Dive(models.Model):
     width_m = models.FloatField(verbose_name=_("width (m)"))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
+    def __str__(self):
+        return f"Dive #{self.id}"
 
 class Section(models.Model):
     dive = models.ForeignKey(Dive, related_name='sections', on_delete=models.DO_NOTHING, verbose_name=_("dive"))

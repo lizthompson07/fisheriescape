@@ -1,12 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 
 from .utils import in_scuba_crud_group, in_scuba_admin_group
-
-# make sure the following groups exist:
-Group.objects.get_or_create(name="scuba_admin")
-Group.objects.get_or_create(name="scuba_crud")
 
 
 class LoginAccessRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):

@@ -247,7 +247,7 @@ class IndexTemplateView(TravelAccessRequiredMixin, CommonTemplateView):
             tab_dict[region]["things_to_deal_with"] = rdg_number_waiting + unverified_trips
 
         # Now for NCR
-        admo_name = "ADM Office"
+        admo_name = _("ADM Office")
         tab_dict[admo_name] = dict()
 
         # unverified trips
@@ -1748,7 +1748,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
     model = models.Conference
     form_class = forms.TripTimestampUpdateForm
     template_name = 'travel/trip_review_process_form.html'
-    submit_text = _("Proceed")
+    submit_text = gettext_lazy("Proceed")
 
     def test_func(self):
         # make sure that this page can only be accessed for active trips (exclude those already reviewed and those canceled)
@@ -1758,7 +1758,7 @@ class TripReviewProcessUpdateView(TravelADMAdminRequiredMixin, CommonUpdateView)
         if self.get_object().status_id in [30, 41]:
             return _("Do you wish to start a review on this trip?")
         elif self.get_object().status_id in [32]:
-            return _("you wish to re-open the review of this trip?")
+            return _("Do you wish to re-examine this trip?")
         else:
             return _("Do you wish to end the review of this trip?")
 
@@ -1854,7 +1854,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
     def get_parent_crumb(self):
         my_kwargs = deepcopy(self.kwargs)
         del my_kwargs["pk"]
-        return {"title": _("Trips Awaiting Verfication"), "url": reverse_lazy("travel:admin_trip_verification_list", kwargs=my_kwargs)}
+        return {"title": _("Trips Awaiting Verification"), "url": reverse_lazy("travel:admin_trip_verification_list", kwargs=my_kwargs)}
 
     def test_func(self):
         my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
@@ -1909,9 +1909,9 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
 
 class TripSelectFormView(TravelAdminRequiredMixin, CommonPopoutFormView):
     form_class = forms.TripSelectForm
-    h1 = _("Please select a trip to re-assign:")
-    h3 = _("(You will have a chance to review this action before it is carried out.)")
-    submit_text = _("Proceed")
+    h1 = gettext_lazy("Please select a trip to re-assign:")
+    h3 = gettext_lazy("(You will have a chance to review this action before it is carried out.)")
+    submit_text = gettext_lazy("Proceed")
 
     def test_func(self):
         my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
@@ -1938,8 +1938,8 @@ class TripReassignConfirmView(TravelAdminRequiredMixin, CommonPopoutFormView):
     form_class = forms.forms.Form
     width = 1500
     height = 1500
-    h1 = _("Please confirm the following:")
-    submit_text = _("Confirm")
+    h1 = gettext_lazy("Please confirm the following:")
+    submit_text = gettext_lazy("Confirm")
     field_list = [
         "name",
         "nome",

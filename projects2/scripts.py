@@ -482,7 +482,6 @@ def transform_deliverables():
         )
 
 
-
 def copy_orgs():
     from inventory.models import Organization, Location
     inventory_locs = Location.objects.filter(location_eng__isnull=False)
@@ -499,7 +498,7 @@ def copy_orgs():
         )
 
     inventory_orgs = Organization.objects.filter(name_eng__isnull=False)
-    i=0
+    i = 0
     for org in inventory_orgs:
         new_org, created = shared_models.Organization.objects.get_or_create(
             id=org.id,
@@ -522,3 +521,11 @@ def copy_orgs():
         i += 1
 
 
+def fix_submitted_project_years():
+    project_years = models.ProjectYear.objects.filter(status__in=[2, 3, 4, 5], submitted__isnull=True)
+    for py in project_years:
+        if py.updated_at:
+            py.submitted = py.updated_at
+        else:
+            py.submitted = timezone.now()
+        py.save()
