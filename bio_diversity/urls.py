@@ -318,7 +318,9 @@ urlpatterns = [
     path('update/sire/<int:pk>/', views.SireUpdate.as_view(), name="update_sire"),
 
     path('create/spwn/', views.SpwnCreate.as_view(), name="create_spwn"),
+    path('create/spwn/<int:evnt>/<str:pop>/', views.SpwnCreate.as_view(), name="create_spwn"),
     path('details/spwn/<int:pk>/', views.SpwnDetails.as_view(), name="details_spwn"),
+    path('details/spwn/<str:back>/<int:back_id>/<int:pk>/', views.SpwnDetails.as_view(), name="details_spwn"),
     path('list/spwn/', views.SpwnList.as_view(), name="list_spwn"),
     path('update/spwn/<int:pk>/', views.SpwnUpdate.as_view(), name="update_spwn"),
     

@@ -7,7 +7,7 @@ from django.test import tag
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.select import Select
 
-from bio_diversity.models import EventCode, Event, LocCode, Individual, Tank, ProtoCode
+from bio_diversity.models import EventCode, Event, LocCode, Individual, Tank, ProtoCode, Pairing
 from bio_diversity.test import BioFactoryFloor
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 from django.contrib.auth.models import User
@@ -226,6 +226,17 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         rows = add_feature(self, contx_data, "contx", "evnt", self.evnt_data.__str__())
         tank_used = Tank.objects.filter(pk=contx_data["tank_id"]).get().__str__()
         self.assertIn(tank_used, [get_col_val(row, 0) for row in rows])
+
+    @tag("Custom")
+    def test_add_spawning(self):
+        self.nav_to_details_view()
+
+        # user adds a new spawning to the event
+        spwn_data = BioFactoryFloor.SpwnFactory.build_valid_data()
+        rows = add_feature(self, spwn_data, "spwn", "", self.evnt_data.__str__())
+        pair_used = Pairing.objects.filter(pk=spwn_data["pair_id"]).get().__str__()
+        self.assertIn(pair_used, [get_col_val(row, 0) for row in rows])
+
 
 
 @tag("Functional", "Instc")

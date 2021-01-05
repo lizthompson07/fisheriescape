@@ -343,7 +343,14 @@ class SireCreate(mixins.SireMixin, CommonCreate):
 
 
 class SpwnCreate(mixins.SpwnMixin, CommonCreate):
-    pass
+    def form_valid(self, form):
+        """If the form is valid, save the associated model and add an X ref object."""
+        self.object = form.save()
+        if 'evnt' in self.kwargs:
+            anix_link = AniDetailXref(evnt_id=Event.objects.filter(pk=self.kwargs['evnt']).get(), spwn_id=self.object,
+                                      created_by=self.object.created_by, created_date=self.object.created_date)
+            anix_link.save()
+        return super().form_valid(form)
 
 
 class SpwndCreate(mixins.SpwndMixin, CommonCreate):
@@ -576,6 +583,14 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "ufid",
             "pit_tag",
             "grp_id",
+        ]
+        anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
+        context["spwn_list"] = [anix.spwn_id for anix in anix_set]
+        context["spwn_object"] = models.Spawning.objects.first()
+        context["spwn_field_list"] = [
+            "pair_id",
+            "est_fecu",
+            "spwn_date",
         ]
         return context
 
