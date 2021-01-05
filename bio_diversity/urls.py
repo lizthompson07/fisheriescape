@@ -270,7 +270,9 @@ urlpatterns = [
     path('update/protc/<int:pk>/', views.ProtcUpdate.as_view(), name="update_protc"),
 
     path('create/protf/', views.ProtfCreate.as_view(), name="create_protf"),
+    path('create/protf/<int:prot>/<str:pop>/', views.ProtfCreate.as_view(), name="create_protf"),
     path('details/protf/<int:pk>/', views.ProtfDetails.as_view(), name="details_protf"),
+    path('details/protf/<str:back>/<int:back_id>/<int:pk>/', views.ProtfDetails.as_view(), name="details_protf"),
     path('list/protf/', views.ProtfList.as_view(), name="list_protf"),
     path('update/protf/<int:pk>/', views.ProtfUpdate.as_view(), name="update_protf"),
 

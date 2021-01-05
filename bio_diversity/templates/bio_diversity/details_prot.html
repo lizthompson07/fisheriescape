@@ -36,29 +36,33 @@
             {% endfor %}
             </div>
         </div>
-        {% if object.protf_id.count > 0 %}
-            <div class="card border border-dark my-1">
-                <h5 class="card-header">{% trans "Protocol Files" %}</h5>
-                <table class="table table-sm sortable table-hover">
-                    <thead>
-                        {% for field in protf_field_list %}
-                            <th>{% get_verbose_label protf_object field %}</th>
-                        {% endfor %}
-                    </thead>
-                    <tbody>
-                        {% for obj in object.protf_id.all %}
-                            <tr href="{% url 'bio_diversity:details_protf' obj.id %}">
+        <div class="card border border-dark my-1">
+                <h5 class="card-header">{% trans "Protocol Files" %}
+                    <span class="px-1">
+                        <a class="btn btn-primary" name="add-new-protf-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_protf' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Protocol File' %}</a>
+                    </span>
+                </h5>
+                {% if object.protf_id.count > 0 %}
+                    <table class="table table-sm sortable table-hover">
+                        <thead>
                             {% for field in protf_field_list %}
-                                <td>
-                                    {% get_field_value obj field %}
-                                </td>
+                                <th>{% get_verbose_label protf_object field %}</th>
                             {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for obj in object.protf_id.all %}
+                                <tr href="{% url 'bio_diversity:details_protf'  'prot' object.id obj.id %}">
+                                {% for field in protf_field_list %}
+                                    <td>
+                                        {% get_field_value obj field %}
+                                    </td>
+                                {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
             </div>
-            {% endif %}
     {% endblock field_override %}
   </div>
 {% endblock %}

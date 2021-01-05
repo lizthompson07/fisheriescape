@@ -299,7 +299,11 @@ class ProtcCreate(mixins.ProtcMixin, CommonCreate):
 
 
 class ProtfCreate(mixins.ProtfMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'prot' in self.kwargs:
+            initial['prot_id'] = self.kwargs['prot']
+        return initial
 
 
 class QualCreate(mixins.QualMixin, CommonCreate):
