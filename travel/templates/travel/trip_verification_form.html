@@ -146,14 +146,14 @@
 
     <div class="mb-5">
         <h4>
-            {% trans "What do you think of the trip category? Please ensure that the proper selection was made." %}
+            {% trans "What do you think of the TRIP PURPOSE? Please ensure that the proper selection was made." %}
         </h4>
 
 
         <table class="table table-bordered">
             <tr>
                 <th style="width: 20%">{% trans "Trip title" %}</th>
-                <th style="width: 40%">{% trans "Current category" %}</th>
+                <th style="width: 40%">{% trans "Trip purpose (current selection)" %}</th>
                 <th style="width: 40%">{% trans "Other options" %}</th>
             </tr>
             <tr>
@@ -202,7 +202,7 @@
         </div>
         <div class="">
             <a href="#" pop-href="{% url 'travel:trip_edit' object.id "pop" %}" class="btn btn-primary">
-                {% trans "Click HERE to edit the trip category" %}
+                {% trans "Click HERE to edit the trip purpose" %}
             </a>
         </div>
     </div>
