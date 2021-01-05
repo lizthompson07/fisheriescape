@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-05 07:36-0400\n"
+"POT-Creation-Date: 2021-01-05 08:42-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -22,7 +22,9 @@ msgstr "Utilisateur"
 msgid "name"
 msgstr "nom"
 
-#: .\travel\filters.py:38 .\travel\views.py:1555 .\travel\views.py:2023
+#: .\travel\filters.py:38
+#: .\travel\templates\travel\trip_verification_form.html:155
+#: .\travel\views.py:1555 .\travel\views.py:2023
 msgid "Trip title"
 msgstr "Titre du voyage"
 
@@ -757,7 +759,7 @@ msgstr "Clone"
 #: .\travel\templates\travel\trip_request_detail.html:198
 #: .\travel\templates\travel\trip_request_form_popout.html:54
 #: .\travel\templates\travel\trip_request_form_popout.html:137
-#: .\travel\templates\travel\trip_verification_form.html:277
+#: .\travel\templates\travel\trip_verification_form.html:294
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -1443,7 +1445,7 @@ msgstr "Sauvegarder"
 
 #: .\travel\templates\travel\reviewer_formset.html:86
 #: .\travel\templates\travel\reviewer_formset.html:167
-#: .\travel\templates\travel\trip_verification_form.html:282
+#: .\travel\templates\travel\trip_verification_form.html:299
 msgid "Back"
 msgstr "Retour"
 
@@ -1855,40 +1857,123 @@ msgstr ""
 msgid "Are you certain you wish to proceed?"
 msgstr "Êtes-vous certain de vouloir procéder ?"
 
-#: .\travel\templates\travel\trip_verification_form.html:42
-#: .\travel\templates\travel\trip_verification_form.html:52
+#: .\travel\templates\travel\trip_verification_form.html:32
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "                Are you sure you want to delete %(object)s as a default "
+#| "reviewer\n"
+#| "            "
+msgid ""
+"\n"
+"                Are there any other %(fy)s trips that have similar sounding "
+"NAMES?\n"
+"            "
+msgstr ""
+"\n"
+"                Êtes-vous sûr de vouloir supprimer l'objet suivant %(object)"
+"s en tant qu'examinateur par défaut \n"
+"            "
+
+#: .\travel\templates\travel\trip_verification_form.html:38
+#: .\travel\templates\travel\trip_verification_form.html:77
+#: .\travel\templates\travel\trip_verification_form.html:117
+msgid "My Trip"
+msgstr "Mon voyage"
+
+#: .\travel\templates\travel\trip_verification_form.html:39
 #: .\travel\templates\travel\trip_verification_form.html:78
-#: .\travel\templates\travel\trip_verification_form.html:88
-#: .\travel\templates\travel\trip_verification_form.html:115
+#: .\travel\templates\travel\trip_verification_form.html:118
+msgid "Other Trips"
+msgstr "Autres voyages"
+
+#: .\travel\templates\travel\trip_verification_form.html:46
+#: .\travel\templates\travel\trip_verification_form.html:56
+#: .\travel\templates\travel\trip_verification_form.html:85
+#: .\travel\templates\travel\trip_verification_form.html:95
 #: .\travel\templates\travel\trip_verification_form.html:125
+#: .\travel\templates\travel\trip_verification_form.html:135
 msgid "View details"
 msgstr "Voir les détails"
 
 #: .\travel\templates\travel\trip_verification_form.html:71
-msgid "My Trip"
-msgstr "Mon voyage"
+#, python-format
+msgid ""
+"\n"
+"                Are there any other %(fy)s trips that are STARTING or ENDING "
+"on the same day?\n"
+"            "
+msgstr ""
 
-#: .\travel\templates\travel\trip_verification_form.html:72
-msgid "Other Trips"
+#: .\travel\templates\travel\trip_verification_form.html:110
+#, python-format
+msgid ""
+"\n"
+"                Are there any other %(fy)s trips that are happening at "
+"similar sounding LOCATIONS?\n"
+"            "
+msgstr ""
+
+#: .\travel\templates\travel\trip_verification_form.html:149
+msgid ""
+"What do you think of the trip purpose? It is really important that this was "
+"selected correctly."
+msgstr ""
+
+#: .\travel\templates\travel\trip_verification_form.html:156
+msgid "Current selection"
+msgstr ""
+
+#: .\travel\templates\travel\trip_verification_form.html:157
+#, fuzzy
+#| msgid "Other Trips"
+msgid "Other options"
 msgstr "Autres voyages"
 
-#: .\travel\templates\travel\trip_verification_form.html:215
+#: .\travel\templates\travel\trip_verification_form.html:166
+msgid ""
+"\n"
+"                            There is no trip purpose. You will not be "
+"allowed to submit this form without selecting a\n"
+"                            trip purpose!\n"
+"                        "
+msgstr ""
+
+#: .\travel\templates\travel\trip_verification_form.html:205
+msgid "You can edit this here"
+msgstr ""
+
+#: .\travel\templates\travel\trip_verification_form.html:214
+msgid "Do the trip details look complete?"
+msgstr ""
+
+#: .\travel\templates\travel\trip_verification_form.html:228
 msgid "Connected Travel Requests:"
 msgstr "Demandes de voyage liées :"
 
-#: .\travel\templates\travel\trip_verification_form.html:228
+#: .\travel\templates\travel\trip_verification_form.html:237
+msgid "STATUS"
+msgstr ""
+
+#: .\travel\templates\travel\trip_verification_form.html:243
 msgid "There are no requests connected to this trip."
 msgstr "Aucune demande n'est liée à ce voyage."
 
-#: .\travel\templates\travel\trip_verification_form.html:261
+#: .\travel\templates\travel\trip_verification_form.html:277
 msgid "Yes, looks good!"
 msgstr "Oui, ça a l'air bien !"
 
-#: .\travel\templates\travel\trip_verification_form.html:269
+#: .\travel\templates\travel\trip_verification_form.html:281
+#, fuzzy
+#| msgid "Make changes yourself"
+msgid "Make some changes"
+msgstr "Apportez vous-même des changements"
+
+#: .\travel\templates\travel\trip_verification_form.html:285
 msgid "Cannot delete a trip that has requests attached to it."
 msgstr "Ne peut pas supprimer un voyage auquel sont attachées des demandes."
 
-#: .\travel\templates\travel\trip_verification_form.html:271
+#: .\travel\templates\travel\trip_verification_form.html:287
 msgid "This trip is no good and I want to re-assign the requests."
 msgstr "Ce voyage n'est pas bon et je veux réassigner les demandes."
 
@@ -2301,7 +2386,7 @@ msgstr "Commencer un examen"
 msgid "End a Review"
 msgstr "Terminer un examen"
 
-#: .\travel\views.py:1825
+#: .\travel\views.py:1825 .\travel\views.py:1857
 msgid "Trips Awaiting Verification"
 msgstr "Voyages en attente de vérification"
 
@@ -2316,10 +2401,6 @@ msgstr "durée (jours)"
 #: .\travel\views.py:1852
 msgid "Verify Trip"
 msgstr "Vérification du voyage"
-
-#: .\travel\views.py:1857
-msgid "Trips Awaiting Verfication"
-msgstr "Voyages en attente de vérification"
 
 #: .\travel\views.py:1870 .\travel\views.py:1927 .\travel\views.py:1968
 msgid ""
@@ -2429,6 +2510,9 @@ msgstr "Le coût a été supprimé avec succès."
 #: .\travel\views.py:2792
 msgid "All empty costs have been cleared."
 msgstr "Tous les frais vides ont été supprimés."
+
+#~ msgid "Trips Awaiting Verfication"
+#~ msgstr "Voyages en attente de vérification"
 
 # Do you wish to re-examine this trip? 
 # please chance the source text to the above.

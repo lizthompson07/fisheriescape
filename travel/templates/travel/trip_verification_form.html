@@ -27,18 +27,22 @@
 
 {% block subcontent %}
     <div class="mb-5">
+
         <h4>
-            Are there any other {{ object.fiscal_year }} trips that have similar sounding NAMES?
+            {% blocktrans with object.fiscal_year as fy %}
+                Are there any other {{ fy }} trips that have similar sounding NAMES?
+            {% endblocktrans %}
         </h4>
         <table class="table table-bordered">
             <tr>
-                <th style="width: 40%">My Trip</th>
-                <th style="width: 60%">Other Trips</th>
+                <th style="width: 40%">{% trans "My Trip" %}</th>
+                <th style="width: 60%">{% trans "Other Trips" %}</th>
             </tr>
             <tr>
                 <td>
                     {{ object.tname }}
-                    <button class="badge" data-toggle="popover" title="{{ object.tname }}" data-content="{{ object.html_block }}">
+                    <button class="badge" data-toggle="popover" title="{{ object.tname }}"
+                            data-content="{{ object.html_block }}">
                         {% trans "View details" %}
                     </button>
                 </td>
@@ -64,7 +68,9 @@
 
     <div class="mb-5">
         <h4>
-            Are there any other {{ object.fiscal_year }} trips that are STARTING or ENDING on the same day?
+            {% blocktrans with object.fiscal_year as fy %}
+                Are there any other {{ fy }} trips that are STARTING or ENDING on the same day?
+            {% endblocktrans %}
         </h4>
         <table class="table table-bordered">
             <tr>
@@ -74,7 +80,8 @@
             <tr>
                 <td>
                     {{ object.tname }}
-                    <button class="badge" data-toggle="popover" title="{{ object.tname }}" data-content="{{ object.html_block }}">
+                    <button class="badge" data-toggle="popover" title="{{ object.tname }}"
+                            data-content="{{ object.html_block }}">
                         {% trans "View details" %}
                     </button>
                 </td>
@@ -100,18 +107,21 @@
 
     <div class="mb-5">
         <h4>
-            Are there any other {{ object.fiscal_year }} trips that are happening at similar sounding LOCATIONS?
+            {% blocktrans with object.fiscal_year as fy %}
+                Are there any other {{ fy }} trips that are happening at similar sounding LOCATIONS?
+            {% endblocktrans %}
         </h4>
 
         <table class="table table-bordered">
             <tr>
-                <th style="width: 40%">My Trip</th>
-                <th style="width: 60%">Other Trips</th>
+                <th style="width: 40%">{% trans "My Trip" %}</th>
+                <th style="width: 60%">{% trans "Other Trips" %}</th>
             </tr>
             <tr>
                 <td>
                     {{ object.tname }}
-                    <button class="badge" data-toggle="popover" title="{{ object.tname }}" data-content="{{ object.html_block }}">
+                    <button class="badge" data-toggle="popover" title="{{ object.tname }}"
+                            data-content="{{ object.html_block }}">
                         {% trans "View details" %}
                     </button>
                 </td>
@@ -136,15 +146,15 @@
 
     <div class="mb-5">
         <h4>
-            What do you think of the trip purpose? It is really important that this was selected correctly.
+            {% trans "What do you think of the trip purpose? It is really important that this was selected correctly." %}
         </h4>
 
 
         <table class="table table-bordered">
             <tr>
-                <th style="width: 20%">Trip title</th>
-                <th style="width: 40%">Current selection</th>
-                <th style="width: 40%">Other options</th>
+                <th style="width: 20%">{% trans "Trip title" %}</th>
+                <th style="width: 40%">{% trans "Current selection" %}</th>
+                <th style="width: 40%">{% trans "Other options" %}</th>
             </tr>
             <tr>
                 <td>
@@ -153,7 +163,10 @@
                 <td>
                     {% if not object.trip_subcategory %}
                         <h5 class="red-font">
-                            There is no trip purpose. You will not be allowed to submit this form without selecting a trip purpose!
+                        {% blocktrans  %}
+                            There is no trip purpose. You will not be allowed to submit this form without selecting a
+                            trip purpose!
+                        {% endblocktrans  %}
                         </h5>
                     {% else %}
                         <span class=""> {{ object.trip_subcategory }}</span>
@@ -189,7 +202,7 @@
         </div>
         <div class="">
             <a href="#" pop-href="{% url 'travel:trip_edit' object.id "pop" %}" class="btn btn-primary">
-                You can edit this here
+                {% trans "You can edit this here" %}
             </a>
         </div>
     </div>
@@ -198,7 +211,7 @@
     <div class="mb-5">
         <div class="mb-3">
             <h4>
-                Do the trip details look complete?
+                {% trans "Do the trip details look complete?" %}
             </h4>
         </div>
 
@@ -218,9 +231,11 @@
                 <ul>
                     {% for triprequest in object.trip_requests.all %}
                         <li>
-                            <a href="{% url 'travel:request_detail' triprequest.id "all" %}" target="_blank">{{ triprequest }}</a>
+                            <a href="{% url 'travel:request_detail' triprequest.id "all" %}"
+                               target="_blank">{{ triprequest }}</a>
                             by {{ triprequest.user }}
-                            (STATUS: <span style="background-color: {{ triprequest.status.color }}">{{ triprequest.status }}</span>)
+                            ({% trans "STATUS" %}: <span
+                                style="background-color: {{ triprequest.status.color }}">{{ triprequest.status }}</span>)
 
                         </li>
                     {% empty %}
@@ -241,7 +256,8 @@
             {% if field.name in help_text_dict and "_date" not in field.name %}
                 {% bootstrap_label field.label %}
                 {% with help_text_dict|lookup:field.name as help_text %}
-                    <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover" data-trigger="hover"
+                    <img src="{% static 'img/icons/information.png' %}" style="width: 20px" data-toggle="popover"
+                         data-trigger="hover"
                          title="{{ field.label }}"
                          data-content="{{ help_text }}">
                     {% bootstrap_field field placeholder="" show_label=False %}
@@ -262,7 +278,7 @@
                 </button>
 
                 <a href="#" pop-href="{% url 'travel:trip_edit' object.id "pop" %}" class="btn btn-primary">
-                    Make some changes
+                    {% trans "Make some changes" %}
                 </a>
                 {% if object.trip_requests.count %}
                     {% echo "disabled" as disabled_var %}
@@ -273,7 +289,8 @@
 
                 {% endif %}
                 <span data-toggle="tooltip" title="{{ tip_text }}">
-                    <a class="btn btn-danger {{ disabled_var }}" href="{% url 'travel:trip_delete' object.id "back_to_verify" %}">
+                    <a class="btn btn-danger {{ disabled_var }}"
+                       href="{% url 'travel:trip_delete' object.id "back_to_verify" %}">
                         {% trans "Delete" %}
                     </a>
                     </span>

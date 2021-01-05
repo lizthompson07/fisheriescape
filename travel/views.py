@@ -1854,7 +1854,7 @@ class TripVerifyUpdateView(TravelAdminRequiredMixin, CommonFormView):
     def get_parent_crumb(self):
         my_kwargs = deepcopy(self.kwargs)
         del my_kwargs["pk"]
-        return {"title": _("Trips Awaiting Verfication"), "url": reverse_lazy("travel:admin_trip_verification_list", kwargs=my_kwargs)}
+        return {"title": _("Trips Awaiting Verification"), "url": reverse_lazy("travel:admin_trip_verification_list", kwargs=my_kwargs)}
 
     def test_func(self):
         my_trip = models.Conference.objects.get(pk=self.kwargs.get("pk"))
