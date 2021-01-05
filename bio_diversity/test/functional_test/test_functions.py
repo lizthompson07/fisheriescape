@@ -398,4 +398,22 @@ class TestProgDetailsFunctional(CommonFunctionalTest):
         rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(protc_used, [get_col_val(row, 0) for row in rows])
 
+@tag("Functional", "Prot")
+class TestProtDetailsFunctional(CommonFunctionalTest):
+    # put factories in setUp and not in class to make factory boy use selenium database.
+    def setUp(self):
+        super().setUp()
+        self.prot_data = BioFactoryFloor.ProtFactory(valid=True)
 
+    def nav_to_details_view(self):
+        # user navigates to a details view for an event
+        self.browser.get("{}{}{}".format(self.live_server_url, "/en/bio_diversity/details/prot/", self.prot_data.id))
+        self.assertIn('Protocol', self.browser.title, "not on correct page")
+
+    def test_add_protf(self):
+        self.nav_to_details_view()
+
+        # user adds a new protocol to the event
+        protf_data = BioFactoryFloor.ProtfFactory.build_valid_data()
+        rows = add_feature(self, protf_data, "protf", "prot", self.prot_data.__str__())
+        self.assertTrue(len(rows) > 0)
