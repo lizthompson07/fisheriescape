@@ -73,6 +73,9 @@ class AnixCreate(mixins.AnixMixin, CommonCreate):
                     pass
                 else:
                     self.get_form_class().base_fields[field].widget = forms.HiddenInput()
+        else:
+            for field in self.get_form_class().base_fields:
+                self.get_form_class().base_fields[field].widget = forms.Select()
 
         return initial
 

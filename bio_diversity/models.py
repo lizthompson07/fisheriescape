@@ -71,7 +71,7 @@ class BioTimeModel(models.Model):
 
     start_date = models.DateField(verbose_name=_("Start Date"))
     end_date = models.DateField(null=True, blank=True, verbose_name=_("End Date"))
-    valid = models.BooleanField(default="False", verbose_name=_("Detail still valid?"))
+    valid = models.BooleanField(default="True", verbose_name=_("Detail still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
     created_by = models.CharField(max_length=32, verbose_name=_("Created By"))
     created_date = models.DateField(verbose_name=_("Created Date"))
@@ -453,7 +453,7 @@ class Group(BioModel):
     stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
     coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Collection"))
-    grp_valid = models.BooleanField(default="False", verbose_name=_("Group still valid?"))
+    grp_valid = models.BooleanField(default="True", verbose_name=_("Group still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
