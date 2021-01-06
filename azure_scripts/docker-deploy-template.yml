@@ -76,8 +76,8 @@ parameters:
 
 steps:
   - script: |
-      az account set --subscription="IMTS DEV/TEST"
-      az login --identity -u b9b8533b-430c-4b7a-95b7-0c8d43179f68
+      az login --identity -u ${{parameters.AZURE_CLIENT_ID}}
+      # az account set --subscription="IMTS DEV/TEST"
 
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
@@ -139,7 +139,7 @@ steps:
         -SENDGRID_API_KEY ${{parameters.SENDGRID_API_KEY}}
         -GITHUB_API_KEY ${{parameters.GITHUB_API_KEY}}
         -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)
-        -AZURE_CLIENT_ID $(parameters.AZURE_CLIENT_ID)
+        -AZURE_CLIENT_ID ${{parameters.AZURE_CLIENT_ID}}
 
   - task: AzureAppServiceManage@0
     displayName: 'Restart web app service'
