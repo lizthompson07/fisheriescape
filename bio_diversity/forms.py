@@ -191,6 +191,11 @@ class EvntForm(CreatePrams, forms.ModelForm):
                                                    "class": "fp-date-time"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['team_id'].create_url = 'bio_diversity:create_team'
+
     def clean(self):
         cleaned_data = super().clean()
         # we have to make sure
