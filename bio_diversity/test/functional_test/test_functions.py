@@ -97,14 +97,18 @@ def open_n_fill_popup(self, button, data, parent_name="", parent_code=""):
     self.browser.refresh()
 
 
-def add_feature(self, feature_data, feature_tag, object_tag="", object_name=""):
+def add_feature(self, feature_data, feature_tag, object_tag="", object_name="", clone=False):
     # browser must be on details view with the feature.
     # feature data should be output from factory.build_valid_data()
     # returns rows in details table to be compared with input feature data
 
     # user adds a feature to the object from the object's detail page
     feature_details = self.browser.find_element_by_xpath('//div[@name="{}-details"]'.format(feature_tag))
-    feature_btn = feature_details.find_element_by_xpath('//a[@name="add-new-{}-btn"]'.format(feature_tag))
+    if clone:
+        # will probably break if there are multiple instances in details table...
+        feature_btn = feature_details.find_element_by_xpath('//a[@name="clone-{}-btn"]'.format(feature_tag))
+    else:
+        feature_btn = feature_details.find_element_by_xpath('//a[@name="add-new-{}-btn"]'.format(feature_tag))
     open_n_fill_popup(self, feature_btn, feature_data, object_name, object_tag)
     try:
         details_table = self.browser.find_element_by_xpath("//div[@name='{}-details']//table/tbody".format(feature_tag))
@@ -184,7 +188,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         ufid_used = indv_data["ufid"]
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
-    @tag("Custom")
     def test_add_existing_individual_nav_back_btn(self):
         self.nav_to_details_view()
 
@@ -216,6 +219,25 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
             return self.fail("No individuals in details table")
         rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(first_ufid, [get_col_val(row, 0) for row in rows])
+
+    @tag("Custom")
+    def test_clone_individual(self):
+        self.nav_to_details_view()
+
+        # user adds a new individual to the event
+        indv_data = BioFactoryFloor.IndvFactory.build_valid_data()
+        rows = add_feature(self, indv_data, "indv", "", self.evnt_data.__str__())
+        ufid_used = indv_data["ufid"]
+        self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
+
+        # user clones this indivdual:
+        indv_clone_data = {"ufid": "new_ufid"}
+        rows = add_feature(self, indv_clone_data, "indv", "", self.evnt_data.__str__(), True)
+        self.assertIn("new_ufid", [get_col_val(row, 0) for row in rows])
+
+
+
+
 
     def test_add_contx(self):
         self.nav_to_details_view()
