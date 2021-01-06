@@ -53,6 +53,7 @@ Vue.component("modal", {
       if (this.project_year.review.operational_score === "") this.project_year.review.operational_score = null
       if (this.project_year.review.ecological_score === "") this.project_year.review.ecological_score = null
       if (this.project_year.review.scale_score === "") this.project_year.review.scale_score = null
+      if (this.project_year.review.approval_status === "") this.project_year.review.approval_status = null
 
       if (this.isOldReview) {
         let endpoint = `/api/project-planning/reviews/${this.project_year.review.id}/`;
