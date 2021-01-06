@@ -65,6 +65,9 @@ parameters:
   - name: WEB_APP_NAME
     type: string
 
+  - name: AZURE_CLIENT_ID
+    type: string
+
   - name: AZURE_INSTRUMENTATION_KEY
     type: string
 
@@ -136,6 +139,7 @@ steps:
         -SENDGRID_API_KEY ${{parameters.SENDGRID_API_KEY}}
         -GITHUB_API_KEY ${{parameters.GITHUB_API_KEY}}
         -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)
+        -AZURE_CLIENT_ID $(parameters.AZURE_CLIENT_ID)
 
   - task: AzureAppServiceManage@0
     displayName: 'Restart web app service'

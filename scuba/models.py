@@ -61,7 +61,7 @@ class Diver(models.Model):
 class Sample(models.Model):
     site = models.ForeignKey(Site, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("site"))
     datetime = models.DateTimeField(verbose_name="date / time (yyyy-mm-dd hh:mm)")
-    weather_notes = models.CharField(max_length=1000, blank=True, null=True)
+    weather_notes = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("weather notes"))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
     @property

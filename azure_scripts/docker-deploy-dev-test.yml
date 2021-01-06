@@ -35,6 +35,7 @@ trigger:
 # DockerNamespace
 # DockerRepository
 # DockerImageTag
+# AZURE_CLIENT_ID
 ###############
 
 steps:
@@ -64,4 +65,5 @@ steps:
       SENDGRID_API_KEY: '$(SENDGRID_API_KEY)'
       SHOW_TICKETING_APP: '$(SHOW_TICKETING_APP)'
       WEB_APP_NAME: '$(WEB_APP_NAME)'
+      AZURE_CLIENT_ID: '$(AZURE_CLIENT_ID)'
 
