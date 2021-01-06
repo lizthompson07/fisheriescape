@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from shared_models import models as shared_models
@@ -82,7 +83,7 @@ class Dive(models.Model):
         ('l', _("Left")),
         ('r', _("Right")),
     )
-    sample = models.ForeignKey(Sample, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("sample"), editable=False)
+    sample = models.ForeignKey(Sample, related_name='dives', on_delete=models.CASCADE, verbose_name=_("sample"), editable=False)
     transect = models.ForeignKey(Transect, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("transect"))
     diver = models.ForeignKey(Diver, related_name='dives', on_delete=models.DO_NOTHING, verbose_name=_("diver"))
     heading = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("heading"), choices=heading_choices)
@@ -90,11 +91,14 @@ class Dive(models.Model):
     width_m = models.FloatField(verbose_name=_("width (m)"))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
 
+    class Meta:
+        ordering = ["sample", "transect", "diver"]
+
     def __str__(self):
         return f"Dive #{self.id}"
 
 class Section(models.Model):
-    dive = models.ForeignKey(Dive, related_name='sections', on_delete=models.DO_NOTHING, verbose_name=_("dive"))
+    dive = models.ForeignKey(Dive, related_name='sections', on_delete=models.CASCADE, verbose_name=_("dive"))
     interval = models.IntegerField(verbose_name=_("5m interval (1-20)"), validators=(MinValueValidator(1), MaxValueValidator(20)))
     depth_ft = models.FloatField(verbose_name=_("depth (ft)"), blank=True, null=True)
     percent_sand = models.FloatField(default=0, verbose_name=_("% sand"), validators=(MinValueValidator(0), MaxValueValidator(1)))
@@ -105,6 +109,25 @@ class Section(models.Model):
     percent_cobble = models.FloatField(default=0, verbose_name=_("% cobble"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     percent_pebble = models.FloatField(default=0, verbose_name=_("% pebble"), validators=(MinValueValidator(0), MaxValueValidator(1)))
     comment = models.TextField(null=True, blank=True, verbose_name=_("comment"))
+
+    @property
+    def substrate_profile(self):
+        my_str = ""
+        substrates = [
+            "sand",
+            "mud",
+            "solid",
+            "algae",
+            "gravel",
+            "cobble",
+            "pebble",
+        ]
+        for substrate in substrates:
+            attr = getattr(self, f"percent_{substrate}")
+            if attr and attr > 0:
+                my_str += f"{int(attr*100)}% {substrate}<br> "
+
+        return mark_safe(my_str)
 
 
 class Observation(models.Model):
@@ -121,7 +144,7 @@ class Observation(models.Model):
         ("b2", _("b2 (berried with black eggs)")),
         ("b3", _("b3 (berried with developed eggs)")),
     )
-    section = models.ForeignKey(Section, related_name='observations', on_delete=models.DO_NOTHING, verbose_name=_("section"))
+    section = models.ForeignKey(Section, related_name='observations', on_delete=models.CASCADE, verbose_name=_("section"))
     sex = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("sex"), choices=sex_choices)
     egg_status = models.CharField(max_length=2, blank=True, null=True, verbose_name=_("eggs status"), choices=egg_status_choices)
     carapace_length_mm = models.FloatField(verbose_name=_("carapace length (mm)"), blank=True, null=True)

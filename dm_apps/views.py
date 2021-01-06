@@ -55,7 +55,7 @@ def get_app_dict(request):
     # if we are going to fake the travel app, we add it no matter what
     if settings.FAKE_TRAVEL_APP:
         app_dict["travel"] = {
-            "title": _("Conference and Travel Management System"),
+            "title": _("EOS Conference and Travel Management System"),
             "description": _("Management tool to facilitate regional and national travel pre-approvals."),
             "status": "production",
             "access": "permission-required",
@@ -68,7 +68,7 @@ def get_app_dict(request):
     else:
         try:
             app_dict["travel"] = {
-                "title": _("Conference and Travel Management System"),
+                "title": _("EOS Conference and Travel Management System"),
                 "description": _("Management tool to facilitate regional and national travel pre-approvals."),
                 "status": "production",
                 "access": "permission-required",

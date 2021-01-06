@@ -9,6 +9,15 @@ from django.utils.timezone import make_aware
 from scuba import models
 
 
+def is_number_tryexcept(s):
+    """ Returns True is string is a number. https://stackoverflow.com/questions/354038/how-do-i-check-if-a-string-is-a-number-float """
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
 def digest_data():
     # open the csv we want to read
     my_target_data_file = os.path.join(settings.BASE_DIR, 'scuba', '2019_data_import.csv')
@@ -101,22 +110,21 @@ def digest_data():
                 heading=heading,
                 side=side,
                 width_m=row['Width (m)'],
-                comment=row['Comments'],
             )
 
             # SECTION
-            sand = float(row['Sa']) if row['Sa'].isdigit() else 0
-            mud = float(row['Va']) if row['Va'].isdigit() else 0
-            solid = float(row['Du']) if row['Du'].isdigit() else 0
-            algae = float(row['Al']) if row['Al'].isdigit() else 0
-            gravel = float(row['Gr']) if row['Gr'].isdigit() else 0
-            cobble = float(row['Co']) if row['Co'].isdigit() else 0
-            pebble = float(row['Ca']) if row['Ca'].isdigit() else 0
+            sand = float(row['Sa']) if is_number_tryexcept(row['Sa']) else 0
+            mud = float(row['Va']) if is_number_tryexcept(row['Va']) else 0
+            solid = float(row['Du']) if is_number_tryexcept(row['Du']) else 0
+            algae = float(row['Al']) if is_number_tryexcept(row['Al']) else 0
+            gravel = float(row['Gr']) if is_number_tryexcept(row['Gr']) else 0
+            cobble = float(row['Co']) if is_number_tryexcept(row['Co']) else 0
+            pebble = float(row['Ca']) if is_number_tryexcept(row['Ca']) else 0
 
             section, created = models.Section.objects.get_or_create(
                 dive=dive,
                 interval=row['section'],
-                depth_ft=row['Depth_(ft)'] if row['Depth_(ft)'].isdigit() else None,
+                depth_ft=row['Depth_(ft)'] if is_number_tryexcept(row['Depth_(ft)']) else None,
                 comment=row['Comments'],
 
                 percent_sand=sand,
@@ -130,9 +138,6 @@ def digest_data():
             )
 
             # OBSERVATIONS
-            # start by deleting all previous observations..
-            section.observations.all().delete()
-
             # sex
             sex_txt_orig = row['sexe']
             sex_txt = row['sexe'].lower().strip().replace(" ", "").replace("-","")
@@ -148,16 +153,16 @@ def digest_data():
             length_txt_orig = row['LC_(mm)']
             length_txt = row['LC_(mm)'].strip().replace("?", "").replace("~","")
             length = None
-            if length_txt.isdigit():
+            if is_number_tryexcept(length_txt):
                 length = float(length_txt)
 
             if length:
                 comment = f"imported from MS Excel on {timezone.now().strftime('%Y-%m-%d')}. Original data: sex={sex_txt_orig}, length={length_txt_orig}"
                 models.Observation.objects.create(
                     section=section,
-                    sex = sex,
-                    egg_status = egg_status,
-                    carapace_length_mm = length,
+                    sex=sex,
+                    egg_status=egg_status,
+                    carapace_length_mm=length,
                     comment=comment
                 )
 
@@ -171,3 +176,8 @@ def digest_data():
                 section.save()
 
 
+def delete_all_data():
+    models.Sample.objects.all().delete()
+    models.Transect.objects.all().delete()
+    models.Site.objects.all().delete()
+    models.Region.objects.all().delete()

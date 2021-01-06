@@ -22,24 +22,49 @@
 
     {% if object.sections.exists %}
 
-      <table class="table table-sm">
+      <table class="table table-bordered table-sm">
         <thead>
         <tr>
           {% for field in section_field_list %}
-            <th>
+            <th rowspan="2">
               {% get_verbose_label object.sections.first field %}
+            </th>
+          {% endfor %}
+          <th class="text-center" colspan="8">{% trans "Observations" %}</th>
+        </tr>
+        <tr>
+          {% for field in observation_field_list %}
+            <th>
+              {% get_verbose_label random_observation field %}
             </th>
           {% endfor %}
         </tr>
         </thead>
         <tbody>
         {% for section in object.sections.all %}
-          <tr>
-            {% for field in section_field_list %}
-              <td>
-                {% get_field_value section field %}
-              </td>
-            {% endfor %}
+          {% for obs in section.observations.all %}
+            <tr>
+              {% if forloop.counter == 1 %}
+                {% for field in section_field_list %}
+                  {% if field == "comment" %}
+                    <td style="width: 20%" rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
+                  {% elif field == "substrate_profile" %}
+                    <td style="width: 25%" rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
+                  {% else %}
+                    <td rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+
+              {% for field in observation_field_list %}
+                {% if "comment" in field %}
+                  <td style="width: 25%">{% get_field_value obs field %}</td>
+                {% else %}
+                  <td>{% get_field_value obs field %}</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
           </tr>
         {% endfor %}
         </tbody>

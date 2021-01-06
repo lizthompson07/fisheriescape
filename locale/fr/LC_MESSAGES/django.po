@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-05 09:33-0400\n"
+"POT-Creation-Date: 2021-01-06 10:05-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -231,7 +231,7 @@ msgstr "Nouveau"
 
 #: .\cruises\models.py:14 .\sar_search\models.py:19 .\sar_search\models.py:32
 #: .\sar_search\models.py:45 .\sar_search\models.py:56
-#: .\sar_search\models.py:85 .\sar_search\models.py:109 .\scuba\models.py:39
+#: .\sar_search\models.py:85 .\sar_search\models.py:109
 #: .\shared_models\models.py:18 .\shared_models\models.py:27
 #: .\shared_models\models.py:35 .\shared_models\models.py:36
 #: .\shared_models\models.py:405 .\shared_models\models.py:406
@@ -288,21 +288,18 @@ msgstr "Croisières"
 #: .\publications\templates\publications\pub_base.html:21
 #: .\sar_search\templates\sar_search\manage_settings_small.html:49
 #: .\sar_search\templates\sar_search\species_detail.html:11
-#: .\scifi\templates\scifi\scifi_base.html:28
-#: .\scuba\templates\scuba\base\_nav_left_auth.html:4
-#: .\shared_models\mixins.py:138 .\shares\templates\shares\shares_base.html:21
+#: .\scifi\templates\scifi\scifi_base.html:28 .\shared_models\mixins.py:138
+#: .\shares\templates\shares\shares_base.html:21
 msgid "Home"
 msgstr "Accueil"
 
 #: .\cruises\templates\cruises\base\_nav_left_auth.html:13
 #: .\inventory\templates\inventory\base\_nav_left_auth.html:9
 #: .\scifi\templates\scifi\scifi_base.html:61
-#: .\scuba\templates\scuba\base\_nav_left_auth.html:8
 msgid "Reports"
 msgstr "Rapports"
 
 #: .\cruises\templates\cruises\base\_nav_left_auth.html:19
-#: .\scuba\templates\scuba\base\_nav_left_auth.html:18
 msgid "Settings"
 msgstr "Paramètres"
 
@@ -333,11 +330,6 @@ msgstr "Texte d'aide"
 #: .\scifi\templates\scifi\project_detail.html:31
 #: .\scifi\templates\scifi\responsibilitycenter_detail.html:31
 #: .\scifi\templates\scifi\transaction_detail.html:29
-#: .\scuba\templates\scuba\dive_detail.html:8
-#: .\scuba\templates\scuba\region_detail.html:8
-#: .\scuba\templates\scuba\sample_detail.html:12
-#: .\scuba\templates\scuba\site_detail.html:8
-#: .\scuba\templates\scuba\site_detail.html:51
 #: .\shared_models\test\test_common_views.py:400 .\shared_models\views.py:121
 #: .\shared_models\views.py:292 .\shiny\templates\shiny\index.html:62
 msgid "Edit"
@@ -361,11 +353,6 @@ msgstr "Modifier"
 #: .\scifi\templates\scifi\project_detail.html:28
 #: .\scifi\templates\scifi\responsibilitycenter_detail.html:28
 #: .\scifi\templates\scifi\transaction_detail.html:32
-#: .\scuba\templates\scuba\dive_detail.html:9
-#: .\scuba\templates\scuba\region_detail.html:9
-#: .\scuba\templates\scuba\sample_detail.html:13
-#: .\scuba\templates\scuba\site_detail.html:9
-#: .\scuba\templates\scuba\site_detail.html:56
 #: .\shared_models\templates\shared_models\generic_form.html:36
 #: .\shared_models\templates\shared_models\org_form.html:35
 #: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:185
@@ -426,7 +413,9 @@ msgid "Submit and track data management service requests."
 msgstr "Soumettez et suivez les demandes de service de gestion de données."
 
 #: .\dm_apps\views.py:58 .\dm_apps\views.py:71
-msgid "Conference and Travel Management System"
+#, fuzzy
+#| msgid "Conference and Travel Management System"
+msgid "EOS Conference and Travel Management System"
 msgstr "Système de gestion de voyage de Science du SEO"
 
 #: .\dm_apps\views.py:59 .\dm_apps\views.py:72
@@ -679,12 +668,12 @@ msgstr ""
 msgid "(click to sort)"
 msgstr "(cliquez sur un en-tête pour trier le tableau)"
 
-#: .\inventory\filters.py:11 .\scuba\filters.py:25
+#: .\inventory\filters.py:11
 msgid "Search term"
 msgstr "Terme de recherche"
 
 #: .\inventory\filters.py:13
-#: .\inventory\templates\inventory\resource_list.html:85 .\scuba\filters.py:41
+#: .\inventory\templates\inventory\resource_list.html:85
 msgid "Region"
 msgstr "Région"
 
@@ -2002,319 +1991,6 @@ msgstr "Transactions"
 msgid "Duplicate Record"
 msgstr ""
 
-#: .\scuba\models.py:10 .\scuba\models.py:25 .\shared_models\models.py:150
-#: .\shared_models\models.py:165 .\shared_models\models.py:186
-#: .\shared_models\models.py:210 .\shared_models\models.py:416
-#: .\shared_models\models.py:733
-msgid "abbreviation"
-msgstr ""
-
-#: .\scuba\models.py:26 .\shared_models\models.py:166
-msgid "region"
-msgstr ""
-
-#: .\scuba\models.py:27
-#, fuzzy
-#| msgid "title"
-msgid "latitude"
-msgstr "titre"
-
-#: .\scuba\models.py:28
-msgid "longitude"
-msgstr ""
-
-#: .\scuba\models.py:40 .\scuba\models.py:61 .\scuba\views.py:324
-#, fuzzy
-#| msgid "Title"
-msgid "site"
-msgstr "Titre"
-
-#: .\scuba\models.py:47
-#, fuzzy
-#| msgid "First name"
-msgid "first name"
-msgstr "Prénom"
-
-#: .\scuba\models.py:48
-#, fuzzy
-#| msgid "Last name"
-msgid "last name"
-msgstr "Nom de famille"
-
-#: .\scuba\models.py:64 .\scuba\models.py:91 .\scuba\models.py:107
-#: .\scuba\models.py:128
-#, fuzzy
-#| msgid "Comments"
-msgid "comment"
-msgstr "Commentaires"
-
-#: .\scuba\models.py:76
-#, fuzzy
-#| msgid "Notes"
-msgid "North"
-msgstr "Remarques"
-
-#: .\scuba\models.py:77
-#, fuzzy
-#| msgid "Shortcut"
-msgid "South"
-msgstr "raccourci"
-
-#: .\scuba\models.py:78
-msgid "East"
-msgstr ""
-
-#: .\scuba\models.py:79
-msgid "West"
-msgstr ""
-
-#: .\scuba\models.py:82
-msgid "Left"
-msgstr ""
-
-#: .\scuba\models.py:83
-msgid "Right"
-msgstr ""
-
-#: .\scuba\models.py:85
-#, fuzzy
-#| msgid "name"
-msgid "sample"
-msgstr "nom"
-
-#: .\scuba\models.py:86
-#, fuzzy
-#| msgid "Transactions"
-msgid "transect"
-msgstr "Transactions"
-
-#: .\scuba\models.py:87
-msgid "diver"
-msgstr ""
-
-#: .\scuba\models.py:88
-#, fuzzy
-msgid "heading"
-msgstr "Financement"
-
-#: .\scuba\models.py:89
-msgid "side"
-msgstr ""
-
-#: .\scuba\models.py:90
-msgid "width (m)"
-msgstr ""
-
-#: .\scuba\models.py:97
-msgid "dive"
-msgstr ""
-
-#: .\scuba\models.py:98
-msgid "5m interval (1-20)"
-msgstr ""
-
-#: .\scuba\models.py:99
-msgid "depth (ft)"
-msgstr ""
-
-#: .\scuba\models.py:100
-#, python-format
-msgid "% sand"
-msgstr ""
-
-#: .\scuba\models.py:101
-msgid "% mud"
-msgstr ""
-
-#: .\scuba\models.py:102
-#, python-format
-msgid "% rock"
-msgstr ""
-
-#: .\scuba\models.py:103
-msgid "% algae"
-msgstr ""
-
-#: .\scuba\models.py:104
-#, python-format
-msgid "% gravel"
-msgstr ""
-
-#: .\scuba\models.py:105
-#, python-format
-msgid "% cobble"
-msgstr ""
-
-#: .\scuba\models.py:106
-msgid "% pebble"
-msgstr ""
-
-#: .\scuba\models.py:112
-#, fuzzy
-#| msgid "Email"
-msgid "male"
-msgstr "Courriel"
-
-#: .\scuba\models.py:113
-msgid "female"
-msgstr ""
-
-#: .\scuba\models.py:114
-msgid "immature"
-msgstr ""
-
-#: .\scuba\models.py:115
-msgid "unknown"
-msgstr ""
-
-#: .\scuba\models.py:118
-msgid "n/a"
-msgstr ""
-
-#: .\scuba\models.py:119
-msgid "b (berried)"
-msgstr ""
-
-#: .\scuba\models.py:120
-msgid "b1 (berried with new eggs)"
-msgstr ""
-
-#: .\scuba\models.py:121
-msgid "b2 (berried with black eggs)"
-msgstr ""
-
-#: .\scuba\models.py:122
-msgid "b3 (berried with developed eggs)"
-msgstr ""
-
-#: .\scuba\models.py:124 .\shared_models\views.py:523
-msgid "section"
-msgstr "section"
-
-#: .\scuba\models.py:125
-msgid "sex"
-msgstr ""
-
-#: .\scuba\models.py:126
-#, fuzzy
-#| msgid "status"
-msgid "eggs status"
-msgstr "statut"
-
-#: .\scuba\models.py:127
-msgid "carapace length (mm)"
-msgstr ""
-
-#: .\scuba\templates\scuba\base\_app_title.html:2
-#: .\scuba\templates\scuba\index.html:20
-msgid "SCUBA Survey"
-msgstr ""
-
-#: .\scuba\templates\scuba\base\_nav_left_auth.html:22 .\scuba\views.py:64
-#: .\scuba\views.py:74 .\scuba\views.py:82 .\scuba\views.py:122
-#: .\scuba\views.py:143 .\scuba\views.py:170 .\scuba\views.py:186
-#: .\scuba\views.py:205 .\scuba\views.py:230 .\scuba\views.py:255
-#: .\scuba\views.py:270
-#, fuzzy
-#| msgid "Region"
-msgid "Regions"
-msgstr "Région"
-
-#: .\scuba\templates\scuba\base\_nav_left_auth.html:25
-msgid "Divers"
-msgstr ""
-
-#: .\scuba\templates\scuba\dive_detail.html:21
-#, fuzzy
-#| msgid "section"
-msgid "Observations"
-msgstr "section"
-
-#: .\scuba\templates\scuba\dive_detail.html:50
-msgid "This dive has no observations."
-msgstr ""
-
-#: .\scuba\templates\scuba\form.html:36
-msgid "Markdown syntax is supported in this field"
-msgstr ""
-
-#: .\scuba\templates\scuba\index.html:23
-#, fuzzy
-#| msgid "Gulf Region Aquatic Invasive Species data entry and archiving tool."
-msgid "Gulf Region Lobster Survey Data Entry and Archiving Tool"
-msgstr ""
-"Outil de saisie et d'archivage de données sur les espèces aquatiques "
-"envahissantes de la région du Golfe."
-
-#: .\scuba\templates\scuba\index.html:27
-msgid "View Samples"
-msgstr ""
-
-#: .\scuba\templates\scuba\region_detail.html:22
-msgid "Add Site"
-msgstr ""
-
-#: .\scuba\templates\scuba\region_detail.html:24
-#, fuzzy
-#| msgid "Title"
-msgid "Sites"
-msgstr "Titre"
-
-#: .\scuba\templates\scuba\region_detail.html:37
-msgid "No. of transects"
-msgstr ""
-
-#: .\scuba\templates\scuba\region_detail.html:38
-msgid "No. of samples"
-msgstr ""
-
-#: .\scuba\templates\scuba\region_detail.html:59
-msgid "This region has no sites."
-msgstr ""
-
-#: .\scuba\templates\scuba\sample_detail.html:26
-msgid "New Dive"
-msgstr ""
-
-#: .\scuba\templates\scuba\sample_detail.html:28
-#, fuzzy
-#| msgid "Division"
-msgid "Dives"
-msgstr "Division"
-
-#: .\scuba\templates\scuba\sample_detail.html:63
-msgid "This sample has no dives."
-msgstr ""
-
-#: .\scuba\templates\scuba\site_detail.html:22
-#, fuzzy
-msgid "Add Transect"
-msgstr "Ajouter un accord"
-
-#: .\scuba\templates\scuba\site_detail.html:24
-#, fuzzy
-#| msgid "Transactions"
-msgid "Transects"
-msgstr "Transactions"
-
-#: .\scuba\templates\scuba\site_detail.html:37
-msgid "No. of dives"
-msgstr ""
-
-#: .\scuba\templates\scuba\site_detail.html:66
-msgid "This site has no transects."
-msgstr ""
-
-#: .\scuba\views.py:88
-msgid "sample count"
-msgstr ""
-
-#: .\scuba\views.py:303 .\scuba\views.py:313 .\scuba\views.py:321
-#: .\scuba\views.py:362 .\scuba\views.py:386 .\scuba\views.py:414
-#: .\scuba\views.py:430
-msgid "Samples"
-msgstr ""
-
 #: .\shared_models\filters.py:20 .\shared_models\filters.py:65
 #: .\shared_models\filters.py:98 .\shared_models\models.py:159
 #: .\shared_models\templates\shared_models\org_index.html:10
@@ -2422,12 +2098,22 @@ msgstr ""
 msgid "abbrev_eng"
 msgstr "abbrev_fre"
 
+#: .\shared_models\models.py:150 .\shared_models\models.py:165
+#: .\shared_models\models.py:186 .\shared_models\models.py:210
+#: .\shared_models\models.py:416 .\shared_models\models.py:733
+msgid "abbreviation"
+msgstr ""
+
 #: .\shared_models\models.py:151
 msgid "RDG / ADM"
 msgstr ""
 
 #: .\shared_models\models.py:160 .\shared_models\views.py:736
 msgid "Regions - Sectors (NCR)"
+msgstr ""
+
+#: .\shared_models\models.py:166
+msgid "region"
 msgstr ""
 
 #: .\shared_models\models.py:168
@@ -2760,6 +2446,10 @@ msgstr ""
 #: .\shared_models\views.py:508
 msgid "DM Apps Shared Settings"
 msgstr ""
+
+#: .\shared_models\views.py:523
+msgid "section"
+msgstr "section"
 
 #: .\shared_models\views.py:529 .\shared_models\views.py:549
 #: .\shared_models\views.py:565 .\shared_models\views.py:576
@@ -3168,3 +2858,98 @@ msgstr ""
 #: .\tickets\templates\tickets\ticket_form_popout.html:33
 msgid "Feedback / Bug Form"
 msgstr "Commentaires / Bugs"
+
+#, fuzzy
+#~| msgid "title"
+#~ msgid "latitude"
+#~ msgstr "titre"
+
+#, fuzzy
+#~| msgid "Title"
+#~ msgid "site"
+#~ msgstr "Titre"
+
+#, fuzzy
+#~| msgid "First name"
+#~ msgid "first name"
+#~ msgstr "Prénom"
+
+#, fuzzy
+#~| msgid "Last name"
+#~ msgid "last name"
+#~ msgstr "Nom de famille"
+
+#, fuzzy
+#~| msgid "Comments"
+#~ msgid "comment"
+#~ msgstr "Commentaires"
+
+#, fuzzy
+#~| msgid "Notes"
+#~ msgid "North"
+#~ msgstr "Remarques"
+
+#, fuzzy
+#~| msgid "Shortcut"
+#~ msgid "South"
+#~ msgstr "raccourci"
+
+#, fuzzy
+#~| msgid "name"
+#~ msgid "sample"
+#~ msgstr "nom"
+
+#, fuzzy
+#~| msgid "Transactions"
+#~ msgid "transect"
+#~ msgstr "Transactions"
+
+#, fuzzy
+#~ msgid "heading"
+#~ msgstr "Financement"
+
+#, fuzzy
+#~| msgid "Email"
+#~ msgid "male"
+#~ msgstr "Courriel"
+
+#, fuzzy
+#~| msgid "status"
+#~ msgid "eggs status"
+#~ msgstr "statut"
+
+#, fuzzy
+#~| msgid "Region"
+#~ msgid "Regions"
+#~ msgstr "Région"
+
+#, fuzzy
+#~| msgid "section"
+#~ msgid "Observations"
+#~ msgstr "section"
+
+#, fuzzy
+#~| msgid "Gulf Region Aquatic Invasive Species data entry and archiving tool."
+#~ msgid "Gulf Region Lobster Survey Data Entry and Archiving Tool"
+#~ msgstr ""
+#~ "Outil de saisie et d'archivage de données sur les espèces aquatiques "
+#~ "envahissantes de la région du Golfe."
+
+#, fuzzy
+#~| msgid "Title"
+#~ msgid "Sites"
+#~ msgstr "Titre"
+
+#, fuzzy
+#~| msgid "Division"
+#~ msgid "Dives"
+#~ msgstr "Division"
+
+#, fuzzy
+#~ msgid "Add Transect"
+#~ msgstr "Ajouter un accord"
+
+#, fuzzy
+#~| msgid "Transactions"
+#~ msgid "Transects"
+#~ msgstr "Transactions"

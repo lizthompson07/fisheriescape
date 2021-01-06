@@ -362,7 +362,7 @@ class DiveCreateView(ScubaAdminRequiredMixin, CommonCreateView):
     grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
 
     def get_initial(self):
-        return {"sample":self.kwargs.get("sample")}
+        return {"sample": self.kwargs.get("sample")}
 
     def get_sample(self):
         return get_object_or_404(models.Region, pk=self.kwargs.get("sample"))
@@ -399,10 +399,22 @@ class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        transect_field_list = [
-            'name',
+        section_field_list = [
+            'interval',
+            'depth_ft',
+            'substrate_profile|{}'.format(_("substrate profile")),
+            'comment|{}'.format(_("section comment")),
         ]
-        context["transect_field_list"] = transect_field_list
+        context["section_field_list"] = section_field_list
+        observation_field_list = [
+            'sex',
+            'egg_status',
+            'carapace_length_mm',
+            'comment|{}'.format(_("observation comment")),
+            # 'id|{}'.format(_("observation ID")),
+        ]
+        context["observation_field_list"] = observation_field_list
+        context["random_observation"] = models.Observation.objects.first()
         return context
 
 
