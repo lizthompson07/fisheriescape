@@ -71,6 +71,9 @@ class Sample(models.Model):
     def __str__(self):
         return f"Sample #{self.id} - {self.site}, {self.site.region}"
 
+    class Meta:
+        ordering = ["-datetime", "site"]
+
 
 class Dive(models.Model):
     heading_choices = (
