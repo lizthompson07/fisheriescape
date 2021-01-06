@@ -45,6 +45,7 @@ class CommonFunctionalTest(StaticLiveServerTestCase):
 def scroll_n_click(driver, element):
     # scroll to bring element to bottom of screen, then scroll up once to move element off of banners and click on it
     driver.execute_script("arguments[0].scrollIntoView(false);", element)
+    driver.implicitly_wait(5)
     driver.execute_script("window.scrollBy(0,50)")
     element.click()
 
@@ -183,6 +184,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         ufid_used = indv_data["ufid"]
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
+    @tag("Custom")
     def test_add_existing_individual_nav_back_btn(self):
         self.nav_to_details_view()
 
@@ -202,7 +204,8 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         # User clicks on first individual reviews its details and returns to the event details
         first_ufid = rows[0].find_element_by_tag_name("td").text
-        scroll_n_click(self.browser, rows[0])
+        indv_btn = rows[0].find_element_by_name("indv-details-btn")
+        scroll_n_click(self.browser, indv_btn)
         description_ufid = self.browser.find_element_by_xpath("//span[@class='font-weight-bold' and contains(text(), "
                                                               "'ABL Fish UFID :')]/following-sibling::span")
         self.assertEqual(first_ufid, description_ufid.text)
@@ -231,7 +234,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         pair_used = Pairing.objects.filter(pk=spwn_data["pair_id"]).get().__str__()
         self.assertIn(pair_used, [get_col_val(row, 0) for row in rows])
 
-    @tag("Custom")
     def test_add_existing_spawning_nav_back_btn(self):
         self.nav_to_details_view()
 
