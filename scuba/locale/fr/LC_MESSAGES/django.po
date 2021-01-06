@@ -1,83 +1,96 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+"X-Generator: Poedit 2.4.1\n"
+
 #: .\scuba\filters.py:25
 msgid "Search term"
-msgstr ""
+msgstr "Terme à rechercher"
 
 #: .\scuba\filters.py:41
 msgid "Region"
-msgstr ""
+msgstr "Région"
 
 #: .\scuba\models.py:10 .\scuba\models.py:25
 msgid "abbreviation"
-msgstr ""
+msgstr "abréviation"
 
 #: .\scuba\models.py:26
 msgid "region"
-msgstr ""
+msgstr "région"
 
 #: .\scuba\models.py:27
 msgid "latitude"
-msgstr ""
+msgstr "latitude"
 
 #: .\scuba\models.py:28
 msgid "longitude"
-msgstr ""
+msgstr "longitude"
 
 #: .\scuba\models.py:39
 msgid "name"
-msgstr ""
+msgstr "nom"
 
 #: .\scuba\models.py:40 .\scuba\models.py:61 .\scuba\views.py:324
 msgid "site"
-msgstr ""
+msgstr "emplacement"
 
 #: .\scuba\models.py:47
 msgid "first name"
-msgstr ""
+msgstr "prénom"
 
 #: .\scuba\models.py:48
 msgid "last name"
-msgstr ""
+msgstr "nom de famille"
 
 #: .\scuba\models.py:64 .\scuba\models.py:91 .\scuba\models.py:107
 #: .\scuba\models.py:128
 msgid "comment"
-msgstr ""
+msgstr "commentaire"
 
 #: .\scuba\models.py:76
 msgid "North"
-msgstr ""
+msgstr "nord"
 
 #: .\scuba\models.py:77
 msgid "South"
-msgstr ""
+msgstr "sud"
 
 #: .\scuba\models.py:78
 msgid "East"
-msgstr ""
+msgstr "est"
 
 #: .\scuba\models.py:79
 msgid "West"
-msgstr ""
+msgstr "ouest"
 
 #: .\scuba\models.py:82
 msgid "Left"
-msgstr ""
+msgstr "à gauche"
 
 #: .\scuba\models.py:83
 msgid "Right"
-msgstr ""
+msgstr "à droite"
 
 #: .\scuba\models.py:85
 msgid "sample"
-msgstr ""
+msgstr "échantillon"
 
 #: .\scuba\models.py:86
 msgid "transect"
-msgstr ""
+msgstr "transect"
 
 #: .\scuba\models.py:87
 msgid "diver"
-msgstr ""
+msgstr "plongeur/euse"
 
 #: .\scuba\models.py:88
 msgid "heading"
@@ -85,124 +98,124 @@ msgstr ""
 
 #: .\scuba\models.py:89
 msgid "side"
-msgstr ""
+msgstr "côté"
 
 #: .\scuba\models.py:90
 msgid "width (m)"
-msgstr ""
+msgstr "largeur (m)"
 
 #: .\scuba\models.py:97
 msgid "dive"
-msgstr ""
+msgstr "ploge"
 
 #: .\scuba\models.py:98
 msgid "5m interval (1-20)"
-msgstr ""
+msgstr "Intervalle de 5 m (1-20)"
 
 #: .\scuba\models.py:99
 msgid "depth (ft)"
-msgstr ""
+msgstr "profondeur (ft)"
 
 #: .\scuba\models.py:100
 #, python-format
 msgid "% sand"
-msgstr ""
+msgstr "% sable"
 
 #: .\scuba\models.py:101
 msgid "% mud"
-msgstr ""
+msgstr "% vase"
 
 #: .\scuba\models.py:102
 #, python-format
 msgid "% rock"
-msgstr ""
+msgstr "% roche"
 
 #: .\scuba\models.py:103
 msgid "% algae"
-msgstr ""
+msgstr "% algue"
 
 #: .\scuba\models.py:104
 #, python-format
 msgid "% gravel"
-msgstr ""
+msgstr "% gravier"
 
 #: .\scuba\models.py:105
 #, python-format
 msgid "% cobble"
-msgstr ""
+msgstr "% cobble"
 
 #: .\scuba\models.py:106
 msgid "% pebble"
-msgstr ""
+msgstr "% caillou"
 
 #: .\scuba\models.py:112
 msgid "male"
-msgstr ""
+msgstr "mâle"
 
 #: .\scuba\models.py:113
 msgid "female"
-msgstr ""
+msgstr "femâle"
 
 #: .\scuba\models.py:114
 msgid "immature"
-msgstr ""
+msgstr "immature"
 
 #: .\scuba\models.py:115
 msgid "unknown"
-msgstr ""
+msgstr "inconnue"
 
 #: .\scuba\models.py:118
 msgid "n/a"
-msgstr ""
+msgstr "n / a"
 
 #: .\scuba\models.py:119
 msgid "b (berried)"
-msgstr ""
+msgstr "b (berried)"
 
 #: .\scuba\models.py:120
 msgid "b1 (berried with new eggs)"
-msgstr ""
+msgstr "b1 (berried avec œufs nouveau)"
 
 #: .\scuba\models.py:121
 msgid "b2 (berried with black eggs)"
-msgstr ""
+msgstr "b2 (berried avec œufs noirs)"
 
 #: .\scuba\models.py:122
 msgid "b3 (berried with developed eggs)"
-msgstr ""
+msgstr "b3 (berried avec œufs développés)"
 
 #: .\scuba\models.py:124
 msgid "section"
-msgstr ""
+msgstr "section"
 
 #: .\scuba\models.py:125
 msgid "sex"
-msgstr ""
+msgstr "sexe"
 
 #: .\scuba\models.py:126
 msgid "eggs status"
-msgstr ""
+msgstr "statut des œufs"
 
 #: .\scuba\models.py:127
 msgid "carapace length (mm)"
-msgstr ""
+msgstr "longueur de la carapace (mm)"
 
 #: .\scuba\templates\scuba\base\_app_title.html:2
 #: .\scuba\templates\scuba\index.html:20
 msgid "SCUBA Survey"
-msgstr ""
+msgstr "Relevé de SCUBA"
 
 #: .\scuba\templates\scuba\base\_nav_left_auth.html:4
 msgid "Home"
-msgstr ""
+msgstr "Accueil"
 
 #: .\scuba\templates\scuba\base\_nav_left_auth.html:8
 msgid "Reports"
-msgstr ""
+msgstr "Rapports"
 
 #: .\scuba\templates\scuba\base\_nav_left_auth.html:18
 msgid "Settings"
-msgstr ""
+msgstr "Paramètres"
 
 #: .\scuba\templates\scuba\base\_nav_left_auth.html:22 .\scuba\views.py:64
 #: .\scuba\views.py:74 .\scuba\views.py:82 .\scuba\views.py:122
@@ -210,11 +223,11 @@ msgstr ""
 #: .\scuba\views.py:205 .\scuba\views.py:230 .\scuba\views.py:255
 #: .\scuba\views.py:270
 msgid "Regions"
-msgstr ""
+msgstr "Régions"
 
 #: .\scuba\templates\scuba\base\_nav_left_auth.html:25
 msgid "Divers"
-msgstr ""
+msgstr "Plongeur/euse"
 
 #: .\scuba\templates\scuba\dive_detail.html:8
 #: .\scuba\templates\scuba\region_detail.html:8
@@ -222,7 +235,7 @@ msgstr ""
 #: .\scuba\templates\scuba\site_detail.html:8
 #: .\scuba\templates\scuba\site_detail.html:51
 msgid "Edit"
-msgstr ""
+msgstr "Modifier"
 
 #: .\scuba\templates\scuba\dive_detail.html:9
 #: .\scuba\templates\scuba\region_detail.html:9
@@ -230,82 +243,82 @@ msgstr ""
 #: .\scuba\templates\scuba\site_detail.html:9
 #: .\scuba\templates\scuba\site_detail.html:56
 msgid "Delete"
-msgstr ""
+msgstr "Supprimer"
 
 #: .\scuba\templates\scuba\dive_detail.html:21
 msgid "Observations"
-msgstr ""
+msgstr "Les observations"
 
 #: .\scuba\templates\scuba\dive_detail.html:50
 msgid "This dive has no observations."
-msgstr ""
+msgstr "Cette plongée n'a pas d'observation."
 
 #: .\scuba\templates\scuba\form.html:36
 msgid "Markdown syntax is supported in this field"
-msgstr ""
+msgstr "La syntaxe Markdown est prise en charge dans ce champ"
 
 #: .\scuba\templates\scuba\index.html:23
 msgid "Gulf Region Lobster Survey Data Entry and Archiving Tool"
-msgstr ""
+msgstr "Outil de saisie et d'archivage des données de la relevé de homard de la région du Golfe"
 
 #: .\scuba\templates\scuba\index.html:27
 msgid "View Samples"
-msgstr ""
+msgstr "Afficher les échantillons"
 
 #: .\scuba\templates\scuba\region_detail.html:22
 msgid "Add Site"
-msgstr ""
+msgstr "Ajouter un emplacement"
 
 #: .\scuba\templates\scuba\region_detail.html:24
 msgid "Sites"
-msgstr ""
+msgstr "Les emplacements"
 
 #: .\scuba\templates\scuba\region_detail.html:37
 msgid "No. of transects"
-msgstr ""
+msgstr "Nombre des transects"
 
 #: .\scuba\templates\scuba\region_detail.html:38
 msgid "No. of samples"
-msgstr ""
+msgstr "Nombre des echantillons"
 
 #: .\scuba\templates\scuba\region_detail.html:59
 msgid "This region has no sites."
-msgstr ""
+msgstr "Cette région n'a pas d'emplacements."
 
 #: .\scuba\templates\scuba\sample_detail.html:26
 msgid "New Dive"
-msgstr ""
+msgstr "Nouvelle plongée"
 
 #: .\scuba\templates\scuba\sample_detail.html:28
 msgid "Dives"
-msgstr ""
+msgstr "Les plongées"
 
 #: .\scuba\templates\scuba\sample_detail.html:63
 msgid "This sample has no dives."
-msgstr ""
+msgstr "Cet échantillon n'a pas de plongées."
 
 #: .\scuba\templates\scuba\site_detail.html:22
 msgid "Add Transect"
-msgstr ""
+msgstr "Ajouter un transect"
 
 #: .\scuba\templates\scuba\site_detail.html:24
 msgid "Transects"
-msgstr ""
+msgstr "Les transects"
 
 #: .\scuba\templates\scuba\site_detail.html:37
 msgid "No. of dives"
-msgstr ""
+msgstr "No. de plongées"
 
 #: .\scuba\templates\scuba\site_detail.html:66
 msgid "This site has no transects."
-msgstr ""
+msgstr "Ce emplacement n'a pas de transects."
 
 #: .\scuba\views.py:88
 msgid "sample count"
-msgstr ""
+msgstr "nombre des échantillons"
 
 #: .\scuba\views.py:303 .\scuba\views.py:313 .\scuba\views.py:321
 #: .\scuba\views.py:362 .\scuba\views.py:386 .\scuba\views.py:414
 #: .\scuba\views.py:430
 msgid "Samples"
-msgstr ""
+msgstr "Les échantillons"
