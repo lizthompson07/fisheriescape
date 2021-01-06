@@ -5,7 +5,6 @@ from django import forms
 from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models
 from datetime import date
-from .models import AniDetailXref, Event, Individual
 
 
 class IndexTemplateView(TemplateView):
@@ -217,7 +216,7 @@ class IndvCreate(mixins.IndvMixin, CommonCreate):
     def get_initial(self):
         init = super().get_initial()
         if 'clone' in self.kwargs:
-            parent_indv = Individual.objects.filter(pk=self.kwargs["clone_id"]).get()
+            parent_indv = models.Individual.objects.filter(pk=self.kwargs["clone_id"]).get()
             for name, value in model_to_dict(parent_indv).items():
                 if name not in ["ufid", "pit_tag", "created_by", "created_date"]:
                     init[name] = value
@@ -227,7 +226,7 @@ class IndvCreate(mixins.IndvMixin, CommonCreate):
         """If the form is valid, save the associated model and add an X ref object."""
         self.object = form.save()
         if 'evnt' in self.kwargs:
-            anix_link = AniDetailXref(evnt_id=Event.objects.filter(pk=self.kwargs['evnt']).get(), indv_id=self.object,
+            anix_link = models.AniDetailXref(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(), indv_id=self.object,
                                       created_by=self.object.created_by, created_date=self.object.created_date)
             anix_link.save()
         return super().form_valid(form)
@@ -361,7 +360,7 @@ class SpwnCreate(mixins.SpwnMixin, CommonCreate):
         """If the form is valid, save the associated model and add an X ref object."""
         self.object = form.save()
         if 'evnt' in self.kwargs:
-            anix_link = AniDetailXref(evnt_id=Event.objects.filter(pk=self.kwargs['evnt']).get(), spwn_id=self.object,
+            anix_link = models.AniDetailXref(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(), spwn_id=self.object,
                                       created_by=self.object.created_by, created_date=self.object.created_date)
             anix_link.save()
         return super().form_valid(form)
@@ -598,6 +597,15 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "pit_tag",
             "grp_id",
         ]
+        prot_set = models.Protocol.objects.filter(prog_id=self.object.prog_id, evntc_id=self.object.evntc_id)
+        context["prot_list"] = [prot for prot in prot_set]
+        context["prot_object"] = models.Protocol.objects.first()
+        context["prot_field_list"] = [
+            "evntc_id",
+            "start_date",
+            "end_date",
+        ]
+
         anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
         context["spwn_list"] = [anix.spwn_id for anix in anix_set]
         context["spwn_object"] = models.Spawning.objects.first()

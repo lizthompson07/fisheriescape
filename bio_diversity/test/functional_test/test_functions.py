@@ -234,10 +234,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         rows = add_feature(self, indv_clone_data, "indv", "", self.evnt_data.__str__(), True)
         self.assertIn("new_ufid", [get_col_val(row, 0) for row in rows])
 
-
-
-
-
     def test_add_contx(self):
         self.nav_to_details_view()
         # user add a container cross reference to the event
@@ -286,7 +282,16 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
             return self.fail("No spawnings in details table")
         rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(first_pair, [get_col_val(row, 0) for row in rows])
-    
+
+    @tag("Custom")
+    def test_add_protocol(self):
+        self.nav_to_details_view()
+        # user adds a location to the event
+        prot_data = BioFactoryFloor.ProtFactory.build_valid_data()
+        rows = add_feature(self, prot_data, "prot", "evnt", self.evnt_data.__str__())
+        protc_used = LocCode.objects.filter(pk=prot_data["protc_id"]).get().__str__()
+        self.assertIn(protc_used, [get_col_val(row, 0) for row in rows])
+
 
 
 
@@ -404,7 +409,7 @@ class InstdcTestSimpleLookup(CommonFunctionalTest):
 
 
 
-@tag("Functional", "Loc", "Custom")
+@tag("Functional", "Loc")
 class TestLocDetailsFunctional(CommonFunctionalTest):
     # put factories in setUp and not in class to make factory boy use selenium database.
     def setUp(self):
