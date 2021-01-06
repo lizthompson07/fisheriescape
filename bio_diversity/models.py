@@ -255,7 +255,7 @@ class EnvCondition(BioModel):
     contx_id = models.ForeignKey('ContainerXRef', on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Container Cross Reference"))
     loc_id = models.ForeignKey('Location', on_delete=models.DO_NOTHING, null=True, blank=True,
-                               verbose_name=_("Location"))
+                               verbose_name=_("Location"), related_name="env_condition")
     inst_id = models.ForeignKey('Instrument', on_delete=models.DO_NOTHING, verbose_name=_("Instrument"))
     envc_id = models.ForeignKey('EnvCode', on_delete=models.DO_NOTHING, verbose_name=_("Environment variable"))
     env_val = models.DecimalField(max_digits=11, decimal_places=5, null=True, blank=True, verbose_name=_("Value"))

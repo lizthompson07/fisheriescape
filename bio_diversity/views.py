@@ -132,6 +132,8 @@ class EnvCreate(mixins.EnvMixin, CommonCreate):
     def get_initial(self):
         init = super().get_initial()
         init["env_start"] = date.today
+        if 'loc' in self.kwargs:
+            init['loc_id'] = self.kwargs['loc']
         return init
 
 
@@ -698,8 +700,21 @@ class InstdcDetails(mixins.InstdcMixin, CommonDetails):
 
 
 class LocDetails(mixins.LocMixin, CommonDetails):
+    template_name = 'bio_diversity/details_loc.html'
     fields = ["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat", "loc_lon", "loc_date",
               "comments", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        # use this to pass sire fields/sample object to template
+        context = super().get_context_data(**kwargs)
+        context["env_object"] = models.EnvCondition.objects.first()
+        context["env_field_list"] = [
+            "envc_id",
+            "env_val",
+            "env_start",
+        ]
+        return context
+
 
 
 class LoccDetails(mixins.LoccMixin, CommonDetails):

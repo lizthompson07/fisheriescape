@@ -77,7 +77,9 @@ urlpatterns = [
     path('update/draw/<int:pk>/', views.DrawUpdate.as_view(), name="update_draw"),
         
     path('create/env/', views.EnvCreate.as_view(), name="create_env"),
+    path('create/env/<int:loc>/<str:pop>/', views.EnvCreate.as_view(), name="create_env"),
     path('details/env/<int:pk>/', views.EnvDetails.as_view(), name="details_env"),
+    path('details/env/<str:back>/<int:back_id>/<int:pk>/', views.EnvDetails.as_view(), name="details_env"),
     path('list/env/', views.EnvList.as_view(), name="list_env"),
     path('update/env/<int:pk>/', views.EnvUpdate.as_view(), name="update_env"),   
     

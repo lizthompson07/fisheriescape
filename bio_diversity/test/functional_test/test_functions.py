@@ -7,7 +7,7 @@ from django.test import tag
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.select import Select
 
-from bio_diversity.models import EventCode, Event, LocCode, Individual, Tank, ProtoCode, Pairing
+from bio_diversity.models import EventCode, Event, LocCode, Individual, Tank, ProtoCode, Pairing, EnvCode
 from bio_diversity.test import BioFactoryFloor
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 from django.contrib.auth.models import User
@@ -220,7 +220,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(first_ufid, [get_col_val(row, 0) for row in rows])
 
-    @tag("Custom")
     def test_clone_individual(self):
         self.nav_to_details_view()
 
@@ -402,6 +401,30 @@ class InstdcTestSimpleLookup(CommonFunctionalTest):
         rows = details_table.find_elements_by_tag_name("tr")  # get all of the rows in the table
         self.assertNotIn(self.lookup_data["name"], [get_col_val(row, 0) for row in rows])
         self.assertIn(new_name, [get_col_val(row, 0) for row in rows])
+
+
+
+@tag("Functional", "Loc", "Custom")
+class TestLocDetailsFunctional(CommonFunctionalTest):
+    # put factories in setUp and not in class to make factory boy use selenium database.
+    def setUp(self):
+        super().setUp()
+        self.loc_data = BioFactoryFloor.LocFactory()
+
+    def nav_to_details_view(self):
+        # user navigates to a details view for an event
+        self.browser.get("{}{}{}".format(self.live_server_url, "/en/bio_diversity/details/loc/", self.loc_data.id))
+        self.assertIn('Location', self.browser.title, "not on correct page")
+
+    def test_add_env(self):
+        self.nav_to_details_view()
+
+        # user adds a new protocol to the event
+        env_data = BioFactoryFloor.EnvFactory.build_valid_data()
+        rows = add_feature(self, env_data, "env", "loc", self.loc_data.__str__())
+        envc_used = EnvCode.objects.filter(pk=env_data["envc_id"]).get().__str__()
+        self.assertIn(envc_used, [get_col_val(row, 0) for row in rows])
+
 
 
 @tag("Functional", "Prog")

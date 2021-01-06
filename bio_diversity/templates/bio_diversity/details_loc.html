@@ -36,29 +36,35 @@
             {% endfor %}
             </div>
         </div>
-        {# handler for one to one key case (no count methods or outer for loopon fields): #}
-        {% if object.envcf_id %}
-            <div class="card border border-dark my-1">
-                <h5 class="card-header">{% trans "Environment Condition Files" %}</h5>
+        <div class="card border border-dark my-1" name="env-details">
+            <h5 class="card-header">{% trans "Location Environment Conditions" %}
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-new-env-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_env' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Environment Condition' %}</a>
+                </span>
+            </h5>
+            {% if object.env_condition.count > 0 %}
                 <table class="table table-sm sortable table-hover">
                     <thead>
-                        {% for field in envcf_field_list %}
-                            <th>{% get_verbose_label envcf_object field %}</th>
+                        {% for field in env_field_list %}
+                            <th>{% get_verbose_label env_object field %}</th>
                         {% endfor %}
                     </thead>
                     <tbody>
-                        <tr href="{% url 'bio_diversity:details_envcf' object.envcf_id.id %}">
-                        {% for field in envcf_field_list %}
-                            <td>
-                                {% get_field_value object.envcf_id field %}
-                            </td>
+                        {% for obj in object.env_condition.all %}
+                            <tr href="{% url 'bio_diversity:details_env' 'loc' object.id obj.id %}">
+                            {% for field in env_field_list %}
+                                <td>
+                                    {% get_field_value obj field %}
+                                </td>
+                            {% endfor %}
+                            </tr>
                         {% endfor %}
-                        </tr>
                     </tbody>
                 </table>
-            </div>
             {% endif %}
-    {% endblock field_override %}
+        </div>
+
+        {% endblock field_override %}
   </div>
 {% endblock %}
 
