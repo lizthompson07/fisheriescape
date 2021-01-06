@@ -173,6 +173,7 @@ urlpatterns = [
 
     path('create/indv/', views.IndvCreate.as_view(), name="create_indv"),
     path('create/indv/<int:evnt>/<str:pop>/', views.IndvCreate.as_view(), name="create_indv"),
+    path('create/indv/<int:evnt>/<str:clone>/<int:clone_id>/<str:pop>/', views.IndvCreate.as_view(), name="create_indv"),
     path('details/indv/<int:pk>/', views.IndvDetails.as_view(), name="details_indv"),
     path('details/indv/<str:back>/<int:back_id>/<int:pk>/', views.IndvDetails.as_view(), name="details_indv"),
     path('list/indv/', views.IndvList.as_view(), name="list_indv"),

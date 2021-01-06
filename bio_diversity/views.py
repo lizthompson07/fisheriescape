@@ -2,10 +2,10 @@ from django.views.generic import TemplateView, DetailView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView
 from django.urls import reverse_lazy
 from django import forms
+from django.forms.models import model_to_dict
 from . import mixins, filters, utils, models
 from datetime import date
-
-from .models import AniDetailXref, Event
+from .models import AniDetailXref, Event, Individual
 
 
 class IndexTemplateView(TemplateView):
@@ -211,6 +211,15 @@ class ImgcCreate(mixins.ImgcMixin, CommonCreate):
 
 
 class IndvCreate(mixins.IndvMixin, CommonCreate):
+
+    def get_initial(self):
+        init = super().get_initial()
+        if 'clone' in self.kwargs:
+            parent_indv = Individual.objects.filter(pk=self.kwargs["clone_id"]).get()
+            for name, value in model_to_dict(parent_indv).items():
+                if name not in ["ufid", "pit_tag", "created_by", "created_date"]:
+                    init[name] = value
+        return init
 
     def form_valid(self, form):
         """If the form is valid, save the associated model and add an X ref object."""
