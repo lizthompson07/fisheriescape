@@ -689,6 +689,14 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "pair_id",
             "choice",
         ]
+        anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
+        context["spwn_list"] = [anix.spwn_id for anix in anix_set]
+        context["spwn_object"] = models.Spawning.objects.first()
+        context["spwn_field_list"] = [
+            "spwn_date",
+            "pair_id",
+            "est_fecu",
+        ]
         return context
 
 
