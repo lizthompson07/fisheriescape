@@ -736,7 +736,7 @@ class Organization(BioLookup):
 class Pairing(BioTimeModel):
     # pair tag
     indv_id = models.ForeignKey('Individual',  on_delete=models.DO_NOTHING, verbose_name=_("Dam"),
-                                limit_choices_to={'ufid__isnull': False, 'indv_valid': True})
+                                limit_choices_to={'ufid__isnull': False, 'indv_valid': True}, related_name="pairings")
 
     def __str__(self):
         return "Pair: {}-{}".format(self.indv_id.__str__(), self.start_date)
@@ -944,7 +944,7 @@ class Sire(BioModel):
     pair_id = models.ForeignKey('Pairing', on_delete=models.DO_NOTHING, verbose_name=_("Pairing"), related_name="sire",
                                 limit_choices_to={'valid': True})
     indv_id = models.ForeignKey('Individual', on_delete=models.DO_NOTHING, verbose_name=_("Sire UFID"),
-                                limit_choices_to={'ufid__isnull':  False, 'indv_valid': True})
+                                limit_choices_to={'ufid__isnull':  False, 'indv_valid': True}, related_name="sires")
     choice = models.IntegerField(verbose_name=_("Choice"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 

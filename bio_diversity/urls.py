@@ -237,6 +237,7 @@ urlpatterns = [
     path('create/pair/', views.PairCreate.as_view(), name="create_pair"),
     path('create/pair/<str:pop>/', views.PairCreate.as_view(), name="create_pair"),
     path('details/pair/<int:pk>/', views.PairDetails.as_view(), name="details_pair"),
+    path('details/pair/<str:back>/<int:back_id>/<int:pk>/', views.PairDetails.as_view(), name="details_pair"),
     path('list/pair/', views.PairList.as_view(), name="list_pair"),
     path('update/pair/<int:pk>/', views.PairUpdate.as_view(), name="update_pair"),
 
@@ -318,6 +319,7 @@ urlpatterns = [
     path('create/sire/', views.SireCreate.as_view(), name="create_sire"),
     path('create/sire/<int:pair>/<str:pop>/', views.SireCreate.as_view(), name="create_sire"),
     path('details/sire/<int:pk>/', views.SireDetails.as_view(), name="details_sire"),
+    path('details/sire/<str:back>/<int:back_id>/<int:pk>/', views.SireDetails.as_view(), name="details_sire"),
     path('list/sire/', views.SireList.as_view(), name="list_sire"),
     path('update/sire/<int:pk>/', views.SireUpdate.as_view(), name="update_sire"),
 

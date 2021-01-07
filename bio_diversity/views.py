@@ -672,8 +672,24 @@ class ImgcDetails(mixins.ImgcMixin, CommonDetails):
 
 
 class IndvDetails(mixins.IndvMixin, CommonDetails):
+    template_name = 'bio_diversity/details_indv.html'
     fields = ["grp_id", "spec_id", "stok_id", "coll_id", "ufid", "pit_tag", "indv_valid", "comments", "created_by",
               "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        # use this to pass fields/sample object to template
+        context = super().get_context_data(**kwargs)
+        context["pair_object"] = models.Pairing.objects.first()
+        context["pair_field_list"] = [
+            "start_date",
+        ]
+        context["sire_object"] = models.Sire.objects.first()
+        context["sire_field_list"] = [
+            "prio_id",
+            "pair_id",
+            "choice",
+        ]
+        return context
 
 
 class IndvdDetails(mixins.IndvdMixin, CommonDetails):

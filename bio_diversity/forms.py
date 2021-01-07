@@ -289,6 +289,17 @@ class IndvForm(CreatePrams, forms.ModelForm):
         model = models.Individual
         exclude = []
 
+    field_order = [
+        'ufid',
+        'pit_tag',
+        'indv_valid',
+        'grp_id',
+        'spec_id',
+        'stok_id',
+        'coll_id',
+        'comments',
+    ]
+
 
 class IndvdForm(CreatePrams, forms.ModelForm):
     class Meta:
