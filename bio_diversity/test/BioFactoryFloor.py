@@ -67,9 +67,9 @@ class AnixFactory(factory.django.DjangoModelFactory):
         contx = ContxFactory()
         loc = LocFactory()
         indvt = IndvtFactory()
-        indv = IndvFactory()
+        indv = IndvFactory(indv_valid=True)
         spwn = SpwnFactory()
-        grp = GrpFactory()
+        grp = GrpFactory(grp_valid=True)
         obj = AnixFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
@@ -428,7 +428,7 @@ class CupdFactory(factory.django.DjangoModelFactory):
             'cdsc_id': cdsc.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'det_valid': obj.det_valid,
+            'det_valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -820,7 +820,7 @@ class FecuFactory(factory.django.DjangoModelFactory):
             'end_date': obj.end_date,
             'alpha': obj.alpha,
             'beta': obj.beta,
-            'valid': obj.valid,
+            'valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -960,7 +960,7 @@ class GrpFactory(factory.django.DjangoModelFactory):
             'spec_id': spec.pk,
             'stok_id': stok.pk,
             'coll_id': coll.pk,
-            'grp_valid': obj.grp_valid,
+            'grp_valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1072,7 +1072,7 @@ class HeatdFactory(factory.django.DjangoModelFactory):
             'cdsc_id': cdsc.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'det_valid': obj.det_valid,
+            'det_valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1095,7 +1095,7 @@ class ImgFactory(factory.django.DjangoModelFactory):
     @staticmethod
     def build_valid_data(**kwargs):
         imgc = ImgcFactory()
-        tankd = TankdFactory()
+        tankd = TankdFactory(det_valid=True)
         obj = ImgFactory.build(**kwargs)
 
         # Convert the data to a dictionary to be used in testing
@@ -1173,7 +1173,7 @@ class IndvFactory(factory.django.DjangoModelFactory):
             'coll_id': coll.pk,
             'ufid': obj.ufid,
             'pit_tag': obj.pit_tag,
-            'indv_valid': obj.indv_valid,
+            'indv_valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1412,7 +1412,7 @@ class InstdFactory(factory.django.DjangoModelFactory):
             'det_value': obj.det_value,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'valid': obj.valid,
+            'valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1581,7 +1581,7 @@ class PairFactory(factory.django.DjangoModelFactory):
             'indv_id': indv.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'valid': obj.valid,
+            'valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1609,7 +1609,7 @@ class PercFactory(factory.django.DjangoModelFactory):
         data = {
             'perc_first_name': obj.perc_first_name,
             'perc_last_name': obj.perc_last_name,
-            'perc_valid': obj.perc_valid,
+            'perc_valid': True,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
         }
@@ -1677,7 +1677,7 @@ class ProgFactory(factory.django.DjangoModelFactory):
             'orga_id': orga.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'valid': obj.valid,
+            'valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -1742,7 +1742,7 @@ class ProtFactory(factory.django.DjangoModelFactory):
             'prot_desc': obj.prot_desc,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'valid': obj.valid,
+            'valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -2368,7 +2368,7 @@ class TankdFactory(factory.django.DjangoModelFactory):
             'cdsc_id': cdsc.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'det_valid': obj.det_valid,
+            'det_valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -2464,7 +2464,7 @@ class TraydFactory(factory.django.DjangoModelFactory):
             'cdsc_id': cdsc.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'det_valid': obj.det_valid,
+            'det_valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,
@@ -2566,7 +2566,7 @@ class TrofdFactory(factory.django.DjangoModelFactory):
             'cdsc_id': cdsc.pk,
             'start_date': obj.start_date,
             'end_date': obj.end_date,
-            'det_valid': obj.det_valid,
+            'det_valid': True,
             'comments': obj.comments,
             'created_by': obj.created_by,
             'created_date': obj.created_date,

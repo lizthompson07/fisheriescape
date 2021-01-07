@@ -86,7 +86,6 @@ def open_n_fill_popup(self, button, data, parent_name="", parent_code=""):
 
     # make sure pre fill field is filled, if present:
     if parent_code:
-        self.browser.implicitly_wait(10)
         form_field = self.browser.find_element_by_xpath("//*[@name='{}_id']".format(parent_code))
         selected_element = form_field.find_element_by_xpath("//*[@selected]")
         self.assertIn(parent_name, selected_element.text)
@@ -116,7 +115,6 @@ def add_feature(self, feature_data, feature_tag, object_tag="", object_name="", 
         return self.fail("No {} features in details table".format(feature_tag))
     rows = details_table.find_elements_by_tag_name("tr")
     return rows
-
 
 
 @tag("Functional", "Basic")
@@ -165,6 +163,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
     def setUp(self):
         super().setUp()
         self.evnt_data = BioFactoryFloor.EvntFactory()
+        self.evnt_data.prog_id.valid = True
 
     def nav_to_details_view(self):
         # user navigates to a details view for an event
@@ -288,11 +287,11 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         self.nav_to_details_view()
         # user adds a location to the event
         prot_data = BioFactoryFloor.ProtFactory.build_valid_data()
-        rows = add_feature(self, prot_data, "prot", "evnt", self.evnt_data.__str__())
-        protc_used = LocCode.objects.filter(pk=prot_data["protc_id"]).get().__str__()
-        self.assertIn(protc_used, [get_col_val(row, 0) for row in rows])
-
-
+        prot_data["valid"] = True
+        prot_data["evntc_id"] = self.evnt_data.evntc_id.id
+        rows = add_feature(self, prot_data, "prot", "prog", self.evnt_data.prog_id.__str__())
+        evntc_used = EventCode.objects.filter(pk=prot_data["evntc_id"]).get().__str__()
+        self.assertIn(evntc_used, [get_col_val(row, 0) for row in rows])
 
 
 @tag("Functional", "Instc")
