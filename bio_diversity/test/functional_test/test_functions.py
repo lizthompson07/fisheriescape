@@ -7,7 +7,7 @@ from django.test import tag
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.select import Select
 
-from bio_diversity.models import EventCode, Event, LocCode, Individual, Tank, ProtoCode, Pairing, EnvCode
+from bio_diversity.models import EventCode, Event, LocCode, Individual, Tank, ProtoCode, Pairing, EnvCode, Program
 from bio_diversity.test import BioFactoryFloor
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 from django.contrib.auth.models import User
@@ -84,11 +84,7 @@ def open_n_fill_popup(self, button, data, parent_name="", parent_code=""):
     scroll_n_click(self.browser, button)
     self.browser.switch_to.window(self.browser.window_handles[1])
 
-    # make sure pre fill field is filled, if present:
     if parent_code:
-        form_field = self.browser.find_element_by_xpath("//*[@name='{}_id']".format(parent_code))
-        selected_element = form_field.find_element_by_xpath("//*[@selected]")
-        self.assertIn(parent_name, selected_element.text)
         fill_n_submit_form(self.browser, data, ["{}_id".format(parent_code)])
     else:
         fill_n_submit_form(self.browser, data)
@@ -289,6 +285,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         prot_data = BioFactoryFloor.ProtFactory.build_valid_data()
         prot_data["valid"] = True
         prot_data["evntc_id"] = self.evnt_data.evntc_id.id
+        Program.objects.filter(pk=self.evnt_data.prog_id.id).get().valid = True
         rows = add_feature(self, prot_data, "prot", "prog", self.evnt_data.prog_id.__str__())
         evntc_used = EventCode.objects.filter(pk=prot_data["evntc_id"]).get().__str__()
         self.assertIn(evntc_used, [get_col_val(row, 0) for row in rows])
@@ -439,20 +436,20 @@ class TestProgDetailsFunctional(CommonFunctionalTest):
         self.prog_data = BioFactoryFloor.ProgFactory(valid=True)
 
     def nav_to_details_view(self):
-        # user navigates to a details view for an event
+        # user navigates to a details view for a program
         self.browser.get("{}{}{}".format(self.live_server_url, "/en/bio_diversity/details/prog/", self.prog_data.id))
         self.assertIn('Program', self.browser.title, "not on correct page")
 
     def test_add_protocol_nav_back_btn(self):
         self.nav_to_details_view()
 
-        # user adds a new protocol to the event
+        # user adds a new protocol to the program
         prot_data = BioFactoryFloor.ProtFactory.build_valid_data()
         rows = add_feature(self, prot_data, "prot", "prog", self.prog_data.__str__())
         protc_used = ProtoCode.objects.filter(pk=prot_data["protc_id"]).get().__str__()
         self.assertIn(protc_used, [get_col_val(row, 0) for row in rows])
 
-        # User clicks on first protocol reviews its details and returns to the event details
+        # User clicks on first protocol, reviews its details and returns to the program details
         try:
             details_table = self.browser.find_element_by_xpath("//div[@name='prot-details']//table/tbody")
         except NoSuchElementException:
@@ -494,16 +491,17 @@ class TestProtDetailsFunctional(CommonFunctionalTest):
     def setUp(self):
         super().setUp()
         self.prot_data = BioFactoryFloor.ProtFactory(valid=True)
+        self.prot_data.prog_id.valid = True
 
     def nav_to_details_view(self):
-        # user navigates to a details view for an event
+        # user navigates to a details view for a protocol
         self.browser.get("{}{}{}".format(self.live_server_url, "/en/bio_diversity/details/prot/", self.prot_data.id))
         self.assertIn('Protocol', self.browser.title, "not on correct page")
 
     def test_add_protf(self):
         self.nav_to_details_view()
 
-        # user adds a new protocol to the event
+        # user adds a new protocol file to the protocol
         protf_data = BioFactoryFloor.ProtfFactory.build_valid_data()
         rows = add_feature(self, protf_data, "protf", "prot", self.prot_data.__str__())
         self.assertTrue(len(rows) > 0)

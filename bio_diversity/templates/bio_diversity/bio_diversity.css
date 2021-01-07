@@ -1,7 +1,7 @@
 {% load static %}
 
 body {
-    background-image: url("{% static 'img/bio_diversity/bio_diversity_bg_cropped.jpg' %}");
+    background-image: url("{% static 'img/bio_diversity/bio_diversity_bg.jpg' %}");
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;

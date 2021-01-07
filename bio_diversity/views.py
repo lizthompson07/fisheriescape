@@ -69,7 +69,7 @@ class AnixCreate(mixins.AnixMixin, CommonCreate):
         if 'visible' in self.kwargs:
             for field in self.get_form_class().base_fields:
                 if field in self.kwargs['visible']:
-                    pass
+                    self.get_form_class().base_fields[field].widget = forms.Select()
                 else:
                     self.get_form_class().base_fields[field].widget = forms.HiddenInput()
         else:
