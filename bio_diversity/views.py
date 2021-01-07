@@ -679,6 +679,26 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
     def get_context_data(self, **kwargs):
         # use this to pass fields/sample object to template
         context = super().get_context_data(**kwargs)
+
+        anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
+        context["spwn_list"] = [anix.spwn_id for anix in anix_set]
+        context["spwn_object"] = models.Spawning.objects.first()
+        context["spwn_field_list"] = [
+            "spwn_date",
+            "pair_id",
+            "est_fecu",
+        ]
+
+        anix_set = self.object.animal_details.filter()
+        context["evnt_list"] = [anix.evnt_id for anix in anix_set]
+        context["evnt_object"] = models.Event.objects.first()
+        context["evnt_field_list"] = [
+            "evntc_id",
+            "facic_id",
+            "prog_id",
+            "evnt_start",
+        ]
+
         context["pair_object"] = models.Pairing.objects.first()
         context["pair_field_list"] = [
             "start_date",
@@ -689,14 +709,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "pair_id",
             "choice",
         ]
-        anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
-        context["spwn_list"] = [anix.spwn_id for anix in anix_set]
-        context["spwn_object"] = models.Spawning.objects.first()
-        context["spwn_field_list"] = [
-            "spwn_date",
-            "pair_id",
-            "est_fecu",
-        ]
+
         return context
 
 

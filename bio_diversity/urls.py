@@ -110,6 +110,7 @@ urlpatterns = [
     
     path('create/evnt/', views.EvntCreate.as_view(), name="create_evnt"),
     path('details/evnt/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
+    path('details/evnt/<str:back>/<int:back_id>/<int:pk>/', views.EvntDetails.as_view(), name="details_evnt"),
     path('list/evnt/', views.EvntList.as_view(), name="list_evnt"),
     path('update/evnt/<int:pk>/', views.EvntUpdate.as_view(), name="update_evnt"),
                   
