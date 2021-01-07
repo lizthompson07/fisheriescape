@@ -1,7 +1,7 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from shared_models import models as shared_models
 from shared_models.models import SimpleLookup, UnilingualSimpleLookup, UnilingualLookup
@@ -69,11 +69,14 @@ class Sample(models.Model):
         return f"{self.site}, {self.site.region}"
 
     def __str__(self):
-        return f"Sample #{self.id} - {self.site}, {self.site.region}"
+        return _("Sample #")+f"{self.id} - {self.site}, {self.site.region}"
 
     class Meta:
         ordering = ["-datetime", "site"]
 
+    @property
+    def dive_count(self):
+        return self.dives.count()
 
 class Dive(models.Model):
     heading_choices = (
@@ -99,6 +102,10 @@ class Dive(models.Model):
 
     def __str__(self):
         return f"Dive #{self.id}"
+
+    @property
+    def observation_count(self):
+        return Observation.objects.filter(section__dive=self).count()
 
 class Section(models.Model):
     dive = models.ForeignKey(Dive, related_name='sections', on_delete=models.CASCADE, verbose_name=_("dive"))

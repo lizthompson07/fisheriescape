@@ -284,14 +284,15 @@ class SampleListView(ScubaAdminRequiredMixin, CommonFilterView):
     template_name = 'scuba/list.html'
     filterset_class = filters.SampleFilter
     home_url_name = "scuba:index"
+    row_object_url_name = "scuba:sample_detail"
     new_object_url = reverse_lazy("scuba:sample_new")
-    row_object_url_name = row_ = "scuba:sample_detail"
+    new_btn_text = gettext_lazy("Add a New Sample")
     container_class = "container-fluid bg-light curvy"
-
     field_list = [
         {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
         {"name": 'site.region|{}'.format("region"), "class": "", "width": ""},
         {"name": 'site', "class": "", "width": ""},
+        {"name": 'dive_count|{}'.format(_("dive count")), "class": "", "width": ""},
     ]
 
 
@@ -335,6 +336,7 @@ class SampleDetailView(ScubaAdminRequiredMixin, CommonDetailView):
             'heading',
             'side',
             'width_m',
+            'observation_count|{}'.format(_("lobster count")),
             'comment',
         ]
         context["dive_field_list"] = dive_field_list
@@ -446,3 +448,50 @@ class DiveDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
 
     def get_grandparent_crumb(self):
         return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
+
+
+class DiveDataEntryTemplateView(ScubaAdminRequiredMixin, CommonDetailView):
+    model = models.Dive
+    template_name = 'scuba/dive_data_entry/main.html'
+    home_url_name = "scuba:index"
+    container_class = "container bg-light-green curvy"
+    field_list = [
+        'id|{}'.format(_("dive Id")),
+        'transect',
+        'diver',
+        'heading',
+        'side',
+        'width_m',
+        'comment',
+    ]
+    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+
+    def get_h1(self):
+        return _("Data Entry Mode")
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse_lazy("scuba:dive_detail", args=[self.get_object().id])}
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        section_field_list = [
+            'interval',
+            'depth_ft',
+            'substrate_profile|{}'.format(_("substrate profile")),
+            'comment|{}'.format(_("section comment")),
+        ]
+        context["section_field_list"] = section_field_list
+        observation_field_list = [
+            'sex',
+            'egg_status',
+            'carapace_length_mm',
+            'comment|{}'.format(_("observation comment")),
+            # 'id|{}'.format(_("observation ID")),
+        ]
+        context["observation_field_list"] = observation_field_list
+        context["random_observation"] = models.Observation.objects.first()
+        return context

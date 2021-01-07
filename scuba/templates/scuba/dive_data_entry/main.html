@@ -1,0 +1,96 @@
+{% extends 'scuba/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+{% load static %}
+
+
+{% block subcontent %}
+  <div id="app">
+    <div class="btns mb-3">
+      <a href="{% url 'scuba:dive_detail' object.id %}" class="btn btn-primary btn-sm">{% trans "All Done!" %}</a>
+    </div>
+
+    <div class="mb-3">
+      <table class="table table-sm" style="width: 50%">
+        {% for field in field_list %}
+          {% verbose_td_display object field %}
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="mb-3">
+      <h3>{% trans "Observations" %}</h3>
+
+      {% if object.sections.exists %}
+
+        <table class="table table-bordered table-sm">
+          <thead>
+          <tr>
+            {% for field in section_field_list %}
+              <th rowspan="2">
+                {% get_verbose_label object.sections.first field %}
+              </th>
+            {% endfor %}
+            <th class="text-center" colspan="8">{% trans "Observations" %}</th>
+          </tr>
+          <tr>
+            {% for field in observation_field_list %}
+              <th>
+                {% get_verbose_label random_observation field %}
+              </th>
+            {% endfor %}
+          </tr>
+          </thead>
+          <tbody>
+          {% for section in object.sections.all %}
+            {% for obs in section.observations.all %}
+              <tr>
+                {% if forloop.counter == 1 %}
+                  {% for field in section_field_list %}
+                    {% if field == "comment" %}
+                      <td style="width: 20%" rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
+                    {% elif field == "substrate_profile" %}
+                      <td style="width: 25%" rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
+                    {% else %}
+                      <td rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+
+                {% for field in observation_field_list %}
+                  {% if "comment" in field %}
+                    <td style="width: 25%">{% get_field_value obs field %}</td>
+                  {% else %}
+                    <td>{% get_field_value obs field %}</td>
+                  {% endif %}
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          {% endfor %}
+          </tbody>
+        </table>
+
+      {% else %}
+
+        <em>{% trans "This dive has no observations." %}</em>
+
+      {% endif %}
+
+    </div>
+  </div>
+
+
+{% endblock %}
+
+
+{% block body_js %}
+  {{ block.super }}
+
+  <script src="{% static '/scuba/mainDiveDataEntry.js' %}?version=1.0" type="application/javascript"></script>
+  <script type="application/javascript">
+  //reload other scripts that we care about
+  </script>
+
+
+{% endblock %}
+

@@ -38,6 +38,7 @@ urlpatterns = [
     path('dives/<int:pk>/edit/', views.DiveUpdateView.as_view(), name="dive_edit"),
     path('dives/<int:pk>/delete/', views.DiveDeleteView.as_view(), name="dive_delete"),
     path('dives/<int:pk>/view/', views.DiveDetailView.as_view(), name="dive_detail"),
+    path('dives/<int:pk>/data-entry/', views.DiveDataEntryTemplateView.as_view(), name="dive_data_entry"),
 
 ]
 

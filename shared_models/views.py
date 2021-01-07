@@ -304,11 +304,21 @@ class CommonFilterView(FilterView, CommonListMixin):
     # default template to use to update an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
     template_name = 'shared_models/shared_filter.html'
+    extra_button_dict1 = None
+    extra_button_dict2 = None
+
+    def get_extra_button_dict1(self):
+        return self.extra_button_dict1
+
+    def get_extra_button_dict2(self):
+        return self.extra_button_dict2
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
+        context["extra_button_dict1"] = self.get_extra_button_dict1()
+        context["extra_button_dict2"] = self.get_extra_button_dict2()
         context["model_name"] = self.get_queryset().model._meta.verbose_name
         return context
 

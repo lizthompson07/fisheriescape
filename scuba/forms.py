@@ -51,6 +51,12 @@ class SampleForm(forms.ModelForm):
         model = models.Sample
         fields = "__all__"
 
+    def __init__(self,*args, **kwargs):
+        super().__init__(*args, **kwargs)
+        site_choices = [(site.id, f"{site.region} - {site}") for site in models.Site.objects.order_by("region", "name")]
+        site_choices.insert(0, (None, "---------"))
+
+        self.fields["site"].choices = site_choices
 
 class DiveForm(forms.ModelForm):
     # field_order = ["name"]

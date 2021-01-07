@@ -7,6 +7,7 @@
   <div class="btns mb-3">
     <a href="{% url 'scuba:dive_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'scuba:dive_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+    <a href="{% url 'scuba:dive_data_entry' object.id %}" class="btn btn-primary btn-sm">{% trans "Data Entry Mode" %}</a>
   </div>
 
   <div class="mb-3">
@@ -65,7 +66,6 @@
               {% endfor %}
             </tr>
           {% endfor %}
-          </tr>
         {% endfor %}
         </tbody>
       </table>
