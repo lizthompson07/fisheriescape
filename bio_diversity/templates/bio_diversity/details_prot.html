@@ -51,7 +51,7 @@
                         </thead>
                         <tbody>
                             {% for obj in object.protf_id.all %}
-                                <tr href="{% url 'bio_diversity:details_protf'  'prot' object.id obj.id %}">
+                                <tr href="{{ MEDIA_URL }}{{obj.protf_pdf.url}}">
                                 {% for field in protf_field_list %}
                                     <td>
                                         {% get_field_value obj field %}

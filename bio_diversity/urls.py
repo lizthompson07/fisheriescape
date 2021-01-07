@@ -235,6 +235,7 @@ urlpatterns = [
     path('update/orga/<int:pk>/', views.OrgaUpdate.as_view(), name="update_orga"),
 
     path('create/pair/', views.PairCreate.as_view(), name="create_pair"),
+    path('create/pair/<str:pop>/', views.PairCreate.as_view(), name="create_pair"),
     path('details/pair/<int:pk>/', views.PairDetails.as_view(), name="details_pair"),
     path('list/pair/', views.PairList.as_view(), name="list_pair"),
     path('update/pair/<int:pk>/', views.PairUpdate.as_view(), name="update_pair"),

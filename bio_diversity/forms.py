@@ -487,6 +487,11 @@ class SpwnForm(CreatePrams, forms.ModelForm):
             'spwn_date': forms.DateInput(attrs={"placeholder": "Click to select a date...", "class": "fp-date"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['pair_id'].create_url = 'bio_diversity:create_pair'
+
 
 class SpwndForm(CreatePrams, forms.ModelForm):
     class Meta:
