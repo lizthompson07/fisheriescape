@@ -1,5 +1,3 @@
-from time import sleep
-
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 
@@ -7,7 +5,7 @@ from django.test import tag
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.select import Select
 
-from bio_diversity.models import EventCode, Event, LocCode, Individual, Tank, ProtoCode, Pairing, EnvCode, Program
+from bio_diversity.models import EventCode, LocCode, Tank, ProtoCode, Pairing, EnvCode, Program
 from bio_diversity.test import BioFactoryFloor
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 from django.contrib.auth.models import User
@@ -78,7 +76,7 @@ def fill_n_submit_form(browser, data, exclude=[]):
     scroll_n_click(browser, submit_btn)
 
 
-def open_n_fill_popup(self, button, data, parent_name="", parent_code=""):
+def open_n_fill_popup(self, button, data, parent_code=""):
     # self should be a common functional test class
     # button should be a clickable element that opens a pop up create form
     scroll_n_click(self.browser, button)
@@ -92,7 +90,7 @@ def open_n_fill_popup(self, button, data, parent_name="", parent_code=""):
     self.browser.refresh()
 
 
-def add_feature(self, feature_data, feature_tag, object_tag="", object_name="", clone=False):
+def add_feature(self, feature_data, feature_tag, object_tag="", clone=False):
     # browser must be on details view with the feature.
     # feature data should be output from factory.build_valid_data()
     # returns rows in details table to be compared with input feature data
@@ -104,7 +102,7 @@ def add_feature(self, feature_data, feature_tag, object_tag="", object_name="", 
         feature_btn = feature_details.find_element_by_xpath('//a[@name="clone-{}-btn"]'.format(feature_tag))
     else:
         feature_btn = feature_details.find_element_by_xpath('//a[@name="add-new-{}-btn"]'.format(feature_tag))
-    open_n_fill_popup(self, feature_btn, feature_data, object_name, object_tag)
+    open_n_fill_popup(self, feature_btn, feature_data, object_tag)
     try:
         details_table = self.browser.find_element_by_xpath("//div[@name='{}-details']//table/tbody".format(feature_tag))
     except NoSuchElementException:
@@ -170,7 +168,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         self.nav_to_details_view()
         # user adds a location to the event
         location_data = BioFactoryFloor.LocFactory.build_valid_data()
-        rows = add_feature(self, location_data, "loc", "evnt", self.evnt_data.__str__())
+        rows = add_feature(self, location_data, "loc", "evnt")
         locc_used = LocCode.objects.filter(pk=location_data["locc_id"]).get().__str__()
         self.assertIn(locc_used, [get_col_val(row, 0) for row in rows])
 
@@ -179,7 +177,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         # user adds a new individual to the event
         indv_data = BioFactoryFloor.IndvFactory.build_valid_data()
-        rows = add_feature(self, indv_data, "indv", "", self.evnt_data.__str__())
+        rows = add_feature(self, indv_data, "indv", "")
         ufid_used = indv_data["ufid"]
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
@@ -220,20 +218,20 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         # user adds a new individual to the event
         indv_data = BioFactoryFloor.IndvFactory.build_valid_data()
-        rows = add_feature(self, indv_data, "indv", "", self.evnt_data.__str__())
+        rows = add_feature(self, indv_data, "indv", "")
         ufid_used = indv_data["ufid"]
         self.assertIn(ufid_used, [get_col_val(row, 0) for row in rows])
 
         # user clones this indivdual:
         indv_clone_data = {"ufid": "new_ufid"}
-        rows = add_feature(self, indv_clone_data, "indv", "", self.evnt_data.__str__(), True)
+        rows = add_feature(self, indv_clone_data, "indv", "", True)
         self.assertIn("new_ufid", [get_col_val(row, 0) for row in rows])
 
     def test_add_contx(self):
         self.nav_to_details_view()
         # user add a container cross reference to the event
         contx_data = BioFactoryFloor.ContxFactory.build_valid_data()
-        rows = add_feature(self, contx_data, "contx", "evnt", self.evnt_data.__str__())
+        rows = add_feature(self, contx_data, "contx", "evnt")
         tank_used = Tank.objects.filter(pk=contx_data["tank_id"]).get().__str__()
         self.assertIn(tank_used, [get_col_val(row, 0) for row in rows])
 
@@ -242,7 +240,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
         # user adds a new spawning to the event
         spwn_data = BioFactoryFloor.SpwnFactory.build_valid_data()
-        rows = add_feature(self, spwn_data, "spwn", "", self.evnt_data.__str__())
+        rows = add_feature(self, spwn_data, "spwn", "")
         pair_used = Pairing.objects.filter(pk=spwn_data["pair_id"]).get().__str__()
         self.assertIn(pair_used, [get_col_val(row, 0) for row in rows])
 
@@ -285,8 +283,10 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         prot_data = BioFactoryFloor.ProtFactory.build_valid_data()
         prot_data["valid"] = True
         prot_data["evntc_id"] = self.evnt_data.evntc_id.id
-        Program.objects.filter(pk=self.evnt_data.prog_id.id).get().valid = True
-        rows = add_feature(self, prot_data, "prot", "prog", self.evnt_data.prog_id.__str__())
+        evnt_prog = Program.objects.filter(pk=self.evnt_data.prog_id.id).get()
+        evnt_prog.valid = True
+        evnt_prog.save()
+        rows = add_feature(self, prot_data, "prot", "prog")
         evntc_used = EventCode.objects.filter(pk=prot_data["evntc_id"]).get().__str__()
         self.assertIn(evntc_used, [get_col_val(row, 0) for row in rows])
 
@@ -404,7 +404,6 @@ class InstdcTestSimpleLookup(CommonFunctionalTest):
         self.assertIn(new_name, [get_col_val(row, 0) for row in rows])
 
 
-
 @tag("Functional", "Loc")
 class TestLocDetailsFunctional(CommonFunctionalTest):
     # put factories in setUp and not in class to make factory boy use selenium database.
@@ -422,10 +421,9 @@ class TestLocDetailsFunctional(CommonFunctionalTest):
 
         # user adds a new protocol to the event
         env_data = BioFactoryFloor.EnvFactory.build_valid_data()
-        rows = add_feature(self, env_data, "env", "loc", self.loc_data.__str__())
+        rows = add_feature(self, env_data, "env", "loc")
         envc_used = EnvCode.objects.filter(pk=env_data["envc_id"]).get().__str__()
         self.assertIn(envc_used, [get_col_val(row, 0) for row in rows])
-
 
 
 @tag("Functional", "Prog")
@@ -445,7 +443,7 @@ class TestProgDetailsFunctional(CommonFunctionalTest):
 
         # user adds a new protocol to the program
         prot_data = BioFactoryFloor.ProtFactory.build_valid_data()
-        rows = add_feature(self, prot_data, "prot", "prog", self.prog_data.__str__())
+        rows = add_feature(self, prot_data, "prot", "prog")
         protc_used = ProtoCode.objects.filter(pk=prot_data["protc_id"]).get().__str__()
         self.assertIn(protc_used, [get_col_val(row, 0) for row in rows])
 
@@ -468,22 +466,6 @@ class TestProgDetailsFunctional(CommonFunctionalTest):
         rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(first_protc, [get_col_val(row, 0) for row in rows])
 
-    def no_test_add_existing_individual(self):
-        self.nav_to_details_view()
-
-        # user adds an existing protocol to the event:
-        prot = BioFactoryFloor.ProtFactory()
-        prot_details = self.browser.find_element_by_xpath('//div[@name="prot-details"]')
-        prot_btn = prot_details.find_element_by_xpath('//a[@name="add-new-prot-btn"]')
-        prot_data = {"prot_id": prot.pk}
-        open_n_fill_popup(self, prot_btn, prot_data)
-        try:
-            details_table = self.browser.find_element_by_xpath("//div[@name='prot-details']//table/tbody")
-        except NoSuchElementException:
-            return self.fail("No protocols in details table")
-        protc_used = ProtoCode.objects.filter(pk=prot_data.protc_id).get().__str__()
-        rows = details_table.find_elements_by_tag_name("tr")
-        self.assertIn(protc_used, [get_col_val(row, 0) for row in rows])
 
 @tag("Functional", "Prot")
 class TestProtDetailsFunctional(CommonFunctionalTest):
@@ -503,5 +485,5 @@ class TestProtDetailsFunctional(CommonFunctionalTest):
 
         # user adds a new protocol file to the protocol
         protf_data = BioFactoryFloor.ProtfFactory.build_valid_data()
-        rows = add_feature(self, protf_data, "protf", "prot", self.prot_data.__str__())
+        rows = add_feature(self, protf_data, "protf", "prot")
         self.assertTrue(len(rows) > 0)

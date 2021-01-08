@@ -9,7 +9,7 @@ from django.dispatch import receiver
 from shared_models import models as shared_models
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from datetime import datetime
+
 
 class BioContainerDet(models.Model):
     class Meta:
@@ -147,7 +147,8 @@ class ContDetSubjCode(BioLookup):
 
 class ContainerXRef(BioModel):
     # contx tag
-    evnt_id = models.ForeignKey("Event", on_delete=models.DO_NOTHING, verbose_name=_("Event"), related_name="containers")
+    evnt_id = models.ForeignKey("Event", on_delete=models.DO_NOTHING, verbose_name=_("Event"),
+                                related_name="containers")
     tank_id = models.ForeignKey("Tank", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Tank"))
     trof_id = models.ForeignKey("Trough", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Trough"))
     tray_id = models.ForeignKey("Tray", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Tray"))
@@ -380,7 +381,7 @@ class Event(BioModel):
                                 limit_choices_to={'valid': True})
     team_id = models.ForeignKey('Team', on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Team"))
     evnt_start = models.DateTimeField(verbose_name=_("Event start date"))
-    evnt_end = models.DateTimeField(verbose_name=_("Event end date"))
+    evnt_end = models.DateTimeField(null=True, blank=True, verbose_name=_("Event end date"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
     def __str__(self):
