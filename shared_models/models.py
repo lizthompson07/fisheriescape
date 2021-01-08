@@ -213,11 +213,11 @@ class Section(SimpleLookupWithUUID):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     # calculated fields (for quick acquisition)
-    shortish_name = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_en = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_en_ver1 = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_fr = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_fr_ver1 = models.CharField(max_length=1000, blank=True, null=True)
+    shortish_name = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_en = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_en_ver1 = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_fr = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_fr_ver1 = models.CharField(max_length=1000, blank=True, null=True, editable=False)
 
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]

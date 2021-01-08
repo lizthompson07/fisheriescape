@@ -1,18 +1,12 @@
-from django.contrib.auth.models import User
-from pandas import date_range
-from rest_framework import status
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import RetrieveAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView, \
-    RetrieveUpdateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from dm_apps.utils import custom_send_mail
-from shared_models import models as shared_models
-from . import permissions, pagination
+from . import permissions
 from . import serializers
 from .. import models
+
 
 # USER
 #######
@@ -23,6 +17,7 @@ class CurrentUserAPIView(APIView):
         serializer = serializers.UserDisplaySerializer(instance=request.user)
         data = serializer.data
         return Response(data)
+
 
 # Observations
 ##############
@@ -45,7 +40,7 @@ class ObservationListAPIView(ListAPIView):
 # Sections
 ##############
 
-class SectionListAPIView(ListAPIView):
+class SectionListCreateAPIView(ListCreateAPIView):
     serializer_class = serializers.SectionSerializer
     permission_classes = [permissions.ScubaCRUDOrReadOnly]
 
@@ -60,6 +55,10 @@ class SectionListAPIView(ListAPIView):
         return qs
 
 
+class SectionRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Section.objects.all()
+    serializer_class = serializers.SectionSerializer
+    permission_classes = [permissions.ScubaCRUDOrReadOnly]
 #
 # class ProjectYearRetrieveAPIView(RetrieveAPIView):
 #     queryset = models.ProjectYear.objects.all().order_by("-created_at")

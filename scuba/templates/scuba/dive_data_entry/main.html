@@ -5,77 +5,129 @@
 
 
 {% block subcontent %}
+  <style>
+  table, td, th {
+      border: #0f0f0f solid 1px;
+      padding: 2px;
+  }
+  </style>
+
   <div id="app">
-    <div class="btns mb-3">
-      <a href="{% url 'scuba:dive_detail' object.id %}" class="btn btn-primary btn-sm">{% trans "All Done!" %}</a>
-    </div>
+
 
     <div class="mb-3">
-      <table class="table table-sm" style="width: 50%">
-        {% for field in field_list %}
-          {% verbose_td_display object field %}
-        {% endfor %}
-      </table>
-    </div>
 
-    <div class="mb-3">
-      <h3>{% trans "Observations" %}</h3>
+      <div v-if="loadingSections" class="loading mb-3 mt-3 text-center mt-5">
+        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+          <span class="sr-only"></span>
+        </div>
+      </div>
+      <div v-else>
+        {#  this is display mode!!  #}
+        <div v-if="!editMode">
+          <div class="btns mb-3">
+            <a href="{% url 'scuba:dive_detail' object.id %}" class="btn btn-primary btn-sm">{% trans "All Done!" %}</a>
+          </div>
+          <h3>{% trans "Observations" %}</h3>
+          <div class="mb-3">
+            <table class="" style="width: 50%">
+              {% for field in field_list %}
+                {% verbose_td_display object field %}
+              {% endfor %}
+            </table>
+          </div>
+          <div class="row">
 
-      {% if object.sections.exists %}
+            <div class="col" style="text-align: right; padding-bottom: 10px">
+              <button
+                @click="editSection()"
+                class="btn btn-sm btn-success">{% trans 'New Section' %}</button>
+            </div>
+          </div>
+          <table v-if="!editMode" class="custom-table">
+            <thead>
+            <tr>
+              {% for field in section_field_list %}
+                <th rowspan="2">
+                  {% get_verbose_label object.sections.first field %}
+                </th>
+              {% endfor %}
+              <th class="text-center" colspan="5">{% trans "Observations" %}</th>
+              <th rowspan="2"></th>
+            </tr>
+            <tr>
+              {% for field in observation_field_list %}
+                <th>
+                  {% get_verbose_label random_observation field %}
+                </th>
+              {% endfor %}
+            </tr>
+            </thead>
+            <tbody v-for="(section, index) in sections">
+            <tr v-for="obs, index1 in section.observations">
 
-        <table class="table table-bordered table-sm">
-          <thead>
-          <tr>
-            {% for field in section_field_list %}
-              <th rowspan="2">
-                {% get_verbose_label object.sections.first field %}
-              </th>
-            {% endfor %}
-            <th class="text-center" colspan="8">{% trans "Observations" %}</th>
-          </tr>
-          <tr>
-            {% for field in observation_field_list %}
-              <th>
-                {% get_verbose_label random_observation field %}
-              </th>
-            {% endfor %}
-          </tr>
-          </thead>
-          <tbody>
-          {% for section in object.sections.all %}
-            {% for obs in section.observations.all %}
-              <tr>
-                {% if forloop.counter == 1 %}
-                  {% for field in section_field_list %}
-                    {% if field == "comment" %}
-                      <td style="width: 20%" rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
-                    {% elif field == "substrate_profile" %}
-                      <td style="width: 25%" rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
-                    {% else %}
-                      <td rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
-                    {% endif %}
-                  {% endfor %}
-                {% endif %}
+              <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.interval"></td>
+              <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.depth_ft"></td>
+              <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.substrate_profile" style="width: 100px"></td>
+              <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.observations.length" style="width: 120px"></td>
+              <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.comment" style="width: 120px"></td>
+              <td v-html="obs.sex_display"></td>
+              <td v-html="obs.egg_status_display"></td>
+              <td v-html="obs.carapace_length_mm"></td>
+              <td v-html="obs.certainty_rating_display"></td>
+              <td v-html="obs.comment"></td>
+              <td v-if="index1==0" :rowspan="section.observations.length" style="width: 120px" class="text-center">
+                <button
+                  @click="editSection(section)"
+                  class="mdi mdi-pencil h4"></button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        {# if edit mode!! #}
+        <div v-else>
+          <span ref="top"></span>
+          <form @submit.prevent="submitSectionForm">
+            <div
+              v-if="sectionFormErrors"
+              class="alert alert-danger" role="alert" style="width: 50%;">
+              <p class="alert-heading h5">${sectionFormErrors} </p>
+            </div>
 
-                {% for field in observation_field_list %}
-                  {% if "comment" in field %}
-                    <td style="width: 25%">{% get_field_value obs field %}</td>
-                  {% else %}
-                    <td>{% get_field_value obs field %}</td>
-                  {% endif %}
-                {% endfor %}
-              </tr>
-            {% endfor %}
-          {% endfor %}
-          </tbody>
-        </table>
+            <table>
+              {{ section_form.as_table }}
+            </table>
+            <div class="mt-2">
+              <p>{% trans "Substrate total percentage:" %}
+                <span :class="{'bad px-1 py-1':totalPercentage!='100%','good px-1 py-1':totalPercentage=='100%'}" v-html="totalPercentage"></span>
+              </p>
+            </div>
 
-      {% else %}
 
-        <em>{% trans "This dive has no observations." %}</em>
+            <input
+              v-if="unsavedSectionWork"
+              :disabled="totalPercentage!='100%'"
+              type="submit"
+              value="{% trans "Save Section" %}"
+              class="btn btn-primary">
 
-      {% endif %}
 
+          </form>
+
+
+          <div class="mt-4">
+            <button
+              @click="closeEditMode"
+              class="btn btn-secondary">{% trans "Back" %}</button>
+            <button
+              v-if="sectionToEdit.id"
+              @click="deleteSection(sectionToEdit)"
+              class="btn btn-danger">{% trans "Delete" %}</button>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
@@ -85,11 +137,11 @@
 
 {% block body_js %}
   {{ block.super }}
-
-  <script src="{% static '/scuba/mainDiveDataEntry.js' %}?version=1.0" type="application/javascript"></script>
   <script type="application/javascript">
-  //reload other scripts that we care about
+  diveId = {{ object.id }};
   </script>
+
+  <script src="{% static '/scuba/mainDiveDataEntry.js' %}?version=1.7" type="application/javascript"></script>
 
 
 {% endblock %}

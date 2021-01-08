@@ -1,6 +1,7 @@
 {% extends 'scuba/base.html' %}
 {% load verbose_names %}
 {% load i18n %}
+{% load custom_filters %}
 
 {% block subcontent %}
 
@@ -13,7 +14,14 @@
   <div class="mb-3">
     <table class="table table-sm" style="width: 50%">
       {% for field in field_list %}
-        {% verbose_td_display object field %}
+        {% if "descent" in field %}
+          <tr>
+            <th>{% get_verbose_label object field %}</th>
+            <td>{{ object.start_descent|time }}</td>
+          </tr>
+        {% else %}
+          {% verbose_td_display object field %}
+        {% endif %}
       {% endfor %}
     </table>
   </div>
@@ -23,7 +31,7 @@
 
     {% if object.sections.exists %}
 
-      <table class="table table-bordered table-sm">
+      <table class="table table-bordered table-sm" style="width: auto;">
         <thead>
         <tr>
           {% for field in section_field_list %}
@@ -41,14 +49,20 @@
           {% endfor %}
         </tr>
         </thead>
-        <tbody>
         {% for section in object.sections.all %}
+          <tbody>
           {% for obs in section.observations.all %}
             <tr>
               {% if forloop.counter == 1 %}
                 {% for field in section_field_list %}
                   {% if field == "comment" %}
-                    <td style="width: 20%" rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
+                    <td style="width: 10%" rowspan="{{ section.observations.count }}" class="text-center">
+
+                      {% if section.comment %}
+                        <span class="mdi mdi-comment-text h5" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ section.comment }}"></span>
+                      {% endif %}
+                    </td>
+
                   {% elif field == "substrate_profile" %}
                     <td style="width: 25%" rowspan="{{ section.observations.count }}">{% get_field_value section field %}</td>
                   {% else %}
@@ -59,15 +73,42 @@
 
               {% for field in observation_field_list %}
                 {% if "comment" in field %}
-                  <td style="width: 25%">{% get_field_value obs field %}</td>
+                  <td class="text-center">
+                    {% if obs.comment %}
+                      <span class="mdi mdi-comment-text h5" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ obs.comment }}"></span>
+                    {% endif %}
+                  </td>
                 {% else %}
                   <td>{% get_field_value obs field %}</td>
                 {% endif %}
               {% endfor %}
             </tr>
+          {% empty %}
+            <tr>
+                {% for field in section_field_list %}
+                  {% if field == "comment" %}
+                    <td style="width: 10%" class="text-center">
+                      {% if section.comment %}
+                        <span class="mdi mdi-comment-text h5" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ section.comment }}"></span>
+                      {% endif %}
+                    </td>
+                  {% elif field == "substrate_profile" %}
+                    <td style="width: 25%">{% get_field_value section field %}</td>
+                  {% else %}
+                    <td>{% get_field_value section field %}</td>
+                  {% endif %}
+                {% endfor %}
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
+                <td></td>
+
+            </tr>
           {% endfor %}
-        {% endfor %}
         </tbody>
+        {% endfor %}
       </table>
 
     {% else %}
@@ -78,4 +119,15 @@
   </div>
 
 
+{% endblock %}
+{% block body_js %}
+  {{ block.super }}
+
+  <script type="application/javascript">
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+  })
+
+  </script>
 {% endblock %}

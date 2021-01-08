@@ -115,7 +115,7 @@ def digest_data():
             # SECTION
             sand = float(row['Sa']) if is_number_tryexcept(row['Sa']) else 0
             mud = float(row['Va']) if is_number_tryexcept(row['Va']) else 0
-            solid = float(row['Du']) if is_number_tryexcept(row['Du']) else 0
+            hard = float(row['Du']) if is_number_tryexcept(row['Du']) else 0
             algae = float(row['Al']) if is_number_tryexcept(row['Al']) else 0
             gravel = float(row['Gr']) if is_number_tryexcept(row['Gr']) else 0
             cobble = float(row['Co']) if is_number_tryexcept(row['Co']) else 0
@@ -129,7 +129,7 @@ def digest_data():
 
                 percent_sand=sand,
                 percent_mud=mud,
-                percent_solid=solid,
+                percent_hard=hard,
                 percent_algae=algae,
                 percent_gravel=gravel,
                 percent_cobble=cobble,
