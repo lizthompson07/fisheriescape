@@ -6,9 +6,10 @@ urlpatterns = [
     path("scuba/user/", views.CurrentUserAPIView.as_view(), name="current-user"),
 
     # observations
-    path("scuba/observations/", views.ObservationListAPIView.as_view(), name="observation-list"),
+    path("scuba/observations/", views.ObservationListCreateAPIView.as_view(), name="observation-list"),
+    path("scuba/observations/<int:pk>/", views.ObservationRetrieveUpdateDestroyAPIView.as_view(), name="observation-detail"),
     path("scuba/sections/", views.SectionListCreateAPIView.as_view(), name="section-list"),
-    path("scuba/sections/<int:pk>/", views.SectionRetrieveUpdateDestroyAPIView.as_view(), name="section-list"),
+    path("scuba/sections/<int:pk>/", views.SectionRetrieveUpdateDestroyAPIView.as_view(), name="section-detail"),
     # path("scuba/projects/", views.ProjectListAPIView.as_view(), name="project-list"),  # tested
     #
     # # Project year

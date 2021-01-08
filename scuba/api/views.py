@@ -22,9 +22,12 @@ class CurrentUserAPIView(APIView):
 # Observations
 ##############
 
-class ObservationListAPIView(ListAPIView):
+class ObservationListCreateAPIView(ListCreateAPIView):
     serializer_class = serializers.ObservationSerializer
     permission_classes = [permissions.ScubaCRUDOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(section_id=self.request.data["section_id"])
 
     def get_queryset(self):
         qs = models.Observation.objects.order_by("section", "id")
@@ -35,6 +38,12 @@ class ObservationListAPIView(ListAPIView):
             qs = qs.filter(section__dive=dive)
 
         return qs
+
+
+class ObservationRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Observation.objects.all()
+    serializer_class = serializers.ObservationSerializer
+    permission_classes = [permissions.ScubaCRUDOrReadOnly]
 
 
 # Sections

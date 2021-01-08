@@ -53,7 +53,7 @@
                   {% get_verbose_label object.sections.first field %}
                 </th>
               {% endfor %}
-              <th class="text-center" colspan="5">{% trans "Observations" %}</th>
+              <th class="text-center" colspan="6">{% trans "Observations" %}</th>
               <th rowspan="2"></th>
             </tr>
             <tr>
@@ -74,6 +74,7 @@
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.substrate_profile" style="width: 100px"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.observations.length" style="width: 120px"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.comment" style="width: 120px"></td>
+              <td v-html="obs.id"></td>
               <td v-html="obs.sex_display"></td>
               <td v-html="obs.egg_status_display"></td>
               <td v-html="obs.carapace_length_mm"></td>
@@ -96,7 +97,8 @@
               <td></td>
               <td></td>
               <td></td>
-              <td style="width: 120px" class="text-center">
+              <td></td>
+              <td class="text-center">
                 <button
                   @click="editSection(section)"
                   class="mdi mdi-pencil h4"></button>
@@ -111,34 +113,78 @@
             <span v-if="sectionToEdit.id" class="h4 highlight py-1 px-1"> Section ${sectionToEdit.interval} </span>
             <span v-else class="h4 highlight py-1 px-1"> {% trans "New Section" %} </span>
           </p>
+          <div class="row">
+            <div class="col">
+              <form @submit.prevent="submitSectionForm">
+                <div
+                  v-if="sectionFormErrors"
+                  class="alert alert-danger" role="alert" style="width: 50%;">
+                  <p class="alert-heading h5">${sectionFormErrors} </p>
+                </div>
 
-          <form @submit.prevent="submitSectionForm">
-            <div
-              v-if="sectionFormErrors"
-              class="alert alert-danger" role="alert" style="width: 50%;">
-              <p class="alert-heading h5">${sectionFormErrors} </p>
+                <table>
+                  {{ section_form.as_table }}
+                </table>
+                <div class="mt-2">
+                  <p>{% trans "Substrate total percentage:" %}
+                    <span :class="{'bad px-1 py-1':totalPercentage!='100%','good px-1 py-1':totalPercentage=='100%'}" v-html="totalPercentage"></span>
+                  </p>
+                </div>
+
+
+                <input
+                  v-if="unsavedSectionWork"
+                  :disabled="totalPercentage!='100%'"
+                  type="submit"
+                  value="{% trans "Save Section" %}"
+                  class="btn btn-primary">
+
+
+              </form>
+
             </div>
+            <div v-if="sectionToEdit.id && !unsavedSectionWork" class="col">
+              <p class="h3 mb-3">{% trans "Observations" %}</p>
+              <div
+                v-if="observationFormErrors"
+                class="alert alert-danger mb-3" role="alert" style="width: 50%;">
+                <p class="alert-heading h5">${observationFormErrors} </p>
+              </div>
+              <div class="jumbotron px-2 py-2">
+                <form @submit.prevent="submitObservationForm()">
+                  <table>
+                    {{ new_obs_form.as_table }}
+                  </table>
+                  <input class="btn btn-sm btn-success mt-3" type="submit" value="{% trans "Add" %}">
+                </form>
+              </div>
 
-            <table>
-              {{ section_form.as_table }}
-            </table>
-            <div class="mt-2">
-              <p>{% trans "Substrate total percentage:" %}
-                <span :class="{'bad px-1 py-1':totalPercentage!='100%','good px-1 py-1':totalPercentage=='100%'}" v-html="totalPercentage"></span>
-              </p>
+              <table v-if="sectionToEdit.observations.length">
+                <thead>
+                <tr>
+                  {% for field in observation_field_list %}
+                    <th>
+                      {% get_verbose_label random_observation field %}
+                    </th>
+                  {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="obs, index in sectionToEdit.observations">
+                  <td v-html="obs.id"></td>
+                  <td>{{ obs_form.sex }}</td>
+                  <td>{{ obs_form.egg_status }}</td>
+                  <td>{{ obs_form.carapace_length_mm }}</td>
+                  <td>{{ obs_form.certainty_rating }}</td>
+                  <td>{{ obs_form.comment }}</td>
+
+                </tr>
+                </tbody>
+              </table>
+              <p v-else><em>{% trans "This section has no observations" %}</em></p>
+
             </div>
-
-
-            <input
-              v-if="unsavedSectionWork"
-              :disabled="totalPercentage!='100%'"
-              type="submit"
-              value="{% trans "Save Section" %}"
-              class="btn btn-primary">
-
-
-          </form>
-
+          </div>
 
           <div class="mt-4">
             <button
@@ -165,7 +211,7 @@
   diveId = {{ object.id }};
   </script>
 
-  <script src="{% static '/scuba/mainDiveDataEntry.js' %}?version=1.7" type="application/javascript"></script>
+  <script src="{% static '/scuba/mainDiveDataEntry.js' %}?version=1.8" type="application/javascript"></script>
 
 
 {% endblock %}

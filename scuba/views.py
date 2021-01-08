@@ -459,7 +459,7 @@ class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         ]
         context["section_field_list"] = section_field_list
         observation_field_list = [
-            'id|{}'.format(_("lobster id")),
+            'id',
             'sex',
             'egg_status',
             'carapace_length_mm',
@@ -499,14 +499,16 @@ class DiveDataEntryTemplateView(ScubaAdminRequiredMixin, CommonDetailView):
         ]
         context["section_field_list"] = section_field_list
         observation_field_list = [
+            'id',
             'sex',
             'egg_status',
             'carapace_length_mm',
             'certainty_rating',
             'comment',
-            # 'id|{}'.format(_("observation ID")),
         ]
         context["observation_field_list"] = observation_field_list
         context["random_observation"] = models.Observation.objects.first()
         context["section_form"] = forms.SectionForm
+        context["obs_form"] = forms.ObservationForm
+        context["new_obs_form"] = forms.NewObservationForm
         return context

@@ -9,6 +9,14 @@ var app = new Vue({
     sectionToEdit: null,
     unsavedSectionWork: false,
     sectionFormErrors: null,
+    observationFormErrors: null,
+    new_observation: {
+      sex: "",
+      egg_status: "",
+      carapace_length_mm: null,
+      certainty_rating: 1,
+      comment: null,
+    },
   },
   methods: {
     getCurrentUser() {
@@ -66,7 +74,9 @@ var app = new Vue({
 
       // focus on the save button
       this.$nextTick(() => {
-        this.$refs['top_of_form'].focus()
+        if (section.id) this.$refs['top_of_form1'].focus()
+        else this.$refs['top_of_form'].focus()
+
       })
 
     },
@@ -83,8 +93,7 @@ var app = new Vue({
                 this.sectionFormErrors = response[Object.keys(response)[0]][0]
               } else {
                 this.unsavedSectionWork = false;
-                this.getSections();
-                this.closeEditMode();
+
               }
             })
 
@@ -107,20 +116,63 @@ var app = new Vue({
       }
 
     },
-    deleteSection(section) {
-      let endpoint = `/api/scuba/sections/${section.id}`;
-      apiService(endpoint, "DELETE")
+    updateObservation(observation) {
+      this.observationFormErrors = null
+      let endpoint = `/api/scuba/observations/${observation.id}/`;
+      apiService(endpoint, "PUT", observation)
           .then(response => {
+            console.log(response)
             // if the response does not have an id, it means there is an error...
-            if (response.detail) {
-              this.sectionFormErrors = response["detail"]
-            } else {
-
-              this.closeEditMode()
+            if (!response.id) {
+              this.observationFormErrors = response[Object.keys(response)[0]]
+              console.log(this.observationFormErrors)
             }
-
+          })
+    },
+    submitObservationForm() {
+      this.obserFormErrors = null
+      // this is a new section being added
+      let endpoint = `/api/scuba/observations/`;
+      this.new_observation.section_id = this.sectionToEdit.id
+      apiService(endpoint, "POST", this.new_observation)
+          .then(response => {
+            console.log(response)
+            // if the response does not have an id, it means there is an error...
+            if (!response.id) {
+              this.sectionFormErrors = response[Object.keys(response)[0]][0]
+            } else {
+              this.sectionToEdit.observations.unshift(response)
+              this.new_observation = {
+                sex: "",
+                egg_status: "",
+                carapace_length_mm: null,
+                certainty_rating: 1,
+                comment: null,
+              }
+              this.$refs["top_of_form1"].focus()
+            }
           })
 
+    },
+    deleteSection(section) {
+      // warning
+      var userInput = true;
+      msg = "Are you certain you want to delete this section?";
+      userInput = confirm(msg);
+      if (userInput) {
+        let endpoint = `/api/scuba/sections/${section.id}`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              // if the response does not have an id, it means there is an error...
+              if (response.detail) {
+                this.sectionFormErrors = response["detail"]
+              } else {
+
+                this.closeEditMode()
+              }
+
+            })
+      }
     },
 
 

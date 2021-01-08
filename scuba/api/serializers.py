@@ -26,7 +26,7 @@ class SectionLITESerializer(serializers.ModelSerializer):
 
 
 class ObservationSerializer(serializers.ModelSerializer):
-    section = SectionLITESerializer()
+    section = SectionLITESerializer(read_only=True)
     sex_display = serializers.SerializerMethodField()
     egg_status_display = serializers.SerializerMethodField()
     certainty_rating_display = serializers.SerializerMethodField()
