@@ -174,7 +174,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
     def test_add_individual(self):
         self.nav_to_details_view()
-
         # user adds a new individual to the event
         indv_data = BioFactoryFloor.IndvFactory.build_valid_data()
         rows = add_feature(self, indv_data, "indv", "")
@@ -183,7 +182,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
     def test_add_existing_individual_nav_back_btn(self):
         self.nav_to_details_view()
-
         # user adds an existing individual to the event:
         indv = BioFactoryFloor.IndvFactory()
         indv_details = self.browser.find_element_by_xpath('//div[@name="indv-details"]')
@@ -237,7 +235,6 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
     def test_add_spawning(self):
         self.nav_to_details_view()
-
         # user adds a new spawning to the event
         spwn_data = BioFactoryFloor.SpwnFactory.build_valid_data()
         rows = add_feature(self, spwn_data, "spwn", "")
@@ -246,8 +243,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
 
     def test_add_existing_spawning_nav_back_btn(self):
         self.nav_to_details_view()
-
-        # user adds an existing individual to the event:
+        # user adds an existing spawning to the event:
         spwn = BioFactoryFloor.SpwnFactory()
         spwn_details = self.browser.find_element_by_xpath('//div[@name="spwn-details"]')
         spwn_btn = spwn_details.find_element_by_xpath('//a[@name="add-existing_spwn-btn"]')
@@ -261,7 +257,7 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(pair_used, [get_col_val(row, 0) for row in rows])
 
-        # User clicks on first individual reviews its details and returns to the event details
+        # User clicks on first spawning reviews its details and returns to the event details
         rows = details_table.find_elements_by_tag_name("tr")
         first_pair = rows[0].find_element_by_tag_name("td").text
         scroll_n_click(self.browser, rows[0])
@@ -276,10 +272,9 @@ class TestEvntDetailsFunctional(CommonFunctionalTest):
         rows = details_table.find_elements_by_tag_name("tr")
         self.assertIn(first_pair, [get_col_val(row, 0) for row in rows])
 
-    @tag("Custom")
     def test_add_protocol(self):
         self.nav_to_details_view()
-        # user adds a location to the event
+        # user adds a protocol to the event
         prot_data = BioFactoryFloor.ProtFactory.build_valid_data()
         prot_data["valid"] = True
         prot_data["evntc_id"] = self.evnt_data.evntc_id.id
@@ -412,14 +407,14 @@ class TestLocDetailsFunctional(CommonFunctionalTest):
         self.loc_data = BioFactoryFloor.LocFactory()
 
     def nav_to_details_view(self):
-        # user navigates to a details view for an event
+        # user navigates to a details view for a location
         self.browser.get("{}{}{}".format(self.live_server_url, "/en/bio_diversity/details/loc/", self.loc_data.id))
         self.assertIn('Location', self.browser.title, "not on correct page")
 
     def test_add_env(self):
         self.nav_to_details_view()
 
-        # user adds a new protocol to the event
+        # user adds a new environment condition to the location
         env_data = BioFactoryFloor.EnvFactory.build_valid_data()
         rows = add_feature(self, env_data, "env", "loc")
         envc_used = EnvCode.objects.filter(pk=env_data["envc_id"]).get().__str__()
