@@ -474,7 +474,6 @@ class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
 class DiveDataEntryTemplateView(ScubaAdminRequiredMixin, CommonDetailView):
     model = models.Dive
     template_name = 'scuba/dive_data_entry/main.html'
-    home_url_name = "scuba:index"
     container_class = "container bg-light-green curvy"
     field_list = [
         'id|{}'.format(_("dive Id")),
@@ -485,16 +484,9 @@ class DiveDataEntryTemplateView(ScubaAdminRequiredMixin, CommonDetailView):
         'width_m',
         'comment',
     ]
-    greatgrandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
 
     def get_h1(self):
         return _("Data Entry Mode")
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse_lazy("scuba:dive_detail", args=[self.get_object().id])}
-
-    def get_grandparent_crumb(self):
-        return {"title": "test", "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

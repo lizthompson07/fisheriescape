@@ -35,6 +35,7 @@ var app = new Vue({
         userInput = confirm(msg);
       }
       if (userInput) {
+        this.sectionFormErrors = null
         this.unsavedSectionWork = false;
         this.editMode = false;
         this.sectionToEdit = null;
@@ -70,9 +71,22 @@ var app = new Vue({
 
     },
     submitSectionForm() {
+      this.sectionFormErrors = null
       // this is an update
       if (this.sectionToEdit.id) {
-
+        let endpoint = `/api/scuba/sections/${this.sectionToEdit.id}/`;
+        apiService(endpoint, "PUT", this.sectionToEdit)
+            .then(response => {
+              console.log(response)
+              // if the response does not have an id, it means there is an error...
+              if (!response.id) {
+                this.sectionFormErrors = response[Object.keys(response)[0]][0]
+              } else {
+                this.unsavedSectionWork = false;
+                this.getSections();
+                this.closeEditMode();
+              }
+            })
 
       }
       // this is a new section being added
@@ -85,10 +99,10 @@ var app = new Vue({
               if (!response.id) {
                 this.sectionFormErrors = response[Object.keys(response)[0]][0]
               } else {
-
-                console.log(response)
+                this.unsavedSectionWork = false;
+                this.getSections();
+                this.closeEditMode();
               }
-
             })
       }
 
@@ -99,9 +113,9 @@ var app = new Vue({
           .then(response => {
             // if the response does not have an id, it means there is an error...
             if (response.detail) {
-                this.sectionFormErrors = response["detail"]
+              this.sectionFormErrors = response["detail"]
             } else {
-              this.$delete(this.sections, this.sections.indexOf(section))
+
               this.closeEditMode()
             }
 

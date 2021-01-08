@@ -3,6 +3,7 @@
 {% load i18n %}
 {% load static %}
 
+{% block crumbs %}{% endblock %}
 
 {% block subcontent %}
   <style>
@@ -64,7 +65,9 @@
             </tr>
             </thead>
             <tbody v-for="(section, index) in sections">
-            <tr v-for="obs, index1 in section.observations">
+            <tr
+              v-for="obs, index1 in section.observations"
+            >
 
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.interval"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.depth_ft"></td>
@@ -82,12 +85,33 @@
                   class="mdi mdi-pencil h4"></button>
               </td>
             </tr>
+            <tr v-if="!section.observations.length">
+              <td v-html="section.interval"></td>
+              <td v-html="section.depth_ft"></td>
+              <td v-html="section.substrate_profile" style="width: 100px"></td>
+              <td v-html="section.observations.length" style="width: 120px"></td>
+              <td v-html="section.comment" style="width: 120px"></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td style="width: 120px" class="text-center">
+                <button
+                  @click="editSection(section)"
+                  class="mdi mdi-pencil h4"></button>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
         {# if edit mode!! #}
         <div v-else>
-          <span ref="top"></span>
+          <p class="h3">
+            <span v-if="sectionToEdit.id" class="h4 highlight py-1 px-1"> Section ${sectionToEdit.interval} </span>
+            <span v-else class="h4 highlight py-1 px-1"> {% trans "New Section" %} </span>
+          </p>
+
           <form @submit.prevent="submitSectionForm">
             <div
               v-if="sectionFormErrors"
