@@ -139,7 +139,7 @@ steps:
         -SENDGRID_API_KEY ${{parameters.SENDGRID_API_KEY}}
         -GITHUB_API_KEY ${{parameters.GITHUB_API_KEY}}
         -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)
-        -AZURE_CLIENT_ID ${{parameters.AZURE_CLIENT_ID}}
+        -AZURE_MSI_CLIENT_ID ${{parameters.AZURE_MSI_CLIENT_ID}}
 
   - task: AzureAppServiceManage@0
     displayName: 'Restart web app service'
