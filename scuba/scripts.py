@@ -124,63 +124,103 @@ def digest_data():
 
             try:
                 section, created = models.Section.objects.get_or_create(
-                dive=dive,
-                interval=row['section'],
-                depth_ft=row['Depth_(ft)'] if is_number_tryexcept(row['Depth_(ft)']) else None,
-                comment=row['Comments'],
+                    dive=dive,
+                    interval=row['section'],
+                    depth_ft=row['Depth_(ft)'] if is_number_tryexcept(row['Depth_(ft)']) else None,
+                    comment=row['Comments'],
 
-                percent_sand=sand,
-                percent_mud=mud,
-                percent_hard=hard,
-                percent_algae=algae,
-                percent_gravel=gravel,
-                percent_cobble=cobble,
-                percent_pebble=pebble,
+                    percent_sand=sand,
+                    percent_mud=mud,
+                    percent_hard=hard,
+                    percent_algae=algae,
+                    percent_gravel=gravel,
+                    percent_cobble=cobble,
+                    percent_pebble=pebble,
 
-            )
+                )
             except IntegrityError as E:
-                print(E)
-                print(row)
+                # comment = row[
+                #               'Comments'] + f"; There is a problem with the source data: the diver's description of substrate is not consistent between observations (rows)"
+                section = models.Section.objects.get(
+                    dive=dive,
+                    interval=row['section'],
+                    depth_ft=row['Depth_(ft)'] if is_number_tryexcept(row['Depth_(ft)']) else None,
+                )
+                section_comment = "There is a problem with the source data: the diver's description of substrate is not consistent between observations (rows)"
+                if not section.comment:
+                    section.comment = section_comment
+                elif section_comment in section.comment:
+                    pass
+                else:
+                    section.comment += f'; {section_comment}'
+                section.save()
+
+                dive_comment = f"There is a problem with the source data: the diver's description of substrate is not " \
+                                       f"consistent between observations (rows): please see section interval #{row['section']}"
+                if not dive.comment:
+                    dive.comment = dive_comment
+                elif dive_comment in dive.comment:
+                    pass
+                else:
+                    dive.comment += f'; {dive_comment}'
+
+                dive.save()
+                print(E, section, dive)
+
+            # OBSERVATIONS
+            # sex
+            sex_txt_orig = row['sexe']
+            sex_txt = row['sexe'].lower().strip().replace(" ", "").replace("-", "")
+            sex = None
+            if sex_txt in ["m", "f"]:
+                sex = sex_txt
             else:
-                # OBSERVATIONS
-                # sex
-                sex_txt_orig = row['sexe']
-                sex_txt = row['sexe'].lower().strip().replace(" ", "").replace("-","")
-                sex = None
-                if sex_txt in ["m", "f"]:
-                    sex = sex_txt
+                sex = 'u'
+
+            egg_status = None
+            if sex_txt in ["b", "b1", "b2", "b3", "b4"]:
+                egg_status = sex_txt
+                sex = 'f'
+
+            length_txt_orig = row['LC_(mm)']
+            length_txt = row['LC_(mm)'].strip().replace("?", "").replace("~", "")
+            length = None
+            if is_number_tryexcept(length_txt):
+                length = float(length_txt)
+
+            if length:
+                # uncertainty
+                certainty = 1
+                # will deem the observation uncertain if there is a tilda in the lenth OR length is > 20 and sex is not known.
+                certainty_reason = None
+                if "~" in row['LC_(mm)']:
+                    certainty = 0
+                    certainty_reason = "Observation deemed uncertain because of tilda in length field."
+                elif length > 20 and sex == 'u':
+                    certainty = 0
+                    certainty_reason = "Observation deemed uncertain because > 20mm but sex is not known."
+
+                comment = f"Imported from MS Excel on {timezone.now().strftime('%Y-%m-%d')}. Original data: sex={sex_txt_orig}, length={length_txt_orig}."
+                if certainty_reason:
+                    comment += f" {certainty_reason}"
+
+                models.Observation.objects.create(
+                    section=section,
+                    sex=sex,
+                    egg_status=egg_status,
+                    carapace_length_mm=length,
+                    comment=comment,
+                    certainty_rating=certainty,
+                )
+
+            else:
+                # lets make a comment about this entry in the section
+                comment = f"Row in excel spreadsheet did not result in an observation. Here is the original data: sex={sex_txt_orig}, length={length_txt_orig}"
+                if section.comment:
+                    section.comment += f"; {comment}"
                 else:
-                    sex = 'u'
-
-                egg_status = None
-                if sex_txt in ["b", "b1", "b2", "b3", "b4"]:
-                    egg_status = sex_txt
-                    sex = 'f'
-
-                length_txt_orig = row['LC_(mm)']
-                length_txt = row['LC_(mm)'].strip().replace("?", "").replace("~","")
-                length = None
-                if is_number_tryexcept(length_txt):
-                    length = float(length_txt)
-
-                if length:
-                    comment = f"imported from MS Excel on {timezone.now().strftime('%Y-%m-%d')}. Original data: sex={sex_txt_orig}, length={length_txt_orig}"
-                    models.Observation.objects.create(
-                        section=section,
-                        sex=sex,
-                        egg_status=egg_status,
-                        carapace_length_mm=length,
-                        comment=comment
-                    )
-
-                else:
-                    # lets make a comment about this entry in the section
-                    comment = f"Row in excel spreadsheet did not result in an observation. Here is the original data: sex={sex_txt_orig}, length={length_txt_orig}"
-                    if section.comment:
-                        section.comment += f"; {comment}"
-                    else:
-                        section.comment = comment
-                    section.save()
+                    section.comment = comment
+                section.save()
 
 
 def delete_all_data():

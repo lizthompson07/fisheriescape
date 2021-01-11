@@ -204,7 +204,7 @@ class Observation(models.Model):
         ("b3", _("b3 (berried with developed eggs)")),
     )
     certainty_rating_choices = (
-        (1, _("certain")),
+        (1, _("certain")), #
         (0, _("uncertain")),
     )
     section = models.ForeignKey(Section, related_name='observations', on_delete=models.CASCADE, verbose_name=_("section"))

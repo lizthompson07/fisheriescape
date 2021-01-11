@@ -290,6 +290,7 @@ class SampleListView(ScubaAdminRequiredMixin, CommonFilterView):
     new_btn_text = gettext_lazy("Add a New Sample")
     container_class = "container-fluid bg-light curvy"
     field_list = [
+        {"name": 'id|{}'.format("sample Id"), "class": "", "width": ""},
         {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
         {"name": 'site.region|{}'.format("region"), "class": "", "width": ""},
         {"name": 'site', "class": "", "width": ""},

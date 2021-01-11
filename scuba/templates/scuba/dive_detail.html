@@ -78,6 +78,10 @@
                       <span class="mdi mdi-comment-text h5" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ obs.comment }}"></span>
                     {% endif %}
                   </td>
+                {% elif "certain" in field %}
+                  <td>
+                    <span class="{{ obs.get_certainty_rating_display }} py-1 px-2">{% get_field_value obs field %}</span>
+                  </td>
                 {% else %}
                   <td>{% get_field_value obs field %}</td>
                 {% endif %}
@@ -85,29 +89,29 @@
             </tr>
           {% empty %}
             <tr>
-                {% for field in section_field_list %}
-                  {% if field == "comment" %}
-                    <td style="width: 10%" class="text-center">
-                      {% if section.comment %}
-                        <span class="mdi mdi-comment-text h5" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ section.comment }}"></span>
-                      {% endif %}
-                    </td>
-                  {% elif field == "substrate_profile" %}
-                    <td style="width: 25%">{% get_field_value section field %}</td>
-                  {% else %}
-                    <td>{% get_field_value section field %}</td>
-                  {% endif %}
-                {% endfor %}
-                <td>---</td>
-                <td>---</td>
-                <td>---</td>
-                <td>---</td>
-                <td>---</td>
-                <td></td>
+              {% for field in section_field_list %}
+                {% if field == "comment" %}
+                  <td style="width: 10%" class="text-center">
+                    {% if section.comment %}
+                      <span class="mdi mdi-comment-text h5" data-bs-toggle="tooltip" data-bs-placement="right" title="{{ section.comment }}"></span>
+                    {% endif %}
+                  </td>
+                {% elif field == "substrate_profile" %}
+                  <td style="width: 25%">{% get_field_value section field %}</td>
+                {% else %}
+                  <td>{% get_field_value section field %}</td>
+                {% endif %}
+              {% endfor %}
+              <td>---</td>
+              <td>---</td>
+              <td>---</td>
+              <td>---</td>
+              <td>---</td>
+              <td></td>
 
             </tr>
           {% endfor %}
-        </tbody>
+          </tbody>
         {% endfor %}
       </table>
 

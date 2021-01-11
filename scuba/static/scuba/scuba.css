@@ -180,11 +180,11 @@ label.filter {
     background-color: pink;
 }
 
-.medium {
+.uncertain {
     background-color: yellow;
 }
 
-.low {
+.certain {
     background-color: greenyellow;
 }
 
