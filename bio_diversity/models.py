@@ -108,7 +108,8 @@ class AniDetailXref(BioModel):
                                 related_name="animal_details", verbose_name=_("Individual"))
     spwn_id = models.ForeignKey("Spawning", on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Spawning"))
-    grp_id = models.ForeignKey("Group", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Group"))
+    grp_id = models.ForeignKey("Group", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Group"),
+                               related_name="animal_details")
 
     class Meta:
         constraints = [
@@ -530,7 +531,7 @@ class Group(BioModel):
 
 class GroupDet(BioDet):
     # grpd tag
-    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING,
+    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING, related_name="group_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,

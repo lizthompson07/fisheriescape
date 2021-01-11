@@ -106,6 +106,37 @@
                 </table>
             {% endif %}
         </div>
+        <div class="card border border-dark my-1" name="grp-details">
+            <h5 class="card-header">{% trans "Event Groups" %}
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-new-grp-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_grp' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Group' %}</a>
+                </span>
+                <span class="px-1">
+                    <a class="btn btn-primary" name="add-existing_grp-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'grp_id' 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Group' %}</a>
+                </span>
+            </h5>
+            {% if grp_list %}
+                <table class="table table-sm sortable table-hover">
+                    <thead>
+                        {% for field in grp_field_list %}
+                            <th>{% get_verbose_label grp_object field %}</th>
+                        {% endfor %}
+                    </thead>
+                    <tbody>
+                        {% for obj in grp_list %}
+                            <tr href="{% url 'bio_diversity:details_grp' 'evnt' object.id obj.id %}">
+                            {% for field in grp_field_list %}
+                                <td>
+                                    {% get_field_value obj field %}
+                                </td>
+                            {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    
         <div class="card border border-dark my-1" name="contx-details">
             <h5 class="card-header">{% trans "Event Container Details" %}
                 <span class="px-1">

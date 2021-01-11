@@ -616,6 +616,14 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "pit_tag",
             "grp_id",
         ]
+        anix_set = self.object.animal_details.filter(grp_id__isnull=False)
+        context["grp_list"] = [anix.grp_id for anix in anix_set]
+        context["grp_object"] = models.Group.objects.first()
+        context["grp_field_list"] = [
+            "stok_id",
+            "coll_id",
+            "spec_id",
+        ]
         prot_set = models.Protocol.objects.filter(prog_id=self.object.prog_id, evntc_id=self.object.evntc_id)
         context["prot_list"] = [prot for prot in prot_set]
         context["prot_object"] = models.Protocol.objects.first()
@@ -663,7 +671,21 @@ class FeedmDetails(mixins.FeedmMixin, CommonDetails):
 
 
 class GrpDetails(mixins.GrpMixin, CommonDetails):
+    template_name = "bio_diversity/details_grp.html"
     fields = ["frm_grp_id", "spec_id", "stok_id", "coll_id", "grp_valid", "comments", "created_by", "created_date", ]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        anix_set = self.object.animal_details.all()
+        context["grpd_list"] = [models.GroupDet.objects.filter(anix_id=anix.pk).get() for anix in anix_set]
+        context["grpd_object"] = models.GroupDet.objects.first()
+        context["grpd_field_list"] = [
+            "anidc_id",
+            "det_val",
+        ]
+
+        return context
 
 
 class GrpdDetails(mixins.GrpdMixin, CommonDetails):

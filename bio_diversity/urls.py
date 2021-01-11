@@ -148,12 +148,15 @@ urlpatterns = [
     path('update/feedm/<int:pk>/', views.FeedmUpdate.as_view(), name="update_feedm"),
                  
     path('create/grp/', views.GrpCreate.as_view(), name="create_grp"),
+    path('create/grp/<int:evnt>/<str:pop>', views.GrpCreate.as_view(), name="create_grp"),
     path('details/grp/<int:pk>/', views.GrpDetails.as_view(), name="details_grp"),
+    path('details/grp/<str:back>/<int:back_id>/<int:pk>/', views.GrpDetails.as_view(), name="details_grp"),
     path('list/grp/', views.GrpList.as_view(), name="list_grp"),
     path('update/grp/<int:pk>/', views.GrpUpdate.as_view(), name="update_grp"),
     
     path('create/grpd/', views.GrpdCreate.as_view(), name="create_grpd"),
     path('details/grpd/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
+    path('details/grpd//<str:back>/<int:back_id>/<int:pk>/', views.GrpdDetails.as_view(), name="details_grpd"),
     path('list/grpd/', views.GrpdList.as_view(), name="list_grpd"),
     path('update/grpd/<int:pk>/', views.GrpdUpdate.as_view(), name="update_grpd"),
     
