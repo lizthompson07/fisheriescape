@@ -64,6 +64,7 @@ Vue.component("modal", {
         student_program: null,
         amount: 0,
       },
+      original_user: null,
       errors: null,
       disableNameField: false,
       disableStudentProgramField: false,
@@ -488,10 +489,17 @@ Vue.component("modal", {
       // if the current user is changing themselves away from project lead, give them a warning
       // only do this if we are editing an existing user
       if (this.my_staff) {
+
+        // issue a warning if changing away from project lead
         if (this.currentUser && this.currentUser.id == this.my_staff.user && !this.projectLeadWarningIssued && this.staff.is_lead === "False") {
           alert(warningMsg);
           this.projectLeadWarningIssued = true
         }
+        else if (this.currentUser && this.currentUser.id == this.original_user && !this.projectLeadWarningIssued && this.my_staff.user !== this.original_user) {
+          alert(warningMsg);
+          this.projectLeadWarningIssued = true
+        }
+
       }
 
     },
@@ -555,15 +563,15 @@ Vue.component("modal", {
             this.currentUser = response;
           })
     },
-    populateTargetDate(quarter){
+    populateTargetDate(quarter) {
       sap_year = this.year.fiscal_year
-      if(quarter === "q1") {
-        this.activity.target_date = `${sap_year-1}-06-30`
-      } else if(quarter === "q2") {
-        this.activity.target_date = `${sap_year-1}-09-30`
-      } else if(quarter === "q3") {
-        this.activity.target_date = `${sap_year-1}-12-31`
-      } else if(quarter === "q4") {
+      if (quarter === "q1") {
+        this.activity.target_date = `${sap_year - 1}-06-30`
+      } else if (quarter === "q2") {
+        this.activity.target_date = `${sap_year - 1}-09-30`
+      } else if (quarter === "q3") {
+        this.activity.target_date = `${sap_year - 1}-12-31`
+      } else if (quarter === "q4") {
         this.activity.target_date = `${sap_year}-03-31`
       }
 
@@ -586,6 +594,7 @@ Vue.component("modal", {
           if (this.staff.is_lead) this.staff.is_lead = "True"
           else this.staff.is_lead = "False"
         }
+        this.original_user = this.staff.user
         this.adjustStaffFields()
       }
       // om costs
