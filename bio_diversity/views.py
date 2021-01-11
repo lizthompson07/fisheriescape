@@ -126,9 +126,18 @@ class CupdCreate(mixins.CupdMixin, CommonCreate):
 class DataCreate(mixins.DataMixin, CommonCreate):
     def get_initial(self):
         init = super().get_initial()
-        if 'prog' in self.kwargs:
-            init['prog_id'] = self.kwargs['prog']
+        if 'evnt' in self.kwargs:
+            init['evnt_id'] = self.kwargs['evnt']
+            init['evntc_id'] = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id
+            self.get_form_class().base_fields["evnt_id"].widget = forms.HiddenInput()
+            self.get_form_class().base_fields["evntc_id"].widget = forms.HiddenInput()
         return init
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'evnt' in self.kwargs:
+            context["title"] = "Add {} data".format(models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower())
+        return context
 
 
 class DrawCreate(mixins.DrawMixin, CommonCreate):

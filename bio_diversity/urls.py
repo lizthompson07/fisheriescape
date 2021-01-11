@@ -72,7 +72,7 @@ urlpatterns = [
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
 
     path('create/data/', views.DataCreate.as_view(), name="create_data"),
-    path('create/data/<int:prog>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
+    path('create/data/<int:evnt>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
 
     path('create/draw/', views.DrawCreate.as_view(), name="create_draw"),
     path('details/draw/<int:pk>/', views.DrawDetails.as_view(), name="details_draw"),

@@ -3,7 +3,9 @@
 # Create your models here.
 import os
 import csv
+from datetime import datetime
 from io import StringIO
+import pandas as pd
 from django.core.exceptions import ValidationError
 from django.dispatch import receiver
 
@@ -242,17 +244,64 @@ class CupDet(BioContainerDet):
 
 class DataLoader(BioModel):
     # data tag
-    prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"))
-    evntc_id = models.ForeignKey('EventCode', on_delete=models.DO_NOTHING, verbose_name=_("Data Foramt"))
+    evnt_id = models.ForeignKey('Event', on_delete=models.DO_NOTHING, verbose_name=_("Event"))
+    evntc_id = models.ForeignKey('EventCode', on_delete=models.DO_NOTHING, verbose_name=_("Data Format"))
     data_csv = models.FileField(upload_to="", null=True, blank=True, verbose_name=_("Datafile"))
 
     def save(self, *args, **kwargs):
-        # file = self.data_csv.read().decode('utf-8')
-        # csv_data = csv.DictReader(StringIO(file), delimiter=',')
-        # if self.evntc_id.__str__() == "Electrofishing":
-        #    row_evnt = []
-        #    for row in csv_data:
-        #        row_evnt = Event()
+        try:
+            data = pd.read_excel(self.data_csv, engine='openpyxl')
+        except:
+            raise Exception("File format not valid")
+        if self.evntc_id.__str__() == "Electrofishing":
+            loc = Location(evnt_id_id=self.evnt_id.pk,
+                           locc_id_id=1,
+                           rive_id=RiverCode.objects.filter(name=data["River"][0]).get(),
+                           subr_id=SubRiverCode.objects.filter(name__iexact=data["Branch"][0]).get(),
+                           relc_id=ReleaseSiteCode.objects.filter(name__iexact=data["Site"][0]).get(),
+                           loc_date=datetime.strptime(data["Date"][0], "%Y-%b-%d"),
+                           comments=data["Comments"][0],
+                           created_by=self.created_by,
+                           created_date=self.created_date,
+                           )
+            try:
+                loc.save()
+            except:
+                pass
+            envc=EnvCondition(loc_id_id=loc.pk,
+                              inst_id=Instrument.objects.first(),
+                              envc_id=EnvCode.objects.filter(name__iexact="Temperature").get(),
+                              env_val=data["temp"][0],
+                              env_start=datetime.strptime(data["Date"][0], "%Y-%b-%d"),
+                              env_avg=False,
+                              qual_id=QualCode.objects.filter(name="Good").get(),
+                              created_by=self.created_by,
+                              created_date=self.created_date,
+                              )
+            envc.save()
+            grp = Group(spec_id=SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                        stok_id=StockCode.objects.filter(name=data["River"][0]).get(),
+                        coll_id=Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
+                        grp_valid=True,
+                        created_by=self.created_by,
+                        created_date=self.created_date, 
+                        )
+            grp.save()
+            anix=AniDetailXref(evnt_id_id=self.evnt_id.pk,
+                               grp_id_id=grp.pk,
+                               created_by=self.created_by,
+                               created_date=self.created_date,
+                               )
+            anix.save()
+            grpd = GroupDet(anix_id_id=anix.pk,
+                            anidc_id=AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
+                            det_val=data["# of salmon observed/collected"].sum(),
+                            qual_id=QualCode.objects.filter(name="Good").get(),
+                            # det_val=True,
+                            created_by=self.created_by,
+                            created_date=self.created_date,
+                            )
+            grpd.save()
         return super().save(*args, **kwargs)
 
 
@@ -714,7 +763,7 @@ class InstDetCode(BioLookup):
 
 
 class Location(BioModel):
-    # Loc tag
+    # loc tag
     evnt_id = models.ForeignKey('Event', on_delete=models.DO_NOTHING, verbose_name=_("Event"), related_name="location")
     locc_id = models.ForeignKey('LocCode', on_delete=models.DO_NOTHING, verbose_name=_("Location Code"))
     rive_id = models.ForeignKey('RiverCode', on_delete=models.DO_NOTHING, null=True, blank=True,
