@@ -102,8 +102,7 @@ class RegionDetailView(ScubaAdminRequiredMixin, CommonDetailView):
             'name',
             'abbreviation',
             'tdescription|{}'.format("description"),
-            'latitude',
-            'longitude',
+            'coordinates',
         ]
         context["site_field_list"] = site_field_list
         return context
@@ -154,8 +153,7 @@ class SiteDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         'name',
         'abbreviation',
         'tdescription|{}'.format("description"),
-        'latitude',
-        'longitude',
+        'coordinates',
     ]
 
     def get_parent_crumb(self):
@@ -165,6 +163,7 @@ class SiteDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         transect_field_list = [
             'name',
+            'coordinates',
         ]
         context["transect_field_list"] = transect_field_list
         return context

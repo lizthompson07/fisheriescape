@@ -4,27 +4,42 @@
 {% load custom_filters %}
 
 {% block subcontent %}
-
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <style>
+  #map {
+      height: 400px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
   <div class="btns mb-3">
     <a href="{% url 'scuba:dive_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'scuba:dive_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
     <a href="{% url 'scuba:dive_data_entry' object.id %}" class="btn btn-primary btn-sm">{% trans "Data Entry Mode" %}</a>
   </div>
 
-  <div class="mb-3">
-    <table class="table table-sm" style="width: 50%">
-      {% for field in field_list %}
-        {% if "descent" in field %}
-          <tr>
-            <th>{% get_verbose_label object field %}</th>
-            <td>{{ object.start_descent|time }}</td>
-          </tr>
-        {% else %}
-          {% verbose_td_display object field %}
-        {% endif %}
-      {% endfor %}
-    </table>
+
+  <div class="mb-3 row">
+    <div class="col">
+      <table class="table table-sm" style="width: 50%">
+        {% for field in field_list %}
+          {% if "descent" in field %}
+            <tr>
+              <th>{% get_verbose_label object field %}</th>
+              <td>{{ object.start_descent|time }}</td>
+            </tr>
+          {% else %}
+            {% verbose_td_display object field %}
+          {% endif %}
+        {% endfor %}
+      </table>
+    </div>
+    <div class="col">
+      <div id="map">
+      </div>
+    </div>
   </div>
+
 
   <div class="mb-3">
     <h3>{% trans "Observations" %}</h3>
@@ -127,11 +142,46 @@
 {% block body_js %}
   {{ block.super }}
 
+
   <script type="application/javascript">
   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
   var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
   })
-
   </script>
+
+  {% if object.transect.get_starting_coordinates and  object.transect.get_ending_coordinates %}
+    <script type="application/javascript">
+
+    function initialize() {
+      map = new L.Map("map", {
+        center: new L.LatLng({{ object.transect.get_starting_coordinates.x }}, {{ object.transect.get_starting_coordinates.y }}),
+        zoom: 14,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+
+      var lineCoords = [
+        [{{object.transect.get_starting_coordinates.x }}, {{object.transect.get_starting_coordinates.y }}],
+        [{{object.transect.get_ending_coordinates.x }}, {{object.transect.get_ending_coordinates.y }}],
+      ];
+      L.polyline([lineCoords], {
+        color: 'red',
+        dashArray: '4',
+        weight: 1,
+      }).addTo(map).bindPopup("Transect: {{object.transect}}}");
+
+      map.fitBounds(lineCoords);
+    }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
+    });
+    </script>
+  {% endif %}
+
 {% endblock %}

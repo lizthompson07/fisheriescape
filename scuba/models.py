@@ -26,8 +26,8 @@ class Region(UnilingualLookup):
 class Site(UnilingualLookup):
     abbreviation = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("abbreviation"))
     region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, related_name='sites', verbose_name=_("region"), editable=False)
-    latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude"))
-    longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude"))
+    latitude = models.FloatField(blank=True, null=True, verbose_name=_("latitude (decimal degrees)"))
+    longitude = models.FloatField(blank=True, null=True, verbose_name=_("longitude (decimal degrees)"))
 
     def __str__(self):
         return f"Site {self.name}"
@@ -36,14 +36,45 @@ class Site(UnilingualLookup):
     def transect_count(self):
         return self.transects.count()
 
+    def get_coordinates(self):
+        if self.latitude and self.longitude:
+            return dict(x=self.latitude, y=self.longitude)
+
+    @property
+    def coordinates(self):
+        my_str = "---"
+        if self.get_coordinates():
+            my_str = f"{round(self.get_coordinates().get('x'), 6)}, {round(self.get_coordinates().get('y'), 6)}"
+        return mark_safe(my_str)
+
 
 class Transect(UnilingualLookup):
     name = models.CharField(max_length=255, verbose_name=_("name"))
     site = models.ForeignKey(Site, related_name='transects', on_delete=models.DO_NOTHING, verbose_name=_("site"), editable=False)
+    start_latitude = models.FloatField(blank=True, null=True, verbose_name=_("start latitude (decimal degrees)"))
+    start_longitude = models.FloatField(blank=True, null=True, verbose_name=_("start longitude (decimal degrees)"))
+    end_latitude = models.FloatField(blank=True, null=True, verbose_name=_("end latitude (decimal degrees)"))
+    end_longitude = models.FloatField(blank=True, null=True, verbose_name=_("end longitude (decimal degrees)"))
 
     class Meta:
         unique_together = (("name", "site"),)
 
+    def get_starting_coordinates(self):
+        if self.start_latitude and self.start_longitude:
+            return dict(x=self.start_latitude, y=self.start_longitude)
+
+    def get_ending_coordinates(self):
+        if self.end_latitude and self.end_longitude:
+            return dict(x=self.end_latitude, y=self.end_longitude)
+
+    @property
+    def coordinates(self):
+        my_str = "---"
+        if self.get_starting_coordinates():
+            my_str = f"<u>Starting:</u> {round(self.get_starting_coordinates().get('x'), 6)}, {round(self.get_starting_coordinates().get('y'), 6)}"
+        if self.get_ending_coordinates():
+            my_str += f"<br><u>Ending:</u> {round(self.get_ending_coordinates().get('x'), 6)}, {round(self.get_ending_coordinates().get('y'), 6)}"
+        return mark_safe(my_str)
 
 class Diver(models.Model):
     first_name = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("first name"))
@@ -86,6 +117,7 @@ class Sample(models.Model):
     def get_absolute_url(self):
         return reverse("scuba:sample_detail", args=[self.pk])
 
+
 class Dive(models.Model):
     heading_choices = (
         ('n', _("North")),
@@ -105,6 +137,8 @@ class Dive(models.Model):
     max_depth_ft = models.FloatField(verbose_name=_("max depth (ft)"), blank=True, null=True)
     psi_in = models.IntegerField(verbose_name=_("PSI in"), blank=True, null=True)
     psi_out = models.IntegerField(verbose_name=_("PSI out"), blank=True, null=True)
+    start_latitude = models.FloatField(blank=True, null=True, verbose_name=_("start latitude (decimal degrees)"))
+    start_longitude = models.FloatField(blank=True, null=True, verbose_name=_("start longitude (decimal degrees)"))
     heading = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("heading"), choices=heading_choices)
     side = models.CharField(max_length=1, blank=True, null=True, verbose_name=_("side"), choices=side_choices)
     width_m = models.FloatField(verbose_name=_("width (m)"))
@@ -204,7 +238,7 @@ class Observation(models.Model):
         ("b3", _("b3 (berried with developed eggs)")),
     )
     certainty_rating_choices = (
-        (1, _("certain")), #
+        (1, _("certain")),  #
         (0, _("uncertain")),
     )
     section = models.ForeignKey(Section, related_name='observations', on_delete=models.CASCADE, verbose_name=_("section"))
