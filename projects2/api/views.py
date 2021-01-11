@@ -256,16 +256,46 @@ class StaffListCreateAPIView(ListCreateAPIView):
         return year.staff_set.all()
 
     def perform_create(self, serializer):
-        serializer.save(project_year_id=self.kwargs.get("project_year"))
-
-    # def post(self, request, *args, **kwargs):
-    #     super().post(request, *args, **kwargs)
-
+        staff = serializer.save(project_year_id=self.kwargs.get("project_year"))
+        if staff.user and staff.user.email:
+            email = emails.StaffEmail(staff, "add", self.request)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
 
 class StaffRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = models.Staff.objects.all()
     serializer_class = serializers.StaffSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        # if instance.user and instance.user.email:
+        #     email = emails.StaffEmail(instance, "remove", self.request)
+        #     custom_send_mail(
+        #         subject=email.subject,
+        #         html_message=email.message,
+        #         from_email=email.from_email,
+        #         recipient_list=email.to_list
+        #     )
+
+    def perform_update(self, serializer):
+        staff = get_object_or_404(models.Staff, pk = self.kwargs.get("pk"))
+        old_lead_status = staff.is_lead
+        staff = serializer.save()
+        if (old_lead_status is False and staff.is_lead) and (staff.user and staff.user.email):
+            email = emails.StaffEmail(staff, "add", self.request)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
+        super().perform_update(serializer)
+
 
 
 # O&M
@@ -674,8 +704,5 @@ class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             last_modified_by=self.request.user
         )
 
-
-
         if self.request.data.get("email_update"):
             my_review.send_approval_email(self.request)
-
