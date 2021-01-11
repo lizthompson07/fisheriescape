@@ -70,12 +70,15 @@ urlpatterns = [
     path('details/cupd/<int:pk>/', views.CupdDetails.as_view(), name="details_cupd"),
     path('list/cupd/', views.CupdList.as_view(), name="list_cupd"),
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
-        
+
+    path('create/data/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
+    path('create/data/<int:prog>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
+
     path('create/draw/', views.DrawCreate.as_view(), name="create_draw"),
     path('details/draw/<int:pk>/', views.DrawDetails.as_view(), name="details_draw"),
     path('list/draw/', views.DrawList.as_view(), name="list_draw"),
     path('update/draw/<int:pk>/', views.DrawUpdate.as_view(), name="update_draw"),
-        
+
     path('create/env/', views.EnvCreate.as_view(), name="create_env"),
     path('create/env/<int:loc>/<str:pop>/', views.EnvCreate.as_view(), name="create_env"),
     path('details/env/<int:pk>/', views.EnvDetails.as_view(), name="details_env"),

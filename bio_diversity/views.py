@@ -123,6 +123,14 @@ class CupdCreate(mixins.CupdMixin, CommonCreate):
     pass
 
 
+class DataCreate(mixins.DataMixin, CommonCreate):
+    def get_initial(self):
+        init = super().get_initial()
+        if 'prog' in self.kwargs:
+            init['prog_id'] = self.kwargs['prog']
+        return init
+
+
 class DrawCreate(mixins.DrawMixin, CommonCreate):
     pass
 

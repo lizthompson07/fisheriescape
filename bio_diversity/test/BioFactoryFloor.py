@@ -437,6 +437,29 @@ class CupdFactory(factory.django.DjangoModelFactory):
         return data
 
 
+class DataFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.DataLoader
+    # only using one id for this test, can add more if necesary
+    prog_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.ProgFactory")
+    evntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntcFactory")
+    data_csv = factory.lazy_attribute(lambda o: faker.url())
+
+    @staticmethod
+    def build_valid_data(**kwargs):
+        prog = ProgFactory(valid=True)
+        evntc = EvntcFactory()
+        obj = DataFactory.build(**kwargs)
+
+        # Convert the data to a dictionary to be used in testing
+        data = {
+            'prog_id': prog.pk,
+            'evntc_id': evntc.pk,
+        }
+
+        return data
+
+
 class DrawFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Drawer

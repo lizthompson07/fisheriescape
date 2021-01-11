@@ -121,6 +121,12 @@ class CupdForm(CreateTimePrams, forms.ModelForm):
         exclude = []
 
 
+class DataForm(CreatePrams, forms.ModelForm):
+    class Meta:
+        model = models.DataLoader
+        exclude = []
+
+
 class DrawForm(CreatePrams, forms.ModelForm):
     class Meta:
         model = models.Drawer
