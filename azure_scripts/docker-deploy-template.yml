@@ -65,7 +65,7 @@ parameters:
   - name: WEB_APP_NAME
     type: string
 
-  - name: AZURE_CLIENT_ID
+  - name: AZURE_MSI_CLIENT_ID
     type: string
 
   - name: AZURE_INSTRUMENTATION_KEY
