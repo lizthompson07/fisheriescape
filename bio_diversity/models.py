@@ -240,19 +240,19 @@ class CupDet(BioContainerDet):
         return "{} - {}".format(self.cup_id.__str__(), self.contdc_id.__str__())
 
 
-class DataLoader(models.model):
+class DataLoader(BioModel):
     # data tag
     prog_id = models.ForeignKey('Program', on_delete=models.DO_NOTHING, verbose_name=_("Program"))
     evntc_id = models.ForeignKey('EventCode', on_delete=models.DO_NOTHING, verbose_name=_("Data Foramt"))
     data_csv = models.FileField(upload_to="", null=True, blank=True, verbose_name=_("Datafile"))
 
     def save(self, *args, **kwargs):
-        file = self.data_csv.read().decode('utf-8')
-        csv_data = csv.DictReader(StringIO(file), delimiter=',')
-        if self.evntc_id.__str__() == "Electrofishing":
-            row_evnt = []
-            for row in csv_data:
-                row_evnt = Event()
+        # file = self.data_csv.read().decode('utf-8')
+        # csv_data = csv.DictReader(StringIO(file), delimiter=',')
+        # if self.evntc_id.__str__() == "Electrofishing":
+        #    row_evnt = []
+        #    for row in csv_data:
+        #        row_evnt = Event()
         return super().save(*args, **kwargs)
 
 

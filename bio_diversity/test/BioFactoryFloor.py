@@ -445,6 +445,9 @@ class DataFactory(factory.django.DjangoModelFactory):
     evntc_id = factory.SubFactory("bio_diversity.test.BioFactoryFloor.EvntcFactory")
     data_csv = factory.lazy_attribute(lambda o: faker.url())
 
+    created_by = factory.lazy_attribute(lambda o: faker.name())
+    created_date = factory.lazy_attribute(lambda o: faker.date())
+
     @staticmethod
     def build_valid_data(**kwargs):
         prog = ProgFactory(valid=True)
@@ -455,6 +458,8 @@ class DataFactory(factory.django.DjangoModelFactory):
         data = {
             'prog_id': prog.pk,
             'evntc_id': evntc.pk,
+            'created_by': obj.created_by,
+            'created_date': obj.created_date,
         }
 
         return data

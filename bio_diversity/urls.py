@@ -71,7 +71,7 @@ urlpatterns = [
     path('list/cupd/', views.CupdList.as_view(), name="list_cupd"),
     path('update/cupd/<int:pk>/', views.CupdUpdate.as_view(), name="update_cupd"),
 
-    path('create/data/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
+    path('create/data/', views.DataCreate.as_view(), name="create_data"),
     path('create/data/<int:prog>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
 
     path('create/draw/', views.DrawCreate.as_view(), name="create_draw"),
