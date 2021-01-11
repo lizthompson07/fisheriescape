@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-07 12:14-0400\n"
+"POT-Creation-Date: 2021-01-11 12:44-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -86,7 +86,7 @@ msgstr "Nouvelle demande d'accès:"
 #: .\publications\templates\publications\pub_submit_form.html:62
 #: .\sar_search\templates\sar_search\points_file_import_form.html:205
 #: .\sar_search\templates\sar_search\rp_points_file_import_form.html:124
-#: .\shared_models\templates\shared_models\generic_form.html:27
+#: .\shared_models\templates\shared_models\generic_form.html:29
 #: .\shared_models\templates\shared_models\generic_popout_form.html:34
 #: .\shared_models\templates\shared_models\org_form.html:26
 #: .\staff\templates\staff\staffingplan_form.html:38
@@ -353,7 +353,7 @@ msgstr "Modifier"
 #: .\scifi\templates\scifi\project_detail.html:28
 #: .\scifi\templates\scifi\responsibilitycenter_detail.html:28
 #: .\scifi\templates\scifi\transaction_detail.html:32
-#: .\shared_models\templates\shared_models\generic_form.html:36
+#: .\shared_models\templates\shared_models\generic_form.html:38
 #: .\shared_models\templates\shared_models\org_form.html:35
 #: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:185
 #: .\shiny\templates\shiny\index.html:64
@@ -430,7 +430,7 @@ msgstr ""
 msgid "Project Planning (Version 2)"
 msgstr "Planification de projets"
 
-#: .\dm_apps\views.py:85 .\dm_apps\views.py:385
+#: .\dm_apps\views.py:85 .\dm_apps\views.py:372
 msgid ""
 "Tool for the tracking, development and coordination of science project "
 "workplans."
@@ -619,7 +619,7 @@ msgstr "Subventions et contributions"
 msgid "Gulf Region application for the tracking of Gs & Cs."
 msgstr "Application de la région du Golfe pour le suivi des contributions."
 
-#: .\dm_apps\views.py:384
+#: .\dm_apps\views.py:371
 #, fuzzy
 msgid "Project Planning (ARCHIVE ONLY)"
 msgstr "Planification de projets"
@@ -1393,7 +1393,7 @@ msgstr ""
 #: .\sar_search\templates\sar_search\rp_points_file_import_form.html:121
 #: .\scifi\templates\scifi\file_import_form.html:101
 #: .\shared_models\mixins.py:226
-#: .\shared_models\templates\shared_models\generic_form.html:26
+#: .\shared_models\templates\shared_models\generic_form.html:28
 #: .\shared_models\templates\shared_models\generic_popout_form.html:33
 #: .\shared_models\templates\shared_models\org_form.html:25
 #: .\shared_models\templates\shared_models\shared_entry_form.html:48
