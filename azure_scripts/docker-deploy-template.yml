@@ -76,7 +76,7 @@ parameters:
 
 steps:
   - script: |
-      az login --identity -u ${{parameters.AZURE_CLIENT_ID}}
+      az login --identity -u ${{parameters.AZURE_MSI_CLIENT_ID}}
       # az account set --subscription="IMTS DEV/TEST"
 
       # install pre-requisites
