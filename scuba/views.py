@@ -312,11 +312,11 @@ class SampleUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
 class SampleCreateView(ScubaAdminRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
-    success_url = reverse_lazy('scuba:sample_list')
     template_name = 'scuba/form.html'
     home_url_name = "scuba:index"
     parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container bg-light curvy"
+
 
 
 class SampleDetailView(ScubaAdminRequiredMixin, CommonDetailView):
@@ -507,6 +507,7 @@ class DiveDataEntryTemplateView(ScubaAdminRequiredMixin, CommonDetailView):
             'comment',
         ]
         context["observation_field_list"] = observation_field_list
+        context["random_section"] = models.Section.objects.first()
         context["random_observation"] = models.Observation.objects.first()
         context["section_form"] = forms.SectionForm
         context["obs_form"] = forms.ObservationForm

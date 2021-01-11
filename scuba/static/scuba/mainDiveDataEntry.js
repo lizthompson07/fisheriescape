@@ -10,6 +10,7 @@ var app = new Vue({
     unsavedSectionWork: false,
     sectionFormErrors: null,
     observationFormErrors: null,
+    intervalWarning: null,
     new_observation: {
       sex: "",
       egg_status: "",
@@ -47,15 +48,42 @@ var app = new Vue({
         this.unsavedSectionWork = false;
         this.editMode = false;
         this.sectionToEdit = null;
+        this.getSections();
       }
     },
     editSection(section) {
       if (section == null) {
+        // we should be able to take a good guess at the interval
+        var intervalArray = [];
+        for (var i = 0; i < this.sections.length; i++) {
+          s = this.sections[i];
+          intervalArray.push(s.interval);
+        }
+        intervalArray.sort(function(a, b){return a-b});
+        if (!intervalArray.length) interval = null;
+        else {
+          var interval = intervalArray[intervalArray.length - 1] + 1;
+          // question 1: what if there is a number missing?
+          if (intervalArray.length !== interval -1) {
+            for (var i = 1; i < interval; i++) {
+              if(!intervalArray.includes(i)) {
+                interval = i;
+                break;
+              }
+            }
+          }
+          // question 2: what if this is greater than 20?
+          else if (interval > 20) {
+            alert("Warning! This dive already has all 20 intervals!")
+            interval = null
+          }
+        }
+
         this.sectionToEdit = {
           comment: "",
           depth_ft: null,
           dive: diveId,
-          interval: null,
+          interval: interval,
           observations: [],
           percent_algae: 0,
           percent_cobble: 0,
@@ -74,7 +102,7 @@ var app = new Vue({
 
       // focus on the save button
       this.$nextTick(() => {
-        if (section.id) this.$refs['top_of_form1'].focus()
+        if (section && section.id) this.$refs['top_of_form1'].focus()
         else this.$refs['top_of_form'].focus()
 
       })
@@ -109,8 +137,12 @@ var app = new Vue({
                 this.sectionFormErrors = response[Object.keys(response)[0]][0]
               } else {
                 this.unsavedSectionWork = false;
-                this.getSections();
-                this.closeEditMode();
+                // this.getSections();
+                // this.closeEditMode();
+                this.sectionToEdit = response;
+                this.$nextTick(() => {
+                  this.$refs['top_of_form1'].focus();
+                })
               }
             })
       }
@@ -129,6 +161,25 @@ var app = new Vue({
             }
           })
     },
+    deleteObservation(observation) {
+      // warning
+      var userInput = true;
+      msg = "Are you certain you want to delete this observation?";
+      userInput = confirm(msg);
+      if (userInput) {
+        let endpoint = `/api/scuba/observations/${observation.id}`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              // if the response does not have an id, it means there is an error...
+              if (response.detail) {
+                this.sectionFormErrors = response["detail"]
+              } else {
+                this.$delete(this.sectionToEdit.observations, this.sectionToEdit.observations.indexOf(observation))
+              }
+
+            })
+      }
+    },
     submitObservationForm() {
       this.obserFormErrors = null
       // this is a new section being added
@@ -139,7 +190,7 @@ var app = new Vue({
             console.log(response)
             // if the response does not have an id, it means there is an error...
             if (!response.id) {
-              this.sectionFormErrors = response[Object.keys(response)[0]][0]
+              this.obserFormErrors = response[Object.keys(response)[0]][0]
             } else {
               this.sectionToEdit.observations.unshift(response)
               this.new_observation = {
@@ -231,6 +282,7 @@ var app = new Vue({
   },
   created() {
     this.getSections();
+
   },
   mounted() {
   },

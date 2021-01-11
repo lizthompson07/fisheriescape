@@ -101,30 +101,29 @@ class SectionForm(forms.ModelForm):
         model = models.Section
         fields = "__all__"
         exclude = ["dive"]
-        widgets = {
-            "comment": forms.TextInput(),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        klass = "form-control form-control-sm"
+
         self.fields["interval"].widget.attrs = {"v-model": "sectionToEdit.interval", "ref": "top_of_form", "@change": "unsavedSectionWork=true",
-                                                ":disabled": "sectionToEdit.id"}
-        self.fields["depth_ft"].widget.attrs = {"v-model": "sectionToEdit.depth_ft", "min": 0, "@change": "unsavedSectionWork=true", "step": "0.01"}
+                                                ":disabled": "sectionToEdit.id", "class": klass}
+        self.fields["depth_ft"].widget.attrs = {"v-model": "sectionToEdit.depth_ft", "min": 0, "@change": "unsavedSectionWork=true", "step": "0.01", "class": klass}
         self.fields["percent_sand"].widget.attrs = {"v-model": "sectionToEdit.percent_sand", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                    "step": "0.01"}
+                                                    "step": "0.01", "class": klass}
         self.fields["percent_mud"].widget.attrs = {"v-model": "sectionToEdit.percent_mud", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                   "step": "0.01"}
+                                                   "step": "0.01", "class": klass}
         self.fields["percent_hard"].widget.attrs = {"v-model": "sectionToEdit.percent_hard", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                    "step": "0.01"}
+                                                    "step": "0.01", "class": klass}
         self.fields["percent_algae"].widget.attrs = {"v-model": "sectionToEdit.percent_algae", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                     "step": "0.01"}
+                                                     "step": "0.01", "class": klass}
         self.fields["percent_gravel"].widget.attrs = {"v-model": "sectionToEdit.percent_gravel", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                      "step": "0.01"}
+                                                      "step": "0.01", "class": klass}
         self.fields["percent_cobble"].widget.attrs = {"v-model": "sectionToEdit.percent_cobble", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                      "step": "0.01"}
+                                                      "step": "0.01", "class": klass}
         self.fields["percent_pebble"].widget.attrs = {"v-model": "sectionToEdit.percent_pebble", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
-                                                      "step": "0.01"}
-        self.fields["comment"].widget.attrs = {"v-model": "sectionToEdit.comment", "@change": "unsavedSectionWork=true"}
+                                                      "step": "0.01", "class": klass}
+        self.fields["comment"].widget.attrs = {"v-model": "sectionToEdit.comment", "@change": "unsavedSectionWork=true", "row": 3, "class": klass}
 
 
 class ObservationForm(forms.ModelForm):
@@ -138,12 +137,12 @@ class ObservationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["sex"].widget.attrs = {"v-model": "obs.sex", "@change": "updateObservation(obs)", "id": ""}
-        self.fields["egg_status"].widget.attrs = {"v-model": "obs.egg_status", "@change": "updateObservation(obs)", "id": ""}
-        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "obs.carapace_length_mm", "@change": "updateObservation(obs)", "id": ""}
-        self.fields["certainty_rating"].widget.attrs = {"v-model": "obs.certainty_rating", "@change": "updateObservation(obs)", "id": ""}
-        self.fields["comment"].widget.attrs = {"v-model": "obs.comment", "@change": "updateObservation(obs)", "id": ""}
-
+        klass = "form-control form-control-sm"
+        self.fields["sex"].widget.attrs = {"v-model": "obs.sex", "@change": "updateObservation(obs)", "class": klass}
+        self.fields["egg_status"].widget.attrs = {"v-model": "obs.egg_status", "@change": "updateObservation(obs)", "class": klass}
+        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "obs.carapace_length_mm", "@change": "updateObservation(obs)",  "class": klass}
+        self.fields["certainty_rating"].widget.attrs = {"v-model": "obs.certainty_rating", "@change": "updateObservation(obs)",  "class": klass}
+        self.fields["comment"].widget.attrs = {"v-model": "obs.comment", "@change": "updateObservation(obs)", "class": klass}
 
 
 class NewObservationForm(forms.ModelForm):
@@ -152,13 +151,14 @@ class NewObservationForm(forms.ModelForm):
         fields = "__all__"
         exclude = ["section"]
         widgets = {
-            "comment": forms.TextInput(),
+            # "comment": forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "ref": "top_of_form1", "id": ""}
-        self.fields["egg_status"].widget.attrs = {"v-model": "new_observation.egg_status", "id": ""}
-        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "new_observation.carapace_length_mm", "id": ""}
-        self.fields["certainty_rating"].widget.attrs = {"v-model": "new_observation.certainty_rating", "id": ""}
-        self.fields["comment"].widget.attrs = {"v-model": "new_observation.comment", "id": ""}
+        klass = "form-control form-control-sm"
+        self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "ref": "top_of_form1", "class": klass}
+        self.fields["egg_status"].widget.attrs = {"v-model": "new_observation.egg_status",  "class": klass}
+        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "new_observation.carapace_length_mm",  "class": klass}
+        self.fields["certainty_rating"].widget.attrs = {"v-model": "new_observation.certainty_rating", "class": klass}
+        self.fields["comment"].widget.attrs = {"v-model": "new_observation.comment", "row": 3, "class": klass}

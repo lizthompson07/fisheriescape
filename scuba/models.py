@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 
@@ -82,6 +83,8 @@ class Sample(models.Model):
     def dive_count(self):
         return self.dives.count()
 
+    def get_absolute_url(self):
+        return reverse("scuba:sample_detail", args=[self.pk])
 
 class Dive(models.Model):
     heading_choices = (
@@ -192,7 +195,6 @@ class Observation(models.Model):
     sex_choices = (
         ('m', _("male")),
         ('f', _("female")),
-        ('i', _("immature")),
         ('u', _("unknown")),
     )
     egg_status_choices = (

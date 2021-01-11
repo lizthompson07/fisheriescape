@@ -3,6 +3,7 @@ import os
 
 import pytz
 from django.conf import settings
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
@@ -46,13 +47,13 @@ def digest_data():
             region, created = models.Region.objects.get_or_create(name=region_name, abbreviation=region_abbrev)
 
             # SITE
-            site_name = row['Site']
+            site_name = row['Site'].upper()
             site, created = models.Site.objects.get_or_create(
                 name=site_name, abbreviation=site_name, region=region
             )
 
             # TRANSECT
-            transect_name = row['Transect']
+            transect_name = row['Transect'].upper()
             transect, created = models.Transect.objects.get_or_create(
                 name=transect_name, site=site
             )
@@ -121,7 +122,8 @@ def digest_data():
             cobble = float(row['Co']) if is_number_tryexcept(row['Co']) else 0
             pebble = float(row['Ca']) if is_number_tryexcept(row['Ca']) else 0
 
-            section, created = models.Section.objects.get_or_create(
+            try:
+                section, created = models.Section.objects.get_or_create(
                 dive=dive,
                 interval=row['section'],
                 depth_ft=row['Depth_(ft)'] if is_number_tryexcept(row['Depth_(ft)']) else None,
@@ -136,44 +138,49 @@ def digest_data():
                 percent_pebble=pebble,
 
             )
-
-            # OBSERVATIONS
-            # sex
-            sex_txt_orig = row['sexe']
-            sex_txt = row['sexe'].lower().strip().replace(" ", "").replace("-","")
-            sex = None
-            if sex_txt in ["m", "f", "i"]:
-                sex = sex_txt
-
-            egg_status = None
-            if sex_txt in ["b", "b1", "b2", "b3", "b4"]:
-                egg_status = sex_txt
-                sex = 'f'
-
-            length_txt_orig = row['LC_(mm)']
-            length_txt = row['LC_(mm)'].strip().replace("?", "").replace("~","")
-            length = None
-            if is_number_tryexcept(length_txt):
-                length = float(length_txt)
-
-            if length:
-                comment = f"imported from MS Excel on {timezone.now().strftime('%Y-%m-%d')}. Original data: sex={sex_txt_orig}, length={length_txt_orig}"
-                models.Observation.objects.create(
-                    section=section,
-                    sex=sex,
-                    egg_status=egg_status,
-                    carapace_length_mm=length,
-                    comment=comment
-                )
-
+            except IntegrityError as E:
+                print(E)
+                print(row)
             else:
-                # lets make a comment about this entry in the section
-                comment = f"Row in excel spreadsheet did not result in an observation. Here is the original data: sex={sex_txt_orig}, length={length_txt_orig}"
-                if section.comment:
-                    section.comment += f"; {comment}"
+                # OBSERVATIONS
+                # sex
+                sex_txt_orig = row['sexe']
+                sex_txt = row['sexe'].lower().strip().replace(" ", "").replace("-","")
+                sex = None
+                if sex_txt in ["m", "f"]:
+                    sex = sex_txt
                 else:
-                    section.comment = comment
-                section.save()
+                    sex = 'u'
+
+                egg_status = None
+                if sex_txt in ["b", "b1", "b2", "b3", "b4"]:
+                    egg_status = sex_txt
+                    sex = 'f'
+
+                length_txt_orig = row['LC_(mm)']
+                length_txt = row['LC_(mm)'].strip().replace("?", "").replace("~","")
+                length = None
+                if is_number_tryexcept(length_txt):
+                    length = float(length_txt)
+
+                if length:
+                    comment = f"imported from MS Excel on {timezone.now().strftime('%Y-%m-%d')}. Original data: sex={sex_txt_orig}, length={length_txt_orig}"
+                    models.Observation.objects.create(
+                        section=section,
+                        sex=sex,
+                        egg_status=egg_status,
+                        carapace_length_mm=length,
+                        comment=comment
+                    )
+
+                else:
+                    # lets make a comment about this entry in the section
+                    comment = f"Row in excel spreadsheet did not result in an observation. Here is the original data: sex={sex_txt_orig}, length={length_txt_orig}"
+                    if section.comment:
+                        section.comment += f"; {comment}"
+                    else:
+                        section.comment = comment
+                    section.save()
 
 
 def delete_all_data():
