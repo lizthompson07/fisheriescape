@@ -40,6 +40,10 @@ urlpatterns = [
     path('dives/<int:pk>/view/', views.DiveDetailView.as_view(), name="dive_detail"),
     path('dives/<int:pk>/data-entry/', views.DiveDataEntryTemplateView.as_view(), name="dive_data_entry"),
 
+    # reports
+    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
+    path('reports/dive-log/', views.dive_log_report, name="dive_log_report"),
+
 ]
 
 app_name = 'scuba'

@@ -4,10 +4,9 @@
   {% trans "Home" %}
 </a></li>
 
-<li class="nav-item"><a class="nav-link under-dev" href="{% url 'scuba:index' %}">
+<li class="nav-item"><a class="nav-link" href="{% url 'scuba:reports' %}">
   {% trans "Reports" %}
 </a></li>
-
 
 {% for group in user.groups.all %}
   {% if group.name == "scuba_admin" %}
@@ -19,7 +18,7 @@
       </a>
       <div class="dropdown-menu" aria-labelledby="navbarDropdown">
         <a class="dropdown-item" href="{% url 'scuba:region_list' %}">
-          {% trans "Regions" %}
+          {% trans "Regions / Sites / Transects" %}
         </a>
         <a class="dropdown-item" href="{% url 'scuba:manage_divers' %}">
           {% trans "Divers" %}

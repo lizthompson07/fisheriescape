@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import modelformset_factory
 from django.template.defaultfilters import date
-from django.utils.translation import gettext
+from django.utils.translation import gettext, gettext_lazy
 
 from . import models
 
@@ -108,7 +108,8 @@ class SectionForm(forms.ModelForm):
 
         self.fields["interval"].widget.attrs = {"v-model": "sectionToEdit.interval", "ref": "top_of_form", "@change": "unsavedSectionWork=true",
                                                 ":disabled": "sectionToEdit.id", "class": klass}
-        self.fields["depth_ft"].widget.attrs = {"v-model": "sectionToEdit.depth_ft", "min": 0, "@change": "unsavedSectionWork=true", "step": "0.01", "class": klass}
+        self.fields["depth_ft"].widget.attrs = {"v-model": "sectionToEdit.depth_ft", "min": 0, "@change": "unsavedSectionWork=true", "step": "0.01",
+                                                "class": klass}
         self.fields["percent_sand"].widget.attrs = {"v-model": "sectionToEdit.percent_sand", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
                                                     "step": "0.01", "class": klass}
         self.fields["percent_mud"].widget.attrs = {"v-model": "sectionToEdit.percent_mud", "max": 1, "min": 0, "@change": "unsavedSectionWork=true",
@@ -140,8 +141,8 @@ class ObservationForm(forms.ModelForm):
         klass = "form-control form-control-sm"
         self.fields["sex"].widget.attrs = {"v-model": "obs.sex", "@change": "updateObservation(obs)", "class": klass}
         self.fields["egg_status"].widget.attrs = {"v-model": "obs.egg_status", "@change": "updateObservation(obs)", "class": klass}
-        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "obs.carapace_length_mm", "@change": "updateObservation(obs)",  "class": klass}
-        self.fields["certainty_rating"].widget.attrs = {"v-model": "obs.certainty_rating", "@change": "updateObservation(obs)",  "class": klass}
+        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "obs.carapace_length_mm", "@change": "updateObservation(obs)", "class": klass}
+        self.fields["certainty_rating"].widget.attrs = {"v-model": "obs.certainty_rating", "@change": "updateObservation(obs)", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "obs.comment", "@change": "updateObservation(obs)", "class": klass}
 
 
@@ -158,7 +159,16 @@ class NewObservationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         klass = "form-control form-control-sm"
         self.fields["sex"].widget.attrs = {"v-model": "new_observation.sex", "ref": "top_of_form1", "class": klass}
-        self.fields["egg_status"].widget.attrs = {"v-model": "new_observation.egg_status",  "class": klass}
-        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "new_observation.carapace_length_mm",  "class": klass}
+        self.fields["egg_status"].widget.attrs = {"v-model": "new_observation.egg_status", "class": klass}
+        self.fields["carapace_length_mm"].widget.attrs = {"v-model": "new_observation.carapace_length_mm", "class": klass}
         self.fields["certainty_rating"].widget.attrs = {"v-model": "new_observation.certainty_rating", "class": klass}
         self.fields["comment"].widget.attrs = {"v-model": "new_observation.comment", "row": 3, "class": klass}
+
+
+class ReportSearchForm(forms.Form):
+    REPORT_CHOICES = (
+        (None, "------"),
+        (1, "dive log (xlsx)"),
+    )
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))

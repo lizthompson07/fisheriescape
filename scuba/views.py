@@ -1,13 +1,20 @@
+import os
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
+from lib.templatetags.custom_filters import nz
 from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDeleteView, CommonDetailView
-from . import models, forms, filters
+    CommonDeleteView, CommonDetailView, CommonFormView
+from . import models, forms, filters, reports
 
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
@@ -319,7 +326,6 @@ class SampleCreateView(ScubaAdminRequiredMixin, CommonCreateView):
     container_class = "container bg-light curvy"
 
 
-
 class SampleDetailView(ScubaAdminRequiredMixin, CommonDetailView):
     model = models.Sample
     template_name = 'scuba/sample_detail.html'
@@ -514,3 +520,39 @@ class DiveDataEntryTemplateView(ScubaAdminRequiredMixin, CommonDetailView):
         context["obs_form"] = forms.ObservationForm
         context["new_obs_form"] = forms.NewObservationForm
         return context
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(ScubaAdminRequiredMixin, CommonFormView):
+    template_name = 'scuba/report_search.html'
+    form_class = forms.ReportSearchForm
+    h1 = gettext_lazy("Scuba Reports")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        year = nz(form.cleaned_data["year"], "None")
+        if report == 1:
+            return HttpResponseRedirect(reverse("scuba:dive_log_report") + f"?year={year}")
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("scuba:reports"))
+
+
+@login_required()
+def dive_log_report(request):
+    year = None if request.GET.get("year") == "None" else int(request.GET.get("year"))
+    file_url = reports.generate_dive_log(year=year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dive log ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+
+            return response
+    raise Http404
