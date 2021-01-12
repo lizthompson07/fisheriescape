@@ -848,10 +848,21 @@ class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, CommonUpdateView):
     container_class = "container bg-light curvy"
 
     def form_valid(self, form):
-        form.save()
+        obj = form.save()
         success_url = reverse("projects2:admin_staff_list")
         if self.request.META["QUERY_STRING"]:
             success_url += f"?{self.request.META['QUERY_STRING']}"
+
+        # look for other matches:
+        if obj.user and obj.user.first_name and obj.user.last_name:
+            search_name = f"{obj.user.first_name} {obj.user.last_name}"
+            qs = models.Staff.objects.filter(name__contains=search_name)
+
+            messages.info(self.request, f"Searched, found and replaced {qs.count()} matches for '{search_name}'")
+            for staff in qs.all():
+                staff.user = obj.user
+                staff.save()
+
         return HttpResponseRedirect(success_url)
 
     def get_context_data(self, **kwargs):
