@@ -519,6 +519,10 @@ class Staff(GenericCost):
         if self.user or self.name:
             return self.user.get_full_name() if self.user else self.name
 
+    def save(self, *args, **kwargs):
+        if self.user:
+            self.name = None
+        super().save(*args, **kwargs)
 
 class OMCategory(models.Model):
     group_choices = (

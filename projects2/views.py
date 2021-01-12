@@ -830,7 +830,8 @@ class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
             ~Q(name__icontains="BI-")).filter(~Q(name__icontains="PC-")).filter(~Q(name__icontains="EG-")).filter(~Q(name__icontains="determined")).filter(
             ~Q(name__icontains="to be")).filter(~Q(name__icontains="student")).filter(~Q(name__icontains="casual")).filter(
             ~Q(name__icontains="technician")).filter(~Q(name__icontains="crew")).filter(~Q(name__icontains="hired")).filter(
-            ~Q(name__icontains="support")).filter(~Q(name__icontains="volunteer"))
+            ~Q(name__icontains="support")).filter(~Q(name__icontains="volunteer")).filter(~Q(name__icontains="staff")).filter(~Q(name__icontains="tba")).filter(
+            ~Q(name__icontains="1")).filter(~Q(name__icontains="2")).filter(~Q(name__icontains="3"))
 
         qs = qs.order_by('-project_year__fiscal_year', 'project_year__project__section__division', 'project_year__project__section',
                          'project_year__project__title')
