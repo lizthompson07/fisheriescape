@@ -31,6 +31,24 @@ class StaffEmail:
         rendered = t.render(context)
         return rendered
 
+class ProjectReviewEmail:
+    def __init__(self, review, request):
+        self.request = request
+        self.subject = 'Your project has been reviewed / Votre projet a été examiné'
+        self.message = self.load_html_template(review)
+        self.from_email = from_email
+        self.to_list = [u.email for u in review.project_year.get_project_leads_as_users()]
+
+    def __str__(self):
+        return "FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(self.from_email, self.to_list, self.subject, self.message)
+
+    def load_html_template(self, review):
+        t = loader.get_template('projects2/emails/project_reviewed.html')
+        context = {'review': review, }
+        context.update(my_envr(self.request))
+        rendered = t.render(context)
+        return rendered
+
 
 class ProjectApprovalEmail:
     def __init__(self, review, request):

@@ -179,6 +179,17 @@
                 <p class="text-muted">{% trans "Review Score:" %} <span v-html="total_score"></span> / 15 (<span
                   v-html="total_score_percentage"></span>)</p>
 
+
+                <div class="row mb-3">
+                  <div class="col">
+                    {% bootstrap_field review_form.review_email_update size='small' %}
+                    <p class="text-muted" v-if="project_year.review.review_notification_email_sent">
+                    {% trans "NOTE: An email has already been send to the project leads on " %}
+                    <span v-html="project_year.review.review_notification_email_sent"></span>
+                  </p>
+                  </div>
+                </div>
+
               </div>
 
               <div v-else>

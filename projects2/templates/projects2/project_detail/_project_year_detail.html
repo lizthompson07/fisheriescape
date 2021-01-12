@@ -61,7 +61,7 @@
     {% endfor %}
   </table>
 
-  <div v-if="canModify" class="mt-3">
+  <div v-if="canModify && projectYear.review" class="mt-3">
     <p class="lead text-muted">{% trans "Visible Only to Project Leads " %}</p>
     <table class="table table-sm">
       {% for field in review_field_list %}
@@ -71,6 +71,8 @@
             <td>
               ${ projectYear.review_score_percentage } (${ projectYear.review_score_fraction })
             </td>
+          {% elif "approval_level" in field %}
+            <td v-html='projectYear.review.approval_level_display'></td>
           {% elif "collaboration_score_html" in field %}
             <td v-html='projectYear.review.collaboration_score_html'></td>
           {% elif "strategic_score_html" in field %}

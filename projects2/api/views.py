@@ -690,8 +690,11 @@ class ReviewListCreateAPIView(ListCreateAPIView):
             last_modified_by=self.request.user
         )
 
-        if self.request.data.get("email_update"):
+        if self.request.data.get("approval_email_update"):
             my_review.send_approval_email(self.request)
+
+        if self.request.data.get("review_email_update"):
+            my_review.send_review_email(self.request)
 
 
 class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -704,5 +707,8 @@ class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             last_modified_by=self.request.user
         )
 
-        if self.request.data.get("email_update"):
+        if self.request.data.get("approval_email_update"):
             my_review.send_approval_email(self.request)
+
+        if self.request.data.get("review_email_update"):
+            my_review.send_review_email(self.request)

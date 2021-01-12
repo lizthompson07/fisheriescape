@@ -718,6 +718,11 @@ class Review(models.Model):
         (0, _("not approved")),
         (9, _("cancelled")),
     )
+    approval_level_choices = (
+        (1, _("Division-level")),
+        (2, _("Branch-level")),
+        (3, _("National")),
+    )
     score_choices = (
         (3, _("high")),
         (2, _("medium")),
@@ -745,6 +750,7 @@ class Review(models.Model):
     comments_for_staff = models.TextField(blank=True, null=True, verbose_name=_("questions and comments for project leads"))
 
     approval_status = models.IntegerField(choices=approval_status_choices, blank=True, null=True, verbose_name=_("Approval status"))
+    approval_level = models.IntegerField(choices=approval_level_choices, blank=True, null=True, verbose_name=_("level of approval"))
 
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     approval_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
@@ -797,6 +803,18 @@ class Review(models.Model):
             recipient_list=email.to_list
         )
         self.approval_notification_email_sent = timezone.now()
+        self.save()
+
+    def send_review_email(self, request):
+        email = emails.ProjectReviewEmail(self, request)
+        # send the email object
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
+        self.review_notification_email_sent = timezone.now()
         self.save()
 
     def score_html_template(self, score_name):

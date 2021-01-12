@@ -280,7 +280,8 @@ class StaffForm(forms.ModelForm):
         self.fields["student_program"].widget.attrs = {"v-model": "staff.student_program", ":disabled": "disableStudentProgramField"}
 
         self.fields["name"].widget.attrs = {"v-model": "staff.name", ":disabled": "disableNameField"}
-        self.fields["user"].widget.attrs = {"v-model": "staff.user", "@change": "adjustStaffFields", "@click": "adjustStaffFields"}  # , "class": "chosen-select-contains"
+        self.fields["user"].widget.attrs = {"v-model": "staff.user", "@change": "adjustStaffFields",
+                                            "@click": "adjustStaffFields"}  # , "class": "chosen-select-contains"
         user_choices = [(u.id, f"{u.last_name}, {u.first_name}") for u in User.objects.order_by("last_name", "first_name")]
         user_choices.insert(0, (None, "-----"))
         self.fields["user"].choices = user_choices
@@ -432,9 +433,11 @@ class FileForm(forms.ModelForm):
 
 
 class ReviewForm(forms.ModelForm):
+    review_email_update = forms.BooleanField(required=False, label=gettext_lazy("send an email update to project leads"))
+
     class Meta:
         model = models.Review
-        exclude = ["project_year", "approval_status", "allocated_budget", "approver_comment"]
+        exclude = ["project_year", "approval_status", "approval_level", "allocated_budget", "approver_comment"]
         widgets = {
             "general_comment": forms.Textarea(attrs=comment_row3),
             "comments_for_staff": forms.Textarea(attrs=comment_row3),
@@ -455,6 +458,7 @@ class ReviewForm(forms.ModelForm):
 
         self.fields["general_comment"].widget.attrs["v-model"] = "project_year.review.general_comment"
         self.fields["comments_for_staff"].widget.attrs["v-model"] = "project_year.review.comments_for_staff"
+        self.fields["review_email_update"].widget.attrs["v-model"] = "project_year.review.review_email_update"
 
         # update the choices for the scores
         score_dict = utils.get_review_score_rubric()
@@ -471,18 +475,19 @@ class ReviewForm(forms.ModelForm):
 
 
 class ApprovalForm(forms.ModelForm):
-    email_update = forms.BooleanField(required=False, label=gettext_lazy("send an email update to project leads"))
+    approval_email_update = forms.BooleanField(required=False, label=gettext_lazy("send an email update to project leads"))
 
     class Meta:
         model = models.Review
-        fields = ["approval_status", "allocated_budget", "approver_comment"]
+        fields = ["approval_status", "approval_level", "allocated_budget", "approver_comment", ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["approval_status"].widget.attrs = {"v-model": "project_year.review.approval_status"}
+        self.fields["approval_level"].widget.attrs = {"v-model": "project_year.review.approval_level"}
         self.fields["allocated_budget"].widget.attrs = {"v-model": "project_year.review.allocated_budget"}
         self.fields["approver_comment"].widget.attrs = {"v-model": "project_year.review.approver_comment"}
-        self.fields["email_update"].widget.attrs = {"v-model": "project_year.review.email_update"}
+        self.fields["approval_email_update"].widget.attrs = {"v-model": "project_year.review.approval_email_update"}
 
 
 class FundingSourceForm(forms.ModelForm):

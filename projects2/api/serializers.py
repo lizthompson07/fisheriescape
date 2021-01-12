@@ -36,11 +36,16 @@ class ReviewSerializer(serializers.ModelSerializer):
     metadata = serializers.SerializerMethodField()
     general_comment_html = serializers.SerializerMethodField()
     approval_notification_email_sent = serializers.SerializerMethodField()
+    review_notification_email_sent = serializers.SerializerMethodField()
     collaboration_score_html = serializers.SerializerMethodField()
     strategic_score_html = serializers.SerializerMethodField()
     operational_score_html = serializers.SerializerMethodField()
     ecological_score_html = serializers.SerializerMethodField()
     scale_score_html = serializers.SerializerMethodField()
+    approval_level_display = serializers.SerializerMethodField()
+
+    def get_approval_level_display(self, instance):
+        return instance.get_approval_level_display()
 
     def get_scale_score_html(self, instance):
         return instance.scale_score_html
@@ -59,6 +64,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def get_approval_notification_email_sent(self, instance):
         return date(instance.approval_notification_email_sent)
+
+    def get_review_notification_email_sent(self, instance):
+        return date(instance.review_notification_email_sent)
 
     def get_metadata(self, instance):
         return instance.metadata

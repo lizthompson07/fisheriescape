@@ -441,7 +441,7 @@ def get_review_field_list():
         'scale_score_html|{}'.format("scale score"),
         'total_score',
         'comments_for_staff',
-        # 'approval_status',
+        'approval_level',
         'approver_comment',
         'allocated_budget',
         'metadata',
