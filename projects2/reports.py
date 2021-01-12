@@ -354,57 +354,57 @@ def generate_culture_committee_report():
             j += 1
         i += 1
 
-        archived_projects = pi_models.Project.objects.all()
-        for project in archived_projects.order_by("id"):
-            # create the col_max column to store the length of each header
-            # should be a maximum column width to 100
-            col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
-            j = 0
-            for field in field_list:
-                my_val = None
-                if "Project Id" in field:
-                    my_val = project.id
-                    my_ws.write(i, j, my_val, normal_format)
+    archived_projects = pi_models.Project.objects.all()
+    for project in archived_projects.order_by("id"):
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+        j = 0
+        for field in field_list:
+            my_val = None
+            if "Project Id" in field:
+                my_val = project.id
+                my_ws.write(i, j, my_val, normal_format)
 
-                elif "Title" in field:
-                    my_val = project.title
-                    my_ws.write(i, j, my_val, normal_format)
+            elif "Title" in field:
+                my_val = project.title
+                my_ws.write(i, j, my_val, normal_format)
 
-                elif "Description" in field:
-                    my_val = project.abstract
-                    my_ws.write(i, j, my_val, normal_format)
+            elif "Description" in field:
+                my_val = project.abstract
+                my_ws.write(i, j, my_val, normal_format)
 
-                elif "Years" in field:
-                    my_val = project.year
-                    my_ws.write(i, j, my_val, normal_format)
+            elif "Years" in field:
+                my_val = project.year
+                my_ws.write(i, j, my_val, normal_format)
 
-                elif "Keywords" in field:
-                    my_val = listrify([str(t) for t in project.theme.all()])
-                    my_ws.write(i, j, my_val, normal_format)
+            elif "Keywords" in field:
+                my_val = listrify([str(t) for t in project.theme.all()])
+                my_ws.write(i, j, my_val, normal_format)
 
-                elif "Leads" in field:
-                    my_val = listrify([str(staff) for staff in project.dfo_contact.all()])
-                    my_ws.write(i, j, my_val, normal_format)
+            elif "Leads" in field:
+                my_val = listrify([str(staff) for staff in project.dfo_contact.all()])
+                my_ws.write(i, j, my_val, normal_format)
 
-                elif "Program / Funding Source" in field:
-                    my_val = listrify([str(item) for item in project.program_linkage.all()])
-                    my_ws.write(i, j, my_val, normal_format)
+            elif "Program / Funding Source" in field:
+                my_val = listrify([str(item) for item in project.program_linkage.all()])
+                my_ws.write(i, j, my_val, normal_format)
 
-                elif field == "Source":
-                    my_val = "Project Inventory"
-                    my_ws.write(i, j, my_val, normal_format)
+            elif field == "Source":
+                my_val = "Project Inventory"
+                my_ws.write(i, j, my_val, normal_format)
 
-                # adjust the width of the columns based on the max string length in each col
-                ## replace col_max[j] if str length j is bigger than stored value
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
 
-                # if new value > stored value... replace stored value
-                if len(str(my_val)) > col_max[j]:
-                    if len(str(my_val)) < 50:
-                        col_max[j] = len(str(my_val))
-                    else:
-                        col_max[j] = 50
-                j += 1
-            i += 1
+            # if new value > stored value... replace stored value
+            if len(str(my_val)) > col_max[j]:
+                if len(str(my_val)) < 50:
+                    col_max[j] = len(str(my_val))
+                else:
+                    col_max[j] = 50
+            j += 1
+        i += 1
 
         # set column widths
         for j in range(0, len(col_max)):
