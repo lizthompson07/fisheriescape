@@ -387,7 +387,7 @@ def generate_culture_committee_report():
                     my_ws.write(i, j, my_val, normal_format)
 
                 elif "Program / Funding Source" in field:
-                    my_val = listrify([str(item) for item in project.ProgramLinkage.all()])
+                    my_val = listrify([str(item) for item in project.program_linkage.all()])
                     my_ws.write(i, j, my_val, normal_format)
 
                 elif field == "Source":
