@@ -172,7 +172,7 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         my_object.modified_by = self.request.user
         my_object.save()
         messages.success(self.request,
-                         mark_safe(_("Your new project was created successfully! To get started, <b>add a new project year</b>.")))
+                         mark_safe(_("<span class='h4'>Your new project was created successfully! To get started, <b class='highlight'>add a new project year</b>.</span>")))
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": my_object.id}))
 
     def get_initial(self):
@@ -402,6 +402,14 @@ class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
         year = form.save(commit=False)
         year.modified_by = self.request.user
         year.save()
+
+        # for good measure, we should add the current user as a staff to this year
+        models.Staff.objects.create(
+            project_year=year,
+            user=self.request.user,
+            employee_type=models.EmployeeType.objects.get(pk=1),
+            is_lead=True,
+        )
 
         return HttpResponseRedirect(
             super().get_success_url() + f"?project_year={year.id}"
