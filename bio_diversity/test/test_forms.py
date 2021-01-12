@@ -6,6 +6,26 @@ from bio_diversity.test import BioFactoryFloor
 from shared_models.test.common_tests import CommonTest
 
 
+
+
+@tag("Anix", 'forms')
+class TestAnixForm(CommonTest):
+
+    def setUp(self):
+        super().setUp()  # used to import fixtures
+        self.Form = forms.AnixForm
+        self.data = BioFactoryFloor.AnixFactory.build_valid_data()
+
+    def test_valid_data(self):
+        # get valid data
+        self.assert_form_valid(self.Form, data=self.data)
+
+    def test_null_unique(self):
+        instance = BioFactoryFloor.AnixFactory(contx_id=None, loc_id=None, indvt_id=None, indv_id=None, spwn_id=None)
+        invalid_data = {"evnt_id": instance.evnt_id, "grp_id": instance.grp_id}
+        self.assert_form_invalid(self.Form, data=invalid_data)
+
+
 @tag("Cntd", 'forms')
 class TestCntdForm(CommonTest):
 

@@ -145,7 +145,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
         if self.kwargs.get("pop"):
             # create views intended to be pop out windows should close the window upon success
-            success_url = reverse_lazy("shared_models:close_me_refresh")
+            success_url = reverse_lazy("shared_models:close_me")
 
         return success_url
 
