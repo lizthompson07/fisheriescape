@@ -84,6 +84,9 @@ urlpatterns = [
 
     # Reports #
     ###########
+    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
+    path('reports/science-culture-committee-report/', views.culture_committee_report, name="culture_committee_report"),
+
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),  # tested
     path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),  # tested
 

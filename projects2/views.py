@@ -15,9 +15,10 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
 
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
-    CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView
+    CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView, CommonFormView
 from . import filters, forms, models, reports
 from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import get_help_text_dict, \
@@ -1010,6 +1011,44 @@ class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
         context["random_update"] = models.ActivityUpdate.objects.first()
 
         return context
+
+
+
+# REPORTS #
+###########
+
+
+class ReportSearchFormView(AdminRequiredMixin, CommonFormView):
+    template_name = 'projects2/report_search.html'
+    form_class = forms.ReportSearchForm
+    h1 = gettext_lazy("Project Planning Reports")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        # year = nz(form.cleaned_data["year"], "None")
+        if report == 1:
+            return HttpResponseRedirect(reverse("projects2:culture_committee_report"))
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("projects2:reports"))
+
+
+@login_required()
+def culture_committee_report(request):
+    # year = None if request.GET.get("year") == "None" else int(request.GET.get("year"))
+    file_url = reports.generate_culture_committee_report()
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dmapps culture committee report ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+
+            return response
+    raise Http404
 
 
 @login_required()

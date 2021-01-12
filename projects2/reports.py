@@ -1,14 +1,19 @@
 import os
 from io import BytesIO
 
+import xlsxwriter
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from docx import Document
+from html2text import html2text
 from openpyxl import load_workbook
 
+from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
+from lib.templatetags.verbose_names import get_verbose_label
 from . import models
-
+from publications import models as pi_models
 
 def generate_acrdp_application(project):
     # figure out the filename
@@ -31,7 +36,7 @@ def generate_acrdp_application(project):
         contact_info = _("{full_address}\n\n{email}\n\n{phone}").format(
             full_address=project.organization.full_address if project.organization else "MISSING!",
             email=lead.email,
-            phone=nz(lead.profile.phone,"MISSING!")
+            phone=nz(lead.profile.phone, "MISSING!")
         )
 
     priorities = str()
@@ -252,6 +257,160 @@ def generate_acrdp_budget(project):
 
     wb.save(target_file_path)
 
+    return target_url
+
+
+def generate_culture_committee_report():
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
+    currency_format = workbook.add_format({'num_format': '#,##0.00'})
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+
+    # get the dive list
+
+    field_list = [
+        "Project Id",
+        "Title",
+        "Description",
+        "Years",
+        "Keywords",
+        "Leads",
+        "Program / Funding Source",
+        "Source",
+    ]
+
+    # get_cost_comparison_dict
+
+    # define the header
+    header = field_list
+    title = "DM Apps Science Culture Committee Report"
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="projects")
+    my_ws.write(0, 0, title, title_format)
+    my_ws.write_row(2, 0, header, header_format)
+
+    i = 3
+    projects = models.Project.objects.filter(default_funding_source__is_competitive=True, years__status=4).distinct()
+    for project in projects.order_by("id"):
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+        j = 0
+        for field in field_list:
+            my_val = None
+            if "Project Id" in field:
+                my_val = project.id
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "Title" in field:
+                my_val = project.title
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "Description" in field:
+                my_val = html2text(project.overview_html)
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "Years" in field:
+                my_val = listrify([y.fiscal_year for y in project.years.filter(status=4)])
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "Keywords" in field:
+                my_val = listrify([str(t) for t in project.tags.all()])
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "Leads" in field:
+                my_val = listrify([str(staff) for staff in project.lead_staff.all()])
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "Program / Funding Source" in field:
+                my_val = str(project.default_funding_source)
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif field == "Source":
+                my_val = "Project Planning"
+                my_ws.write(i, j, my_val, normal_format)
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(my_val)) > col_max[j]:
+                if len(str(my_val)) < 50:
+                    col_max[j] = len(str(my_val))
+                else:
+                    col_max[j] = 50
+            j += 1
+        i += 1
+
+        archived_projects = pi_models.Project.objects.all()
+        for project in archived_projects.order_by("id"):
+            # create the col_max column to store the length of each header
+            # should be a maximum column width to 100
+            col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+            j = 0
+            for field in field_list:
+                my_val = None
+                if "Project Id" in field:
+                    my_val = project.id
+                    my_ws.write(i, j, my_val, normal_format)
+
+                elif "Title" in field:
+                    my_val = project.title
+                    my_ws.write(i, j, my_val, normal_format)
+
+                elif "Description" in field:
+                    my_val = project.abstract
+                    my_ws.write(i, j, my_val, normal_format)
+
+                elif "Years" in field:
+                    my_val = project.year
+                    my_ws.write(i, j, my_val, normal_format)
+
+                elif "Keywords" in field:
+                    my_val = listrify([str(t) for t in project.theme.all()])
+                    my_ws.write(i, j, my_val, normal_format)
+
+                elif "Leads" in field:
+                    my_val = listrify([str(staff) for staff in project.dfo_contact.all()])
+                    my_ws.write(i, j, my_val, normal_format)
+
+                elif "Program / Funding Source" in field:
+                    my_val = listrify([str(item) for item in project.ProgramLinkage.all()])
+                    my_ws.write(i, j, my_val, normal_format)
+
+                elif field == "Source":
+                    my_val = "Project Inventory"
+                    my_ws.write(i, j, my_val, normal_format)
+
+                # adjust the width of the columns based on the max string length in each col
+                ## replace col_max[j] if str length j is bigger than stored value
+
+                # if new value > stored value... replace stored value
+                if len(str(my_val)) > col_max[j]:
+                    if len(str(my_val)) < 50:
+                        col_max[j] = len(str(my_val))
+                    else:
+                        col_max[j] = 50
+                j += 1
+            i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
     return target_url
 
 #

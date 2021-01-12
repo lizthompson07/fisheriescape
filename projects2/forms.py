@@ -668,3 +668,13 @@ class AdminStaffForm(forms.ModelForm):
         widgets = {
             'user': forms.Select(attrs=chosen_js),
         }
+
+
+
+class ReportSearchForm(forms.Form):
+    REPORT_CHOICES = (
+        (None, "------"),
+        (1, "Science Culture Committee Report (xlsx)"),
+    )
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    # year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))

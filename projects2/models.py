@@ -524,6 +524,7 @@ class Staff(GenericCost):
             self.name = None
         super().save(*args, **kwargs)
 
+
 class OMCategory(models.Model):
     group_choices = (
         (1, _("Travel")),
