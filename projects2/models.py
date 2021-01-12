@@ -72,6 +72,7 @@ class FundingSource(SimpleLookup):
     )
     name = models.CharField(max_length=255)
     funding_source_type = models.IntegerField(choices=funding_source_type_choices)
+    is_competitive = models.BooleanField(default=False, verbose_name=_("is competitive funding?"))
 
     def __str__(self):
         return f"{self.tname} ({self.get_funding_source_type_display()})"
@@ -79,6 +80,13 @@ class FundingSource(SimpleLookup):
     @property
     def display2(self):
         return f"{self.get_funding_source_type_display()} - {self.tname}"
+
+    @property
+    def display3(self):
+        mystr = f"{self.get_funding_source_type_display()} - {self.tname}"
+        if self.is_competitive:
+            mystr += " ({})".format(_("competitive"))
+        return mystr
 
     class Meta:
         ordering = ['funding_source_type', 'name', ]

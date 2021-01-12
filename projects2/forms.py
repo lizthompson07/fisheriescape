@@ -61,7 +61,7 @@ class NewProjectForm(forms.ModelForm):
         division_choices.insert(0, tuple((None, "---")))
         section_choices = utils.get_section_choices(all=True)
         section_choices.insert(0, tuple((None, "---")))
-        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices = [(f.id, f.display3) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -95,8 +95,11 @@ class ProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         SECTION_CHOICES = utils.get_section_choices(all=True)
         SECTION_CHOICES.insert(0, tuple((None, "---")))
+        funding_source_choices = [(f.id, f.display3) for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
+        self.fields['default_funding_source'].choices = funding_source_choices
         self.fields['section'].choices = SECTION_CHOICES
         # self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
         #                                                  _("mandatory - select multiple, if necessary"))
@@ -280,7 +283,7 @@ class StaffForm(forms.ModelForm):
         user_choices = [(u.id, f"{u.last_name}, {u.first_name}") for u in User.objects.order_by("last_name", "first_name")]
         user_choices.insert(0, (None, "-----"))
         self.fields["user"].choices = user_choices
-        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
 
@@ -298,7 +301,7 @@ class OMCostForm(forms.ModelForm):
         self.fields["funding_source"].widget.attrs = {"v-model": "om_cost.funding_source"}
         self.fields["description"].widget.attrs = {"v-model": "om_cost.description"}
         self.fields["om_category"].widget.attrs = {"v-model": "om_cost.om_category"}
-        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
 
@@ -316,7 +319,7 @@ class CapitalCostForm(forms.ModelForm):
         self.fields["funding_source"].widget.attrs = {"v-model": "capital_cost.funding_source"}
         self.fields["description"].widget.attrs = {"v-model": "capital_cost.description"}
         self.fields["category"].widget.attrs = {"v-model": "capital_cost.category"}
-        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
 
