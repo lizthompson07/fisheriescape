@@ -9,9 +9,15 @@
   <p class="lead text-muted">
     You can click <a href="#" pop-href="{% url 'shared_models:user_new' %}">HERE</a> to add a new user to the system.
   </p>
-
+  {% if match_found %}
+    <div class="alert alert-info" role="alert">
+      <p class="lead">
+        Woohoo!! It seems like there is already a DM Apps user with the name {{ object.name }}. To make life easier, this their name as already been populated in the user field.
+      </p>
+    </div>
+  {% endif %}
   <div class="alert alert-danger" role="alert">
-    <p class="h4">
+    <p class="h3">
       WARNING:
     </p>
     <p class="lead">

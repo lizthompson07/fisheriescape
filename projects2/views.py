@@ -5,6 +5,7 @@ from copy import deepcopy
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
@@ -864,10 +865,22 @@ class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, CommonUpdateView):
 
         return HttpResponseRedirect(success_url)
 
+    def get_initial(self):
+        name = self.get_object().name
+        first = name.split(" ")[0]
+        last = name.split(" ")[1]
+        qs = User.objects.filter(first_name__icontains=first, last_name__icontains=last)
+        if qs.exists() and qs.count() == 1:
+            return dict(user=qs.first().id)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict()
-        context['name_count'] = models.Staff.objects.filter(name=self.get_object().name).count()
+        name = self.get_object().name
+        first = name.split(" ")[0]
+        last = name.split(" ")[1]
+        context['name_count'] = models.Staff.objects.filter(name=name).count()
+        context['match_found'] = User.objects.filter(first_name__icontains=first, last_name__icontains=last).exists()
 
         return context
 
