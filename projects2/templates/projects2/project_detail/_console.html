@@ -56,8 +56,8 @@
 
     <a v-if="canModify && project && project.years && project.years.length" @click="displaySubmit" class="{{ btn_class_black }} under-dev"
        href="#">
-      <span v-if="project.has_unsubmitted_years"><span class="icon mdi mdi-email"></span> {% trans "Submit" %}</span>
-      <span v-else><span class="icon mdi mdi-cancel"></span> {% trans "Unsubmit" %}</span>
+      <span v-if="project.has_unsubmitted_years"><span class="icon mdi mdi-email"></span> {% trans "Submit Project" %}</span>
+      <span v-else><span class="icon mdi mdi-cancel"></span> {% trans "Unsubmit Project" %}</span>
     </a>
 
     <a
