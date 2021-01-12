@@ -745,7 +745,8 @@ class Review(models.Model):
 
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
-    approver_comment = models.TextField(blank=True, null=True, verbose_name=_("Approver comments (shared with project leads)"))
+    approver_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
+    comments_for_staff = models.TextField(blank=True, null=True, verbose_name=_("questions and comments for project leads"))
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
