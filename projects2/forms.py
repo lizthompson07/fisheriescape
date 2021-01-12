@@ -655,3 +655,16 @@ LevelFormset = modelformset_factory(
     form=LevelForm,
     extra=1,
 )
+
+
+
+class AdminStaffForm(forms.ModelForm):
+    class Meta:
+        model = models.Staff
+        fields = ["user", 'name']
+        labels = {
+            "user": _("DFO User"),
+        }
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }

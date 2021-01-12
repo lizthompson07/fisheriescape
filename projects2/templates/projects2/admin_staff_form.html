@@ -1,0 +1,12 @@
+{% extends "projects2/form.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block post_form_div %}
+  <p class="lead text-muted">
+    You can click <a href="#" pop-href="{% url 'shared_models:user_new' %}">HERE</a> to add a new user to the system.
+  </p>
+{% endblock %}

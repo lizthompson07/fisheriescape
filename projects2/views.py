@@ -5,7 +5,7 @@ from copy import deepcopy
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Value, TextField
+from django.db.models import Value, TextField, Q
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -172,7 +172,8 @@ class ProjectCreateView(LoginRequiredMixin, CommonCreateView):
         my_object.modified_by = self.request.user
         my_object.save()
         messages.success(self.request,
-                         mark_safe(_("<span class='h4'>Your new project was created successfully! To get started, <b class='highlight'>add a new project year</b>.</span>")))
+                         mark_safe(_(
+                             "<span class='h4'>Your new project was created successfully! To get started, <b class='highlight'>add a new project year</b>.</span>")))
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": my_object.id}))
 
     def get_initial(self):
@@ -803,6 +804,56 @@ class ReferenceMaterialDeleteView(AdminRequiredMixin, CommonDeleteView):
     template_name = "projects2/confirm_delete.html"
     delete_protection = False
     container_class = "container bg-light curvy"
+
+
+# ADMIN
+
+
+class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
+    template_name = 'projects2/admin_staff_list.html'
+
+    filterset_class = filters.StaffFilter
+    home_url_name = "projects2:index"
+    h1 = gettext_lazy("Non-registered Staff List")
+    h2 = gettext_lazy(
+        "The purpose of this list view is to check if any DFO staff were listed on projects, but were not connected to their dmapps user accounts")
+    field_list = [
+        {"name": 'project_year.fiscal_year', "class": "", "width": ""},
+        {"name": 'smart_name|staff name', "class": "", "width": ""},
+        {"name": 'is_lead', "class": "", "width": ""},
+        {"name": 'employee_type', "class": "", "width": ""},
+    ]
+    row_object_url_name = "projects2:admin_staff_edit"
+
+    def get_queryset(self):
+        qs = models.Staff.objects.filter(user__isnull=True, name__isnull=False).filter(~Q(name__icontains="unknown")).filter(~Q(name__icontains="tbd")).filter(
+            ~Q(name__icontains="BI-")).filter(~Q(name__icontains="PC-")).filter(~Q(name__icontains="EG-")).filter(~Q(name__icontains="determined"))
+
+        qs = qs.order_by('-project_year__fiscal_year', 'project_year__project__section__division', 'project_year__project__section',
+                         'project_year__project__title')
+        return qs
+
+
+class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, CommonUpdateView):
+    '''This is really just for the admin view'''
+    model = models.Staff
+    template_name = 'projects2/admin_staff_form.html'
+    form_class = forms.AdminStaffForm
+    h1 = gettext_lazy("Edit Non-registered Staff Member")
+    parent_crumb = {"title": _("Non-registered Staff List"), "url": reverse_lazy("projects2:admin_staff_list")}
+    container_class = "container bg-light curvy"
+
+    def form_valid(self, form):
+        form.save()
+        success_url = reverse("projects2:admin_staff_list")
+        if self.request.META["QUERY_STRING"]:
+            success_url += f"?{self.request.META['QUERY_STRING']}"
+        return HttpResponseRedirect(success_url)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict()
+        return context
 
 
 # STATUS REPORT #
