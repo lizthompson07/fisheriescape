@@ -132,7 +132,8 @@ class ProjectYearForm(forms.ModelForm):
         exclude = [
             # 'project',
             "allocated_budget",
-            "notification_email_sent",
+            "approval_notification_email_sent",
+            "review_notification_email_sent",
             "modified_by",
             "administrative_notes",
         ]
@@ -436,6 +437,7 @@ class ReviewForm(forms.ModelForm):
         exclude = ["project_year", "approval_status", "allocated_budget", "approver_comment"]
         widgets = {
             "general_comment": forms.Textarea(attrs=comment_row3),
+            "comments_for_staff": forms.Textarea(attrs=comment_row3),
             "collaboration_comment": forms.Textarea(attrs=comment_row3),
             "strategic_comment": forms.Textarea(attrs=comment_row3),
             "operational_comment": forms.Textarea(attrs=comment_row3),
@@ -452,6 +454,7 @@ class ReviewForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["general_comment"].widget.attrs["v-model"] = "project_year.review.general_comment"
+        self.fields["comments_for_staff"].widget.attrs["v-model"] = "project_year.review.comments_for_staff"
 
         # update the choices for the scores
         score_dict = utils.get_review_score_rubric()

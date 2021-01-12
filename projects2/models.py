@@ -741,12 +741,14 @@ class Review(models.Model):
     scale_comment = models.TextField(blank=True, null=True, verbose_name=_("scale comments"))
 
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
+    comments_for_staff = models.TextField(blank=True, null=True, verbose_name=_("questions and comments for project leads"))
+
     approval_status = models.IntegerField(choices=approval_status_choices, blank=True, null=True, verbose_name=_("Approval status"))
 
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
-    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
-    approver_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
-    comments_for_staff = models.TextField(blank=True, null=True, verbose_name=_("questions and comments for project leads"))
+    approval_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
+    review_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
+    approver_comment = models.TextField(blank=True, null=True, verbose_name=_("Approver comments (shared with project leads)"))
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -793,7 +795,7 @@ class Review(models.Model):
             from_email=email.from_email,
             recipient_list=email.to_list
         )
-        self.notification_email_sent = timezone.now()
+        self.approval_notification_email_sent = timezone.now()
         self.save()
 
 

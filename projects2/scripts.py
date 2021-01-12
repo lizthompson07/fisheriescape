@@ -210,7 +210,7 @@ def fetch_project_data():
 
         new_py.responsibility_center = old_p.responsibility_center
         new_py.allotment_code = old_p.allotment_code
-        new_py.notification_email_sent = old_p.notification_email_sent
+        new_py.approval_notification_email_sent = old_p.notification_email_sent
         new_py.administrative_notes = old_p.meeting_notes
         new_py.updated_at = old_p.date_last_modified
         new_py.modified_by = old_p.last_modified_by
@@ -463,7 +463,7 @@ def from_project_to_reviewer():
             )
             review.allocated_budget = new_py.allocated_budget
             review.approval_status = old_p.approved  # will be 1, 0 , None
-            review.notification_email_sent = old_p.notification_email_sent
+            review.approval_notification_email_sent = old_p.notification_email_sent
             review.general_comment = old_p.meeting_notes
             review.approver_comment = old_p.meeting_notes
             review.save()

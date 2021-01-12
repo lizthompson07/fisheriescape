@@ -310,7 +310,7 @@ class ProjectCloneView(ProjectUpdateView):
             new_year.pk = None
             new_year.submitted = None
             new_year.status = 1
-            new_year.notification_email_sent = None
+            new_year.approval_notification_email_sent = None
             new_year.save()
 
             # Now we need to replicate all the related records:
@@ -489,7 +489,7 @@ class ProjectYearCloneView(ProjectYearUpdateView):
         new_obj.pk = None
         new_obj.submitted = None
         new_obj.status = 1
-        new_obj.notification_email_sent = None
+        new_obj.approval_notification_email_sent = None
         new_obj.save()
 
         # Now we need to replicate all the related records:
