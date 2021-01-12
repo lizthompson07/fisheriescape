@@ -16,6 +16,7 @@
       </p>
     </div>
   {% endif %}
+  {% if name_count > 1 %}
   <div class="alert alert-danger" role="alert">
     <p class="h3">
       WARNING:
@@ -25,4 +26,5 @@
       selection of user. There are {{ name_count }} matching records (including this one).
     </p>
   </div>
+  {% endif %}
 {% endblock %}
