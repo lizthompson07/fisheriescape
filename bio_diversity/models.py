@@ -252,34 +252,40 @@ class DataLoader(BioModel):
     def save(self, *args, **kwargs):
         try:
             data = pd.read_excel(self.data_csv, engine='openpyxl')
+            data_dict = data.to_dict('records')
         except:
             raise Exception("File format not valid")
         if self.evntc_id.__str__() == "Electrofishing":
-            loc = Location(evnt_id_id=self.evnt_id.pk,
-                           locc_id_id=1,
-                           rive_id=RiverCode.objects.filter(name=data["River"][0]).get(),
-                           subr_id=SubRiverCode.objects.filter(name__iexact=data["Branch"][0]).get(),
-                           relc_id=ReleaseSiteCode.objects.filter(name__iexact=data["Site"][0]).get(),
-                           loc_date=datetime.strptime(data["Date"][0], "%Y-%b-%d"),
-                           comments=data["Comments"][0],
-                           created_by=self.created_by,
-                           created_date=self.created_date,
-                           )
-            try:
-                loc.save()
-            except:
-                pass
-            envc=EnvCondition(loc_id_id=loc.pk,
-                              inst_id=Instrument.objects.first(),
-                              envc_id=EnvCode.objects.filter(name__iexact="Temperature").get(),
-                              env_val=data["temp"][0],
-                              env_start=datetime.strptime(data["Date"][0], "%Y-%b-%d"),
-                              env_avg=False,
-                              qual_id=QualCode.objects.filter(name="Good").get(),
-                              created_by=self.created_by,
-                              created_date=self.created_date,
-                              )
-            envc.save()
+            for row in data_dict:
+                loc = Location(evnt_id_id=self.evnt_id.pk,
+                               locc_id_id=1,
+                               rive_id=RiverCode.objects.filter(name=row["River"]).get(),
+                               subr_id=SubRiverCode.objects.filter(name__iexact=row["Branch"]).get(),
+                               relc_id=ReleaseSiteCode.objects.filter(name__iexact=row["Site"]).get(),
+                               loc_date=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                               comments=row["Comments"],
+                               created_by=self.created_by,
+                               created_date=self.created_date,
+                               )
+                try:
+                    loc.save()
+                except:
+                    pass
+                envc = EnvCondition(loc_id_id=loc.pk,
+                                    inst_id=Instrument.objects.first(),
+                                    envc_id=EnvCode.objects.filter(name__iexact="Temperature").get(),
+                                    env_val=row["temp"],
+                                    env_start=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                                    env_avg=False,
+                                    qual_id=QualCode.objects.filter(name="Good").get(),
+                                    created_by=self.created_by,
+                                    created_date=self.created_date,
+                                    )
+                try:
+                    envc.save()
+                except:
+                    pass
+
             grp = Group(spec_id=SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                         stok_id=StockCode.objects.filter(name=data["River"][0]).get(),
                         coll_id=Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
@@ -288,11 +294,11 @@ class DataLoader(BioModel):
                         created_date=self.created_date, 
                         )
             grp.save()
-            anix=AniDetailXref(evnt_id_id=self.evnt_id.pk,
-                               grp_id_id=grp.pk,
-                               created_by=self.created_by,
-                               created_date=self.created_date,
-                               )
+            anix = AniDetailXref(evnt_id_id=self.evnt_id.pk,
+                                 grp_id_id=grp.pk,
+                                 created_by=self.created_by,
+                                 created_date=self.created_date,
+                                 )
             anix.save()
             grpd = GroupDet(anix_id_id=anix.pk,
                             anidc_id=AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
