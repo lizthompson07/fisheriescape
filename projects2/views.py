@@ -109,7 +109,7 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
 
 class MyProjectListView(LoginRequiredMixin, CommonListView):
     template_name = 'projects2/my_project_list.html'
-    h1 = gettext_lazy("My projects")
+    h1 = gettext_lazy("My Projects")
     home_url_name = "projects2:index"
     container_class = "container-fluid bg-light curvy"
     row_object_url_name = "projects2:project_detail"
