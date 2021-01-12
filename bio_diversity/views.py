@@ -596,6 +596,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "locc_id",
             "rive_id",
             "subr_id",
+            "loc_date",
         ]
         context["contx_object"] = models.ContainerXRef.objects.first()
         context["contx_field_list"] = [
