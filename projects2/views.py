@@ -833,8 +833,7 @@ class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
             ~Q(name__icontains="support")).filter(~Q(name__icontains="volunteer")).filter(~Q(name__icontains="staff")).filter(~Q(name__icontains="tba")).filter(
             ~Q(name__icontains="1")).filter(~Q(name__icontains="2")).filter(~Q(name__icontains="3"))
 
-        qs = qs.order_by('-project_year__fiscal_year', 'project_year__project__section__division', 'project_year__project__section',
-                         'project_year__project__title')
+        qs = qs.order_by('name')
         return qs
 
 
@@ -858,7 +857,7 @@ class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, CommonUpdateView):
             search_name = f"{obj.user.first_name} {obj.user.last_name}"
             qs = models.Staff.objects.filter(name__contains=search_name)
 
-            messages.info(self.request, f"Searched, found and replaced {qs.count()} matches for '{search_name}'")
+            messages.info(self.request, f"Searched, found and replaced {qs.count()} additional matches for '{search_name}'")
             for staff in qs.all():
                 staff.user = obj.user
                 staff.save()
@@ -868,6 +867,8 @@ class AdminStaffUpdateView(ManagerOrAdminRequiredMixin, CommonUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict()
+        context['name_count'] = models.Staff.objects.filter(name=self.get_object().name).count()
+
         return context
 
 

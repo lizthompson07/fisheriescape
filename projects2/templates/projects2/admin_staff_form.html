@@ -9,4 +9,14 @@
   <p class="lead text-muted">
     You can click <a href="#" pop-href="{% url 'shared_models:user_new' %}">HERE</a> to add a new user to the system.
   </p>
+
+  <div class="alert alert-danger" role="alert">
+    <p class="h4">
+      WARNING:
+    </p>
+    <p class="lead">
+      When this form is submitted, all staff members with the matching name <span class="highlight">{{ object.name }}</span> will be replaced with your
+      selection of user. There are {{ name_count }} matching records (including this one).
+    </p>
+  </div>
 {% endblock %}
