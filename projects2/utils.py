@@ -421,14 +421,31 @@ def get_project_year_field_list(project_year=None):
         'coding',
         'submitted',
         'formatted_status|{}'.format(_("status")),
-        'allocated_budget|{}'.format(_("allocated budget")),
-        'review_score|{}'.format(_("review score")),
+        # 'allocated_budget|{}'.format(_("allocated budget")),
+        # 'review_score|{}'.format(_("review score")),
         'metadata|{}'.format(_("metadata")),
     ]
 
     # remove any instances of None
     while None in my_list: my_list.remove(None)
 
+    return my_list
+
+
+def get_review_field_list():
+    my_list = [
+        'collaboration_score_html|{}'.format("external pressures score"),
+        'strategic_score_html|{}'.format("strategic direction score"),
+        'operational_score_html|{}'.format("operational considerations score"),
+        'ecological_score_html|{}'.format("ecological impact score"),
+        'scale_score_html|{}'.format("scale score"),
+        'total_score',
+        'comments_for_staff',
+        # 'approval_status',
+        'approver_comment',
+        'allocated_budget',
+        'metadata',
+    ]
     return my_list
 
 

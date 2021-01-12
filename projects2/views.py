@@ -21,7 +21,7 @@ from . import filters, forms, models, reports
 from .mixins import CanModifyProjectRequiredMixin, AdminRequiredMixin, ManagerOrAdminRequiredMixin
 from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, is_management_or_admin, \
-    get_review_score_rubric, get_status_report_field_list
+    get_review_score_rubric, get_status_report_field_list, get_review_field_list
 
 
 class IndexTemplateView(LoginRequiredMixin, CommonTemplateView):
@@ -201,6 +201,9 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         # If this is a gulf region project, only show the gulf region fields
         context["project_field_list"] = get_project_field_list(project)
         context["project_year_field_list"] = get_project_year_field_list()
+
+        context["random_review"] = models.Review.objects.first()
+        context["review_field_list"] = get_review_field_list()
 
         context["staff_form"] = forms.StaffForm
         context["random_staff"] = models.Staff.objects.first()

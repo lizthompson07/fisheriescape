@@ -230,6 +230,7 @@ class Project(models.Model):
         else:
             return "<em>{}</em>".format(_("This project has no fiscal years added yet."))
 
+
 class ProjectYear(models.Model):
     status_choices = [
         (1, "Draft"),
@@ -797,6 +798,44 @@ class Review(models.Model):
         )
         self.approval_notification_email_sent = timezone.now()
         self.save()
+
+    def score_html_template(self, score_name):
+        score = getattr(self, f'{score_name}_score')
+        score_display = getattr(self, f'get_{score_name}_score_display')()
+        comment = getattr(self, f'{score_name}_comment')
+
+        my_str = f"<u>{score} ({score_display})</u>"
+        if comment:
+            my_str += f" &rarr; {comment}"
+        return mark_safe(my_str)
+
+    @property
+    def collaboration_score_html(self):
+        return self.score_html_template("collaboration")
+
+    @property
+    def strategic_score_html(self):
+        return self.score_html_template("strategic")
+
+    @property
+    def operational_score_html(self):
+        return self.score_html_template("operational")
+
+    @property
+    def ecological_score_html(self):
+        return self.score_html_template("ecological")
+
+    @property
+    def scale_score_html(self):
+        return self.score_html_template("scale")
+
+    # strategic_score_html
+
+
+# operational_score_html
+# ecological_score_html
+# scale_score_html
+# total_score
 
 
 class Activity(models.Model):
