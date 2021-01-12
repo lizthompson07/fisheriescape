@@ -827,7 +827,9 @@ class AdminStaffListView(ManagerOrAdminRequiredMixin, CommonFilterView):
 
     def get_queryset(self):
         qs = models.Staff.objects.filter(user__isnull=True, name__isnull=False).filter(~Q(name__icontains="unknown")).filter(~Q(name__icontains="tbd")).filter(
-            ~Q(name__icontains="BI-")).filter(~Q(name__icontains="PC-")).filter(~Q(name__icontains="EG-")).filter(~Q(name__icontains="determined"))
+            ~Q(name__icontains="BI-")).filter(~Q(name__icontains="PC-")).filter(~Q(name__icontains="EG-")).filter(~Q(name__icontains="determined")).filter(
+            ~Q(name__icontains="to be")).filter(~Q(name__icontains="student")).filter(~Q(name__icontains="casual")).filter(
+            ~Q(name__icontains="technician")).filter(~Q(name__icontains="crew")).filter(~Q(name__icontains="hired"))
 
         qs = qs.order_by('-project_year__fiscal_year', 'project_year__project__section__division', 'project_year__project__section',
                          'project_year__project__title')
