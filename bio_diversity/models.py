@@ -320,8 +320,9 @@ class DataLoader(BioModel):
                                created_date=self.created_date,
                                )
                 try:
+                    loc.clean()
                     loc.save()
-                except:
+                except ValidationError:
                     pass
                 envc = EnvCondition(loc_id_id=loc.pk,
                                     inst_id=Instrument.objects.first(),
@@ -334,8 +335,9 @@ class DataLoader(BioModel):
                                     created_date=self.created_date,
                                     )
                 try:
+                    envc.clean()
                     envc.save()
-                except:
+                except ValidationError:
                     pass
 
             grp = Group(spec_id=SpeciesCode.objects.filter(name__iexact="Salmon").get(),
@@ -345,13 +347,21 @@ class DataLoader(BioModel):
                         created_by=self.created_by,
                         created_date=self.created_date, 
                         )
-            grp.save()
+            try:
+                grp.clean()
+                grp.save()
+            except ValidationError:
+                pass
             anix = AniDetailXref(evnt_id_id=self.evnt_id.pk,
                                  grp_id_id=grp.pk,
                                  created_by=self.created_by,
                                  created_date=self.created_date,
                                  )
-            anix.save()
+            try:
+                anix.clean()
+                anix.save()
+            except ValidationError:
+                pass
             grpd = GroupDet(anix_id_id=anix.pk,
                             anidc_id=AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
                             det_val=data["# of salmon observed/collected"].sum(),
@@ -360,7 +370,11 @@ class DataLoader(BioModel):
                             created_by=self.created_by,
                             created_date=self.created_date,
                             )
-            grpd.save()
+            try:
+                grpd.clean()
+                grpd.save()
+            except ValidationError:
+                pass
         return super().save(*args, **kwargs)
 
 

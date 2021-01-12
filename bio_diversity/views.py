@@ -139,6 +139,16 @@ class DataCreate(mixins.DataMixin, CommonCreate):
             context["title"] = "Add {} data".format(models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower())
         return context
 
+    def get_success_url(self):
+        # make parent refresh on close
+        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:list_{}".format(self.key))
+
+        if self.kwargs.get("pop"):
+            # create views intended to be pop out windows should close the window upon success
+            success_url = reverse_lazy("shared_models:close_me_refresh")
+
+        return success_url
+
 
 class DrawCreate(mixins.DrawMixin, CommonCreate):
     pass
@@ -246,6 +256,7 @@ class IndvCreate(mixins.IndvMixin, CommonCreate):
             anix_link = models.AniDetailXref(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(),
                                              indv_id=self.object, created_by=self.object.created_by, 
                                              created_date=self.object.created_date)
+            anix_link.clean()
             anix_link.save()
         return super().form_valid(form)
 
@@ -381,6 +392,7 @@ class SpwnCreate(mixins.SpwnMixin, CommonCreate):
             anix_link = models.AniDetailXref(evnt_id=models.Event.objects.filter(pk=self.kwargs['evnt']).get(), 
                                              spwn_id=self.object, created_by=self.object.created_by, 
                                              created_date=self.object.created_date)
+            anix_link.clean()
             anix_link.save()
         return super().form_valid(form)
 
