@@ -507,8 +507,8 @@ def get_collaboration_field_list():
         'people',
         'critical',
         'agreement_title',
-        'gc_program',
-        'amount',
+        # 'gc_program',
+        # 'amount',
         'notes',
     ]
     return my_list

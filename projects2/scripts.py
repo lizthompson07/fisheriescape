@@ -624,7 +624,7 @@ def digest_priorities():
 
 
 def copy_citations():
-    from inventory.models import Citation as OldCitation
+    from inventory.models import Citation as OldCitation, Resource
     old_citations = OldCitation.objects.all()
 
     for old_cit in old_citations:
@@ -651,4 +651,8 @@ def copy_citations():
             series=old_cit.series,
             region=old_cit.region,
         )
+
+    for r in Resource.objects.all():
+        for cit_old in r.citations.all():
+            r.citations2.add(cit_old.id)
 

@@ -358,8 +358,8 @@ class ResourceCloneUpdateView(ResourceUpdateView):
         for item in old_obj.distribution_formats.all():
             new_obj.distribution_formats.add(item)
 
-        for item in old_obj.citations.all():
-            new_obj.citations.add(item)
+        for item in old_obj.citations2.all():
+            new_obj.citations2.add(item)
 
         # Now we need to replicate all the related records:
         # 1) resource people
@@ -1070,10 +1070,10 @@ def resource_citation_add(request, resource, citation):
     my_citation = shared_models.Citation.objects.get(pk=citation)
     my_resource = models.Resource.objects.get(pk=resource)
 
-    if my_resource.citations.filter(pk=citation).count() > 0:
+    if my_resource.citations2.filter(pk=citation).count() > 0:
         messages.warning(request, "'{}' has already been added as a citation.".format(my_citation.title))
     else:
-        my_resource.citations.add(citation)
+        my_resource.citations2.add(citation)
         messages.success(request, "'{}' has been added as a citation.".format(my_citation.title))
 
     return HttpResponseRedirect(reverse('inventory:resource_citation_filter', kwargs={'resource': resource}))
@@ -1083,7 +1083,7 @@ def resource_citation_delete(request, resource, citation):
     my_citation = shared_models.Citation.objects.get(pk=citation)
     my_resource = models.Resource.objects.get(pk=resource)
 
-    my_resource.citations.remove(citation)
+    my_resource.citations2.remove(citation)
     messages.success(request, "'{}' has been removed.".format(my_citation.title))
 
     return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
@@ -1094,6 +1094,7 @@ def resource_citation_delete(request, resource, citation):
 
 class CitationDetailView(DetailView):
     model = shared_models.Citation
+    template_name = 'inventory/citation_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1105,6 +1106,7 @@ class CitationDetailView(DetailView):
 class CitationUpdateView(LoginRequiredMixin, UpdateView):
     model = shared_models.Citation
     form_class = forms.CitationForm
+    template_name = 'inventory/citation_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1122,6 +1124,7 @@ class CitationUpdateView(LoginRequiredMixin, UpdateView):
 class CitationCreateView(LoginRequiredMixin, CreateView):
     model = shared_models.Citation
     form_class = forms.CitationForm
+    template_name = 'inventory/citation_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1131,7 +1134,7 @@ class CitationCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save()
-        my_resource = models.Resource.objects.get(pk=self.kwargs['resource']).citations.add(self.object.id)
+        my_resource = models.Resource.objects.get(pk=self.kwargs['resource']).citations2.add(self.object.id)
         messages.success(self.request, "'{}' has been added as a citation.".format(self.object.title))
         return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': self.kwargs['resource']}))
 
