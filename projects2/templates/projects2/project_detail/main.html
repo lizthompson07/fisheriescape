@@ -73,7 +73,26 @@
                       {{ object.overview_html|nz:nulltext }}
                     </td>
                   </tr>
+                {% elif "references" in field %}
+                  <tr>
+                    <th>
+                      {% get_verbose_label object field %}
+                      (<a href="#">{% trans "manage" %}</a>)
+                    </th>
+                    <td>
+                      {% if object.references.exists %}
+                        <ul>
+                          {% for ref in object.references.all %}
+                            <li>{{ ref.short_citation_html }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% else %}
+                        ---
+                      {% endif %}
+                    </td>
+                  </tr>
                 {% else %}
+
                   {% verbose_td_display object field th_width="30%" td_width="70%" nullmark=nulltext %}
                 {% endif %}
               {% endfor %}

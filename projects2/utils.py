@@ -371,6 +371,7 @@ def get_project_field_list(project):
         'experimental_protocol' if is_acrdp else None,
 
         'tags',
+        'references',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)
@@ -462,6 +463,21 @@ def get_staff_field_list():
         # 'overtime_description',
         'student_program',
         'amount',
+    ]
+    return my_list
+
+
+def get_citation_field_list():
+    my_list = [
+        'tname|{}'.format(_("title")),
+        'authors',
+        'year',
+        'publication',
+        'pub_number',
+        'turl|{}'.format(_("url")),
+        'tabstract|{}'.format(_("abstract")),
+        'series',
+        'region',
     ]
     return my_list
 

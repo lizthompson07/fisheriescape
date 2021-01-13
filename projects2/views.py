@@ -361,6 +361,26 @@ class ProjectCloneView(ProjectUpdateView):
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.project.id}))
 
 
+
+class ProjectReferencesDetailView(LoginRequiredMixin, CommonDetailView):
+    model = models.Project
+    template_name = 'projects2/project_references.html'
+    home_url_name = "projects2:index"
+    container_class = "container-fluid bg-light curvy"
+    h1 = gettext_lazy("Project References")
+    active_page_name_crumb = gettext_lazy("Project References")
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("projects2:project_references", args=[self.get_object().id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["file_form"] = forms.FileForm
+        context["random_file"] = models.File.objects.first()
+        return context
+
+
+
 # PROJECT YEAR #
 ################
 

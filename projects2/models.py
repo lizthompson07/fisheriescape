@@ -133,6 +133,8 @@ class Project(models.Model):
     default_funding_source = models.ForeignKey(FundingSource, on_delete=models.DO_NOTHING, blank=False, null=True, related_name="projects",
                                                verbose_name=_("primary funding source"))
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
+    references = models.ManyToManyField(shared_models.Citation, blank=True, verbose_name=_("references"), related_name="projects", editable=False)
+
 
     # HTML field
     overview = models.TextField(blank=True, null=True, verbose_name=_("Project overview"))
