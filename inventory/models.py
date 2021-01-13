@@ -381,7 +381,7 @@ class Resource(models.Model):
     open_data_notes = models.TextField(blank=True, null=True,
                                        verbose_name="Open data notes")
     notes = models.TextField(blank=True, null=True, verbose_name="General notes")
-    # citations = models.ManyToManyField(Citation, related_name='resources', blank=True)
+    citations = models.ManyToManyField(Citation, related_name='resources', blank=True)
     citations2 = models.ManyToManyField(shared_models.Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
     people = models.ManyToManyField(Person, through='ResourcePerson')
