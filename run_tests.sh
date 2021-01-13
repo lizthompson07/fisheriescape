@@ -116,3 +116,16 @@ printf "########################################################################
 printf "\n"
 python3.8 manage.py test -b cruises.test
 echo "FINISHED RUNNING TESTS FOR: cruises"
+
+printf "\n"
+printf "\n"
+printf "\n"
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+echo "RUNNING TESTS FOR: Bio Diversity "
+printf "\n"
+printf "#############################################################################################################################"
+printf "\n"
+python3.8 manage.py test --exclude-tag=Functional -b bio_diversity.test
+echo "FINISHED RUNNING TESTS FOR: bio_diversity"
