@@ -1,0 +1,15 @@
+{% load verbose_names %}
+
+<div class="container" >
+    <div class="row">
+        <div class="col-sm">
+            <div><span class="font-weight-bold">{% get_verbose_label protf 'prot_id' %} : </span><span>{% get_field_value protf 'prot_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label protf 'protf_pdf' %} : </span><span>{% if protf.protf_pdf %}
+                <a href="{{ MEDIA_URL }}{{protf.protf_pdf.url}}">Preview PDF</a>
+            {% endif %} </span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label protf 'comments' %} : </span><span>{% get_field_value protf 'comments' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label protf 'created_by' %} : </span><span>{% get_field_value protf 'created_by' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label protf 'created_date' %} : </span><span>{% get_field_value protf 'created_date' %}</span></div>
+        </div>
+    </div>
+</div>

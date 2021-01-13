@@ -44,6 +44,7 @@ APP_DICT = {
     'whalebrary': "Whalebrary Marine Mammal Tools",
     'spring_cleanup': "Gulf Region Spring Cleanup",
     'shiny': "DM Apps Shiny App Collection",
+    'bio_diversity' : "Biodiversity",
 }
 
 # Deal with fake apps...
