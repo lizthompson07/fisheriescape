@@ -328,6 +328,19 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["bio_diversity"] = {
+            "title": _("Biodiversity"),
+            "description": _("Tool for Biodiversity project"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('bio_diversity:index'),
+            "icon_path": 'img/bio_diversity/bio_diversity_image.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["vault"] = {
             "title": _("Megafauna media vault"),
             "description": _("Media vault for marine megafauna."),
