@@ -110,7 +110,7 @@ class AniDetailXref(BioModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indvt_id', 'indv_id', 'spwn_id',
-                                            'grp_id'], name='Animal_Detail_Cross_Reference_Uniqueness ')
+                                            'grp_id'], name='Animal_Detail_Cross_Reference_Uniqueness')
         ]
 
     def clean(self):
