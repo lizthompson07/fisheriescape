@@ -15,7 +15,6 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
 
-from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonCreateView, \
     CommonDetailView, CommonFilterView, CommonDeleteView, CommonUpdateView, CommonListView, CommonHardDeleteView, CommonFormsetView, CommonFormView
@@ -350,7 +349,6 @@ class ProjectCloneView(ProjectUpdateView):
                 new_rel_obj.pk = None
                 new_rel_obj.project_year = new_year
                 new_rel_obj.save()
-
 
             # 7) Activities
             for old_rel_obj in old_year.activities.all():
@@ -723,6 +721,54 @@ class UpcomingDateFormsetView(AdminRequiredMixin, CommonFormsetView):
     container_class = "container bg-light curvy"
 
 
+class CSRFThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage CSRF Themes"
+    queryset = models.CSRFTheme.objects.all()
+    formset_class = forms.CSRFThemeFormset
+    success_url_name = "projects2:manage_csrf_themes"
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_csrf_theme"
+    container_class = "container bg-light curvy"
+
+
+class CSRFThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.CSRFTheme
+    success_url = reverse_lazy("projects2:manage_csrf_themes")
+
+
+class CSRFSubThemeFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage CSRF Sub Themes"
+    queryset = models.CSRFSubTheme.objects.all()
+    formset_class = forms.CSRFSubThemeFormset
+    success_url_name = "projects2:manage_csrf_sub_themes"
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_csrf_sub_theme"
+    container_class = "container bg-light curvy"
+
+
+class CSRFSubThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.CSRFSubTheme
+    success_url = reverse_lazy("projects2:manage_csrf_sub_themes")
+
+
+class CSRFPriorityFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage CSRF Priorities"
+    queryset = models.CSRFPriority.objects.all()
+    formset_class = forms.CSRFPriorityFormset
+    success_url_name = "projects2:manage_csrf_priorities"
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_csrf_priority"
+    container_class = "container bg-light curvy"
+
+
+class CSRFPriorityHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.CSRFPriority
+    success_url = reverse_lazy("projects2:manage_csrf_priorities")
+
+
 # Reference Materials
 class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
     template_name = "projects2/list.html"
@@ -980,7 +1026,6 @@ class StatusReportPrintDetailView(LoginRequiredMixin, CommonDetailView):
         return context
 
 
-
 # REPORTS #
 ###########
 
@@ -1057,7 +1102,6 @@ def export_acrdp_budget(request, pk):
             response['Content-Disposition'] = f'inline; filename="ACRDP Budget (Project ID {project.id}).xls"'
             return response
     raise Http404
-
 
 
 @login_required()

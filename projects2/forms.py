@@ -356,7 +356,8 @@ class CollaborationForm(forms.ModelForm):
         self.fields["organization"].widget.attrs = {"v-model": "collaboration.organization"}
         self.fields["people"].widget.attrs = {"v-model": "collaboration.people"}
         self.fields["critical"].widget.attrs = {"v-model": "collaboration.critical"}
-        self.fields["agreement_title"].widget.attrs = {"v-model": "collaboration.agreement_title", ":disabled": "collaboration.type != 2 && collaboration.type != 3"}
+        self.fields["agreement_title"].widget.attrs = {"v-model": "collaboration.agreement_title",
+                                                       ":disabled": "collaboration.type != 2 && collaboration.type != 3"}
         self.fields["gc_program"].widget.attrs = {"v-model": "collaboration.gc_program", ":disabled": "collaboration.type != 2"}
         self.fields["amount"].widget.attrs = {"v-model": "collaboration.amount", ":disabled": "collaboration.type != 2"}
         self.fields["notes"].widget.attrs = {"v-model": "collaboration.notes"}
@@ -602,6 +603,53 @@ class UpcomingDateForm(forms.ModelForm):
 UpcomingDateFormset = modelformset_factory(
     model=models.UpcomingDate,
     form=UpcomingDateForm,
+    extra=1,
+)
+
+
+class CSRFThemeForm(forms.ModelForm):
+    class Meta:
+        model = models.CSRFTheme
+        fields = "__all__"
+        widgets = {
+        }
+
+
+CSRFThemeFormset = modelformset_factory(
+    model=models.CSRFTheme,
+    form=CSRFThemeForm,
+    extra=1,
+)
+
+
+class CSRFSubThemeForm(forms.ModelForm):
+    class Meta:
+        model = models.CSRFSubTheme
+        fields = "__all__"
+        widgets = {
+        }
+
+
+CSRFSubThemeFormset = modelformset_factory(
+    model=models.CSRFSubTheme,
+    form=CSRFSubThemeForm,
+    extra=1,
+)
+
+
+class CSRFPriorityForm(forms.ModelForm):
+    class Meta:
+        model = models.CSRFPriority
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={}),
+            'nom': forms.Textarea(attrs={}),
+        }
+
+
+CSRFPriorityFormset = modelformset_factory(
+    model=models.CSRFPriority,
+    form=CSRFPriorityForm,
     extra=1,
 )
 

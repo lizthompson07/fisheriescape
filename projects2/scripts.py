@@ -1,8 +1,11 @@
+import csv
 import os
 
 import pytz
+from django.conf import settings
 from django.core import serializers
 from django.core.files import File
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from textile import textile
@@ -565,3 +568,85 @@ def build_collaborations():
             new_or_existing=2,
         )
 
+
+def digest_priorities():
+    # open the csv we want to read
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'projects2', 'csrf_priorities_en.csv')
+    with open(my_target_data_file, 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            # theme
+            pin = row['Priority identification number (PIN)']
+            theme_code = pin.split("-")[0]
+            priority_code = pin.split("-")[1]
+            theme_name = row['Theme'].strip().replace('\n',"")
+
+            theme, created = models.CSRFTheme.objects.get_or_create(
+                name=theme_name, code=theme_code
+            )
+
+            # sub-theme
+            sub_theme_name = row['Sub-Theme'].strip().replace('\n',"")
+            try:
+                sub_theme, created = models.CSRFSubTheme.objects.get_or_create(
+                    csrf_theme=theme, name=sub_theme_name
+                )
+            except IntegrityError as E:
+                print(E)
+                print(row)
+
+            # priority
+            priority_name = row['Priority for Research'].strip().replace('\n',"")
+            priority_desc = row['Additional information supplied by the client']
+
+            try:
+                priority, created = models.CSRFPriority.objects.get_or_create(
+                    csrf_sub_theme=sub_theme, code=pin, name=priority_name
+                )
+            except IntegrityError as E:
+                print(E)
+                print(row)
+                print(sub_theme.id, pin, priority_name)
+
+            else:
+                if priority.description_en:
+                    priority.description_en += f"\n\n##########################\n\n{priority_desc}"
+                else:
+                    priority.description_en = priority_desc
+                priority.save()
+
+
+    # FRENCH
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'projects2', 'csrf_priorities_fr.csv')
+    with open(my_target_data_file, 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            # theme
+            pin = row["Numéro d'identification de la priorité (NIP)"]
+
+            theme_nom = row['Thème']
+            sub_theme_nom = row['Sous-thème']
+            priority_nom = row['Priorité de recherche']
+            descr_fr = row['Informations complémentaires fournies par le client']
+
+            qs = models.CSRFPriority.objects.filter(code=pin)
+
+            if not qs.exists():
+                print(pin)
+            else:
+                p = qs.first()
+                st = p.csrf_sub_theme
+                t = st.csrf_theme
+
+                t.nom = theme_nom
+                t.save()
+
+                st.nom = sub_theme_nom
+                st.save()
+
+                p.nom = priority_nom
+                if p.description_fr:
+                    p.description_fr += f"\n\n##########################\n\n{descr_fr}"
+                else:
+                    p.description_fr = descr_fr
+                p.save()
