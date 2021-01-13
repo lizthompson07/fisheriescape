@@ -132,6 +132,16 @@ class ProjectListAPIView(ListAPIView):
         return qs
 
 
+class AddProjectReferenceAPIView(APIView):
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def post(self, request, pk):
+        citation = get_object_or_404(shared_models.Citation, pk=request.data["citation"])
+        project = get_object_or_404(models.Project, pk=pk)
+        project.references.add(citation)
+        return Response(serializers.CitationSerializer(citation).data, status=status.HTTP_200_OK)
+
+
 # PROJECT YEAR
 ##############
 
@@ -266,6 +276,7 @@ class StaffListCreateAPIView(ListCreateAPIView):
                 recipient_list=email.to_list
             )
 
+
 class StaffRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = models.Staff.objects.all()
     serializer_class = serializers.StaffSerializer
@@ -283,7 +294,7 @@ class StaffRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         #     )
 
     def perform_update(self, serializer):
-        staff = get_object_or_404(models.Staff, pk = self.kwargs.get("pk"))
+        staff = get_object_or_404(models.Staff, pk=self.kwargs.get("pk"))
         old_lead_status = staff.is_lead
         staff = serializer.save()
         if (old_lead_status is False and staff.is_lead) and (staff.user and staff.user.email):
@@ -295,7 +306,6 @@ class StaffRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
                 recipient_list=email.to_list
             )
         super().perform_update(serializer)
-
 
 
 # O&M
@@ -427,25 +437,27 @@ class CollaborationRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-# # AGREEMENTS
-# ##############
-# class AgreementListCreateAPIView(ListCreateAPIView):
-#     queryset = models.CollaborativeAgreement.objects.all()
-#     serializer_class = serializers.AgreementSerializer
-#     permission_classes = [permissions.CanModifyOrReadOnly]
-#
-#     def get_queryset(self):
-#         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-#         return year.agreements.all()
-#
-#     def perform_create(self, serializer):
-#         serializer.save(project_year_id=self.kwargs.get("project_year"))
-#
-#
-# class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-#     queryset = models.CollaborativeAgreement.objects.all()
-#     serializer_class = serializers.AgreementSerializer
-#     permission_classes = [permissions.CanModifyOrReadOnly]
+# CITATIONS
+##############
+class CitationListCreateAPIView(ListCreateAPIView):
+    queryset = shared_models.Citation.objects.all()
+    serializer_class = serializers.CitationSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def get_queryset(self):
+        if self.request.query_params.get("project"):
+            project = get_object_or_404(models.Project, pk=self.request.query_params.get("project"))
+            qs = project.references.all()
+        else:
+            qs = shared_models.Citation.objects.all()
+
+        return qs
+
+
+class CitationRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = shared_models.Citation.objects.all()
+    serializer_class = serializers.CitationSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
 
 
 # STATUS REPORTS

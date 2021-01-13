@@ -369,17 +369,6 @@ class CollaborationSerializer(serializers.ModelSerializer):
 #         return instance.project_year_id
 #
 #
-# class AgreementSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = models.CollaborativeAgreement
-#         exclude = ["project_year"]
-#
-#     project_year_id = serializers.SerializerMethodField()
-#
-
-#
-#     def get_project_year_id(self, instance):
-#         return instance.project_year_id
 
 
 class StatusReportSerializer(serializers.ModelSerializer):
@@ -527,3 +516,18 @@ class SectionSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, instance):
         return instance.full_name
+
+
+class CitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = shared_models.Citation
+        fields = "__all__"
+
+    short_citation_html = serializers.SerializerMethodField()
+    citation_br = serializers.SerializerMethodField()
+
+    def get_citation_br(self, instance):
+        return instance.citation_br
+
+    def get_short_citation_html(self, instance):
+        return instance.short_citation_html

@@ -17,34 +17,52 @@
 
 {% block subcontent %}
   <div id="app">
-      <div class="mb-3 row jumbotron px-1 py-3 row" style="width: 40%">
-        <label for="search" class="col-4 col-form-label">{% trans "Find a Reference" %}</label>
-        <div class="col">
-          <input type="text" class="form-control" id="search">
-        </div>
+    <div class="mb-3 row jumbotron px-1 py-3 row" style="width: 40%">
+      <label for="search" class="col-4 col-form-label">{% trans "Find a Reference" %}</label>
+      <div class="col">
+        <input type="text" class="form-control" id="search">
       </div>
+    </div>
     <div class="row">
       <div class="col-4">
         <p class="h3 lead text-muted">{% trans "Current References:" %}</p>
-        <ul>
-          <li>a</li>
-          <li>b</li>
-          <li>c</li>
+        <ul v-if="!project_citations_loading">
+          <li v-for="(citation, index) in project_citations">
+            <span v-html="citation.short_citation_html"></span>
+          </li>
+          <p v-if="!project_citations.length"><em>{% trans "This project does not currently have any references" %}</em></p>
         </ul>
+        <div v-else class="loading mb-3 mt-3 text-center mt-5">
+          <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+            <span class="sr-only"></span>
+          </div>
+        </div>
       </div>
       <div class="col">
         <p class="h3 lead text-muted">{% trans "Search Results:" %}</p>
-        <table>
+        <table class="table table-sm table-bordered">
           <thead>
           <tr>
-        <th></th>
-
-
-
+            {% get_citations_field_list as field_list %}
+            {% for field in field_list %}
+              <th>
+                {% get_verbose_label random_citation field %}
+              </th>
+            {% endfor %}
           </tr>
           </thead>
           <tbody>
+          <tr v-for="citation in citations">
 
+          </tr>
+          </tbody>
+          <tbody v-if="!citations.length">
+          <tr>
+            <td colspan="10">
+              <span v-if="hasSearched"><em>{% trans "No results found..." %}</em></span>
+              <span v-else><em>{% trans "Please use the search bar to find references" %}</em></span>
+            </td>
+          </tr>
           </tbody>
         </table>
       </div>
@@ -58,8 +76,10 @@
 
 {% block body_js %}
   {{ block.super }}
-
-  <script src="{% static '/projects2/mainProjectReferences.js' %}?version=1.0" type="application/javascript"></script>
+  <script type="application/javascript">
+  let projectId = {{ object.id }};
+  </script>
+  <script src="{% static '/projects2/mainProjectReferences.js' %}?version=1.1" type="application/javascript"></script>
 
 
 {% endblock %}

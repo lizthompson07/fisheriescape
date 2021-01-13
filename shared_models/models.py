@@ -784,13 +784,13 @@ class Citation(models.Model):
     authors = models.TextField(blank=True, null=True, verbose_name=_("authors"))
     year = models.IntegerField(blank=True, null=True, verbose_name=_("year"))
     publication = models.ForeignKey(Publication, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("publication name"))
-    pub_number = models.CharField(max_length=255, blank=True, null=True, verbose_name="publication number")
-    url_en = models.TextField(blank=True, null=True, verbose_name="URL (en)")
-    url_fr = models.TextField(blank=True, null=True, verbose_name="URL (fr)")
-    abstract_en = models.TextField(blank=True, null=True, verbose_name="abstract (en)")
-    abstract_fr = models.TextField(blank=True, null=True, verbose_name="abstract (fr)")
-    series = models.CharField(max_length=1000, blank=True, null=True)
-    region = models.CharField(max_length=255, blank=True, null=True)
+    pub_number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("publication number"))
+    url_en = models.TextField(blank=True, null=True, verbose_name=_("URL (en)"))
+    url_fr = models.TextField(blank=True, null=True, verbose_name=_("URL (fr)"))
+    abstract_en = models.TextField(blank=True, null=True, verbose_name=_("abstract (en)"))
+    abstract_fr = models.TextField(blank=True, null=True, verbose_name=_("abstract (fr)"))
+    series = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("series"))
+    region = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("region"))
 
     @property
     def tname(self):

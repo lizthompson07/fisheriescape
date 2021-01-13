@@ -82,4 +82,4 @@ steps:
   - script: |
       python3.8 manage.py test --exclude-tag=Functional -b bio_diversity.test
     condition: succeededOrFailed()
-    displayName: 'Tests for Biodiversity'
+    displayName: 'Tests for biodiversity'

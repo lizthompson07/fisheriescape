@@ -2,17 +2,29 @@ var app = new Vue({
   el: '#app',
   delimiters: ["${", "}"],
   data: {
-    fte_table_loading: false,
-    fte_table: [],
+    citations_loading: false,
+    project_citations_loading: false,
+    citations: [],
+    project_citations: [],
+    hasSearched: null,
   },
   methods: {
-    getFTETable() {
-      this.fte_table_loading = true;
-      let endpoint = `/api/project-planning/fte-breakdown/`;
+    getProjectCitations() {
+      this.project_citations_loading = true;
+      let endpoint = `/api/project-planning/citations/?project=${projectId}`;
       apiService(endpoint)
           .then(response => {
-            this.fte_table_loading = false;
-            this.fte_table = response;
+            this.project_citations_loading = false;
+            this.project_citations = response;
+          })
+    },
+    getCitations() {
+      this.citations_loading = true;
+      let endpoint = `/api/project-planning/citations/?search=${projectId}`;
+      apiService(endpoint)
+          .then(response => {
+            this.citations_loading = false;
+            this.citations = response;
           })
     },
 
@@ -61,7 +73,7 @@ var app = new Vue({
 
   },
   created() {
-    this.getFTETable()
+    this.getProjectCitations()
   },
   mounted() {
   },

@@ -8,6 +8,7 @@ urlpatterns = [
 
     # Project
     path("project-planning/projects/<int:pk>/", views.ProjectRetrieveAPIView.as_view(), name="project-detail"),  # tested
+    path("project-planning/projects/<int:pk>/add-reference/", views.AddProjectReferenceAPIView.as_view(), name="project-reference-add"),  # tested
     path("project-planning/projects/", views.ProjectListAPIView.as_view(), name="project-list"),  # tested
 
     # Project year
@@ -43,10 +44,6 @@ urlpatterns = [
     path("project-planning/project-years/<int:project_year>/collaborations/", views.CollaborationListCreateAPIView.as_view(), name="collaboration-list"),  # tested
     path("project-planning/collaborations/<int:pk>/", views.CollaborationRetrieveUpdateDestroyAPIView.as_view(), name="collaboration-detail"),
 
-    # agreements
-    # path("project-planning/project-years/<int:project_year>/agreements/", views.AgreementListCreateAPIView.as_view(), name="agreement-list"),  # tested
-    # path("project-planning/agreements/<int:pk>/", views.AgreementRetrieveUpdateDestroyAPIView.as_view(), name="agreement-detail"),
-
     # files
     path("project-planning/project-years/<int:project_year>/files/", views.FileListCreateAPIView.as_view(), name="file-list"),  # tested
     path("project-planning/files/<int:pk>/", views.FileRetrieveUpdateDestroyAPIView.as_view(), name="file-detail"),
@@ -78,5 +75,11 @@ urlpatterns = [
     # Reviews
     path("project-planning/project-years/<int:project_year>/reviews/", views.ReviewListCreateAPIView.as_view(), name="review-list"),
     path("project-planning/reviews/<int:pk>/", views.ReviewRetrieveUpdateDestroyAPIView.as_view(), name="review-detail"),
+
+    # citations
+    path("project-planning/citations/", views.CitationListCreateAPIView.as_view(), name="citation-list"),
+    path("project-planning/citations/<int:pk>/", views.CitationRetrieveUpdateDestroyAPIView.as_view(), name="citation-detail"),
+
+
 
 ]

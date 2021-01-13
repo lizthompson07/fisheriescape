@@ -83,3 +83,12 @@ def get_file_field_list():
     except Exception as e:
         print(e)
         return []
+
+
+@register.simple_tag
+def get_citations_field_list():
+    try:
+        return utils.get_citation_field_list()
+    except Exception as e:
+        print(e)
+        return []
