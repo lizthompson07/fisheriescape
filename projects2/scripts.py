@@ -1,8 +1,11 @@
+import csv
 import os
 
 import pytz
+from django.conf import settings
 from django.core import serializers
 from django.core.files import File
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from textile import textile
@@ -210,7 +213,7 @@ def fetch_project_data():
 
         new_py.responsibility_center = old_p.responsibility_center
         new_py.allotment_code = old_p.allotment_code
-        new_py.notification_email_sent = old_p.notification_email_sent
+        new_py.approval_notification_email_sent = old_p.notification_email_sent
         new_py.administrative_notes = old_p.meeting_notes
         new_py.updated_at = old_p.date_last_modified
         new_py.modified_by = old_p.last_modified_by
@@ -463,7 +466,7 @@ def from_project_to_reviewer():
             )
             review.allocated_budget = new_py.allocated_budget
             review.approval_status = old_p.approved  # will be 1, 0 , None
-            review.notification_email_sent = old_p.notification_email_sent
+            review.approval_notification_email_sent = old_p.notification_email_sent
             review.general_comment = old_p.meeting_notes
             review.approver_comment = old_p.meeting_notes
             review.save()
@@ -482,7 +485,6 @@ def transform_deliverables():
         )
 
 
-
 def copy_orgs():
     from inventory.models import Organization, Location
     inventory_locs = Location.objects.filter(location_eng__isnull=False)
@@ -499,7 +501,7 @@ def copy_orgs():
         )
 
     inventory_orgs = Organization.objects.filter(name_eng__isnull=False)
-    i=0
+    i = 0
     for org in inventory_orgs:
         new_org, created = shared_models.Organization.objects.get_or_create(
             id=org.id,
@@ -522,3 +524,129 @@ def copy_orgs():
         i += 1
 
 
+def fix_submitted_project_years():
+    project_years = models.ProjectYear.objects.filter(status__in=[2, 3, 4, 5], submitted__isnull=True)
+    for py in project_years:
+        if py.updated_at:
+            py.submitted = py.updated_at
+        else:
+            py.submitted = timezone.now()
+        py.save()
+
+
+def build_collaborations():
+    for item in models.GCCost.objects.all():
+        models.Collaboration.objects.get_or_create(
+            type=2,
+            project_year=item.project_year,
+            organization=item.recipient_org,
+            people=item.project_lead,
+            agreement_title=item.proposed_title,
+            gc_program=item.gc_program,
+            amount=item.amount,
+            new_or_existing=2,
+        )
+
+    for item in models.CollaborativeAgreement.objects.all():
+        models.Collaboration.objects.get_or_create(
+            type=3,
+            project_year=item.project_year,
+            organization=item.partner_organization,
+            people=item.project_lead,
+            agreement_title=item.agreement_title,
+            new_or_existing=item.new_or_existing,
+            notes=item.notes,
+        )
+
+    for item in models.Collaborator.objects.all():
+        models.Collaboration.objects.get_or_create(
+            type=1,
+            project_year=item.project_year,
+            organization=item.name,
+            critical=item.critical,
+            notes=item.notes,
+            new_or_existing=2,
+        )
+
+
+def digest_priorities():
+    # open the csv we want to read
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'projects2', 'csrf_priorities_en.csv')
+    with open(my_target_data_file, 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            # theme
+            pin = row['Priority identification number (PIN)']
+            theme_code = pin.split("-")[0]
+            priority_code = pin.split("-")[1]
+            theme_name = row['Theme'].strip().replace('\n',"")
+
+            theme, created = models.CSRFTheme.objects.get_or_create(
+                name=theme_name, code=theme_code
+            )
+
+            # sub-theme
+            sub_theme_name = row['Sub-Theme'].strip().replace('\n',"")
+            try:
+                sub_theme, created = models.CSRFSubTheme.objects.get_or_create(
+                    csrf_theme=theme, name=sub_theme_name
+                )
+            except IntegrityError as E:
+                print(E)
+                print(row)
+
+            # priority
+            priority_name = row['Priority for Research'].strip().replace('\n',"")
+            priority_desc = row['Additional information supplied by the client']
+
+            try:
+                priority, created = models.CSRFPriority.objects.get_or_create(
+                    csrf_sub_theme=sub_theme, code=pin, name=priority_name
+                )
+            except IntegrityError as E:
+                print(E)
+                print(row)
+                print(sub_theme.id, pin, priority_name)
+
+            else:
+                if priority.description_en:
+                    priority.description_en += f"\n\n##########################\n\n{priority_desc}"
+                else:
+                    priority.description_en = priority_desc
+                priority.save()
+
+
+    # FRENCH
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'projects2', 'csrf_priorities_fr.csv')
+    with open(my_target_data_file, 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            # theme
+            pin = row["Numéro d'identification de la priorité (NIP)"]
+
+            theme_nom = row['Thème']
+            sub_theme_nom = row['Sous-thème']
+            priority_nom = row['Priorité de recherche']
+            descr_fr = row['Informations complémentaires fournies par le client']
+
+            qs = models.CSRFPriority.objects.filter(code=pin)
+
+            if not qs.exists():
+                print(pin)
+            else:
+                p = qs.first()
+                st = p.csrf_sub_theme
+                t = st.csrf_theme
+
+                t.nom = theme_nom
+                t.save()
+
+                st.nom = sub_theme_nom
+                st.save()
+
+                p.nom = priority_nom
+                if p.description_fr:
+                    p.description_fr += f"\n\n##########################\n\n{descr_fr}"
+                else:
+                    p.description_fr = descr_fr
+                p.save()

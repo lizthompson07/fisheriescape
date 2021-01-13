@@ -22,6 +22,7 @@ APP_DICT = {
     'cruises': 'Cruises',
     'herring': 'HerMorrhage',
     'camp': 'CAMP db',
+    'scuba': 'SCUBA survey',
     'meq': 'Marine environmental quality (MEQ)',
     'diets': 'Marine diets',
     'projects': 'Science project planning',

@@ -11,9 +11,6 @@ parameters:
   - name: AZURE_STORAGE_ACCOUNT_NAME
     type: string
 
-  - name: AZURE_STORAGE_SECRET_KEY
-    type: string
-
   - name: azureSubscription
     type: string
 
@@ -68,6 +65,9 @@ parameters:
   - name: WEB_APP_NAME
     type: string
 
+  - name: AZURE_MSI_CLIENT_ID
+    type: string
+
   - name: AZURE_INSTRUMENTATION_KEY
     type: string
 
@@ -76,6 +76,9 @@ parameters:
 
 steps:
   - script: |
+      az login --identity -u ${{parameters.AZURE_MSI_CLIENT_ID}}
+      # az account set --subscription="IMTS DEV/TEST"
+
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
       sudo apt-get install libmysqlclient-dev
@@ -90,9 +93,7 @@ steps:
       --db-user "${{parameters.DB_USER_PIPELINE}}" \
       --db-password "${{parameters.DB_PASSWORD_PIPELINE}}" \
       --deployment-stage "${{parameters.DEPLOYMENT_STAGE}}" \
-      --azure-storage-account-name "${{parameters.AZURE_STORAGE_ACCOUNT_NAME}}" \
-      --azure-storage-secret-key "${{parameters.AZURE_STORAGE_SECRET_KEY}}" \
-      --in-pipeline "True"
+      --azure-storage-account-name "${{parameters.AZURE_STORAGE_ACCOUNT_NAME}}"
 
       # run migrations and collect static files
       python3.8 manage.py migrate
@@ -100,13 +101,15 @@ steps:
 
       # remove the env file
       rm .env
+
+
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Run Migrations and Staticfiles'
 
   - task: AzureRmWebAppDeployment@4
     displayName: 'Deploy Docker Image to ${{parameters.WEB_APP_NAME}}'
     inputs:
-      azureSubscription: '${{parameters.azureSubscription}}'
+      ConnectedServiceName: '${{parameters.azureSubscription}}'
       appType: webAppContainer
       WebAppName: '${{parameters.WEB_APP_NAME}}'
       DockerNamespace: ${{parameters.DockerNamespace}}
@@ -136,6 +139,7 @@ steps:
         -SENDGRID_API_KEY ${{parameters.SENDGRID_API_KEY}}
         -GITHUB_API_KEY ${{parameters.GITHUB_API_KEY}}
         -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)
+        -AZURE_MSI_CLIENT_ID ${{parameters.AZURE_MSI_CLIENT_ID}}
 
   - task: AzureAppServiceManage@0
     displayName: 'Restart web app service'

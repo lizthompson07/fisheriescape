@@ -304,11 +304,21 @@ class CommonFilterView(FilterView, CommonListMixin):
     # default template to use to update an update
     #  shared_entry_form.html contains the common navigation elements at the top of the template
     template_name = 'shared_models/shared_filter.html'
+    extra_button_dict1 = None
+    extra_button_dict2 = None
+
+    def get_extra_button_dict1(self):
+        return self.extra_button_dict1
+
+    def get_extra_button_dict2(self):
+        return self.extra_button_dict2
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
+        context["extra_button_dict1"] = self.get_extra_button_dict1()
+        context["extra_button_dict2"] = self.get_extra_button_dict2()
         context["model_name"] = self.get_queryset().model._meta.verbose_name
         return context
 
@@ -790,8 +800,6 @@ class RegionDeleteView(AdminRequiredMixin, CommonDeleteView):
             "pk": self.get_object().id})}
 
 
-
-
 # ORGANIZATION #
 ################
 
@@ -857,8 +865,6 @@ class OrganizationDeleteView(AdminRequiredMixin, CommonDeleteView):
             "pk": self.get_object().id})}
 
 
-
-
 # RESPONSIBILITY CENTER
 ########################
 
@@ -915,7 +921,7 @@ class ResponsibilityCenterDeleteView(AdminRequiredMixin, CommonDeleteView):
 
 class ProjectCodeListView(AdminRequiredMixin, CommonFilterView):
     template_name = "shared_models/org_list.html"
-    filterset_class = filters.RCFilter
+    filterset_class = filters.ProjectCodeFilter
     model = models.Project
     field_list = [
         {"name": "name|{}".format(gettext_lazy("name")), "class": "", "width": ""},
@@ -923,8 +929,8 @@ class ProjectCodeListView(AdminRequiredMixin, CommonFilterView):
         {"name": "description", "class": "", "width": ""},
         {"name": "project_lead", "class": "", "width": ""},
     ]
-    new_object_url_name = "shared_models:rc_new"
-    row_object_url_name = "shared_models:rc_edit"
+    new_object_url_name = "shared_models:project_new"
+    row_object_url_name = "shared_models:project_edit"
     home_url_name = "shared_models:index"
     h1 = gettext_lazy("Project Codes")
     container_class = "container bg-light curvy"
@@ -934,34 +940,32 @@ class ProjectCodeUpdateView(AdminRequiredMixin, CommonUpdateView):
     model = models.Project
     form_class = forms.ProjectCodeForm
     home_url_name = "shared_models:index"
-    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:rc_list")}
+    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:project_list")}
     template_name = "shared_models/org_form.html"
     is_multipart_form_data = True
     container_class = "container bg-light curvy"
 
     def get_delete_url(self):
-        return reverse("shared_models:rc_delete", args=[self.get_object().id])
+        return reverse("shared_models:project_delete", args=[self.get_object().id])
 
 
 class ProjectCodeCreateView(AdminRequiredMixin, CommonCreateView):
     model = models.Project
     form_class = forms.ProjectCodeForm
     home_url_name = "shared_models:index"
-    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:rc_list")}
+    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:project_list")}
     template_name = "shared_models/org_form.html"
     container_class = "container bg-light curvy"
 
 
 class ProjectCodeDeleteView(AdminRequiredMixin, CommonDeleteView):
     model = models.Project
-    success_url = reverse_lazy('shared_models:rc_list')
+    success_url = reverse_lazy('shared_models:project_list')
     home_url_name = "shared_models:index"
-    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:rc_list")}
+    parent_crumb = {"title": gettext_lazy("Project Codes"), "url": reverse_lazy("shared_models:project_list")}
     template_name = "shared_models/generic_confirm_delete.html"
     delete_protection = False
     container_class = "container bg-light curvy"
-
-
 
 
 # USER #
@@ -1083,11 +1087,9 @@ def run_script(request, pk):
         scr = mod.pop()
         mod = ".".join(mod)
         i = __import__(mod, fromlist=[''])
-        getattr(i,scr)()
+        getattr(i, scr)()
         messages.success(request, f"The '{script}' script has been run successfully.")
 
     except Exception as e:
         messages.error(request, e)
     return HttpResponseRedirect(reverse("shared_models:script_list"))
-
-

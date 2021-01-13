@@ -61,7 +61,7 @@ class NewProjectForm(forms.ModelForm):
         division_choices.insert(0, tuple((None, "---")))
         section_choices = utils.get_section_choices(all=True)
         section_choices.insert(0, tuple((None, "---")))
-        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices = [(f.id, f.display3) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
@@ -95,8 +95,11 @@ class ProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         SECTION_CHOICES = utils.get_section_choices(all=True)
         SECTION_CHOICES.insert(0, tuple((None, "---")))
+        funding_source_choices = [(f.id, f.display3) for f in models.FundingSource.objects.all()]
+        funding_source_choices.insert(0, tuple((None, "---")))
 
         super().__init__(*args, **kwargs)
+        self.fields['default_funding_source'].choices = funding_source_choices
         self.fields['section'].choices = SECTION_CHOICES
         # self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
         #                                                  _("mandatory - select multiple, if necessary"))
@@ -129,7 +132,8 @@ class ProjectYearForm(forms.ModelForm):
         exclude = [
             # 'project',
             "allocated_budget",
-            "notification_email_sent",
+            "approval_notification_email_sent",
+            "review_notification_email_sent",
             "modified_by",
             "administrative_notes",
         ]
@@ -259,6 +263,7 @@ class StaffForm(forms.ModelForm):
         exclude = ["project_year"]
         labels = {
             "user": _("DFO User"),
+            "amount": _("Approximate amount (CAD) (will only be visible to project leads and managers)"),
         }
 
     def __init__(self, *args, **kwargs):
@@ -275,11 +280,12 @@ class StaffForm(forms.ModelForm):
         self.fields["student_program"].widget.attrs = {"v-model": "staff.student_program", ":disabled": "disableStudentProgramField"}
 
         self.fields["name"].widget.attrs = {"v-model": "staff.name", ":disabled": "disableNameField"}
-        self.fields["user"].widget.attrs = {"v-model": "staff.user", "@change": "adjustStaffFields"}  # , "class": "chosen-select-contains"
+        self.fields["user"].widget.attrs = {"v-model": "staff.user", "@change": "adjustStaffFields",
+                                            "@click": "adjustStaffFields"}  # , "class": "chosen-select-contains"
         user_choices = [(u.id, f"{u.last_name}, {u.first_name}") for u in User.objects.order_by("last_name", "first_name")]
         user_choices.insert(0, (None, "-----"))
         self.fields["user"].choices = user_choices
-        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
 
@@ -297,7 +303,7 @@ class OMCostForm(forms.ModelForm):
         self.fields["funding_source"].widget.attrs = {"v-model": "om_cost.funding_source"}
         self.fields["description"].widget.attrs = {"v-model": "om_cost.description"}
         self.fields["om_category"].widget.attrs = {"v-model": "om_cost.om_category"}
-        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
 
@@ -315,23 +321,9 @@ class CapitalCostForm(forms.ModelForm):
         self.fields["funding_source"].widget.attrs = {"v-model": "capital_cost.funding_source"}
         self.fields["description"].widget.attrs = {"v-model": "capital_cost.description"}
         self.fields["category"].widget.attrs = {"v-model": "capital_cost.category"}
-        funding_source_choices = [(f.id, f"{f.get_funding_source_type_display()} - {f.tname}") for f in models.FundingSource.objects.all()]
+        funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
-
-
-class GCCostForm(forms.ModelForm):
-    class Meta:
-        model = models.GCCost
-        exclude = ["project_year"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["recipient_org"].widget.attrs = {"v-model": "gc_cost.recipient_org"}
-        self.fields["project_lead"].widget.attrs = {"v-model": "gc_cost.project_lead"}
-        self.fields["proposed_title"].widget.attrs = {"v-model": "gc_cost.proposed_title"}
-        self.fields["gc_program"].widget.attrs = {"v-model": "gc_cost.gc_program"}
-        self.fields["amount"].widget.attrs = {"v-model": "gc_cost.amount"}
 
 
 class ActivityForm(forms.ModelForm):
@@ -352,30 +344,23 @@ class ActivityForm(forms.ModelForm):
         self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP"}
 
 
-class CollaboratorForm(forms.ModelForm):
+class CollaborationForm(forms.ModelForm):
     class Meta:
-        model = models.Collaborator
+        model = models.Collaboration
         exclude = ["project_year"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["name"].widget.attrs = {"v-model": "collaborator.name"}
-        self.fields["critical"].widget.attrs = {"v-model": "collaborator.critical"}
-        self.fields["notes"].widget.attrs = {"v-model": "collaborator.notes"}
-
-
-class AgreementForm(forms.ModelForm):
-    class Meta:
-        model = models.CollaborativeAgreement
-        exclude = ["project_year"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["partner_organization"].widget.attrs = {"v-model": "agreement.partner_organization"}
-        self.fields["project_lead"].widget.attrs = {"v-model": "agreement.project_lead"}
-        self.fields["agreement_title"].widget.attrs = {"v-model": "agreement.agreement_title"}
-        self.fields["new_or_existing"].widget.attrs = {"v-model": "agreement.new_or_existing"}
-        self.fields["notes"].widget.attrs = {"v-model": "agreement.notes"}
+        self.fields["type"].widget.attrs = {"v-model": "collaboration.type"}
+        self.fields["new_or_existing"].widget.attrs = {"v-model": "collaboration.new_or_existing"}
+        self.fields["organization"].widget.attrs = {"v-model": "collaboration.organization"}
+        self.fields["people"].widget.attrs = {"v-model": "collaboration.people"}
+        self.fields["critical"].widget.attrs = {"v-model": "collaboration.critical"}
+        self.fields["agreement_title"].widget.attrs = {"v-model": "collaboration.agreement_title",
+                                                       ":disabled": "collaboration.type != 2 && collaboration.type != 3"}
+        self.fields["gc_program"].widget.attrs = {"v-model": "collaboration.gc_program", ":disabled": "collaboration.type != 2"}
+        self.fields["amount"].widget.attrs = {"v-model": "collaboration.amount", ":disabled": "collaboration.type != 2"}
+        self.fields["notes"].widget.attrs = {"v-model": "collaboration.notes"}
 
 
 class StatusReportForm(forms.ModelForm):
@@ -427,11 +412,14 @@ class FileForm(forms.ModelForm):
 
 
 class ReviewForm(forms.ModelForm):
+    review_email_update = forms.BooleanField(required=False, label=gettext_lazy("send an email update to project leads"))
+
     class Meta:
         model = models.Review
-        exclude = ["project_year", "approval_status", "allocated_budget", "approver_comment"]
+        exclude = ["project_year", "approval_status", "approval_level", "allocated_budget", "approver_comment"]
         widgets = {
             "general_comment": forms.Textarea(attrs=comment_row3),
+            "comments_for_staff": forms.Textarea(attrs=comment_row3),
             "collaboration_comment": forms.Textarea(attrs=comment_row3),
             "strategic_comment": forms.Textarea(attrs=comment_row3),
             "operational_comment": forms.Textarea(attrs=comment_row3),
@@ -448,6 +436,8 @@ class ReviewForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         self.fields["general_comment"].widget.attrs["v-model"] = "project_year.review.general_comment"
+        self.fields["comments_for_staff"].widget.attrs["v-model"] = "project_year.review.comments_for_staff"
+        self.fields["review_email_update"].widget.attrs["v-model"] = "project_year.review.review_email_update"
 
         # update the choices for the scores
         score_dict = utils.get_review_score_rubric()
@@ -464,18 +454,19 @@ class ReviewForm(forms.ModelForm):
 
 
 class ApprovalForm(forms.ModelForm):
-    email_update = forms.BooleanField(required=False, label=gettext_lazy("send an email update to project leads"))
+    approval_email_update = forms.BooleanField(required=False, label=gettext_lazy("send an email update to project leads"))
 
     class Meta:
         model = models.Review
-        fields = ["approval_status", "allocated_budget", "approver_comment"]
+        fields = ["approval_status", "approval_level", "allocated_budget", "approver_comment", ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["approval_status"].widget.attrs = {"v-model": "project_year.review.approval_status"}
+        self.fields["approval_level"].widget.attrs = {"v-model": "project_year.review.approval_level"}
         self.fields["allocated_budget"].widget.attrs = {"v-model": "project_year.review.allocated_budget"}
         self.fields["approver_comment"].widget.attrs = {"v-model": "project_year.review.approver_comment"}
-        self.fields["email_update"].widget.attrs = {"v-model": "project_year.review.email_update"}
+        self.fields["approval_email_update"].widget.attrs = {"v-model": "project_year.review.approval_email_update"}
 
 
 class FundingSourceForm(forms.ModelForm):
@@ -616,6 +607,53 @@ UpcomingDateFormset = modelformset_factory(
 )
 
 
+class CSRFThemeForm(forms.ModelForm):
+    class Meta:
+        model = models.CSRFTheme
+        fields = "__all__"
+        widgets = {
+        }
+
+
+CSRFThemeFormset = modelformset_factory(
+    model=models.CSRFTheme,
+    form=CSRFThemeForm,
+    extra=1,
+)
+
+
+class CSRFSubThemeForm(forms.ModelForm):
+    class Meta:
+        model = models.CSRFSubTheme
+        fields = "__all__"
+        widgets = {
+        }
+
+
+CSRFSubThemeFormset = modelformset_factory(
+    model=models.CSRFSubTheme,
+    form=CSRFSubThemeForm,
+    extra=1,
+)
+
+
+class CSRFPriorityForm(forms.ModelForm):
+    class Meta:
+        model = models.CSRFPriority
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={}),
+            'nom': forms.Textarea(attrs={}),
+        }
+
+
+CSRFPriorityFormset = modelformset_factory(
+    model=models.CSRFPriority,
+    form=CSRFPriorityForm,
+    extra=1,
+)
+
+
 class ReferenceMaterialForm(forms.ModelForm):
     class Meta:
         model = models.ReferenceMaterial
@@ -643,3 +681,24 @@ LevelFormset = modelformset_factory(
     form=LevelForm,
     extra=1,
 )
+
+
+class AdminStaffForm(forms.ModelForm):
+    class Meta:
+        model = models.Staff
+        fields = ["user", 'name']
+        labels = {
+            "user": _("DFO User"),
+        }
+        widgets = {
+            'user': forms.Select(attrs=chosen_js),
+        }
+
+
+class ReportSearchForm(forms.Form):
+    REPORT_CHOICES = (
+        (None, "------"),
+        (1, "Science Culture Committee Report (xlsx)"),
+    )
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+    # year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))

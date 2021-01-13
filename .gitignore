@@ -11,7 +11,10 @@
 *.accdb
 *.xlsx
 !acrdp_template.xlsx
-
+*.docx
+!acrdp_template.docx
+!csrf_template_en.docx
+!csrf_template_fr.docx
 *.mo
 
 # Packages #

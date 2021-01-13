@@ -40,6 +40,10 @@ if settings.INSTALLED_APPS.count("travel"):
     urlpatterns.append(
         path('api/', include('travel.api.urls')),
     )
+if settings.INSTALLED_APPS.count("scuba"):
+    urlpatterns.append(
+        path('api/', include('scuba.api.urls')),
+    )
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
@@ -80,6 +84,11 @@ else:
 
 if settings.INSTALLED_APPS.count("camp"):
     urlpatterns += i18n_patterns(path('camp/', include('camp.urls')), prefix_default_language=True)
+else:
+    print("not connecting camp app")
+
+if settings.INSTALLED_APPS.count("scuba"):
+    urlpatterns += i18n_patterns(path('scuba/', include('scuba.urls')), prefix_default_language=True)
 else:
     print("not connecting camp app")
 

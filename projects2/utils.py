@@ -117,7 +117,7 @@ def can_modify_project(user, project_id, return_as_dict=False):
             my_dict["can_modify"] = True
 
         # check to see if they are a project lead
-        elif not project.lead_staff.exists():
+        elif not models.Staff.objects.filter(project_year__project=project, is_lead=True).exists():
             my_dict["reason"] = "You can modify this record because there are currently no project leads"
             my_dict["can_modify"] = True
 
@@ -269,35 +269,35 @@ def financial_project_year_summary_data(project_year):
 
 def financial_project_summary_data(project):
     my_list = []
+    if project.get_funding_sources():
+        for fs in project.get_funding_sources():
+            my_dict = dict()
+            my_dict["type"] = fs.get_funding_source_type_display()
+            my_dict["name"] = str(fs)
+            my_dict["salary"] = 0
+            my_dict["om"] = 0
+            my_dict["capital"] = 0
 
-    for fs in project.get_funding_sources():
-        my_dict = dict()
-        my_dict["type"] = fs.get_funding_source_type_display()
-        my_dict["name"] = str(fs)
-        my_dict["salary"] = 0
-        my_dict["om"] = 0
-        my_dict["capital"] = 0
+            # first calc for staff
+            for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
+                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+                if not staff.employee_type.exclude_from_rollup:
+                    if staff.employee_type.cost_type == 1:
+                        my_dict["salary"] += nz(staff.amount, 0)
+                    elif staff.employee_type.cost_type == 2:
+                        my_dict["om"] += nz(staff.amount, 0)
 
-        # first calc for staff
-        for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
-            # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
-            if not staff.employee_type.exclude_from_rollup:
-                if staff.employee_type.cost_type == 1:
-                    my_dict["salary"] += nz(staff.amount, 0)
-                elif staff.employee_type.cost_type == 2:
-                    my_dict["om"] += nz(staff.amount, 0)
+            # O&M costs
+            for cost in models.OMCost.objects.filter(funding_source=fs, project_year__project=project):
+                my_dict["om"] += nz(cost.amount, 0)
 
-        # O&M costs
-        for cost in models.OMCost.objects.filter(funding_source=fs, project_year__project=project):
-            my_dict["om"] += nz(cost.amount, 0)
+            # Capital costs
+            for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
+                my_dict["capital"] += nz(cost.amount, 0)
 
-        # Capital costs
-        for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
-            my_dict["capital"] += nz(cost.amount, 0)
+            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
-        my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
-
-        my_list.append(my_dict)
+            my_list.append(my_dict)
 
     return my_list
 
@@ -354,6 +354,7 @@ def get_project_field_list(project):
         'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),
         # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
+        'functional_group.theme|{}'.format(_("theme")),
         'functional_group',
         'default_funding_source',
         'start_date',
@@ -421,14 +422,31 @@ def get_project_year_field_list(project_year=None):
         'coding',
         'submitted',
         'formatted_status|{}'.format(_("status")),
-        'allocated_budget|{}'.format(_("allocated budget")),
-        'review_score|{}'.format(_("review score")),
+        # 'allocated_budget|{}'.format(_("allocated budget")),
+        # 'review_score|{}'.format(_("review score")),
         'metadata|{}'.format(_("metadata")),
     ]
 
     # remove any instances of None
     while None in my_list: my_list.remove(None)
 
+    return my_list
+
+
+def get_review_field_list():
+    my_list = [
+        'collaboration_score_html|{}'.format("external pressures score"),
+        'strategic_score_html|{}'.format("strategic direction score"),
+        'operational_score_html|{}'.format("operational considerations score"),
+        'ecological_score_html|{}'.format("ecological impact score"),
+        'scale_score_html|{}'.format("scale score"),
+        'total_score',
+        'comments_for_staff',
+        'approval_level',
+        'approver_comment',
+        'allocated_budget',
+        'metadata',
+    ]
     return my_list
 
 
@@ -481,32 +499,16 @@ def get_activity_field_list():
     return my_list
 
 
-def get_collaborator_field_list():
+def get_collaboration_field_list():
     my_list = [
-        'name',
+        'type',
+        'new_or_existing',
+        'organization',
+        'people',
         'critical',
-        'notes',
-    ]
-    return my_list
-
-
-def get_gc_cost_field_list():
-    my_list = [
-        'recipient_org',
-        'project_lead',
-        'proposed_title',
+        'agreement_title',
         'gc_program',
         'amount',
-    ]
-    return my_list
-
-
-def get_agreement_field_list():
-    my_list = [
-        'partner_organization',
-        'project_lead',
-        'agreement_title',
-        'new_or_existing',
         'notes',
     ]
     return my_list

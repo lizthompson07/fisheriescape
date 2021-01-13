@@ -12,6 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from lib.functions.custom_functions import truncate, fiscal_year
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from dm_apps import custom_widgets
 
@@ -236,7 +237,7 @@ class Citation(models.Model):
     region = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.title_eng
+        return nz(self.title_eng,"---")
 
     @property
     def short_citation(self):
@@ -532,6 +533,8 @@ class ResourcePerson(models.Model):
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk': self.resource.id})
 
+    def __str__(self):
+        return f"{self.person} ({self.role})"
 
 class BoundingBox(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
