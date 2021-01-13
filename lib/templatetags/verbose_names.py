@@ -106,6 +106,8 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
     elif len(field_name.split(".")) > 1:
         arg = field_name.split(".")[1]
         field_name = field_name.split(".")[0]
+        if len(arg.split("|")) > 1:
+            arg = arg.split("|")[0]
         try:
             field_value = getattr(getattr(instance, field_name), arg)
         except AttributeError:

@@ -163,7 +163,7 @@ class AniDetailXref(BioModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['evnt_id', 'contx_id', 'loc_id', 'indvt_id', 'indv_id', 'spwn_id',
-                                            'grp_id'], name='Animal Detail Cross Reference Uniqueness ')
+                                            'grp_id'], name='Animal_Detail_Cross_Reference_Uniqueness')
         ]
 
     def clean(self):
@@ -195,7 +195,7 @@ class ContDetSubjCode(BioLookup):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['name', 'contdc_id'], name='CDSC Uniqueness')
+            models.UniqueConstraint(fields=['name', 'contdc_id'], name='CDSC_Uniqueness')
         ]
 
 
@@ -214,7 +214,7 @@ class ContainerXRef(BioModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['evnt_id', 'tank_id', 'trof_id', 'tray_id', 'heat_id', 'draw_id', 'cup_id'],
-                                    name='Container Cross Reference Uniqueness')
+                                    name='Container_Cross_Reference_Uniqueness')
         ]
 
     def __str__(self):
@@ -239,7 +239,7 @@ class Count(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['loc_id', 'contx_id', 'cntc_id', 'spec_id'], name='Count Uniqueness')
+            models.UniqueConstraint(fields=['loc_id', 'contx_id', 'cntc_id', 'spec_id'], name='Count_Uniqueness')
         ]
 
     def __str__(self):
@@ -260,7 +260,7 @@ class CountDet(BioDet):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['cnt_id', 'anidc_id', 'adsc_id'], name='Count Detail Uniqueness')
+            models.UniqueConstraint(fields=['cnt_id', 'anidc_id', 'adsc_id'], name='Count_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -288,7 +288,7 @@ class CupDet(BioContainerDet):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['cup_id', 'contdc_id', 'cdsc_id', 'start_date'],
-                                    name='Cup Detail Uniqueness')
+                                    name='Cup_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -334,7 +334,7 @@ class EnvCondition(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['contx_id', 'loc_id', 'inst_id'], name='Environment Condition Uniqueness')
+            models.UniqueConstraint(fields=['contx_id', 'loc_id', 'inst_id'], name='Environment_Condition_Uniqueness')
         ]
 
     def __str__(self):
@@ -431,7 +431,7 @@ class EnvTreatment(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['contx_id', 'envtc_id'], name='Environment Treatment Uniqueness')
+            models.UniqueConstraint(fields=['contx_id', 'envtc_id'], name='Environment_Treatment_Uniqueness')
         ]
 
 
@@ -454,7 +454,7 @@ class Event(BioModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['facic_id', 'evntc_id', 'prog_id', 'evnt_start', 'evnt_end'],
-                                    name='Event Uniqueness')
+                                    name='Event_Uniqueness')
         ]
 
 
@@ -478,7 +478,7 @@ class Fecundity(BioTimeModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date'], name='Fecundity Uniqueness')
+            models.UniqueConstraint(fields=['stok_id', 'coll_id', 'start_date'], name='Fecundity_Uniqueness')
         ]
 
     def __str__(self):
@@ -536,7 +536,7 @@ class GroupDet(BioDet):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'], name='Group Detail Uniqueness')
+            models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'], name='Group_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -566,7 +566,7 @@ class HeathUnitDet(BioContainerDet):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['heat_id', 'contdc_id', 'cdsc_id', 'start_date'],
-                                    name='Heath Unit Detail Uniqueness')
+                                    name='Heath_Unit_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -615,7 +615,7 @@ class Image(BioModel):
         constraints = [
             models.UniqueConstraint(fields=["imgc_id", "loc_id", "cntd_id", "grpd_id", "sampd_id", "indvd_id",
                                             "spwnd_id", "tankd_id", "heatd_id", "draw_id", "trofd_id", "trayd_id",
-                                            "cupd_id"], name='Image Uniqueness')
+                                            "cupd_id"], name='Image_Uniqueness')
         ]
 
 
@@ -689,7 +689,7 @@ class IndividualDet(BioDet):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['anix_id', 'anidc_id', 'adsc_id'],
-                                    name='Individual Detail Uniqueness')
+                                    name='Individual_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -750,7 +750,7 @@ class InstrumentDet(BioTimeModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['inst_id', 'instdc_id', 'start_date'], name='Instrument Detail Uniqueness')
+            models.UniqueConstraint(fields=['inst_id', 'instdc_id', 'start_date'], name='Instrument_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -787,7 +787,7 @@ class Location(BioModel):
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["evnt_id", "locc_id", "rive_id", "trib_id", "subr_id", "relc_id", "loc_lat",
-                                            "loc_lon", "loc_date"], name='Location Uniqueness')
+                                            "loc_lon", "loc_date"], name='Location_Uniqueness')
         ]
 
 
@@ -811,7 +811,7 @@ class Pairing(BioTimeModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['indv_id', 'start_date'], name='Pairing Uniqueness')
+            models.UniqueConstraint(fields=['indv_id', 'start_date'], name='Pairing_Uniqueness')
         ]
 
 
@@ -826,7 +826,7 @@ class PersonnelCode(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['perc_first_name', 'perc_last_name'], name='Personnel Code Uniqueness')
+            models.UniqueConstraint(fields=['perc_first_name', 'perc_last_name'], name='Personnel_Code_Uniqueness')
         ]
 
 
@@ -856,7 +856,7 @@ class ProgAuthority(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['proga_first_name', 'proga_last_name'], name='Program Authority Uniqueness')
+            models.UniqueConstraint(fields=['proga_first_name', 'proga_last_name'], name='Program_Authority_Uniqueness')
         ]
 
 
@@ -874,7 +874,7 @@ class Protocol(BioTimeModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['prog_id', 'protc_id', 'start_date'], name='Protocol Uniqueness')
+            models.UniqueConstraint(fields=['prog_id', 'protc_id', 'start_date'], name='Protocol_Uniqueness')
         ]
 
 
@@ -974,7 +974,7 @@ class Sample(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['loc_id', 'samp_num', 'spec_id', 'sampc_id'], name='Sample Uniqueness')
+            models.UniqueConstraint(fields=['loc_id', 'samp_num', 'spec_id', 'sampc_id'], name='Sample_Uniqueness')
         ]
 
 
@@ -991,7 +991,7 @@ class SampleDet(BioDet):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['samp_id', 'anidc_id', 'adsc_id'], name='Sample Detail Uniqueness')
+            models.UniqueConstraint(fields=['samp_id', 'anidc_id', 'adsc_id'], name='Sample_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -1034,7 +1034,7 @@ class Spawning(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['pair_id', 'spwn_date'], name='Spawning Uniqueness')
+            models.UniqueConstraint(fields=['pair_id', 'spwn_date'], name='Spawning_Uniqueness')
         ]
 
 
@@ -1047,7 +1047,7 @@ class SpawnDet(BioDet):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['spwn_id', 'spwndc_id', 'spwnsc_id'], name='Spawning Detail Uniqueness')
+            models.UniqueConstraint(fields=['spwn_id', 'spwndc_id', 'spwnsc_id'], name='Spawning_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -1109,7 +1109,7 @@ class TankDet(BioContainerDet):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['tank_id', 'contdc_id', 'start_date'], name='Tank Detail Uniqueness')
+            models.UniqueConstraint(fields=['tank_id', 'contdc_id', 'start_date'], name='Tank_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -1124,7 +1124,7 @@ class Team(BioModel):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['perc_id', 'role_id'], name='Team Uniqueness')
+            models.UniqueConstraint(fields=['perc_id', 'role_id'], name='Team_Uniqueness')
         ]
 
 
@@ -1139,7 +1139,7 @@ class TrayDet(BioContainerDet):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['tray_id', 'contdc_id', 'start_date'], name='Tray Detail  Uniqueness')
+            models.UniqueConstraint(fields=['tray_id', 'contdc_id', 'start_date'], name='Tray_Detail_Uniqueness')
         ]
 
     def __str__(self):
@@ -1162,7 +1162,7 @@ class TroughDet(BioContainerDet):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['trof_id', 'contdc_id', 'start_date'], name='Trough Detail Uniqueness')
+            models.UniqueConstraint(fields=['trof_id', 'contdc_id', 'start_date'], name='Trough_Detail_Uniqueness')
         ]
 
     def __str__(self):

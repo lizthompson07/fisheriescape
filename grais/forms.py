@@ -291,6 +291,7 @@ class ReportSearchForm(forms.Form):
         (None, ""),
         (None, "----- BIOFOULING ------"),
         (1, "Biofouling: Species observations by sample"),
+        (9, "Biofouling: AIS presence / absence"),
         (None, ""),
         (None, "----- GREEN CRAB ------"),
         (8, "Green Crab: Site descriptions (xlsx)"),
@@ -307,7 +308,7 @@ class ReportSearchForm(forms.Form):
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     species = forms.MultipleChoiceField(required=False)
-    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year")
+    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year (leave blank for all years)")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

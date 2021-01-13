@@ -23,7 +23,7 @@
 {% endblock %}
 
 {% block pre_form_div %}
-
+    {% bootstrap_form_errors form %}
 
     <hr>
   <div id="app">
@@ -53,16 +53,16 @@
 {% block form_buttons %}
 
     <div class="">
-        <a class="btn btn-secondary" id="save" href="#">
+        <a class="btn btn-secondary" id="save" href="#id_comments">
             {% trans "Save comments" %}
         </a>
-        <a class="btn btn-success" id="yes" href="#">
+        <a class="btn btn-success" id="yes" href="#id_comments">
             {% trans "I approve" %}
         </a>
-        <a class="btn btn-danger" id="no" href="#">
+        <a class="btn btn-danger" id="no" href="#id_comments">
             {% trans "I do not approve" %}
         </a>
-        <a class="btn" id="request_changes" href="#" style="background-color: orange">
+        <a class="btn" id="request_changes" href="#id_comments" style="background-color: orange">
             {% trans "Request changes" %}
         </a>
         <a class="btn btn-primary" href="{% url 'travel:request_detail' triprequest.id "all" %}" target="_blank">

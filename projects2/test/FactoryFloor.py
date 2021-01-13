@@ -136,11 +136,11 @@ class LeadStaffFactory(StaffFactory):
 
 
 class IndeterminateStaffFactory(StaffFactory):
-    employee_type = models.EmployeeType.objects.get(pk=1)
+    employee_type = factory.lazy_attribute(lambda o: models.EmployeeType.objects.get(pk=1))
 
 
 class StudentStaffFactory(StaffFactory):
-    employee_type = models.EmployeeType.objects.get(pk=4)
+    employee_type = factory.lazy_attribute(lambda o: models.EmployeeType.objects.get(pk=4))
 
 
 class OMCostFactory(factory.django.DjangoModelFactory):
@@ -165,11 +165,11 @@ class OMCostFactory(factory.django.DjangoModelFactory):
 
 
 class OMCostTravelFactory(OMCostFactory):
-    om_category = models.OMCategory.objects.get(pk=1)
+    om_category = factory.lazy_attribute(lambda o: models.OMCategory.objects.get(pk=1))
 
 
 class OMCostEquipmentFactory(OMCostFactory):
-    om_category = models.OMCategory.objects.get(pk=5)
+    om_category = factory.lazy_attribute(lambda o: models.OMCategory.objects.get(pk=5))
 
 
 class CapitalCostFactory(factory.django.DjangoModelFactory):
