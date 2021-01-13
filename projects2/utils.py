@@ -474,7 +474,7 @@ def get_citation_field_list():
         'year',
         'publication',
         'pub_number',
-        'turl|{}'.format(_("url")),
+        # 'turl|{}'.format(_("url")),
         'tabstract|{}'.format(_("abstract")),
         'series',
         'region',

@@ -526,6 +526,19 @@ class CitationSerializer(serializers.ModelSerializer):
     short_citation_html = serializers.SerializerMethodField()
     citation_br = serializers.SerializerMethodField()
 
+    turl = serializers.SerializerMethodField()
+    tname = serializers.SerializerMethodField()
+    tabstract = serializers.SerializerMethodField()
+
+    def get_tabstract(self, instance):
+        return instance.tabstract
+
+    def get_tname(self, instance):
+        return instance.tname
+
+    def get_turl(self, instance):
+        return instance.turl
+
     def get_citation_br(self, instance):
         return instance.citation_br
 

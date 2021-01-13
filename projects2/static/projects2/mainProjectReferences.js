@@ -20,14 +20,42 @@ var app = new Vue({
           })
     },
     getCitations() {
+      this.hasSearched = true;
       this.citations_loading = true;
       let endpoint = `/api/project-planning/citations/?search=${this.searchTerm}`;
       apiService(endpoint)
           .then(response => {
             this.citations_loading = false;
-            this.citations = response;
+            if (response.length) {
+              for (var i = 0; i < response.length; i++) {
+                c = response[i]
+                console.log(c)
+                if(!this.project_citation_ids.includes(c.id)) {
+                    this.citations.push(c)
+                  console.log(123)
+                }
+              }
+
+            } else {
+              this.citations = []
+            }
           })
     },
+    addCitation(citation){
+      let endpoint = `/api/project-planning/projects/${projectId}/add-reference/`;
+      apiService(endpoint, "POST", {citation: citation.id})
+          .then(response => {
+            this.getProjectCitations()
+            this.$delete(this.citations, this.citations.indexOf(citation))
+          })
+    },
+    submitSearch() {
+      if (this.searchTerm.length > 4) {
+        this.getCitations()
+      } else {
+        this.citations = [];
+      }
+    }
 
   },
 
@@ -71,7 +99,13 @@ var app = new Vue({
     }
   },
   computed: {
-
+    project_citation_ids () {
+      myArray = []
+      for (var i = 0; i < this.project_citations.length; i++) {
+        myArray.push(this.project_citations[i].id)
+      }
+      return myArray
+    }
   },
   created() {
     this.getProjectCitations()

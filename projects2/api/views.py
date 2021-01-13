@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import Q
 from pandas import date_range
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -449,7 +450,15 @@ class CitationListCreateAPIView(ListCreateAPIView):
             project = get_object_or_404(models.Project, pk=self.request.query_params.get("project"))
             qs = project.references.all()
         else:
-            qs = shared_models.Citation.objects.all()
+            if self.request.query_params.get("search"):
+                term = self.request.query_params.get("search")
+                qs = shared_models.Citation.objects.filter(
+                    Q(name__icontains=term) | Q(nom__icontains=term) | Q(abstract_en__icontains=term) | Q(abstract_fr__icontains=term)| Q(authors__icontains=term))
+            else:
+                qs = shared_models.Citation.objects.all()
+
+        if qs.count() > 100:
+            qs = shared_models.Citation.objects.filter(id__in=[item.id for item in qs[:100]])
 
         return qs
 
