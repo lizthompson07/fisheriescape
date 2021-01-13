@@ -44,6 +44,7 @@ class EntryFilter(django_filters.FilterSet):
             'entry_type': ['exact'],
             'organizations': ['exact'],
             'sectors': ['exact'],
+            'regions': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):

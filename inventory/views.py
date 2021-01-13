@@ -1054,9 +1054,9 @@ def keyword_delete(request, resource, keyword):
 class ResourceCitationFilterView(FilterView):
     filterset_class = filters.CitationFilter
     template_name = "inventory/resource_citation_filter.html"
-    queryset = models.Citation.objects.annotate(
-        search_term=Concat('title_eng', Value(' '), 'title_fre', Value(' '), 'pub_number', Value(' '), 'year',
-                           Value(' '), 'series', output_field=TextField())).order_by('title_eng')
+    queryset = shared_models.Citation.objects.annotate(
+        search_term=Concat('name', Value(' '), 'nom', Value(' '), 'pub_number', Value(' '), 'year',
+                           Value(' '), 'series', output_field=TextField())).order_by('name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1067,7 +1067,7 @@ class ResourceCitationFilterView(FilterView):
 
 
 def resource_citation_add(request, resource, citation):
-    my_citation = models.Citation.objects.get(pk=citation)
+    my_citation = shared_models.Citation.objects.get(pk=citation)
     my_resource = models.Resource.objects.get(pk=resource)
 
     if my_resource.citations.filter(pk=citation).count() > 0:
@@ -1080,7 +1080,7 @@ def resource_citation_add(request, resource, citation):
 
 
 def resource_citation_delete(request, resource, citation):
-    my_citation = models.Citation.objects.get(pk=citation)
+    my_citation = shared_models.Citation.objects.get(pk=citation)
     my_resource = models.Resource.objects.get(pk=resource)
 
     my_resource.citations.remove(citation)
@@ -1093,7 +1093,7 @@ def resource_citation_delete(request, resource, citation):
 ############
 
 class CitationDetailView(DetailView):
-    model = models.Citation
+    model = shared_models.Citation
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1103,7 +1103,7 @@ class CitationDetailView(DetailView):
 
 
 class CitationUpdateView(LoginRequiredMixin, UpdateView):
-    model = models.Citation
+    model = shared_models.Citation
     form_class = forms.CitationForm
 
     def get_context_data(self, **kwargs):
@@ -1120,7 +1120,7 @@ class CitationUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class CitationCreateView(LoginRequiredMixin, CreateView):
-    model = models.Citation
+    model = shared_models.Citation
     form_class = forms.CitationForm
 
     def get_context_data(self, **kwargs):
@@ -1138,7 +1138,7 @@ class CitationCreateView(LoginRequiredMixin, CreateView):
 
 @login_required(login_url='/accounts/login/')
 def citation_delete(request, resource, citation):
-    my_citation = models.Citation.objects.get(pk=citation)
+    my_citation = shared_models.Citation.objects.get(pk=citation)
     my_citation.delete()
     messages.success(request, "'{}' has been removed from the database.".format(my_citation.title))
     return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
@@ -1148,7 +1148,7 @@ def citation_delete(request, resource, citation):
 ###############
 
 class PublicationCreateView(LoginRequiredMixin, CreateView):
-    model = models.Publication
+    model = shared_models.Publication
     fields = "__all__"
 
     template_name = 'inventory/publication_form_popout.html'

@@ -359,7 +359,7 @@ class KeywordForm(forms.ModelForm):
 
 class CitationForm(forms.ModelForm):
     class Meta:
-        model = models.Citation
+        model = shared_models.Citation
         fields = ("__all__")
         # exclude = [
         #     'concept_scheme',

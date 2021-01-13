@@ -621,3 +621,34 @@ def digest_priorities():
             )
             client_information.nom = priority_desc_fr
             client_information.save()
+
+
+def copy_citations():
+    from inventory.models import Citation as OldCitation
+    old_citations = OldCitation.objects.all()
+
+    for old_cit in old_citations:
+        old_pub = old_cit.publication
+
+        new_pub = None
+        if old_pub:
+            # make sure the publication exists
+            new_pub, created = shared_models.Publication.objects.get_or_create(pk=old_pub.id, name=old_pub.name)
+
+        # create the new citation based on the old one
+        new_cit, created = shared_models.Citation.objects.get_or_create(
+            id=old_cit.id,
+            name=old_cit.title_eng,
+            nom=old_cit.title_fre,
+            authors=old_cit.authors,
+            year=old_cit.year,
+            publication=new_pub,
+            pub_number=old_cit.pub_number,
+            url_en=old_cit.url_eng,
+            url_fr=old_cit.url_fre,
+            abstract_en=old_cit.abstract_eng,
+            abstract_fr=old_cit.abstract_fre,
+            series=old_cit.series,
+            region=old_cit.region,
+        )
+

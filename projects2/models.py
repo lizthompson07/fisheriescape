@@ -29,18 +29,18 @@ class CSRFTheme(SimpleLookup):
 
 class CSRFSubTheme(SimpleLookup):
     name = models.CharField(max_length=1000, verbose_name=_("name (en)"))
-    csrf_theme = models.ForeignKey(CSRFTheme, on_delete=models.DO_NOTHING, related_name="sub_themes", verbose_name=_("theme"))
+    csrf_theme = models.ForeignKey(CSRFTheme, on_delete=models.DO_NOTHING, related_name="sub_themes", verbose_name=_("CSRF theme"))
 
 
 class CSRFPriority(SimpleLookup):
-    csrf_sub_theme = models.ForeignKey(CSRFSubTheme, on_delete=models.DO_NOTHING, related_name="priorities", verbose_name=_("sub-theme"))
+    csrf_sub_theme = models.ForeignKey(CSRFSubTheme, on_delete=models.DO_NOTHING, related_name="priorities", verbose_name=_("CSRF sub-theme"))
     code = models.CharField(verbose_name=_("Priority identification number"), max_length=25, unique=True)
     name = models.CharField(max_length=1000, verbose_name=_("priority for research (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("priority for research (fr)"))
 
 
 class CSRFClientInformation(SimpleLookup):
-    csrf_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, related_name="priorities", verbose_name=_("sub-theme"))
+    csrf_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, related_name="client_information", verbose_name=_("CSRF priority"))
     name = models.TextField(verbose_name=_("priority for research (en)"))
     nom = models.TextField(blank=True, null=True, verbose_name=_("priority for research (fr)"))
 
@@ -146,6 +146,9 @@ class Project(models.Model):
     team_description = models.TextField(blank=True, null=True, verbose_name=_("description of team and required qualifications (ACRDP)"))
     rationale = models.TextField(blank=True, null=True, verbose_name=_("project problem / rationale (ACRDP)"))
     experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
+
+    # ACRDP fields
+
 
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
