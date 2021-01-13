@@ -20,7 +20,7 @@
     <div class="mb-3 row jumbotron px-1 py-3 row" style="width: 40%">
       <label for="search" class="col-4 col-form-label">{% trans "Find a Reference" %}</label>
       <div class="col">
-        <input type="text" class="form-control" id="search">
+        <input v-model="searchTerm" type="text" class="form-control" id="search">
       </div>
     </div>
     <div class="row">

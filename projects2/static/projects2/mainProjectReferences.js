@@ -7,6 +7,7 @@ var app = new Vue({
     citations: [],
     project_citations: [],
     hasSearched: null,
+    searchTerm: null,
   },
   methods: {
     getProjectCitations() {
@@ -20,7 +21,7 @@ var app = new Vue({
     },
     getCitations() {
       this.citations_loading = true;
-      let endpoint = `/api/project-planning/citations/?search=${projectId}`;
+      let endpoint = `/api/project-planning/citations/?search=${this.searchTerm}`;
       apiService(endpoint)
           .then(response => {
             this.citations_loading = false;
