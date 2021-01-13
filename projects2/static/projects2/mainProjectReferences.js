@@ -42,11 +42,19 @@ var app = new Vue({
           })
     },
     addCitation(citation){
-      let endpoint = `/api/project-planning/projects/${projectId}/add-reference/`;
+      let endpoint = `/api/project-planning/projects/${projectId}/reference/add/`;
       apiService(endpoint, "POST", {citation: citation.id})
           .then(response => {
             this.getProjectCitations()
             this.$delete(this.citations, this.citations.indexOf(citation))
+          })
+    },
+    removeCitation(citation){
+      let endpoint = `/api/project-planning/projects/${projectId}/reference/remove/`;
+      apiService(endpoint, "POST", {citation: citation.id})
+          .then(response => {
+            this.getProjectCitations()
+            this.$delete(this.project_citations, this.project_citations.indexOf(citation))
           })
     },
     submitSearch() {

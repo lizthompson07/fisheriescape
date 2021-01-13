@@ -8,7 +8,7 @@ urlpatterns = [
 
     # Project
     path("project-planning/projects/<int:pk>/", views.ProjectRetrieveAPIView.as_view(), name="project-detail"),  # tested
-    path("project-planning/projects/<int:pk>/add-reference/", views.AddProjectReferenceAPIView.as_view(), name="project-reference-add"),  # tested
+    path("project-planning/projects/<int:pk>/reference/<str:action>/", views.AddProjectReferenceAPIView.as_view(), name="project-reference"),  # tested
     path("project-planning/projects/", views.ProjectListAPIView.as_view(), name="project-list"),  # tested
 
     # Project year

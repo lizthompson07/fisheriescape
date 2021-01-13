@@ -136,10 +136,13 @@ class ProjectListAPIView(ListAPIView):
 class AddProjectReferenceAPIView(APIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
-    def post(self, request, pk):
+    def post(self, request, pk, action):
         citation = get_object_or_404(shared_models.Citation, pk=request.data["citation"])
         project = get_object_or_404(models.Project, pk=pk)
-        project.references.add(citation)
+        if action == "add":
+            project.references.add(citation)
+        elif action == "remove":
+            project.references.remove(citation)
         return Response(serializers.CitationSerializer(citation).data, status=status.HTTP_200_OK)
 
 
@@ -453,7 +456,8 @@ class CitationListCreateAPIView(ListCreateAPIView):
             if self.request.query_params.get("search"):
                 term = self.request.query_params.get("search")
                 qs = shared_models.Citation.objects.filter(
-                    Q(name__icontains=term) | Q(nom__icontains=term) | Q(abstract_en__icontains=term) | Q(abstract_fr__icontains=term)| Q(authors__icontains=term))
+                    Q(name__icontains=term) | Q(nom__icontains=term) | Q(abstract_en__icontains=term) | Q(abstract_fr__icontains=term) | Q(
+                        authors__icontains=term))
             else:
                 qs = shared_models.Citation.objects.all()
 

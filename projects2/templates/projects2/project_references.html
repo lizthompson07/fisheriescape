@@ -24,14 +24,18 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-4">
+      <div class="col">
         <p class="h3 lead text-muted">{% trans "Current References:" %}</p>
-        <ul v-if="!project_citations_loading">
-          <li v-for="(citation, index) in project_citations">
-            <span v-html="citation.short_citation_html"></span>
-          </li>
+        <div v-if="!project_citations_loading">
+          <div v-for="(citation, index) in project_citations">
+            <div class="alert alert-success" role="alert">
+              <p v-html="citation.short_citation_html"></p>
+              <button @click="removeCitation(citation)"><span class="mdi mdi-minus"></span> {% trans "Remove Reference" %}</button>
+            </div>
+          </div>
           <p v-if="!project_citations.length"><em>{% trans "This project does not currently have any references" %}</em></p>
-        </ul>
+
+        </div>
         <div v-else class="loading mb-3 mt-3 text-center mt-5">
           <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
             <span class="sr-only"></span>
@@ -40,14 +44,13 @@
       </div>
       <div class="col">
         <p class="h3 lead text-muted">{% trans "Search Results:" %}</p>
-
         <div v-if="!citations_loading">
-          <div v-for="citation in citations">
-            <div class="alert alert-primary" role="alert">
+          <div v-for="(citation, index) in citations">
+            <div class="alert alert-secondary" role="alert">
               <p v-html="citation.short_citation_html">
 
               </p>
-              <button @click="addCitation(citation)"><span class="mdi mdi-plus"></span></button>
+              <button @click="addCitation(citation)"><span class="mdi mdi-plus"></span> {% trans "Add Reference" %}</button>
             </div>
           </div>
           <div v-if="!citations.length">
