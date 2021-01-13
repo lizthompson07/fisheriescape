@@ -93,7 +93,7 @@ class BioLookup(shared_models.Lookup):
     def clean(self):
         # handle null values in uniqueness constraint foreign keys.
         # eg. should only be allowed one instance of a=5, b=null
-        super(BioModel, self).clean()
+        super(BioLookup, self).clean()
         uniqueness_constraints = [constraint for constraint in self._meta.constraints if isinstance(constraint, models.UniqueConstraint)]
         for constraint in uniqueness_constraints:
             # from stackoverflow
@@ -255,7 +255,7 @@ class CountDet(BioDet):
     # cntd tag
     cnt_id = models.ForeignKey("Count", on_delete=models.DO_NOTHING, verbose_name=_("Count"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
-    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING,
+    adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
                                 verbose_name=_("Animal Detail Subjective Code"))
 
     class Meta:
@@ -375,6 +375,74 @@ class DataLoader(BioModel):
                 grpd.save()
             except ValidationError:
                 pass
+
+        elif self.evntc_id.__str__() == "Tagging":
+            grp_id = Group.objects.filter(stok_id__name=data_dict[0]["Stock"], coll_id__name=data_dict[0]["Group"]).get().pk
+            for row in data_dict:
+                indv = Individual(grp_id_id=grp_id,
+                                  spec_id_id=1,
+                                  stok_id=StockCode.objects.filter(name=row["Stock"]).get(),
+                                  coll_id=Collection.objects.filter(name__iexact=row["Group"]).get(),
+                                  ufid=row["Universal Fish ID"],
+                                  pit_tag=row["PIT tag"],
+                                  indv_valid=True,
+                                  comments=row["comments"],
+                                  created_by=self.created_by,
+                                  created_date=self.created_date,
+                                  )
+                try:
+                    indv.clean()
+                    indv.save()
+                except ValidationError:
+                    pass
+                anix = AniDetailXref(evnt_id_id=self.evnt_id.pk,
+                                     indv_id_id=indv.pk,
+                                     grp_id_id=grp_id,
+                                     created_by=self.created_by,
+                                     created_date=self.created_date,
+                                     )
+                try:
+                    anix.clean()
+                    anix.save()
+                except ValidationError:
+                    pass
+
+            grp = Group(spec_id=SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                        stok_id=StockCode.objects.filter(name=data["River"][0]).get(),
+                        coll_id=Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
+                        grp_valid=True,
+                        created_by=self.created_by,
+                        created_date=self.created_date,
+                        )
+            try:
+                grp.clean()
+                grp.save()
+            except ValidationError:
+                pass
+            anix = AniDetailXref(evnt_id_id=self.evnt_id.pk,
+                                 grp_id_id=grp.pk,
+                                 created_by=self.created_by,
+                                 created_date=self.created_date,
+                                 )
+            try:
+                anix.clean()
+                anix.save()
+            except ValidationError:
+                pass
+            grpd = GroupDet(anix_id_id=anix.pk,
+                            anidc_id=AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
+                            det_val=data["# of salmon observed/collected"].sum(),
+                            qual_id=QualCode.objects.filter(name="Good").get(),
+                            # det_val=True,
+                            created_by=self.created_by,
+                            created_date=self.created_date,
+                            )
+            try:
+                grpd.clean()
+                grpd.save()
+            except ValidationError:
+                pass
+
         return super().save(*args, **kwargs)
 
 
