@@ -12,7 +12,9 @@
   {% block form %}
     <form method="post" class="form" {% if is_multipart_form_data %}enctype="multipart/form-data"{% endif %}>
       {% csrf_token %}
-
+      {% if form %}
+        {% bootstrap_form_errors form %}
+      {% endif %}
       {% block form_fields %}
         {% for field in form %}
           {% block form_field %}

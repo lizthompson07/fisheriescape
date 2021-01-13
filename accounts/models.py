@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -93,3 +95,11 @@ class Announcement(models.Model):
     def is_current(self):
         """does the current date fall in between announcement validation period?"""
         return (self.valid_from <= timezone.now()) and (self.valid_to >= timezone.now())
+
+
+
+@receiver(post_save, sender=User)
+def create_user_profile1(sender, instance, created, **kwargs):
+    if not Profile.objects.filter(user=instance).exists():
+        Profile.objects.create(user=instance)
+

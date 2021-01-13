@@ -70,7 +70,7 @@
                     </div>
                 {% elif field.name == "year" %}
                     <div class="year_div">
-                        {% bootstrap_field field %}
+                        {% bootstrap_field field placeholder="" %}
                     </div>
 
                 {% else %}
@@ -111,7 +111,7 @@
                 $("#id_species").prop('required', true);
                 $("#id_species").multiSelect();
 
-            } else if (reportChoice == 2) {
+            } else if (reportChoice == 2|| reportChoice == 9 ) {
                 $(".year_div").removeClass("gone");
                 alert("Please note that running this report for all years will take several minutes to complete.");
             } else if (reportChoice == 4 || reportChoice == 5 || reportChoice == 6 || reportChoice == 7) {

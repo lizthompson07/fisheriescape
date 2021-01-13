@@ -286,7 +286,7 @@ var app = new Vue({
       this.showReviewModal = true;
       if (which === "approval") {
         this.approvalModal = true;
-        this.projectYear2Review.review.email_update = true
+        this.projectYear2Review.review.approval_email_update = true
       }
     },
 

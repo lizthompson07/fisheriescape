@@ -32,20 +32,20 @@ urlpatterns = [
     path("project-planning/capital-costs/<int:pk>/", views.CapitalCostRetrieveUpdateDestroyAPIView.as_view(), name="capital-detail"),
 
     # GC
-    path("project-planning/project-years/<int:project_year>/gc-costs/", views.GCCostListCreateAPIView.as_view(), name="gc-list"),  # tested
-    path("project-planning/gc-costs/<int:pk>/", views.GCCostRetrieveUpdateDestroyAPIView.as_view(), name="gc-detail"),
+    # path("project-planning/project-years/<int:project_year>/gc-costs/", views.GCCostListCreateAPIView.as_view(), name="gc-list"),  # tested
+    # path("project-planning/gc-costs/<int:pk>/", views.GCCostRetrieveUpdateDestroyAPIView.as_view(), name="gc-detail"),
 
     # activities
     path("project-planning/project-years/<int:project_year>/activities/", views.ActivityListCreateAPIView.as_view(), name="activity-list"),  # tested
     path("project-planning/activities/<int:pk>/", views.ActivityRetrieveUpdateDestroyAPIView.as_view(), name="activity-detail"),
 
-    # collaborators
-    path("project-planning/project-years/<int:project_year>/collaborators/", views.CollaboratorListCreateAPIView.as_view(), name="collaborator-list"),  # tested
-    path("project-planning/collaborators/<int:pk>/", views.CollaboratorRetrieveUpdateDestroyAPIView.as_view(), name="collaborator-detail"),
+    # collaborations
+    path("project-planning/project-years/<int:project_year>/collaborations/", views.CollaborationListCreateAPIView.as_view(), name="collaboration-list"),  # tested
+    path("project-planning/collaborations/<int:pk>/", views.CollaborationRetrieveUpdateDestroyAPIView.as_view(), name="collaboration-detail"),
 
     # agreements
-    path("project-planning/project-years/<int:project_year>/agreements/", views.AgreementListCreateAPIView.as_view(), name="agreement-list"),  # tested
-    path("project-planning/agreements/<int:pk>/", views.AgreementRetrieveUpdateDestroyAPIView.as_view(), name="agreement-detail"),
+    # path("project-planning/project-years/<int:project_year>/agreements/", views.AgreementListCreateAPIView.as_view(), name="agreement-list"),  # tested
+    # path("project-planning/agreements/<int:pk>/", views.AgreementRetrieveUpdateDestroyAPIView.as_view(), name="agreement-detail"),
 
     # files
     path("project-planning/project-years/<int:project_year>/files/", views.FileListCreateAPIView.as_view(), name="file-list"),  # tested

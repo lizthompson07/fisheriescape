@@ -23,6 +23,24 @@ YES_NO_CHOICES = (
 )
 
 
+class CSRFTheme(SimpleLookup):
+    code = models.CharField(max_length=25)
+
+
+class CSRFSubTheme(SimpleLookup):
+    name = models.CharField(max_length=1000, verbose_name=_("name (en)"))
+    csrf_theme = models.ForeignKey(CSRFTheme, on_delete=models.DO_NOTHING, related_name="sub_themes", verbose_name=_("theme"))
+
+
+class CSRFPriority(Lookup):
+    csrf_sub_theme = models.ForeignKey(CSRFSubTheme, on_delete=models.DO_NOTHING, related_name="priorities", verbose_name=_("sub-theme"))
+    code = models.CharField(verbose_name=_("Priority identification number"), max_length=25, unique=True)
+    name = models.CharField(max_length=1000, verbose_name=_("priority for research (en)"))
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("priority for research (fr)"))
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("additional information (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("additional information (fr)"))
+
+
 class Theme(SimpleLookup):
     pass
 
@@ -72,6 +90,7 @@ class FundingSource(SimpleLookup):
     )
     name = models.CharField(max_length=255)
     funding_source_type = models.IntegerField(choices=funding_source_type_choices)
+    is_competitive = models.BooleanField(default=False, verbose_name=_("is competitive funding?"))
 
     def __str__(self):
         return f"{self.tname} ({self.get_funding_source_type_display()})"
@@ -79,6 +98,13 @@ class FundingSource(SimpleLookup):
     @property
     def display2(self):
         return f"{self.get_funding_source_type_display()} - {self.tname}"
+
+    @property
+    def display3(self):
+        mystr = f"{self.get_funding_source_type_display()} - {self.tname}"
+        if self.is_competitive:
+            mystr += " ({})".format(_("competitive"))
+        return mystr
 
     class Meta:
         ordering = ['funding_source_type', 'name', ]
@@ -221,6 +247,7 @@ class Project(models.Model):
             return listrify([str(y) for y in self.years.all()])
         else:
             return "<em>{}</em>".format(_("This project has no fiscal years added yet."))
+
 
 class ProjectYear(models.Model):
     status_choices = [
@@ -510,6 +537,11 @@ class Staff(GenericCost):
         if self.user or self.name:
             return self.user.get_full_name() if self.user else self.name
 
+    def save(self, *args, **kwargs):
+        if self.user:
+            self.name = None
+        super().save(*args, **kwargs)
+
 
 class OMCategory(models.Model):
     group_choices = (
@@ -581,6 +613,35 @@ class GCCost(models.Model):
 
     class Meta:
         ordering = ['recipient_org', ]
+
+
+class Collaboration(models.Model):
+    type_choices = (
+        (1, _("External Collaborator")),
+        (2, _("Grant & Contribution Agreement")),
+        (3, _("Collaborative Agreement")),
+    )
+    new_or_existing_choices = [
+        (1, _("New")),
+        (2, _("Existing")),
+    ]
+    project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="collaborations", verbose_name=_("project year"))
+    type = models.IntegerField(choices=type_choices, verbose_name=_("collaboration type"))
+    new_or_existing = models.IntegerField(choices=new_or_existing_choices, verbose_name=_("new or existing"))
+    organization = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("collaborating organization"))
+    people = models.CharField(max_length=1000, verbose_name=_("project lead(s)"), blank=True, null=True)
+    critical = models.BooleanField(default=True, verbose_name=_("Critical to project delivery?"), choices=YES_NO_CHOICES)
+    agreement_title = models.CharField(max_length=255, verbose_name=_("Title of the agreement"), blank=True, null=True)
+    gc_program = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name of G&C program"))
+    amount = models.FloatField(verbose_name=_("Contribution agreement amount"), blank=True, null=True)
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
+
+    class Meta:
+        ordering = ['type', 'organization']
+
+    def __str__(self):
+        mystr = f"{self.get_type_display()} {self.id}"
+        return mystr
 
 
 class Collaborator(models.Model):
@@ -709,6 +770,11 @@ class Review(models.Model):
         (0, _("not approved")),
         (9, _("cancelled")),
     )
+    approval_level_choices = (
+        (1, _("Division-level")),
+        (2, _("Branch-level")),
+        (3, _("National")),
+    )
     score_choices = (
         (3, _("high")),
         (2, _("medium")),
@@ -733,10 +799,14 @@ class Review(models.Model):
     scale_comment = models.TextField(blank=True, null=True, verbose_name=_("scale comments"))
 
     general_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
+    comments_for_staff = models.TextField(blank=True, null=True, verbose_name=_("questions and comments for project leads"))
+
     approval_status = models.IntegerField(choices=approval_status_choices, blank=True, null=True, verbose_name=_("Approval status"))
+    approval_level = models.IntegerField(choices=approval_level_choices, blank=True, null=True, verbose_name=_("level of approval"))
 
     allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
-    notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
+    approval_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
+    review_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     approver_comment = models.TextField(blank=True, null=True, verbose_name=_("Approver comments (shared with project leads)"))
 
     # metadata
@@ -784,8 +854,58 @@ class Review(models.Model):
             from_email=email.from_email,
             recipient_list=email.to_list
         )
-        self.notification_email_sent = timezone.now()
+        self.approval_notification_email_sent = timezone.now()
         self.save()
+
+    def send_review_email(self, request):
+        email = emails.ProjectReviewEmail(self, request)
+        # send the email object
+        custom_send_mail(
+            subject=email.subject,
+            html_message=email.message,
+            from_email=email.from_email,
+            recipient_list=email.to_list
+        )
+        self.review_notification_email_sent = timezone.now()
+        self.save()
+
+    def score_html_template(self, score_name):
+        score = getattr(self, f'{score_name}_score')
+        score_display = getattr(self, f'get_{score_name}_score_display')()
+        comment = getattr(self, f'{score_name}_comment')
+
+        my_str = f"<u>{score} ({score_display})</u>"
+        if comment:
+            my_str += f" &rarr; {comment}"
+        return mark_safe(my_str)
+
+    @property
+    def collaboration_score_html(self):
+        return self.score_html_template("collaboration")
+
+    @property
+    def strategic_score_html(self):
+        return self.score_html_template("strategic")
+
+    @property
+    def operational_score_html(self):
+        return self.score_html_template("operational")
+
+    @property
+    def ecological_score_html(self):
+        return self.score_html_template("ecological")
+
+    @property
+    def scale_score_html(self):
+        return self.score_html_template("scale")
+
+    # strategic_score_html
+
+
+# operational_score_html
+# ecological_score_html
+# scale_score_html
+# total_score
 
 
 class Activity(models.Model):
