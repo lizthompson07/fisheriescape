@@ -74,6 +74,9 @@ urlpatterns = [
     path('settings/csrf-priorities/', views.CSRFPriorityFormsetView.as_view(), name="manage_csrf_priorities"),
     path('settings/csrf-prioritie/<int:pk>/delete/', views.CSRFPriorityHardDeleteView.as_view(), name="delete_csrf_priority"),
 
+    path('settings/csrf-client-information/', views.CSRFClientInformationFormsetView.as_view(), name="manage_csrf_client_information"),
+    path('settings/csrf-client-information/<int:pk>/delete/', views.CSRFClientInformationHardDeleteView.as_view(), name="delete_csrf_client_information"),
+
 
     # full
     path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),   # tested

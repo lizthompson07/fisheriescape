@@ -653,6 +653,22 @@ CSRFPriorityFormset = modelformset_factory(
     extra=1,
 )
 
+class CSRFClientInformationForm(forms.ModelForm):
+    class Meta:
+        model = models.CSRFClientInformation
+        fields = "__all__"
+        widgets = {
+            'name': forms.Textarea(attrs={}),
+            'nom': forms.Textarea(attrs={}),
+        }
+
+
+CSRFClientInformationFormset = modelformset_factory(
+    model=models.CSRFClientInformation,
+    form=CSRFClientInformationForm,
+    extra=1,
+)
+
 
 class ReferenceMaterialForm(forms.ModelForm):
     class Meta:

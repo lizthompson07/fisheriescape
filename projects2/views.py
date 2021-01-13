@@ -769,6 +769,22 @@ class CSRFPriorityHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("projects2:manage_csrf_priorities")
 
 
+class CSRFClientInformationFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'projects2/formset.html'
+    h1 = "Manage CSRF Client Information"
+    queryset = models.CSRFClientInformation.objects.all()
+    formset_class = forms.CSRFClientInformationFormset
+    success_url_name = "projects2:manage_csrf_client_information"
+    home_url_name = "projects2:index"
+    delete_url_name = "projects2:delete_csrf_client_information"
+    container_class = "container bg-light curvy"
+
+
+class CSRFClientInformationHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.CSRFClientInformation
+    success_url = reverse_lazy("projects2:manage_csrf_client_information")
+
+
 # Reference Materials
 class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
     template_name = "projects2/list.html"

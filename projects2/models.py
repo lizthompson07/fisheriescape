@@ -32,13 +32,17 @@ class CSRFSubTheme(SimpleLookup):
     csrf_theme = models.ForeignKey(CSRFTheme, on_delete=models.DO_NOTHING, related_name="sub_themes", verbose_name=_("theme"))
 
 
-class CSRFPriority(Lookup):
+class CSRFPriority(SimpleLookup):
     csrf_sub_theme = models.ForeignKey(CSRFSubTheme, on_delete=models.DO_NOTHING, related_name="priorities", verbose_name=_("sub-theme"))
     code = models.CharField(verbose_name=_("Priority identification number"), max_length=25, unique=True)
     name = models.CharField(max_length=1000, verbose_name=_("priority for research (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("priority for research (fr)"))
-    description_en = models.TextField(blank=True, null=True, verbose_name=_("additional information (en)"))
-    description_fr = models.TextField(blank=True, null=True, verbose_name=_("additional information (fr)"))
+
+
+class CSRFClientInformation(SimpleLookup):
+    csrf_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, related_name="priorities", verbose_name=_("sub-theme"))
+    name = models.TextField(verbose_name=_("priority for research (en)"))
+    nom = models.TextField(blank=True, null=True, verbose_name=_("priority for research (fr)"))
 
 
 class Theme(SimpleLookup):
