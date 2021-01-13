@@ -3,18 +3,32 @@
 {% load i18n %}
 
 {% block subcontent %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <style>
+  #map {
+      height: 200px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
 
   <div class="btns mb-3">
     <a href="{% url 'scuba:region_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'scuba:region_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
   </div>
 
-  <div class="mb-3">
-    <table class="table table-sm" style="width: 50%">
-      {% for field in field_list %}
-        {% verbose_td_display object field %}
-      {% endfor %}
-    </table>
+  <div class="mb-3 row">
+    <div class="col">
+      <table class="table table-sm" style="width: 50%">
+        {% for field in field_list %}
+          {% verbose_td_display object field %}
+        {% endfor %}
+      </table>
+    </div>
+    <div class="col">
+      <div id="map">
+      </div>
+    </div>
   </div>
 
   <div class="mb-3">
@@ -61,5 +75,38 @@
     {% endif %}
   </div>
 
+  <script type="application/javascript">
+  function initialize() {
+    map = new L.Map("map", {
+      center: new L.LatLng({{ object.sites.first.get_coordinates.x }}, {{ object.sites.first.get_coordinates.y }}),
+      zoom: 14,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map)
+
+    var coords = [];
+
+    {% for site in object.sites.all %}
+      {% if site.get_coordinates %}
+        latLong = [{{site.latitude}}, {{ site.longitude }}]
+        L.marker(
+            latLong, {title: '{{site}}',}
+        ).addTo(map).bindPopup("<b>Site name:</b> {{site.name}}");
+        coords.push(latLong)
+      {% endif %}
+    {% endfor %}
+
+    map.fitBounds(coords);
+
+  }
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    initialize()
+
+  });
+  </script>
 
 {% endblock %}

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-05 09:33-0400\n"
+"POT-Creation-Date: 2021-01-11 12:44-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -24,7 +24,7 @@ msgstr "nom"
 
 #: .\travel\filters.py:38
 #: .\travel\templates\travel\trip_verification_form.html:155
-#: .\travel\views.py:1555 .\travel\views.py:2023
+#: .\travel\views.py:1556 .\travel\views.py:2024
 msgid "Trip title"
 msgstr "Titre du voyage"
 
@@ -53,8 +53,8 @@ msgstr "Titre du voyage"
 msgid "Regional lead"
 msgstr "Responsable régional"
 
-#: .\travel\filters.py:101 .\travel\views.py:1562 .\travel\views.py:1834
-#: .\travel\views.py:2027
+#: .\travel\filters.py:101 .\travel\views.py:1563 .\travel\views.py:1835
+#: .\travel\views.py:2028
 msgid "ADM approval required?"
 msgstr "Approbation du SMA requis?"
 
@@ -577,7 +577,7 @@ msgstr "statut de révision"
 msgid "status date"
 msgstr "date du statut"
 
-#: .\travel\models.py:1006 .\travel\models.py:1061 .\travel\views.py:378
+#: .\travel\models.py:1006 .\travel\models.py:1061 .\travel\views.py:379
 msgid "Comments"
 msgstr "Commentaires"
 
@@ -929,7 +929,7 @@ msgstr "Rapport SCVE pour le voyage"
 msgid "Unsure"
 msgstr "Incertain"
 
-#: .\travel\templates\travel\_trip_detail.html:69 .\travel\views.py:2029
+#: .\travel\templates\travel\_trip_detail.html:69 .\travel\views.py:2030
 msgid "Connected requests"
 msgstr "Demandes liées"
 
@@ -958,7 +958,7 @@ msgid "ADM - Approve / Deny Traveller Requests"
 msgstr "SMA - Approuver / Refuser les demandes des voyageurs"
 
 #: .\travel\templates\travel\_trip_request_approvals.html:21
-#: .\travel\views.py:360 .\travel\views.py:382
+#: .\travel\views.py:361 .\travel\views.py:383
 msgid "Name"
 msgstr "Nom"
 
@@ -997,12 +997,12 @@ msgid "Decision made"
 msgstr "Décision prise"
 
 #: .\travel\templates\travel\_trip_request_approvals.html:71
-#: .\travel\views.py:1130
+#: .\travel\views.py:1131
 msgid "Approve"
 msgstr "Approuver"
 
 #: .\travel\templates\travel\_trip_request_approvals.html:74
-#: .\travel\views.py:1130
+#: .\travel\views.py:1131
 msgid "Deny"
 msgstr "Refuser"
 
@@ -1175,7 +1175,7 @@ msgstr "Application de voyage"
 #: .\travel\templates\travel\default_reviewer_form.html:17
 #: .\travel\templates\travel\manage_settings_small.html:28
 #: .\travel\templates\travel\reviewer_formset.html:30
-#: .\travel\templates\travel\trip_confirm_delete.html:13 .\travel\views.py:193
+#: .\travel\templates\travel\trip_confirm_delete.html:13 .\travel\views.py:194
 msgid "Home"
 msgstr "Accueil"
 
@@ -1258,8 +1258,8 @@ msgid ""
 "            "
 msgstr ""
 "\n"
-"                Êtes-vous sûr de vouloir supprimer l'objet suivant "
-"%(object)s en tant qu'examinateur par défaut \n"
+"                Êtes-vous sûr de vouloir supprimer l'objet suivant %(object)"
+"s en tant qu'examinateur par défaut \n"
 "            "
 
 #: .\travel\templates\travel\default_reviewer_form.html:22
@@ -1462,7 +1462,7 @@ msgstr "Êtes-vous certain de vouloir passer"
 #: .\travel\templates\travel\trip_request_form.html:131
 #: .\travel\templates\travel\trip_request_form.html:138
 #: .\travel\templates\travel\trip_reviewer_approval_form.html:55
-#: .\travel\views.py:2060
+#: .\travel\views.py:2061
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -1688,8 +1688,8 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"            This trip will be eligible for review by the ADM office in "
-"%(time)s.\n"
+"            This trip will be eligible for review by the ADM office in %"
+"(time)s.\n"
 "          "
 msgstr ""
 "\n"
@@ -2034,126 +2034,126 @@ msgstr ""
 "Taux du CNM pour les frais accessoires manquants dans la base de données. "
 "Veuillez en informer votre administrateur système."
 
-#: .\travel\views.py:236
+#: .\travel\views.py:237
 msgid ""
-"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified "
-"trip{pluralization} requiring attention!!"
+"<b>ADMIN WARNING:</b> {region} Region has {unverified_trips} unverified trip"
+"{pluralization} requiring attention!!"
 msgstr ""
 "<b>AVERTISSEMENT ADMINISTRATIF :</b> {region} La région a {unverified_trips} "
 "voyage non vérifié{pluralization} nécessitant une intervention!!"
 
-#: .\travel\views.py:250
+#: .\travel\views.py:251
 msgid "ADM Office"
 msgstr "Bureau du SMA"
 
 #. Translators: Be sure there is no space between the word 'trip' and the variable 'pluralization'
-#: .\travel\views.py:260
+#: .\travel\views.py:261
 msgid ""
-"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
-"trip{pluralization} requiring attention!!"
+"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
+"{pluralization} requiring attention!!"
 msgstr ""
-"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified "
-"trip{pluralization} requiring attention!!"
+"<b>ADMIN WARNING:</b> ADM Office has {unverified_trips} unverified trip"
+"{pluralization} requiring attention!!"
 
-#: .\travel\views.py:291
+#: .\travel\views.py:292
 msgid "Traveller name"
 msgstr "Nom du voyageur"
 
-#: .\travel\views.py:292 .\travel\views.py:318
+#: .\travel\views.py:293 .\travel\views.py:319
 msgid "Traveller information"
 msgstr "Information du voyageur"
 
-#: .\travel\views.py:294 .\travel\views.py:1040
+#: .\travel\views.py:295 .\travel\views.py:1041
 msgid "Request status"
 msgstr "Statut de la demande"
 
-#: .\travel\views.py:297
+#: .\travel\views.py:298
 msgid "Departure location / Destination"
 msgstr "Lieu de départ / Destination"
 
 #. Translators: as in "Research Scientist?"
-#: .\travel\views.py:298 .\travel\views.py:363
+#: .\travel\views.py:299 .\travel\views.py:364
 msgid "Travel dates"
 msgstr "Dates de voyage"
 
-#: .\travel\views.py:302 .\travel\views.py:328
+#: .\travel\views.py:303 .\travel\views.py:329
 msgid "Role of participant"
 msgstr "Rôle du participant"
 
-#: .\travel\views.py:306 .\travel\views.py:331 .\travel\views.py:350
+#: .\travel\views.py:307 .\travel\views.py:332 .\travel\views.py:351
 msgid "Total amount of DFO funding (CAD)"
 msgstr "Montant total des financements du MPO (CAD)"
 
-#: .\travel\views.py:308 .\travel\views.py:332 .\travel\views.py:352
+#: .\travel\views.py:309 .\travel\views.py:333 .\travel\views.py:353
 msgid "Total amount of non-DFO funding (CAD)"
 msgstr "Montant du financement non-MPO (CAD)"
 
-#: .\travel\views.py:309 .\travel\views.py:333 .\travel\views.py:351
+#: .\travel\views.py:310 .\travel\views.py:334 .\travel\views.py:352
 msgid "Non-DFO funding sources"
 msgstr "Source de financement non-MPO"
 
-#: .\travel\views.py:310 .\travel\views.py:334
+#: .\travel\views.py:311 .\travel\views.py:335
 msgid "Total costs"
 msgstr "Coût total"
 
-#: .\travel\views.py:312 .\travel\views.py:355 .\travel\views.py:444
+#: .\travel\views.py:313 .\travel\views.py:356 .\travel\views.py:445
 msgid "Processing time"
 msgstr "Temps de traitement"
 
-#: .\travel\views.py:321 .\travel\views.py:362
+#: .\travel\views.py:322 .\travel\views.py:363
 msgid "RES?"
 msgstr "RES?"
 
-#: .\travel\views.py:340
+#: .\travel\views.py:341
 msgid "organizer name"
 msgstr "nom de l'organisateur"
 
-#: .\travel\views.py:341
+#: .\travel\views.py:342
 msgid "request status"
 msgstr "statut de la demande"
 
-#: .\travel\views.py:353 .\travel\views.py:368
+#: .\travel\views.py:354 .\travel\views.py:369
 msgid "Total cost"
 msgstr "Coût total"
 
-#: .\travel\views.py:369
+#: .\travel\views.py:370
 msgid "non-DFO funding"
 msgstr "financement non-MPO"
 
-#: .\travel\views.py:398
+#: .\travel\views.py:399
 msgid "Total DFO cost (excluding BTA)"
 msgstr "Coût total du MPO (excluant l’AGV)"
 
-#: .\travel\views.py:399
+#: .\travel\views.py:400
 msgid "Total DFO cost from non-RES travellers (excluding BTA)"
 msgstr "Coût total du MPO pour les voyageurs non RES (excluant l'AGV)"
 
-#: .\travel\views.py:423 .\travel\views.py:471 .\travel\views.py:529
-#: .\travel\views.py:704 .\travel\views.py:876 .\travel\views.py:969
+#: .\travel\views.py:424 .\travel\views.py:472 .\travel\views.py:530
+#: .\travel\views.py:705 .\travel\views.py:877 .\travel\views.py:970
 msgid "Trip Requests"
 msgstr "Demandes de voyage"
 
-#: .\travel\views.py:439
+#: .\travel\views.py:440
 msgid "section"
 msgstr "section"
 
-#: .\travel\views.py:440
+#: .\travel\views.py:441
 msgid "Requester name"
 msgstr "Nom du requérant"
 
-#: .\travel\views.py:442
+#: .\travel\views.py:443
 msgid "Destination"
 msgstr "Destination"
 
-#: .\travel\views.py:512
+#: .\travel\views.py:513
 msgid "Edit Trip Request"
 msgstr "Modifier la demande de voyage"
 
-#: .\travel\views.py:588
+#: .\travel\views.py:589
 msgid "New Trip Request"
 msgstr "Nouvelle demande de voyage"
 
-#: .\travel\views.py:654
+#: .\travel\views.py:655
 msgid ""
 "{} has been added as a traveller to this request. Please add any costs "
 "associated with this traveller."
@@ -2161,15 +2161,15 @@ msgstr ""
 "{} a été ajouté comme voyageur à cette demande. Veuillez ajouter tous les "
 "coûts associés à ce voyageur."
 
-#: .\travel\views.py:730
+#: .\travel\views.py:731
 msgid "Clone a Trip Request"
 msgstr "Cloner une demande de voyage"
 
-#: .\travel\views.py:731
+#: .\travel\views.py:732
 msgid "Please update the request details"
 msgstr "Veuillez mettre à jour les détails de la demande"
 
-#: .\travel\views.py:759
+#: .\travel\views.py:760
 msgid ""
 "sorry, cannot clone this trip because there is another trip request with the "
 "same user in the system"
@@ -2177,307 +2177,307 @@ msgstr ""
 "désolé, ne peut pas reproduire ce voyage parce qu'il y a une autre demande "
 "de voyage avec le même utilisateur dans le système"
 
-#: .\travel\views.py:829 .\travel\views.py:836 .\travel\views.py:956
-#: .\travel\views.py:1751 .\travel\views.py:1914
+#: .\travel\views.py:830 .\travel\views.py:837 .\travel\views.py:957
+#: .\travel\views.py:1752 .\travel\views.py:1915
 msgid "Proceed"
 msgstr "Poursuivre"
 
-#: .\travel\views.py:838
+#: .\travel\views.py:839
 msgid "Proceed with late submission"
 msgstr "Procéder à la soumission tardive"
 
-#: .\travel\views.py:843
+#: .\travel\views.py:844
 msgid "Un-submit request"
 msgstr "Annuler la soumission"
 
-#: .\travel\views.py:845
+#: .\travel\views.py:846
 msgid "Re-submit request"
 msgstr "Soumettre à nouveau la demande"
 
-#: .\travel\views.py:845
+#: .\travel\views.py:846
 msgid "Submit request"
 msgstr "Soumettre la demande"
 
-#: .\travel\views.py:851
+#: .\travel\views.py:852
 msgid "Do you wish to un-submit the following request?"
 msgstr "Souhaitez-vous annuler la demande suivante ?"
 
-#: .\travel\views.py:854
+#: .\travel\views.py:855
 msgid "Do you wish to re-submit the following request?"
 msgstr "Souhaitez-vous soumettre à nouveau la demande suivante ?"
 
-#: .\travel\views.py:855
+#: .\travel\views.py:856
 msgid "Do you wish to submit the following request?"
 msgstr "Souhaitez-vous soumettre la demande suivante ?"
 
-#: .\travel\views.py:857
+#: .\travel\views.py:858
 msgid "Do you wish to re-submit the following late request?"
 msgstr "Souhaitez-vous soumettre à nouveau la demande tardive suivante ?"
 
-#: .\travel\views.py:858
+#: .\travel\views.py:859
 msgid "Do you wish to submit the following late request?"
 msgstr "Souhaitez-vous soumettre la demande tardive suivante ?"
 
-#: .\travel\views.py:954
+#: .\travel\views.py:955
 msgid "Do you wish to cancel the following trip request?"
 msgstr "Souhaitez-vous annuler la demande de voyage suivante ?"
 
-#: .\travel\views.py:955
+#: .\travel\views.py:956
 msgid "Cancel request"
 msgstr "Annuler la demande"
 
-#: .\travel\views.py:960
+#: .\travel\views.py:961
 msgid "Please note that this action cannot be undone!!"
 msgstr "Veuillez noter que cette action ne peut être annulée !"
 
-#: .\travel\views.py:996
+#: .\travel\views.py:997
 msgid "Sorry, it is currently not possible to cancel your cancellation request"
 msgstr ""
 "Désolé, il n'est actuellement pas possible d'annuler votre demande "
 "d'annulation"
 
-#: .\travel\views.py:1028 .\travel\views.py:1630
+#: .\travel\views.py:1029 .\travel\views.py:1631
 msgid "Administrative Notes (Public)"
 msgstr "Notes administratives (publiques)"
 
-#: .\travel\views.py:1048 .\travel\views.py:1084
+#: .\travel\views.py:1049 .\travel\views.py:1085
 msgid "Total cost (DFO)"
 msgstr "Coût total (MPO)"
 
-#: .\travel\views.py:1053 .\travel\views.py:1252
+#: .\travel\views.py:1054 .\travel\views.py:1253
 msgid "Requests Awaiting Your Review"
 msgstr "Demandes en attente de votre examen"
 
-#: .\travel\views.py:1055
+#: .\travel\views.py:1056
 msgid "Requests Assigned to You for Review"
 msgstr "Demandes qui vous sont assignées pour révision"
 
-#: .\travel\views.py:1088 .\travel\views.py:1247
+#: .\travel\views.py:1089 .\travel\views.py:1248
 msgid "Admin Request Approval List"
 msgstr "Liste d'approbation des demandes de l'administration"
 
-#: .\travel\views.py:1118
+#: .\travel\views.py:1119
 msgid "Do you wish to approve the following request for {}"
 msgstr "Souhaitez-vous approuver la demande suivante pour {}"
 
-#: .\travel\views.py:1122
+#: .\travel\views.py:1123
 msgid "Do you wish to deny the following request for {}"
 msgstr "Souhaitez-vous refuser la demande suivante pour {}"
 
-#: .\travel\views.py:1127
+#: .\travel\views.py:1128
 msgid "These comments will be visible to the traveller"
 msgstr "Ces commentaires seront visibles par le voyageur"
 
-#: .\travel\views.py:1234
+#: .\travel\views.py:1235
 msgid "Do you wish to approve on behalf of {user} ({role})"
 msgstr "Souhaitez-vous approuver au nom de {user} ({role})"
 
-#: .\travel\views.py:1240
+#: .\travel\views.py:1241
 msgid "Do you wish to approve the following group request?"
 msgstr "Souhaitez-vous approuver la demande de groupe suivante ?"
 
-#: .\travel\views.py:1242
+#: .\travel\views.py:1243
 msgid "Do you wish to approve the following request?"
 msgstr "Souhaitez-vous approuver la demande suivante ?"
 
-#: .\travel\views.py:1305
+#: .\travel\views.py:1306
 msgid "Success! An email has been sent to the trip request owner."
 msgstr ""
 "Succès ! Un courriel a été envoyé au responsable de la demande de voyage."
 
-#: .\travel\views.py:1335
+#: .\travel\views.py:1336
 msgid "Are you certain you wish to skip the following user?"
 msgstr "Êtes-vous certain de vouloir passer l'utilisateur suivant ?"
 
-#: .\travel\views.py:1377
+#: .\travel\views.py:1378
 msgid "This function can only be used when the trip request is still a draft"
 msgstr ""
 "Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
 "encore à l'état de brouillon"
 
-#: .\travel\views.py:1379
+#: .\travel\views.py:1380
 msgid "You do not have the permissions to reset the reviewer list"
 msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour réinitialiser la liste "
 "des examinateurs"
 
-#: .\travel\views.py:1395
+#: .\travel\views.py:1396
 msgid "This function can only be used with an unreviewed trip."
 msgstr ""
 "Cette fonction ne peut être utilisée que lorsque la demande de voyage est "
 "encore à l'état de brouillon."
 
-#: .\travel\views.py:1409 .\travel\views.py:1421
+#: .\travel\views.py:1410 .\travel\views.py:1422
 msgid ""
 "Sorry, you cannot delete a reviewer who's status is set to {my_obj.status}"
 msgstr ""
 "Désolé, vous ne pouvez pas supprimer un examinateur dont le statut est fixé "
 "à {mon_obj.status}"
 
-#: .\travel\views.py:1444 .\travel\views.py:1482
+#: .\travel\views.py:1445 .\travel\views.py:1483
 msgid "The reviewer list has been successfully updated"
 msgstr "La liste des examinateurs a été mise à jour avec succès"
 
-#: .\travel\views.py:1464
+#: .\travel\views.py:1465
 msgid "You do not have the permissions to modify the reviewer list"
 msgstr ""
 "Vous n'avez pas les autorisations nécessaires pour modifier la liste des "
 "examinateurs"
 
-#: .\travel\views.py:1471
+#: .\travel\views.py:1472
 msgid "Sorry, you cannot modify the reviewers on a trip that is under review."
 msgstr ""
 "Désolé, vous ne pouvez pas modifier les examinateurs lorsqu'un voyage est en "
 "cours de révision."
 
-#: .\travel\views.py:1512 .\travel\views.py:1583 .\travel\views.py:1585
-#: .\travel\views.py:1608 .\travel\views.py:1645 .\travel\views.py:1688
+#: .\travel\views.py:1513 .\travel\views.py:1584 .\travel\views.py:1586
+#: .\travel\views.py:1609 .\travel\views.py:1646 .\travel\views.py:1689
 msgid "Trips"
 msgstr "Voyages"
 
-#: .\travel\views.py:1556 .\travel\views.py:1831 .\travel\views.py:2024
+#: .\travel\views.py:1557 .\travel\views.py:1832 .\travel\views.py:2025
 msgid "location"
 msgstr "location"
 
-#: .\travel\views.py:1557
+#: .\travel\views.py:1558
 msgid "abstract deadline"
 msgstr "date limite de soumission des résumés"
 
-#: .\travel\views.py:1559
+#: .\travel\views.py:1560
 msgid "trip dates"
 msgstr "les dates de voyages"
 
-#: .\travel\views.py:1570
+#: .\travel\views.py:1571
 msgid "ADM decision deadline"
 msgstr "Date limite de décision du SMA"
 
-#: .\travel\views.py:1576 .\travel\views.py:1684
+#: .\travel\views.py:1577 .\travel\views.py:1685
 msgid "Trips Eligible for ADM Review"
 msgstr "Voyages éligibles à l'examen du SMA"
 
-#: .\travel\views.py:1578
+#: .\travel\views.py:1579
 msgid "All Trips Requiring ADM Approval"
 msgstr "Tous les voyages nécessitant l'approbation du SMA"
 
-#: .\travel\views.py:1580 .\travel\views.py:1681
+#: .\travel\views.py:1581 .\travel\views.py:1682
 msgid "Upcoming Trips"
 msgstr "Voyages à venir"
 
-#: .\travel\views.py:1590
+#: .\travel\views.py:1591
 msgid "i.e., Trips which are fair game for ADMO review to begin"
 msgstr ""
 "c'est-à-dire des voyages qui sont équitables pour que l'examen du SMA "
 "commence"
 
-#: .\travel\views.py:1722
+#: .\travel\views.py:1723
 msgid "The trip has been added to the database!"
 msgstr "Le voyage a été ajouté à la base de données !"
 
-#: .\travel\views.py:1759
+#: .\travel\views.py:1760
 msgid "Do you wish to start a review on this trip?"
 msgstr "Souhaitez-vous commencer un examen sur ce voyage?"
 
-#: .\travel\views.py:1761
+#: .\travel\views.py:1762
 msgid "Do you wish to re-examine this trip?"
 msgstr "Souhaitez-vous réexaminer ce voyage ?"
 
-#: .\travel\views.py:1763
+#: .\travel\views.py:1764
 msgid "Do you wish to end the review of this trip?"
 msgstr "Souhaitez-vous terminer l’examen de ce voyage?"
 
-#: .\travel\views.py:1777
+#: .\travel\views.py:1778
 msgid "Start a Review"
 msgstr "Commencer un examen"
 
-#: .\travel\views.py:1777
+#: .\travel\views.py:1778
 msgid "End a Review"
 msgstr "Terminer un examen"
 
-#: .\travel\views.py:1825 .\travel\views.py:1857
+#: .\travel\views.py:1826 .\travel\views.py:1858
 msgid "Trips Awaiting Verification"
 msgstr "Voyages en attente de vérification"
 
-#: .\travel\views.py:1832 .\travel\views.py:2025
+#: .\travel\views.py:1833 .\travel\views.py:2026
 msgid "dates"
 msgstr "dates"
 
-#: .\travel\views.py:1833 .\travel\views.py:2026
+#: .\travel\views.py:1834 .\travel\views.py:2027
 msgid "length (days)"
 msgstr "durée (jours)"
 
-#: .\travel\views.py:1852
+#: .\travel\views.py:1853
 msgid "Verify Trip"
 msgstr "Vérification du voyage"
 
-#: .\travel\views.py:1870 .\travel\views.py:1927 .\travel\views.py:1968
+#: .\travel\views.py:1871 .\travel\views.py:1928 .\travel\views.py:1969
 msgid ""
 "Sorry, only ADMO administrators can verify trips that require ADM approval."
 msgstr ""
 "Désolé, seuls les administrateurs du bureau de la SMA peuvent vérifier les "
 "voyages qui nécessitent l'approbation de la SMA."
 
-#: .\travel\views.py:1912
+#: .\travel\views.py:1913
 msgid "Please select a trip to re-assign:"
 msgstr "Veuillez sélectionner un voyage à réassigner :"
 
-#: .\travel\views.py:1913
+#: .\travel\views.py:1914
 msgid ""
 "(You will have a chance to review this action before it is carried out.)"
 msgstr ""
 "(Vous aurez la possibilité d'examiner cette action avant qu'elle ne soit "
 "réalisée.)"
 
-#: .\travel\views.py:1941
+#: .\travel\views.py:1942
 msgid "Please confirm the following:"
 msgstr "Veuillez confirmer ce qui suit :"
 
-#: .\travel\views.py:1942
+#: .\travel\views.py:1943
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: .\travel\views.py:2022
+#: .\travel\views.py:2023
 msgid "status"
 msgstr "statut"
 
-#: .\travel\views.py:2028
+#: .\travel\views.py:2029
 msgid "Total travellers"
 msgstr "Nombre total de voyageurs"
 
-#: .\travel\views.py:2043 .\travel\views.py:2062
+#: .\travel\views.py:2044 .\travel\views.py:2063
 msgid "Trips Awaiting Your Review"
 msgstr "Voyages en attente de votre examen"
 
-#: .\travel\views.py:2045
+#: .\travel\views.py:2046
 msgid "Tagged Trips"
 msgstr ""
 "Demandes de voyage pour lesquelles vous avez été inscrit comme examinateur"
 
-#: .\travel\views.py:2072
+#: .\travel\views.py:2073
 msgid "{}'s Trip Review"
 msgstr "Revue de voyage pour {}"
 
-#: .\travel\views.py:2074
+#: .\travel\views.py:2075
 msgid "ADM Level Review"
 msgstr "Examen au niveau du SMA"
 
-#: .\travel\views.py:2079
+#: .\travel\views.py:2080
 msgid "Complete the review"
 msgstr "Terminer l'examen"
 
-#: .\travel\views.py:2081
+#: .\travel\views.py:2082
 msgid "Submit your review"
 msgstr "Soumettre votre évaluation"
 
-#: .\travel\views.py:2218
+#: .\travel\views.py:2219
 msgid "Cancel the trip"
 msgstr "Annuler le voyage"
 
-#: .\travel\views.py:2219
+#: .\travel\views.py:2220
 msgid "Do you wish to undo your cancellation request for the following trip?"
 msgstr ""
 "Souhaitez-vous annuler votre demande d'annulation pour le voyage suivant ?"
 
-#: .\travel\views.py:2221
+#: .\travel\views.py:2222
 msgid ""
 "Cancelling this trip will result in all linked requests to be 'cancelled'. "
 "The list of associated trip requests can be viewed below in the trip detail."
@@ -2486,19 +2486,19 @@ msgstr ""
 "liées. La liste de demandes de voyage associées peut être consultée ci-"
 "dessous dans le détail du voyage."
 
-#: .\travel\views.py:2225
+#: .\travel\views.py:2226
 msgid "This action cannot be undone."
 msgstr "Cette action ne peut être annulée."
 
-#: .\travel\views.py:2227
+#: .\travel\views.py:2228
 msgid "Cancel Trip"
 msgstr "Annuler le voyage"
 
-#: .\travel\views.py:2579
+#: .\travel\views.py:2580
 msgid "Default Reviewers"
 msgstr "Examinateurs par défaut"
 
-#: .\travel\views.py:2580
+#: .\travel\views.py:2581
 msgid ""
 "Use this module to set the default reviewers that get added to a trip "
 "request."
@@ -2506,15 +2506,15 @@ msgstr ""
 "Utilisez ce module pour définir les examinateurs par défaut qui sont ajoutés "
 "à une demande de voyage."
 
-#: .\travel\views.py:2626
+#: .\travel\views.py:2627
 msgid "Last login to DM Apps"
 msgstr "Dernière connexion à DM Apps"
 
-#: .\travel\views.py:2782
+#: .\travel\views.py:2783
 msgid "The cost has been successfully deleted."
 msgstr "Le coût a été supprimé avec succès."
 
-#: .\travel\views.py:2792
+#: .\travel\views.py:2793
 msgid "All empty costs have been cleared."
 msgstr "Tous les frais vides ont été supprimés."
 

@@ -256,16 +256,46 @@ class StaffListCreateAPIView(ListCreateAPIView):
         return year.staff_set.all()
 
     def perform_create(self, serializer):
-        serializer.save(project_year_id=self.kwargs.get("project_year"))
-
-    # def post(self, request, *args, **kwargs):
-    #     super().post(request, *args, **kwargs)
-
+        staff = serializer.save(project_year_id=self.kwargs.get("project_year"))
+        if staff.user and staff.user.email:
+            email = emails.StaffEmail(staff, "add", self.request)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
 
 class StaffRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = models.Staff.objects.all()
     serializer_class = serializers.StaffSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        # if instance.user and instance.user.email:
+        #     email = emails.StaffEmail(instance, "remove", self.request)
+        #     custom_send_mail(
+        #         subject=email.subject,
+        #         html_message=email.message,
+        #         from_email=email.from_email,
+        #         recipient_list=email.to_list
+        #     )
+
+    def perform_update(self, serializer):
+        staff = get_object_or_404(models.Staff, pk = self.kwargs.get("pk"))
+        old_lead_status = staff.is_lead
+        staff = serializer.save()
+        if (old_lead_status is False and staff.is_lead) and (staff.user and staff.user.email):
+            email = emails.StaffEmail(staff, "add", self.request)
+            custom_send_mail(
+                subject=email.subject,
+                html_message=email.message,
+                from_email=email.from_email,
+                recipient_list=email.to_list
+            )
+        super().perform_update(serializer)
+
 
 
 # O&M
@@ -333,26 +363,26 @@ class CapitalCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-# GC
-####
-
-class GCCostListCreateAPIView(ListCreateAPIView):
-    queryset = models.GCCost.objects.all()
-    serializer_class = serializers.GCCostSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
-
-    def get_queryset(self):
-        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.gc_costs.all()
-
-    def perform_create(self, serializer):
-        serializer.save(project_year_id=self.kwargs.get("project_year"))
-
-
-class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = models.GCCost.objects.all()
-    serializer_class = serializers.GCCostSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
+# # GC
+# ####
+#
+# class GCCostListCreateAPIView(ListCreateAPIView):
+#     queryset = models.GCCost.objects.all()
+#     serializer_class = serializers.GCCostSerializer
+#     permission_classes = [permissions.CanModifyOrReadOnly]
+#
+#     def get_queryset(self):
+#         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+#         return year.gc_costs.all()
+#
+#     def perform_create(self, serializer):
+#         serializer.save(project_year_id=self.kwargs.get("project_year"))
+#
+#
+# class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+#     queryset = models.GCCost.objects.all()
+#     serializer_class = serializers.GCCostSerializer
+#     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
 # MILESTONE
@@ -376,46 +406,46 @@ class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-# COLLABORATOR
+# COLLABORATION
 ##############
-class CollaboratorListCreateAPIView(ListCreateAPIView):
-    queryset = models.Collaborator.objects.all()
-    serializer_class = serializers.CollaboratorSerializer
+class CollaborationListCreateAPIView(ListCreateAPIView):
+    queryset = models.Collaboration.objects.all()
+    serializer_class = serializers.CollaborationSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.collaborators.all()
+        return year.collaborations.all()
 
     def perform_create(self, serializer):
         serializer.save(project_year_id=self.kwargs.get("project_year"))
 
 
-class CollaboratorRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = models.Collaborator.objects.all()
-    serializer_class = serializers.CollaboratorSerializer
+class CollaborationRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Collaboration.objects.all()
+    serializer_class = serializers.CollaborationSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-# AGREEMENTS
-##############
-class AgreementListCreateAPIView(ListCreateAPIView):
-    queryset = models.CollaborativeAgreement.objects.all()
-    serializer_class = serializers.AgreementSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
-
-    def get_queryset(self):
-        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.agreements.all()
-
-    def perform_create(self, serializer):
-        serializer.save(project_year_id=self.kwargs.get("project_year"))
-
-
-class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = models.CollaborativeAgreement.objects.all()
-    serializer_class = serializers.AgreementSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
+# # AGREEMENTS
+# ##############
+# class AgreementListCreateAPIView(ListCreateAPIView):
+#     queryset = models.CollaborativeAgreement.objects.all()
+#     serializer_class = serializers.AgreementSerializer
+#     permission_classes = [permissions.CanModifyOrReadOnly]
+#
+#     def get_queryset(self):
+#         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+#         return year.agreements.all()
+#
+#     def perform_create(self, serializer):
+#         serializer.save(project_year_id=self.kwargs.get("project_year"))
+#
+#
+# class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+#     queryset = models.CollaborativeAgreement.objects.all()
+#     serializer_class = serializers.AgreementSerializer
+#     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
 # STATUS REPORTS
@@ -660,8 +690,11 @@ class ReviewListCreateAPIView(ListCreateAPIView):
             last_modified_by=self.request.user
         )
 
-        if self.request.data.get("email_update"):
+        if self.request.data.get("approval_email_update"):
             my_review.send_approval_email(self.request)
+
+        if self.request.data.get("review_email_update"):
+            my_review.send_review_email(self.request)
 
 
 class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -674,6 +707,8 @@ class ReviewRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             last_modified_by=self.request.user
         )
 
-        if self.request.data.get("email_update"):
+        if self.request.data.get("approval_email_update"):
             my_review.send_approval_email(self.request)
 
+        if self.request.data.get("review_email_update"):
+            my_review.send_review_email(self.request)

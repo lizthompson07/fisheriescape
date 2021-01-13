@@ -1,13 +1,20 @@
+import os
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
+from lib.templatetags.custom_filters import nz
 from scuba.mixins import LoginAccessRequiredMixin, ScubaAdminRequiredMixin
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonUpdateView, CommonCreateView, \
-    CommonDeleteView, CommonDetailView
-from . import models, forms, filters
+    CommonDeleteView, CommonDetailView, CommonFormView
+from . import models, forms, filters, reports
 
 
 class IndexTemplateView(LoginAccessRequiredMixin, CommonTemplateView):
@@ -27,6 +34,7 @@ class DiverFormsetView(ScubaAdminRequiredMixin, CommonFormsetView):
     success_url_name = "scuba:manage_divers"
     home_url_name = "scuba:index"
     delete_url_name = "scuba:delete_diver"
+    post_display_fields = ["dive_count"]
 
 
 class DiverHardDeleteView(ScubaAdminRequiredMixin, CommonHardDeleteView):
@@ -94,8 +102,7 @@ class RegionDetailView(ScubaAdminRequiredMixin, CommonDetailView):
             'name',
             'abbreviation',
             'tdescription|{}'.format("description"),
-            'latitude',
-            'longitude',
+            'coordinates',
         ]
         context["site_field_list"] = site_field_list
         return context
@@ -146,8 +153,7 @@ class SiteDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         'name',
         'abbreviation',
         'tdescription|{}'.format("description"),
-        'latitude',
-        'longitude',
+        'coordinates',
     ]
 
     def get_parent_crumb(self):
@@ -157,6 +163,7 @@ class SiteDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         transect_field_list = [
             'name',
+            'coordinates',
         ]
         context["transect_field_list"] = transect_field_list
         return context
@@ -284,14 +291,16 @@ class SampleListView(ScubaAdminRequiredMixin, CommonFilterView):
     template_name = 'scuba/list.html'
     filterset_class = filters.SampleFilter
     home_url_name = "scuba:index"
+    row_object_url_name = "scuba:sample_detail"
     new_object_url = reverse_lazy("scuba:sample_new")
-    row_object_url_name = row_ = "scuba:sample_detail"
+    new_btn_text = gettext_lazy("Add a New Sample")
     container_class = "container-fluid bg-light curvy"
-
     field_list = [
+        {"name": 'id|{}'.format("sample Id"), "class": "", "width": ""},
         {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
         {"name": 'site.region|{}'.format("region"), "class": "", "width": ""},
         {"name": 'site', "class": "", "width": ""},
+        {"name": 'dive_count|{}'.format(_("dive count")), "class": "", "width": ""},
     ]
 
 
@@ -300,14 +309,16 @@ class SampleUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
     form_class = forms.SampleForm
     template_name = 'scuba/form.html'
     home_url_name = "scuba:index"
-    parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
     container_class = "container bg-light curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("scuba:sample_detail", args=[self.get_object().id])}
 
 
 class SampleCreateView(ScubaAdminRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
-    success_url = reverse_lazy('scuba:sample_list')
     template_name = 'scuba/form.html'
     home_url_name = "scuba:index"
     parent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
@@ -336,6 +347,7 @@ class SampleDetailView(ScubaAdminRequiredMixin, CommonDetailView):
             'side',
             'width_m',
             'comment',
+            'observation_count|{}'.format(_("lobster count")),
         ]
         context["dive_field_list"] = dive_field_list
         return context
@@ -344,14 +356,18 @@ class SampleDetailView(ScubaAdminRequiredMixin, CommonDetailView):
 class SampleDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
     model = models.Sample
     success_url = reverse_lazy('scuba:sample_list')
+    home_url_name = "scuba:index"
     success_message = 'The functional group was successfully deleted!'
     template_name = 'scuba/confirm_delete.html'
     container_class = "container bg-light curvy"
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("scuba:sample_detail", args=[self.get_object().id])}
 
 
 # DIVES #
 #########
-
 
 class DiveCreateView(ScubaAdminRequiredMixin, CommonCreateView):
     model = models.Dive
@@ -362,10 +378,16 @@ class DiveCreateView(ScubaAdminRequiredMixin, CommonCreateView):
     grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
 
     def get_initial(self):
-        return {"sample":self.kwargs.get("sample")}
+        sample = self.get_sample()
+        return dict(
+            sample=sample.id,
+            start_descent=sample.datetime,
+            start_final_ascent=sample.datetime,
+            reach_surface=sample.datetime,
+        )
 
     def get_sample(self):
-        return get_object_or_404(models.Region, pk=self.kwargs.get("sample"))
+        return get_object_or_404(models.Sample, pk=self.kwargs.get("sample"))
 
     def get_parent_crumb(self):
         return {"title": self.get_sample(), "url": reverse("scuba:sample_detail", args=[self.get_sample().id])}
@@ -375,35 +397,9 @@ class DiveCreateView(ScubaAdminRequiredMixin, CommonCreateView):
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.sample = self.get_sample()
+        sample = self.get_sample()
+        obj.sample = sample
         return super().form_valid(form)
-
-
-class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
-    model = models.Dive
-    template_name = 'scuba/dive_detail.html'
-    home_url_name = "scuba:index"
-    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
-    container_class = "container bg-light curvy"
-    field_list = [
-        'transect',
-        'diver',
-        'heading',
-        'side',
-        'width_m',
-        'comment',
-    ]
-
-    def get_parent_crumb(self):
-        return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        transect_field_list = [
-            'name',
-        ]
-        context["transect_field_list"] = transect_field_list
-        return context
 
 
 class DiveUpdateView(ScubaAdminRequiredMixin, CommonUpdateView):
@@ -434,3 +430,128 @@ class DiveDeleteView(ScubaAdminRequiredMixin, CommonDeleteView):
 
     def get_grandparent_crumb(self):
         return {"title": self.get_object().sample, "url": reverse_lazy("scuba:sample_detail", args=[self.get_object().sample.id])}
+
+
+class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
+    model = models.Dive
+    template_name = 'scuba/dive_detail.html'
+    home_url_name = "scuba:index"
+    grandparent_crumb = {"title": gettext_lazy("Samples"), "url": reverse_lazy("scuba:sample_list")}
+    container_class = "container bg-light curvy"
+    field_list = [
+        'transect',
+        'diver',
+        'start_descent',
+        'bottom_time',
+        'max_depth_ft',
+        'psi_in',
+        'psi_out',
+        'heading',
+        'side',
+        'width_m',
+        'comment',
+    ]
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().sample, "url": reverse("scuba:sample_detail", args=[self.get_object().sample.id])}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        section_field_list = [
+            'interval',
+            'depth_ft',
+            'substrate_profile|{}'.format(_("substrate profile")),
+            'comment',
+        ]
+        context["section_field_list"] = section_field_list
+        observation_field_list = [
+            'id',
+            'sex',
+            'egg_status',
+            'carapace_length_mm',
+            'certainty_rating',
+            'comment',
+        ]
+        context["observation_field_list"] = observation_field_list
+        context["random_observation"] = models.Observation.objects.first()
+        return context
+
+
+class DiveDataEntryTemplateView(ScubaAdminRequiredMixin, CommonDetailView):
+    model = models.Dive
+    template_name = 'scuba/dive_data_entry/main.html'
+    container_class = "container bg-light-green curvy"
+    field_list = [
+        'id|{}'.format(_("dive Id")),
+        'transect',
+        'diver',
+        'heading',
+        'side',
+        'width_m',
+        'comment',
+    ]
+
+    def get_h1(self):
+        return _("Data Entry Mode")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        section_field_list = [
+            'interval',
+            'depth_ft',
+            'substrate_profile|{}'.format(_("substrate profile")),
+            'observation_count|{}'.format(_("observation count")),
+            'comment',
+        ]
+        context["section_field_list"] = section_field_list
+        observation_field_list = [
+            'id',
+            'sex',
+            'egg_status',
+            'carapace_length_mm',
+            'certainty_rating',
+            'comment',
+        ]
+        context["observation_field_list"] = observation_field_list
+        context["random_section"] = models.Section.objects.first()
+        context["random_observation"] = models.Observation.objects.first()
+        context["section_form"] = forms.SectionForm
+        context["obs_form"] = forms.ObservationForm
+        context["new_obs_form"] = forms.NewObservationForm
+        return context
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(ScubaAdminRequiredMixin, CommonFormView):
+    template_name = 'scuba/report_search.html'
+    form_class = forms.ReportSearchForm
+    h1 = gettext_lazy("Scuba Reports")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        year = nz(form.cleaned_data["year"], "None")
+        if report == 1:
+            return HttpResponseRedirect(reverse("scuba:dive_log_report") + f"?year={year}")
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("scuba:reports"))
+
+
+@login_required()
+def dive_log_report(request):
+    year = None if request.GET.get("year") == "None" else int(request.GET.get("year"))
+    file_url = reports.generate_dive_log(year=year)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="dive log ({timezone.now().strftime("%Y-%m-%d")}).xlsx"'
+
+            return response
+    raise Http404

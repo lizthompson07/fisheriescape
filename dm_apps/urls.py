@@ -40,6 +40,10 @@ if settings.INSTALLED_APPS.count("travel"):
     urlpatterns.append(
         path('api/', include('travel.api.urls')),
     )
+if settings.INSTALLED_APPS.count("scuba"):
+    urlpatterns.append(
+        path('api/', include('scuba.api.urls')),
+    )
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
@@ -187,6 +191,11 @@ if settings.INSTALLED_APPS.count("csas"):
     urlpatterns += i18n_patterns(path('csas/', include('csas.urls')), prefix_default_language=True)
 else:
     print("not connecting csas app")
+
+if settings.INSTALLED_APPS.count("bio_diversity"):
+    urlpatterns += i18n_patterns(path('bio_diversity/', include('bio_diversity.urls')), prefix_default_language=True)
+else:
+    print("not connecting bio_diversity app")
 
 if settings.AZURE_STORAGE_ACCOUNT_NAME == "":
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL,

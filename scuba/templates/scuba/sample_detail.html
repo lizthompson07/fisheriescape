@@ -3,22 +3,37 @@
 {% load i18n %}
 
 {% block subcontent %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <style>
-  .my-btn{
+  .my-btn {
       font-size: small;
   }
+
+  #map {
+      height: 200px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
   </style>
+
+
   <div class="btns mb-3">
     <a href="{% url 'scuba:sample_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'scuba:sample_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
   </div>
 
-  <div class="mb-3">
-    <table class="table table-sm" style="width: 50%">
-      {% for field in field_list %}
-        {% verbose_td_display object field %}
-      {% endfor %}
-    </table>
+  <div class="mb-3 row">
+    <div class="col">
+      <table class="table table-sm" style="width: 50%">
+        {% for field in field_list %}
+          {% verbose_td_display object field %}
+        {% endfor %}
+      </table>
+    </div>
+    <div class="col">
+      <div id="map">
+      </div>
+    </div>
   </div>
 
   <div class="mb-3">
@@ -64,6 +79,35 @@
 
     {% endif %}
   </div>
+  {% if object.site.get_coordinates %}
 
+
+    <script type="application/javascript">
+    function initialize() {
+      map = new L.Map("map", {
+        center: new L.LatLng({{ object.site.get_coordinates.x }}, {{ object.site.get_coordinates.y }}),
+        zoom: 14,
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+
+      L.marker(
+          [{{object.site.latitude}}, {{ object.site.longitude }}],
+          {
+            title: '{{object.site}}',
+          }
+      ).addTo(map).bindPopup("<b>Site name:</b> {{object.site.name}}");
+
+    }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
+    });
+    </script>
+  {% endif %}
 
 {% endblock %}

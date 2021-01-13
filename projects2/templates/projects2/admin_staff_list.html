@@ -1,0 +1,49 @@
+{% extends "projects2/list.html" %}
+
+{% load custom_tags %}
+{% load verbose_names %}
+
+{% block table_tr %}
+  {% url row_object_url_name object.id as my_url %}
+
+  {% if request.META.QUERY_STRING %}
+    {% echo my_url|add:"?"|add:request.META.QUERY_STRING|safe as my_url %}
+  {% endif %}
+
+  <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
+    {% for field in field_list %}
+      <td class="{{ field.class }}">
+        {% block table_td %}
+          {% get_field_value object field.name safe=True %}
+        {% endblock %}
+      </td>
+    {% endfor %}
+  </tr>
+{% endblock %}
+
+{##}
+{#{% for obj in filter_list %}#}
+{#  <tr href="{{ url }}">#}
+{##}
+{#    <td>{{ obj.project.year }}</td>#}
+{#    <td>{{ obj.project.section.division.branch.region.name }} - {{ obj.project.section.division.name }}#}
+{#      - {{ obj.project.section.name }}</td>#}
+{#    <td>#}
+{#      {{ obj.project.project_title }} {% if not obj.project.submitted %} - <span class="red-font">UNSUBMITTED</span>   {% endif %}#}
+{#    </td>#}
+{#    <td>{{ obj }}</td>#}
+{##}
+{#    <td>{{ obj.lead|yesno }}</td>#}
+{#    <td>{{ obj.employee_type }}</td>#}
+{##}
+{#  </tr>#}
+{#{% endfor %}#}
+{#</tbody>#}
+{#</table>#}
+{#<b>#}
+{#  TOTAL: {{ object_list.count }}#}
+{#</b>#}
+{#</div>#}
+{##}
+{#{% endblock content %}#}
+{##}

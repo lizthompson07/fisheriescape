@@ -6,7 +6,6 @@
 
 {% block pre_table %}
 
-  {% if my %}
     <div id="app">
       <div class="row mb-5">
         <div class="col-5">
@@ -38,7 +37,6 @@
       </div>
     </div>
 
-  {% endif %}
 
 {% endblock %}
 
@@ -59,9 +57,5 @@
 
 {% block body_js %}
   {{ block.super }}
-{% if my %}
-
     <script src="{% static '/projects2/mainMyProjectList.js' %}?version=0.0.0" type="application/javascript"></script>
-
-{% endif %}
 {% endblock %}

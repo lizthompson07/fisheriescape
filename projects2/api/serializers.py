@@ -35,10 +35,38 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     metadata = serializers.SerializerMethodField()
     general_comment_html = serializers.SerializerMethodField()
-    notification_email_sent = serializers.SerializerMethodField()
+    approval_notification_email_sent = serializers.SerializerMethodField()
+    review_notification_email_sent = serializers.SerializerMethodField()
+    collaboration_score_html = serializers.SerializerMethodField()
+    strategic_score_html = serializers.SerializerMethodField()
+    operational_score_html = serializers.SerializerMethodField()
+    ecological_score_html = serializers.SerializerMethodField()
+    scale_score_html = serializers.SerializerMethodField()
+    approval_level_display = serializers.SerializerMethodField()
 
-    def get_notification_email_sent(self, instance):
-        return date(instance.notification_email_sent)
+    def get_approval_level_display(self, instance):
+        return instance.get_approval_level_display()
+
+    def get_scale_score_html(self, instance):
+        return instance.scale_score_html
+
+    def get_ecological_score_html(self, instance):
+        return instance.ecological_score_html
+
+    def get_operational_score_html(self, instance):
+        return instance.operational_score_html
+
+    def get_strategic_score_html(self, instance):
+        return instance.strategic_score_html
+
+    def get_collaboration_score_html(self, instance):
+        return instance.collaboration_score_html
+
+    def get_approval_notification_email_sent(self, instance):
+        return date(instance.approval_notification_email_sent)
+
+    def get_review_notification_email_sent(self, instance):
+        return date(instance.review_notification_email_sent)
 
     def get_metadata(self, instance):
         return instance.metadata
@@ -310,41 +338,48 @@ class ActivitySerializer(serializers.ModelSerializer):
         return instance.project_year_id
 
 
-class CollaboratorSerializer(serializers.ModelSerializer):
+class CollaborationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Collaborator
+        model = models.Collaboration
         exclude = ["project_year"]
 
     project_year_id = serializers.SerializerMethodField()
-
-    def get_project_year_id(self, instance):
-        return instance.project_year_id
-
-
-class GCCostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.GCCost
-        exclude = ["project_year"]
-
-    project_year_id = serializers.SerializerMethodField()
-
-    def get_project_year_id(self, instance):
-        return instance.project_year_id
-
-
-class AgreementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.CollaborativeAgreement
-        exclude = ["project_year"]
-
     new_or_existing_display = serializers.SerializerMethodField()
-    project_year_id = serializers.SerializerMethodField()
+    type_display = serializers.SerializerMethodField()
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
 
     def get_new_or_existing_display(self, instance):
         return instance.get_new_or_existing_display()
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
+
+#
+# class GCCostSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.GCCost
+#         exclude = ["project_year"]
+#
+#     project_year_id = serializers.SerializerMethodField()
+#
+#     def get_project_year_id(self, instance):
+#         return instance.project_year_id
+#
+#
+# class AgreementSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.CollaborativeAgreement
+#         exclude = ["project_year"]
+#
+#     project_year_id = serializers.SerializerMethodField()
+#
+
+#
+#     def get_project_year_id(self, instance):
+#         return instance.project_year_id
 
 
 class StatusReportSerializer(serializers.ModelSerializer):

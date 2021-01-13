@@ -3,10 +3,20 @@ import os
 
 import pytz
 from django.conf import settings
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.timezone import make_aware
 
 from scuba import models
+
+
+def is_number_tryexcept(s):
+    """ Returns True is string is a number. https://stackoverflow.com/questions/354038/how-do-i-check-if-a-string-is-a-number-float """
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 
 def digest_data():
@@ -37,13 +47,13 @@ def digest_data():
             region, created = models.Region.objects.get_or_create(name=region_name, abbreviation=region_abbrev)
 
             # SITE
-            site_name = row['Site']
+            site_name = row['Site'].upper()
             site, created = models.Site.objects.get_or_create(
                 name=site_name, abbreviation=site_name, region=region
             )
 
             # TRANSECT
-            transect_name = row['Transect']
+            transect_name = row['Transect'].upper()
             transect, created = models.Transect.objects.get_or_create(
                 name=transect_name, site=site
             )
@@ -101,44 +111,71 @@ def digest_data():
                 heading=heading,
                 side=side,
                 width_m=row['Width (m)'],
-                comment=row['Comments'],
             )
 
             # SECTION
-            sand = float(row['Sa']) if row['Sa'].isdigit() else 0
-            mud = float(row['Va']) if row['Va'].isdigit() else 0
-            solid = float(row['Du']) if row['Du'].isdigit() else 0
-            algae = float(row['Al']) if row['Al'].isdigit() else 0
-            gravel = float(row['Gr']) if row['Gr'].isdigit() else 0
-            cobble = float(row['Co']) if row['Co'].isdigit() else 0
-            pebble = float(row['Ca']) if row['Ca'].isdigit() else 0
+            sand = float(row['Sa']) if is_number_tryexcept(row['Sa']) else 0
+            mud = float(row['Va']) if is_number_tryexcept(row['Va']) else 0
+            hard = float(row['Du']) if is_number_tryexcept(row['Du']) else 0
+            algae = float(row['Al']) if is_number_tryexcept(row['Al']) else 0
+            gravel = float(row['Gr']) if is_number_tryexcept(row['Gr']) else 0
+            cobble = float(row['Co']) if is_number_tryexcept(row['Co']) else 0
+            pebble = float(row['Ca']) if is_number_tryexcept(row['Ca']) else 0
 
-            section, created = models.Section.objects.get_or_create(
-                dive=dive,
-                interval=row['section'],
-                depth_ft=row['Depth_(ft)'] if row['Depth_(ft)'].isdigit() else None,
-                comment=row['Comments'],
+            try:
+                section, created = models.Section.objects.get_or_create(
+                    dive=dive,
+                    interval=row['section'],
+                    depth_ft=row['Depth_(ft)'] if is_number_tryexcept(row['Depth_(ft)']) else None,
+                    comment=row['Comments'],
 
-                percent_sand=sand,
-                percent_mud=mud,
-                percent_solid=solid,
-                percent_algae=algae,
-                percent_gravel=gravel,
-                percent_cobble=cobble,
-                percent_pebble=pebble,
+                    percent_sand=sand,
+                    percent_mud=mud,
+                    percent_hard=hard,
+                    percent_algae=algae,
+                    percent_gravel=gravel,
+                    percent_cobble=cobble,
+                    percent_pebble=pebble,
 
-            )
+                )
+            except IntegrityError as E:
+                # comment = row[
+                #               'Comments'] + f"; There is a problem with the source data: the diver's description of substrate is not consistent between observations (rows)"
+                section = models.Section.objects.get(
+                    dive=dive,
+                    interval=row['section'],
+                    depth_ft=row['Depth_(ft)'] if is_number_tryexcept(row['Depth_(ft)']) else None,
+                )
+                section_comment = "There is a problem with the source data: the diver's description of substrate is not consistent between observations (rows)"
+                if not section.comment:
+                    section.comment = section_comment
+                elif section_comment in section.comment:
+                    pass
+                else:
+                    section.comment += f'; {section_comment}'
+                section.save()
+
+                dive_comment = f"There is a problem with the source data: the diver's description of substrate is not " \
+                                       f"consistent between observations (rows): please see section interval #{row['section']}"
+                if not dive.comment:
+                    dive.comment = dive_comment
+                elif dive_comment in dive.comment:
+                    pass
+                else:
+                    dive.comment += f'; {dive_comment}'
+
+                dive.save()
+                print(E, section, dive)
 
             # OBSERVATIONS
-            # start by deleting all previous observations..
-            section.observations.all().delete()
-
             # sex
             sex_txt_orig = row['sexe']
-            sex_txt = row['sexe'].lower().strip().replace(" ", "").replace("-","")
+            sex_txt = row['sexe'].lower().strip().replace(" ", "").replace("-", "")
             sex = None
-            if sex_txt in ["m", "f", "i"]:
+            if sex_txt in ["m", "f"]:
                 sex = sex_txt
+            else:
+                sex = 'u'
 
             egg_status = None
             if sex_txt in ["b", "b1", "b2", "b3", "b4"]:
@@ -146,19 +183,34 @@ def digest_data():
                 sex = 'f'
 
             length_txt_orig = row['LC_(mm)']
-            length_txt = row['LC_(mm)'].strip().replace("?", "").replace("~","")
+            length_txt = row['LC_(mm)'].strip().replace("?", "").replace("~", "")
             length = None
-            if length_txt.isdigit():
+            if is_number_tryexcept(length_txt):
                 length = float(length_txt)
 
             if length:
-                comment = f"imported from MS Excel on {timezone.now().strftime('%Y-%m-%d')}. Original data: sex={sex_txt_orig}, length={length_txt_orig}"
+                # uncertainty
+                certainty = 1
+                # will deem the observation uncertain if there is a tilda in the lenth OR length is > 20 and sex is not known.
+                certainty_reason = None
+                if "~" in row['LC_(mm)']:
+                    certainty = 0
+                    certainty_reason = "Observation deemed uncertain because of tilda in length field."
+                elif length > 20 and sex == 'u':
+                    certainty = 0
+                    certainty_reason = "Observation deemed uncertain because > 20mm but sex is not known."
+
+                comment = f"Imported from MS Excel on {timezone.now().strftime('%Y-%m-%d')}. Original data: sex={sex_txt_orig}, length={length_txt_orig}."
+                if certainty_reason:
+                    comment += f" {certainty_reason}"
+
                 models.Observation.objects.create(
                     section=section,
-                    sex = sex,
-                    egg_status = egg_status,
-                    carapace_length_mm = length,
-                    comment=comment
+                    sex=sex,
+                    egg_status=egg_status,
+                    carapace_length_mm=length,
+                    comment=comment,
+                    certainty_rating=certainty,
                 )
 
             else:
@@ -171,3 +223,8 @@ def digest_data():
                 section.save()
 
 
+def delete_all_data():
+    models.Sample.objects.all().delete()
+    models.Transect.objects.all().delete()
+    models.Site.objects.all().delete()
+    models.Region.objects.all().delete()

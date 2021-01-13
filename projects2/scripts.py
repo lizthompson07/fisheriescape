@@ -1,8 +1,11 @@
+import csv
 import os
 
 import pytz
+from django.conf import settings
 from django.core import serializers
 from django.core.files import File
+from django.db import IntegrityError
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from textile import textile
@@ -210,7 +213,7 @@ def fetch_project_data():
 
         new_py.responsibility_center = old_p.responsibility_center
         new_py.allotment_code = old_p.allotment_code
-        new_py.notification_email_sent = old_p.notification_email_sent
+        new_py.approval_notification_email_sent = old_p.notification_email_sent
         new_py.administrative_notes = old_p.meeting_notes
         new_py.updated_at = old_p.date_last_modified
         new_py.modified_by = old_p.last_modified_by
@@ -463,7 +466,7 @@ def from_project_to_reviewer():
             )
             review.allocated_budget = new_py.allocated_budget
             review.approval_status = old_p.approved  # will be 1, 0 , None
-            review.notification_email_sent = old_p.notification_email_sent
+            review.approval_notification_email_sent = old_p.notification_email_sent
             review.general_comment = old_p.meeting_notes
             review.approver_comment = old_p.meeting_notes
             review.save()
@@ -529,3 +532,127 @@ def fix_submitted_project_years():
         else:
             py.submitted = timezone.now()
         py.save()
+
+
+def build_collaborations():
+    for item in models.GCCost.objects.all():
+        models.Collaboration.objects.get_or_create(
+            type=2,
+            project_year=item.project_year,
+            organization=item.recipient_org,
+            people=item.project_lead,
+            agreement_title=item.proposed_title,
+            gc_program=item.gc_program,
+            amount=item.amount,
+            new_or_existing=2,
+        )
+
+    for item in models.CollaborativeAgreement.objects.all():
+        models.Collaboration.objects.get_or_create(
+            type=3,
+            project_year=item.project_year,
+            organization=item.partner_organization,
+            people=item.project_lead,
+            agreement_title=item.agreement_title,
+            new_or_existing=item.new_or_existing,
+            notes=item.notes,
+        )
+
+    for item in models.Collaborator.objects.all():
+        models.Collaboration.objects.get_or_create(
+            type=1,
+            project_year=item.project_year,
+            organization=item.name,
+            critical=item.critical,
+            notes=item.notes,
+            new_or_existing=2,
+        )
+
+
+def digest_priorities():
+    # open the csv we want to read
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'projects2', 'csrf_priorities.csv')
+    with open(my_target_data_file, 'r') as csv_read_file:
+        my_csv = csv.DictReader(csv_read_file)
+        for row in my_csv:
+            # theme
+            pin = row['Priority identification number (PIN)']
+            theme_code = pin.split("-")[0]
+            priority_code = pin.split("-")[1]
+            theme_name = row['Theme'].strip().replace('\n', "")
+            theme_nom = row['Thème']
+
+            theme, created = models.CSRFTheme.objects.get_or_create(
+                name=theme_name, code=theme_code
+            )
+            theme.nom = theme_nom
+            theme.save()
+
+            # sub-theme
+            sub_theme_name = row['Sub-Theme'].strip().replace('\n', "")
+            sub_theme_nom = row['Sous-thème']
+            sub_theme, created = models.CSRFSubTheme.objects.get_or_create(
+                csrf_theme=theme, name=sub_theme_name
+            )
+            sub_theme.nom = sub_theme_nom
+            sub_theme.save()
+
+            # priority
+            priority_name = row['Priority for Research'].strip().replace('\n', "")
+            priority_nom = row['Priorité de recherche']
+            try:
+                priority, created = models.CSRFPriority.objects.get_or_create(
+                    csrf_sub_theme=sub_theme, code=pin, name=priority_name
+                )
+            except IntegrityError as E:
+                print(E)
+                print(row)
+                print(sub_theme.id, pin, priority_name)
+
+            priority.nom = priority_nom
+            priority.save()
+
+            # client information
+            priority_desc = row['Additional information supplied by the client']
+            priority_desc_fr = row['Informations complémentaires fournies par le client']
+
+            client_information, created = models.CSRFClientInformation.objects.get_or_create(
+                csrf_priority=priority, name=priority_desc
+            )
+            client_information.nom = priority_desc_fr
+            client_information.save()
+
+
+def copy_citations():
+    from inventory.models import Citation as OldCitation, Resource
+    old_citations = OldCitation.objects.all()
+
+    for old_cit in old_citations:
+        old_pub = old_cit.publication
+
+        new_pub = None
+        if old_pub:
+            # make sure the publication exists
+            new_pub, created = shared_models.Publication.objects.get_or_create(pk=old_pub.id, name=old_pub.name)
+
+        # create the new citation based on the old one
+        new_cit, created = shared_models.Citation.objects.get_or_create(
+            id=old_cit.id,
+            name=old_cit.title_eng,
+            nom=old_cit.title_fre,
+            authors=old_cit.authors,
+            year=old_cit.year,
+            publication=new_pub,
+            pub_number=old_cit.pub_number,
+            url_en=old_cit.url_eng,
+            url_fr=old_cit.url_fre,
+            abstract_en=old_cit.abstract_eng,
+            abstract_fr=old_cit.abstract_fre,
+            series=old_cit.series,
+            region=old_cit.region,
+        )
+
+    for r in Resource.objects.all():
+        for cit_old in r.citations.all():
+            r.citations2.add(cit_old.id)
+

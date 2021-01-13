@@ -15,6 +15,7 @@ urlpatterns = [
     path('projects/<int:pk>/edit/', views.ProjectUpdateView.as_view(), name="project_edit"),  # tested
     path('projects/<int:pk>/delete/', views.ProjectDeleteView.as_view(), name="project_delete"),  # tested
     path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"),  # tested
+    path('projects/<int:pk>/references/', views.ProjectReferencesDetailView.as_view(), name="project_references"),  # tested
 
     path('my-list/', views.MyProjectListView.as_view(), name="my_project_list"),  # tested
     path('projects/explore/', views.ExploreProjectsTemplateView.as_view(), name="explore_projects"),  # tested
@@ -35,8 +36,8 @@ urlpatterns = [
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),  # tested
     path('status-reports/<int:pk>/print/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),  # tested
 
-    # # SETTINGS #
-    # ############
+    # SETTINGS #
+    ############
     # formsets
     path('settings/funding-sources/', views.FundingSourceFormsetView.as_view(), name="manage_funding_sources"),  # tested
     path('settings/funding-source/<int:pk>/delete/', views.FundingSourceHardDeleteView.as_view(), name="delete_funding_source"),  # tested
@@ -65,6 +66,19 @@ urlpatterns = [
     path('settings/upcoming-dates/', views.UpcomingDateFormsetView.as_view(), name="manage-upcoming-dates"),  # tested
     path('settings/upcoming-date/<int:pk>/delete/', views.UpcomingDateHardDeleteView.as_view(), name="delete-upcoming-date"),  # tested
 
+    path('settings/csrf-themes/', views.CSRFThemeFormsetView.as_view(), name="manage_csrf_themes"),
+    path('settings/csrf-theme/<int:pk>/delete/', views.CSRFThemeHardDeleteView.as_view(), name="delete_csrf_theme"),
+
+    path('settings/csrf-sub-themes/', views.CSRFSubThemeFormsetView.as_view(), name="manage_csrf_sub_themes"),
+    path('settings/csrf-sub-theme/<int:pk>/delete/', views.CSRFSubThemeHardDeleteView.as_view(), name="delete_csrf_sub_theme"),
+
+    path('settings/csrf-priorities/', views.CSRFPriorityFormsetView.as_view(), name="manage_csrf_priorities"),
+    path('settings/csrf-prioritie/<int:pk>/delete/', views.CSRFPriorityHardDeleteView.as_view(), name="delete_csrf_priority"),
+
+    path('settings/csrf-client-information/', views.CSRFClientInformationFormsetView.as_view(), name="manage_csrf_client_information"),
+    path('settings/csrf-client-information/<int:pk>/delete/', views.CSRFClientInformationHardDeleteView.as_view(), name="delete_csrf_client_information"),
+
+
     # full
     path('settings/reference-materials/', views.ReferenceMaterialListView.as_view(), name="ref_mat_list"),   # tested
     path('settings/reference-materials/new/', views.ReferenceMaterialCreateView.as_view(), name="ref_mat_new"),  # tested
@@ -76,9 +90,21 @@ urlpatterns = [
     path('settings/functional-groups/<int:pk>/edit/', views.FunctionalGroupUpdateView.as_view(), name="group_edit"),  # tested
     path('settings/functional-groups/<int:pk>/delete/', views.FunctionalGroupDeleteView.as_view(), name="group_delete"),  # tested
 
+    # admin
+    path('admin/staff-list/', views.AdminStaffListView.as_view(), name="admin_staff_list"),
+    path('admin/staff/<int:pk>/edit/<str:qry>/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
+    path('admin/staff/<int:pk>/edit/', views.AdminStaffUpdateView.as_view(), name="admin_staff_edit"),
+
+
     # Reports #
     ###########
+    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
+    path('reports/science-culture-committee-report/', views.culture_committee_report, name="culture_committee_report"),
+
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),  # tested
     path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),  # tested
+
+    path('projects/<int:pk>/csrf-application/<str:lang>/', views.csrf_application, name="csrf_application"),  # tested
+
 
 ]

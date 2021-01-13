@@ -1,0 +1,30 @@
+{% extends "projects2/form.html" %}
+{% load static %}
+{% load humanize %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block post_form_div %}
+  <p class="lead text-muted">
+    You can click <a href="#" pop-href="{% url 'shared_models:user_new' %}">HERE</a> to add a new user to the system.
+  </p>
+  {% if match_found %}
+    <div class="alert alert-info" role="alert">
+      <p class="lead">
+        Woohoo!! It seems like there is already a DM Apps user with the name {{ object.name }}. To make life easier, this their name as already been populated in the user field.
+      </p>
+    </div>
+  {% endif %}
+  {% if name_count > 1 %}
+  <div class="alert alert-danger" role="alert">
+    <p class="h3">
+      WARNING:
+    </p>
+    <p class="lead">
+      When this form is submitted, all staff members with the matching name <span class="highlight">{{ object.name }}</span> will be replaced with your
+      selection of user. There are {{ name_count }} matching records (including this one).
+    </p>
+  </div>
+  {% endif %}
+{% endblock %}

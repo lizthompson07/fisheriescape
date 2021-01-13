@@ -354,6 +354,7 @@ def get_project_field_list(project):
         'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),
         # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
+        'functional_group.theme|{}'.format(_("theme")),
         'functional_group',
         'default_funding_source',
         'start_date',
@@ -370,6 +371,7 @@ def get_project_field_list(project):
         'experimental_protocol' if is_acrdp else None,
 
         'tags',
+        'references',
         'metadata|{}'.format(_("metadata")),
     ]
     while None in my_list: my_list.remove(None)
@@ -421,14 +423,31 @@ def get_project_year_field_list(project_year=None):
         'coding',
         'submitted',
         'formatted_status|{}'.format(_("status")),
-        'allocated_budget|{}'.format(_("allocated budget")),
-        'review_score|{}'.format(_("review score")),
+        # 'allocated_budget|{}'.format(_("allocated budget")),
+        # 'review_score|{}'.format(_("review score")),
         'metadata|{}'.format(_("metadata")),
     ]
 
     # remove any instances of None
     while None in my_list: my_list.remove(None)
 
+    return my_list
+
+
+def get_review_field_list():
+    my_list = [
+        'collaboration_score_html|{}'.format("external pressures score"),
+        'strategic_score_html|{}'.format("strategic direction score"),
+        'operational_score_html|{}'.format("operational considerations score"),
+        'ecological_score_html|{}'.format("ecological impact score"),
+        'scale_score_html|{}'.format("scale score"),
+        'total_score',
+        'comments_for_staff',
+        'approval_level',
+        'approver_comment',
+        'allocated_budget',
+        'metadata',
+    ]
     return my_list
 
 
@@ -444,6 +463,21 @@ def get_staff_field_list():
         # 'overtime_description',
         'student_program',
         'amount',
+    ]
+    return my_list
+
+
+def get_citation_field_list():
+    my_list = [
+        'tname|{}'.format(_("title")),
+        'authors',
+        'year',
+        'publication',
+        'pub_number',
+        'turl|{}'.format(_("url")),
+        'tabstract|{}'.format(_("abstract")),
+        'series',
+        'region',
     ]
     return my_list
 
@@ -481,32 +515,16 @@ def get_activity_field_list():
     return my_list
 
 
-def get_collaborator_field_list():
+def get_collaboration_field_list():
     my_list = [
-        'name',
-        'critical',
-        'notes',
-    ]
-    return my_list
-
-
-def get_gc_cost_field_list():
-    my_list = [
-        'recipient_org',
-        'project_lead',
-        'proposed_title',
-        'gc_program',
-        'amount',
-    ]
-    return my_list
-
-
-def get_agreement_field_list():
-    my_list = [
-        'partner_organization',
-        'project_lead',
-        'agreement_title',
+        'type',
         'new_or_existing',
+        'organization',
+        'people',
+        'critical',
+        'agreement_title',
+        # 'gc_program',
+        # 'amount',
         'notes',
     ]
     return my_list

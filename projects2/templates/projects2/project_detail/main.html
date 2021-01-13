@@ -62,7 +62,7 @@
               {% trans "Project Overview" %}
             </h2>
 
-            {% trans "<span class='lead red-font'>missing data</span>" as nulltext %}
+            {% trans "<span class='red-font'>missing</span>" as nulltext %}
 
             <table class="table table-sm mb-5">
               {% for field in project_field_list %}
@@ -73,7 +73,26 @@
                       {{ object.overview_html|nz:nulltext }}
                     </td>
                   </tr>
+                {% elif "references" in field %}
+                  <tr>
+                    <th>
+                      {% get_verbose_label object field %}
+                      (<a href="#">{% trans "manage" %}</a>)
+                    </th>
+                    <td>
+                      {% if object.references.exists %}
+                        <ul>
+                          {% for ref in object.references.all %}
+                            <li>{{ ref.short_citation_html }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% else %}
+                        ---
+                      {% endif %}
+                    </td>
+                  </tr>
                 {% else %}
+
                   {% verbose_td_display object field th_width="30%" td_width="70%" nullmark=nulltext %}
                 {% endif %}
               {% endfor %}
@@ -107,21 +126,13 @@
               <modal v-if="showOldCapitalCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'capital_cost'"
                      :my_capital_cost="capitalCostToEdit"></modal>
 
-              <modal v-if="showNewGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'"></modal>
-              <modal v-if="showOldGCCostModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'gc_cost'"
-                     :my_gc_cost="gcCostToEdit"></modal>
-
               <modal v-if="showNewActivityModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'activity'"></modal>
               <modal v-if="showOldActivityModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'activity'"
                      :my_activity="activityToEdit"></modal>
 
-              <modal v-if="showNewCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'"></modal>
-              <modal v-if="showOldCollaboratorModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaborator'"
-                     :my_collaborator="collaboratorToEdit"></modal>
-
-              <modal v-if="showNewAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'"></modal>
-              <modal v-if="showOldAgreementModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'agreement'"
-                     :my_agreement="agreementToEdit"></modal>
+              <modal v-if="showNewCollaborationModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaboration'"></modal>
+              <modal v-if="showOldCollaborationModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'collaboration'"
+                     :my_collaboration="collaborationToEdit"></modal>
 
               <modal v-if="showNewStatusReportModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'status_report'"></modal>
               <modal v-if="showOldStatusReportModal" @close="closeModals(projectYear)" :year="projectYear" :mtype="'status_report'"
@@ -212,8 +223,8 @@
   </script>
 
 
-  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.6" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.4" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.9" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.7" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">
