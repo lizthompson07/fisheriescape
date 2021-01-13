@@ -90,4 +90,7 @@ urlpatterns = [
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),  # tested
     path('projects/<int:pk>/acrdp-budget/', views.export_acrdp_budget, name="export_acrdp_budget"),  # tested
 
+    path('projects/<int:pk>/csrf-application/<str:lang>/', views.csrf_application, name="csrf_application"),  # tested
+
+
 ]

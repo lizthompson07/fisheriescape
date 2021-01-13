@@ -7,6 +7,7 @@ var app = new Vue({
     canModify: false,
     showSubmit: false,
     isACRDP: false,
+    isCSRF: false,
     project_loading: false,
     project: {},
 
@@ -108,6 +109,9 @@ var app = new Vue({
             this.project = response;
             if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("acrdp") > -1) {
               this.isACRDP = true;
+            }
+            if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("csrf") > -1) {
+              this.isCSRF = true;
             }
           })
     },

@@ -1057,3 +1057,31 @@ def export_acrdp_budget(request, pk):
             response['Content-Disposition'] = f'inline; filename="ACRDP Budget (Project ID {project.id}).xls"'
             return response
     raise Http404
+
+
+
+@login_required()
+def csrf_application(request, pk, lang):
+    project = get_object_or_404(models.Project, pk=pk)
+
+    # check if the project lead's profile is up-to-date
+    if not project.lead_staff.exists():
+        messages.error(request, _("Warning: There are no lead staff on this project!!"))
+    # else:
+    #     if not project.lead_staff.first().user.profile.tposition:
+    #         messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (position title)"))
+    #     if not project.lead_staff.first().user.profile.phone:
+    #         messages.error(request, _("Warning: project lead's profile information is missing in DM Apps (phone number)"))
+    file_url = reports.generate_csrf_application(project, lang)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-word")
+            if lang == "fr":
+                filename = f'demande de FRSC (no. projet {project.id}).docx'
+            else:
+                filename = f'CSRF application (Project ID {project.id}).docx'
+
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
+            return response
+    raise Http404
