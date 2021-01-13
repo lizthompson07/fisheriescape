@@ -597,6 +597,35 @@ class GCCost(models.Model):
         ordering = ['recipient_org', ]
 
 
+class Collaboration(models.Model):
+    type_choices = (
+        (1, _("External Collaborator")),
+        (2, _("Grant & Contribution Agreement")),
+        (3, _("Collaborative Agreement")),
+    )
+    new_or_existing_choices = [
+        (1, _("New")),
+        (2, _("Existing")),
+    ]
+    project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="collaborations", verbose_name=_("project year"))
+    type = models.IntegerField(choices=type_choices, verbose_name=_("collaboration type"))
+    new_or_existing = models.IntegerField(choices=new_or_existing_choices, verbose_name=_("new or existing"))
+    organization = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("collaborating organization"))
+    people = models.CharField(max_length=1000, verbose_name=_("project lead(s)"), blank=True, null=True)
+    critical = models.BooleanField(default=True, verbose_name=_("Critical to project delivery?"), choices=YES_NO_CHOICES)
+    agreement_title = models.CharField(max_length=255, verbose_name=_("Title of the agreement (if applicable)"), blank=True, null=True)
+    gc_program = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Name of G&C program (if applicable)"))
+    amount = models.FloatField(default=0, verbose_name=_("G&C amount (CAD)"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
+
+    class Meta:
+        ordering = ['type', 'organization']
+
+    def __str__(self):
+        mystr = f"{self.get_type_display()} {self.id}"
+        return mystr
+
+
 class Collaborator(models.Model):
     project_year = models.ForeignKey(ProjectYear, on_delete=models.CASCADE, related_name="collaborators", verbose_name=_("project year"))
     name = models.CharField(max_length=255, verbose_name=_("Name"), blank=True, null=True)

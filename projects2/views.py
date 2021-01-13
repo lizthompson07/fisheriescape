@@ -217,17 +217,11 @@ class ProjectDetailView(LoginRequiredMixin, CommonDetailView):
         context["capital_cost_form"] = forms.CapitalCostForm
         context["random_capital_cost"] = models.CapitalCost.objects.first()
 
-        context["gc_cost_form"] = forms.GCCostForm
-        context["random_gc_cost"] = models.GCCost.objects.first()
-
         context["activity_form"] = forms.ActivityForm
         context["random_activity"] = models.Activity.objects.first()
 
-        context["collaborator_form"] = forms.CollaboratorForm
-        context["random_collaborator"] = models.Collaborator.objects.first()
-
-        context["agreement_form"] = forms.AgreementForm
-        context["random_agreement"] = models.CollaborativeAgreement.objects.first()
+        context["collaboration_form"] = forms.CollaborationForm
+        context["random_collaboration"] = models.Collaboration.objects.first()
 
         context["status_report_form"] = forms.StatusReportForm(initial={"user": self.request.user}, instance=project)
         context["random_status_report"] = models.StatusReport.objects.first()
@@ -350,26 +344,13 @@ class ProjectCloneView(ProjectUpdateView):
                 new_rel_obj.project_year = new_year
                 new_rel_obj.save()
 
-            # 4) G&C
-            for old_rel_obj in old_year.gc_costs.all():
+            # 5) Collaborations
+            for old_rel_obj in old_year.collaborations.all():
                 new_rel_obj = deepcopy(old_rel_obj)
                 new_rel_obj.pk = None
                 new_rel_obj.project_year = new_year
                 new_rel_obj.save()
 
-            # 5) Collaborators and Partners
-            for old_rel_obj in old_year.collaborators.all():
-                new_rel_obj = deepcopy(old_rel_obj)
-                new_rel_obj.pk = None
-                new_rel_obj.project_year = new_year
-                new_rel_obj.save()
-
-            # 6) Collaborative Agreements
-            for old_rel_obj in old_year.agreements.all():
-                new_rel_obj = deepcopy(old_rel_obj)
-                new_rel_obj.pk = None
-                new_rel_obj.project_year = new_year
-                new_rel_obj.save()
 
             # 7) Activities
             for old_rel_obj in old_year.activities.all():
@@ -529,22 +510,8 @@ class ProjectYearCloneView(ProjectYearUpdateView):
             new_rel_obj.project_year = new_obj
             new_rel_obj.save()
 
-        # 4) G&C
-        for old_rel_obj in old_obj.gc_costs.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project_year = new_obj
-            new_rel_obj.save()
-
-        # 5) Collaborators and Partners
-        for old_rel_obj in old_obj.collaborators.all():
-            new_rel_obj = deepcopy(old_rel_obj)
-            new_rel_obj.pk = None
-            new_rel_obj.project_year = new_obj
-            new_rel_obj.save()
-
-        # 6) Collaborative Agreements
-        for old_rel_obj in old_obj.agreements.all():
+        # 5) Collaborations
+        for old_rel_obj in old_obj.collaborations.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
             new_rel_obj.project_year = new_obj

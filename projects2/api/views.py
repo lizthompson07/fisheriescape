@@ -363,26 +363,26 @@ class CapitalCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-# GC
-####
-
-class GCCostListCreateAPIView(ListCreateAPIView):
-    queryset = models.GCCost.objects.all()
-    serializer_class = serializers.GCCostSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
-
-    def get_queryset(self):
-        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.gc_costs.all()
-
-    def perform_create(self, serializer):
-        serializer.save(project_year_id=self.kwargs.get("project_year"))
-
-
-class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = models.GCCost.objects.all()
-    serializer_class = serializers.GCCostSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
+# # GC
+# ####
+#
+# class GCCostListCreateAPIView(ListCreateAPIView):
+#     queryset = models.GCCost.objects.all()
+#     serializer_class = serializers.GCCostSerializer
+#     permission_classes = [permissions.CanModifyOrReadOnly]
+#
+#     def get_queryset(self):
+#         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+#         return year.gc_costs.all()
+#
+#     def perform_create(self, serializer):
+#         serializer.save(project_year_id=self.kwargs.get("project_year"))
+#
+#
+# class GCCostRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+#     queryset = models.GCCost.objects.all()
+#     serializer_class = serializers.GCCostSerializer
+#     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
 # MILESTONE
@@ -406,46 +406,46 @@ class ActivityRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-# COLLABORATOR
+# COLLABORATION
 ##############
-class CollaboratorListCreateAPIView(ListCreateAPIView):
-    queryset = models.Collaborator.objects.all()
-    serializer_class = serializers.CollaboratorSerializer
+class CollaborationListCreateAPIView(ListCreateAPIView):
+    queryset = models.Collaboration.objects.all()
+    serializer_class = serializers.CollaborationSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
     def get_queryset(self):
         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.collaborators.all()
+        return year.collaborations.all()
 
     def perform_create(self, serializer):
         serializer.save(project_year_id=self.kwargs.get("project_year"))
 
 
-class CollaboratorRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = models.Collaborator.objects.all()
-    serializer_class = serializers.CollaboratorSerializer
+class CollaborationRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = models.Collaboration.objects.all()
+    serializer_class = serializers.CollaborationSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
-# AGREEMENTS
-##############
-class AgreementListCreateAPIView(ListCreateAPIView):
-    queryset = models.CollaborativeAgreement.objects.all()
-    serializer_class = serializers.AgreementSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
-
-    def get_queryset(self):
-        year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
-        return year.agreements.all()
-
-    def perform_create(self, serializer):
-        serializer.save(project_year_id=self.kwargs.get("project_year"))
-
-
-class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    queryset = models.CollaborativeAgreement.objects.all()
-    serializer_class = serializers.AgreementSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
+# # AGREEMENTS
+# ##############
+# class AgreementListCreateAPIView(ListCreateAPIView):
+#     queryset = models.CollaborativeAgreement.objects.all()
+#     serializer_class = serializers.AgreementSerializer
+#     permission_classes = [permissions.CanModifyOrReadOnly]
+#
+#     def get_queryset(self):
+#         year = models.ProjectYear.objects.get(pk=self.kwargs.get("project_year"))
+#         return year.agreements.all()
+#
+#     def perform_create(self, serializer):
+#         serializer.save(project_year_id=self.kwargs.get("project_year"))
+#
+#
+# class AgreementRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
+#     queryset = models.CollaborativeAgreement.objects.all()
+#     serializer_class = serializers.AgreementSerializer
+#     permission_classes = [permissions.CanModifyOrReadOnly]
 
 
 # STATUS REPORTS

@@ -326,20 +326,6 @@ class CapitalCostForm(forms.ModelForm):
         self.fields["funding_source"].choices = funding_source_choices
 
 
-class GCCostForm(forms.ModelForm):
-    class Meta:
-        model = models.GCCost
-        exclude = ["project_year"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["recipient_org"].widget.attrs = {"v-model": "gc_cost.recipient_org"}
-        self.fields["project_lead"].widget.attrs = {"v-model": "gc_cost.project_lead"}
-        self.fields["proposed_title"].widget.attrs = {"v-model": "gc_cost.proposed_title"}
-        self.fields["gc_program"].widget.attrs = {"v-model": "gc_cost.gc_program"}
-        self.fields["amount"].widget.attrs = {"v-model": "gc_cost.amount"}
-
-
 class ActivityForm(forms.ModelForm):
     class Meta:
         model = models.Activity
@@ -358,30 +344,22 @@ class ActivityForm(forms.ModelForm):
         self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP"}
 
 
-class CollaboratorForm(forms.ModelForm):
+class CollaborationForm(forms.ModelForm):
     class Meta:
-        model = models.Collaborator
+        model = models.Collaboration
         exclude = ["project_year"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["name"].widget.attrs = {"v-model": "collaborator.name"}
-        self.fields["critical"].widget.attrs = {"v-model": "collaborator.critical"}
-        self.fields["notes"].widget.attrs = {"v-model": "collaborator.notes"}
-
-
-class AgreementForm(forms.ModelForm):
-    class Meta:
-        model = models.CollaborativeAgreement
-        exclude = ["project_year"]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["partner_organization"].widget.attrs = {"v-model": "agreement.partner_organization"}
-        self.fields["project_lead"].widget.attrs = {"v-model": "agreement.project_lead"}
-        self.fields["agreement_title"].widget.attrs = {"v-model": "agreement.agreement_title"}
-        self.fields["new_or_existing"].widget.attrs = {"v-model": "agreement.new_or_existing"}
-        self.fields["notes"].widget.attrs = {"v-model": "agreement.notes"}
+        self.fields["type"].widget.attrs = {"v-model": "collaboration.type"}
+        self.fields["new_or_existing"].widget.attrs = {"v-model": "collaboration.new_or_existing"}
+        self.fields["organization"].widget.attrs = {"v-model": "collaboration.organization"}
+        self.fields["people"].widget.attrs = {"v-model": "collaboration.people"}
+        self.fields["critical"].widget.attrs = {"v-model": "collaboration.critical"}
+        self.fields["agreement_title"].widget.attrs = {"v-model": "collaboration.agreement_title"}
+        self.fields["gc_program"].widget.attrs = {"v-model": "collaboration.gc_program"}
+        self.fields["amount"].widget.attrs = {"v-model": "collaboration.amount"}
+        self.fields["notes"].widget.attrs = {"v-model": "collaboration.notes"}
 
 
 class StatusReportForm(forms.ModelForm):
@@ -657,7 +635,6 @@ LevelFormset = modelformset_factory(
 )
 
 
-
 class AdminStaffForm(forms.ModelForm):
     class Meta:
         model = models.Staff
@@ -668,7 +645,6 @@ class AdminStaffForm(forms.ModelForm):
         widgets = {
             'user': forms.Select(attrs=chosen_js),
         }
-
 
 
 class ReportSearchForm(forms.Form):

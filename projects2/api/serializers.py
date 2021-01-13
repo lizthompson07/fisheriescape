@@ -338,9 +338,9 @@ class ActivitySerializer(serializers.ModelSerializer):
         return instance.project_year_id
 
 
-class CollaboratorSerializer(serializers.ModelSerializer):
+class CollaborationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.Collaborator
+        model = models.Collaboration
         exclude = ["project_year"]
 
     project_year_id = serializers.SerializerMethodField()
@@ -348,31 +348,31 @@ class CollaboratorSerializer(serializers.ModelSerializer):
     def get_project_year_id(self, instance):
         return instance.project_year_id
 
-
-class GCCostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.GCCost
-        exclude = ["project_year"]
-
-    project_year_id = serializers.SerializerMethodField()
-
-    def get_project_year_id(self, instance):
-        return instance.project_year_id
-
-
-class AgreementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.CollaborativeAgreement
-        exclude = ["project_year"]
-
-    new_or_existing_display = serializers.SerializerMethodField()
-    project_year_id = serializers.SerializerMethodField()
-
-    def get_new_or_existing_display(self, instance):
-        return instance.get_new_or_existing_display()
-
-    def get_project_year_id(self, instance):
-        return instance.project_year_id
+#
+# class GCCostSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.GCCost
+#         exclude = ["project_year"]
+#
+#     project_year_id = serializers.SerializerMethodField()
+#
+#     def get_project_year_id(self, instance):
+#         return instance.project_year_id
+#
+#
+# class AgreementSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = models.CollaborativeAgreement
+#         exclude = ["project_year"]
+#
+#     new_or_existing_display = serializers.SerializerMethodField()
+#     project_year_id = serializers.SerializerMethodField()
+#
+#     def get_new_or_existing_display(self, instance):
+#         return instance.get_new_or_existing_display()
+#
+#     def get_project_year_id(self, instance):
+#         return instance.project_year_id
 
 
 class StatusReportSerializer(serializers.ModelSerializer):

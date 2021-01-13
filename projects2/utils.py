@@ -354,6 +354,7 @@ def get_project_field_list(project):
         'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),
         # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
+        'functional_group.theme|{}'.format(_("theme")),
         'functional_group',
         'default_funding_source',
         'start_date',
@@ -498,32 +499,16 @@ def get_activity_field_list():
     return my_list
 
 
-def get_collaborator_field_list():
+def get_collaboration_field_list():
     my_list = [
-        'name',
+        'type',
+        'new_or_existing',
+        'organization',
+        'people',
         'critical',
-        'notes',
-    ]
-    return my_list
-
-
-def get_gc_cost_field_list():
-    my_list = [
-        'recipient_org',
-        'project_lead',
-        'proposed_title',
+        'agreement_title',
         'gc_program',
         'amount',
-    ]
-    return my_list
-
-
-def get_agreement_field_list():
-    my_list = [
-        'partner_organization',
-        'project_lead',
-        'agreement_title',
-        'new_or_existing',
         'notes',
     ]
     return my_list
