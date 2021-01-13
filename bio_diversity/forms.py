@@ -204,10 +204,10 @@ class DataForm(CreatePrams, forms.ModelForm):
                 grpd.save()
             except ValidationError:
                 pass
-
-        elif  cleaned_data["evntc_id"].__str__() == "Tagging":
+        # ---------------------------TAGGING DATA ENTRY----------------------------------------
+        elif cleaned_data["evntc_id"].__str__() == "Tagging":
             grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"], coll_id__name=data_dict[0]["Group"]).get().pk
-            for row in data_dict:
+            for row in data_dict[0:1]:
                 indv = models.Individual(grp_id_id=grp_id,
                                          spec_id_id=1,
                                          stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
@@ -224,6 +224,7 @@ class DataForm(CreatePrams, forms.ModelForm):
                     indv.save()
                 except ValidationError:
                     pass
+
                 anix = models.AniDetailXref(evnt_id_id=self.evnt_id.pk,
                                             indv_id_id=indv.pk,
                                             grp_id_id=grp_id,
