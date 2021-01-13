@@ -98,8 +98,11 @@ Vue.component("modal", {
 
       // collaborations
       collaboration: {
-        name: "",
-        critical: false,
+        type: "",
+        organization: "",
+        new_or_existing: 1,
+        people: "",
+        critical: "True",
         notes: null,
       },
 
@@ -496,7 +499,7 @@ Vue.component("modal", {
 
     this.getCurrentUser();
 
-    if (this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
+    if (this.year.project.default_funding_source && this.year.project.default_funding_source.toLowerCase().search("acrdp") > -1) {
       this.isACRDP = true;
     }
 

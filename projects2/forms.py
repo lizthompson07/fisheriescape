@@ -356,9 +356,9 @@ class CollaborationForm(forms.ModelForm):
         self.fields["organization"].widget.attrs = {"v-model": "collaboration.organization"}
         self.fields["people"].widget.attrs = {"v-model": "collaboration.people"}
         self.fields["critical"].widget.attrs = {"v-model": "collaboration.critical"}
-        self.fields["agreement_title"].widget.attrs = {"v-model": "collaboration.agreement_title"}
-        self.fields["gc_program"].widget.attrs = {"v-model": "collaboration.gc_program"}
-        self.fields["amount"].widget.attrs = {"v-model": "collaboration.amount"}
+        self.fields["agreement_title"].widget.attrs = {"v-model": "collaboration.agreement_title", ":disabled": "collaboration.type != 2 && collaboration.type != 3"}
+        self.fields["gc_program"].widget.attrs = {"v-model": "collaboration.gc_program", ":disabled": "collaboration.type != 2"}
+        self.fields["amount"].widget.attrs = {"v-model": "collaboration.amount", ":disabled": "collaboration.type != 2"}
         self.fields["notes"].widget.attrs = {"v-model": "collaboration.notes"}
 
 

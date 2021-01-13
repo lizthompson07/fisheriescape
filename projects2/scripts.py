@@ -529,3 +529,39 @@ def fix_submitted_project_years():
         else:
             py.submitted = timezone.now()
         py.save()
+
+
+def build_collaborations():
+    for item in models.GCCost.objects.all():
+        models.Collaboration.objects.get_or_create(
+            type=2,
+            project_year=item.project_year,
+            organization=item.recipient_org,
+            people=item.project_lead,
+            agreement_title=item.proposed_title,
+            gc_program=item.gc_program,
+            amount=item.amount,
+            new_or_existing=2,
+        )
+
+    for item in models.CollaborativeAgreement.objects.all():
+        models.Collaboration.objects.get_or_create(
+            type=3,
+            project_year=item.project_year,
+            organization=item.partner_organization,
+            people=item.project_lead,
+            agreement_title=item.agreement_title,
+            new_or_existing=item.new_or_existing,
+            notes=item.notes,
+        )
+
+    for item in models.Collaborator.objects.all():
+        models.Collaboration.objects.get_or_create(
+            type=1,
+            project_year=item.project_year,
+            organization=item.name,
+            critical=item.critical,
+            notes=item.notes,
+            new_or_existing=2,
+        )
+

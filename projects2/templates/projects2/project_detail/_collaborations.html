@@ -9,7 +9,7 @@
     <h2>{% trans "Collaborations" %}</h2>
   </div>
   <div v-if="!collaboration_loading" class="mb-2 neighbours">
-    <button @click="openCollaborationModal()"class="{{ btn_class_1 }} no-print" v-if="canModify">
+    <button @click="openCollaborationModal()" class="{{ btn_class_1 }} no-print" v-if="canModify">
       <span class="mdi mdi-plus"></span> {% trans "Add Collaboration" %}
     </button>
   </div>
@@ -49,6 +49,10 @@
         {% for field in collaboration_field_list %}
           {% if "critical" in field %}
             <td>${item.critical | yesNo }</td>
+          {% elif "type" in field %}
+            <td>${item.type_display }</td>
+          {% elif "new_" in field %}
+            <td>${item.new_or_existing_display }</td>
           {% else %}
             <td>${ item.{{ field }} | nz}</td>
           {% endif %}

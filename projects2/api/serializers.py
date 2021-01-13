@@ -344,9 +344,18 @@ class CollaborationSerializer(serializers.ModelSerializer):
         exclude = ["project_year"]
 
     project_year_id = serializers.SerializerMethodField()
+    new_or_existing_display = serializers.SerializerMethodField()
+    type_display = serializers.SerializerMethodField()
+
+    def get_type_display(self, instance):
+        return instance.get_type_display()
+
+    def get_new_or_existing_display(self, instance):
+        return instance.get_new_or_existing_display()
 
     def get_project_year_id(self, instance):
         return instance.project_year_id
+
 
 #
 # class GCCostSerializer(serializers.ModelSerializer):
@@ -365,11 +374,9 @@ class CollaborationSerializer(serializers.ModelSerializer):
 #         model = models.CollaborativeAgreement
 #         exclude = ["project_year"]
 #
-#     new_or_existing_display = serializers.SerializerMethodField()
 #     project_year_id = serializers.SerializerMethodField()
 #
-#     def get_new_or_existing_display(self, instance):
-#         return instance.get_new_or_existing_display()
+
 #
 #     def get_project_year_id(self, instance):
 #         return instance.project_year_id

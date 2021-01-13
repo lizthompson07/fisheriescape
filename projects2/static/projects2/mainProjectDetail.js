@@ -106,7 +106,7 @@ var app = new Vue({
           .then(response => {
             this.project_loading = false;
             this.project = response;
-            if(response.id && response.default_funding_source.toLowerCase().search("acrdp") > -1) {
+            if(response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("acrdp") > -1) {
               this.isACRDP = true;
             }
           })
