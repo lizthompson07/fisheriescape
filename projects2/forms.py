@@ -89,6 +89,8 @@ class ProjectForm(forms.ModelForm):
             "section": forms.Select(attrs=chosen_js),
             "tags": forms.SelectMultiple(attrs=chosen_js),
             "default_funding_source": forms.Select(attrs=chosen_js),
+            "client_information1": forms.Select(attrs=chosen_js),
+            "client_information2": forms.Select(attrs=chosen_js),
             "is_hidden": forms.Select(choices=YESNO_CHOICES),
         }
 
@@ -112,18 +114,60 @@ class ProjectForm(forms.ModelForm):
             del self.fields["tags"]
 
         # if not acrdp project, we should remove certain fields
-        if not kwargs.get("instance") or not kwargs.get("instance").is_acrdp:
-            acrdp_fields = [
-                'organization',
-                'species_involved',
-                'team_description',
-                'rationale',
-                'experimental_protocol',
-            ]
-            for field in acrdp_fields:
-                del self.fields[field]
-        else:
-            self.fields["overview"].label += str(_(" /  ACRDP objectives"))
+        if kwargs.get("instance"):
+            if not kwargs.get("instance").is_acrdp and not kwargs.get("instance").is_csrf:
+                specialized_fields = [
+                    # ACRDP
+                    'organization',
+                    'species_involved',
+                    'team_description',
+                    'rationale',
+                    'experimental_protocol',
+                    # CSRF
+                    'client_information1',
+                    'client_information2',
+                    'objectives',
+                    'objectives_methods',
+                    'innovation',
+                    'other_funding',
+                ]
+                for field in specialized_fields:
+                    del self.fields[field]
+
+            elif kwargs.get("instance").is_acrdp:
+                specialized_fields = [
+                    # CSRF
+                    'client_information1',
+                    'client_information2',
+                    'objectives',
+                    'objectives_methods',
+                    'innovation',
+                    'other_funding',
+                ]
+                for field in specialized_fields:
+                    del self.fields[field]
+
+                self.fields["overview"].label += str(_(" /  ACRDP objectives"))
+            elif kwargs.get("instance").is_csrf:
+                specialized_fields = [
+                    'organization',
+                    'species_involved',
+                    'team_description',
+                    'rationale',
+                    'experimental_protocol',
+                ]
+                for field in specialized_fields:
+                    del self.fields[field]
+                self.fields["overview"].label = str(
+                    _("Provide a brief overview of the project outlining how it specifically addresses the priority identified "))
+                self.fields["objectives"].label = str(_("Describe the objective(s) of the project (CSRF)"))
+                self.fields["objectives_methods"].label = str(
+                    _("Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan <b>by year</b> (CSRF)"))
+                self.fields["innovation"].label = str(_("Describe how the project will generate or promote innovation (CSRF)"))
+                self.fields["other_funding"].label = str(
+                    _("Provide any additional information on the other sources of funding relevant to the project (e.g. type of in-kind contribution) (CSRF)"))
+                self.fields["client_information1"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
+                self.fields["client_information2"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
 
 
 class ProjectYearForm(forms.ModelForm):

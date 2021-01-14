@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
+from textile import textile
 
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify, nz
@@ -44,6 +45,19 @@ class CSRFClientInformation(SimpleLookup):
     name = models.TextField(verbose_name=_("priority for research (en)"))
     nom = models.TextField(blank=True, null=True, verbose_name=_("priority for research (fr)"))
 
+    @property
+    def quickname(self):
+        first_part = self.name.split("\n")[0]
+        first_part = first_part.replace(":", "")
+        if len(first_part) > 90:
+            first_part = first_part[:90]
+        return mark_safe(f'{self.csrf_priority.code} &rarr; {first_part}...')
+
+    def __str__(self):
+        return self.quickname
+
+    class Meta:
+        ordering = ['csrf_priority__code', "name"]
 
 class Theme(SimpleLookup):
     pass
@@ -135,7 +149,6 @@ class Project(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
     references = models.ManyToManyField(shared_models.Citation, blank=True, verbose_name=_("references"), related_name="projects", editable=False)
 
-
     # HTML field
     overview = models.TextField(blank=True, null=True, verbose_name=_("Project overview"))
 
@@ -149,8 +162,16 @@ class Project(models.Model):
     rationale = models.TextField(blank=True, null=True, verbose_name=_("project problem / rationale (ACRDP)"))
     experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
 
-    # ACRDP fields
+    # CSRF fields
+    client_information1 = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                            verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects1")
+    client_information2 = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                            verbose_name=_("Additional info supplied by client (#2) (CSRF)"), related_name="projects2")
 
+    objectives = models.TextField(blank=True, null=True, verbose_name=_("project objectives (CSRF)"))
+    objectives_methods = models.TextField(blank=True, null=True, verbose_name=_("methods applied to achieve objectives (CSRF)"))
+    innovation = models.TextField(blank=True, null=True, verbose_name=_("innovation (CSRF)"))
+    other_funding = models.TextField(blank=True, null=True, verbose_name=_("other sources of funding (CSRF)"))
 
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
@@ -227,6 +248,16 @@ class Project(models.Model):
         if self.overview:
             return mark_safe(markdown(self.overview))
 
+    @property
+    def client_information1_html(self):
+        if self.client_information1:
+            return mark_safe(textile(self.client_information1.tname))
+
+    @property
+    def client_information2_html(self):
+        if self.client_information2:
+            return mark_safe(textile(self.client_information2.tname))
+
     def get_funding_sources(self):
         # look through all expenses and compile a unique list of funding sources (for all years of project)
         my_list = []
@@ -247,6 +278,11 @@ class Project(models.Model):
     @property
     def is_acrdp(self):
         if self.default_funding_source and "acrdp" in self.default_funding_source.name.lower():
+            return True
+
+    @property
+    def is_csrf(self):
+        if self.default_funding_source and "csrf" in self.default_funding_source.name.lower():
             return True
 
     @property

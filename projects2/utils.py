@@ -346,12 +346,14 @@ def multiple_financial_project_year_summary_data(project_years):
 
 def get_project_field_list(project):
     is_acrdp = project.is_acrdp
+    is_csrf = project.is_csrf
+    general_project = not project.is_csrf and not project.is_acrdp
 
     my_list = [
         'id',
         'section',
         # 'title',
-        'overview' if not is_acrdp else 'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")),
+        'overview' if general_project else None,
         # do not call the html field directly or we loose the ability to get the model's verbose name
         'activity_type',
         'functional_group.theme|{}'.format(_("theme")),
@@ -364,11 +366,24 @@ def get_project_field_list(project):
         'lead_staff',
 
         # acrdp fields
+        'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")) if is_acrdp else None,
         'organization' if is_acrdp else None,
         'species_involved' if is_acrdp else None,
         'team_description' if is_acrdp else None,
         'rationale' if is_acrdp else None,
         'experimental_protocol' if is_acrdp else None,
+
+        # csrf fields
+        'overview' if is_csrf else None,
+        'csrf_theme|{}'.format(_("CSRF theme")) if is_csrf else None,
+        'csrf_sub_theme|{}'.format(_("CSRF sub-theme")) if is_csrf else None,
+        'csrf_priority|{}'.format(_("CSRF priority")) if is_csrf else None,
+        'client_information1_html|{}'.format(_("Additional info supplied by client (#1)")) if is_csrf else None,
+        'client_information2_html|{}'.format(_("Additional info supplied by client (#2)")) if is_csrf else None,
+        'objectives' if is_csrf else None,
+        'objectives_methods' if is_csrf else None,
+        'innovation' if is_csrf else None,
+        'other_funding' if is_csrf else None,
 
         'tags',
         'references',

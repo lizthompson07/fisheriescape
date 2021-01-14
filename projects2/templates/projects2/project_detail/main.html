@@ -91,6 +91,41 @@
                       {% endif %}
                     </td>
                   </tr>
+
+                {% elif "csrf_theme" in field %}
+                  <tr>
+                    <th>{% get_verbose_label object field %}</th>
+                    <td>
+                      {% if object.client_information1 %}
+                        {{ object.client_information1.csrf_priority.csrf_sub_theme.csrf_theme }}
+                        ({{ object.client_information1.csrf_priority.csrf_sub_theme.csrf_theme.code }})
+                      {% else %}
+                        ---
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% elif "csrf_sub_theme" in field %}
+                  <tr>
+                    <th>{% get_verbose_label object field %}</th>
+                    <td>
+                      {% if object.client_information1 %}
+                        {{ object.client_information1.csrf_priority.csrf_sub_theme }}
+                      {% else %}
+                        ---
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% elif "csrf_priority" in field %}
+                  <tr>
+                    <th>{% get_verbose_label object field %}</th>
+                    <td>
+                      {% if object.client_information1 %}
+                        {{ object.client_information1.csrf_priority }} ({{ object.client_information1.csrf_priority.code }})
+                      {% else %}
+                        ---
+                      {% endif %}
+                    </td>
+                  </tr>
                 {% else %}
 
                   {% verbose_td_display object field th_width="30%" td_width="70%" nullmark=nulltext %}
