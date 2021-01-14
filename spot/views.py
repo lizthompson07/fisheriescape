@@ -85,10 +85,10 @@ class OrganizationListView(SpotAccessRequiredMixin, FilterView):
         context["my_object"] = ml_models.Organization.objects.first()
         context["field_list"] = [
             'name_eng',
-            'abbrev',
+            #'abbrev',
             'province',
-            'grouping',
-            'regions',
+            #'grouping',
+            #'regions',
         ]
         return context
 
@@ -101,19 +101,24 @@ class OrganizationDetailView(SpotAccessRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
+            'org_num',
             'name_eng',
-            'abbrev',
+            'org_type',
+            #'abbrev',
+            'sub_org',
             'address',
             'city',
             'postal_code',
             'province',
             'phone',
-            'fax',
-            'dfo_contact_instructions',
-            'notes',
-            'grouping',
-            'regions',
-            'sectors',
+            #'fax',
+            #dfo_contact_instructions',
+            #'notes',
+            #'grouping',
+            #'regions',
+            #'sectors',
+            'email',
+            'org_site',
             'date_last_modified',
             'last_modified_by',
         ]

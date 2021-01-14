@@ -24,20 +24,25 @@ class OrganizationForm(forms.ModelForm):
     class Meta:
         model = ml_models.Organization
         fields = [
+            'org_num',
             'name_eng',
-            'name_ind',
-            'abbrev',
+            'org_type',
+            #'name_ind',
+            #'abbrev',
+            'sub_org',
             'address',
             'city',
             'postal_code',
             'province',
             'phone',
-            'fax',
-            'dfo_contact_instructions',
-            'notes',
-            'grouping',
-            'regions',
-            'sectors',
+            #'fax',
+            #'dfo_contact_instructions',
+            #'notes',
+            #'grouping',
+            #'regions',
+            #'sectors',
+            'email',
+            'org_site',
             'last_modified_by',
         ]
         widgets = {

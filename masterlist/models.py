@@ -20,6 +20,14 @@ class Sector(SimpleLookup):
     pass
 
 
+class Role(SimpleLookup):
+    pass
+
+
+class OrganizationType(SimpleLookup):
+    pass
+
+
 class Grouping(SimpleLookup):
     is_indigenous = models.BooleanField(default=False, verbose_name=_("indigenous?"))
 
@@ -88,6 +96,13 @@ class Organization(models.Model):
     wharf = models.IntegerField(choices=YES_NO_BOTH_CHOICES, verbose_name=_("wharf?"), default=0)
     reserves = models.ManyToManyField(Reserve, verbose_name=_("Associated reserves"), blank=True)
     audio_file = models.FileField(upload_to=audio_file_directory_path, verbose_name=_("audio file"), blank=True, null=True)
+
+    # spot
+    org_num = models.IntegerField(blank=True, null=True, verbose_name=_("number"))
+    org_site = models.URLField(blank=True, null=True, verbose_name=_("(spot) website"))
+    email = models.EmailField(blank=True, null=True, verbose_name=_("email"))
+    sub_org = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("sub organization"))
+    org_type = models.ForeignKey(OrganizationType, blank=True, null=True, on_delete=models.DO_NOTHING, verbose_name=_("type"))
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -175,6 +190,9 @@ class Person(models.Model):
 
     # is_consultation_contact = models.BooleanField(default=False, choices=YESNO_CHOICES, verbose_name=_("Consultation contact?"))
 
+    #spot
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role"))
+
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
         return super().save(*args, **kwargs)
@@ -238,10 +256,6 @@ class Person(models.Model):
         if self.email_2:
             my_str += "<br>{}: {}".format(_("E-mail 2"), self.email_2)
         return my_str
-
-
-class Role(SimpleLookup):
-    pass
 
 
 class OrganizationMember(models.Model):

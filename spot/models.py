@@ -1056,3 +1056,34 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
         if not old_file == new_file:
             if os.path.isfile(old_file.path):
                 os.remove(old_file.path)
+
+
+"""
+class AgreementDatabase(SimpleLookup):
+    pass
+
+
+class AgreementLineage(SimpleLookup):
+    pass 
+
+
+class OutcomeCategory(SimpleLookup):
+    pass
+
+
+class Agreement(models.Model):
+    number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("agreement number"))
+    key_element = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("key element"))
+    activity = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("activity"))
+    database = models.ForeignKey(AgreementDatabase, on_delete=models.DO_NOTHING)
+    lineage = models.ForeignKey(AgreementLineage, on_delete=models.DO_NOTHING)
+    task_description = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("task description"))
+    element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("title"))
+    activity_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("activity title"))
+
+
+class Objective(models.Model):
+    agreement = models.ForeignKey(Agreement, on_delete=models.DO_NOTHING)
+    work_plan = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("work plan section"))
+    outcomes_cat = models.ForeignKey(OutcomeCategory, on_delete=models.DO_NOTHING)
+"""
