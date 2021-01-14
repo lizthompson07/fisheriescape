@@ -302,6 +302,19 @@ class ProjectNotesForm(forms.ModelForm):
 
 
 class StaffForm(forms.ModelForm):
+    field_order = [
+        "user",
+        "name",
+        "employee_type",
+        "is_lead",
+        "funding_source",
+        "amount",
+        "level",
+        "student_program",
+        "duration_weeks",
+        "overtime_hours",
+        "overtime_description",
+    ]
     class Meta:
         model = models.Staff
         exclude = ["project_year"]
