@@ -59,6 +59,7 @@ class CSRFClientInformation(SimpleLookup):
     class Meta:
         ordering = ['csrf_priority__code', "name"]
 
+
 class Theme(SimpleLookup):
     pass
 
@@ -247,6 +248,41 @@ class Project(models.Model):
     def overview_html(self):
         if self.overview:
             return mark_safe(markdown(self.overview))
+
+    @property
+    def objectives_html(self):
+        if self.objectives:
+            return mark_safe(markdown(self.objectives))
+
+    @property
+    def objectives_methods_html(self):
+        if self.objectives_methods:
+            return mark_safe(markdown(self.objectives_methods))
+
+    @property
+    def innovation_html(self):
+        if self.innovation:
+            return mark_safe(markdown(self.innovation))
+
+    @property
+    def other_funding_html(self):
+        if self.other_funding:
+            return mark_safe(markdown(self.other_funding))
+
+    @property
+    def team_description_html(self):
+        if self.team_description:
+            return mark_safe(markdown(self.team_description))
+
+    @property
+    def rationale_html(self):
+        if self.rationale:
+            return mark_safe(markdown(self.rationale))
+
+    @property
+    def experimental_protocol_html(self):
+        if self.experimental_protocol:
+            return mark_safe(markdown(self.experimental_protocol))
 
     @property
     def client_information1_html(self):
@@ -985,11 +1021,12 @@ class Activity(models.Model):
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party"), blank=True, null=True)
-    risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences (ACRDP)"))
-    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what will be the impact if the risks occurs (ACRDP)"))
-    likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True, verbose_name=_("what is the likelihood of the risks occurring (ACRDP)"))
-    risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)
-    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks (ACRDP)"))
+    risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences"))  # CSRF and ACRDP
+    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what will be the impact if the risks occurs"))  # ACRDP
+    likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True,
+                                     verbose_name=_("what is the likelihood of the risks occurring"))  # ACRDP
+    risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)  # ACRDP
+    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks"))  # CSRF and ACRDP
 
     def save(self, *args, **kwargs):
         if self.impact and self.likelihood:

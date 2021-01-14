@@ -369,9 +369,9 @@ def get_project_field_list(project):
         'overview|{}'.format(gettext_lazy("Project overview / ACRDP objectives")) if is_acrdp else None,
         'organization' if is_acrdp else None,
         'species_involved' if is_acrdp else None,
-        'team_description' if is_acrdp else None,
-        'rationale' if is_acrdp else None,
-        'experimental_protocol' if is_acrdp else None,
+        'team_description_html|{}'.format(_("description of team and required qualifications (ACRDP)")) if is_acrdp else None,
+        'rationale_html|{}'.format(_("project problem / rationale (ACRDP)")) if is_acrdp else None,
+        'experimental_protocol_html|{}'.format(_("experimental protocol (ACRDP)")) if is_acrdp else None,
 
         # csrf fields
         'overview' if is_csrf else None,
@@ -380,10 +380,10 @@ def get_project_field_list(project):
         'csrf_priority|{}'.format(_("CSRF priority")) if is_csrf else None,
         'client_information1_html|{}'.format(_("Additional info supplied by client (#1)")) if is_csrf else None,
         'client_information2_html|{}'.format(_("Additional info supplied by client (#2)")) if is_csrf else None,
-        'objectives' if is_csrf else None,
-        'objectives_methods' if is_csrf else None,
-        'innovation' if is_csrf else None,
-        'other_funding' if is_csrf else None,
+        'objectives_html|{}'.format(_("project objectives (CSRF)")) if is_csrf else None,
+        'objectives_methods_html|{}'.format(_("methods applied to achieve objectives (CSRF)")) if is_csrf else None,
+        'innovation_html|{}'.format(_("innovation (CSRF)")) if is_csrf else None,
+        'other_funding_html|{}'.format(_("other sources of funding (CSRF)")) if is_csrf else None,
 
         'tags',
         'references',

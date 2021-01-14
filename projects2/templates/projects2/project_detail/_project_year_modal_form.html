@@ -133,10 +133,24 @@
               {# ACTIVITY FORM             #}
               <div v-else-if="mtype=='activity'">
                 {% for field in activity_form %}
-                  {% bootstrap_field field size='small' placeholder="" %}
                   {% if field.name == "likelihood" %}
-                    {% include "projects2/project_detail/_risk_rating_diagram.html" %}
+                    <div v-if="isACRDP">
+                      {% bootstrap_field field size='small' placeholder="" %}
+                      {% include "projects2/project_detail/_risk_rating_diagram.html" %}
+                    </div>
+
+                  {% elif field.name == "impact" %}
+                    <div v-if="isACRDP">
+                      {% bootstrap_field field size='small' placeholder="" %}
+                    </div>
+
+                  {% elif field.name == "risk_description" or field.name == "mitigation_measures" %}
+                    <div v-if="isACRDP || isCSRF">
+                      {% bootstrap_field field size='small' placeholder="" %}
+                    </div>
+
                   {% elif field.name == "target_date" %}
+                    {% bootstrap_field field size='small' placeholder="" %}
                     <div class="mb-3">
                       {% trans "Shortcuts" %}: {% trans "End of " %} &rarr;
                       <button type="button" @click="populateTargetDate('q1')">Q1</button>
@@ -144,8 +158,8 @@
                       <button type="button" @click="populateTargetDate('q3')">Q3</button>
                       <button type="button" @click="populateTargetDate('q4')">Q4</button>
                     </div>
-
-
+                  {% else %}
+                    {% bootstrap_field field size='small' placeholder="" %}
                   {% endif %}
                 {% endfor %}
               </div>

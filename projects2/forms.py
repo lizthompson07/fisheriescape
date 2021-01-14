@@ -162,7 +162,7 @@ class ProjectForm(forms.ModelForm):
                     _("Provide a brief overview of the project outlining how it specifically addresses the priority identified "))
                 self.fields["objectives"].label = str(_("Describe the objective(s) of the project (CSRF)"))
                 self.fields["objectives_methods"].label = str(
-                    _("Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan <b>by year</b> (CSRF)"))
+                    _("Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan by year (CSRF)"))
                 self.fields["innovation"].label = str(_("Describe how the project will generate or promote innovation (CSRF)"))
                 self.fields["other_funding"].label = str(
                     _("Provide any additional information on the other sources of funding relevant to the project (e.g. type of in-kind contribution) (CSRF)"))
@@ -384,8 +384,8 @@ class ActivityForm(forms.ModelForm):
         self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "activity.target_date", "type": "date"})
         self.fields["likelihood"].widget.attrs = {"v-model": "activity.likelihood", ":disabled": "!isACRDP"}
         self.fields["impact"].widget.attrs = {"v-model": "activity.impact", ":disabled": "!isACRDP"}
-        self.fields["risk_description"].widget.attrs = {"v-model": "activity.risk_description", "rows": "4", ":disabled": "!isACRDP"}
-        self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP"}
+        self.fields["risk_description"].widget.attrs = {"v-model": "activity.risk_description", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
+        self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
 
 
 class CollaborationForm(forms.ModelForm):

@@ -52,6 +52,12 @@
           {% include "projects2/project_detail/_project_year_field.html" %}
         </tr>
 
+      {% elif "priorities" in field  %}
+        <tr v-if="!isCSRF">
+          <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
+          {% include "projects2/project_detail/_project_year_field.html" %}
+        </tr>
+
       {% else %}
         <tr>
           <th class="narrow-col">{% get_verbose_label object.years.first field %}</th>
