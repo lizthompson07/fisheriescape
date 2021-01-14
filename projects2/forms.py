@@ -653,6 +653,7 @@ CSRFPriorityFormset = modelformset_factory(
     extra=1,
 )
 
+
 class CSRFClientInformationForm(forms.ModelForm):
     class Meta:
         model = models.CSRFClientInformation
@@ -718,3 +719,28 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     # year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))
+
+
+class CitationForm(forms.ModelForm):
+    class Meta:
+        model = shared_models.Citation
+        fields = "__all__"
+        widgets = {
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        klass = "form-control form-control-sm"
+        self.fields["name"].widget.attrs = {"v-model": "citationToEdit.name", "class": klass}
+        self.fields["nom"].widget.attrs = {"v-model": "citationToEdit.nom", "class": klass}
+        self.fields["authors"].widget.attrs = {"v-model": "citationToEdit.authors", "class": klass}
+        self.fields["year"].widget.attrs = {"v-model": "citationToEdit.year", "class": klass}
+        self.fields["publication"].widget.attrs = {"v-model": "citationToEdit.publication", "class": klass}
+        self.fields["pub_number"].widget.attrs = {"v-model": "citationToEdit.pub_number", "class": klass}
+        self.fields["url_en"].widget.attrs = {"v-model": "citationToEdit.url_en", "class": klass}
+        self.fields["url_fr"].widget.attrs = {"v-model": "citationToEdit.url_fr", "class": klass}
+        self.fields["abstract_en"].widget.attrs = {"v-model": "citationToEdit.abstract_en", "class": klass}
+        self.fields["abstract_fr"].widget.attrs = {"v-model": "citationToEdit.abstract_fr", "class": klass}
+        self.fields["series"].widget.attrs = {"v-model": "citationToEdit.series", "class": klass}
+        self.fields["region"].widget.attrs = {"v-model": "citationToEdit.region", "class": klass}

@@ -525,10 +525,13 @@ class CitationSerializer(serializers.ModelSerializer):
 
     short_citation_html = serializers.SerializerMethodField()
     citation_br = serializers.SerializerMethodField()
-
     turl = serializers.SerializerMethodField()
     tname = serializers.SerializerMethodField()
     tabstract = serializers.SerializerMethodField()
+    project_count = serializers.SerializerMethodField()
+
+    def get_project_count(self, instance):
+        return instance.projects.count()
 
     def get_tabstract(self, instance):
         return instance.tabstract

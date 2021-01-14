@@ -466,11 +466,17 @@ class CitationListCreateAPIView(ListCreateAPIView):
 
         return qs
 
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        if self.request.query_params.get("project"):
+            project = get_object_or_404(models.Project, pk=self.request.query_params.get("project"))
+            project.references.add(obj)
+
 
 class CitationRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = shared_models.Citation.objects.all()
     serializer_class = serializers.CitationSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
 
 # STATUS REPORTS

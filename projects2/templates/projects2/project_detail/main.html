@@ -83,7 +83,7 @@
                       {% if object.references.exists %}
                         <ul>
                           {% for ref in object.references.all %}
-                            <li>{{ ref.short_citation_html }}</li>
+                            <li>{{ ref.short_citation_html|safe }}</li>
                           {% endfor %}
                         </ul>
                       {% else %}

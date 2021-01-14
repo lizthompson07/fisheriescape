@@ -374,7 +374,7 @@ class ProjectReferencesDetailView(LoginRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # context["file_form"] = forms.FileForm
+        context["citation_form"] = forms.CitationForm
         context["random_citation"] = shared_models.Citation.objects.first()
         return context
 

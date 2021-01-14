@@ -8,6 +8,21 @@ var app = new Vue({
     project_citations: [],
     hasSearched: null,
     searchTerm: null,
+    editMode: false,
+    citationToEdit: {
+      name: null,
+      nom: null,
+      authors: null,
+      year: null,
+      publication: null,
+      pub_number: null,
+      url_en: null,
+      url_fr: null,
+      abstract_en: null,
+      abstract_fr: null,
+      series: null,
+      region: null,
+    },
   },
   methods: {
     getProjectCitations() {
@@ -29,33 +44,41 @@ var app = new Vue({
             if (response.length) {
               for (var i = 0; i < response.length; i++) {
                 c = response[i]
-                console.log(c)
-                if(!this.project_citation_ids.includes(c.id)) {
-                    this.citations.push(c)
-                  console.log(123)
+                if (!this.project_citation_ids.includes(c.id)) {
+                  this.citations.push(c)
                 }
               }
-
             } else {
               this.citations = []
             }
           })
     },
-    addCitation(citation){
+    addCitation(citation) {
       let endpoint = `/api/project-planning/projects/${projectId}/reference/add/`;
       apiService(endpoint, "POST", {citation: citation.id})
           .then(response => {
             this.getProjectCitations()
-            this.$delete(this.citations, this.citations.indexOf(citation))
           })
     },
-    removeCitation(citation){
+    removeCitation(citation) {
+      this.searchTerm = null
       let endpoint = `/api/project-planning/projects/${projectId}/reference/remove/`;
       apiService(endpoint, "POST", {citation: citation.id})
           .then(response => {
             this.getProjectCitations()
-            this.$delete(this.project_citations, this.project_citations.indexOf(citation))
           })
+    },
+    deleteCitation(citation) {
+      msg = "Are you sure you want to DELETE this citation? \n\nIt will be removed from the dmapps database, not just your project."
+      userInput = confirm(msg)
+      if (userInput) {
+        this.searchTerm = null
+        let endpoint = `/api/project-planning/citations/${citation.id}/`;
+        apiService(endpoint, "DELETE")
+            .then(response => {
+              this.getProjectCitations()
+            })
+      }
     },
     submitSearch() {
       if (this.searchTerm.length > 4) {
@@ -63,7 +86,47 @@ var app = new Vue({
       } else {
         this.citations = [];
       }
-    }
+    },
+    editCitation(citation) {
+      this.editMode = true;
+      if (citation) {
+        this.citationToEdit = citation;
+      } else {
+        this.citationToEdit = {
+          name: null,
+          nom: null,
+          authors: null,
+          year: null,
+          publication: null,
+          pub_number: null,
+          url_en: null,
+          url_fr: null,
+          abstract_en: null,
+          abstract_fr: null,
+          series: null,
+          region: null,
+        }
+      }
+    },
+    submitCitationForm() {
+      if (this.citationToEdit.id) {
+        let endpoint = `/api/project-planning/citations/${this.citationToEdit.id}/`;
+        apiService(endpoint, "PUT", this.citationToEdit)
+            .then(response => {
+              this.getProjectCitations()
+            })
+
+      } else {
+        let endpoint = `/api/project-planning/citations/?project=${projectId}`;
+        apiService(endpoint, "POST", this.citationToEdit)
+            .then(response => {
+              this.getProjectCitations()
+              this.searchTerm = null
+              this.citations = []
+            })
+      }
+      this.editMode = false;
+    },
 
   },
 
@@ -107,7 +170,7 @@ var app = new Vue({
     }
   },
   computed: {
-    project_citation_ids () {
+    project_citation_ids() {
       myArray = []
       for (var i = 0; i < this.project_citations.length; i++) {
         myArray.push(this.project_citations[i].id)
