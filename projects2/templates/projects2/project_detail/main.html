@@ -96,9 +96,8 @@
                   <tr>
                     <th>{% get_verbose_label object field %}</th>
                     <td>
-                      {% if object.client_information1 %}
-                        {{ object.client_information1.csrf_priority.csrf_sub_theme.csrf_theme }}
-                        ({{ object.client_information1.csrf_priority.csrf_sub_theme.csrf_theme.code }})
+                      {% if object.client_information %}
+                        {{ object.client_information.csrf_priority.csrf_sub_theme.csrf_theme }}
                       {% else %}
                         ---
                       {% endif %}
@@ -108,8 +107,8 @@
                   <tr>
                     <th>{% get_verbose_label object field %}</th>
                     <td>
-                      {% if object.client_information1 %}
-                        {{ object.client_information1.csrf_priority.csrf_sub_theme }}
+                      {% if object.client_information %}
+                        {{ object.client_information.csrf_priority.csrf_sub_theme }}
                       {% else %}
                         ---
                       {% endif %}
@@ -119,8 +118,8 @@
                   <tr>
                     <th>{% get_verbose_label object field %}</th>
                     <td>
-                      {% if object.client_information1 %}
-                        {{ object.client_information1.csrf_priority }} ({{ object.client_information1.csrf_priority.code }})
+                      {% if object.client_information %}
+                        {{ object.client_information.csrf_priority }} ({{ object.client_information.csrf_priority.code }})
                       {% else %}
                         ---
                       {% endif %}

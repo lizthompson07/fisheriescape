@@ -89,8 +89,8 @@ class ProjectForm(forms.ModelForm):
             "section": forms.Select(attrs=chosen_js),
             "tags": forms.SelectMultiple(attrs=chosen_js),
             "default_funding_source": forms.Select(attrs=chosen_js),
-            "client_information1": forms.Select(attrs=chosen_js),
-            "client_information2": forms.Select(attrs=chosen_js),
+            "client_information": forms.Select(attrs=chosen_js),
+            "second_priority": forms.Select(attrs=chosen_js),
             "is_hidden": forms.Select(choices=YESNO_CHOICES),
         }
 
@@ -124,8 +124,8 @@ class ProjectForm(forms.ModelForm):
                     'rationale',
                     'experimental_protocol',
                     # CSRF
-                    'client_information1',
-                    'client_information2',
+                    'client_information',
+                    'second_priority',
                     'objectives',
                     'objectives_methods',
                     'innovation',
@@ -137,8 +137,8 @@ class ProjectForm(forms.ModelForm):
             elif kwargs.get("instance").is_acrdp:
                 specialized_fields = [
                     # CSRF
-                    'client_information1',
-                    'client_information2',
+                    'client_information',
+                    'second_priority',
                     'objectives',
                     'objectives_methods',
                     'innovation',
@@ -166,8 +166,8 @@ class ProjectForm(forms.ModelForm):
                 self.fields["innovation"].label = str(_("Describe how the project will generate or promote innovation (CSRF)"))
                 self.fields["other_funding"].label = str(
                     _("Provide any additional information on the other sources of funding relevant to the project (e.g. type of in-kind contribution) (CSRF)"))
-                self.fields["client_information1"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
-                self.fields["client_information2"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
+                self.fields["client_information"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
+                self.fields["second_priority"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
 
 
 class ProjectYearForm(forms.ModelForm):
@@ -203,7 +203,7 @@ class ProjectYearForm(forms.ModelForm):
             'has_field_component': forms.Select(choices=YESNO_CHOICES),
             'vehicle_needs': forms.Textarea(attrs=row4),
             'ship_needs': forms.Textarea(attrs=row4),
-            'coip_reference_id': forms.Textarea(attrs=row4),
+            # 'coip_reference_id': forms.Textarea(attrs=row4),
             'instrumentation': forms.Textarea(attrs=row4),
             'owner_of_instrumentation': forms.Textarea(attrs=row4),
             'requires_field_staff': forms.Select(choices=YESNO_CHOICES),
@@ -238,7 +238,9 @@ class ProjectYearForm(forms.ModelForm):
         if kwargs.get("instance"):
             if kwargs.get("instance").project.is_csrf:
                 self.fields["priorities"].label = str(
-                    _("Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan FOR THIS PROJECT YEAR (CSRF)"))
+                    _(
+                        "Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan FOR THIS PROJECT YEAR ONLY (CSRF)"))
+                self.fields["data_products"].label += " " + str(_("And what is the plan for the publication of these products (CSRF)?"))
 
     def clean_start_date(self):
         start_date = self.cleaned_data['start_date']
@@ -321,6 +323,7 @@ class StaffForm(forms.ModelForm):
         "overtime_hours",
         "overtime_description",
     ]
+
     class Meta:
         model = models.Staff
         exclude = ["project_year"]
@@ -353,6 +356,7 @@ class StaffForm(forms.ModelForm):
         self.fields["funding_source"].choices = funding_source_choices
         self.fields["role"].widget.attrs = {"v-model": "activity.role", "rows": "4", ":disabled": "!isCSRF"}
         self.fields["expertise"].widget.attrs = {"v-model": "activity.expertise", "rows": "4", ":disabled": "!isCSRF"}
+
 
 class OMCostForm(forms.ModelForm):
     field_order = ["om_category", "funding_source", "description", "amount"]

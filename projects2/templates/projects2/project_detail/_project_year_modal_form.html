@@ -105,10 +105,21 @@
                       {% bootstrap_field field size='small' placeholder="" %}
                     </div>
 
-                  {% elif field.name == "risk_description" or field.name == "mitigation_measures" %}
+                  {% elif field.name == "risk_description" %}
                     <div v-if="isACRDP || isCSRF">
-                      {% bootstrap_field field size='small' placeholder="" %}
+                      <div v-if="isCSRF">
+                        <label>
+                          {% trans "Briefly identify and assess the risks for this activity's completion within the planned timeframe (e.g. COVID-19 restrictions, vessel availability, lab space, etc.)" %}
+                        </label>
+                        {% bootstrap_field activity_form.risk_description size='small' placeholder="" show_label=False %}
+                      </div>
+                      <div v-else>
+                        {% bootstrap_field activity_form.risk_description size='small' placeholder="" %}
+                      </div>
+                      {% bootstrap_field activity_form.mitigation_measures size='small' placeholder="" %}
                     </div>
+                  {% elif field.name == "mitigation_measures" %}
+                    {#  nothing! #}
 
                   {% elif field.name == "target_date" %}
                     {% bootstrap_field field size='small' placeholder="" %}

@@ -27,6 +27,9 @@ YES_NO_CHOICES = (
 class CSRFTheme(SimpleLookup):
     code = models.CharField(max_length=25)
 
+    def __str__(self):
+        return f"{self.code}: {self.tname}"
+
 
 class CSRFSubTheme(SimpleLookup):
     name = models.CharField(max_length=1000, verbose_name=_("name (en)"))
@@ -38,6 +41,12 @@ class CSRFPriority(SimpleLookup):
     code = models.CharField(verbose_name=_("Priority identification number"), max_length=25, unique=True)
     name = models.CharField(max_length=1000, verbose_name=_("priority for research (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("priority for research (fr)"))
+
+    class Meta:
+        ordering = ['code', "name"]
+
+    def __str__(self):
+        return mark_safe(f'{self.code}: {self.tname}')
 
 
 class CSRFClientInformation(SimpleLookup):
@@ -164,10 +173,10 @@ class Project(models.Model):
     experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
 
     # CSRF fields
-    client_information1 = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                            verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects1")
-    client_information2 = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                            verbose_name=_("Additional info supplied by client (#2) (CSRF)"), related_name="projects2")
+    client_information = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                            verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
+    second_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                            verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
 
     objectives = models.TextField(blank=True, null=True, verbose_name=_("project objectives (CSRF)"))
     # objectives_methods = models.TextField(blank=True, null=True, verbose_name=_("methods applied to achieve objectives (CSRF)"))
@@ -255,11 +264,6 @@ class Project(models.Model):
             return mark_safe(markdown(self.objectives))
 
     @property
-    def objectives_methods_html(self):
-        if self.objectives_methods:
-            return mark_safe(markdown(self.objectives_methods))
-
-    @property
     def innovation_html(self):
         if self.innovation:
             return mark_safe(markdown(self.innovation))
@@ -285,14 +289,9 @@ class Project(models.Model):
             return mark_safe(markdown(self.experimental_protocol))
 
     @property
-    def client_information1_html(self):
-        if self.client_information1:
-            return mark_safe(textile(self.client_information1.tname))
-
-    @property
-    def client_information2_html(self):
-        if self.client_information2:
-            return mark_safe(textile(self.client_information2.tname))
+    def client_information_html(self):
+        if self.client_information:
+            return mark_safe(textile(self.client_information.tname))
 
     def get_funding_sources(self):
         # look through all expenses and compile a unique list of funding sources (for all years of project)
