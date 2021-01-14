@@ -4,22 +4,20 @@ import os
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.templatetags.static import static
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render
-from django.utils import timezone
-
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
+from django.templatetags.static import static
 from django.urls import reverse_lazy, reverse
+from django.utils import timezone
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
 
-from lib.templatetags.custom_filters import nz
-from . import models
-from . import forms
 from . import filters
+from . import forms
+from . import models
 from . import reports
 
 
@@ -1485,6 +1483,8 @@ class ReportSearchFormView(GraisAccessRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("grais:gc_envr_report", kwargs={"year": year}))
         elif report == 8:
             return HttpResponseRedirect(reverse("grais:gc_site_report"))
+        elif report == 9:
+            return HttpResponseRedirect(reverse("grais:biofouling_pa_xlsx") + f"?year={year}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("grais:report_search"))
@@ -1496,6 +1496,18 @@ def species_sample_spreadsheet_export(request, species_list):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'inline; filename="grais export {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+def biofouling_presence_absence_spreadsheet_export(request):
+    year = request.GET["year"] if request.GET["year"] != "None" else None
+
+    file_url = reports.generate_biofouling_pa_spreadsheet(year)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="biofouling presence absence {}.xlsx"'.format(timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
 

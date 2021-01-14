@@ -55,7 +55,7 @@ def get_app_dict(request):
     # if we are going to fake the travel app, we add it no matter what
     if settings.FAKE_TRAVEL_APP:
         app_dict["travel"] = {
-            "title": _("Conference and Travel Management System"),
+            "title": _("EOS Conference and Travel Management System"),
             "description": _("Management tool to facilitate regional and national travel pre-approvals."),
             "status": "production",
             "access": "permission-required",
@@ -68,7 +68,7 @@ def get_app_dict(request):
     else:
         try:
             app_dict["travel"] = {
-                "title": _("Conference and Travel Management System"),
+                "title": _("EOS Conference and Travel Management System"),
                 "description": _("Management tool to facilitate regional and national travel pre-approvals."),
                 "status": "production",
                 "access": "permission-required",
@@ -145,9 +145,23 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["scuba"] = {
+            "title": _("SCUBA"),
+            "description": _("Lobster SCUBA survey data entry and archiving tool."),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('scuba:index'),
+            "icon_path": 'img/icons/diving-mask.png',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+
+    try:
         app_dict["scifi"] = {
             "title": _("SciFi"),
-            "description": _("Gulf Science finance tracking and reporting tool."),
+            "description": _("Science finance tracking and reporting tool."),
             "status": "production",
             "access": "permission-required",
             "url": reverse('scifi:index'),
@@ -314,6 +328,19 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["bio_diversity"] = {
+            "title": _("Biodiversity"),
+            "description": _("Tool for Biodiversity project"),
+            "status": "dev",
+            "access": "login-required",
+            "url": reverse('bio_diversity:index'),
+            "icon_path": 'img/bio_diversity/bio_diversity_image.svg',
+            "region": "regional",
+        }
+    except NoReverseMatch:
+        pass
+
+    try:
         app_dict["vault"] = {
             "title": _("Megafauna media vault"),
             "description": _("Media vault for marine megafauna."),
@@ -351,19 +378,6 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
-    #
-    # try:
-    #     app_dict["masterlist"] = {
-    #         "title": _("MasterList"),
-    #         "description": _("Regional master list and consultation instructions."),
-    #         "status": "dev",
-    #         "access": "permission-required",
-    #         "url": reverse('masterlist:index'),
-    #         "icon_path": 'img/icons/connection.svg',
-    #         "region": "regional",
-    #     }
-    # except NoReverseMatch:
-    #     pass
 
     try:
         app_dict["projects"] = {

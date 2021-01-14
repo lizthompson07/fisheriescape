@@ -1,0 +1,15 @@
+{% load verbose_names %}
+
+<div class="container" >
+    <div class="row">
+        <div class="col-sm">
+            <div><span class="font-weight-bold">{% get_verbose_label envcf 'env_id' %} : </span><span>{% get_field_value envcf 'env_id' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label envcf 'env_pdf' %} : </span><span>{% if envcf.env_pdf %}
+                <a href="{{ MEDIA_URL }}{{envcf.env_pdf.url}}">Preview PDF</a>
+            {% endif %} </span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label envcf 'comments' %} : </span><span>{% get_field_value envcf 'comments' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label envcf 'created_by' %} : </span><span>{% get_field_value envcf 'created_by' %}</span></div>
+            <div><span class="font-weight-bold">{% get_verbose_label envcf 'created_date' %} : </span><span>{% get_field_value envcf 'created_date' %}</span></div>
+        </div>
+    </div>
+</div>

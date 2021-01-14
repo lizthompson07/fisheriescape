@@ -1,0 +1,58 @@
+{% load verbose_names %}
+{% load custom_filters %}
+
+<em>
+  *** un message français suivra
+</em>
+<br><br>
+
+
+  <p>Hello,</p>
+
+  <p>
+    This is an automated message to inform you that a strategic review has been completed for your project entitled
+    <a href="
+      {{ SITE_FULL_URL }}{% url 'projects2:project_detail' review.project_year.project.id %}?project_year={{ review.project_year.id }}">
+      {{ review.project_year.project.title }} ({{ review.project_year }})
+    </a>.
+
+  </p>
+
+
+{% if review.comments_for_staff %}
+  <u>The reviewer(s) had the following comment / question:</u>
+  <ul>
+    <li>
+      <b>{{ review.comments_for_staff }}</b>
+    </li>
+  </ul>
+{% endif %}
+
+
+<p>
+  ********************************************************************
+</p>
+
+
+
+  <p>Bonjour,</p>
+
+  <p>
+    Il s'agit d'un message automatisé pour vous informer qu'une revue stratégique a été réalisée pour votre projet intitulé :
+    <a href="
+      {{ SITE_FULL_URL }}{% url 'projects2:project_detail' review.project_year.project.id %}?project_year={{ review.project_year.id }}">
+      {{ review.project_year.project.title }} ({{ review.project_year }})
+    </a>.
+  </p>
+
+
+{% if review.approver_comment %}
+  <u>Les évaluateurs vous ont posé le commentaire / la question suivante : </u>
+  <ul>
+    <li>
+      <b>{{ review.approver_comment }}</b>
+    </li>
+  </ul>
+{% endif %}
+
+

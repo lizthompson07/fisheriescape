@@ -10,6 +10,17 @@ from django.utils.translation import gettext as _
 from shared_models.utils import get_metadata_string
 
 
+class UnilingualSimpleLookup(models.Model):
+    class Meta:
+        abstract = True
+        ordering = ["name", ]
+
+    name = models.CharField(unique=True, max_length=255, verbose_name=_("name"))
+
+    def __str__(self):
+        return self.name
+
+
 class SimpleLookup(models.Model):
     class Meta:
         abstract = True
@@ -40,6 +51,25 @@ class SimpleLookupWithUUID(SimpleLookup):
 
 
 class Lookup(SimpleLookup):
+    class Meta:
+        abstract = True
+
+    description_en = models.TextField(blank=True, null=True, verbose_name=_("Description (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("Description (fr)"))
+
+    @property
+    def tdescription(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("description_en"))):
+            my_str = "{}".format(getattr(self, str(_("description_en"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            my_str = self.description_en
+        return my_str
+
+
+
+class UnilingualLookup(UnilingualSimpleLookup):
     class Meta:
         abstract = True
 
@@ -183,11 +213,11 @@ class Section(SimpleLookupWithUUID):
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     # calculated fields (for quick acquisition)
-    shortish_name = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_en = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_en_ver1 = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_fr = models.CharField(max_length=1000, blank=True, null=True)
-    full_name_fr_ver1 = models.CharField(max_length=1000, blank=True, null=True)
+    shortish_name = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_en = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_en_ver1 = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_fr = models.CharField(max_length=1000, blank=True, null=True, editable=False)
+    full_name_fr_ver1 = models.CharField(max_length=1000, blank=True, null=True, editable=False)
 
     class Meta:
         ordering = ['division__branch__region', 'division__branch', 'division', 'name', ]
@@ -681,7 +711,6 @@ class Location(models.Model):
     abbrev_fr = models.CharField(max_length=25, blank=True, null=True)
     uuid_gcmd = models.CharField(max_length=255, blank=True, null=True)
 
-
     @property
     def tname(self):
         # check to see if a french value is given
@@ -691,7 +720,6 @@ class Location(models.Model):
         else:
             my_str = self.location_en
         return my_str
-
 
     def __str__(self):
         return f"{self.location_en}, {self.get_country_display()}"

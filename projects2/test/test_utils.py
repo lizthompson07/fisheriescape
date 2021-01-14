@@ -201,8 +201,6 @@ class TestUtils(CommonTest):
 
         data = utils.financial_project_summary_data(project)
         self.assertEqual(len(data), 2)
-        self.assertEqual(data[0]["type"], funding_source.get_funding_source_type_display())
-        self.assertEqual(data[0]["name"], str(funding_source))
         self.assertEqual(data[0]["salary"], 8000)
         self.assertEqual(data[0]["om"], 8000)
         self.assertEqual(data[0]["capital"], 4000)

@@ -160,6 +160,7 @@ urlpatterns = [
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
     path('reports/species-by-sample-spreadsheet/<str:species_list>/', views.species_sample_spreadsheet_export,
          name="spp_sample_xlsx"),
+    path('reports/biofouling-presence-absence/', views.biofouling_presence_absence_spreadsheet_export, name="biofouling_pa_xlsx"),
     path('reports/opendata1/<int:year>/', views.export_open_data_ver1, name="od1_report"),
     path('reports/opendata1/', views.export_open_data_ver1, name="od1_report"),
     path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
