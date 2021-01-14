@@ -192,6 +192,8 @@ class Person(models.Model):
 
     #spot
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("role"))
+    org_sec = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("section"))
+    oth_memb = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("other membership"))
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -264,6 +266,8 @@ class OrganizationMember(models.Model):
     # role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, related_name="members", blank=True, null=True, verbose_name=_("G&C role"))
     role = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("role"))
     notes = models.TextField(blank=True, null=True)
+    #spot
+    spot_role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("spot role"))
 
     # metadata
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
@@ -289,7 +293,7 @@ class OrganizationMember(models.Model):
         else:
             last_name = ""
 
-        return "{} {}, {} ({})".format(first_name, last_name, self.role, self.organization)
+        return "{} {}, {} ({})".format(first_name, last_name, self.spot_role, self.organization)
 
 
 class ConsultationRole(models.Model):

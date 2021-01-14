@@ -60,12 +60,12 @@ class MemberForm(forms.ModelForm):
             'person',
             'organization',
             'role',
-            # 'role_notes',
+            #'role_notes',
             'notes',
             'last_modified_by',
         ]
         widgets = {
-            'notes': forms.Textarea(attrs={"rows": 2}),
+            #'notes': forms.Textarea(attrs={"rows": 2}),
             'organization': forms.HiddenInput(),
             'last_modified_by': forms.HiddenInput(),
         }
@@ -75,48 +75,56 @@ class PersonForm(forms.ModelForm):
     class Meta:
         model = ml_models.Person
         fields = [
-            "designation",
+            #"designation",
             "first_name",
             "last_name",
             "email_1",
-            "email_2",
+            #"email_2",
             "phone_1",
-            "phone_2",
-            "cell",
-            "fax",
-            "language",
-            "email_block",
+            #"phone_2",
+            #"cell",
+            #"fax",
+            #"language",
+            #"email_block",
+            'organizations',
+            'org_sec',
+            'role',
+            'oth_memb',
         ]
 
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'language': forms.Select(attrs=attr_chosen),
+           # 'language': forms.Select(attrs=attr_chosen),
             # 'email_block': forms.Textarea(attrs=class_editable),
         }
 
 
 class NewPersonForm(forms.ModelForm):
     organization = forms.ChoiceField(widget=forms.Select(attrs=attr_chosen_contains))
-    role = forms.CharField(required=False)
+    #role = forms.CharField(required=False)
 
     class Meta:
         model = ml_models.Person
         fields = [
-            "designation",
+            #"designation",
             "first_name",
             "last_name",
             "email_1",
-            "email_2",
+            #"email_2",
             "phone_1",
-            "phone_2",
-            "cell",
-            "fax",
-            "language",
+            #"phone_2",
+            #"cell",
+            #"fax",
+            #"language",
+            #'organizations',
+            'org_sec',
+            'role',
+            'oth_memb',
         ]
 
         widgets = {
             'last_modified_by': forms.HiddenInput(),
-            'language': forms.Select(attrs=attr_chosen),
+           # 'language': forms.Select(attrs=attr_chosen),
             # 'notes': forms.Textarea(attrs={"rows": 3}),
         }
 
