@@ -1080,7 +1080,7 @@ class SpeciesCode(BioModel):
     # spec tag
     name = models.CharField(max_length=10, verbose_name=_("Species Name"))
     species = models.CharField(max_length=100, verbose_name=_("Species"))
-    com_name = models.CharField(max_length=35, null=True, blank=True, verbose_name=_("Species Common Nme"))
+    com_name = models.CharField(max_length=35, null=True, blank=True, verbose_name=_("Species Common Name"))
 
     def __str__(self):
         return self.name
