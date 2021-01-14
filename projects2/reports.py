@@ -12,9 +12,9 @@ from openpyxl import load_workbook
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
-from lib.templatetags.verbose_names import get_verbose_label
-from . import models
 from publications import models as pi_models
+from . import models
+
 
 def generate_acrdp_application(project):
     # figure out the filename
@@ -415,8 +415,6 @@ def generate_culture_committee_report():
     return target_url
 
 
-
-
 def generate_csrf_application(project, lang):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
@@ -478,7 +476,7 @@ def generate_csrf_application(project, lang):
         lead_name = lead.get_full_name()
         lead_email = lead.email
 
-    field_work=_("No")
+    field_work = _("No")
     for year in project.years.all():
         if year.has_field_component:
             field_work = _("Yes")
@@ -511,7 +509,6 @@ def generate_csrf_application(project, lang):
     if len(data_management):
         data_management += "PLEASE REVIEW THIS SECTION!!!!"
 
-
     field_dict = dict(
         TAG_THEME=str(project.client_information.csrf_priority.csrf_sub_theme.csrf_theme) if project.client_information else "MISSING!",
         TAG_PRIORITY_CODE=str(project.client_information.csrf_priority.code) if project.client_information else "MISSING!",
@@ -534,8 +531,6 @@ def generate_csrf_application(project, lang):
         TAG_SHIP_TIME=ship_time,
         TAG_RISKS=risks,
         TAG_DATA_MANAGEMENT=data_management,
-
-
 
         # TAG_ORG_NAME=project.organization.tname if project.organization else "MISSING!",
         # TAG_ADDRESS=project.organization.address if project.organization else "MISSING!",
@@ -585,7 +580,8 @@ def generate_csrf_application(project, lang):
             for staff in models.Staff.objects.filter(project_year__project=project).order_by("project_year"):
                 row = table.add_row()
                 row.cells[0].paragraphs[0].text = f'{staff.smart_name} ({staff.project_year.fiscal_year})'
-                row.cells[1].paragraphs[0].text = f'Role in the project: {staff.role} \nFTE Time: {int(nz(staff.duration_weeks, 0))} weeks ({round(int(nz(staff.duration_weeks, 0))/42*100)}%)\nKey Expertise: {staff.expertise}'
+                row.cells[1].paragraphs[
+                    0].text = f'Role in the project: {staff.role} \nFTE Time: {int(nz(staff.duration_weeks, 0))} weeks ({round(int(nz(staff.duration_weeks, 0)) / 42 * 100)}%)\nKey Expertise: {staff.expertise}'
                 row.cells[2].paragraphs[0].text = _("DFO-") + "[ADD REGION]"
 
             for c in models.Collaboration.objects.filter(project_year__project=project).order_by("project_year"):
@@ -594,6 +590,12 @@ def generate_csrf_application(project, lang):
                 row.cells[1].paragraphs[0].text = c.notes
                 row.cells[3].paragraphs[0].text = c.organization
 
+        if "overview of the project" in table.rows[0].cells[0].paragraphs[0].text.lower():
+            for activity in models.Activity.objects.filter(project_year__project=project).order_by("project_year"):
+                row = table.add_row()
+                row.cells[0].paragraphs[0].text = f'{activity.project_year.fiscal_year}'
+                row.cells[1].paragraphs[
+                    0].text = f'TYPE: {activity.get_type_display()} \nNAME: {activity.name}\nDESCRIPTION: {activity.description}\nRESPONSIBLE PARTIES: {activity.responsible_party}'
 
     document.save(target_file_path)
 
