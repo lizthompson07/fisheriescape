@@ -474,9 +474,9 @@ def get_staff_field_list():
         'employee_type',
         'level',
         'duration_weeks',
-        'overtime_hours',
+        # 'overtime_hours',
         # 'overtime_description',
-        'student_program',
+        # 'student_program',
         'amount',
     ]
     return my_list

@@ -603,6 +603,10 @@ class Staff(GenericCost):
     overtime_hours = models.FloatField(default=0, blank=True, null=True, verbose_name=_("overtime (hours)"))
     overtime_description = models.TextField(blank=True, null=True, verbose_name=_("overtime description"))
 
+    role = models.TextField(blank=True, null=True, verbose_name=_("role in the project"))  # CSRF
+    expertise = models.TextField(blank=True, null=True, verbose_name=_("key expertise"))  # CSRF
+
+
     def __str__(self):
         if self.user:
             return "{} {}".format(self.user.first_name, self.user.last_name)

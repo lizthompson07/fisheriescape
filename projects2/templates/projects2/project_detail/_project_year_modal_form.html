@@ -59,8 +59,8 @@
               {#  STAFF FORM #}
               <div v-if="mtype === 'staff'">
                 {% for field in staff_form %}
-                  {% bootstrap_field field size='small' placeholder="" %}
                   {% if field.name == "duration_weeks" %}
+                    {% bootstrap_field field size='small' placeholder="" %}
                     <div class="mb-3">
                       <button @click="toggleOTCalc" href="#" id="ot_calc" type="button" class="btn btn-outline-primary mt-3">
                         <img src="{% static "/img/calculator.png" %}" alt="" style="width:100px"
@@ -69,6 +69,14 @@
                         {% trans "Overtime Calculator" %}<br>
                       </button>
                     </div>
+
+                  {% elif field.name == "role" or field.name == "expertise" %}
+                    <div v-if="isCSRF">
+                      {% bootstrap_field field size='small' placeholder="" %}
+                    </div>
+
+                  {% else %}
+                    {% bootstrap_field field size='small' placeholder="" %}
                   {% endif %}
 
                 {% endfor %}

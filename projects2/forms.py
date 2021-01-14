@@ -351,7 +351,8 @@ class StaffForm(forms.ModelForm):
         funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
-
+        self.fields["role"].widget.attrs = {"v-model": "activity.role", "rows": "4", ":disabled": "!isCSRF"}
+        self.fields["expertise"].widget.attrs = {"v-model": "activity.expertise", "rows": "4", ":disabled": "!isCSRF"}
 
 class OMCostForm(forms.ModelForm):
     field_order = ["om_category", "funding_source", "description", "amount"]
