@@ -170,7 +170,7 @@ class Project(models.Model):
                                             verbose_name=_("Additional info supplied by client (#2) (CSRF)"), related_name="projects2")
 
     objectives = models.TextField(blank=True, null=True, verbose_name=_("project objectives (CSRF)"))
-    objectives_methods = models.TextField(blank=True, null=True, verbose_name=_("methods applied to achieve objectives (CSRF)"))
+    # objectives_methods = models.TextField(blank=True, null=True, verbose_name=_("methods applied to achieve objectives (CSRF)"))
     innovation = models.TextField(blank=True, null=True, verbose_name=_("innovation (CSRF)"))
     other_funding = models.TextField(blank=True, null=True, verbose_name=_("other sources of funding (CSRF)"))
 

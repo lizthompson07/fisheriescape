@@ -381,7 +381,7 @@ def get_project_field_list(project):
         'client_information1_html|{}'.format(_("Additional info supplied by client (#1)")) if is_csrf else None,
         'client_information2_html|{}'.format(_("Additional info supplied by client (#2)")) if is_csrf else None,
         'objectives_html|{}'.format(_("project objectives (CSRF)")) if is_csrf else None,
-        'objectives_methods_html|{}'.format(_("methods applied to achieve objectives (CSRF)")) if is_csrf else None,
+        # 'objectives_methods_html|{}'.format(_("methods applied to achieve objectives (CSRF)")) if is_csrf else None,
         'innovation_html|{}'.format(_("innovation (CSRF)")) if is_csrf else None,
         'other_funding_html|{}'.format(_("other sources of funding (CSRF)")) if is_csrf else None,
 

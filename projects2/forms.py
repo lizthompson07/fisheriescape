@@ -161,8 +161,8 @@ class ProjectForm(forms.ModelForm):
                 self.fields["overview"].label = str(
                     _("Provide a brief overview of the project outlining how it specifically addresses the priority identified "))
                 self.fields["objectives"].label = str(_("Describe the objective(s) of the project (CSRF)"))
-                self.fields["objectives_methods"].label = str(
-                    _("Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan by year (CSRF)"))
+                # self.fields["objectives_methods"].label = str(
+                #     _("Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan by year (CSRF)"))
                 self.fields["innovation"].label = str(_("Describe how the project will generate or promote innovation (CSRF)"))
                 self.fields["other_funding"].label = str(
                     _("Provide any additional information on the other sources of funding relevant to the project (e.g. type of in-kind contribution) (CSRF)"))
@@ -233,6 +233,12 @@ class ProjectYearForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # if not acrdp project, we should remove certain fields
+        if kwargs.get("instance"):
+            if kwargs.get("instance").project.is_csrf:
+                self.fields["priorities"].label = str(
+                    _("Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan FOR THIS PROJECT YEAR (CSRF)"))
 
     def clean_start_date(self):
         start_date = self.cleaned_data['start_date']

@@ -9,8 +9,7 @@ def is_markdown_field(value):
         # project
         'overview',
         ## CSRF
-        'objectives_html',
-        'objectives_methods',
+        'objectives',
         'innovation',
         'other_funding',
         ## ACRDP
