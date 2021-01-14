@@ -1059,7 +1059,7 @@ class CommonList(CommonAuthFilterView):
 
         # for the most part if the user is authorized then the content is editable
         # but extending classes can choose to make content not editable even if the user is authorized
-        # context['auth'] = utils.whales_authorized(self.request.user)
+        context['auth'] = utils.bio_diverisity_authorized(self.request.user)
         context['editable'] = context['auth'] and self.editable
 
         if self.creation_form_height:
