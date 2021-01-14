@@ -127,7 +127,7 @@ class ProjectForm(forms.ModelForm):
                     'client_information',
                     'second_priority',
                     'objectives',
-                    'objectives_methods',
+                    # 'objectives_methods',
                     'innovation',
                     'other_funding',
                 ]
@@ -140,7 +140,7 @@ class ProjectForm(forms.ModelForm):
                     'client_information',
                     'second_priority',
                     'objectives',
-                    'objectives_methods',
+                    # 'objectives_methods',
                     'innovation',
                     'other_funding',
                 ]

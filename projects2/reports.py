@@ -3,6 +3,7 @@ from io import BytesIO
 
 import xlsxwriter
 from django.conf import settings
+from django.db.models import Sum
 from django.template.defaultfilters import pluralize
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -11,7 +12,7 @@ from html2text import html2text
 from openpyxl import load_workbook
 
 from lib.functions.custom_functions import listrify
-from lib.templatetags.custom_filters import nz
+from lib.templatetags.custom_filters import nz, currency
 from publications import models as pi_models
 from . import models
 
@@ -431,27 +432,7 @@ def generate_csrf_application(project, lang):
         source_stream = BytesIO(f.read())
     document = Document(source_stream)
     source_stream.close()
-    #
-    # lead = None
-    # contact_info = None
-    # if project.lead_staff.exists():
-    #     lead = project.lead_staff.first().user
-    #     contact_info = _("{full_address}\n\n{email}\n\n{phone}").format(
-    #         full_address=project.organization.full_address if project.organization else "MISSING!",
-    #         email=lead.email,
-    #         phone=nz(lead.profile.phone, "MISSING!")
-    #     )
-    #
 
-    # deliverables = str()
-    # for year in project.years.all():
-    #     if year.activities.filter(type=2).exists():
-    #         deliverables += f'{year.fiscal_year}:\n\n'
-    #         i = 1
-    #         for d in year.activities.filter(type=2):
-    #             deliverables += f'{i}) {d.name.upper()} - {d.description}\n\n'
-    #             i += 1
-    #
     priorities = str()
     for year in project.years.all():
         priorities += f'{year.fiscal_year}:\n{year.priorities}\n\n'
@@ -493,13 +474,7 @@ def generate_csrf_application(project, lang):
         if activity.risk_description:
             risks += f'{activity.name.upper()}:\ni) {activity.risk_description}\nii) {activity.mitigation_measures}\n\n'
 
-    risks = str()
-    for activity in models.Activity.objects.filter(project_year__project=project):
-        if activity.risk_description:
-            risks += f'{activity.name.upper()}:\ni) {activity.risk_description}\nii) {activity.mitigation_measures}\n\n'
-
     data_management = str()
-    open_data_msg = _("")
     for year in project.years.all():
         if year.has_data_component:
             data_management += f'{year.fiscal_year}:\n' \
@@ -509,11 +484,63 @@ def generate_csrf_application(project, lang):
     if len(data_management):
         data_management += "PLEASE REVIEW THIS SECTION!!!!"
 
+    # COSTS
+    years = project.years.order_by("fiscal_year")
+    if year_count <= 3:
+        years = project.years.all()[:3]
+
+    cats = [
+        'salary',
+        'contracts',
+        'equipment',
+        'supplies',
+        'travel',
+        'vessel',
+        'other',
+        'overhead',
+        'total',
+    ]
+    types = ["y1", 'y2', 'y3', 'total', 'detail']
+    cost_dict = dict()
+    for c in cats:
+        for t in types:
+            val = str() if t == "detail" else 0
+            cost_dict[f'{c}_{t}'] = val
+    i = 1
+    for year in years:
+        # start with salary
+        for staff in year.staff_set.filter(amount__isnull=False, amount__gt=0):
+            cost_dict[f'salary_y{i}'] += staff.amount
+            cost_dict[f'salary_total'] += staff.amount
+
+            staff_description = f'{year.fiscal_year} - {staff.smart_name}'
+            if staff.level: staff_description += f" ({staff.level})"
+            if staff.duration_weeks: staff_description += f" @ {staff.duration_weeks} weeks"
+            staff_description += f' = {currency(staff.amount, True)}\n'
+            cost_dict[f'salary_detail'] += staff_description
+
+        # contracts
+        for cost in year.omcost_set.filter(om_category__group=5, amount__gt=0):
+            cost_dict[f'contracts_y{i}'] += cost.amount
+            cost_dict[f'contracts_total'] += cost.amount
+            cost_description = f'{cost.project_year.fiscal_year} - {cost.description} = {currency(cost.amount, True)}\n'
+            cost_dict[f'contracts_detail'] += cost_description
+
+        # equipment
+        for cost in year.omcost_set.filter(om_category__group=2, amount__gt=0):
+            cost_dict[f'equipment_y{i}'] += cost.amount
+            cost_dict[f'equipment_total'] += cost.amount
+            cost_description = f'{cost.project_year.fiscal_year} - {cost.description} = {currency(cost.amount, True)}\n'
+            cost_dict[f'equipment_detail'] += cost_description
+
+        i += 1
+
+
     field_dict = dict(
         TAG_THEME=str(project.client_information.csrf_priority.csrf_sub_theme.csrf_theme) if project.client_information else "MISSING!",
         TAG_PRIORITY_CODE=str(project.client_information.csrf_priority.code) if project.client_information else "MISSING!",
         TAG_PRIORITY=str(project.client_information.csrf_priority) if project.client_information else "MISSING!",
-        TAG_CLIENT_INFORMATION1=str(project.client_information.name) if project.client_information else "MISSING!",
+        TAG_CLIENT_INFORMATION=str(project.client_information.name) if project.client_information else "MISSING!",
         TAG_SECOND_PRIORITY=str(project.second_priority),
         TAG_TITLE=project.title,
         TAG_PROJECT_LENGTH_1=project_length_1,
@@ -532,26 +559,11 @@ def generate_csrf_application(project, lang):
         TAG_RISKS=risks,
         TAG_DATA_MANAGEMENT=data_management,
 
-        # TAG_ORG_NAME=project.organization.tname if project.organization else "MISSING!",
-        # TAG_ADDRESS=project.organization.address if project.organization else "MISSING!",
-        # TAG_CITY=project.organization.city if project.organization else "MISSING!",
-        # TAG_PROV=str(project.organization.location.tname) if project.organization else "MISSING!",
-        # TAG_POSTAL_CODE=project.organization.postal_code if project.organization else "MISSING!",
-        # TAG_SPECIES=project.species_involved if project.organization else "MISSING!",
-        # TAG_LEAD_NAME=lead.get_full_name() if lead else "MISSING!",
-        # TAG_LEAD_NUMBER=lead.profile.phone if lead else "MISSING!",
-        # TAG_LEAD_EMAIL=lead.email if lead else "MISSING!",
-        # TAG_LEAD_POSITION=lead.profile.tposition if lead else "MISSING!",
-        # TAG_LEAD_CONTACT_INFO=contact_info if contact_info else "MISSING!",
-        # TAG_SECTION_HEAD_NAME=project.section.head.get_full_name() if project.section else "MISSING!",
-        # TAG_DIVISION_MANAGER_NAME=project.section.division.head.get_full_name() if project.section else "MISSING!",
-        # TAG_START_YEAR=project.years.first().start_date.strftime("%d/%m/%Y") if project.years.exists() else "MISSING!",
-        # TAG_END_YEAR=project.years.last().end_date.strftime("%d/%m/%Y") if project.years.exists() and project.years.last().end_date else "MISSING!",
-        # TAG_TEAM_DESCRIPTION=project.team_description,
-        # TAG_RATIONALE=project.rationale,
-        # TAG_EXPERIMENTAL_PROTOCOL=project.experimental_protocol,
-        # TAG_DELIVERABLES=deliverables
     )
+    for c in cats:
+        for t in types:
+            val = str() if t == "detail" else 0
+            field_dict[f'TAG_{c.upper()}_{t.upper()}'] = cost_dict[f'{c}_{t}']
 
     for item in field_dict:
         # replace the tagged placeholders in tables
@@ -561,9 +573,9 @@ def generate_csrf_application(project, lang):
                     for paragraph in cell.paragraphs:
                         if item in paragraph.text:
                             try:
-                                paragraph.text = paragraph.text.replace(item, field_dict[item])
+                                paragraph.text = paragraph.text.replace(item, str(field_dict[item]))
                             except Exception as E:
-                                print(E)
+                                print(E, field_dict[item])
                                 paragraph.text = "MISSING!"
 
         # replace the tagged placeholders in paragraphs
