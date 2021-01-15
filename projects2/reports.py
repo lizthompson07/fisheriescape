@@ -3,7 +3,7 @@ from io import BytesIO
 
 import xlsxwriter
 from django.conf import settings
-from django.db.models import Sum
+from django.db.models import Q
 from django.template.defaultfilters import pluralize
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -490,51 +490,68 @@ def generate_csrf_application(project, lang):
         years = project.years.all()[:3]
 
     cats = [
-        'salary',
-        'contracts',
-        'equipment',
-        'supplies',
-        'travel',
-        'vessel',
-        'other',
-        'overhead',
-        'total',
+        ('salary', None),
+        ('contracts', 5),
+        ('equipment', 2),
+        ('supplies', 3),
+        ('travel', 1),
+        ('vessel', None),  # 18
+        ('other', 6),
+        ('overhead', None),  # 24
+        ('total', None),
     ]
     types = ["y1", 'y2', 'y3', 'total', 'detail']
     cost_dict = dict()
     for c in cats:
         for t in types:
             val = str() if t == "detail" else 0
-            cost_dict[f'{c}_{t}'] = val
+            cost_dict[f'{c[0]}_{t}'] = val
     i = 1
     for year in years:
-        # start with salary
-        for staff in year.staff_set.filter(amount__isnull=False, amount__gt=0):
-            cost_dict[f'salary_y{i}'] += staff.amount
-            cost_dict[f'salary_total'] += staff.amount
 
-            staff_description = f'{year.fiscal_year} - {staff.smart_name}'
-            if staff.level: staff_description += f" ({staff.level})"
-            if staff.duration_weeks: staff_description += f" @ {staff.duration_weeks} weeks"
-            staff_description += f' = {currency(staff.amount, True)}\n'
-            cost_dict[f'salary_detail'] += staff_description
-
-        # contracts
-        for cost in year.omcost_set.filter(om_category__group=5, amount__gt=0):
-            cost_dict[f'contracts_y{i}'] += cost.amount
-            cost_dict[f'contracts_total'] += cost.amount
-            cost_description = f'{cost.project_year.fiscal_year} - {cost.description} = {currency(cost.amount, True)}\n'
-            cost_dict[f'contracts_detail'] += cost_description
-
-        # equipment
-        for cost in year.omcost_set.filter(om_category__group=2, amount__gt=0):
+        #captial costs
+        for cost in year.capitalcost_set.filter(amount__gt=0):
             cost_dict[f'equipment_y{i}'] += cost.amount
             cost_dict[f'equipment_total'] += cost.amount
-            cost_description = f'{cost.project_year.fiscal_year} - {cost.description} = {currency(cost.amount, True)}\n'
+            cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description,"MISSING DESCRIPTION")} = {currency(cost.amount, True)} (Captial)\n'
             cost_dict[f'equipment_detail'] += cost_description
 
-        i += 1
+        # rest of the costs
+        for c in cats:
+            cost_name = c[0]
+            group = c[1]
+            qs = None
+            if not group:
+                if cost_name == "salary":
+                    # start with salary
+                    for staff in year.staff_set.filter(amount__isnull=False, amount__gt=0):
+                        cost_dict[f'salary_y{i}'] += staff.amount
+                        cost_dict[f'salary_total'] += staff.amount
 
+                        staff_description = f'{year.fiscal_year} - {staff.smart_name}'
+                        if staff.level: staff_description += f" ({staff.level})"
+                        if staff.duration_weeks: staff_description += f" @ {staff.duration_weeks} weeks"
+                        staff_description += f' = {currency(staff.amount, True)}\n'
+                        cost_dict[f'salary_detail'] += staff_description
+
+                elif cost_name == "overhead":
+                    qs = year.omcost_set.filter(om_category__name__icontains="overhead", amount__gt=0)
+                elif cost_name == "vessel":
+                    qs = year.omcost_set.filter(om_category__name__icontains="vessels", amount__gt=0)
+
+            else:
+                qs = year.omcost_set.filter(om_category__group=group, amount__gt=0)
+                if cost_name == "contracts":
+                    qs = qs.filter(~Q(om_category__name__icontains="vessels"))
+                elif cost_name == "other":
+                    qs = qs.filter(~Q(om_category__name__icontains="overhead"))
+            if qs:
+                for cost in qs:
+                    cost_dict[f'{cost_name}_y{i}'] += cost.amount
+                    cost_dict[f'{cost_name}_total'] += cost.amount
+                    cost_description = f'{cost.project_year.fiscal_year} - {nz(cost.description,"MISSING DESCRIPTION")} = {currency(cost.amount, True)} (O&M)\n'
+                    cost_dict[f'{cost_name}_detail'] += cost_description
+        i += 1
 
     field_dict = dict(
         TAG_THEME=str(project.client_information.csrf_priority.csrf_sub_theme.csrf_theme) if project.client_information else "MISSING!",
@@ -563,7 +580,7 @@ def generate_csrf_application(project, lang):
     for c in cats:
         for t in types:
             val = str() if t == "detail" else 0
-            field_dict[f'TAG_{c.upper()}_{t.upper()}'] = cost_dict[f'{c}_{t}']
+            field_dict[f'TAG_{c[0].upper()}_{t.upper()}'] = cost_dict[f'{c[0]}_{t}']
 
     for item in field_dict:
         # replace the tagged placeholders in tables
