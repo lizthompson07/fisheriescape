@@ -75,6 +75,9 @@ class CSRFClientInformation(Lookup):
     class Meta:
         ordering = ['csrf_priority__code', "name"]
 
+    def __str__(self):
+        return mark_safe(self.tname)
+
 
 class Theme(SimpleLookup):
     pass
