@@ -48,9 +48,12 @@
                 <span class="px-1">
                     <a class="btn btn-primary" name="add-new-loc-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_loc' object.pk 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Location' %}</a>
                 </span>
+                <span>
+                    <a href="#evnt-loc-list" data-toggle="collapse">Collapse</a>
+                </span>
             </h5>
             {% if object.location.count > 0 %}
-                <table class="table table-sm sortable table-hover">
+                <table class="table table-sm sortable table-hover collapse" id="evnt-loc-list">
                     <thead>
                         {% for field in loc_field_list %}
                             <th>{% get_verbose_label loc_object field %}</th>
@@ -80,11 +83,11 @@
                     <a class="btn btn-primary" name="add-existing_indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'indv_id' 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Individual' %}</a>
                 </span>
                 <span>
-                    <a href="#envt-indv-list" data-toggle="collapse">X</a>
+                    <a href="#evnt-indv-list" data-toggle="collapse">Collapse</a>
                 </span>
             </h5>
             {% if indv_list %}
-                <table class="table table-sm sortable table-hover collapse" id="envt-indv-list">
+                <table class="table table-sm sortable table-hover collapse" id="evnt-indv-list">
                     <thead>
                         {% for field in indv_field_list %}
                             <th>{% get_verbose_label indv_object field %}</th>
@@ -117,9 +120,12 @@
                 <span class="px-1">
                     <a class="btn btn-primary" name="add-existing_grp-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'grp_id' 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Group' %}</a>
                 </span>
+                <span>
+                    <a href="#evnt-grp-list" data-toggle="collapse">Collapse</a>
+                </span>
             </h5>
             {% if grp_list %}
-                <table class="table table-sm sortable table-hover">
+                <table class="table table-sm sortable table-hover collaps" id="evnt-grp-list">
                     <thead>
                         {% for field in grp_field_list %}
                             <th>{% get_verbose_label grp_object field %}</th>
@@ -172,9 +178,12 @@
                 <span class="px-1">
                     <a class="btn btn-primary" name="add-new-prot-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_prot' object.prog_id.id 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add New Protocol' %}</a>
                 </span>
+                <span>
+                    <a href="#evnt-prot-list" data-toggle="collapse">Collapse</a>
+                </span>
             </h5>
             {% if prot_list %}
-                <table class="table table-sm sortable table-hover">
+                <table class="table table-sm sortable table-hover collapse" id="evnt-prot-list">
                     <thead>
                         {% for field in prot_field_list %}
                             <th>{% get_verbose_label prot_object field %}</th>
@@ -195,6 +204,7 @@
                 </table>
             {% endif %}
         </div>
+
         <div class="card border border-dark my-1" name="spwn-details">
             <h5 class="card-header">{% trans "Event Spawnings" %}
                 <span class="px-1">
@@ -203,9 +213,12 @@
                 <span class="px-1">
                     <a class="btn btn-primary" name="add-existing_spwn-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'spwn_id' 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Spawning' %}</a>
                 </span>
+                <span>
+                    <a href="#evnt-spwn-list" data-toggle="collapse">Collapse</a>
+                </span>
             </h5>
             {% if spwn_list %}
-                <table class="table table-sm sortable table-hover">
+                <table class="table table-sm sortable table-hover collapse" id="evnt-spwn-list">
                     <thead>
                         {% for field in spwn_field_list %}
                             <th>{% get_verbose_label spwn_object field %}</th>

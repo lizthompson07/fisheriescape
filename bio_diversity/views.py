@@ -694,6 +694,17 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context = super().get_context_data(**kwargs)
 
         anix_set = self.object.animal_details.all()
+
+        anix_set = self.object.animal_details.filter(evnt_id__isnull=False)
+        context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
+        context["evnt_object"] = models.Event.objects.first()
+        context["evnt_field_list"] = [
+            "evntc_id",
+            "facic_id",
+            "prog_id",
+            "evnt_start",
+        ]
+
         context["grpd_list"] = list(dict.fromkeys([models.GroupDet.objects.filter(anix_id=anix.pk).get()
                                                    for anix in anix_set
                                                    if models.GroupDet.objects.filter(anix_id=anix.pk)]))

@@ -35,6 +35,32 @@
             {% endfor %}
             </div>
         </div>
+
+
+       {% if evnt_list %}
+            <div class="card border border-dark my-1" name="evnt-details">
+                <h5 class="card-header">{% trans "Group Events" %}</h5>
+                <table class="table table-sm sortable table-hover">
+                    <thead>
+                        {% for field in evnt_field_list %}
+                            <th>{% get_verbose_label evnt_object field %}</th>
+                        {% endfor %}
+                    </thead>
+                    <tbody>
+                        {% for obj in evnt_list %}
+                            <tr href="{% url 'bio_diversity:details_evnt' 'grp' object.id obj.id %}">
+                            {% for field in evnt_field_list %}
+                                <td>
+                                    {% get_field_value obj field %}
+                                </td>
+                            {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
         <div class="card border border-dark my-1" name="grpd-details">
             <h5 class="card-header">{% trans "Group Details" %}
 
