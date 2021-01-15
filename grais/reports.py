@@ -264,30 +264,29 @@ def generate_biofouling_pa_spreadsheet(year=None):
         for station in stations:
             sample_qs = models.Sample.objects.filter(season=year, station=station)
 
-            if sample_qs.exists():
-                for sample in sample_qs:
-                    data_row = [
-                        year,
-                        station.station_name,
-                        station.province.abbrev_eng,
-                        station.latitude_n,
-                        station.longitude_w,
-                    ]
+            for sample in sample_qs:
+                data_row = [
+                    year,
+                    station.station_name,
+                    station.province.abbrev_eng,
+                    station.latitude_n,
+                    station.longitude_w,
+                ]
 
-                    for ais in ais_list:
-                        # does a sample even exist?
-                        # start out optimistic
-                        has_been_observed = 0
+                for ais in ais_list:
+                    # does a sample even exist?
+                    # start out optimistic
+                    has_been_observed = 0
 
-                        # we will have to search in three places: sample level, line level, collector level
-                        if models.SampleSpecies.objects.filter(sample=sample, species=ais).exists():
-                            has_been_observed = 1
-                        elif models.LineSpecies.objects.filter(line__sample=sample, species=ais).exists():
-                            has_been_observed = 1
-                        elif models.SurfaceSpecies.objects.filter(surface__line__sample=sample, species=ais).exists():
-                            has_been_observed = 1
+                    # we will have to search in three places: sample level, line level, collector level
+                    if models.SampleSpecies.objects.filter(sample=sample, species=ais).exists():
+                        has_been_observed = 1
+                    elif models.LineSpecies.objects.filter(line__sample=sample, species=ais).exists():
+                        has_been_observed = 1
+                    elif models.SurfaceSpecies.objects.filter(surface__line__sample=sample, species=ais).exists():
+                        has_been_observed = 1
 
-                        data_row.append(has_been_observed)
+                    data_row.append(has_been_observed)
 
                 # adjust the width of the columns based on the max string length in each col
                 ## replace col_max[j] if str length j is bigger than stored value
