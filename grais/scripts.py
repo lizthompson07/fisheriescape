@@ -127,4 +127,4 @@ def print_list_of_duplicates():
 
             if sample_qs.count() > 1:
                 for s in sample_qs:
-                    print(s.id, s.season, s.station.station_name, date(s.date_deployed), date(s.date_retrieved))
+                    print(f'{s.id};{s.season};{s.station.station_name};{date(s.date_deployed)};{date(s.date_retrieved)}')
