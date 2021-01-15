@@ -207,7 +207,7 @@ class DataForm(CreatePrams, forms.ModelForm):
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Tagging":
             grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"], coll_id__name=data_dict[0]["Group"]).get().pk
-            for row in data_dict:
+            for row in data_dict[0:10]:
                 indv = models.Individual(grp_id_id=grp_id,
                                          spec_id_id=1,
                                          stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
@@ -237,16 +237,26 @@ class DataForm(CreatePrams, forms.ModelForm):
                 except ValidationError:
                     anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id, indv_id=anix.indv_id, grp_id=anix.grp_id, created_by=anix.created_by, created_date=anix.created_date).get()
 
-                indvd = models.IndividualDet(anix_id_id=anix.pk,
+                indvd_length = models.IndividualDet(anix_id_id=anix.pk,
                                              anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
                                              det_val=row["Length (cm)"],
                                              qual_id=models.QualCode.objects.filter(name="Good").get(),
                                              created_by=cleaned_data["created_by"],
                                              created_date=cleaned_data["created_date"],
                                              )
+
+                indvd_mass = models.IndividualDet(anix_id_id=anix.pk,
+                                             anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
+                                             det_val=row["Weight (g)"],
+                                             qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                             created_by=cleaned_data["created_by"],
+                                             created_date=cleaned_data["created_date"],
+                                             )
                 try:
-                    indvd.clean()
-                    indvd.save()
+                    indvd_length.clean()
+                    indvd_mass.clean()
+                    indvd_length.save()
+                    indvd_mass.save()
                 except ValidationError:
                     pass
 

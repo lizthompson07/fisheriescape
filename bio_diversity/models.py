@@ -136,6 +136,9 @@ class AnimalDetCode(BioLookup):
     unit_id = models.ForeignKey("UnitCode", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("Units"))
     ani_subj_flag = models.BooleanField(verbose_name=_("Subjective?"))
 
+    def __str__(self):
+        return "{}-{}".format(self.name, self.unit_id.__str__())
+
 
 class AniDetSubjCode(BioLookup):
     # ansc tag

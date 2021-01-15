@@ -757,7 +757,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
 
         anix_set = self.object.animal_details.all()
         indvd_set = list(dict.fromkeys([anix.individual_details.all() for anix in anix_set]))
-        context["indvd_list"] = list(dict.fromkeys([indvd.get() for indvd in indvd_set]))
+        context["indvd_list"] = list(dict.fromkeys([indvd for qs in indvd_set for indvd in qs]))
         context["indvd_object"] = models.Event.objects.first()
         context["indvd_field_list"] = [
             "anidc_id",
