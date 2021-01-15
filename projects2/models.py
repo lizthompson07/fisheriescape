@@ -49,21 +49,28 @@ class CSRFPriority(SimpleLookup):
         return mark_safe(f'{self.code}: {self.tname}')
 
 
-class CSRFClientInformation(SimpleLookup):
+class CSRFClientInformation(Lookup):
     csrf_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, related_name="client_information", verbose_name=_("CSRF priority"))
-    name = models.TextField(verbose_name=_("priority for research (en)"))
-    nom = models.TextField(blank=True, null=True, verbose_name=_("priority for research (fr)"))
+    name = models.CharField(max_length=1000, verbose_name=_("name (en)"))
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("name (fr)"))
+    description_en = models.TextField(verbose_name=_("additional client information (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("additional client information (fr)"))
 
     @property
-    def quickname(self):
-        first_part = self.name.split("\n")[0]
+    def quickname_en(self):
+        first_part = self.description_en.split("\n")[0]
         first_part = first_part.replace(":", "")
         if len(first_part) > 90:
             first_part = first_part[:90]
         return mark_safe(f'{self.csrf_priority.code} &rarr; {first_part}...')
 
-    def __str__(self):
-        return self.quickname
+    @property
+    def quickname_fr(self):
+        first_part = self.description_fr.split("\n")[0]
+        first_part = first_part.replace(":", "")
+        if len(first_part) > 90:
+            first_part = first_part[:90]
+        return mark_safe(f'{self.csrf_priority.code} &rarr; {first_part}...')
 
     class Meta:
         ordering = ['csrf_priority__code', "name"]
@@ -291,7 +298,7 @@ class Project(models.Model):
     @property
     def client_information_html(self):
         if self.client_information:
-            return mark_safe(textile(self.client_information.tname))
+            return mark_safe(textile(self.client_information.tdescription))
 
     def get_funding_sources(self):
         # look through all expenses and compile a unique list of funding sources (for all years of project)

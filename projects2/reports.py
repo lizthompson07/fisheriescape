@@ -557,7 +557,7 @@ def generate_csrf_application(project, lang):
         TAG_THEME=str(project.client_information.csrf_priority.csrf_sub_theme.csrf_theme) if project.client_information else "MISSING!",
         TAG_PRIORITY_CODE=str(project.client_information.csrf_priority.code) if project.client_information else "MISSING!",
         TAG_PRIORITY=str(project.client_information.csrf_priority) if project.client_information else "MISSING!",
-        TAG_CLIENT_INFORMATION=str(project.client_information.name) if project.client_information else "MISSING!",
+        TAG_CLIENT_INFORMATION=str(project.client_information.description_en) if project.client_information else "MISSING!",
         TAG_SECOND_PRIORITY=str(project.second_priority),
         TAG_TITLE=project.title,
         TAG_PROJECT_LENGTH_1=project_length_1,
