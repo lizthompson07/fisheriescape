@@ -231,8 +231,8 @@ class ContainerXRef(BioModel):
 
 class Count(BioModel):
     # cnt tag
-    loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, verbose_name=_("Location"))
-    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.DO_NOTHING,
+    loc_id = models.ForeignKey("Location", on_delete=models.DO_NOTHING, verbose_name=_("Location"), related_name="counts")
+    contx_id = models.ForeignKey("ContainerXRef", on_delete=models.DO_NOTHING, null=True, blank=True,
                                  verbose_name=_("Container Cross Reference"))
     cntc_id = models.ForeignKey("CountCode", on_delete=models.DO_NOTHING, verbose_name=_("Count Code"))
     spec_id = models.ForeignKey("SpeciesCode", on_delete=models.DO_NOTHING, verbose_name=_("Species"))

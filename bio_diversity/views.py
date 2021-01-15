@@ -84,7 +84,10 @@ class AdscCreate(mixins.AdscMixin, CommonCreate):
 
 
 class CntCreate(mixins.CntMixin, CommonCreate):
-    pass
+    def get_initial(self):
+        initial = super().get_initial()
+        if 'loc' in self.kwargs:
+            initial['loc_id'] = self.kwargs['loc']
 
 
 class CntcCreate(mixins.CntcMixin, CommonCreate):
@@ -823,6 +826,14 @@ class LocDetails(mixins.LocMixin, CommonDetails):
             "envc_id",
             "env_val",
             "env_start",
+        ]
+
+        context["cnt_object"] = models.Count.objects.first()
+        context["cnt_field_list"] = [
+            "cntc_id",
+            "spec_id",
+            "cnt",
+            "est",
         ]
         return context
 

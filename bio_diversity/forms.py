@@ -1,3 +1,4 @@
+import math
 from datetime import date, datetime
 
 from django import forms
@@ -152,22 +153,39 @@ class DataForm(CreatePrams, forms.ModelForm):
                     loc.clean()
                     loc.save()
                 except ValidationError:
-                    pass
-                envc = models.EnvCondition(loc_id_id=loc.pk,
-                                           inst_id=models.Instrument.objects.first(),
-                                           envc_id=models.EnvCode.objects.filter(name__iexact="Temperature").get(),
-                                           env_val=row["temp"],
-                                           env_start=datetime.strptime(row["Date"], "%Y-%b-%d"),
-                                           env_avg=False,
-                                           qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                           created_by=cleaned_data["created_by"],
-                                           created_date=cleaned_data["created_date"],
-                                           )
-                try:
-                    envc.clean()
-                    envc.save()
-                except ValidationError:
-                    pass
+                    loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id, rive_id=loc.rive_id, subr_id=loc.subr_id, relc_id=loc.relc_id, loc_date=loc.loc_date).get()
+
+                env = models.EnvCondition(loc_id_id=loc.pk,
+                                          inst_id=models.Instrument.objects.first(),
+                                          envc_id=models.EnvCode.objects.filter(name__iexact="Temperature").get(),
+                                          env_val=row["temp"],
+                                          env_start=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                                          env_avg=False,
+                                          qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                          created_by=cleaned_data["created_by"],
+                                          created_date=cleaned_data["created_date"],
+                                          )
+                if not math.isnan(env.env_val):
+                    try:
+                        env.clean()
+                        env.save()
+                    except ValidationError:
+                        pass
+
+                cnt = models.Count(loc_id_id=loc.pk,
+                                   spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                   cntc_id=models.CountCode.objects.filter(name__iexact="Fish Caught").get(),
+                                   cnt=row["# of salmon observed/collected"],
+                                   est=False,
+                                   created_by=cleaned_data["created_by"],
+                                   created_date=cleaned_data["created_date"],
+                                   )
+                if not math.isnan(cnt.cnt):
+                    try:
+                        cnt.clean()
+                        cnt.save()
+                    except ValidationError:
+                        pass
 
             grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
                                stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
@@ -180,7 +198,7 @@ class DataForm(CreatePrams, forms.ModelForm):
                 grp.clean()
                 grp.save()
             except ValidationError:
-                pass
+                grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id, coll_id=grp.coll_id).get()
             anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                         grp_id_id=grp.pk,
                                         created_by=cleaned_data["created_by"],

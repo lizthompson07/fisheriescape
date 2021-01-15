@@ -25,7 +25,9 @@ urlpatterns = [
     path('update/adsc/<int:pk>/', views.AdscUpdate.as_view(), name="update_adsc"),
     
     path('create/cnt/', views.CntCreate.as_view(), name="create_cnt"),
+    path('create/cnt/<int:loc>/<str:pop>/', views.CntCreate.as_view(), name="create_cnt"),
     path('details/cnt/<int:pk>/', views.CntDetails.as_view(), name="details_cnt"),
+    path('details/cnt/<str:back>/<int:back_id>/<int:pk>/', views.CntDetails.as_view(), name="details_cnt"),
     path('list/cnt/', views.CntList.as_view(), name="list_cnt"),
     path('update/cnt/<int:pk>/', views.CntUpdate.as_view(), name="update_cnt"),
     
