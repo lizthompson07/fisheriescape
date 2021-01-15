@@ -1170,3 +1170,49 @@ def delete_basin(request, pk):
     my_obj = models.DrainageBasin.objects.get(pk=pk)
     my_obj.delete()
     return HttpResponseRedirect(reverse("spot:manage_basins"))
+
+
+class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
+    template_name = 'spot/objective_list.html'
+    #filterset NEED TO DO
+    model = models.Objective
+    queryset = models.Objective.objects.annotate()
+    search_term = Concat('number', 'id', output_field=TextField())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Object.objects.first()
+        context["field_list"] = [
+            'number',
+            'key_element',
+            'activity',
+            'location',
+        ]
+        return context
+
+
+class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.Objective
+    template_name = 'spot/objective_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'number',
+            'work_plan_sec',
+            'task_description',
+            'key_element',
+            'activity',
+            'element_title',
+            'activity_title',
+            'pst_req',
+            'location',
+            'objective_cat',
+            'duration',
+            'species',
+            'targ_samp_num',
+            'samp_type',
+
+            'last_modified_by',
+        ]
+        return context

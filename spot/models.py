@@ -14,6 +14,7 @@ from lib.templatetags.custom_filters import nz
 from masterlist import models as ml_models
 from sar_search import models as sar_models
 from shared_models import models as shared_models
+from shared_models.models import SimpleLookup
 
 
 class Status(models.Model):
@@ -1058,7 +1059,6 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
                 os.remove(old_file.path)
 
 
-"""
 class AgreementDatabase(SimpleLookup):
     pass
 
@@ -1071,19 +1071,73 @@ class OutcomeCategory(SimpleLookup):
     pass
 
 
-class Agreement(models.Model):
-    number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("agreement number"))
-    key_element = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("key element"))
-    activity = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("activity"))
-    database = models.ForeignKey(AgreementDatabase, on_delete=models.DO_NOTHING)
-    lineage = models.ForeignKey(AgreementLineage, on_delete=models.DO_NOTHING)
-    task_description = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("task description"))
-    element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("title"))
-    activity_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("activity title"))
+class ObjectiveCategory(SimpleLookup):
+    pass
+
+
+class Species(SimpleLookup):
+    pass
+
+
+class SampleType(SimpleLookup):
+    pass
+
+
+class SalmonStage(SimpleLookup):
+    pass
+
+
+class DataQualityType(SimpleLookup):
+    pass
+
+
+class DataQualityLevel(SimpleLookup):
+    pass
+
+
+class Location(SimpleLookup):
+    pass
 
 
 class Objective(models.Model):
-    agreement = models.ForeignKey(Agreement, on_delete=models.DO_NOTHING)
-    work_plan = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("work plan section"))
-    outcomes_cat = models.ForeignKey(OutcomeCategory, on_delete=models.DO_NOTHING)
-"""
+
+    number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("number"))
+    work_plan_sec = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("work plan section"))
+    task_description = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("task description"))
+    key_element = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("key element"))
+    activity = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("activity"))
+    element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("element title"))
+    activity_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("activity title"))
+    pst_req = models.BooleanField(default=False, verbose_name=_("PST requirement identified?"))
+    location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, verbose_name=_("location"))
+    objective_cat = models.ForeignKey(ObjectiveCategory, blank=True, null=True, verbose_name=_("Objective Category"))
+    duration = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("duration"))
+    species = models.ForeignKey(Species, blank=True, null=True, verbose_name=_("species"))
+    targ_samp_num = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("target sample number"))
+    samp_type = models.ForeignKey(SampleType, on_delete=models.DO_NOTHING, verbose_name=_("sample type/specific data item"))
+    salmon_stage = models.ForeignKey(SalmonStage, blank=True, null=True, verbose_name=_("salmon stage"))
+    sil_req = models.BooleanField(default=False, verbose_name=_("SIL requirement"))
+    exp_res = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("expected results"))
+    dfo_rep = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Products/Reports to provide dfo"))
+    scientific_outcome = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("scientific outcome"))
+    outcomes_cat = models.ForeignKey(OutcomeCategory, on_delete=models.DO_NOTHING, verbose_name=_("outcomes category"))
+    outcomes_dealine = models.DateField(blank=True, null=True, verbose_name=_("outcomes deadline"))
+    outcome_contact = models.ForeignKey(ml_models.Person, blank=True, null=True, verbose_name=_("Outcomes Contact"))
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    data_quality_type = models.ForeignKey(DataQualityType, blank=True, null=True, verbose_name=_("data quality type"))
+    data_quality_level = models.ForeignKey(DataQualityLevel, blank=True, null=True, verbose_name=_("data quality level"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{}".format(self.number)
+
+    class Meta:
+        ordering = ['number']
+
+
+
+
+
