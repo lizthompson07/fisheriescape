@@ -622,7 +622,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "grp_id",
         ]
         anix_set = self.object.animal_details.filter(indv_id__isnull=False)
-        context["indv_list"] = [anix.indv_id for anix in anix_set]
+        context["indv_list"] = list(dict.fromkeys([anix.indv_id for anix in anix_set]))
         context["indv_object"] = models.Individual.objects.first()
         context["indv_field_list"] = [
             "ufid",
@@ -630,7 +630,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "grp_id",
         ]
         anix_set = self.object.animal_details.filter(grp_id__isnull=False)
-        context["grp_list"] = [anix.grp_id for anix in anix_set]
+        context["grp_list"] = list(dict.fromkeys([anix.grp_id for anix in anix_set]))  # get unique values
         context["grp_object"] = models.Group.objects.first()
         context["grp_field_list"] = [
             "stok_id",
@@ -638,7 +638,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
             "spec_id",
         ]
         prot_set = models.Protocol.objects.filter(prog_id=self.object.prog_id, evntc_id=self.object.evntc_id)
-        context["prot_list"] = [prot for prot in prot_set]
+        context["prot_list"] = list(dict.fromkeys([prot for prot in prot_set]))
         context["prot_object"] = models.Protocol.objects.first()
         context["prot_field_list"] = [
             "evntc_id",
@@ -647,7 +647,7 @@ class EvntDetails(mixins.EvntMixin, CommonDetails):
         ]
 
         anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
-        context["spwn_list"] = [anix.spwn_id for anix in anix_set]
+        context["spwn_list"] = list(dict.fromkeys([anix.spwn_id for anix in anix_set]))
         context["spwn_object"] = models.Spawning.objects.first()
         context["spwn_field_list"] = [
             "pair_id",
@@ -691,7 +691,9 @@ class GrpDetails(mixins.GrpMixin, CommonDetails):
         context = super().get_context_data(**kwargs)
 
         anix_set = self.object.animal_details.all()
-        context["grpd_list"] = [models.GroupDet.objects.filter(anix_id=anix.pk).get() for anix in anix_set]
+        context["grpd_list"] = list(dict.fromkeys([models.GroupDet.objects.filter(anix_id=anix.pk).get()
+                                                   for anix in anix_set
+                                                   if models.GroupDet.objects.filter(anix_id=anix.pk)]))
         context["grpd_object"] = models.GroupDet.objects.first()
         context["grpd_field_list"] = [
             "anidc_id",
@@ -735,7 +737,7 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
         context = super().get_context_data(**kwargs)
 
         anix_set = self.object.animal_details.filter(spwn_id__isnull=False)
-        context["spwn_list"] = [anix.spwn_id for anix in anix_set]
+        context["spwn_list"] = list(dict.fromkeys([anix.spwn_id for anix in anix_set]))
         context["spwn_object"] = models.Spawning.objects.first()
         context["spwn_field_list"] = [
             "spwn_date",
@@ -743,14 +745,24 @@ class IndvDetails(mixins.IndvMixin, CommonDetails):
             "est_fecu",
         ]
 
-        anix_set = self.object.animal_details.filter()
-        context["evnt_list"] = [anix.evnt_id for anix in anix_set]
+        anix_set = self.object.animal_details.filter(evnt_id__isnull=False)
+        context["evnt_list"] = list(dict.fromkeys([anix.evnt_id for anix in anix_set]))
         context["evnt_object"] = models.Event.objects.first()
         context["evnt_field_list"] = [
             "evntc_id",
             "facic_id",
             "prog_id",
             "evnt_start",
+        ]
+
+        anix_set = self.object.animal_details.all()
+        indvd_set = list(dict.fromkeys([anix.individual_details.all() for anix in anix_set]))
+        context["indvd_list"] = list(dict.fromkeys([indvd.get() for indvd in indvd_set]))
+        context["indvd_object"] = models.Event.objects.first()
+        context["indvd_field_list"] = [
+            "anidc_id",
+            "adsc_id",
+            "det_val",
         ]
 
         context["pair_object"] = models.Pairing.objects.first()

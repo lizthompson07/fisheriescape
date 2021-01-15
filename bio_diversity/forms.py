@@ -135,7 +135,7 @@ class DataForm(CreatePrams, forms.ModelForm):
             data_dict = data.to_dict('records')
         except:
             raise Exception("File format not valid")
-
+        # --------------------------ELECTROFISHING DATA ENTRY-----------------------------------
         if cleaned_data["evntc_id"].__str__() == "Electrofishing":
             for row in data_dict:
                 loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
@@ -207,71 +207,48 @@ class DataForm(CreatePrams, forms.ModelForm):
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Tagging":
             grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"], coll_id__name=data_dict[0]["Group"]).get().pk
-            for row in data_dict[0:1]:
+            for row in data_dict:
                 indv = models.Individual(grp_id_id=grp_id,
                                          spec_id_id=1,
                                          stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
-                                         coll_id=models.Collection.objects.filter(name__iexact=row["Group"]).get(),
+                                         coll_id=models.Collection.objects.filter(name__iexact=row["Group"].strip()).get(),
                                          ufid=row["Universal Fish ID"],
                                          pit_tag=row["PIT tag"],
                                          indv_valid=True,
                                          comments=row["comments"],
-                                         created_by=self.created_by,
-                                         created_date=self.created_date,
+                                         created_by=cleaned_data["created_by"],
+                                         created_date=cleaned_data["created_date"],
                                          )
                 try:
                     indv.clean()
                     indv.save()
-                except ValidationError:
-                    pass
+                except (ValidationError, IntegrityError) as e:
+                    indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-                anix = models.AniDetailXref(evnt_id_id=self.evnt_id.pk,
+                anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
                                             indv_id_id=indv.pk,
                                             grp_id_id=grp_id,
-                                            created_by=self.created_by,
-                                            created_date=self.created_date,
+                                            created_by=cleaned_data["created_by"],
+                                            created_date=cleaned_data["created_date"],
                                             )
                 try:
                     anix.clean()
                     anix.save()
                 except ValidationError:
-                    pass
+                    anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id, indv_id=anix.indv_id, grp_id=anix.grp_id, created_by=anix.created_by, created_date=anix.created_date).get()
 
-            grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                               stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
-                               coll_id=models.Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
-                               grp_valid=True,
-                               created_by=self.created_by,
-                               created_date=self.created_date,
-                               )
-            try:
-                grp.clean()
-                grp.save()
-            except ValidationError:
-                pass
-            anix = models.AniDetailXref(evnt_id_id=self.evnt_id.pk,
-                                        grp_id_id=grp.pk,
-                                        created_by=self.created_by,
-                                        created_date=self.created_date,
-                                        )
-            try:
-                anix.clean()
-                anix.save()
-            except ValidationError:
-                pass
-            grpd = models.GroupDet(anix_id_id=anix.pk,
-                                   anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
-                                   det_val=data["# of salmon observed/collected"].sum(),
-                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                   # det_val=True,
-                                   created_by=self.created_by,
-                                   created_date=self.created_date,
-                                   )
-            try:
-                grpd.clean()
-                grpd.save()
-            except ValidationError:
-                pass
+                indvd = models.IndividualDet(anix_id_id=anix.pk,
+                                             anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
+                                             det_val=row["Length (cm)"],
+                                             qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                             created_by=cleaned_data["created_by"],
+                                             created_date=cleaned_data["created_date"],
+                                             )
+                try:
+                    indvd.clean()
+                    indvd.save()
+                except ValidationError:
+                    pass
 
 
 class DrawForm(CreatePrams, forms.ModelForm):

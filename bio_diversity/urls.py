@@ -190,6 +190,7 @@ urlpatterns = [
 
     path('create/indvd/', views.IndvdCreate.as_view(), name="create_indvd"),
     path('details/indvd/<int:pk>/', views.IndvdDetails.as_view(), name="details_indvd"),
+    path('details/indvd/<str:back>/<int:back_id>/<int:pk>/', views.IndvdDetails.as_view(), name="details_indvd"),
     path('list/indvd/', views.IndvdList.as_view(), name="list_indvd"),
     path('update/indvd/<int:pk>/', views.IndvdUpdate.as_view(), name="update_indvd"),
 

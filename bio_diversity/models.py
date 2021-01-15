@@ -517,8 +517,7 @@ class Group(BioModel):
                                    verbose_name=_("From Parent Group"))
     spec_id = models.ForeignKey('SpeciesCode', on_delete=models.DO_NOTHING, verbose_name=_("Species"))
     stok_id = models.ForeignKey('StockCode', on_delete=models.DO_NOTHING, verbose_name=_("Stock Code"))
-    coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, null=True, blank=True,
-                                verbose_name=_("Collection"))
+    coll_id = models.ForeignKey('Collection', on_delete=models.DO_NOTHING, verbose_name=_("Collection"))
     grp_valid = models.BooleanField(default="True", verbose_name=_("Group still valid?"))
     comments = models.CharField(null=True, blank=True, max_length=2000, verbose_name=_("Comments"))
 
@@ -680,7 +679,7 @@ class Individual(BioModel):
 
 class IndividualDet(BioDet):
     # indvd tag
-    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING,
+    anix_id = models.ForeignKey('AniDetailXRef', on_delete=models.DO_NOTHING, related_name="individual_details",
                                 verbose_name=_("Animal Detail Cross Reference"))
     anidc_id = models.ForeignKey('AnimalDetCode', on_delete=models.DO_NOTHING, verbose_name=_("Animal Detail Code"))
     adsc_id = models.ForeignKey('AniDetSubjCode', on_delete=models.DO_NOTHING, null=True, blank=True,
