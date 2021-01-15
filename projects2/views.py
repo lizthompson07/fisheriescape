@@ -795,7 +795,7 @@ class CSRFClientInformationFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url_name = "projects2:manage_csrf_client_information"
     home_url_name = "projects2:index"
     delete_url_name = "projects2:delete_csrf_client_information"
-    container_class = "container bg-light curvy"
+    container_class = "container-fluid bg-light curvy"
 
 
 class CSRFClientInformationHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
