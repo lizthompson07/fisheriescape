@@ -1121,11 +1121,12 @@ class Objective(models.Model):
     dfo_rep = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Products/Reports to provide dfo"))
     scientific_outcome = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("scientific outcome"))
     outcomes_cat = models.ForeignKey(OutcomeCategory, on_delete=models.DO_NOTHING, verbose_name=_("outcomes category"))
-    outcomes_dealine = models.DateField(blank=True, null=True, verbose_name=_("outcomes deadline"))
+    outcomes_deadline = models.DateField(blank=True, null=True, verbose_name=_("outcomes deadline"))
     outcome_contact = models.ForeignKey(ml_models.Person, blank=True, null=True, verbose_name=_("Outcomes Contact"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     data_quality_type = models.ForeignKey(DataQualityType, blank=True, null=True, verbose_name=_("data quality type"))
     data_quality_level = models.ForeignKey(DataQualityLevel, blank=True, null=True, verbose_name=_("data quality level"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="spot_person_last_modified_by")
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()

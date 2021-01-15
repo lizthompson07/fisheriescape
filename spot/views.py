@@ -1212,7 +1212,56 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
             'species',
             'targ_samp_num',
             'samp_type',
-
+            'salmon_stage',
+            'sil_req',
+            'exp_res',
+            'scientific_outcome',
+            'outcomes_cat',
+            'outcomes_deadline',
+            'outcomes_contact',
+            'data_quality_type',
+            'data_quality_level',
+            'date_last_modified',
             'last_modified_by',
         ]
         return context
+
+
+class ObjectiveUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/objective_form.html'
+    model = models.Objective
+    form_class = forms.ObjectiveForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_obj = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:obj_detail", kwargs={"pk": my_obj.id}))
+
+
+class ObjectiveCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/objective_form.html'
+    model = models.Objective
+    form_class = forms.ObjectiveForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_obj = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:obj_detail", kwargs={"pk": my_obj.id}))
+
+
+class ObjectiveDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/objective_confirm_delete.html'
+    model = models.Objective
+    success_url = reverse_lazy('spot:obj_list')
+    success_message = 'The objective was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+
