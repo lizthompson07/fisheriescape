@@ -14,7 +14,7 @@
   </style>
 
   <div id="app"
-{#       @keypress.78.ctrl.prevent="editSection()"#}
+    {#       @keypress.78.ctrl.prevent="editSection()"#}
   >
 
 
@@ -169,7 +169,24 @@
                     @keydown.enter.prevent='submitObservationForm()'
                   >
                     <table>
-                      {{ new_obs_form.as_table }}
+                      <tbody>
+                      {% for field in new_obs_form %}
+                        {% if field.name == "egg_status" %}
+                          <tr v-if="new_observation.sex=='f'">
+                            <th><label for="">{{ field.label }}</label></th>
+                            <td>{{ field }}</td>
+                          </tr>
+                        {% else %}
+                          <tr>
+                            <th><label for="">{{ field.label }}</label></th>
+                            <td>{{ field }}</td>
+                          </tr>
+                        {% endif %}
+                      {% endfor %}
+
+                      </tbody>
+
+                      {#                                            {{ new_obs_form.as_table }}#}
                     </table>
                     <input class="btn btn-sm btn-success mt-3" type="submit" value="{% trans "Add (Enter)" %}">
                   </form>
@@ -210,10 +227,10 @@
             <button
               @click="closeEditMode"
               class="btn btn-secondary">{% trans "Back" %}</button>
-{#            <button#}
-{#              v-if="sectionToEdit.id"#}
-{#              @click="deleteSection(sectionToEdit)"#}
-{#              class="btn btn-danger">{% trans "Delete" %}</button>#}
+            {#            <button#}
+            {#              v-if="sectionToEdit.id"#}
+            {#              @click="deleteSection(sectionToEdit)"#}
+            {#              class="btn btn-danger">{% trans "Delete" %}</button>#}
           </div>
         </div>
 
