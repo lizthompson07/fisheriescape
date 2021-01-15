@@ -727,8 +727,8 @@ class CSRFClientInformationForm(forms.ModelForm):
         model = models.CSRFClientInformation
         fields = "__all__"
         widgets = {
-            # 'name': forms.Textarea(attrs={}),
-            # 'nom': forms.Textarea(attrs={}),
+            'name': forms.TextInput(attrs={}),
+            'nom': forms.Textarea(attrs={}),
             'description_en': forms.Textarea(attrs={"style":"width:400px"}),
             'description_fr': forms.Textarea(attrs={"style":"width:400px"}),
         }
