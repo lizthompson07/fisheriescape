@@ -530,7 +530,6 @@ WatershedFormSet = modelformset_factory(
 )
 
 
-
 class DrainageBasinForm(forms.ModelForm):
     class Meta:
         model = models.DrainageBasin
@@ -543,3 +542,39 @@ DrainageBasinFormSet = modelformset_factory(
     extra=1,
 )
 
+
+class ObjectiveForm(forms.ModelForm):
+    class Meta:
+        model = models.Objective
+        fields = [
+            'number',
+            'work_plan_sec',
+            'task_description',
+            'key_element',
+            'activity',
+            'element_title',
+            'activity_title',
+            'pst_req',
+            'location',
+            'objective_cat',
+            'duration',
+            'species',
+            'targ_samp_num',
+            'samp_type',
+            'salmon_stage',
+            'sil_req',
+            'exp_res',
+            'scientific_outcome',
+            'outcomes_cat',
+            'outcomes_deadline',
+            'outcomes_contact',
+            'data_quality_type',
+            'data_quality_level',
+            'last_modified_by',
+        ]
+        widgets = {
+            'outcomes_deadline': forms.DateInput(attrs={"type": "date"}),
+            'pst_req': forms.Select(choices=YES_NO_CHOICES),
+            'sil_req': forms.Select(choices=YES_NO_CHOICES),
+            'last_modified_by': forms.HiddenInput(),
+        }
