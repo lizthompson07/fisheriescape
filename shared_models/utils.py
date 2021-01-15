@@ -86,3 +86,26 @@ def get_metadata_string(created_at=None, created_by=None, updated_at=None, last_
             my_str += f" by {last_modified_by}"
 
     return mark_safe(my_str)
+
+
+# https://stackoverflow.com/questions/2579535/convert-dd-decimal-degrees-to-dms-degrees-minutes-seconds-in-python (thanks)
+def decdeg2dm(dd):
+    is_positive = dd >= 0
+    dd = abs(dd)
+    minutes, seconds = divmod(dd * 3600, 60)
+    degrees, minutes = divmod(minutes, 60)
+    degrees = degrees if is_positive else -degrees
+    decmin = minutes + seconds / 60
+    return (degrees, decmin)
+
+
+def dm2decdeg(d, m):
+    try:
+        is_positive = d >= 0
+        dd = abs(d)
+
+        mm = (abs(m) / 60) + ((m - abs(m)) / 3600)
+
+        return dd + mm if is_positive else (dd + mm) * -1
+    except Exception as E:
+        print(E)
