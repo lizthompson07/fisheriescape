@@ -2,7 +2,7 @@ import math
 from datetime import date, datetime
 
 from django import forms
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.db import IntegrityError
 from django.utils.translation import gettext
 import pandas as pd
@@ -155,32 +155,32 @@ class DataForm(CreatePrams, forms.ModelForm):
                 except ValidationError:
                     loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id, rive_id=loc.rive_id, subr_id=loc.subr_id, relc_id=loc.relc_id, loc_date=loc.loc_date).get()
 
-                env = models.EnvCondition(loc_id_id=loc.pk,
-                                          inst_id=models.Instrument.objects.first(),
-                                          envc_id=models.EnvCode.objects.filter(name__iexact="Temperature").get(),
-                                          env_val=row["temp"],
-                                          env_start=datetime.strptime(row["Date"], "%Y-%b-%d"),
-                                          env_avg=False,
-                                          qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                          created_by=cleaned_data["created_by"],
-                                          created_date=cleaned_data["created_date"],
-                                          )
-                if not math.isnan(env.env_val):
+                if not math.isnan(row["temp"]):
+                    env = models.EnvCondition(loc_id_id=loc.pk,
+                                              inst_id=models.Instrument.objects.first(),
+                                              envc_id=models.EnvCode.objects.filter(name__iexact="Temperature").get(),
+                                              env_val=row["temp"],
+                                              env_start=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                                              env_avg=False,
+                                              qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                              created_by=cleaned_data["created_by"],
+                                              created_date=cleaned_data["created_date"],
+                                              )
+
                     try:
                         env.clean()
                         env.save()
                     except ValidationError:
                         pass
-
-                cnt = models.Count(loc_id_id=loc.pk,
-                                   spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                   cntc_id=models.CountCode.objects.filter(name__iexact="Fish Caught").get(),
-                                   cnt=row["# of salmon observed/collected"],
-                                   est=False,
-                                   created_by=cleaned_data["created_by"],
-                                   created_date=cleaned_data["created_date"],
-                                   )
-                if not math.isnan(cnt.cnt):
+                if not math.isnan(row["# of salmon observed/collected"]):
+                    cnt = models.Count(loc_id_id=loc.pk,
+                                       spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                       cntc_id=models.CountCode.objects.filter(name__iexact="Fish Caught").get(),
+                                       cnt=row["# of salmon observed/collected"],
+                                       est=False,
+                                       created_by=cleaned_data["created_by"],
+                                       created_date=cleaned_data["created_date"],
+                                       )
                     try:
                         cnt.clean()
                         cnt.save()
@@ -225,7 +225,7 @@ class DataForm(CreatePrams, forms.ModelForm):
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Tagging":
             grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"], coll_id__name=data_dict[0]["Group"]).get().pk
-            for row in data_dict[0:10]:
+            for row in data_dict:
                 indv = models.Individual(grp_id_id=grp_id,
                                          spec_id_id=1,
                                          stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
@@ -253,30 +253,34 @@ class DataForm(CreatePrams, forms.ModelForm):
                     anix.clean()
                     anix.save()
                 except ValidationError:
-                    anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id, indv_id=anix.indv_id, grp_id=anix.grp_id, created_by=anix.created_by, created_date=anix.created_date).get()
+                    anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id, indv_id=anix.indv_id, grp_id=anix.grp_id).get()
 
-                indvd_length = models.IndividualDet(anix_id_id=anix.pk,
-                                             anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
-                                             det_val=row["Length (cm)"],
-                                             qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                             created_by=cleaned_data["created_by"],
-                                             created_date=cleaned_data["created_date"],
-                                             )
-
-                indvd_mass = models.IndividualDet(anix_id_id=anix.pk,
-                                             anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
-                                             det_val=row["Weight (g)"],
-                                             qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                             created_by=cleaned_data["created_by"],
-                                             created_date=cleaned_data["created_date"],
-                                             )
-                try:
-                    indvd_length.clean()
-                    indvd_mass.clean()
-                    indvd_length.save()
-                    indvd_mass.save()
-                except ValidationError:
-                    pass
+                if not math.isnan(row["Length (cm)"]):
+                    indvd_length = models.IndividualDet(anix_id_id=anix.pk,
+                                                 anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
+                                                 det_val=row["Length (cm)"],
+                                                 qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                 created_by=cleaned_data["created_by"],
+                                                 created_date=cleaned_data["created_date"],
+                                                 )
+                    try:
+                        indvd_length.clean()
+                        indvd_length.save()
+                    except ValidationError:
+                        pass
+                if not math.isnan(row["Weight (g)"]):
+                    indvd_mass = models.IndividualDet(anix_id_id=anix.pk,
+                                                 anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
+                                                 det_val=row["Weight (g)"],
+                                                 qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                 created_by=cleaned_data["created_by"],
+                                                 created_date=cleaned_data["created_date"],
+                                                 )
+                    try:
+                        indvd_mass.clean()
+                        indvd_mass.save()
+                    except ValidationError:
+                        pass
 
 
 class DrawForm(CreatePrams, forms.ModelForm):

@@ -79,9 +79,12 @@
                 <span class="px-1">
                     <a class="btn btn-primary" name="add-existing_indv-btn" href="#" onclick="return pop('{% url 'bio_diversity:create_anix' object.pk 'indv_id' 'pop' %}','all')" title="{% trans 'Add' %}">{% trans 'Add Existing Individual' %}</a>
                 </span>
+                <span>
+                    <a href="#envt-indv-list" data-toggle="collapse">X</a>
+                </span>
             </h5>
             {% if indv_list %}
-                <table class="table table-sm sortable table-hover">
+                <table class="table table-sm sortable table-hover collapse" id="envt-indv-list">
                     <thead>
                         {% for field in indv_field_list %}
                             <th>{% get_verbose_label indv_object field %}</th>
