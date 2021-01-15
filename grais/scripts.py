@@ -117,3 +117,14 @@ def reconcile_spp():
 
 
 
+def print_list_of_duplicates():
+    years = [item["season"] for item in models.Sample.objects.order_by("season").values("season").distinct()]
+    stations = models.Station.objects.all()
+    id_list = list()
+    for year in years:
+        for station in stations:
+            sample_qs = models.Sample.objects.filter(season=year, station=station)
+
+            if sample_qs.count() > 1:
+                id_list.extend([(s.id, s.season, s.station, s.date_deployed, s.date_retrieved) for s in sample_qs])
+    print(id_list)
