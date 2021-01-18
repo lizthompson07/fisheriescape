@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-11 12:44-0400\n"
+"POT-Creation-Date: 2021-01-18 09:51-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -28,261 +28,342 @@ msgstr "This must occur on the same day as the sample: {}"
 msgid "Year"
 msgstr "Année"
 
-#: .\scuba\models.py:12 .\scuba\models.py:27
+#: .\scuba\models.py:13 .\scuba\models.py:28
 msgid "abbreviation"
 msgstr "abréviation"
 
-#: .\scuba\models.py:28
+#: .\scuba\models.py:29
 msgid "region"
 msgstr "région"
 
-#: .\scuba\models.py:29
+#: .\scuba\models.py:30
+#, fuzzy
+#| msgid "latitude (decimal degrees)"
+msgid "latitude (degrees)"
+msgstr "latitude (degrés décimaux)"
+
+#: .\scuba\models.py:31
+#, fuzzy
+#| msgid "latitude (decimal degrees)"
+msgid "latitude (minutes)"
+msgstr "latitude (degrés décimaux)"
+
+#: .\scuba\models.py:32
+#, fuzzy
+#| msgid "longitude (decimal degrees)"
+msgid "longitude (degrees)"
+msgstr "longitude (degrés décimaux)"
+
+#: .\scuba\models.py:33
+#, fuzzy
+#| msgid "longitude (decimal degrees)"
+msgid "longitude (minutes)"
+msgstr "longitude (degrés décimaux)"
+
+#: .\scuba\models.py:36
 msgid "latitude (decimal degrees)"
 msgstr "latitude (degrés décimaux)"
 
-#: .\scuba\models.py:30
+#: .\scuba\models.py:37
 msgid "longitude (decimal degrees)"
 msgstr "longitude (degrés décimaux)"
 
-#: .\scuba\models.py:52
+#: .\scuba\models.py:72
 msgid "name"
 msgstr "nom"
 
-#: .\scuba\models.py:53 .\scuba\models.py:98 .\scuba\views.py:335
+#: .\scuba\models.py:73 .\scuba\models.py:150 .\scuba\views.py:336
 msgid "site"
 msgstr "emplacement"
 
-#: .\scuba\models.py:54 .\scuba\models.py:140
+#: .\scuba\models.py:75 .\scuba\models.py:192
+#, fuzzy
+#| msgid "latitude"
+msgid "start latitude"
+msgstr "latitude"
+
+#: .\scuba\models.py:76 .\scuba\models.py:193
+#, fuzzy
+#| msgid "start latitude (decimal degrees)"
+msgid "start latitude (minutes)"
+msgstr "latitude de départ (degrés décimaux)"
+
+#: .\scuba\models.py:77 .\scuba\models.py:194
+#, fuzzy
+#| msgid "longitude"
+msgid "start longitude"
+msgstr "longitude"
+
+#: .\scuba\models.py:78 .\scuba\models.py:195
+#, fuzzy
+#| msgid "start longitude (decimal degrees)"
+msgid "start longitude (minutes)"
+msgstr "longitude de départ (degrés décimaux)"
+
+#: .\scuba\models.py:79 .\scuba\models.py:196
+#, fuzzy
+#| msgid "latitude"
+msgid "end latitude"
+msgstr "latitude"
+
+#: .\scuba\models.py:80 .\scuba\models.py:197
+#, fuzzy
+#| msgid "end latitude (decimal degrees)"
+msgid "end latitude (minutes)"
+msgstr "latitude de fin (degrés décimaux)"
+
+#: .\scuba\models.py:81 .\scuba\models.py:198
+#, fuzzy
+#| msgid "longitude"
+msgid "end longitude"
+msgstr "longitude"
+
+#: .\scuba\models.py:82 .\scuba\models.py:199
+#, fuzzy
+#| msgid "end longitude (decimal degrees)"
+msgid "end longitude (minutes)"
+msgstr "longitude de fin (degrés décimaux)"
+
+#: .\scuba\models.py:86 .\scuba\models.py:207
 msgid "start latitude (decimal degrees)"
 msgstr "latitude de départ (degrés décimaux)"
 
-#: .\scuba\models.py:55 .\scuba\models.py:141
+#: .\scuba\models.py:87 .\scuba\models.py:208
 msgid "start longitude (decimal degrees)"
 msgstr "longitude de départ (degrés décimaux)"
 
-#: .\scuba\models.py:56
+#: .\scuba\models.py:88 .\scuba\models.py:209
 msgid "end latitude (decimal degrees)"
 msgstr "latitude de fin (degrés décimaux)"
 
-#: .\scuba\models.py:57
+#: .\scuba\models.py:89 .\scuba\models.py:210
 msgid "end longitude (decimal degrees)"
 msgstr "longitude de fin (degrés décimaux)"
 
-#: .\scuba\models.py:80
+#: .\scuba\models.py:132
 msgid "first name"
 msgstr "prénom"
 
-#: .\scuba\models.py:81
+#: .\scuba\models.py:133
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\scuba\models.py:100
+#: .\scuba\models.py:152
 msgid "weather notes"
 msgstr "notes météorologiques"
 
-#: .\scuba\models.py:101 .\scuba\models.py:145 .\scuba\models.py:192
-#: .\scuba\models.py:249
+#: .\scuba\models.py:153 .\scuba\models.py:204 .\scuba\models.py:288
+#: .\scuba\models.py:345
 msgid "comment"
 msgstr "commentaire"
 
-#: .\scuba\models.py:108
+#: .\scuba\models.py:160
 msgid "Sample #"
 msgstr "No. d'échantillon "
 
-#: .\scuba\models.py:123
+#: .\scuba\models.py:175
 msgid "North"
 msgstr "nord"
 
-#: .\scuba\models.py:124
+#: .\scuba\models.py:176
 msgid "South"
 msgstr "sud"
 
-#: .\scuba\models.py:125
+#: .\scuba\models.py:177
 msgid "East"
 msgstr "est"
 
-#: .\scuba\models.py:126
+#: .\scuba\models.py:178
 msgid "West"
 msgstr "ouest"
 
-#: .\scuba\models.py:129
+#: .\scuba\models.py:181
 msgid "Left"
 msgstr "à gauche"
 
-#: .\scuba\models.py:130
+#: .\scuba\models.py:182
 msgid "Right"
 msgstr "à droite"
 
-#: .\scuba\models.py:132
+#: .\scuba\models.py:184
 msgid "sample"
 msgstr "échantillon"
 
-#: .\scuba\models.py:133
+#: .\scuba\models.py:185
 msgid "transect"
 msgstr "transect"
 
-#: .\scuba\models.py:134
+#: .\scuba\models.py:186
 msgid "diver"
 msgstr "plongeur/euse"
 
-#: .\scuba\models.py:135
+#: .\scuba\models.py:187
 msgid "start descent"
 msgstr "commencer la descente"
 
-#: .\scuba\models.py:136
+#: .\scuba\models.py:188
 msgid "bottom time (min)"
 msgstr "temps au fond (min)"
 
-#: .\scuba\models.py:137
+#: .\scuba\models.py:189
 msgid "max depth (ft)"
 msgstr "profondeur max (ft)"
 
-#: .\scuba\models.py:138
+#: .\scuba\models.py:190
 msgid "PSI in"
 msgstr ""
 
-#: .\scuba\models.py:139
+#: .\scuba\models.py:191
 msgid "PSI out"
 msgstr ""
 
-#: .\scuba\models.py:142
+#: .\scuba\models.py:201
 msgid "heading"
 msgstr ""
 
-#: .\scuba\models.py:143
+#: .\scuba\models.py:202
 msgid "side"
 msgstr "côté"
 
-#: .\scuba\models.py:144
+#: .\scuba\models.py:203
 msgid "width (m)"
 msgstr "largeur (m)"
 
-#: .\scuba\models.py:182
+#: .\scuba\models.py:278
 msgid "dive"
 msgstr "ploge"
 
-#: .\scuba\models.py:183
-msgid "5m interval (1-20)"
+#: .\scuba\models.py:279
+#, fuzzy
+#| msgid "5m interval (1-20)"
+msgid "5m interval [1-20]"
 msgstr "Intervalle de 5 m (1-20)"
 
-#: .\scuba\models.py:184
+#: .\scuba\models.py:280
 msgid "depth (ft)"
 msgstr "profondeur (ft)"
 
-#: .\scuba\models.py:185
-#, python-format
-msgid "% sand"
-msgstr "% sable"
+#: .\scuba\models.py:281
+msgid "sand [0-1]"
+msgstr ""
 
-#: .\scuba\models.py:186
-msgid "% mud"
-msgstr "% vase"
+#: .\scuba\models.py:282
+msgid "mud [0-1]"
+msgstr ""
 
-#: .\scuba\models.py:187
-msgid "% hard"
-msgstr "% dur"
+#: .\scuba\models.py:283
+msgid "hard [0-1]"
+msgstr ""
 
-#: .\scuba\models.py:188
-msgid "% algae"
-msgstr "% algue"
+#: .\scuba\models.py:284
+#, fuzzy
+#| msgid "algae"
+msgid "algae [0-1]"
+msgstr "algue"
 
-#: .\scuba\models.py:189
-#, python-format
-msgid "% gravel"
-msgstr "% gravier"
+#: .\scuba\models.py:285
+#, fuzzy
+#| msgid "gravel"
+msgid "gravel [0-1]"
+msgstr "gravier"
 
-#: .\scuba\models.py:190
-#, python-format
-msgid "% cobble"
-msgstr "% cobble"
+#: .\scuba\models.py:286
+#, fuzzy
+#| msgid "cobble"
+msgid "cobble [0-1]"
+msgstr "cobble"
 
-#: .\scuba\models.py:191
-msgid "% pebble"
-msgstr "% caillou"
+#: .\scuba\models.py:287
+#, fuzzy
+#| msgid "pebble"
+msgid "pebble [0-1]"
+msgstr "caillou"
 
-#: .\scuba\models.py:211
+#: .\scuba\models.py:307
 msgid "sand"
 msgstr "sable"
 
-#: .\scuba\models.py:212
+#: .\scuba\models.py:308
 msgid "mud"
 msgstr "vase"
 
-#: .\scuba\models.py:213
+#: .\scuba\models.py:309
 msgid "hard"
 msgstr "dur"
 
-#: .\scuba\models.py:214
+#: .\scuba\models.py:310
 msgid "algae"
 msgstr "algue"
 
-#: .\scuba\models.py:215
+#: .\scuba\models.py:311
 msgid "gravel"
 msgstr "gravier"
 
-#: .\scuba\models.py:216
+#: .\scuba\models.py:312
 msgid "cobble"
 msgstr "cobble"
 
-#: .\scuba\models.py:217
+#: .\scuba\models.py:313
 msgid "pebble"
 msgstr "caillou"
 
-#: .\scuba\models.py:230
+#: .\scuba\models.py:326
 msgid "male"
 msgstr "mâle"
 
-#: .\scuba\models.py:231
+#: .\scuba\models.py:327
 msgid "female"
 msgstr "femâle"
 
-#: .\scuba\models.py:232
+#: .\scuba\models.py:328
 msgid "unknown"
 msgstr "inconnue"
 
-#: .\scuba\models.py:235
+#: .\scuba\models.py:331
 msgid "b (berried)"
 msgstr "b (berried)"
 
-#: .\scuba\models.py:236
+#: .\scuba\models.py:332
 msgid "b1 (berried with new eggs)"
 msgstr "b1 (berried avec œufs nouveau)"
 
-#: .\scuba\models.py:237
+#: .\scuba\models.py:333
 msgid "b2 (berried with black eggs)"
 msgstr "b2 (berried avec œufs noirs)"
 
-#: .\scuba\models.py:238
+#: .\scuba\models.py:334
 msgid "b3 (berried with developed eggs)"
 msgstr "b3 (berried avec œufs développés)"
 
-#: .\scuba\models.py:241
+#: .\scuba\models.py:337
 msgid "certain"
 msgstr "certain"
 
-#: .\scuba\models.py:242
+#: .\scuba\models.py:338
 msgid "uncertain"
 msgstr "pas certain"
 
-#: .\scuba\models.py:244
+#: .\scuba\models.py:340
 msgid "section"
 msgstr "section"
 
-#: .\scuba\models.py:245
+#: .\scuba\models.py:341
 msgid "sex"
 msgstr "sexe"
 
-#: .\scuba\models.py:246
+#: .\scuba\models.py:342
 msgid "egg status"
 msgstr "statut des œufs"
 
-#: .\scuba\models.py:247
+#: .\scuba\models.py:343
 msgid "carapace length (mm)"
 msgstr "longueur de la carapace (mm)"
 
-#: .\scuba\models.py:248
-msgid "certainty rating"
-msgstr "cote de certitude"
+#: .\scuba\models.py:344
+#, fuzzy
+#| msgid "uncertain"
+msgid "length certainty"
+msgstr "pas certain"
 
 #: .\scuba\templates\scuba\base\_app_title.html:2
 #: .\scuba\templates\scuba\index.html:20
@@ -316,8 +397,8 @@ msgstr "Terminé!"
 #: .\scuba\templates\scuba\dive_data_entry\main.html:34
 #: .\scuba\templates\scuba\dive_data_entry\main.html:58
 #: .\scuba\templates\scuba\dive_data_entry\main.html:152
-#: .\scuba\templates\scuba\dive_detail.html:45
-#: .\scuba\templates\scuba\dive_detail.html:57
+#: .\scuba\templates\scuba\dive_detail.html:49
+#: .\scuba\templates\scuba\dive_detail.html:61
 msgid "Observations"
 msgstr "Les observations"
 
@@ -342,15 +423,15 @@ msgstr "Pourcentage total du substrat:"
 msgid "Save Section"
 msgstr "Enregistrer la section"
 
-#: .\scuba\templates\scuba\dive_data_entry\main.html:174
+#: .\scuba\templates\scuba\dive_data_entry\main.html:191
 msgid "Add (Enter)"
 msgstr "Ajouter (retour)"
 
-#: .\scuba\templates\scuba\dive_data_entry\main.html:204
+#: .\scuba\templates\scuba\dive_data_entry\main.html:221
 msgid "This section has no observations"
 msgstr "Cette section n'a pas d'observations"
 
-#: .\scuba\templates\scuba\dive_data_entry\main.html:212
+#: .\scuba\templates\scuba\dive_data_entry\main.html:229
 msgid "Back"
 msgstr "Retour"
 
@@ -358,7 +439,7 @@ msgstr "Retour"
 #: .\scuba\templates\scuba\region_detail.html:16
 #: .\scuba\templates\scuba\sample_detail.html:21
 #: .\scuba\templates\scuba\site_detail.html:16
-#: .\scuba\templates\scuba\site_detail.html:65
+#: .\scuba\templates\scuba\site_detail.html:70
 msgid "Edit"
 msgstr "Modifier"
 
@@ -366,21 +447,29 @@ msgstr "Modifier"
 #: .\scuba\templates\scuba\region_detail.html:17
 #: .\scuba\templates\scuba\sample_detail.html:22
 #: .\scuba\templates\scuba\site_detail.html:17
-#: .\scuba\templates\scuba\site_detail.html:70
+#: .\scuba\templates\scuba\site_detail.html:75
 msgid "Delete"
 msgstr "Supprimer"
 
-#: .\scuba\templates\scuba\dive_detail.html:18 .\scuba\views.py:495
+#: .\scuba\templates\scuba\dive_detail.html:18 .\scuba\views.py:498
 msgid "Data Entry Mode"
 msgstr "Mode de saisie des données"
 
-#: .\scuba\templates\scuba\dive_detail.html:135
+#: .\scuba\templates\scuba\dive_detail.html:39
+msgid "Cannot display map because transect has no coordinates"
+msgstr ""
+
+#: .\scuba\templates\scuba\dive_detail.html:139
 msgid "This dive has no observations."
 msgstr "Cette plongée n'a pas d'observation."
 
-#: .\scuba\templates\scuba\form.html:36
-msgid "Markdown syntax is supported in this field"
-msgstr "La syntaxe Markdown est prise en charge dans ce champ"
+#: .\scuba\templates\scuba\form.html:31
+msgid "Degrees (DD)"
+msgstr ""
+
+#: .\scuba\templates\scuba\form.html:32
+msgid "Minutes (MM.mmmmm)"
+msgstr ""
 
 #: .\scuba\templates\scuba\index.html:23
 msgid "Gulf Region Lobster Survey Data Entry and Archiving Tool"
@@ -440,14 +529,14 @@ msgstr "Les transects"
 msgid "No. of dives"
 msgstr "No. de plongées"
 
-#: .\scuba\templates\scuba\site_detail.html:80
+#: .\scuba\templates\scuba\site_detail.html:85
 msgid "This site has no transects."
 msgstr "Ce emplacement n'a pas de transects."
 
 #: .\scuba\views.py:72 .\scuba\views.py:82 .\scuba\views.py:90
-#: .\scuba\views.py:129 .\scuba\views.py:150 .\scuba\views.py:177
-#: .\scuba\views.py:193 .\scuba\views.py:212 .\scuba\views.py:237
-#: .\scuba\views.py:262 .\scuba\views.py:277
+#: .\scuba\views.py:129 .\scuba\views.py:150 .\scuba\views.py:178
+#: .\scuba\views.py:194 .\scuba\views.py:213 .\scuba\views.py:238
+#: .\scuba\views.py:263 .\scuba\views.py:278
 msgid "Regions"
 msgstr "Régions"
 
@@ -455,45 +544,74 @@ msgstr "Régions"
 msgid "sample count"
 msgstr "nombre des échantillons"
 
-#: .\scuba\views.py:296
+#: .\scuba\views.py:166 .\scuba\views.py:445
+msgid "starting coordinates"
+msgstr ""
+
+#: .\scuba\views.py:167 .\scuba\views.py:446
+msgid "ending coordinates"
+msgstr ""
+
+#: .\scuba\views.py:297
 msgid "Add a New Sample"
 msgstr "Ajouter un échantillon"
 
-#: .\scuba\views.py:303
+#: .\scuba\views.py:304
 msgid "dive count"
 msgstr "nombre des plongées"
 
-#: .\scuba\views.py:312 .\scuba\views.py:324 .\scuba\views.py:332
-#: .\scuba\views.py:363 .\scuba\views.py:378 .\scuba\views.py:410
-#: .\scuba\views.py:426 .\scuba\views.py:439
+#: .\scuba\views.py:313 .\scuba\views.py:325 .\scuba\views.py:333
+#: .\scuba\views.py:364 .\scuba\views.py:379 .\scuba\views.py:411
+#: .\scuba\views.py:427 .\scuba\views.py:440
 msgid "Samples"
 msgstr "Les échantillons"
 
-#: .\scuba\views.py:350
+#: .\scuba\views.py:351
 msgid "lobster count"
 msgstr "nombre des homards"
 
-#: .\scuba\views.py:463 .\scuba\views.py:502
+#: .\scuba\views.py:466 .\scuba\views.py:505
 msgid "substrate profile"
 msgstr "profil de substrat"
 
-#: .\scuba\views.py:485
+#: .\scuba\views.py:488
 msgid "dive Id"
 msgstr "identifiant de la ploge"
 
-#: .\scuba\views.py:503
+#: .\scuba\views.py:506
 msgid "observation count"
 msgstr "nombre d'observations"
 
-#: .\scuba\views.py:530
+#: .\scuba\views.py:533
 msgid "Scuba Reports"
 msgstr "Rapports"
 
-#~ msgid "latitude"
-#~ msgstr "latitude"
+#~ msgid "% sand"
+#~ msgstr "% sable"
 
-#~ msgid "longitude"
-#~ msgstr "longitude"
+#~ msgid "% mud"
+#~ msgstr "% vase"
+
+#~ msgid "% hard"
+#~ msgstr "% dur"
+
+#~ msgid "% algae"
+#~ msgstr "% algue"
+
+#~ msgid "% gravel"
+#~ msgstr "% gravier"
+
+#~ msgid "% cobble"
+#~ msgstr "% cobble"
+
+#~ msgid "% pebble"
+#~ msgstr "% caillou"
+
+#~ msgid "certainty rating"
+#~ msgstr "cote de certitude"
+
+#~ msgid "Markdown syntax is supported in this field"
+#~ msgstr "La syntaxe Markdown est prise en charge dans ce champ"
 
 #~ msgid "immature"
 #~ msgstr "immature"
