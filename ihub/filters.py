@@ -1,5 +1,6 @@
 import django_filters
 from django import forms
+from django.contrib.auth.models import User
 from django.utils.translation import gettext as _
 
 from masterlist import models as ml_models
@@ -51,11 +52,16 @@ class EntryFilter(django_filters.FilterSet):
             'organizations': ['exact'],
             'sectors': ['exact'],
             'regions': ['exact'],
+            'people__user': ['exact'],
+            'created_by': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters['organizations'].queryset = ind_organizations
+        self.filters['people__user'].queryset = User.objects.filter(ihub_entry_people__isnull=False).order_by("first_name", "last_name").distinct()
+        self.filters['created_by'].queryset = User.objects.filter(user_entries__isnull=False).order_by("first_name", "last_name").distinct()
+        self.filters['people__user'].label = _("Entry Contact")
 
 
 class UserFilter(django_filters.FilterSet):

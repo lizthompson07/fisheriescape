@@ -350,7 +350,7 @@ class EntryListView(SiteLoginRequiredMixin, CommonFilterView):
         {"name": 'title', "class": "", "width": ""},
         {"name": 'entry_type', "class": "", "width": ""},
         {"name": 'regions', "class": "", "width": ""},
-        {"name": 'organizations', "class": "", "width": ""},
+        {"name": 'organizations', "class": "", "width": "400px"},
         {"name": 'sectors', "class": "", "width": ""},
         {"name": 'status', "class": "", "width": "170px"},
     ]
