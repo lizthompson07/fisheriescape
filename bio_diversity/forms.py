@@ -141,13 +141,14 @@ class DataForm(CreatePrams, forms.ModelForm):
         except:
             raise Exception("File format not valid")
 
-        log_data = "Loaded Data Sucessfully\n"
+        log_data = "Loading Data Results: \n"
         rows_parsed = 0
         rows_entered = 0
 
         # --------------------------ELECTROFISHING DATA ENTRY-----------------------------------
         if cleaned_data["evntc_id"].__str__() == "Electrofishing":
             parsed = True
+            self.request.session["load_success"] = True
             for row in data_dict:
                 row_parsed = True
                 row_entered = True
@@ -204,6 +205,7 @@ class DataForm(CreatePrams, forms.ModelForm):
                 except Exception as err:
                     row_parsed = False
                     parsed = False
+                    self.request.session["load_success"] = False
                     log_data += "Error parsing row: \n"
                     log_data += str(row)
                     log_data += "\n Error: {}".format(err.__str__())
@@ -253,68 +255,97 @@ class DataForm(CreatePrams, forms.ModelForm):
                 except Exception as err:
                     log_data += "Error parsing common data: \n"
                     log_data += "\n Error: {}".format(err.__str__())
+                    self.request.session["load_success"] = False
 
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Tagging":
-            grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"], coll_id__name=data_dict[0]["Group"]).get().pk
+            parsed = True
+            self.request.session["load_success"] = True
+            try:
+                grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"], coll_id__name=data_dict[0]["Group"]).get().pk
+            except Exception as err:
+                log_data += "Error finding origin group (check first row): \n"
+                log_data += "Error: {}\n\n".format(err.__str__())
+                self.request.session["load_success"] = False
+
             for row in data_dict:
-                indv = models.Individual(grp_id_id=grp_id,
-                                         spec_id_id=1,
-                                         stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
-                                         coll_id=models.Collection.objects.filter(name__iexact=row["Group"].strip()).get(),
-                                         ufid=row["Universal Fish ID"],
-                                         pit_tag=row["PIT tag"],
-                                         indv_valid=True,
-                                         comments=row["comments"],
-                                         created_by=cleaned_data["created_by"],
-                                         created_date=cleaned_data["created_date"],
-                                         )
+                row_parsed = True
+                row_entered = True
                 try:
-                    indv.clean()
-                    indv.save()
-                except (ValidationError, IntegrityError) as e:
-                    indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
-
-                anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                            indv_id_id=indv.pk,
-                                            grp_id_id=grp_id,
-                                            created_by=cleaned_data["created_by"],
-                                            created_date=cleaned_data["created_date"],
-                                            )
-                try:
-                    anix.clean()
-                    anix.save()
-                except ValidationError:
-                    anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id, indv_id=anix.indv_id, grp_id=anix.grp_id).get()
-
-                if not math.isnan(row["Length (cm)"]):
-                    indvd_length = models.IndividualDet(anix_id_id=anix.pk,
-                                                        anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
-                                                        det_val=row["Length (cm)"],
-                                                        qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                        created_by=cleaned_data["created_by"],
-                                                        created_date=cleaned_data["created_date"],
-                                                        )
+                    indv = models.Individual(grp_id_id=grp_id,
+                                             spec_id_id=1,
+                                             stok_id=models.StockCode.objects.filter(name=row["Stock"]).get(),
+                                             coll_id=models.Collection.objects.filter(name__iexact=row["Group"].strip()).get(),
+                                             ufid=row["Universal Fish ID"],
+                                             pit_tag=row["PIT tag"],
+                                             indv_valid=True,
+                                             comments=row["comments"],
+                                             created_by=cleaned_data["created_by"],
+                                             created_date=cleaned_data["created_date"],
+                                             )
                     try:
-                        indvd_length.clean()
-                        indvd_length.save()
-                    except ValidationError:
-                        pass
-                if not math.isnan(row["Weight (g)"]):
-                    indvd_mass = models.IndividualDet(anix_id_id=anix.pk,
-                                                      anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
-                                                      det_val=row["Weight (g)"],
-                                                      qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                      created_by=cleaned_data["created_by"],
-                                                      created_date=cleaned_data["created_date"],
-                                                      )
-                    try:
-                        indvd_mass.clean()
-                        indvd_mass.save()
-                    except ValidationError:
-                        pass
+                        indv.clean()
+                        indv.save()
+                    except (ValidationError, IntegrityError):
+                        row_entered = False
+                        indv = models.Individual.objects.filter(ufid=indv.ufid, pit_tag=indv.pit_tag).get()
 
-        log_data += "\n\n\n {} rows parsed \n {} rows entered to database".format(rows_parsed, rows_entered)
+                    anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                indv_id_id=indv.pk,
+                                                grp_id_id=grp_id,
+                                                created_by=cleaned_data["created_by"],
+                                                created_date=cleaned_data["created_date"],
+                                                )
+                    try:
+                        anix.clean()
+                        anix.save()
+                    except ValidationError:
+                        row_entered = False
+                        anix = models.AniDetailXref.objects.filter(evnt_id=anix.evnt_id, indv_id=anix.indv_id, grp_id=anix.grp_id).get()
+
+                    if not math.isnan(row["Length (cm)"]):
+                        indvd_length = models.IndividualDet(anix_id_id=anix.pk,
+                                                            anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
+                                                            det_val=row["Length (cm)"],
+                                                            qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                            created_by=cleaned_data["created_by"],
+                                                            created_date=cleaned_data["created_date"],
+                                                            )
+                        try:
+                            indvd_length.clean()
+                            indvd_length.save()
+                        except ValidationError:
+                            row_entered = False
+                    if not math.isnan(row["Weight (g)"]):
+                        indvd_mass = models.IndividualDet(anix_id_id=anix.pk,
+                                                          anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
+                                                          det_val=row["Weight (g)"],
+                                                          qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                          created_by=cleaned_data["created_by"],
+                                                          created_date=cleaned_data["created_date"],
+                                                          )
+                        try:
+                            indvd_mass.clean()
+                            indvd_mass.save()
+                        except ValidationError:
+                            row_entered = False
+                except Exception as err:
+                    row_parsed = False
+                    parsed = False
+                    self.request.session["load_success"] = False
+                    log_data += "Error parsing row: \n"
+                    log_data += str(row)
+                    log_data += "\n Error: {}".format(err.__str__())
+                    break
+                if row_entered:
+                    rows_entered += 1
+                    rows_parsed += 1
+                elif row_parsed:
+                    rows_parsed += 1
+            if not parsed:
+                self.request.session["load_success"] = False
+
+        log_data += "\n\n\n {} of {} rows parsed \n {} of {} rows entered to database".format(rows_parsed, len(data_dict), rows_entered, len(data_dict))
 
         self.request.session["log_data"] = log_data
 

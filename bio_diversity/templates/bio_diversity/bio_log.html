@@ -15,11 +15,14 @@
         </div>
         <div class="card-body">
             <div class="card-text">
+                {% if load_success %}
+                    <p>Data Loading Successfully</p>
+                {% else %}
+                    <p>Data Loading Failed</p>
+                {% endif %}
                 <p>{{ log_data|linebreaks  }}</p>
-                <form method="post" class="form">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-secondary">Okay</button>
-                </form>
+                <a class="btn btn-secondary" href="{% url 'shared_models:close_me' %}">Okay</a>
+
             </div>
         </div>
     </div>

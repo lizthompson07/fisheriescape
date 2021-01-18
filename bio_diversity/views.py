@@ -1845,6 +1845,7 @@ class CommonLog(CommonTemplateView):
 
         log_data = self.request.session.get("log_data")
         context['log_data'] = log_data
+        context["load_success"] = self.request.session.get("load_success")
 
         return context
 
