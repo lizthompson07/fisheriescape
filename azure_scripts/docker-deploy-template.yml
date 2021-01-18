@@ -28,7 +28,7 @@ steps:
       shouldPrefixVariables: false
 
   - script: |
-      az login --identity -u $(AZURE_MSI_CLIENT_ID.${{parameters.PIPELINE_VARS_TO_USE}})
+      az login --identity -u $(AZURE_MSI_CLIENT_ID.dev)
       # az account set --subscription="IMTS DEV/TEST"
 
       # install pre-requisites
@@ -40,13 +40,13 @@ steps:
 
 
       # create env file
-      python3.8 create_env_file.py --db-host "$(DB_HOST.${{parameters.PIPELINE_VARS_TO_USE}})" \
+      python3.8 create_env_file.py --db-host "$(DB_HOST.dev)" \
       --db-port 3306 \
-      --db-name "$(DB_NAME.${{parameters.PIPELINE_VARS_TO_USE}})" \
-      --db-user "$(DB_USER_PIPELINE.${{parameters.PIPELINE_VARS_TO_USE}})" \
+      --db-name "$(DB_NAME.dev)" \
+      --db-user "$(DB_USER_PIPELINE.dev)" \
       --db-password "${{parameters.DB_PASSWORD_PIPELINE}}" \
-      --deployment-stage "$(DEPLOYMENT_STAGE.${{parameters.PIPELINE_VARS_TO_USE}})" \
-      --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME.${{parameters.PIPELINE_VARS_TO_USE}})"
+      --deployment-stage "$(DEPLOYMENT_STAGE.dev)" \
+      --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME.dev)"
 
 
       # run migrations and collect static files
