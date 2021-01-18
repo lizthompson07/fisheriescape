@@ -289,6 +289,7 @@ def generate_culture_committee_report():
         "Years",
         "Keywords",
         "Leads",
+        "Region",
         "Program / Funding Source",
         "Source",
     ]
@@ -335,6 +336,10 @@ def generate_culture_committee_report():
 
             elif "Leads" in field:
                 my_val = listrify([str(staff) for staff in project.lead_staff.all()])
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "Region" in field:
+                my_val = project.section.division.branch.region.tname
                 my_ws.write(i, j, my_val, normal_format)
 
             elif "Program / Funding Source" in field:
