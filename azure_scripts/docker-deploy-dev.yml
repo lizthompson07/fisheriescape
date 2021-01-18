@@ -5,7 +5,7 @@ pool: dmapps
 trigger:
   - none
 
-# secret pipline vars:
+# secret pipeline vars:
 ######################
 # AAD_APP_SECRET
 # DB_PASSWORD_WEB
@@ -38,7 +38,7 @@ steps:
       --db-port 3306 \
       --db-name "$(DB_NAME.dev)" \
       --db-user "$(DB_USER_PIPELINE.dev)" \
-      --db-password "${{parameters.DB_PASSWORD_PIPELINE}}" \
+      --db-password "$(parameters.DB_PASSWORD_PIPELINE)" \
       --deployment-stage "$(DEPLOYMENT_STAGE.dev)" \
       --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME.dev)" \
       --azure-msi-client-id "$(AZURE_MSI_CLIENT_ID.dev)"
