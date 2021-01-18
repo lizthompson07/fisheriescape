@@ -64,9 +64,9 @@ steps:
   - task: AzureRmWebAppDeployment@4
     displayName: 'Deploy Docker Image to $(WEB_APP_NAME.dev)'
     inputs:
-      ConnectedServiceName: $(azureSubscription.dev)
+      ConnectedServiceName: msi.dmapps
       appType: webAppContainer
-      WebAppName: '$(WEB_APP_NAME.dev)'
+      WebAppName: $(WEB_APP_NAME.dev)
       DockerNamespace: $(DockerNamespace.dev)
       DockerRepository: $(DockerRepository.dev)
       DockerImageTag: $(DockerImageTag.dev)
@@ -99,6 +99,6 @@ steps:
   - task: AzureAppServiceManage@0
     displayName: 'Restart web app service'
     inputs:
-      azureSubscription: $(azureSubscription.dev)
+      azureSubscription: msi.dmapps
       Action: 'Restart Azure App Service'
       WebAppName: '$(WEB_APP_NAME.dev)'
