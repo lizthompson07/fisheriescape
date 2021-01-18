@@ -1,93 +1,89 @@
-pool:
-  vmImage: 'Ubuntu 18.04'
-#pool: dmapps
+pool: dmappsprod
 
 trigger:
   - none
 
-# secret pipline vars:
+# secret pipeline vars:
 ######################
 # AAD_APP_SECRET
-# AZURE_INSTRUMENTATION_KEY
 # DB_PASSWORD_WEB
 # DB_PASSWORD_PIPELINE
 # SECRET_KEY
-# AZURE_STORAGE_SECRET_KEY
 # SENDGRID_API_KEY
 # GITHUB_API_KEY
 ###############
 
-# non-secret pipeline vars:
-##########################
-# AAD_APP_ID
-# AAD_REDIRECT
-# AZURE_STORAGE_ACCOUNT_NAME
-# DB_HOST
-# DB_NAME
-# DB_USER_PIPELINE
-# DB_USER_WEB
-# DB_MODE
-# DEBUG
-# DEPLOYMENT_STAGE
-# SHOW_TICKETING_APP
-# USE_AZURE_APPLICATION_INSIGHT
-# WEB_APP_NAME
-# azureSubscription
-# DockerNamespace
-# DockerRepository
-# DockerImageTag
-###############
-
 steps:
-#  - task: AzureCLI@2
-#    inputs:
-#      azureSubscription: 'SP.DMAPPS'
-#      scriptType: 'bash'
-#      scriptLocation: 'inlineScript'
-#      inlineScript: |
-#        # sudo apt-get update && sudo apt-get install --only-upgrade -y azure-cli
-#        az account set --subscription="IMTS DEV/TEST"
-#        sourceAcrName="dmappsdevacr"
-#        sourceRg="DMAPPS-DEV-RG"
-#        # sourceAcr="/subscriptions/3eb57d27-b726-402d-8cfe-a9a846b99121/resourceGroups/DMAPPS_DEV_RG/providers/Microsoft.ContainerRegistry/registries/dmappsdevacr"
-#
-#        sourceAcr=$(az acr show --name $sourceAcrName -g $sourceRg --subscription "IMTS DEV/TEST" --query "id")
-#        repo="dmapps_img"
-#        image="dmapps_img"
-#        tag="prod"
-#        targetAcrName="dmappsprodacr"
-#
-#        az acr login --name $sourceAcrName
-#        az account set --subscription="IMTS PROD UNCLASS"
-#        az acr import --name $targetAcrName --source $image:$tag --image $image:$tag --registry $sourceAcr
-#
-#    displayName: 'copy the latest production-ready image from dev ACR to prod ACR'
+  - task: OneLuckiDev.json2variable.vsts-json-to-variable.oneLuckiDevJson2Variable@1
+    displayName: 'JSON to Variable'
+    inputs:
+      jsonFile: $(Build.SourcesDirectory)/azure_scripts/pipeline_vars.json
+      shouldPrefixVariables: false
 
-  - template: \azure_scripts\docker-deploy-template-old.yml
-    parameters:
-      AAD_APP_ID: '$(AAD_APP_ID)'
-      AAD_APP_SECRET: '$(AAD_APP_SECRET)'
-      AAD_REDIRECT: '$(AAD_REDIRECT)'
-      AZURE_INSTRUMENTATION_KEY: '$(AZURE_INSTRUMENTATION_KEY)'
-      USE_AZURE_APPLICATION_INSIGHT: '$(USE_AZURE_APPLICATION_INSIGHT)'
-      AZURE_STORAGE_ACCOUNT_NAME: '$(AZURE_STORAGE_ACCOUNT_NAME)'
-      AZURE_STORAGE_SECRET_KEY: '$(AZURE_STORAGE_SECRET_KEY)'
-      azureSubscription: '$(azureSubscription)'
-      DB_HOST: '$(DB_HOST)'
-      DB_MODE: '$(DB_MODE)'
-      DB_NAME: '$(DB_NAME)'
-      DB_PASSWORD_PIPELINE: '$(DB_PASSWORD_PIPELINE)'
-      DB_PASSWORD_WEB: '$(DB_PASSWORD_WEB)'
-      DB_USER_PIPELINE: '$(DB_USER_PIPELINE)'
-      DB_USER_WEB: '$(DB_USER_WEB)'
-      DEBUG: '$(DEBUG)'
-      DEPLOYMENT_STAGE: '$(DEPLOYMENT_STAGE)'
-      DockerNamespace: '$(DockerNamespace)'
-      DockerRepository: '$(DockerRepository)'
-      DockerImageTag: '$(DockerImageTag)'
-      GITHUB_API_KEY: '$(GITHUB_API_KEY)'
-      SECRET_KEY: '$(SECRET_KEY)'
-      SENDGRID_API_KEY: '$(SENDGRID_API_KEY)'
-      SHOW_TICKETING_APP: '$(SHOW_TICKETING_APP)'
-      WEB_APP_NAME: '$(WEB_APP_NAME)'
+  - script: |
+      az login --identity -u $(AZURE_MSI_CLIENT_ID.prod)
+
+      # install pre-requisites
+      python3.8 -m pip install --upgrade pip setuptools wheel
+      sudo apt-get install libmysqlclient-dev
+      python3.8 -m pip install -r requirements.txt
+      python3.8 -m pip uninstall -y django-easy-pdf
+      python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
+
+      # create env file
+      python3.8 create_env_file.py --db-host "$(DB_HOST.prod)" \
+      --db-port 3306 \
+      --db-name "$(DB_NAME.prod)" \
+      --db-user "$(DB_USER_PIPELINE.prod)" \
+      --db-password "$(DB_PASSWORD_PIPELINE)" \
+      --deployment-stage "$(DEPLOYMENT_STAGE.prod)" \
+      --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME.prod)" \
+      --azure-msi-client-id "$(AZURE_MSI_CLIENT_ID.prod)"
+
+      # run migrations and collect static files
+      python3.8 manage.py migrate
+      python3.8 manage.py collectstatic --no-input
+
+      # remove the env file
+      rm .env
+
+
+    workingDirectory: '$(System.DefaultWorkingDirectory)'
+    displayName: 'Run Migrations and Staticfiles'
+
+  - task: AzureRmWebAppDeployment@4
+    displayName: 'Deploy Docker Image'
+    inputs:
+      ConnectedServiceName: msi.dmapps
+      appType: webAppContainer
+      WebAppName: $(WEB_APP_NAME.prod)
+      DockerNamespace: $(DockerNamespace.prod)
+      DockerRepository: $(DockerRepository.prod)
+      DockerImageTag: $(DockerImageTag.prod)
+      StartupCommand: init.sh
+      AppSettings: >-
+        -WEBSITES_PORT 8000
+        -AAD_APP_ID $(AAD_APP_ID.prod)
+        -AAD_APP_SECRET $(AAD_APP_SECRET)
+        -AAD_REDIRECT $(AAD_REDIRECT.prod)
+        -AZURE_STORAGE_ACCOUNT_NAME $(AZURE_STORAGE_ACCOUNT_NAME.prod)
+        -SECRET_KEY $(SECRET_KEY)
+        -ALLOWED_HOST_TO_ADD $(WEB_APP_NAME.prod).azurewebsites.net
+        -SITE_FROM_EMAIL "DoNotReply@Sci-Zone.dfo-mpo.gc.ca"
+        -SHOW_TICKETING_APP $(SHOW_TICKETING_APP.prod)
+        -DEPLOYMENT_STAGE $(DEPLOYMENT_STAGE.prod)
+        -DB_HOST $(DB_HOST.prod)
+        -DB_MODE $(DB_MODE.prod)
+        -DB_NAME $(DB_NAME.prod)
+        -DB_USER $(DB_USER_WEB.prod)
+        -DB_PASSWORD $(DB_PASSWORD_WEB)
+        -DB_PORT 3306
+        -DEBUG $(DEBUG.prod)
+        -AZURE_INSTRUMENTATION_KEY $(AZURE_INSTRUMENTATION_KEY.prod)
+        -USE_AZURE_APPLICATION_INSIGHT $(USE_AZURE_APPLICATION_INSIGHT.prod)
+        -SENDGRID_API_KEY $(SENDGRID_API_KEY)
+        -GITHUB_API_KEY $(GITHUB_API_KEY)
+        -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)
+        -AZURE_MSI_CLIENT_ID $(AZURE_MSI_CLIENT_ID.prod)
+
 

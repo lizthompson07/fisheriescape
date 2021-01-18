@@ -264,8 +264,7 @@ def generate_biofouling_pa_spreadsheet(year=None):
         for station in stations:
             sample_qs = models.Sample.objects.filter(season=year, station=station)
 
-            if sample_qs.exists():
-                sample = sample_qs.first()
+            for sample in sample_qs:
                 data_row = [
                     year,
                     station.station_name,

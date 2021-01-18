@@ -77,15 +77,49 @@
                   <tr>
                     <th>
                       {% get_verbose_label object field %}
-                      (<a href="#">{% trans "manage" %}</a>)
+                      (<a href="{% url 'projects2:project_references' object.id %}">{% trans "manage" %}</a>)
                     </th>
                     <td>
                       {% if object.references.exists %}
                         <ul>
                           {% for ref in object.references.all %}
-                            <li>{{ ref.short_citation_html }}</li>
+                            <li>{{ ref.short_citation_html|safe }}</li>
                           {% endfor %}
                         </ul>
+                      {% else %}
+                        ---
+                      {% endif %}
+                    </td>
+                  </tr>
+
+                {% elif "csrf_theme" in field %}
+                  <tr>
+                    <th>{% get_verbose_label object field %}</th>
+                    <td>
+                      {% if object.client_information %}
+                        {{ object.client_information.csrf_priority.csrf_sub_theme.csrf_theme }}
+                      {% else %}
+                        ---
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% elif "csrf_sub_theme" in field %}
+                  <tr>
+                    <th>{% get_verbose_label object field %}</th>
+                    <td>
+                      {% if object.client_information %}
+                        {{ object.client_information.csrf_priority.csrf_sub_theme }}
+                      {% else %}
+                        ---
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% elif "csrf_priority" in field %}
+                  <tr>
+                    <th>{% get_verbose_label object field %}</th>
+                    <td>
+                      {% if object.client_information %}
+                        {{ object.client_information.csrf_priority }} ({{ object.client_information.csrf_priority.code }})
                       {% else %}
                         ---
                       {% endif %}
@@ -224,7 +258,7 @@
 
 
   <script src="{% static '/projects2/mainProjectDetail.js' %}?version=0.9" type="application/javascript"></script>
-  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.7" type="application/javascript"></script>
+  <script src="{% static '/projects2/mainProjectDetailModal.js' %}?version=0.8" type="application/javascript"></script>
 
   {% if request.GET.project_year %}
     <script type="application/javascript">

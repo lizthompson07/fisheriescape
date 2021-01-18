@@ -361,7 +361,6 @@ class ProjectCloneView(ProjectUpdateView):
         return HttpResponseRedirect(reverse_lazy("projects2:project_detail", kwargs={"pk": new_obj.project.id}))
 
 
-
 class ProjectReferencesDetailView(LoginRequiredMixin, CommonDetailView):
     model = models.Project
     template_name = 'projects2/project_references.html'
@@ -371,14 +370,13 @@ class ProjectReferencesDetailView(LoginRequiredMixin, CommonDetailView):
     active_page_name_crumb = gettext_lazy("Project References")
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse("projects2:project_references", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse("projects2:project_detail", args=[self.get_object().id])}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["file_form"] = forms.FileForm
-        context["random_file"] = models.File.objects.first()
+        context["citation_form"] = forms.CitationForm
+        context["random_citation"] = shared_models.Citation.objects.first()
         return context
-
 
 
 # PROJECT YEAR #
@@ -797,7 +795,7 @@ class CSRFClientInformationFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url_name = "projects2:manage_csrf_client_information"
     home_url_name = "projects2:index"
     delete_url_name = "projects2:delete_csrf_client_information"
-    container_class = "container bg-light curvy"
+    container_class = "container-fluid bg-light curvy"
 
 
 class CSRFClientInformationHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):

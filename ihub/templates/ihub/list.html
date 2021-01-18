@@ -1,25 +1,31 @@
 {% extends "shared_models/generic_filter.html" %}
+{% load static %}
 
 {% block bug_create %}
-    {% include "ihub/base/_bug_url.html" %}
+  {% include "ihub/base/_bug_url.html" %}
 {% endblock bug_create %}
 
 {% block title %}
-    {% include "ihub/base/_app_title.html" %}
-    {% block subtitle %} - {{ subtitle }}{% endblock %}
+  {% include "ihub/base/_app_title.html" %}
+  {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock title %}
 
 {% block header %}
-    {{ block.super }}
-    {% include "ihub/base/_style.html" %}
+  {{ block.super }}
+  {% include "ihub/base/_style.html" %}
 {% endblock %}
 
 {% block body %}
-    {{ block.super }}
+  {{ block.super }}
 {% endblock body %}
 
 {% block left_auth %}
-    {% include "ihub/base/_nav_left_auth.html" %}
+  {% include "ihub/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
 
-
+{% block crumbs %}
+  <div class="float-right">
+    <img src="{% static 'ihub/logo.jpg' %}" alt="" class="float-right mb-3" width="75px">
+  </div>
+  {{ block.super }}
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.db.models import Q
+from django.template.defaultfilters import date
 
 from .import models
 
@@ -117,3 +118,13 @@ def reconcile_spp():
 
 
 
+def print_list_of_duplicates():
+    years = [item["season"] for item in models.Sample.objects.order_by("season").values("season").distinct()]
+    stations = models.Station.objects.all()
+    for year in years:
+        for station in stations:
+            sample_qs = models.Sample.objects.filter(season=year, station=station)
+
+            if sample_qs.count() > 1:
+                for s in sample_qs:
+                    print(f'{s.id};{s.season};{s.station.station_name};{date(s.date_deployed)};{date(s.date_retrieved)}')

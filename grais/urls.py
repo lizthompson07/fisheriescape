@@ -170,4 +170,9 @@ urlpatterns = [
     path('reports/gc/<int:year>/envr/', views.export_gc_envr, name="gc_envr_report"),
     path('reports/gc/site-list/', views.export_gc_sites, name="gc_site_report"),
 
+    # SETTINGS
+    path('settings/probes/', views.ProbeFormsetView.as_view(), name="manage_probes"),
+    path('settings/probe/<int:pk>/delete/', views.ProbeHardDeleteView.as_view(), name="delete_probe"),
+
+
 ]

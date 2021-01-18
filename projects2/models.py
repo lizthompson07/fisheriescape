@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
+from textile import textile
 
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify, nz
@@ -26,6 +27,9 @@ YES_NO_CHOICES = (
 class CSRFTheme(SimpleLookup):
     code = models.CharField(max_length=25)
 
+    def __str__(self):
+        return f"{self.code}: {self.tname}"
+
 
 class CSRFSubTheme(SimpleLookup):
     name = models.CharField(max_length=1000, verbose_name=_("name (en)"))
@@ -38,11 +42,41 @@ class CSRFPriority(SimpleLookup):
     name = models.CharField(max_length=1000, verbose_name=_("priority for research (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("priority for research (fr)"))
 
+    class Meta:
+        ordering = ['code', "name"]
 
-class CSRFClientInformation(SimpleLookup):
+    def __str__(self):
+        return mark_safe(f'{self.code}: {self.tname}')
+
+
+class CSRFClientInformation(Lookup):
     csrf_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, related_name="client_information", verbose_name=_("CSRF priority"))
-    name = models.TextField(verbose_name=_("priority for research (en)"))
-    nom = models.TextField(blank=True, null=True, verbose_name=_("priority for research (fr)"))
+    name = models.CharField(max_length=1000, verbose_name=_("name (en)"))
+    nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("name (fr)"))
+    description_en = models.TextField(verbose_name=_("additional client information (en)"))
+    description_fr = models.TextField(blank=True, null=True, verbose_name=_("additional client information (fr)"))
+
+    @property
+    def quickname_en(self):
+        first_part = self.description_en.split("\n")[0]
+        first_part = first_part.replace(":", "")
+        if len(first_part) > 90:
+            first_part = first_part[:90]
+        return mark_safe(f'{self.csrf_priority.code} &rarr; {first_part}...')
+
+    @property
+    def quickname_fr(self):
+        first_part = self.description_fr.split("\n")[0]
+        first_part = first_part.replace(":", "")
+        if len(first_part) > 90:
+            first_part = first_part[:90]
+        return mark_safe(f'{self.csrf_priority.code} &rarr; {first_part}...')
+
+    class Meta:
+        ordering = ['csrf_priority__code', "name"]
+
+    def __str__(self):
+        return mark_safe(self.tname)
 
 
 class Theme(SimpleLookup):
@@ -135,7 +169,6 @@ class Project(models.Model):
     tags = models.ManyToManyField(Tag, blank=True, verbose_name=_("Tags / keywords"), related_name="projects")
     references = models.ManyToManyField(shared_models.Citation, blank=True, verbose_name=_("references"), related_name="projects", editable=False)
 
-
     # HTML field
     overview = models.TextField(blank=True, null=True, verbose_name=_("Project overview"))
 
@@ -149,8 +182,16 @@ class Project(models.Model):
     rationale = models.TextField(blank=True, null=True, verbose_name=_("project problem / rationale (ACRDP)"))
     experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
 
-    # ACRDP fields
+    # CSRF fields
+    client_information = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                            verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
+    second_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                            verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
 
+    objectives = models.TextField(blank=True, null=True, verbose_name=_("project objectives (CSRF)"))
+    # objectives_methods = models.TextField(blank=True, null=True, verbose_name=_("methods applied to achieve objectives (CSRF)"))
+    innovation = models.TextField(blank=True, null=True, verbose_name=_("innovation (CSRF)"))
+    other_funding = models.TextField(blank=True, null=True, verbose_name=_("other sources of funding (CSRF)"))
 
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
@@ -227,6 +268,41 @@ class Project(models.Model):
         if self.overview:
             return mark_safe(markdown(self.overview))
 
+    @property
+    def objectives_html(self):
+        if self.objectives:
+            return mark_safe(markdown(self.objectives))
+
+    @property
+    def innovation_html(self):
+        if self.innovation:
+            return mark_safe(markdown(self.innovation))
+
+    @property
+    def other_funding_html(self):
+        if self.other_funding:
+            return mark_safe(markdown(self.other_funding))
+
+    @property
+    def team_description_html(self):
+        if self.team_description:
+            return mark_safe(markdown(self.team_description))
+
+    @property
+    def rationale_html(self):
+        if self.rationale:
+            return mark_safe(markdown(self.rationale))
+
+    @property
+    def experimental_protocol_html(self):
+        if self.experimental_protocol:
+            return mark_safe(markdown(self.experimental_protocol))
+
+    @property
+    def client_information_html(self):
+        if self.client_information:
+            return mark_safe(textile(self.client_information.tdescription))
+
     def get_funding_sources(self):
         # look through all expenses and compile a unique list of funding sources (for all years of project)
         my_list = []
@@ -247,6 +323,11 @@ class Project(models.Model):
     @property
     def is_acrdp(self):
         if self.default_funding_source and "acrdp" in self.default_funding_source.name.lower():
+            return True
+
+    @property
+    def is_csrf(self):
+        if self.default_funding_source and "csrf" in self.default_funding_source.name.lower():
             return True
 
     @property
@@ -530,6 +611,10 @@ class Staff(GenericCost):
     duration_weeks = models.FloatField(default=0, blank=True, null=True, verbose_name=_("duration (weeks)"))
     overtime_hours = models.FloatField(default=0, blank=True, null=True, verbose_name=_("overtime (hours)"))
     overtime_description = models.TextField(blank=True, null=True, verbose_name=_("overtime description"))
+
+    role = models.TextField(blank=True, null=True, verbose_name=_("role in the project"))  # CSRF
+    expertise = models.TextField(blank=True, null=True, verbose_name=_("key expertise"))  # CSRF
+
 
     def __str__(self):
         if self.user:
@@ -949,11 +1034,12 @@ class Activity(models.Model):
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target date (optional)"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
     responsible_party = models.CharField(max_length=500, verbose_name=_("responsible party"), blank=True, null=True)
-    risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences (ACRDP)"))
-    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what will be the impact if the risks occurs (ACRDP)"))
-    likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True, verbose_name=_("what is the likelihood of the risks occurring (ACRDP)"))
-    risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)
-    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks (ACRDP)"))
+    risk_description = models.TextField(blank=True, null=True, verbose_name=_("Description of risks and their consequences"))  # CSRF and ACRDP
+    impact = models.IntegerField(choices=impact_choices, blank=True, null=True, verbose_name=_("what will be the impact if the risks occurs"))  # ACRDP
+    likelihood = models.IntegerField(choices=likelihood_choices, blank=True, null=True,
+                                     verbose_name=_("what is the likelihood of the risks occurring"))  # ACRDP
+    risk_rating = models.IntegerField(choices=risk_rating_choices, blank=True, null=True, editable=False)  # ACRDP
+    mitigation_measures = models.TextField(blank=True, null=True, verbose_name=_("what measures will be used to mitigate the risks"))  # CSRF and ACRDP
 
     def save(self, *args, **kwargs):
         if self.impact and self.likelihood:

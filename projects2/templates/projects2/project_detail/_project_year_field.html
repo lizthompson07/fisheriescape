@@ -2,7 +2,6 @@
 
 {% if "dates" in field %}
   <td v-html='projectYear.dates'></td>
-
 {% elif "metadata" in field %}
   <td v-html='projectYear.metadata'></td>
 {% elif "allocated" in field %}
@@ -17,7 +16,7 @@
 {% elif field|is_markdown_field %}
   <td v-html='projectYear.{{ field }}_html'></td>
 
-{% elif "coip" in field or "requires_" in field or "has_" in field or "eligible" in field %}
+{% elif  "requires_" in field or "has_" in field or "eligible" in field %}
   <td>${ projectYear.{{ field }} | yesNo }</td>
 
 {% else %}

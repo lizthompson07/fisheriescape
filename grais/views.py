@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
 from django_filters.views import FilterView
 
+from shared_models.views import CommonFormsetView, CommonHardDeleteView
 from . import filters
 from . import forms
 from . import models
@@ -1558,3 +1559,19 @@ def export_gc_sites(request):
             response['Content-Disposition'] = 'inline; filename="green crab site descriptions.xlsx"'
             return response
     raise Http404
+
+
+# SETTINGS
+class ProbeFormsetView(GraisAdminRequiredMixin, CommonFormsetView):
+    template_name = 'shared_models/generic_formset.html'
+    h1 = "Manage Probes"
+    queryset = models.Probe.objects.all()
+    formset_class = forms.ProbeFormset
+    success_url_name = "grais:manage_probes"
+    home_url_name = "grais:index"
+    delete_url_name = "grais:delete_probe"
+
+class ProbeHardDeleteView(GraisAdminRequiredMixin, CommonHardDeleteView):
+    model = models.Probe
+    success_url = reverse_lazy("grais:manage_probes")
+

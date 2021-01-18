@@ -163,7 +163,8 @@ class SiteDetailView(ScubaAdminRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         transect_field_list = [
             'name',
-            'coordinates',
+            'starting_coordinates_ddmm|{}'.format(_("starting coordinates")),
+            'ending_coordinates_ddmm|{}'.format(_("ending coordinates")),
         ]
         context["transect_field_list"] = transect_field_list
         return context
@@ -441,6 +442,8 @@ class DiveDetailView(ScubaAdminRequiredMixin, CommonDetailView):
     field_list = [
         'transect',
         'diver',
+        'starting_coordinates_ddmm|{}'.format(_("starting coordinates")),
+        'ending_coordinates_ddmm|{}'.format(_("ending coordinates")),
         'start_descent',
         'bottom_time',
         'max_depth_ft',

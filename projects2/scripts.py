@@ -656,3 +656,13 @@ def copy_citations():
         for cit_old in r.citations.all():
             r.citations2.add(cit_old.id)
 
+
+
+def populate_quicknames():
+    for item in models.CSRFClientInformation.objects.all():
+        if item.description_en:
+            item.name = item.quickname_en
+        if item.description_fr:
+            item.nom = item.quickname_fr
+        item.save()
+

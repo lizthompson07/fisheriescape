@@ -89,6 +89,8 @@ class ProjectForm(forms.ModelForm):
             "section": forms.Select(attrs=chosen_js),
             "tags": forms.SelectMultiple(attrs=chosen_js),
             "default_funding_source": forms.Select(attrs=chosen_js),
+            "client_information": forms.Select(attrs=chosen_js),
+            "second_priority": forms.Select(attrs=chosen_js),
             "is_hidden": forms.Select(choices=YESNO_CHOICES),
         }
 
@@ -112,18 +114,60 @@ class ProjectForm(forms.ModelForm):
             del self.fields["tags"]
 
         # if not acrdp project, we should remove certain fields
-        if not kwargs.get("instance") or not kwargs.get("instance").is_acrdp:
-            acrdp_fields = [
-                'organization',
-                'species_involved',
-                'team_description',
-                'rationale',
-                'experimental_protocol',
-            ]
-            for field in acrdp_fields:
-                del self.fields[field]
-        else:
-            self.fields["overview"].label += str(_(" /  ACRDP objectives"))
+        if kwargs.get("instance"):
+            if not kwargs.get("instance").is_acrdp and not kwargs.get("instance").is_csrf:
+                specialized_fields = [
+                    # ACRDP
+                    'organization',
+                    'species_involved',
+                    'team_description',
+                    'rationale',
+                    'experimental_protocol',
+                    # CSRF
+                    'client_information',
+                    'second_priority',
+                    'objectives',
+                    # 'objectives_methods',
+                    'innovation',
+                    'other_funding',
+                ]
+                for field in specialized_fields:
+                    del self.fields[field]
+
+            elif kwargs.get("instance").is_acrdp:
+                specialized_fields = [
+                    # CSRF
+                    'client_information',
+                    'second_priority',
+                    'objectives',
+                    # 'objectives_methods',
+                    'innovation',
+                    'other_funding',
+                ]
+                for field in specialized_fields:
+                    del self.fields[field]
+
+                self.fields["overview"].label += str(_(" /  ACRDP objectives"))
+            elif kwargs.get("instance").is_csrf:
+                specialized_fields = [
+                    'organization',
+                    'species_involved',
+                    'team_description',
+                    'rationale',
+                    'experimental_protocol',
+                ]
+                for field in specialized_fields:
+                    del self.fields[field]
+                self.fields["overview"].label = str(
+                    _("Provide a brief overview of the project outlining how it specifically addresses the priority identified "))
+                self.fields["objectives"].label = str(_("Describe the objective(s) of the project (CSRF)"))
+                # self.fields["objectives_methods"].label = str(
+                #     _("Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan by year (CSRF)"))
+                self.fields["innovation"].label = str(_("Describe how the project will generate or promote innovation (CSRF)"))
+                self.fields["other_funding"].label = str(
+                    _("Provide any additional information on the other sources of funding relevant to the project (e.g. type of in-kind contribution) (CSRF)"))
+                self.fields["client_information"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
+                self.fields["second_priority"].label += " " + str(_("SEE PRIORITIES DOCUMENT"))
 
 
 class ProjectYearForm(forms.ModelForm):
@@ -159,7 +203,7 @@ class ProjectYearForm(forms.ModelForm):
             'has_field_component': forms.Select(choices=YESNO_CHOICES),
             'vehicle_needs': forms.Textarea(attrs=row4),
             'ship_needs': forms.Textarea(attrs=row4),
-            'coip_reference_id': forms.Textarea(attrs=row4),
+            # 'coip_reference_id': forms.Textarea(attrs=row4),
             'instrumentation': forms.Textarea(attrs=row4),
             'owner_of_instrumentation': forms.Textarea(attrs=row4),
             'requires_field_staff': forms.Select(choices=YESNO_CHOICES),
@@ -189,6 +233,14 @@ class ProjectYearForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # if not acrdp project, we should remove certain fields
+        if kwargs.get("instance"):
+            if kwargs.get("instance").project.is_csrf:
+                self.fields["priorities"].label = str(
+                    _(
+                        "Outline the methods applied to achieve the objective(s) of the project, and the main steps of the work plan FOR THIS PROJECT YEAR ONLY (CSRF)"))
+                self.fields["data_products"].label += " " + str(_("And what is the plan for the publication of these products (CSRF)?"))
 
     def clean_start_date(self):
         start_date = self.cleaned_data['start_date']
@@ -258,6 +310,20 @@ class ProjectNotesForm(forms.ModelForm):
 
 
 class StaffForm(forms.ModelForm):
+    field_order = [
+        "user",
+        "name",
+        "employee_type",
+        "is_lead",
+        "funding_source",
+        "amount",
+        "level",
+        "student_program",
+        "duration_weeks",
+        "overtime_hours",
+        "overtime_description",
+    ]
+
     class Meta:
         model = models.Staff
         exclude = ["project_year"]
@@ -288,6 +354,8 @@ class StaffForm(forms.ModelForm):
         funding_source_choices = [(f.id, f.display2) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
         self.fields["funding_source"].choices = funding_source_choices
+        self.fields["role"].widget.attrs = {"v-model": "activity.role", "rows": "4", ":disabled": "!isCSRF"}
+        self.fields["expertise"].widget.attrs = {"v-model": "activity.expertise", "rows": "4", ":disabled": "!isCSRF"}
 
 
 class OMCostForm(forms.ModelForm):
@@ -340,8 +408,8 @@ class ActivityForm(forms.ModelForm):
         self.fields["target_date"].widget = forms.DateInput(attrs={"v-model": "activity.target_date", "type": "date"})
         self.fields["likelihood"].widget.attrs = {"v-model": "activity.likelihood", ":disabled": "!isACRDP"}
         self.fields["impact"].widget.attrs = {"v-model": "activity.impact", ":disabled": "!isACRDP"}
-        self.fields["risk_description"].widget.attrs = {"v-model": "activity.risk_description", "rows": "4", ":disabled": "!isACRDP"}
-        self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP"}
+        self.fields["risk_description"].widget.attrs = {"v-model": "activity.risk_description", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
+        self.fields["mitigation_measures"].widget.attrs = {"v-model": "activity.mitigation_measures", "rows": "4", ":disabled": "!isACRDP && !isCSRF"}
 
 
 class CollaborationForm(forms.ModelForm):
@@ -653,6 +721,7 @@ CSRFPriorityFormset = modelformset_factory(
     extra=1,
 )
 
+
 class CSRFClientInformationForm(forms.ModelForm):
     class Meta:
         model = models.CSRFClientInformation
@@ -660,6 +729,8 @@ class CSRFClientInformationForm(forms.ModelForm):
         widgets = {
             'name': forms.Textarea(attrs={}),
             'nom': forms.Textarea(attrs={}),
+            'description_en': forms.Textarea(attrs={"style":"width:400px"}),
+            'description_fr': forms.Textarea(attrs={"style":"width:400px"}),
         }
 
 
@@ -718,3 +789,28 @@ class ReportSearchForm(forms.Form):
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     # year = forms.IntegerField(required=False, label=gettext_lazy('Year'), widget=forms.NumberInput(attrs={"placeholder": "Leave blank for all years"}))
+
+
+class CitationForm(forms.ModelForm):
+    class Meta:
+        model = shared_models.Citation
+        fields = "__all__"
+        widgets = {
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        klass = "form-control form-control-sm"
+        self.fields["name"].widget.attrs = {"v-model": "citationToEdit.name", "class": klass}
+        self.fields["nom"].widget.attrs = {"v-model": "citationToEdit.nom", "class": klass}
+        self.fields["authors"].widget.attrs = {"v-model": "citationToEdit.authors", "class": klass}
+        self.fields["year"].widget.attrs = {"v-model": "citationToEdit.year", "class": klass}
+        self.fields["publication"].widget.attrs = {"v-model": "citationToEdit.publication", "class": klass}
+        self.fields["pub_number"].widget.attrs = {"v-model": "citationToEdit.pub_number", "class": klass}
+        self.fields["url_en"].widget.attrs = {"v-model": "citationToEdit.url_en", "class": klass}
+        self.fields["url_fr"].widget.attrs = {"v-model": "citationToEdit.url_fr", "class": klass}
+        self.fields["abstract_en"].widget.attrs = {"v-model": "citationToEdit.abstract_en", "class": klass}
+        self.fields["abstract_fr"].widget.attrs = {"v-model": "citationToEdit.abstract_fr", "class": klass}
+        self.fields["series"].widget.attrs = {"v-model": "citationToEdit.series", "class": klass}
+        self.fields["region"].widget.attrs = {"v-model": "citationToEdit.region", "class": klass}
