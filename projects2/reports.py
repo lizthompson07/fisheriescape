@@ -393,6 +393,10 @@ def generate_culture_committee_report():
                 my_val = listrify([str(staff) for staff in project.dfo_contact.all()])
                 my_ws.write(i, j, my_val, normal_format)
 
+            elif "Region" in field:
+                my_val = project.division.branch.region.tname
+                my_ws.write(i, j, my_val, normal_format)
+
             elif "Program / Funding Source" in field:
                 my_val = listrify([str(item) for item in project.program_linkage.all()])
                 my_ws.write(i, j, my_val, normal_format)
