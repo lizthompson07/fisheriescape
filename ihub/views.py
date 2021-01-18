@@ -110,6 +110,7 @@ class PersonListView(SiteLoginRequiredMixin, CommonFilterView):
     home_url_name = "ihub:index"
     paginate_by = 100
     h1 = gettext_lazy("Contacts")
+    container_class = "container-fluid"
 
 
 class PersonDetailView(SiteLoginRequiredMixin, CommonDetailView):
@@ -222,6 +223,7 @@ class OrganizationListView(SiteLoginRequiredMixin, CommonFilterView):
     home_url_name = "ihub:index"
     new_object_url_name = "ihub:org_new"
     row_object_url_name = "ihub:org_detail"
+    container_class = "container-fluid"
 
 
 class OrganizationDetailView(SiteLoginRequiredMixin, CommonDetailView):
