@@ -28,7 +28,7 @@ steps:
       shouldPrefixVariables: false
 
   - script: |
-      az login --identity -u $(AZURE_MSI_CLIENT_ID.${{parameters.PIPELINE_VARS_TO_USE)
+      az login --identity -u $(AZURE_MSI_CLIENT_ID.${{parameters.PIPELINE_VARS_TO_USE}})
       # az account set --subscription="IMTS DEV/TEST"
 
       # install pre-requisites
