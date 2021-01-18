@@ -1,3 +1,4 @@
+from django.templatetags.static import static
 from django.views.generic import TemplateView, DetailView
 from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView
 from django.urls import reverse_lazy
@@ -127,6 +128,7 @@ class CupdCreate(mixins.CupdMixin, CommonCreate):
 
 
 class DataCreate(mixins.DataMixin, CommonCreate):
+    template_name = 'bio_diversity/data_entry_form.html'
     def get_initial(self):
         init = super().get_initial()
         if 'evnt' in self.kwargs:
@@ -139,7 +141,12 @@ class DataCreate(mixins.DataMixin, CommonCreate):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if 'evnt' in self.kwargs:
-            context["title"] = "Add {} data".format(models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower())
+            evnt_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().evntc_id.__str__().lower()
+            facility_code = models.Event.objects.filter(pk=self.kwargs["evnt"]).get().facic_id.__str__().lower()
+            context["title"] = "Add {} data".format(evnt_code)
+            context["template_url"] = 'data_templates/{}-{}.xlsx'.format(facility_code, evnt_code)
+            context["template_name"] = "{}-{}".format(facility_code, evnt_code)
+
         return context
 
     def get_success_url(self):
