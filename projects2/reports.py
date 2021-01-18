@@ -14,6 +14,7 @@ from openpyxl import load_workbook
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz, currency
 from publications import models as pi_models
+from shared_models.models import Region
 from . import models
 
 
@@ -394,7 +395,11 @@ def generate_culture_committee_report():
                 my_ws.write(i, j, my_val, normal_format)
 
             elif "Region" in field:
-                my_val = project.division.branch.region.tname
+                if project.division.exists():
+                   regions = Region.objects.filter(id__in=[p.branch.region.id for p in project.division.all()])
+                   my_val = listrify([r.tname for r in regions])
+                else:
+                   my_val = "n/a"
                 my_ws.write(i, j, my_val, normal_format)
 
             elif "Program / Funding Source" in field:
