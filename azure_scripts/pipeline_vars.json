@@ -72,7 +72,7 @@
   "DockerNamespace": {
     "dev": "dmappsdevtestacr.azurecr.io",
     "test": "dmappsdevtestacr.azurecr.io",
-    "prod": "dmappsdevtestacr.azurecr.io"
+    "prod": "dmappsprodacr.azurecr.io"
   },
   "DockerRepository": {
     "dev": "dmapps_img",
