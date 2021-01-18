@@ -99,6 +99,6 @@ steps:
   - task: AzureAppServiceManage@0
     displayName: 'Restart web app service'
     inputs:
-      azureSubscription: '$(azureSubscription.dev)'
+      azureSubscription: 'msi.dmapps-dev'
       Action: 'Restart Azure App Service'
       WebAppName: '$(WEB_APP_NAME.dev)'
