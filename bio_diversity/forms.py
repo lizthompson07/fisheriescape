@@ -141,93 +141,119 @@ class DataForm(CreatePrams, forms.ModelForm):
         except:
             raise Exception("File format not valid")
 
-        self.request.session["log_data"] = "foo"
+        log_data = "Loaded Data Sucessfully\n"
+        rows_parsed = 0
+        rows_entered = 0
 
         # --------------------------ELECTROFISHING DATA ENTRY-----------------------------------
         if cleaned_data["evntc_id"].__str__() == "Electrofishing":
+            parsed = True
             for row in data_dict:
-                loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                      locc_id_id=1,
-                                      rive_id=models.RiverCode.objects.filter(name=row["River"]).get(),
-                                      subr_id=models.SubRiverCode.objects.filter(name__iexact=row["Branch"]).get(),
-                                      relc_id=models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"]).get(),
-                                      loc_date=datetime.strptime(row["Date"], "%Y-%b-%d"),
-                                      comments=row["Comments"],
-                                      created_by=cleaned_data["created_by"],
-                                      created_date=cleaned_data["created_date"],
-                                      )
+                row_parsed = True
+                row_entered = True
                 try:
-                    loc.clean()
-                    loc.save()
-                except ValidationError:
-                    loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id, rive_id=loc.rive_id, subr_id=loc.subr_id, relc_id=loc.relc_id, loc_date=loc.loc_date).get()
-
-                if not math.isnan(row["temp"]):
-                    env = models.EnvCondition(loc_id_id=loc.pk,
-                                              inst_id=models.Instrument.objects.first(),
-                                              envc_id=models.EnvCode.objects.filter(name__iexact="Temperature").get(),
-                                              env_val=row["temp"],
-                                              env_start=datetime.strptime(row["Date"], "%Y-%b-%d"),
-                                              env_avg=False,
-                                              qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                              created_by=cleaned_data["created_by"],
-                                              created_date=cleaned_data["created_date"],
-                                              )
+                    loc = models.Location(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                          locc_id_id=1,
+                                          rive_id=models.RiverCode.objects.filter(name=row["River"]).get(),
+                                          subr_id=models.SubRiverCode.objects.filter(name__iexact=row["Branch"]).get(),
+                                          relc_id=models.ReleaseSiteCode.objects.filter(name__iexact=row["Site"]).get(),
+                                          loc_date=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                                          comments=row["Comments"],
+                                          created_by=cleaned_data["created_by"],
+                                          created_date=cleaned_data["created_date"],
+                                          )
                     try:
-                        env.clean()
-                        env.save()
+                        loc.clean()
+                        loc.save()
                     except ValidationError:
-                        pass
-                if not math.isnan(row["# of salmon observed/collected"]):
-                    cnt = models.Count(loc_id_id=loc.pk,
-                                       spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                                       cntc_id=models.CountCode.objects.filter(name__iexact="Fish Caught").get(),
-                                       cnt=row["# of salmon observed/collected"],
-                                       est=False,
+                        row_entered = False
+                        loc = models.Location.objects.filter(evnt_id=loc.evnt_id, locc_id=loc.locc_id, rive_id=loc.rive_id, subr_id=loc.subr_id, relc_id=loc.relc_id, loc_date=loc.loc_date).get()
+
+                    if not math.isnan(row["temp"]):
+                        env = models.EnvCondition(loc_id_id=loc.pk,
+                                                  inst_id=models.Instrument.objects.first(),
+                                                  envc_id=models.EnvCode.objects.filter(name__iexact="Temperature").get(),
+                                                  env_val=row["temp"],
+                                                  env_start=datetime.strptime(row["Date"], "%Y-%b-%d"),
+                                                  env_avg=False,
+                                                  qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                  created_by=cleaned_data["created_by"],
+                                                  created_date=cleaned_data["created_date"],
+                                                  )
+                        try:
+                            env.clean()
+                            env.save()
+                        except ValidationError:
+                            row_entered = False
+                            pass
+                    if not math.isnan(row["# of salmon observed/collected"]):
+                        cnt = models.Count(loc_id_id=loc.pk,
+                                           spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                           cntc_id=models.CountCode.objects.filter(name__iexact="Fish Caught").get(),
+                                           cnt=row["# of salmon observed/collected"],
+                                           est=False,
+                                           created_by=cleaned_data["created_by"],
+                                           created_date=cleaned_data["created_date"],
+                                           )
+                        try:
+                            cnt.clean()
+                            cnt.save()
+                        except ValidationError:
+                            row_entered = False
+                            pass
+                except Exception as err:
+                    row_parsed = False
+                    parsed = False
+                    log_data += "Error parsing row: \n"
+                    log_data += str(row)
+                    log_data += "\n Error: {}".format(err.__str__())
+                    break
+                if row_entered:
+                    rows_entered += 1
+                    rows_parsed += 1
+                elif row_parsed:
+                    rows_parsed += 1
+            if parsed:
+                try:
+                    grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
+                                       stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
+                                       coll_id=models.Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
+                                       grp_valid=True,
                                        created_by=cleaned_data["created_by"],
                                        created_date=cleaned_data["created_date"],
                                        )
                     try:
-                        cnt.clean()
-                        cnt.save()
+                        grp.clean()
+                        grp.save()
+                    except ValidationError:
+                        grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id, coll_id=grp.coll_id).get()
+                    anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
+                                                grp_id_id=grp.pk,
+                                                created_by=cleaned_data["created_by"],
+                                                created_date=cleaned_data["created_date"],
+                                                )
+                    try:
+                        anix.clean()
+                        anix.save()
                     except ValidationError:
                         pass
+                    grpd = models.GroupDet(anix_id_id=anix.pk,
+                                           anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
+                                           det_val=data["# of salmon observed/collected"].sum(),
+                                           qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                           # det_val=True,
+                                           created_by=cleaned_data["created_by"],
+                                           created_date=cleaned_data["created_date"],
+                                           )
+                    try:
+                        grpd.clean()
+                        grpd.save()
+                    except ValidationError:
+                        pass
+                except Exception as err:
+                    log_data += "Error parsing common data: \n"
+                    log_data += "\n Error: {}".format(err.__str__())
 
-            grp = models.Group(spec_id=models.SpeciesCode.objects.filter(name__iexact="Salmon").get(),
-                               stok_id=models.StockCode.objects.filter(name=data["River"][0]).get(),
-                               coll_id=models.Collection.objects.filter(name__icontains=data["purpose"][0][:8]).get(),
-                               grp_valid=True,
-                               created_by=cleaned_data["created_by"],
-                               created_date=cleaned_data["created_date"],
-                               )
-            try:
-                grp.clean()
-                grp.save()
-            except ValidationError:
-                grp = models.Group.objects.filter(spec_id=grp.spec_id, stok_id=grp.stok_id, coll_id=grp.coll_id).get()
-            anix = models.AniDetailXref(evnt_id_id=cleaned_data["evnt_id"].pk,
-                                        grp_id_id=grp.pk,
-                                        created_by=cleaned_data["created_by"],
-                                        created_date=cleaned_data["created_date"],
-                                        )
-            try:
-                anix.clean()
-                anix.save()
-            except ValidationError:
-                pass
-            grpd = models.GroupDet(anix_id_id=anix.pk,
-                                   anidc_id=models.AnimalDetCode.objects.filter(name__iexact="Number of Fish").get(),
-                                   det_val=data["# of salmon observed/collected"].sum(),
-                                   qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                   # det_val=True,
-                                   created_by=cleaned_data["created_by"],
-                                   created_date=cleaned_data["created_date"],
-                                   )
-            try:
-                grpd.clean()
-                grpd.save()
-            except ValidationError:
-                pass
         # ---------------------------TAGGING DATA ENTRY----------------------------------------
         elif cleaned_data["evntc_id"].__str__() == "Tagging":
             grp_id = models.Group.objects.filter(stok_id__name=data_dict[0]["Stock"], coll_id__name=data_dict[0]["Group"]).get().pk
@@ -287,6 +313,10 @@ class DataForm(CreatePrams, forms.ModelForm):
                         indvd_mass.save()
                     except ValidationError:
                         pass
+
+        log_data += "\n\n\n {} rows parsed \n {} rows entered to database".format(rows_parsed, rows_entered)
+
+        self.request.session["log_data"] = log_data
 
 
 class DrawForm(CreatePrams, forms.ModelForm):

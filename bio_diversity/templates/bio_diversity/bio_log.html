@@ -15,10 +15,10 @@
         </div>
         <div class="card-body">
             <div class="card-text">
-                <p>{{ log_data }}</p>
+                <p>{{ log_data|linebreaks  }}</p>
                 <form method="post" class="form">
                     {% csrf_token %}
-                    <button type="submit" class="btn">Okay</button>
+                    <button type="submit" class="btn btn-secondary">Okay</button>
                 </form>
             </div>
         </div>
