@@ -23,7 +23,7 @@ parameters:
 steps:
   - task: FileTransform@1
     inputs:
-      folderPath: '$(System.DefaultWorkingDirectory)/**/*.zip'
+      #      folderPath: '$(System.DefaultWorkingDirectory)/**/*.zip'
       fileType: 'json'
       targetFiles: 'pipeline_vars.json'
 
