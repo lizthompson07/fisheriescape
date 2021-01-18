@@ -21,12 +21,10 @@ parameters:
     type: string
 
 steps:
-  - task: FileTransform@1
+  - task: OneLuckiDev.json2variable.vsts-json-to-variable.oneLuckiDevJson2Variable@1
+    displayName: 'JSON to Variable'
     inputs:
-      folderPath: '$(System.DefaultWorkingDirectory)/'
-      fileType: 'json'
-      targetFiles: './azure_scripts/pipeline_vars.json'
-
+      jsonFile: ./azure_scripts/pipeline_vars.json'
 
   - script: |
       az login --identity -u $(AZURE_MSI_CLIENT_ID.dev)
