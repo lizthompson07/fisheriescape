@@ -1,0 +1,17 @@
+{% extends "ihub/list.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load verbose_names %}
+{% load i18n %}
+
+
+{% block content %}
+  <div id="mySidebar" class="sidebar">
+    {% include "ihub/_filters.html" %}
+  </div>
+  <div id="main">
+  {{ block.super }}
+  </div>
+{% endblock %}
+{% block filter %}{% endblock %}
+

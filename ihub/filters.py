@@ -1,6 +1,7 @@
 import django_filters
 from django import forms
 from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from masterlist import models as ml_models
@@ -26,20 +27,20 @@ class PersonFilter(django_filters.FilterSet):
         model = ml_models.Person
         fields = {
             'last_name': ['exact'],
+            'memberships__role': ['icontains'],
             'organizations': ['exact'],
             'organizations__regions': ['exact'],
-            'memberships__role': ['icontains'],
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.filters['memberships__role__icontains'].label = mark_safe(_("Organizational role <br>(any part of name)"))
         self.filters['organizations'] = django_filters.ModelChoiceFilter(field_name="organizations",
                                                                          queryset=ind_organizations,
                                                                          widget=forms.Select(attrs=chosen_js))
         self.filters["last_name"] = django_filters.CharFilter(field_name='search_term', label=_("Any part of name, or title"),
                                                               lookup_expr='icontains', widget=forms.TextInput())
         self.filters['organizations__regions'].label = _("DFO Region")
-        self.filters['memberships__role__icontains'].label = _("Membership roles")
 
 
 class EntryFilter(django_filters.FilterSet):

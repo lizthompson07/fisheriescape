@@ -95,7 +95,7 @@ class IndexTemplateView(SiteLoginRequiredMixin, CommonTemplateView):
 ##########
 
 class PersonListView(SiteLoginRequiredMixin, CommonFilterView):
-    template_name = 'ihub/list.html'
+    template_name = 'ihub/person_list.html'
     filterset_class = filters.PersonFilter
     model = ml_models.Person
     queryset = ml_models.Person.objects.annotate(
@@ -215,8 +215,8 @@ class OrganizationListView(SiteLoginRequiredMixin, CommonFilterView):
         {"name": 'name_ind', "class": "", "width": ""},
         {"name": 'abbrev', "class": "", "width": ""},
         {"name": 'province', "class": "", "width": ""},
-        {"name": 'grouping', "class": "", "width": ""},
-        {"name": 'full_address|' + _("Full address"), "class": "", "width": ""},
+        {"name": 'grouping', "class": "", "width": "200px"},
+        {"name": 'full_address|' + _("Full address"), "class": "", "width": "300px"},
         {"name": 'Audio recording', "class": "", "width": ""},
     ]
     home_url_name = "ihub:index"
