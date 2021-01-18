@@ -21,6 +21,10 @@ class OrganizationFilter(django_filters.FilterSet):
             'regions': ['exact'],
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters['regions'].field.widget.attrs = chosen_js
+
 
 class PersonFilter(django_filters.FilterSet):
     class Meta:
@@ -41,6 +45,7 @@ class PersonFilter(django_filters.FilterSet):
         self.filters["last_name"] = django_filters.CharFilter(field_name='search_term', label=_("Any part of name, or title"),
                                                               lookup_expr='icontains', widget=forms.TextInput())
         self.filters['organizations__regions'].label = _("DFO Region")
+        self.filters['organizations__regions'].field.widget.attrs = chosen_js
 
 
 class EntryFilter(django_filters.FilterSet):
@@ -63,6 +68,13 @@ class EntryFilter(django_filters.FilterSet):
         self.filters['people__user'].queryset = User.objects.filter(ihub_entry_people__isnull=False).order_by("first_name", "last_name").distinct()
         self.filters['created_by'].queryset = User.objects.filter(user_entries__isnull=False).order_by("first_name", "last_name").distinct()
         self.filters['people__user'].label = _("Entry Contact")
+
+        self.filters['organizations'].field.widget.attrs = chosen_js
+        self.filters['sectors'].field.widget.attrs = chosen_js
+        self.filters['regions'].field.widget.attrs = chosen_js
+        self.filters['people__user'].field.widget.attrs = chosen_js
+        self.filters['created_by'].field.widget.attrs = chosen_js
+
 
 
 class UserFilter(django_filters.FilterSet):
