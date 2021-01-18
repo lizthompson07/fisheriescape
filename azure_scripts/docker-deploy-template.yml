@@ -28,7 +28,7 @@ steps:
       shouldPrefixVariables: false
 
   - script: |
-      az login --identity -u $(AZURE_MSI_CLIENT_ID.dev)
+      az login --identity -u $(AZURE_MSI_CLIENT_ID.${{parameters.PIPELINE_VARS_TO_USE}})
       # az account set --subscription="IMTS DEV/TEST"
 
       # install pre-requisites
@@ -51,7 +51,7 @@ steps:
 
 
       # run migrations and collect static files
-      #python3.8 manage.py migrate
+      python3.8 manage.py migrate
       python3.8 manage.py collectstatic --no-input
 
       # remove the env file
