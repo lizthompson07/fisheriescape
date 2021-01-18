@@ -46,7 +46,7 @@ steps:
       --db-port 3306 \
       --db-name $(jq .DB_NAME.${PIPELINE_VARS_TO_USE} pipeline_vars.json) $(jq .DB_NAME.dev pipeline_vars.json) \
       --db-user $(jq .DB_USER_PIPELINE.${PIPELINE_VARS_TO_USE} pipeline_vars.json) \
-      --db-password "${{parameters.DB_PASSWORD_PIPELINE}" \
+      --db-password "${{parameters.DB_PASSWORD_PIPELINE}}" \
       --deployment-stage $(jq .DB_HOST.${DEPLOYMENT_STAGE} pipeline_vars.json) \
       --azure-storage-account-name $(jq .AZURE_STORAGE_ACCOUNT_NAME.${PIPELINE_VARS_TO_USE} pipeline_vars.json)
 
