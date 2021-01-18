@@ -17,7 +17,7 @@
   "AZURE_MSI_CLIENT_ID": {
     "dev": "b9b8533b-430c-4b7a-95b7-0c8d43179f68",
     "test": "b9b8533b-430c-4b7a-95b7-0c8d43179f68",
-    "prod": "b9b8533b-430c-4b7a-95b7-0c8d43179f68"
+    "prod": "369c4d1e-a0d1-4257-ac4c-ed887662808a"
   },
   "AZURE_STORAGE_ACCOUNT_NAME": {
     "dev": "dmappsdev",
