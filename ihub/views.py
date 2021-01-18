@@ -346,6 +346,7 @@ class EntryListView(SiteLoginRequiredMixin, CommonFilterView):
     template_name = "ihub/entry_list.html"
     model = models.Entry
     filterset_class = filters.EntryFilter
+    paginate_by = 100
     field_list = [
         {"name": 'title', "class": "", "width": ""},
         {"name": 'entry_type', "class": "", "width": ""},
