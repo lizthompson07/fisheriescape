@@ -28,7 +28,7 @@ steps:
       shouldPrefixVariables: false
 
   - script: |
-      az login --identity -u $(AZURE_MSI_CLIENT_ID.${{parameters.PIPELINE_VARS_TO_USE}})
+      az login --identity -u $(AZURE_MSI_CLIENT_ID.dev)
       # az account set --subscription="IMTS DEV/TEST"
 
       # install pre-requisites
@@ -61,44 +61,44 @@ steps:
     workingDirectory: '$(System.DefaultWorkingDirectory)'
     displayName: 'Run Migrations and Staticfiles'
 
-    #  - task: AzureRmWebAppDeployment@4
-    #    displayName: 'Deploy Docker Image to ${{parameters.WEB_APP_NAME}}'
-    #    inputs:
-    #      ConnectedServiceName: '${{parameters.azureSubscription}}'
-    #      appType: webAppContainer
-    #      WebAppName: '${{parameters.WEB_APP_NAME}}'
-    #      DockerNamespace: ${{parameters.DockerNamespace}}
-    #      DockerRepository: ${{parameters.DockerRepository}}
-    #      DockerImageTag: ${{parameters.DockerImageTag}}
-    #      StartupCommand: init.sh
-    #      AppSettings: >-
-    #        -WEBSITES_PORT 8000
-    #        -AAD_APP_ID ${{parameters.AAD_APP_ID}}
-    #        -AAD_APP_SECRET ${{parameters.AAD_APP_SECRET}}
-    #        -AAD_REDIRECT ${{parameters.AAD_REDIRECT}}
-    #        -AZURE_STORAGE_ACCOUNT_NAME ${{parameters.AZURE_STORAGE_ACCOUNT_NAME}}
-    #        -SECRET_KEY ${{parameters.SECRET_KEY}}
-    #        -ALLOWED_HOST_TO_ADD ${{parameters.WEB_APP_NAME}}.azurewebsites.net
-    #        -SITE_FROM_EMAIL "DoNotReply@Sci-Zone.dfo-mpo.gc.ca"
-    #        -SHOW_TICKETING_APP ${{parameters.SHOW_TICKETING_APP}}
-    #        -DEPLOYMENT_STAGE ${{parameters.DEPLOYMENT_STAGE}}
-    #        -DB_HOST ${{parameters.DB_HOST}}
-    #        -DB_MODE ${{parameters.DB_MODE}}
-    #        -DB_NAME ${{parameters.DB_NAME}}
-    #        -DB_USER ${{parameters.DB_USER_WEB}}
-    #        -DB_PASSWORD ${{parameters.DB_PASSWORD_WEB}}
-    #        -DB_PORT 3306
-    #        -DEBUG ${{parameters.DEBUG}}
-    #        -AZURE_INSTRUMENTATION_KEY ${{parameters.AZURE_INSTRUMENTATION_KEY}}
-    #        -USE_AZURE_APPLICATION_INSIGHT ${{parameters.USE_AZURE_APPLICATION_INSIGHT}}
-    #        -SENDGRID_API_KEY ${{parameters.SENDGRID_API_KEY}}
-    #        -GITHUB_API_KEY ${{parameters.GITHUB_API_KEY}}
-    #        -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)
-    #        -AZURE_MSI_CLIENT_ID ${{parameters.AZURE_MSI_CLIENT_ID}}
-    #
-    #  - task: AzureAppServiceManage@0
-    #    displayName: 'Restart web app service'
-    #    inputs:
-    #      azureSubscription: '${{parameters.azureSubscription}}'
-    #      Action: 'Restart Azure App Service'
-    #      WebAppName: '${{parameters.WEB_APP_NAME}}'
+      - task: AzureRmWebAppDeployment@4
+        displayName: 'Deploy Docker Image to $(WEB_APP_NAME.dev)'
+        inputs:
+          ConnectedServiceName: '$(azureSubscription.dev)'
+          appType: webAppContainer
+          WebAppName: '$(WEB_APP_NAME.dev)'
+          DockerNamespace: $(DockerNamespace.dev)
+          DockerRepository: $(DockerRepository.dev)
+          DockerImageTag: $(DockerImageTag.dev)
+          StartupCommand: init.sh
+          AppSettings: >-
+            -WEBSITES_PORT 8000
+            -AAD_APP_ID $(AAD_APP_ID.dev)
+            -AAD_APP_SECRET $(AAD_APP_SECRET.dev)
+            -AAD_REDIRECT $(AAD_REDIRECT.dev)
+            -AZURE_STORAGE_ACCOUNT_NAME $(AZURE_STORAGE_ACCOUNT_NAME.dev)
+            -SECRET_KEY $(SECRET_KEY.dev)
+            -ALLOWED_HOST_TO_ADD $(WEB_APP_NAME.dev).azurewebsites.net
+            -SITE_FROM_EMAIL "DoNotReply@Sci-Zone.dfo-mpo.gc.ca"
+            -SHOW_TICKETING_APP $(SHOW_TICKETING_APP.dev)
+            -DEPLOYMENT_STAGE $(DEPLOYMENT_STAGE.dev)
+            -DB_HOST $(DB_HOST.dev)
+            -DB_MODE $(DB_MODE.dev)
+            -DB_NAME $(DB_NAME.dev)
+            -DB_USER $(DB_USER_WEB.dev)
+            -DB_PASSWORD $(DB_PASSWORD_WEB.dev)
+            -DB_PORT 3306
+            -DEBUG $(DEBUG.dev)
+            -AZURE_INSTRUMENTATION_KEY $(AZURE_INSTRUMENTATION_KEY.dev)
+            -USE_AZURE_APPLICATION_INSIGHT $(USE_AZURE_APPLICATION_INSIGHT.dev)
+            -SENDGRID_API_KEY $(SENDGRID_API_KEY.dev)
+            -GITHUB_API_KEY $(GITHUB_API_KEY.dev)
+            -DEVOPS_BUILD_NUMBER $(Build.BuildNumber)
+            -AZURE_MSI_CLIENT_ID $(AZURE_MSI_CLIENT_ID.dev)
+
+      - task: AzureAppServiceManage@0
+        displayName: 'Restart web app service'
+        inputs:
+          azureSubscription: '$(azureSubscription.dev)'
+          Action: 'Restart Azure App Service'
+          WebAppName: '$(WEB_APP_NAME.dev)'
