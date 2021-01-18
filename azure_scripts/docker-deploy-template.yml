@@ -24,7 +24,8 @@ steps:
   - task: OneLuckiDev.json2variable.vsts-json-to-variable.oneLuckiDevJson2Variable@1
     displayName: 'JSON to Variable'
     inputs:
-      jsonFile: ./azure_scripts/pipeline_vars.json'
+      jsonFile: $(Build.SourcesDirectory)/azure_scripts/pipeline_vars.json'
+      shouldPrefixVariables: false
 
   - script: |
       az login --identity -u $(AZURE_MSI_CLIENT_ID.dev)
