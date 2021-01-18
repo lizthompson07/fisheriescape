@@ -51,7 +51,7 @@ steps:
 
 
       # run migrations and collect static files
-      python3.8 manage.py migrate
+      #python3.8 manage.py migrate
       python3.8 manage.py collectstatic --no-input
 
       # remove the env file
