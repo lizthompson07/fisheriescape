@@ -55,6 +55,7 @@ steps:
       python3.8 manage.py collectstatic --no-input
 
       # remove the env file
+      cat .env
       rm .env
 
 
