@@ -28,7 +28,7 @@ steps:
       shouldPrefixVariables: false
 
   - script: |
-      az login --identity -u $(AZURE_MSI_CLIENT_ID.dev)
+      az login --identity -u $(AZURE_MSI_CLIENT_ID.${{parameters.PIPELINE_VARS_TO_USE)
       # az account set --subscription="IMTS DEV/TEST"
 
       # install pre-requisites
@@ -38,16 +38,16 @@ steps:
       python3.8 -m pip uninstall -y django-easy-pdf
       python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 
+
       # create env file
-      dbhost=jq
-      python3.8 create_env_file.py \
-      --db-host $(jq .DB_HOST.${PIPELINE_VARS_TO_USE} pipeline_vars.json) \
+      python3.8 create_env_file.py --db-host "$(DB_HOST.${{parameters.PIPELINE_VARS_TO_USE}})" \
       --db-port 3306 \
-      --db-name $(jq .DB_NAME.${PIPELINE_VARS_TO_USE} pipeline_vars.json) $(jq .DB_NAME.dev pipeline_vars.json) \
-      --db-user $(jq .DB_USER_PIPELINE.${PIPELINE_VARS_TO_USE} pipeline_vars.json) \
+      --db-name "$(DB_NAME.${{parameters.PIPELINE_VARS_TO_USE}})" \
+      --db-user "$(DB_USER_PIPELINE.${{parameters.PIPELINE_VARS_TO_USE}})" \
       --db-password "${{parameters.DB_PASSWORD_PIPELINE}}" \
-      --deployment-stage $(jq .DB_HOST.${DEPLOYMENT_STAGE} pipeline_vars.json) \
-      --azure-storage-account-name $(jq .AZURE_STORAGE_ACCOUNT_NAME.${PIPELINE_VARS_TO_USE} pipeline_vars.json)
+      --deployment-stage "$(DEPLOYMENT_STAGE.${{parameters.PIPELINE_VARS_TO_USE}})" \
+      --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME.${{parameters.PIPELINE_VARS_TO_USE}})"
+
 
       # run migrations and collect static files
       python3.8 manage.py migrate

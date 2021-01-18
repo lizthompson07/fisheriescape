@@ -1,0 +1,29 @@
+#pool:
+#  vmImage: 'Ubuntu 18.04'
+pool: dmappsprod
+
+trigger:
+  - none
+
+# secret pipline vars:
+######################
+# AAD_APP_SECRET
+# DB_PASSWORD_WEB
+# DB_PASSWORD_PIPELINE
+# SECRET_KEY
+# SENDGRID_API_KEY
+# GITHUB_API_KEY
+# AZURE_INSTRUMENTATION_KEY
+###############
+
+steps:
+  - template: \azure_scripts\docker-deploy-template.yml
+    parameters:
+      AAD_APP_SECRET: '$(AAD_APP_SECRET)'
+      DB_PASSWORD_PIPELINE: '$(DB_PASSWORD_PIPELINE)'
+      DB_PASSWORD_WEB: '$(DB_PASSWORD_WEB)'
+      GITHUB_API_KEY: '$(GITHUB_API_KEY)'
+      SECRET_KEY: '$(SECRET_KEY)'
+      SENDGRID_API_KEY: '$(SENDGRID_API_KEY)'
+      PIPELINE_VARS_TO_USE: 'dev'
+
