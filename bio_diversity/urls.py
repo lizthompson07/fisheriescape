@@ -76,6 +76,8 @@ urlpatterns = [
     path('create/data/', views.DataCreate.as_view(), name="create_data"),
     path('create/data/<int:evnt>/<str:pop>/', views.DataCreate.as_view(), name="create_data"),
 
+    path('log/data/', views.DataLog.as_view(), name="data_log"),
+
     path('create/draw/', views.DrawCreate.as_view(), name="create_draw"),
     path('details/draw/<int:pk>/', views.DrawDetails.as_view(), name="details_draw"),
     path('list/draw/', views.DrawList.as_view(), name="list_draw"),

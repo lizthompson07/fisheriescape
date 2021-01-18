@@ -129,6 +129,10 @@ class DataForm(CreatePrams, forms.ModelForm):
         model = models.DataLoader
         exclude = []
 
+    def __init__(self, request=None, *args, **kwargs):
+        self.request = request
+        super(DataForm, self).__init__(*args, **kwargs)
+
     def clean(self):
         cleaned_data = super().clean()
         try:
@@ -136,6 +140,9 @@ class DataForm(CreatePrams, forms.ModelForm):
             data_dict = data.to_dict('records')
         except:
             raise Exception("File format not valid")
+
+        self.request.session["log_data"] = "foo"
+
         # --------------------------ELECTROFISHING DATA ENTRY-----------------------------------
         if cleaned_data["evntc_id"].__str__() == "Electrofishing":
             for row in data_dict:
@@ -166,7 +173,6 @@ class DataForm(CreatePrams, forms.ModelForm):
                                               created_by=cleaned_data["created_by"],
                                               created_date=cleaned_data["created_date"],
                                               )
-
                     try:
                         env.clean()
                         env.save()
@@ -257,12 +263,12 @@ class DataForm(CreatePrams, forms.ModelForm):
 
                 if not math.isnan(row["Length (cm)"]):
                     indvd_length = models.IndividualDet(anix_id_id=anix.pk,
-                                                 anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
-                                                 det_val=row["Length (cm)"],
-                                                 qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                 created_by=cleaned_data["created_by"],
-                                                 created_date=cleaned_data["created_date"],
-                                                 )
+                                                        anidc_id=models.AnimalDetCode.objects.filter(name="Length").get(),
+                                                        det_val=row["Length (cm)"],
+                                                        qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                        created_by=cleaned_data["created_by"],
+                                                        created_date=cleaned_data["created_date"],
+                                                        )
                     try:
                         indvd_length.clean()
                         indvd_length.save()
@@ -270,12 +276,12 @@ class DataForm(CreatePrams, forms.ModelForm):
                         pass
                 if not math.isnan(row["Weight (g)"]):
                     indvd_mass = models.IndividualDet(anix_id_id=anix.pk,
-                                                 anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
-                                                 det_val=row["Weight (g)"],
-                                                 qual_id=models.QualCode.objects.filter(name="Good").get(),
-                                                 created_by=cleaned_data["created_by"],
-                                                 created_date=cleaned_data["created_date"],
-                                                 )
+                                                      anidc_id=models.AnimalDetCode.objects.filter(name="Weight").get(),
+                                                      det_val=row["Weight (g)"],
+                                                      qual_id=models.QualCode.objects.filter(name="Good").get(),
+                                                      created_by=cleaned_data["created_by"],
+                                                      created_date=cleaned_data["created_date"],
+                                                      )
                     try:
                         indvd_mass.clean()
                         indvd_mass.save()

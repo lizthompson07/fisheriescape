@@ -1,6 +1,6 @@
 from django.templatetags.static import static
 from django.views.generic import TemplateView, DetailView
-from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView
+from shared_models.views import CommonAuthCreateView, CommonAuthFilterView, CommonAuthUpdateView, CommonTemplateView
 from django.urls import reverse_lazy
 from django import forms
 from django.forms.models import model_to_dict
@@ -129,6 +129,12 @@ class CupdCreate(mixins.CupdMixin, CommonCreate):
 
 class DataCreate(mixins.DataMixin, CommonCreate):
     template_name = 'bio_diversity/data_entry_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
     def get_initial(self):
         init = super().get_initial()
         if 'evnt' in self.kwargs:
@@ -155,7 +161,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
         if self.kwargs.get("pop"):
             # create views intended to be pop out windows should close the window upon success
-            success_url = reverse_lazy("shared_models:close_me")
+            success_url = reverse_lazy("bio_diversity:data_log")
 
         return success_url
 
@@ -1826,4 +1832,25 @@ class TrofdUpdate(mixins.TrofdMixin, CommonUpdate):
 
 
 class UnitUpdate(mixins.UnitMixin, CommonUpdate):
+    pass
+
+
+class CommonLog(CommonTemplateView):
+    success_url = reverse_lazy("shared_models:close_me")
+    template_name = 'bio_diversity/bio_log.html'
+    title = "Data Log"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        log_data = self.request.session.get("log_data")
+        context['log_data'] = log_data
+
+        return context
+
+    def test_func(self):
+        return utils.bio_diverisity_authorized(self.request.user)
+
+
+class DataLog(CommonLog):
     pass
