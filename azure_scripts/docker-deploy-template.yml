@@ -25,7 +25,7 @@ steps:
     inputs:
       folderPath: '$(System.DefaultWorkingDirectory)/'
       fileType: 'json'
-      targetFiles: 'pipeline_vars.json'
+      targetFiles: './azure_scripts/pipeline_vars.json'
 
 
   - script: |
