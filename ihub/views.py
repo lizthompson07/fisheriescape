@@ -348,11 +348,11 @@ class EntryListView(SiteLoginRequiredMixin, CommonFilterView):
     filterset_class = filters.EntryFilter
     paginate_by = 100
     field_list = [
-        {"name": 'title', "class": "", "width": ""},
+        {"name": 'title', "class": "", "width": "400px"},
         {"name": 'entry_type', "class": "", "width": ""},
         {"name": 'regions', "class": "", "width": ""},
         {"name": 'organizations', "class": "", "width": "400px"},
-        {"name": 'sectors', "class": "", "width": ""},
+        {"name": 'sectors', "class": "", "width": "200px"},
         {"name": 'status', "class": "", "width": "170px"},
     ]
     new_object_url_name = "ihub:entry_new"
