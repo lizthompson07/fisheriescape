@@ -29,7 +29,7 @@ steps:
 
 
   - script: |
-      az login --identity -u ${{parameters.AZURE_MSI_CLIENT_ID}}
+      az login --identity -u ${AZURE_MSI_CLIENT_ID}
       # az account set --subscription="IMTS DEV/TEST"
 
       # install pre-requisites
@@ -42,13 +42,13 @@ steps:
       # create env file
       dbhost=jq
       python3.8 create_env_file.py \
-      --db-host $(jq .DB_HOST.${{parameters.PIPELINE_VARS_TO_USE}} pipeline_vars) \
+      --db-host $(jq .DB_HOST.${PIPELINE_VARS_TO_USE} pipeline_vars.json) \
       --db-port 3306 \
-      --db-name $(jq .DB_NAME.${{parameters.PIPELINE_VARS_TO_USE}} pipeline_vars) $(jq .DB_NAME.dev pipeline_vars.json) \
-      --db-user $(jq .DB_USER_PIPELINE.${{parameters.PIPELINE_VARS_TO_USE}} pipeline_vars) \
-      --db-password "${{parameters.DB_PASSWORD_PIPELINE}}" \
-      --deployment-stage $(jq .DB_HOST.${{parameters.DEPLOYMENT_STAGE}} pipeline_vars) \
-      --azure-storage-account-name $(jq .AZURE_STORAGE_ACCOUNT_NAME.${{parameters.PIPELINE_VARS_TO_USE}} pipeline_vars)
+      --db-name $(jq .DB_NAME.${PIPELINE_VARS_TO_USE} pipeline_vars.json) $(jq .DB_NAME.dev pipeline_vars.json) \
+      --db-user $(jq .DB_USER_PIPELINE.${PIPELINE_VARS_TO_USE} pipeline_vars.json) \
+      --db-password "${{parameters.DB_PASSWORD_PIPELINE}" \
+      --deployment-stage $(jq .DB_HOST.${DEPLOYMENT_STAGE} pipeline_vars.json) \
+      --azure-storage-account-name $(jq .AZURE_STORAGE_ACCOUNT_NAME.${PIPELINE_VARS_TO_USE} pipeline_vars.json)
 
       # run migrations and collect static files
       python3.8 manage.py migrate
