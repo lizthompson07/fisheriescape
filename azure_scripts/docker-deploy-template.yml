@@ -64,7 +64,7 @@ steps:
   - task: AzureRmWebAppDeployment@4
     displayName: 'Deploy Docker Image to $(WEB_APP_NAME.dev)'
     inputs:
-      ConnectedServiceName: '$(azureSubscription.dev)'
+      ConnectedServiceName: 'msi.dmapps-dev'
       appType: webAppContainer
       WebAppName: '$(WEB_APP_NAME.dev)'
       DockerNamespace: $(DockerNamespace.dev)
