@@ -1,4 +1,4 @@
-pool: dmapps
+pool: dmappsprod
 
 trigger:
   - none
@@ -22,6 +22,7 @@ steps:
 
   - script: |
       az login --identity -u $(AZURE_MSI_CLIENT_ID.test)
+      az account set --subscription="IMTS DEV/TEST"
 
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
