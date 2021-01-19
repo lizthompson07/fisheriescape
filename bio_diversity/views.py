@@ -157,11 +157,7 @@ class DataCreate(mixins.DataMixin, CommonCreate):
 
     def get_success_url(self):
         # make parent refresh on close
-        success_url = self.success_url if self.success_url else reverse_lazy("bio_diversity:list_{}".format(self.key))
-
-        if self.kwargs.get("pop"):
-            # create views intended to be pop out windows should close the window upon success
-            success_url = reverse_lazy("bio_diversity:data_log")
+        success_url = reverse_lazy("bio_diversity:data_log")
 
         return success_url
 
