@@ -73,7 +73,7 @@ steps:
     inputs:
       ConnectedServiceName: msi.dmapps
       appType: webAppContainer
-      WebAppName: $(WEB_APP_NAME.prod)
+      WebAppName: dmapps-prod-web
       DockerNamespace: $(DockerNamespace.prod)
       DockerRepository: $(DockerRepository.prod)
       DockerImageTag: $(DockerImageTag.prod)
