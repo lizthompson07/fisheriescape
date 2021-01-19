@@ -37,6 +37,7 @@ steps:
 
 
   - script: |
+      az logout
       az login --identity -u $(AZURE_MSI_CLIENT_ID.prod)
       az account set --subscription="IMTS PROD UNCLASS"
 
