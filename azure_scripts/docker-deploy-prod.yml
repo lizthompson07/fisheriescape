@@ -20,37 +20,37 @@ steps:
       jsonFile: $(Build.SourcesDirectory)/azure_scripts/pipeline_vars.json
       shouldPrefixVariables: false
 
-  - script: |
-      az logout
-      az login --identity -u $(AZURE_MSI_CLIENT_ID.prod)
-      az account set --subscription="$(AZURE_SUBSCRIPTION.prod)"
-
-      # install pre-requisites
-      python3.8 -m pip install --upgrade pip setuptools wheel
-      sudo apt-get install libmysqlclient-dev
-      python3.8 -m pip install -r requirements.txt
-      python3.8 -m pip uninstall -y django-easy-pdf
-      python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
-
-      # create env file
-      python3.8 create_env_file.py \
-      --db-host "$(DB_HOST.prod)" \
-      --db-port 3306 \
-      --db-name "$(DB_NAME.prod)" \
-      --db-user "$(DB_USER_PIPELINE.prod)" \
-      --db-password "$(DB_PASSWORD_PIPELINE)" \
-      --deployment-stage "$(DEPLOYMENT_STAGE.prod)" \
-      --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME.prod)" \
-      --azure-msi-client-id "$(AZURE_MSI_CLIENT_ID.prod)"
-
-      # run migrations and collect static files
-      python3.8 manage.py migrate
-      python3.8 manage.py collectstatic --no-input
-
-      # remove the env file
-      rm .env
-    workingDirectory: '$(System.DefaultWorkingDirectory)'
-    displayName: 'Run Migrations and Staticfiles'
+#  - script: |
+#      az logout
+#      az login --identity -u $(AZURE_MSI_CLIENT_ID.prod)
+#      az account set --subscription="$(AZURE_SUBSCRIPTION.prod)"
+#
+#      # install pre-requisites
+#      python3.8 -m pip install --upgrade pip setuptools wheel
+#      sudo apt-get install libmysqlclient-dev
+#      python3.8 -m pip install -r requirements.txt
+#      python3.8 -m pip uninstall -y django-easy-pdf
+#      python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
+#
+#      # create env file
+#      python3.8 create_env_file.py \
+#      --db-host "$(DB_HOST.prod)" \
+#      --db-port 3306 \
+#      --db-name "$(DB_NAME.prod)" \
+#      --db-user "$(DB_USER_PIPELINE.prod)" \
+#      --db-password "$(DB_PASSWORD_PIPELINE)" \
+#      --deployment-stage "$(DEPLOYMENT_STAGE.prod)" \
+#      --azure-storage-account-name "$(AZURE_STORAGE_ACCOUNT_NAME.prod)" \
+#      --azure-msi-client-id "$(AZURE_MSI_CLIENT_ID.prod)"
+#
+#      # run migrations and collect static files
+#      python3.8 manage.py migrate
+#      python3.8 manage.py collectstatic --no-input
+#
+#      # remove the env file
+#      rm .env
+#    workingDirectory: '$(System.DefaultWorkingDirectory)'
+#    displayName: 'Run Migrations and Staticfiles'
 
   - task: AzureRmWebAppDeployment@4
     displayName: 'Deploy Docker Image'
