@@ -24,7 +24,12 @@
     "test": "dmappstest",
     "prod": "dmappsprod"
   },
-  "azureSubscription": {
+  "AZURE_SUBSCRIPTION": {
+    "dev": "IMTS DEV/TEST",
+    "test": "IMTS DEV/TEST",
+    "prod": "IMTS PROD UNCLASS"
+  },
+  "AZURE_SERVICE_CONNECTION": {
     "dev": "msi.dmapps-dev",
     "test": "msi.dmapps-dev",
     "prod": "msi.dmapps"

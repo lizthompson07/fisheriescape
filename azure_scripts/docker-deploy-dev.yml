@@ -1,4 +1,4 @@
-pool: dmapps
+pool: dmappsprod
 
 trigger:
   - none
@@ -22,7 +22,7 @@ steps:
 
   - script: |
       az login --identity -u $(AZURE_MSI_CLIENT_ID.dev)
-      # az account set --subscription="IMTS DEV/TEST"
+      # az account set --subscription="$(AZURE_SUBSCRIPTION.dev)"
 
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
@@ -32,7 +32,8 @@ steps:
       python3.8 -m pip install git+https://github.com/pawanvirsingh/django-easy-pdf.git#egg=django-easy-pdf
 
       # create env file
-      python3.8 create_env_file.py --db-host "$(DB_HOST.dev)" \
+      python3.8 create_env_file.py \
+      --db-host "$(DB_HOST.dev)" \
       --db-port 3306 \
       --db-name "$(DB_NAME.dev)" \
       --db-user "$(DB_USER_PIPELINE.dev)" \
