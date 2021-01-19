@@ -73,10 +73,10 @@ steps:
     inputs:
       ConnectedServiceName: msi.dmapps
       appType: webAppContainer
-      WebAppName: dmapps-prod-web
-      DockerNamespace: $(DockerNamespace.prod)
-      DockerRepository: $(DockerRepository.prod)
-      DockerImageTag: $(DockerImageTag.prod)
+      WebAppName: $(WEB_APP_NAME.test)
+      DockerNamespace: $(DockerNamespace.test)
+      DockerRepository: $(DockerRepository.test)
+      DockerImageTag: $(DockerImageTag.test)
       StartupCommand: init.sh
       AppSettings: >-
         -WEBSITES_PORT 8000
