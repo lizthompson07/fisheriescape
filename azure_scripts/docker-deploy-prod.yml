@@ -75,9 +75,9 @@ steps:
       ConnectedServiceName: SP.DMAPPS
       appType: webAppContainer
       WebAppName: $(WEB_APP_NAME.prod)
-      DockerNamespace: $(DockerNamespace.test)
-      DockerRepository: $(DockerRepository.test)
-      DockerImageTag: $(DockerImageTag.test)
+      DockerNamespace: $(DockerNamespace.dev)
+      DockerRepository: $(DockerRepository.dev)
+      DockerImageTag: $(DockerImageTag.prod)
       StartupCommand: init.sh
       AppSettings: >-
         -WEBSITES_PORT 8000
