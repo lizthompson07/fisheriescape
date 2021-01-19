@@ -56,7 +56,7 @@ steps:
     inputs:
       ConnectedServiceName: msi.dmapps-dev
       appType: webAppContainer
-      WebAppName: $(WEB_APP_NAME.prod)
+      WebAppName: $(WEB_APP_NAME.test)
       DockerNamespace: $(DockerNamespace.test)
       DockerRepository: $(DockerRepository.test)
       DockerImageTag: $(DockerImageTag.test)
