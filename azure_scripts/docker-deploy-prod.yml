@@ -21,21 +21,24 @@ steps:
       shouldPrefixVariables: false
 
   - script: |
-
       # log into dev-test acr and pull the latest version of the "prod" tagged image
-      az login --identity -u b9b8533b-430c-4b7a-95b7-0c8d43179f68
-      az acr login --name dmappsdevtestacr
-      sudo docker pull dmappsdevtestacr.azurecr.io/dmapps_img:prod
+      #az login --identity -u b9b8533b-430c-4b7a-95b7-0c8d43179f68
+      #az acr login --name dmappsdevtestacr
+      #az account set --subscription="IMTS DEV/TEST"
+      #docker pull dmappsdevtestacr.azurecr.io/dmapps_img:prod
 
       # push that same image to prod ACR
-      az login --identity -u 369c4d1e-a0d1-4257-ac4c-ed887662808a
-      az acr login --name dmappsprodacr
-      docker push dmappsprodacr.azurecr.io/dmapps_img:prod
+      #docker tag dmappsdevtestacr.azurecr.io/dmapps_img:prod dmappsprodacr.azurecr.io/dmapps_img:prod
+      #az login --identity -u 369c4d1e-a0d1-4257-ac4c-ed887662808a
+      #az acr login --name dmappsprodacr
+      #az account set --subscription="IMTS PROD UNCLASS"
+      #docker push dmappsprodacr.azurecr.io/dmapps_img:prod
     displayName: 'Grab the latest version of docker image with tag "prod" from dev acr and move to prod acr'
 
 
   - script: |
       az login --identity -u $(AZURE_MSI_CLIENT_ID.prod)
+      az account set --subscription="IMTS PROD UNCLASS"
 
       # install pre-requisites
       python3.8 -m pip install --upgrade pip setuptools wheel
