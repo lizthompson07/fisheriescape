@@ -59,12 +59,14 @@ steps:
       az login --identity -u $AZURE_MSI_CLIENT_ID
       az account set --subscription="$AZURE_SUBSCRIPTION"
 
-      echo "STEP 3: Run migrations and export static files to cloud storage blob"
+      echo "STEP 3: Run migrations"
       # run migrations and collect static files
       python3.8 manage.py migrate
+
+      echo "STEP 4: Export static files to cloud storage blob"
       python3.8 manage.py collectstatic --no-input
 
-      echo "STEP 4: Unset environmental variables"
+      echo "STEP 5: Unset environmental variables"
       # these are used in the pipeline and will be written temporarily to the linux env
       unset AZURE_MSI_CLIENT_ID
       unset AZURE_STORAGE_ACCOUNT_NAME
