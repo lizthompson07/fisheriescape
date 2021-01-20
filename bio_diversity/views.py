@@ -347,6 +347,12 @@ class ProtCreate(mixins.ProtMixin, CommonCreate):
             initial['prog_id'] = self.kwargs['prog']
         return initial
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['java_script'] = 'bio_diversity/_entry_prot_js.html'
+
+        return context
+
 
 class ProtcCreate(mixins.ProtcMixin, CommonCreate):
     pass
