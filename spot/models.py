@@ -478,6 +478,7 @@ class ContributionAgreementChecklist(models.Model):
 
 
 class ExpressionOfInterest(models.Model):
+
     project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name="eoi")
     date_received = models.DateTimeField(blank=True, null=True, verbose_name=_("date received"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
@@ -1180,7 +1181,7 @@ class Objective(models.Model):
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
     data_quality_type = models.ForeignKey(DataQualityType, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("data quality type"))
     data_quality_level = models.ForeignKey(DataQualityLevel, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("data quality level"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("last modified by"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -1193,11 +1194,12 @@ class Objective(models.Model):
         ordering = ['number']
 
 
-class Methods(models.Model):
+class Method(models.Model):
 
     doc_num = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("document number"))
-    doc_cat = models.CharField(DocumentCategory, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("document category"))
-    doc_top = models.CharField(DocumentTopic, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("document topic"))
+    doc_cat = models.ForeignKey(DocumentCategory, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("document category"))
+    doc_top = models.ForeignKey(DocumentTopic, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("document topic"))
+
     authors = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("author"))
     year_pub = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("year of publication"))
     title = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("title"))
@@ -1222,6 +1224,7 @@ class Methods(models.Model):
     form_link = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("link to form"))
     ####
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"))
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -1247,6 +1250,8 @@ class Databases(models.Model):
 
     data_quality = models.ForeignKey(DataQuality, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("data quality"))
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("la st modified by"))
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -1263,6 +1268,9 @@ class Feedback(models.Model):
 
     subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("subject"))
     comment = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
-    sent_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("sent by"))
+    sent_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("sent by"))
 
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
 

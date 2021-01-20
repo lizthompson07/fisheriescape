@@ -531,7 +531,6 @@ class ProjectPersonUpdateView(SpotAccessRequiredMixin, UpdateView):
     template_name = 'spot/project_person_form_popout.html'
     form_class = forms.ProjectPersonForm
 
-
     def form_valid(self, form):
         my_object = form.save()
         return HttpResponseRedirect(reverse('spot:close_me'))
@@ -1265,3 +1264,87 @@ class ObjectiveDeleteView(SpotAccessRequiredMixin, DeleteView):
 
 
 
+
+
+
+class MethodListView(SpotAccessRequiredMixin, FilterView):
+    template_name = 'spot/method_list.html'
+    #filterset NEED TO DO
+    model = models.Method
+    queryset = models.Method.objects.annotate()
+    search_term = Concat('doc_num', 'id', output_field=TextField())
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["my_object"] = models.Method.objects.first()
+        context["field_list"] = [
+            'doc_num',
+            'doc_cat',
+            'doc_top',
+        ]
+        return context
+
+
+class MethodDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.Method
+    template_name = 'spot/method_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["field_list"] = [
+            'doc_num',
+            'doc_cat',
+            'authors',
+            'year_pub',
+            'title',
+            'ref_num',
+            'publisher',
+            'doc_link',
+            'database',
+            'meth_cat',
+            'meth_type',
+            'form_name',
+            'region',
+            'form_cat',
+            'form_link',
+            'date_last_modified',
+            'last_modified_by',
+        ]
+        return context
+
+
+class MethodUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/method_form.html'
+    model = models.Method
+    form_class = forms.MethodForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_meth = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:meth_detail", kwargs={"pk": my_meth.id}))
+
+
+class MethodCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/method_form.html'
+    model = models.Method
+    form_class = forms.MethodForm
+
+    def get_initial(self):
+        return {'last_modified_by': self.request.user}
+
+    def form_valid(self, form):
+        my_meth = form.save()
+        return HttpResponseRedirect(reverse_lazy("spot:meth_detail", kwargs={"pk": my_meth.id}))
+
+
+class MethodDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/method_confirm_delete.html'
+    model = models.method
+    success_url = reverse_lazy('spot:meth_list')
+    success_message = 'The Method was deleted successfully!'
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
