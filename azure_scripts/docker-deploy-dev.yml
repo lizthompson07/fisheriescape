@@ -42,6 +42,7 @@ steps:
 
 
   - script: |
+      printenv
       az login --identity -u $AZURE_MSI_CLIENT_ID
       az account set --subscription="$AZURE_SUBSCRIPTION"
     workingDirectory: '$(System.DefaultWorkingDirectory)'
