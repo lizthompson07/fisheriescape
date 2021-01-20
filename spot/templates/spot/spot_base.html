@@ -41,7 +41,11 @@
             {% trans "Project Tracking" %}
         </a>
     </li>
-
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'spot:obj_list' %}">
+            {% trans "Objectives" %}
+        </a>
+    </li>
     <li class="nav-item">
         <a class="nav-link" href="{% url 'spot:report_search' %}">
             {% trans "Reports" %}

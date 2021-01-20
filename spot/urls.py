@@ -100,4 +100,13 @@ urlpatterns = [
     path('settings/watersheds/', views.manage_watersheds, name="manage_watersheds"),
     path('settings/watershed/<int:pk>/delete/', views.delete_watershed, name="delete_watershed"),
 
+    # Objectives #
+    ##############
+    path('objs/', views.ObjectiveListView.as_view(), name="obj_list"),
+    path('obj/new/', views.ObjectiveCreateView.as_view(), name="obj_new"),
+    path('obj/<int:pk>/view/', views.ObjectiveDetailView.as_view(), name="obj_detail"),
+    path('obj/<int:pk>/edit/', views.ObjectiveUpdateView.as_view(), name="obj_edit"),
+    path('obj/<int:pk>/delete/', views.ObjectiveDeleteView.as_view(), name="obj_delete"),
+
+
 ]

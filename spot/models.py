@@ -1059,6 +1059,14 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
                 os.remove(old_file.path)
 
 
+class DocumentCategory(SimpleLookup):
+    pass
+
+
+class DocumentTopic(SimpleLookup):
+    pass
+
+
 class AgreementDatabase(SimpleLookup):
     pass
 
@@ -1099,34 +1107,80 @@ class Location(SimpleLookup):
     pass
 
 
+class MethodCategory(SimpleLookup):
+    pass
+
+
+class SpecificMethodType(SimpleLookup):
+    pass
+
+
+class Region(SimpleLookup):
+    pass
+
+
+class FormCategory(SimpleLookup):
+    pass
+
+
+class Database(SimpleLookup):
+    pass
+
+
+class ModelsUsed(SimpleLookup):
+    pass
+
+
+class DataFormat(SimpleLookup):
+    pass
+
+
+class AnalysisProgramUsed(SimpleLookup):
+    pass
+
+
+class DataQuality(SimpleLookup):
+    pass
+
+
+class Subject(SimpleLookup):
+    pass
+
+
 class Objective(models.Model):
 
     number = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("number"))
     work_plan_sec = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("work plan section"))
-    task_description = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("task description"))
+    task_description = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("task description"))
+
     key_element = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("key element"))
     activity = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("activity"))
     element_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("element title"))
     activity_title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("activity title"))
+
     pst_req = models.BooleanField(default=False, verbose_name=_("PST requirement identified?"))
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, verbose_name=_("location"))
-    objective_cat = models.ForeignKey(ObjectiveCategory, blank=True, null=True, verbose_name=_("Objective Category"))
+    objective_cat = models.ForeignKey(ObjectiveCategory, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Objective Category"))
     duration = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("duration"))
-    species = models.ForeignKey(Species, blank=True, null=True, verbose_name=_("species"))
+
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("species"))
     targ_samp_num = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("target sample number"))
     samp_type = models.ForeignKey(SampleType, on_delete=models.DO_NOTHING, verbose_name=_("sample type/specific data item"))
-    salmon_stage = models.ForeignKey(SalmonStage, blank=True, null=True, verbose_name=_("salmon stage"))
+    salmon_stage = models.ForeignKey(SalmonStage, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("salmon stage"))
+
     sil_req = models.BooleanField(default=False, verbose_name=_("SIL requirement"))
     exp_res = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("expected results"))
     dfo_rep = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Products/Reports to provide dfo"))
+
     scientific_outcome = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("scientific outcome"))
     outcomes_cat = models.ForeignKey(OutcomeCategory, on_delete=models.DO_NOTHING, verbose_name=_("outcomes category"))
     outcomes_deadline = models.DateField(blank=True, null=True, verbose_name=_("outcomes deadline"))
-    outcome_contact = models.ForeignKey(ml_models.Person, blank=True, null=True, verbose_name=_("Outcomes Contact"))
+    outcomes_contact = models.ForeignKey(ml_models.Person, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("Outcomes Contact"))
+
     date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
-    data_quality_type = models.ForeignKey(DataQualityType, blank=True, null=True, verbose_name=_("data quality type"))
-    data_quality_level = models.ForeignKey(DataQualityLevel, blank=True, null=True, verbose_name=_("data quality level"))
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("last modified by"), related_name="spot_person_last_modified_by")
+    data_quality_type = models.ForeignKey(DataQualityType, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("data quality type"))
+    data_quality_level = models.ForeignKey(DataQualityLevel, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("data quality level"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("last modified by"))
 
     def save(self, *args, **kwargs):
         self.date_last_modified = timezone.now()
@@ -1139,6 +1193,76 @@ class Objective(models.Model):
         ordering = ['number']
 
 
+class Methods(models.Model):
 
+    doc_num = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("document number"))
+    doc_cat = models.CharField(DocumentCategory, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("document category"))
+    doc_top = models.CharField(DocumentTopic, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("document topic"))
+    authors = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("author"))
+    year_pub = models.CharField(max_length=10, blank=True, null=True, verbose_name=_("year of publication"))
+    title = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("title"))
+    ref_num = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("reference number"))
+    publisher = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("publisher"))
+
+    #URLFIELD?
+    doc_link = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("document link"))
+    ######
+
+    #DATABASE?
+    database = models.ForeignKey(Database, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("database"))
+    #######
+
+    meth_cat = models.ForeignKey(MethodCategory, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("method category"))
+    meth_type = models.ForeignKey(SpecificMethodType, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("specific method type"))
+    form_name = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("form name"))
+    region = models.ForeignKey(Region, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("region"))
+    form_cat = models.ForeignKey(FormCategory, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("form category"))
+
+    #URLFIELD?
+    form_link = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("link to form"))
+    ####
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{}".format(self.doc_num)
+
+    class Meta:
+        ordering = ['doc_num']
+
+
+class Databases(models.Model):
+    database = models.ForeignKey(Database, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("database"))
+    analysis_program = models.ForeignKey(AnalysisProgramUsed, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("analysis program used"))
+    models_used = models.ForeignKey(ModelsUsed, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("models used"))
+    data_format = models.ForeignKey(DataFormat, on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name=_("data format"))
+
+    #NEED MORE INFO ON THE NEXT TWO
+    data_fn = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("data deliverables FN"))
+    data_DFO = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("data deliverables DFO"))
+    ####
+
+    data_quality = models.ForeignKey(DataQuality, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("data quality"))
+    date_last_modified = models.DateTimeField(blank=True, null=True, default=timezone.now, verbose_name=_("date last modified"))
+
+    def save(self, *args, **kwargs):
+        self.date_last_modified = timezone.now()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return "{}".format(self.database)
+
+    class Meta:
+        ordering = ['database']
+
+
+class Feedback(models.Model):
+
+    subject = models.ForeignKey(Subject, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("subject"))
+    comment = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("comments"))
+    sent_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("sent by"))
 
 

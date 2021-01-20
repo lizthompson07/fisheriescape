@@ -1181,7 +1181,7 @@ class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Object.objects.first()
+        context["my_object"] = models.Objective.objects.first()
         context["field_list"] = [
             'number',
             'key_element',
